@@ -1,0 +1,6 @@
+{% load i18n %}
+<div id="lang_list">
+    {% for lang_short, lang_name in LANGUAGES %}
+    <a href="#"><img lang="{{ lang_short }}" title="{% trans lang_name %}" src="{{ STATIC_URL }}images/flags/{{ lang_short }}.png"/></a>
+    {% endfor %}
+</div>

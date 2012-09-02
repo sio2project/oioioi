@@ -1,0 +1,53 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block styles %}
+{{ block.super }}
+<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}dashboard/style.css">
+{% endblock %}
+
+{% block content %}
+<div id="dashboard-buttons">
+    {% for row in top_links %}
+    <div class="row">
+        {% for item in row %}
+        {% if item %}
+        <a class=" span3 {% if forloop.first %}offset1{% endif %} btn btn-large" href="{{ item.url }}">{{ item.text }}</a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+{% if not submissions and not records %}
+<div class="row">
+    <div class="span9 offset1 empty-space-filler">
+        {% blocktrans %}
+        <p>This is the landing page of the contest.
+        <p>Your submissions, important announcements and
+        answers to your questions<br> will be displayed
+        here.</p>
+        {% endblocktrans %}
+    </div>
+</div>
+{% endif %}
+
+{% if submissions %}
+<h2>{% trans "Submissions" %}</h2>
+<div class="row">
+    <div class="span11 offset1">
+        {% include "dashboard/submissions_table.html" %}
+    </div>
+</div>
+{% endif %}
+
+{% if records %}
+<h2>{% trans "Questions and announcements" %}</h2>
+<div class="row">
+    <div class="span11 offset1">
+        {% include "dashboard/messages_table.html" %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}

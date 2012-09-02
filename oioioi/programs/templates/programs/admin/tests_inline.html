@@ -1,0 +1,117 @@
+{% load url from future %}
+{% load i18n grp_tags %}
+
+<!-- group -->
+<div class="grp-group grp-tabular{% if inline_admin_formset.opts.classes %} {{ inline_admin_formset.opts.classes|join:" " }}{% endif %}"
+    id="{{ inline_admin_formset.formset.prefix }}-group" >
+    <h2 class="grp-collapse-handler">{% if inline_admin_formset.opts.title %}{{ inline_admin_formset.opts.title }}{% else %}{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}{% endif %}</h2>
+    <ul class="grp-tools">
+        <li><a href="javascript://" class="grp-icon grp-add-handler" title="{% trans 'Add Another' %}"> </a></li>
+    </ul>
+    {{ inline_admin_formset.formset.management_form }}
+    {{ inline_admin_formset.formset.non_form_errors }}
+    <!-- container -->
+    <div class="grp-module grp-table">
+        <div class="grp-module grp-thead">
+            <div class="grp-tr">
+                {% for field in inline_admin_formset.fields %}
+                    {% if not field.widget.is_hidden %}
+                        <div class="grp-th {{ field.label|lower|slugify }}{% if field.required %} required{% endif %}">{{ field.label|capfirst }}</div>
+                    {% endif %}
+                {% endfor %}
+                {% if inline_admin_formset.formset.can_delete %}<div class="grp-th">&nbsp;</div>{% endif %}
+            </div>
+        </div>
+        {% with inline_admin_formset.opts.sortable_field_name|default:"" as sortable_field_name %}
+        {% for inline_admin_form in inline_admin_formset|formsetsort:sortable_field_name %}
+            <!-- element -->
+            <div class="grp-module grp-tbody{% if inline_admin_form.original or inline_admin_form.show_url %} has_original{% endif %}{% if forloop.last %} grp-empty-form{% endif %}"
+                id="{{ inline_admin_formset.formset.prefix }}{% if not forloop.last %}{{ forloop.counter0 }}{% else %}-empty{% endif %}">
+                {% if inline_admin_form.form.non_field_errors %}
+                    {{ inline_admin_form.form.non_field_errors }}
+                {% endif %}
+                <h3 style="display: none;"><b>{{ inline_admin_formset.opts.verbose_name|title }} #{{ forloop.counter }}</b>&nbsp;&nbsp;{% if inline_admin_form.original %} {{ inline_admin_form.original }}{% endif %}</h3>
+                {% spaceless %}
+                {% for fieldset in inline_admin_form %}
+                    {% for line in fieldset %}
+                        {% for field in line %}
+                            {% if field.field.is_hidden %} {{ field.field }} {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                {% endfor %}
+                {% endspaceless %}
+                <div class="grp-tr">
+                    {% for fieldset in inline_admin_form %}
+                        {% for line in fieldset %}
+                            {% for field in line %}
+                                {% if not field.field.is_hidden %}
+                                    <div class="grp-td {{ field.field.name }} {% if field.field.errors %} grp-error{% endif %}">
+                                        {% if field.is_readonly %}
+                                            <p class="grp-readonly">{{ field.contents }}</p>
+                                        {% else %}
+                                            {{ field.field }}
+                                            {{ field.field.errors.as_ul }}
+                                        {% endif %}
+                                        {% if field.field.help_text %}<p class="grp-help">{{ field.field.help_text }}</p>{% endif %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                    {{ inline_admin_form.fk_field.field }}
+                    {% if inline_admin_form.has_auto_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+                </div>
+            </div>
+        {% endfor %}
+        {% endwith %}
+    </div>
+    <div class="grp-module grp-transparent"><div class="grp-row">{% blocktrans %}Use TAB to effectively move between the boxes. Use Shift-Enter to copy the current value down up to the end of the table.{% endblocktrans %}</div></div>
+</div>
+
+<script type="text/javascript">
+(function($) {
+    $(document).ready(function($) {
+        var rows = "#{{ inline_admin_formset.formset.prefix }}-group .tabular.inline-related tbody tr";
+
+        // Set up taborder.
+        var i = 0;
+        var testindexes = {};
+        var inputs = $('#test_set-group input:text');
+        inputs.each(function(index, elem) {
+            $(elem).attr('autocomplete', 'off');
+            if (elem.id.indexOf('time_limit') != -1)
+                $(elem).attr('tabindex', i + 1000);
+            else if (elem.id.indexOf('memory_limit') != -1)
+                $(elem).attr('tabindex', i + 2000);
+            else if (elem.id.indexOf('max_score') != -1)
+                $(elem).attr('tabindex', i + 3000);
+            testindexes[elem.id] = i;
+            i++;
+        });
+
+        // Shift-Enter copies the current value down.
+        inputs.keydown(function(e) {
+            if (e.shiftKey && e.keyCode == 13) {
+                e.preventDefault();
+                var split_target = e.target.id.split('-');
+                var target_value = $(e.target).val();
+                var target_number = testindexes[e.target.id];
+                inputs.each(function(index, elem) {
+                    var split_elem = elem.id.split('-');
+                    var elem_number = testindexes[elem.id];
+                    if (split_elem[2] == split_target[2] && elem_number > target_number) {
+                        $(elem).val(target_value);
+                        if (elem_number == target_number + 3) {
+                            $(elem).focus().select();
+                        }
+                    }
+                });
+            }
+        });
+
+        // Focus the fist input. Setting time limits it the most frequent
+        // operation.
+        inputs.first().focus().select();
+    });
+})(grp.jQuery);
+</script>

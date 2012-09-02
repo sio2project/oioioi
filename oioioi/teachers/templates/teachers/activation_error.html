@@ -1,0 +1,12 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="empty-space-filler">
+    {% if not registration_active %}
+    <p>{% trans "Registration has been disabled by the teacher." %}</p>
+    {% elif not key_ok %}
+    <p>{% trans "Invalid activation link." %}</p>
+    {% endif %}
+</div>
+{% endblock %}

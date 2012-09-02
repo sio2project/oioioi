@@ -1,0 +1,11 @@
+virtualenv
+build
+dist
+*.egg
+*.egg-info
+test_report.html
+.coverage
+cover
+*.pid
+.DS_Store
+*.pyc

@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+{# Maintainer: Szymon Acedański <accek@mimuw.edu.pl> #}
+
+{% load i18n all_with_prefix common_media compress %}
+
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+    <head>
+        {% block head %}
+
+        <title>{% block title %}OIOIOI{% endblock %}</title>
+        {% block styles %}
+        {% compress css %}
+        <link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}less/style.less">
+        {% common_styles %}
+        {% endcompress %}
+        {% endblock %}
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link rel="shortcut icon" href="{{ STATIC_URL }}/favicon.ico" />
+
+        {% block scripts %}
+        {% compress js %}
+        <script type="text/javascript"> var oioioi_base_url ="/"; </script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.Storage.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/lang_select_pro.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
+        {% common_scripts %}
+        {% endcompress %}
+
+        {% endblock %}
+        {% all_with_prefix extra_head_ %}
+    {% endblock %}
+    </head>
+    <body class="{% block body-class %}{% endblock %}">
+        <div class="wrapper">
+            {% all_with_prefix extra_body_ %}
+            {% block navbar %}
+            {% include "navbar.html" %}
+            {% endblock %}
+
+            <div class="{% block container-class %}container{% endblock %} body">
+                {% block body %}
+                {% endblock %}
+            </div>
+
+            <footer>
+                {% block footer %}
+                {% include "ingredients/footer.html" %}
+                {% endblock %}
+            </footer>
+            {% all_with_prefix extra_footer_ %}
+        </div>
+    </body>
+</html>

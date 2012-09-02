@@ -1,0 +1,28 @@
+{% load i18n %}
+<table class="{% block table-classes %}table auto-width dense space-columns{% endblock %}">
+    <thead>
+        <tr>
+            <th></th>
+            <th style="min-width: 150px">{% trans "Submission time" %}</th>
+            <th style="min-width: 120px">{% trans "Problem" %}</th>
+            <th style="min-width: 200px">{% trans "Status" %}</th>
+            {% if show_scores %}
+            <th style="min-width: 60px">{% trans "Score" %}</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in submissions %}
+        {% url submission contest_id=contest.id submission_id=record.submission.id as link %}
+        <tr>
+            <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"></td>
+            <td><a href="{{ link }}">{{ record.submission.get_date_display }}</a></td>
+            <td>{{ record.submission.problem_instance }}</td>
+            <td class="subm_status {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}">{% if record.can_see_status %}{{ record.submission.get_status_display }}{% endif %}</td>
+            {% if show_scores %}
+            <td>{% if record.can_see_score %}{{ record.submission.get_score_display|default_if_none:'' }}{% endif %}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

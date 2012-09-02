@@ -1,0 +1,25 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "My submissions" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "My submissions" %}</h2>
+<div class="corner-icons">
+    <ul>
+        <li><a class="btn btn-small" href="{% url submit contest_id=contest.id %}">
+            <i class="icon-upload"></i> {% trans "Submit" %}</a></li>
+    </ul>
+</div>
+{% if submissions %}
+{% autopaginate submissions 100 %}
+{% paginate %}
+{% include "contests/my_submissions_table.html" %}
+{% paginate %}
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}You have not submitted anything yet.{% endblocktrans %}
+</div>
+{% endif %}
+{% endblock %}

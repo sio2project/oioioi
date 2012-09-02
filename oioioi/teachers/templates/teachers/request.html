@@ -1,0 +1,20 @@
+{% extends "simple-centered-wide.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Request teacher account" %}{% endblock %}
+
+{% block content %}
+<h1>{% trans "Request teacher account" %}</h1>
+
+<form action="" method="post" class="form-horizontal">
+    {% csrf_token %}
+    <fieldset>
+        {% include "ingredients/form.html" %}
+    </fieldset>
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary"
+            value="{% trans 'Send request' %}" />
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Registration' %}{% endblock %}
+
+{% block content %}
+<h1>{% trans 'Registration' %}</h1>
+
+<p>{% trans "Please fill the form below to register." %}</p>
+
+<form action="" method="post" class="form-horizontal">
+    {% csrf_token %}
+    <fieldset>
+        {% include "ingredients/form.html" %}
+    </fieldset>
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary"
+            value="{% trans 'Register' %}" />
+    </div>
+</form>
+
+{% endblock %}

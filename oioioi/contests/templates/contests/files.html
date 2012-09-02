@@ -1,0 +1,44 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+{% load check_perm %}
+
+{% block title %}{% trans "Files" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Files" %}</h2>
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% if is_admin %}
+<div class="corner-icons">
+    <ul>
+        <li><a class="btn btn-small" href="{% url oioioiadmin:contests_contest_change contest.id %}">
+            <i class="icon-upload"></i> {% trans "Add file" %}</a></li>
+    </ul>
+</div>
+{% endif %}
+{% if files %}
+{% autopaginate files 100 %}
+{% paginate %}
+<table class="table auto-width row-links">
+    <thead>
+        <tr>
+            <th style="min-width: 100px">{% trans "File" %}</th>
+            <th style="min-width: 300px">{% trans "Description" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td><a href="{{ file.link }}">{{ file.name }}</a></td>
+            <td>{{ file.description }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% paginate %}
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}No files are available.{% endblocktrans %}
+</div>
+{% endif %}
+{% endblock %}

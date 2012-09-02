@@ -1,0 +1,8 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block object-tools %}
+<ul class="grp-object-tools">
+    <li><a href="{% url oioioiadmin:problems_problem_add %}?contest_id={{ contest.id }}">{% trans "Add problem" %}</a></li>
+</ul>
+{% endblock %}

@@ -1,0 +1,215 @@
+@import "../bootstrap/less/bootstrap.less";
+@import "sidebar.less";
+@import "debug_toolbar.less";
+
+body {
+    background: @grayLighter;
+}
+
+.body {
+    min-height: 600px;
+}
+
+
+.wrapper {
+    background: @bodyBackground;
+    min-height: 100%;
+}
+
+.hidden {
+    display: none;
+}
+
+.monospace {
+    #font > #family > .monospace;
+}
+
+.empty-space-filler {
+    margin-top: 48px;
+    text-align: center;
+}
+
+pre.hscroll {
+    overflow: auto;
+    word-wrap: normal;
+    white-space: pre;
+}
+
+.tooltip, .popover {
+    z-index: 10001;
+
+    p {
+        margin-top: 0.5em;
+    }
+
+    p:first-child {
+        margin-top: 0;
+    }
+}
+
+/*--------------------- Navbar -------------------------*/
+
+.navbar {
+  input {
+    background-color: #444;
+    background-color: rgba(255,255,255,.3);
+    #font > .sans-serif(13px, normal, 1);
+    padding: 4px 9px;
+    color: @white;
+    color: rgba(255,255,255,.75);
+    border: 1px solid #111;
+    .border-radius(4px);
+    @shadow: inset 0 1px 2px rgba(0,0,0,.1), 0 1px 0px rgba(255,255,255,.25);
+    .box-shadow(@shadow);
+    .transition(none);
+    &:-moz-placeholder {
+      color: @grayLighter;
+    }
+    &::-webkit-input-placeholder {
+      color: @grayLighter;
+    }
+    &:hover {
+      background-color: @grayLight;
+      background-color: rgba(255,255,255,.5);
+      color: @white;
+    }
+    &:focus,
+    &.focused {
+      outline: 0;
+      background-color: @white;
+      color: @grayDark;
+      text-shadow: 0 1px 0 @white;
+      border: 0;
+      padding: 5px 10px;
+      .box-shadow(0 0 3px rgba(0,0,0,.15));
+    }
+  }
+}
+
+.navbar .brand {
+    color: white;
+}
+
+.navbar-login {
+    input {
+        width: 60px;
+        float: left;
+    }
+}
+
+#lang_list {
+    display: block;
+    float: right;
+    padding: 10px 10px 12px;
+    img {
+        margin-right: 1px;
+        width: 16px;
+        height: 11px;
+        vertical-align: baseline;
+    }
+}
+
+/*--------------------- Footer -------------------------*/
+
+footer {
+    text-align: center;
+    padding: 6px;
+    margin-top: 50px;
+    background: @grayDark;
+    height: 30px;
+    color: @grayLighter;
+}
+
+/*--------------------- Content Area -----------------*/
+
+.top-row {
+    margin-top: 60px;
+}
+
+div.corner-icons {
+    position: absolute;
+    text-align: right;
+    top: 77px;
+    right: 40px;
+    li {
+        list-style: none;
+        display: inline;
+        margin: 0 0 0 10px;
+    }
+}
+
+.main-content {
+    h4 {
+        margin-bottom: 8px;
+    }
+
+    h1 {
+        margin-bottom: 16px;
+    }
+
+    .pagination {
+        text-align: center;
+    }
+}
+
+/*--------------------- Tables -----------------*/
+
+table.noheader thead {
+    display: none;
+}
+
+table.nolines td {
+    border: none;
+    padding-top: 3px;
+    padding-bottom: 3px;
+}
+
+table.row-links tbody tr {
+    cursor: pointer;
+}
+
+table.auto-width {
+    width: auto;
+}
+
+table.dense tbody td {
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+table.space-columns td {
+    padding-right: 24px;
+}
+
+table.full-grid, table.full-grid tbody td, table.full-grid thead th {
+    border: 1px solid @tableBorder;
+}
+
+/*----------------------------- Side Menu ------------------------------*/
+
+ul.user-menu {
+    img {
+        padding-right: 10px;
+        position: relative;
+        top: -2px;
+        width: 32px;
+        height: 32px;
+        vertical-align: middle;
+    }
+}
+
+/*------------------ Login form --------------------*/
+
+.login-form form, .login-form .form-actions {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.login-form h2 {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.login-form {
+    margin-top: 2em;
+}

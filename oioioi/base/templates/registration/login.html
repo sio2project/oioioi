@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block body %}
+<div class="row top-row">
+    <div class="well span6 offset3 login-form">
+        <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            <fieldset>
+                <div class="control-group">
+                    <div class="controls">
+                        <h2>{% trans "Log in" %}</h2>
+                    </div>
+                </div>
+                {% include "ingredients/form.html" %}
+
+                <div class="control-group">
+                    <div class="controls">
+                        <p><a href="{% url auth_password_reset %}">Forgot password?</a></p>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <input type="submit" class="btn btn-primary"
+                        value="{% trans "Log in" %}">
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>
+{% endblock %}

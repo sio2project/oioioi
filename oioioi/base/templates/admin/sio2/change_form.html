@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+
+{% block form_top %}
+{% if came_from %}
+<input type="hidden" name="_came_from" value="{{ came_from }}">
+{% endif %}
+{% endblock %}
+

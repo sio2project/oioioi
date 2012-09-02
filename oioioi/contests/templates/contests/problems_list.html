@@ -1,0 +1,37 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Problems" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Problems" %}</h2>
+{% if problem_instances %}
+{% autopaginate problem_instances 100 %}
+{% paginate %}
+<table class="table auto-width row-links">
+    <thead>
+        <tr>
+            <th style="min-width: 60px">{% trans "Symbol" %}</th>
+            <th style="min-width: 300px">{% trans "Name" %}</th>
+            {% if show_rounds %}<th style="min-width: 100px">{% trans "Round" %}</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for pi in problem_instances %}
+        {% url problem_statement contest_id=contest.id problem_instance=pi.short_name as link %}
+        <tr>
+            <td>{{ pi.short_name }}</td>
+            <td><a href="{{ link }}">{{ pi.problem.name }}</a></td>
+            {% if show_rounds %}<td>{{ pi.round }}</td>{% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% paginate %}
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}No problems are active at the moment.{% endblocktrans %}
+</div>
+{% endif %}
+{% endblock %}

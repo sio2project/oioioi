@@ -1,0 +1,58 @@
+{% load i18n %}
+{% load runtimeformat %}
+
+{% if report.kind == 'INITIAL' %}
+<h4>{% trans "Initial testing report" %}</h4>
+{% elif report.kind == 'NORMAL' %}
+<h4>{% trans "Final testing report" %}</h4>
+{% elif report.kind == 'HIDDEN' %}
+<h4>{% trans "Hidden testing report" %}</h4>
+{% else %}
+<h4>{% trans "Report:" %} {{ report.kind }}</h4>
+{% endif %}
+
+{% if compilation_report.status != 'OK' %}
+<p>{% trans "Compilation failed." %}</p>
+<pre class="hscroll">
+{{ compilation_report.compiler_output }}
+</pre>
+{% else %}
+<table class="table auto-width dense space-columns full-grid results">
+    <thead>
+        <tr>
+            <th></th>
+            <th class="subm_margin" style="min-width: 80px">{% trans "Test" %}</th>
+            <th style="min-width: 200px">{% trans "Result" %}</th>
+            <th style="min-width: 110px">{% trans "Time" %}</th>
+            <th style="min-width: 60px">{% trans "Score" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for group in groups %}
+            {% for test in group.tests %}
+            <tr>
+                <td class="subm_margin subm_{{ test.status }}"></td>
+                <td>{{ test.test_name }}</td>
+                <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
+                <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
+                {% if forloop.first %}
+                    <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ test.test_max_score }}{% endif %}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+<div class="test-comments">
+    <ul>
+        {% for group in groups %}
+            {% for test in group.tests %}
+                {% if test.comment %}
+                    <li><span class="id">{{ test.test_name }}</span>
+                    <span class="test">{{ test.comment }}</span></li>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}

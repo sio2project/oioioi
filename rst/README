@@ -1,0 +1,19 @@
+=============================
+OIOIOI DEVELOPER DOCUMENTATION
+=============================
+
+REQUIREMENTS
+============
+Generation of documentation requires a sphinx package, you can install it with:
+$ pip install sphinx
+You may need to add sudo command.
+
+BUILDING HTML DOC
+=================
+To build a html documentation simply run:
+$ make html
+
+MORE INFO
+=========
+To get more information about documentation format please visit:
+http://sphinx.pocoo.org/

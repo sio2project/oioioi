@@ -1,0 +1,9 @@
+{% load menu %}
+{% generate_menu registry %}
+{% for item in menu %}
+<li {% if item.url == request.path %}class="active"{% endif %}>
+    <a href="{{ item.url }}">
+        {% if item.icon %}<i class="icon-{{ item.icon }}"></i>{% endif %}
+        {{ item.text }}</a>
+</li>
+{% endfor %}

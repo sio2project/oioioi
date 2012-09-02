@@ -1,0 +1,13 @@
+@import url("default.css");
+
+body {
+    max-width: 1000px;
+    background-color: #ddd;
+    margin: 0px auto;
+}
+
+div.footer {
+    background: #11303D;
+}
+
+/*div.body p, div.body dl { width: 800px; }*/

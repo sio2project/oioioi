@@ -1,0 +1,51 @@
+@import "../bootstrap/less/variables.less";
+@import "../bootstrap/less/mixins.less";
+
+.message {
+    margin-left: 10px;
+    margin-top: 20px;
+
+    .message_topic {
+        margin-bottom: 0;
+        line-height: 32px;
+    }
+
+    .message_info {
+        font-size: smaller;
+        line-height: 1.2em;
+        color: @grayLight;
+    }
+
+    .message_body {
+        white-space: pre;
+        white-space: pre-wrap;
+        #font > #family > .monospace;
+        font-size: 12px;
+        line-height: 1.1em;
+    }
+
+    .action {
+        opacity: 0.5;
+        visibility: hidden;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+    &:hover .action {
+        visibility: visible;
+    }
+}
+
+.message_reply {
+    padding-left: 10px;
+    border-left: 1px solid @blueDark;
+
+    .message_topic {
+        font-size: small;
+    }
+    .message_body {
+    color: @blueDark;
+    }
+}
+

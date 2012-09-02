@@ -1,0 +1,17 @@
+{% extends "simple-centered.html" %}
+
+{% load i18n %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<form action="{{ action }}" method="post" class="form-horizontal">
+    {% csrf_token %}
+    <fieldset>
+        {% include "ingredients/form.html" %}
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary"
+            value="{{ submit_button_value|default:_("Submit") }}">
+        </div>
+    </fieldset>
+</form>
+{% endblock %}

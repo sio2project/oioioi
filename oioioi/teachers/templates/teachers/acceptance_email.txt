@@ -1,0 +1,8 @@
+{% load i18n %}{% blocktrans %}Your request for a teacher account has been accepted.
+
+Visit the following link to create your first contest:
+
+  {{ new_contest_link }}
+
+Best wishes,
+OIOIOI Portal Managers{% endblocktrans %}

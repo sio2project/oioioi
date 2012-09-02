@@ -1,0 +1,24 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Select contest' %}{% endblock %}
+
+{% block content %}
+
+<h1>{% trans 'Select contest' %}</h1>
+
+<table class="table">
+    <thead>
+        <tr><th style="width: 100px">ID</th><th>Name</th></tr>
+    </thead>
+    <tbody>
+        {% for contest in contests %}
+        <tr>
+            <td>{{ contest.id }}</td>
+            <td><a href="{% url default_contest_view contest_id=contest.id %}">{{ contest.name }}</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

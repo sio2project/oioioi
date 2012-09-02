@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load check_perm %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}            
+
+<div class="corner-icons">
+    <ul>
+        {% if is_admin %}
+        <li><a class="btn btn-small" href="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}">
+            <i class="icon-repeat"></i> {% trans "Rejudge" %}</a></li>
+        {% endif %}
+        <li><a class="btn btn-small" href="{% url show_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
+            <i class="icon-eye-open"></i> {% trans "Show code" %}</a></li>
+        <li><a class="btn btn-small" href="{% url download_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
+            <i class="icon-download-alt"></i> {% trans "Download" %}</a></li>
+    </ul>
+</div>
+
+<table class="details_table">
+    <thead>
+        <tr>
+            <th style="min-width: 120px">{% trans "Problem" %}</th>
+            <th style="min-width: 150px">{% trans "Submission date" %}</th>
+            <th style="min-width: 150px">{% trans "Status" %}</th>
+            <th style="min-width: 80px">{% trans "Score" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ submission.submission.problem_instance }}</td>
+            <td>{{ submission.submission.get_date_display }}</td>
+            {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
+            <td>{% if submission.can_see_score %}{{ submission.submission.score|default_if_none:'' }}{% endif %}</td>
+        </tr>
+    </tbody>
+</table>
+
+{% if submission.can_see_comment and submission.submission.comment %}
+<h4>{% trans "Submission comment" %}</h4>
+<pre class="hscroll">
+{{ submission.comment }}
+</pre>
+{% endif %}

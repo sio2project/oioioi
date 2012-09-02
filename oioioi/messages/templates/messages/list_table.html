@@ -1,0 +1,33 @@
+{% load i18n check_perm %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+<table class="{% block table-classes %}table auto-width row-links{% endblock %}">
+    <thead>
+        <tr>
+            <th style="min-width: 130px">{% if is_admin %}{% trans "Author" %}{% else %}{% trans "Date" %}{% endif %}</th>
+            <th style="min-width: 80px">{% trans "Problem" %}</th>
+            <th style="min-width: 350px">{% trans "Topic" %}</th>
+            {% if is_admin %}
+            <th style="min-width: 50px">{% trans "Kind" %}</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in records %}
+        {% with record.message as msg %}
+        {% if msg.top_reference_id %}
+        {% url message contest_id=contest.id message_id=msg.top_reference_id as link %}
+        {% else %}
+        {% url message contest_id=contest.id message_id=msg.id as link %}
+        {% endif %}
+        <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
+            <td><a href="{{ link }}">{% if is_admin %}{{ msg.author.get_full_name }}{% else %}{{ msg.date }}{% endif %}</a></td>
+            <td>{{ msg.problem_instance|default_if_none:'' }}</td>
+            <td>{% if not record.read and not is_admin %}<span class="label label-info">{% trans "NEW" %}</span> {% endif %}<a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a></td>
+            {% if is_admin %}
+            <td><span class="label {% if record.needs_reply %}label-important{% endif %}">{{ msg.kind }}</span></td>
+            {% endif %}
+        </tr>
+        {% endwith %}
+        {% endfor %}
+    </tbody>
+</table>

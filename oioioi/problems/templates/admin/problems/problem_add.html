@@ -1,0 +1,17 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+{% autopaginate problem_instances 100 %}
+
+{% block title %}{% trans "Upload problem package" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Upload problem package" %}</h2>
+<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>
+{% endblock %}

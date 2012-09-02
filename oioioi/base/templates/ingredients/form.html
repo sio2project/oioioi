@@ -1,0 +1,39 @@
+{% for error in form.non_field_errors %}
+<div class="alert alert-error">
+    {{ error }}
+</div>
+{% endfor %}
+
+{% for field in form.hidden_fields %}
+    {{ field }}
+{% endfor %}
+
+{% for field in form.visible_fields %}
+    <div class="control-group {% if field.errors %}error{% endif %}">
+        <label for="{{ field.html_name }}" class="control-label">{{ field.label }}</label>
+        <div class="controls">
+            {{ field }}
+            {% for error in field.errors %}
+            <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+            {% if field.help_text %}
+            <p class="help-block">{{ field.help_text }}
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+
+<script>
+    $(function(){
+        $('form [rel=twipsy]').each(function () {
+            var trigger = $(this).attr('data-trigger');
+            $(this).twipsy({
+                live: true,
+                placement: 'right',
+                offset: 2,
+                trigger: 'hover'
+            });
+        });
+        if ($(":focus").length == 0) $("input:text:visible:first").focus();
+    })
+</script>

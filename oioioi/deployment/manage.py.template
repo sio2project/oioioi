@@ -1,0 +1,14 @@
+#!__PYTHON_EXECUTABLE__
+import os
+import sys
+
+if __name__ == "__main__":
+    # Configure virtualenv, if present when running the configuration generator
+    if '__VIRTUAL_ENV__' and 'VIRTUAL_ENV' not in os.environ:
+        sys.path.insert(0, '__SITE_PACKAGES__')
+        os.environ['PATH'] = '__VIRTUAL_ENV__/bin:' + os.environ['PATH']
+
+    sys.path.insert(0, '__DIR__')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+    from django.core.management import execute_from_command_line
+    execute_from_command_line(sys.argv)

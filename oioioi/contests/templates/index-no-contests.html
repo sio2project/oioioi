@@ -1,0 +1,26 @@
+{% extends "simple-centered.html" %}
+
+{% load i18n %}
+
+{% block content %}
+{% url oioioiadmin:contests_contest_add as new_contest_link %}
+{% url auth_login as login_link %}
+{% url registration_register as reg_link %}
+<div class="empty-space-filler">
+    {% if user.is_superuser %}
+    {% blocktrans %}
+    <p>This is a new OIOIOI installation. Begin by <a href="{{ new_contest_link }}">creating
+        a new contest</a>.
+    {% endblocktrans %}
+    {% elif user.is_anonymous %}
+    {% blocktrans %}
+    <p>There are no contests available to logged out users.
+    <p>Please <a href="{{ login_link }}">log in</a> or <a href="{{ reg_link }}">register</a>.
+    {% endblocktrans %}
+    {% else %}
+    {% blocktrans %}
+    <p>There are no contests available.
+    {% endblocktrans %}
+    {% endif %}
+</div>
+{% endblock %}

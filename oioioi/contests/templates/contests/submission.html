@@ -1,0 +1,12 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Submission" %} {{ submission.id }}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Submission" %} {{ submission.id }}</h2>
+{{ header }}
+{% for report in reports %}
+    {{ report }}
+{% endfor %}
+{% endblock %}

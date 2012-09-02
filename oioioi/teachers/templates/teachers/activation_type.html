@@ -1,0 +1,23 @@
+{% extends "base-with-menu.html" %}
+{% load i18n listutil %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}teachers/js/ZeroClipboard.min.js"></script>
+{% endblock %}
+
+{% block title %}{% trans "Choose registration type" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Choose registration type" %}</h2>
+<p>{% blocktrans %}Your account is a techer account. Please choose, if you wish to
+register to this contest as a teacher or as a participant.{% endblocktrans %}
+<form method="post" action="">
+    {% csrf_token %}
+    <input type="hidden" name="key" value="{{ key }}">
+    <div class="btn-toolbar">
+        <button type="submit" class="btn btn-primary" name="register_as" value="teacher">{% trans "Register as a teacher" %}</button>
+        <button type="submit" class="btn" name="register_as" value="participant">{% trans "Register as a participant" %}</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    {% if is_announcement %}
+    <div class="control-group">
+        <div class="controls">
+            {% blocktrans %}The announcement will be visible immediately to all participants.{% endblocktrans %}
+        </div>
+    </div
+    {% endif %}
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>
+{% if is_reply %}
+<script type="text/javascript">
+    $(function() {
+        var elem = $('textarea#id_content');
+        var content = elem.val() + '\n\n';
+        /* This moves the cursor to the end. */
+        elem.focus().val('').val(content);
+    });
+</script>
+{% endif %}
+{% endblock %}

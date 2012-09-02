@@ -1,0 +1,29 @@
+[supervisord]
+logfile={{ PROJECT_DIR }}/logs/supervisor.log
+pidfile={{ PROJECT_DIR }}/pidfiles/supervisor.pid
+user=__USER__
+directory={{ PROJECT_DIR }}
+identifier=oioioi-supervisor
+
+[program:celerycam]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
+startretries=0
+
+[program:evalmgr]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c 1
+startretries=0
+stopwaitsecs=15
+
+[program:sioworkers]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q sioworkers -c 1
+startretries=0
+stopwaitsecs=15
+{% if not settings.RUN_LOCAL_WORKERS %}exclude=true{% endif %}
+
+[program:filetracker-server]
+command=filetracker-server -L {{ PROJECT_DIR }}/logs/filetracker.log -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
+{% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
+
+[program:autoreload]
+# Comment this out to enable auto-reloading when code changes.
+exclude=true

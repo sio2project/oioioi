@@ -1,0 +1,18 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Ranking" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Ranking" %}</h2>
+{% if choices|length > 1 %}
+<div class="corner-icons">
+    <ul class="nav nav-pills">
+        {% for choice in choices %}
+        <li {% if choice.0 == key %}class="active"{% endif %}><a href="{% url ranking contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+{{ ranking }}
+{% endblock %}

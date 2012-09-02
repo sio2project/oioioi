@@ -1,0 +1,48 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load check_perm %}
+
+{% block title %}{% trans "Questions and announcements" %}{% endblock %}
+
+{% block content %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}            
+{% if is_admin %}
+<div class="corner-icons">
+    <ul>
+        <li><a class="btn btn-small" href="{% url oioioiadmin:auth_user_change message.author_id %}">
+            <i class="icon-user"></i> {% trans "Display user" %}</a></li>
+        <li><a class="btn btn-small" href="{% url message_reply contest_id=contest.id message_id=reply_to_id %}">
+            <i class="icon-pencil"></i> {% trans "Reply" %}</a></li>
+    </ul>
+</div>
+{% endif %}
+<div class="message {% if is_admin %}admin{% endif %}">
+    <h3 class="message_topic">{{ message.topic }}</h3>
+    {% if is_admin %}
+    <div class="pull-right">
+        <a class="action" href="{% url oioioiadmin:messages_message_change message.id %}"><i class="icon-edit"></i></a>
+        <a class="action" href="{% url oioioiadmin:messages_message_delete message.id %}"><i class="icon-remove"></i></a>
+    </div>
+    {% endif %}
+    <p class="message_info">
+    {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %} |
+    {{ message.author.username }}
+    ({{ message.author.get_full_name }}) | {{ message.date }}
+    </p>
+    <p class="message_body">{{ message.content }}</p>
+</div>
+{% for message in replies %}
+<div class="message message_reply {% if is_admin %}admin{% endif %}">
+    {% if is_admin %}
+    <div class="pull-right">
+        <a class="action" href="{% url oioioiadmin:messages_message_change message.id %}"><i class="icon-edit"></i></a>
+        <a class="action" href="{% url oioioiadmin:messages_message_delete message.id %}"><i class="icon-remove"></i></a>
+    </div>
+    {% endif %}
+    <p class="message_body">{{ message.content }}</p>
+    <p class="message_info">
+    --{{ message.author.get_full_name }}
+    </p>
+</div>
+{% endfor %}
+{% endblock %}

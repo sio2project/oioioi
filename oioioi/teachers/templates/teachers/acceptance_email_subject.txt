@@ -1,0 +1,1 @@
+{% load i18n %}{% trans "Teacher account request accepted" %}

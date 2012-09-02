@@ -1,0 +1,20 @@
+[
+  {
+    "pk": "c1",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest 1",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-09-01T13:20:30+03:00"
+    }
+  },
+  {
+    "pk": "c2",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest 2",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-09-01T13:20:31+03:00"
+    }
+  }
+]

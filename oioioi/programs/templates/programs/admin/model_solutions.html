@@ -1,0 +1,55 @@
+{% extends "base-with-menu.html" %}
+{% load i18n runtimeformat %}
+
+{% block title %}{% trans "Model solutions" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Model solutions" %}</h2>
+{% if not submissions %}
+<p>{% blocktrans %}There are no model solutions in this problem package.
+{% endblocktrans %}</p>
+{% else %}
+<div class="corner-icons">
+    <ul>
+        <li><a class="btn btn-small" href="{% url oioioiadmin:contests_probleminstance_models_rejudge problem_instance.id %}">
+            <i class="icon-repeat"></i> {% trans "Rejudge" %}</a></li>
+    </ul>
+</div>
+
+<table class="table ntable auto-width dense full-grid model-solutions">
+    <thead>
+        <tr>
+            <th rowspan="3" colspan="2" class="corner"></th>
+            {% for s in submissions %}
+            <th><a href="{% url submission contest_id=contest.id submission_id=s.id %}">{{ s.model_solution.short_name }}</a></th>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for s in submissions %}
+            <th class="subm_status subm_{{ s.status }}">{{ s.status }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            {% for s in submissions %}
+            <th>{{ s.get_score_display|default_if_none:'' }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% spaceless %}
+        {% for row in rows %}
+        <tr>
+            <th class="test-name">{{ row.test.name }}</th>
+            <td class="time-limit">{{ row.test.time_limit|runtimeformat }}</td>
+            {% for cell in row.results %}
+            <td class="subm_status subm_{{ cell.test_report.status }}{% if cell.is_partial_score %} subm_PARTIAL{% endif %}">
+                {% if cell.test_report.status == 'OK' %}{{ cell.test_report.time_used|runtimeformat }}{% else %}{{ cell.test_report.status }}{% endif %}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        {% endspaceless %}
+    </tbody>
+</table>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Account activation' %}{% endblock %}
+
+{% block content %}
+
+<h1>{% trans 'Account activation unsuccessful' %}</h1>
+
+<p>{% blocktrans %}The activation link was invalid.{% endblocktrans %}</p>
+<p>{% blocktrans %}Please make sure that you correctly copied the entire link
+from the email to the web browser address bar.  Please request a new password
+reset.{% endblocktrans %}</p>
+{% endblock %}

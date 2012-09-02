@@ -1,0 +1,9 @@
+include LICENSE
+include MANIFEST.in
+recursive-include rst *
+recursive-exclude rst/build *
+recursive-include oioioi/*/locale *
+recursive-include oioioi/*/templates *
+recursive-include oioioi/*/static *
+recursive-include oioioi/*/files *
+include oioioi/deployment/*.template

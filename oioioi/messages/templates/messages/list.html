@@ -1,0 +1,31 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load check_perm %}
+{% load pagination_tags %}
+{% autopaginate problem_instances 30 %}
+
+{% block title %}{% trans "Questions and announcements" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Questions and announcements" %}</h2>
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+<div class="corner-icons">
+    <ul>
+        <li><a class="btn btn-small" href="{% url add_contest_message contest_id=contest.id %}">
+            {% if is_admin %}
+            <i class="icon-comment"></i> {% trans "Add announcement" %}</a></li>
+            {% else %}
+            <i class="icon-question-sign"></i> {% trans "Ask a question" %}</a></li>
+            {% endif %}
+    </ul>
+</div>
+{% if records %}
+{% paginate %}
+{% include "messages/list_table.html" %}
+{% paginate %}
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}No questions/announcements yet.{% endblocktrans %}
+</div>
+{% endif %}
+{% endblock %}
