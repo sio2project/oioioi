@@ -1,3 +1,16 @@
+"""Each score class is represented in database as single string formatted as
+   ``"class_symbol:score_data"`` where ``class_symbol`` is used for binding
+   purposes (see :class:`ScoreValue`) and ``score_data`` is score in
+   human readable form.
+
+   To create new score class ``MyScore`` you have to choose ``class_symbol``
+   and decide how to encode score as ``score_data``.
+   MyScore should extend :class:`ScoreValue` and implement its
+   unimplemented functions such as :py:func:`__add__`, :py:func:`__cmp__` etc.
+
+   For simple example of score class implementation see :class:`IntegerScore`.
+"""
+
 from oioioi.base.utils import ClassInitBase
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -6,10 +19,9 @@ class ScoreValue(ClassInitBase):
     """Base class of all classes that represent a score. Subclass
        :class:`ScoreValue` to implement a custom score."""
 
+    #: A unique, short class identifier prepended to the database
+    #: representation of the value. This must be overridden in all subclasses.
     symbol = '__override_in_subclasses__'
-    """A unique, short class identifier prepended to the database
-       representation of the value. This must be overridden in all subclasses.
-    """
 
     _subclasses = dict()
 
