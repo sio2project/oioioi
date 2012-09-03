@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
+from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.models import Problem, ProblemStatement, \
@@ -69,29 +70,22 @@ class TestProblemViews(TestCase):
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(Problem.objects.count(), 0)
 
-    def _check_not_accessible(self, *args, **kwargs):
-        data = kwargs.pop('data', {})
-        response = self.client.get(reverse(*args, **kwargs), data=data)
-        self.assertIn(response.status_code, (403, 404, 302))
-        if response.status_code == 302:
-            self.assertIn('/login/', response['Location'])
-
     def _test_problem_permissions(self):
         problem = Problem.objects.get()
         contest = Contest.objects.get()
         statement = ProblemStatement.objects.get()
-        self._check_not_accessible('oioioiadmin:problems_problem_add',
+        check_not_accessible(self, 'oioioiadmin:problems_problem_add',
                 data={'package_file': open(__file__, 'rb'),
                       'contest_id': contest.id})
-        self._check_not_accessible('oioioiadmin:problems_problem_reupload',
+        check_not_accessible(self, 'oioioiadmin:problems_problem_reupload',
                 args=(problem.id,))
-        self._check_not_accessible('oioioiadmin:problems_problem_download',
+        check_not_accessible(self, 'oioioiadmin:problems_problem_download',
                 args=(problem.id,))
-        self._check_not_accessible('oioioiadmin:problems_problem_change',
+        check_not_accessible(self, 'oioioiadmin:problems_problem_change',
                 args=(problem.id,))
-        self._check_not_accessible('oioioiadmin:problems_problem_delete',
+        check_not_accessible(self, 'oioioiadmin:problems_problem_delete',
                 args=(problem.id,))
-        self._check_not_accessible('show_statement',
+        check_not_accessible(self, 'show_statement',
                 kwargs={'statement_id': statement.id})
 
     def test_problem_permissions(self):

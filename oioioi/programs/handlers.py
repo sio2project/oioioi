@@ -59,36 +59,6 @@ def _if_compiled(fn):
         return fn(env, **kwargs)
     return decorated
 
-def _call_controller(environ, method_name, *args, **kwargs):
-    """Calls the given controller method of first the contest controller,
-       second problem controller.
-
-       Returns the return of the first call. Ignores controllers which do
-       not have the method.
-
-       Used ``environ`` keys:
-         * ``problem_id``
-         * ``contest_id`` (optional)
-
-       :param method_name: name of method to call
-       :returns: result of the method called of the contest controller, if
-         found, otherwise on the problem controller, if found, otherwise
-         ``None``
-    """
-    if 'contest_id' in env:
-        contest = Contest.objects.get(id=env['contest_id'])
-        method = getattr(contest.controller, method_name, None)
-        if method:
-            return method(*args, **kwargs)
-
-    problem = Problem.objects.get(id=env['problem_id'])
-    method = getattr(problem.controller, method_name, None)
-    if method:
-        return method(*args, **kwargs)
-
-    return None
-
-
 def compile(env, **kwargs):
     """Compiles source file on the remote machine and returns name of
        the executable that may be ran

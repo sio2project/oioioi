@@ -29,6 +29,13 @@ import shutil
 
 basedir = os.path.dirname(__file__)
 
+def check_not_accessible(testcase, *args, **kwargs):
+    data = kwargs.pop('data', {})
+    response = testcase.client.get(reverse(*args, **kwargs), data=data)
+    testcase.assertIn(response.status_code, (403, 404, 302))
+    if response.status_code == 302:
+        testcase.assertIn('/login/', response['Location'])
+
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
        user.

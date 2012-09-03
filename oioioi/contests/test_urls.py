@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from oioioi import urls
 
 urlpatterns = patterns('',
     url(r'^c/(?P<contest_id>\w+)/id$',
@@ -8,3 +9,5 @@ urlpatterns = patterns('',
     url(r'^render_contest_id$',
         'oioioi.contests.tests.render_contest_id_view'),
 )
+
+urlpatterns += urls.urlpatterns

@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
 from oioioi.programs.models import ProgramSubmission, Test

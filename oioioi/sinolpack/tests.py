@@ -7,26 +7,29 @@ from django.core.urlresolvers import reverse
 from oioioi.problems.package import backend_for_package
 from oioioi.sinolpack.package import SinolPackageBackend, \
         DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT
-from oioioi.contests.models import ProblemInstance, Contest, Round
+from oioioi.contests.models import ProblemInstance, Contest, Round, \
+        Submission, UserResultForContest
+from oioioi.contests.scores import IntegerScore
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
-from oioioi.programs.models import Test, OutputChecker, ModelSolution
+from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
+        TestReport
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from nose.plugins.attrib import attr
 import os.path
 from cStringIO import StringIO
 import zipfile
 
-def _package_filename(name):
+def _test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
 
 class TestSinolPackage(TestCase):
     def test_identify_zip(self):
-        filename = _package_filename('test_simple_package.zip')
+        filename = _test_filename('test_simple_package.zip')
         self.assert_(SinolPackageBackend().identify(filename))
 
     def test_identify_tgz(self):
-        filename = _package_filename('test_full_package.tgz')
+        filename = _test_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
 
     def _check_full_package(self, problem, doc=True):
@@ -97,7 +100,7 @@ class TestSinolPackage(TestCase):
 
     @attr('slow')
     def test_full_unpack_update(self):
-        filename = _package_filename('test_full_package.tgz')
+        filename = _test_filename('test_full_package.tgz')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self._check_full_package(problem)
@@ -116,7 +119,7 @@ class TestSinolPackageInContest(TestCase):
     def test_upload_and_download_package(self):
         contest = Contest.objects.get()
         round = Round.objects.get()
-        filename = _package_filename('test_simple_package.zip')
+        filename = _test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id})
@@ -185,3 +188,41 @@ class TestSinolPackageCreator(TestCase):
                 'sum/prog/sumb0.c',
                 'sum/prog/sums1.cpp',
             ])
+
+class TestJudging(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_judging(self):
+        self.client.login(username='test_user')
+        contest = Contest.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+
+        # Show submission form
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('contests/submit.html',
+                [getattr(t, 'name', None) for t in response.templates])
+        form = response.context['form']
+        self.assertEqual(len(form.fields['problem_instance_id'].choices), 1)
+        pi_id = form.fields['problem_instance_id'].choices[0][0]
+
+        # Submit
+        filename = _test_filename('sum-various-results.cpp')
+        response = self.client.post(url, {
+            'problem_instance_id': pi_id, 'file': open(filename, 'rb')})
+        print response
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(Submission.objects.count(), 1)
+        self.assertEqual(TestReport.objects.count(), 6)
+        self.assertEqual(TestReport.objects.filter(status='OK').count(), 4)
+        self.assertEqual(TestReport.objects.filter(status='WA').count(), 1)
+        self.assertEqual(TestReport.objects.filter(status='RE').count(), 1)
+        submission = Submission.objects.get()
+        self.assertEqual(submission.status, 'OK')
+        self.assertEqual(submission.score, IntegerScore(34))
+
+        urc = UserResultForContest.objects.get()
+        self.assertEqual(urc.score, IntegerScore(34))

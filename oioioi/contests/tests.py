@@ -4,16 +4,13 @@ from django.test.utils import override_settings
 from django.template import Template, RequestContext
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError, PermissionDenied
+from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        ScoreFieldTestModel
+        ScoreFieldTestModel, Submission
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController
-from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.problems.models import Problem
 from datetime import datetime
-
-class DummyController(ProgrammingContestController):
-    pass
 
 class TestModels(TestCase):
     def test_fields_autogeneration(self):
@@ -83,6 +80,7 @@ class TestCurrentContest(TestCase):
     def setUp(self):
         self.client = Client()
 
+    @override_settings(DEFAULT_CONTEST='c2')
     def test_current_contest_session(self):
         self.assertEqual(self.client.get('/c/c1/id').content, 'c1')
         self.assertEqual(self.client.get('/contest_id').content, 'c1')
@@ -95,6 +93,10 @@ class TestCurrentContest(TestCase):
     @override_settings(DEFAULT_CONTEST='c1')
     def test_current_contest_from_settings(self):
         self.assertEqual(self.client.get('/contest_id').content, 'c1')
+
+    @override_settings(DEFAULT_CONTEST='c2', ONLY_DEFAULT_CONTEST=True)
+    def test_only_default_contest(self):
+        self.assertEqual(self.client.get('/c/c1/id').status_code, 404)
 
     def test_current_contest_processor(self):
         #self.assertEqual(self.client.get('/contest_id').content, 'c2')
@@ -131,3 +133,14 @@ class TestContestController(TestCase):
                 (datetime(2012, 1, 2, 2, 11, 0), [r3, r2, r1])):
             self.assertEqual(controller.order_rounds_by_focus(
                 FakeRequest(date), rounds), expected_order)
+
+class TestContestViews(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission']
+
+    def test_submissions_permissions(self):
+        submission = Submission.objects.get()
+        check_not_accessible(self, 'submission', kwargs={
+            'contest_id': submission.problem_instance.contest.id,
+            'submission_id': submission.id})
+

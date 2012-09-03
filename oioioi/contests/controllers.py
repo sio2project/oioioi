@@ -305,7 +305,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             elif isinstance(kind, (list, tuple)):
                 queryset = queryset.filter(kind__in=kind)
             else:
-                raise TypeError("invalid type of queryset in "
+                raise TypeError("invalid type parameter kind in "
                         "_activate_newest_report: %r", type(kind))
             latest = queryset \
                     .select_for_update() \
@@ -398,6 +398,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            Should return the updated queryset.
         """
+        if not request.user.is_authenticated():
+            return queryset.none()
         return queryset.filter(user=request.user)
 
     def results_visible(self, request, submission):
