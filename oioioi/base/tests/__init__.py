@@ -1,5 +1,7 @@
 from django.conf import settings
 from django.core import mail
+from django.core.files.uploadedfile import TemporaryUploadedFile, \
+        SimpleUploadedFile
 from django.utils import unittest
 from django.core.urlresolvers import reverse
 from django.test import TestCase
@@ -346,6 +348,26 @@ class TestMisc(unittest.TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
         reload(oioioi.test_settings)
+
+    def test_uploaded_file_name(self):
+        tmp_file = TemporaryUploadedFile('whatever',
+                'application/octet-stream', 0, 'utf-8')
+        with utils.uploaded_file_name(tmp_file) as name:
+            self.assertEquals(name, tmp_file.file.name)
+        mem_file = SimpleUploadedFile('whatever', 'hello42')
+        with utils.uploaded_file_name(mem_file) as name:
+            self.assertTrue(name.endswith('whatever'))
+            self.assertEqual(open(name, 'rb').read(), 'hello42')
+        self.assertFalse(os.path.exists(name))
+
+    def test_make_html_links(self):
+        test = [('url1', 'name1'), ('url2', 'name2')]
+        links = utils.make_html_links(test)
+        self.assertEqual(len(links.split(' | ')), 2)
+        self.assertIn('url1', links)
+        self.assertIn('name1', links)
+        self.assertIn('url2', links)
+        self.assertIn('name2', links)
 
 class TestRegistration(TestCase):
     def setUp(self):
