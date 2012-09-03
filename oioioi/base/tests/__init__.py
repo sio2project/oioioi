@@ -1,5 +1,7 @@
 from django.conf import settings
+from django.core import mail
 from django.utils import unittest
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import Client, RequestFactory
@@ -19,6 +21,7 @@ from oioioi.base.menu import menu_registry, is_contest_admin, \
 import random
 import sys
 import os.path
+import re
 
 basedir = os.path.dirname(__file__)
 
@@ -343,3 +346,34 @@ class TestMisc(unittest.TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
         reload(oioioi.test_settings)
+
+class TestRegistration(TestCase):
+    def setUp(self):
+        self.client = Client()
+
+    def test_registration_form_fields(self):
+        response = self.client.get(reverse('registration_register'))
+        form = response.context['form']
+        self.assertIn('first_name', form.fields)
+        self.assertIn('last_name', form.fields)
+
+    def test_registration(self):
+        self.client.post(reverse('registration_register'), {
+            'username': 'test_foo',
+            'first_name': 'Foo',
+            'last_name': 'Bar',
+            'email': 'foo@bar.com',
+            'password1': 'xxx',
+            'password2': 'xxx',
+        })
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        self.assertEqual(list(message.to), ['foo@bar.com'])
+        url = re.search('^http://[^/]*(/.*)$', message.body, re.M).group(1)
+
+        # Try to activate
+        self.client.get(url)
+        user = User.objects.get(username='test_foo')
+        self.assertTrue(user.is_active)
+        self.assertEqual(user.first_name, 'Foo')
+        self.assertEqual(user.last_name, 'Bar')
