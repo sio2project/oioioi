@@ -2,7 +2,7 @@ from django.utils import unittest
 from django.test.utils import override_settings
 from django.test import SimpleTestCase
 from oioioi.evalmgr import evalmgr_job
-from oioioi import sioworkers
+from oioioi.sioworkers.jobs import run_sioworkers_job
 from oioioi.filetracker.client import get_client
 
 import copy
@@ -70,7 +70,7 @@ def compile_source(env, **kwargs):
         out_file=env['binary_file'],
         compiler='system-gcc',
         job_type='compile'))
-    return sioworkers.run_sioworkers_job(env)
+    return run_sioworkers_job(env)
 
 def upload_inout(env, **kwargs):
     fc = get_client()
@@ -86,7 +86,7 @@ def run(env, **kwargs):
         exe_file=env['binary_file'],
         check_output=True,
         job_type='unsafe-exec'))
-    return sioworkers.run_sioworkers_job(env)
+    return run_sioworkers_job(env)
 
 class SioworkersBackend(object):
     def run_job(self, env):

@@ -1,6 +1,6 @@
 from django.db import transaction
 from oioioi.base.utils import get_object_by_dotted_name
-from oioioi.sioworkers import run_sioworkers_job, run_sioworkers_jobs
+from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.models import Contest, Submission, SubmissionReport, \
         ScoreReport
