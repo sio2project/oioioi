@@ -1,10 +1,13 @@
 # coding: utf-8
 
 from django.test import TestCase
+from django.test.client import Client
 from django.core.management import call_command
+from django.core.urlresolvers import reverse
 from oioioi.problems.package import backend_for_package
 from oioioi.sinolpack.package import SinolPackageBackend, \
         DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT
+from oioioi.contests.models import ProblemInstance, Contest, Round
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.programs.models import Test, OutputChecker, ModelSolution
@@ -12,16 +15,16 @@ from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from nose.plugins.attrib import attr
 import os.path
 
-class TestSinolPackage(TestCase):
-    def _package_filename(self, name):
-        return os.path.join(os.path.dirname(__file__), 'files', name)
+def _package_filename(name):
+    return os.path.join(os.path.dirname(__file__), 'files', name)
 
+class TestSinolPackage(TestCase):
     def test_identify_zip(self):
-        filename = self._package_filename('test_simple_package.zip')
+        filename = _package_filename('test_simple_package.zip')
         self.assert_(SinolPackageBackend().identify(filename))
 
     def test_identify_tgz(self):
-        filename = self._package_filename('test_full_package.tgz')
+        filename = _package_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
 
     def _check_full_package(self, problem, doc=True):
@@ -91,8 +94,8 @@ class TestSinolPackage(TestCase):
         tests = Test.objects.filter(problem=problem)
 
     @attr('slow')
-    def test_full_unpack_and_update(self):
-        filename = self._package_filename('test_full_package.tgz')
+    def test_full_unpack_update(self):
+        filename = _package_filename('test_full_package.tgz')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self._check_full_package(problem)
@@ -101,3 +104,50 @@ class TestSinolPackage(TestCase):
         call_command('updateproblem', str(problem.id), filename)
         problem = Problem.objects.get()
         self._check_full_package(problem)
+
+class TestSinolPackageInContest(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def setUp(self):
+        self.client = Client()
+
+    def test_upload_and_download_package(self):
+        contest = Contest.objects.get()
+        round = Round.objects.get()
+        filename = _package_filename('test_simple_package.zip')
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id})
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('admin/problems/problem_add.html',
+                [getattr(t, 'name', None) for t in response.templates])
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb'),
+                    'round_id': round.id,
+                    'contest_id': contest.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
+
+        # Delete tests and check if re-uploading will fix it.
+        problem = Problem.objects.get()
+        num_tests = problem.test_set.count()
+        for test in problem.test_set.all():
+            test.delete()
+        problem.save()
+        url = reverse('oioioiadmin:problems_problem_reupload',
+                args=(problem.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('admin/problems/problem_reupload.html',
+                [getattr(t, 'name', None) for t in response.templates])
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.test_set.count(), num_tests)
+
+        response = self.client.get(
+                reverse('oioioiadmin:problems_problem_download',
+                    args=(problem.id,)))
+        self.assertEqual(response.content, open(filename, 'rb').read())

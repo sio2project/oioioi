@@ -31,7 +31,6 @@ class SinolPackage(object):
 
     def _find_main_folder(self):
         files = map(str.lower, self.archive.filenames())
-        logger.info(files)
         for f in files:
             if '/' not in f \
                     and f + '/in' in files \

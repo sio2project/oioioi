@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.template.response import TemplateResponse
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, redirect
@@ -106,6 +106,10 @@ class ProblemAdmin(admin.ModelAdmin):
             backend = backend_for_package(filename)
             problem = backend.unpack(filename,
                     original_filename=uploaded_file.name)
+            if not problem.package_backend_name:
+                raise AssertionError("Problem package backend (%r) did not "
+                        "set Problem.package_backend_name. This is a bug in "
+                        "the problem package backend." % (backend,))
             if round:
                 problem.contest = round.contest
                 problem.save()
@@ -167,11 +171,13 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def reupload_view(self, request, object_id):
         problem = self.get_object(request, unquote(object_id))
+        if not problem:
+            raise Http404
         if not self.has_change_permission(request, problem):
             raise PermissionDenied
 
         if request.method == 'POST':
-            form = ProblemUploadForm(request.POST, request.FILES)
+            form = ProblemUploadForm(None, request.POST, request.FILES)
             if form.is_valid():
                 try:
                     return self._reupload_problem(request, problem)
@@ -179,7 +185,7 @@ class ProblemAdmin(admin.ModelAdmin):
                     logger.error("Error processing package", exc_info=True)
                     form._errors['__all__'] = form.error_class([unicode(e)])
         else:
-            form = ProblemUploadForm()
+            form = ProblemUploadForm(None)
 
         context = {
                 'form': form,
@@ -190,6 +196,8 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def download_view(self, request, object_id):
         problem = self.get_object(request, unquote(object_id))
+        if not problem:
+            raise Http404
         if not self.has_change_permission(request, problem):
             raise PermissionDenied
         try:

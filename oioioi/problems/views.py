@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 from oioioi.problems.models import ProblemStatement
-from oioioi.problems.utils import problem_admin_permission_required
 from oioioi.filetracker.utils import stream_file
 
 def show_statement_view(request, statement_id):

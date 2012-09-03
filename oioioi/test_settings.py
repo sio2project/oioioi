@@ -20,3 +20,4 @@ CELERY_ALWAYS_EAGER = True
 SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.LocalBackend'
 FILETRACKER_CLIENT_FACTORY = 'filetracker.dummy.DummyClient'
 USE_UNSAFE_EXEC = True
+USE_LOCAL_COMPILERS = True

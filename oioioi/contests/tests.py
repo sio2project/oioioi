@@ -8,10 +8,11 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
         ScoreFieldTestModel
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.problems.models import Problem
 from datetime import datetime
 
-class DummyController(ContestController):
+class DummyController(ProgrammingContestController):
     pass
 
 class TestModels(TestCase):
