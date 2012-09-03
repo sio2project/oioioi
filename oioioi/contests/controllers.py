@@ -225,7 +225,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
         rtimes = self.get_round_times(request, problem_instance.round)
-        return rtimes.is_active(request.timestamp):
+        return rtimes.is_active(request.timestamp)
 
     def adjust_submission_form(self, request, form):
         pass
