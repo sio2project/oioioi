@@ -1,6 +1,5 @@
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.dispatch import Signal
 from django.core.exceptions import PermissionDenied, ValidationError, \
         ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -18,9 +17,6 @@ import pprint
 from datetime import timedelta
 
 logger = logging.getLogger(__name__)
-
-pre_judge = Signal(providing_args=['environ'])
-judging_started = Signal(providing_args=['environ', 'async_result'])
 
 class RoundTimes(object):
     def __init__(self, start, end, show_results):
@@ -283,13 +279,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         environ['recipe'].extend(extra_steps)
 
-        pre_judge.send(self, environ=environ)
-
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
         async_result = evalmgr.evalmgr_job.delay(environ)
-
-        judging_started.send(self, environ=environ, async_result=async_result)
 
     def submission_judged(self, submission):
         pass
