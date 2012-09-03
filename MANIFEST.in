@@ -6,4 +6,5 @@ recursive-include oioioi/*/locale *
 recursive-include oioioi/*/templates *
 recursive-include oioioi/*/static *
 recursive-include oioioi/*/files *
+recursive-include oioioi/*/tests *
 include oioioi/deployment/*.template
