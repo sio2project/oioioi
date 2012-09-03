@@ -202,12 +202,15 @@ class TestUtils(unittest.TestCase):
             has_mixin1 = True
         class Mixin2(object):
             name = 'mixin2'
+        class Mixin3(object):
+            name = 'mixin3'
         class Base(utils.ObjectWithMixins):
             mixins = [Mixin1]
         class Derived1(Base):
             mixins = [Mixin2]
         class Derived2(Base):
             mixins = [Mixin2]
+            allow_too_late_mixins = True
             name = 'derived2'
         class Derived3(Base):
             def __init__(self, foo):
@@ -219,6 +222,10 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(Derived2().name, 'mixin2')
         self.assertEqual(Derived3(foo='bar').name, 'derived3')
         self.assertTrue(Derived2().has_mixin1)
+
+        Derived2.mix_in(Mixin3)
+        with self.assertRaises(AssertionError):
+            Derived1.mix_in(Mixin3)
 
     def test_memoized(self):
         memoized_random = utils.memoized(random.random)
