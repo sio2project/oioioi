@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         ScoreFieldTestModel
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.controllers import ContestController, AccessDecision
+from oioioi.contests.controllers import ContestController
 from oioioi.problems.models import Problem
 from datetime import datetime
 
@@ -130,12 +130,3 @@ class TestContestController(TestCase):
                 (datetime(2012, 1, 2, 2, 11, 0), [r3, r2, r1])):
             self.assertEqual(controller.order_rounds_by_focus(
                 FakeRequest(date), rounds), expected_order)
-
-    def test_access_decision(self):
-        ad_true = AccessDecision(True)
-        self.assertTrue(ad_true)
-        ad_false = AccessDecision(False, PermissionDenied('foo'))
-        self.assertFalse(ad_false)
-        ad_true.raise_()
-        with self.assertRaises(PermissionDenied):
-            ad_false.raise_()
