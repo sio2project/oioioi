@@ -98,6 +98,13 @@ class TestIndex(TestCase):
         self.assertNotIn('navbar-login', response.content)
         self.assertIn('System Administration', response.content)
 
+    def test_accounts_menu(self):
+        response = self.client.get('/', follow=True)
+        self.assertNotIn('Change password', response.content)
+        self.client.login(username='test_user')
+        response = self.client.get('/', follow=True)
+        self.assertIn('Change password', response.content)
+
 class TestIndexNoContest(TestCase):
     fixtures = ('test_users',)
 
