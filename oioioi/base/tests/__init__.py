@@ -409,10 +409,12 @@ class TestArchive(unittest.TestCase):
         try:
             basedir = os.path.join(os.path.dirname(__file__), 'files')
             for good_file in ['archive.tgz', 'archive.zip']:
-                archive.extract(os.path.join(basedir, good_file), tmpdir)
+                filename = os.path.join(basedir, good_file)
+                archive.extract(filename, tmpdir)
                 self.assertTrue(os.path.exists(a))
                 self.assertEqual(open(a, 'rb').read().strip(), 'foo')
                 os.unlink(a)
+                self.assertEqual(archive.Archive(filename).filenames(), ['a'])
             for bad_file in ['archive-with-symlink.tgz',
                     'archive-with-hardlink.tgz']:
                 with self.assertRaises(archive.UnsafeArchive):

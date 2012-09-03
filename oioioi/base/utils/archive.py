@@ -90,9 +90,6 @@ class Archive(object):
     def extract(self, *args, **kwargs):
         self._archive.extract(*args, **kwargs)
 
-    def list(self):
-        self._archive.list()
-
     def filenames(self):
         return self._archive.filenames()
 
@@ -103,9 +100,6 @@ class BaseArchive(object):
     def __del__(self):
         if hasattr(self, "_archive"):
             self._archive.close()
-
-    def list(self):
-        raise NotImplementedError()
 
     def filenames(self):
         """
@@ -155,9 +149,6 @@ class TarArchive(BaseArchive):
         else:
             self._archive = tarfile.open(fileobj=file)
 
-    def list(self, *args, **kwargs):
-        self._archive.list(*args, **kwargs)
-
     def filenames(self):
         return self._archive.getnames()
 
@@ -174,9 +165,6 @@ class ZipArchive(BaseArchive):
     def __init__(self, file):
         # ZipFile's 'file' parameter can be path (string) or file-like obj.
         self._archive = zipfile.ZipFile(file)
-
-    def list(self, *args, **kwargs):
-        self._archive.printdir(*args, **kwargs)
 
     def filenames(self):
         return [name.rstrip('/') for name in self._archive.namelist()]
