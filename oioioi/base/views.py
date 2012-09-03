@@ -1,4 +1,5 @@
 from django.shortcuts import render_to_response
+from django.http import HttpResponse
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -23,3 +24,11 @@ def index_view(request):
 
 def force_error_view(request):
     raise StandardError("Visited /force_error")
+
+def handler500(request):
+    try:
+        return render_to_response('500.html', status=500,
+                context_instance=RequestContext(request, {'traceback': tb}))
+    except Exception:
+        return HttpResponse('500 Internal Server Error', status=500,
+                content_type='text/plain')

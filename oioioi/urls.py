@@ -12,6 +12,8 @@ from oioioi.base import admin
 
 django_admin.autodiscover()
 
+handler500 = 'oioioi.base.views.handler500'
+
 urlpatterns = patterns('',
     url(r'^$', 'oioioi.base.views.index_view', name='index'),
     url(r'^force_error$', 'oioioi.base.views.force_error_view'),
