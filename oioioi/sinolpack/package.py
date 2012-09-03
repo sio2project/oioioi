@@ -124,7 +124,8 @@ class SinolPackage(object):
         logger.info('%s: ingen', self.filename)
         execute('make ingen', cwd=self.rootdir)
 
-        if glob.glob(os.path.join(self.rootdir, 'prog', '???inwer.*')):
+        if glob.glob(os.path.join(self.rootdir, 'prog',
+                '%sinwer.*' % (self.short_name,))):
             logger.info('%s: inwer', self.filename)
             execute('make inwer', cwd=self.rootdir)
         else:

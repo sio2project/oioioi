@@ -22,7 +22,8 @@
     "fields": {
       "name": "Sum\u017cyce",
       "short_name": "sum",
-      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend"
     }
   },
   {

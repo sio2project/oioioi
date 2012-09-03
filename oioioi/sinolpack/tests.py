@@ -14,6 +14,8 @@ from oioioi.programs.models import Test, OutputChecker, ModelSolution
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from nose.plugins.attrib import attr
 import os.path
+from cStringIO import StringIO
+import zipfile
 
 def _package_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
@@ -151,3 +153,35 @@ class TestSinolPackageInContest(TestCase):
                 reverse('oioioiadmin:problems_problem_download',
                     args=(problem.id,)))
         self.assertEqual(response.content, open(filename, 'rb').read())
+
+class TestSinolPackageCreator(TestCase):
+    fixtures = ['test_users', 'test_full_package']
+
+    def test_sinol_package_creator(self):
+        problem = Problem.objects.get()
+        self.client.login(username='test_admin')
+        response = self.client.get(
+                reverse('oioioiadmin:problems_problem_download',
+                    args=(problem.id,)))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/zip')
+        stream = StringIO(response.content)
+        zip = zipfile.ZipFile(stream, 'r')
+        self.assertEqual(sorted(zip.namelist()), [
+                'sum/in/sum0.in',
+                'sum/in/sum1a.in',
+                'sum/in/sum1b.in',
+                'sum/in/sum1ocen.in',
+                'sum/in/sum2.in',
+                'sum/in/sum3.in',
+                'sum/out/sum0.out',
+                'sum/out/sum1a.out',
+                'sum/out/sum1b.out',
+                'sum/out/sum1ocen.out',
+                'sum/out/sum2.out',
+                'sum/out/sum3.out',
+                'sum/prog/sum.c',
+                'sum/prog/sum1.pas',
+                'sum/prog/sumb0.c',
+                'sum/prog/sums1.cpp',
+            ])
