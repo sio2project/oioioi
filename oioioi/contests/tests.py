@@ -72,6 +72,7 @@ def print_contest_id_view(request, contest_id=None):
 
 def render_contest_id_view(request):
     t = Template('{{ contest.id }}')
+    print RequestContext(request)
     return HttpResponse(t.render(RequestContext(request)))
 
 class TestCurrentContest(TestCase):
@@ -95,6 +96,7 @@ class TestCurrentContest(TestCase):
         self.assertEqual(self.client.get('/contest_id').content, 'c1')
 
     def test_current_contest_processor(self):
+        #self.assertEqual(self.client.get('/contest_id').content, 'c2')
         self.assertEqual(self.client.get('/render_contest_id').content, 'c2')
 
 class TestContestController(TestCase):

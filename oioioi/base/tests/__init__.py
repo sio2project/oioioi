@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.utils import unittest
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.test.client import Client, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django import forms
@@ -14,11 +15,12 @@ from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, is_contest_admin, \
         MenuRegistry
-from oioioi.base import menu
 
 import random
 import sys
 import os.path
+
+basedir = os.path.dirname(__file__)
 
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
@@ -74,53 +76,66 @@ class TestIndex(TestCase):
         self.client = Client()
 
     def test_login(self):
-        response = self.client.get('/')
+        response = self.client.get('/', follow=True)
         self.assertNotIn('test_user', response.content)
         self.assert_(self.client.login(username='test_user'))
-        response = self.client.get('/')
+        response = self.client.get('/', follow=True)
         self.assertIn('test_user', response.content)
 
     def test_language_flags(self):
-        response = self.client.get('/')
+        response = self.client.get('/', follow=True)
         for lang_code, lang_name in settings.LANGUAGES:
             self.assertIn(lang_code + '.png', response.content)
 
     def test_index(self):
-        response = self.client.get('/')
-        self.assertIn('navbar-login', response.content)
-
         self.client.login(username='test_user')
-        response = self.client.get('/')
+        response = self.client.get('/', follow=True)
         self.assertNotIn('navbar-login', response.content)
-        self.assertNotIn('<h1>Admin</h1>', response.content)
+        self.assertNotIn('System Administration', response.content)
 
         self.client.login(username='test_admin')
-        response = self.client.get('/')
+        response = self.client.get('/', follow=True)
         self.assertNotIn('navbar-login', response.content)
-        self.assertIn('<h1>Admin</h1>', response.content)
+        self.assertIn('System Administration', response.content)
 
-class TestNoContest(TestCase):
+class TestIndexNoContest(TestCase):
+    fixtures = ('test_users',)
+
     def setUp(self):
         self.client = Client()
 
     def test_no_contest(self):
         response = self.client.get('/')
-        self.assertIn('This is a new OIOIOI installation', response.content)
+        self.assertIn('There are no contests available to logged out',
+                response.content)
+        self.client.login(username='test_admin')
+        response = self.client.get('/')
+        self.assertIn('This is a new OIOIOI installation',
+                response.content)
+
+    @override_settings(TEMPLATE_DIRS=(os.path.join(basedir, 'templates'),))
+    def test_custom_index(self):
+        response = self.client.get('/')
+        self.assertIn('This is a test index template', response.content)
+
+    def test_navbar_login(self):
+        response = self.client.get('/')
+        self.assertIn('navbar-login', response.content)
 
 class TestMenu(TestCase):
     fixtures = ('test_users',)
 
     def setUp(self):
         self.factory = RequestFactory()
-        self.saved_menu = menu.menu_registry.items
-        menu.menu_registry.items = []
+        self.saved_menu = menu_registry.items
+        menu_registry.items = []
 
     def tearDown(self):
-        menu.menu_registry.items = self.saved_menu
+        menu_registry.items = self.saved_menu
 
     def _render_menu(self, user=None):
         request = self.factory.get('/')
-        request.user = user or AnonymousUser()
+        request.user = user or User.objects.get(username='test_user')
         request.contest = None
         return render_to_string('base-with-menu.html',
                 context_instance=RequestContext(request))
@@ -238,7 +253,7 @@ class TestAllWithPrefix(unittest.TestCase):
         self.assertNotIn('baz', rendered)
 
 class TestDottedFieldClass(RegisteredSubclassesBase):
-    modules_with_subclasses = ['test_dotted_field_classes']
+    modules_with_subclasses = ['tests.test_dotted_field_classes']
     abstract = True
 
 class TestDottedFieldSubclass(TestDottedFieldClass):
@@ -257,10 +272,11 @@ class TestFields(unittest.TestCase):
                     TestDottedFieldSubclass.description)])
 
     def test_dotted_name_field_module_loading(self):
-        if 'oioioi.base.test_dotted_field_classes' in sys.modules:
-            del sys.modules['oioioi.base.test_dotted_field_classes']
+        if 'oioioi.base.tests.test_dotted_field_classes' in sys.modules:
+            del sys.modules['oioioi.base.tests.test_dotted_field_classes']
         TestDottedFieldClass.load_subclasses()
-        self.assertIn('oioioi.base.test_dotted_field_classes', sys.modules)
+        self.assertIn('oioioi.base.tests.test_dotted_field_classes',
+                sys.modules)
 
     def test_enum_field(self):
         registry = EnumRegistry()

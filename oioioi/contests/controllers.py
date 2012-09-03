@@ -150,11 +150,11 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
-#    def can_enter_contest(sel, request):
-#        return True
+    def can_enter_contest(sel, request):
+        return True
 
     def anonymous_can_enter_contest(self):
-        return False
+        return True
 
     def filter_participants(self, queryset):
         return queryset

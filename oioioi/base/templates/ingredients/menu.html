@@ -4,29 +4,23 @@
 {% if is_contest_admin or user.is_superuser %}
 <ul class="nav nav-list admin-menu">
     {% if user.is_superuser %}
-    <li class="nav-header">{% trans "System Administration" %}</li>
-    {% include "ingredients/admin_menu_section.html" with registry='oioioi.base.admin.system_admin_menu_registry' %}
+    {% include "ingredients/admin_menu_section.html" with registry='oioioi.base.admin.system_admin_menu_registry' header=_("System Administration") %}
     {% endif %}
-    {% if contest %}
+
     {% if is_contest_admin %}
-    <li class="nav-header">{% trans "Contest Administration" %}</li>
-    {% include "ingredients/admin_menu_section.html" with registry='oioioi.base.admin.contest_admin_menu_registry' %}
+    {% include "ingredients/admin_menu_section.html" with registry='oioioi.base.admin.contest_admin_menu_registry' header=_("Contest Administration") %}
     {% endif %}
-    <li class="nav-header">{% trans "User Menu" %}</li>
-    {% include "ingredients/admin_menu_section.html" with registry=None %}
-    {% endif %}
-    {% endif %}
+
+    {% include "ingredients/admin_menu_section.html" with registry=None header=_("User Menu")%}
 </ul>
 {% else %}
 <ul class="nav nav-list user-menu">
-    {% if contest %}
     {% generate_menu %}
     {% for item in menu %}
     <li id="{{ item.name }}" {% if item.url == request.path %}class="active"{% endif %}>
     <a href="{{ item.url }}"><img src="{{ STATIC_URL }}images/menu/menu-icon-{% cycle '1' '2' '3' %}.png"/>{{ item.text }}</a>
     </li>
     {% endfor %}
-    {% endif %}
 </ul>
 {% endif %}
 {% all_with_prefix extra_menu_bottom_ %}

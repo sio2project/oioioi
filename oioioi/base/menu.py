@@ -60,10 +60,13 @@ class MenuRegistry(object):
         """Returns a list of items to pass to a template for rendering."""
         context_items = []
         for item in self.items:
-            if item.condition(request):
-                context_items.append(dict(
-                    url=item.url_generator(request),
-                    text=item.text))
+            try:
+                if item.condition(request):
+                    context_items.append(dict(
+                        url=item.url_generator(request),
+                        text=item.text))
+            except Exception:
+                pass
         return context_items
 
 #: The default menu registry. Modules should use this to register menu items
