@@ -22,51 +22,6 @@ logger = logging.getLogger(__name__)
 pre_judge = Signal(providing_args=['environ'])
 judging_started = Signal(providing_args=['environ', 'async_result'])
 
-class AccessDecision(object):
-    """A class representing access control decisions.
-
-       Works more or less like a ``bool``, but if ``False``, it can
-       store an exception which may be thrown if demanded.  To test for the
-       decision, just use this class as if it were a ``bool``.  Logic
-       operators work, too.
-
-       This class exists, because sometimes it is better to signal access
-       denial by an exception, but in many other cases the caller just needs
-       whether the access would be allowed or not.
-
-       To raise the exception if access is denied, use :meth:`raise_`.
-
-       .. attribute:: exc
-
-          The saved exception or ``None`` if access is granted.
-    """
-
-    def __init__(self, decision, exc=None):
-        """Constructs an instance of :class:`AccessDecision`.
-
-           :type decision: bool
-           :param decision: access decision (``True`` grants access)
-           :param exc: an exception to throw; can only be specified if
-             ``decision`` is False; if not specified,
-             :class:`~django.core.exceptions.PermissionDenied` will be used
-        """
-        self._decision = bool(decision)
-        if not exc and not self._decision:
-            exc = PermissionDenied(_("Access denied"))
-        self.exc = exc
-        assert not self._decision or exc is None, \
-                "exc must be None if decision is True in " \
-                "AccessDecision.__init__"
-
-    def __nonzero__(self):
-        return self._decision
-
-    def raise_(self):
-        """Raises the stored exception, if the access should be denied,
-           otherwise does nothing."""
-        if self.exc is not None:
-            raise self.exc
-
 class RoundTimes(object):
     def __init__(self, start, end, show_results):
         self.start = start
@@ -252,16 +207,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation checks round dates and emits
            :data:`can_see_problem` and subclasses should also call this default
            implementation.
-
-           :rtype: instance of :class:`~AccessDecision`
         """
         if request.user.has_perm('contests.contest_admin', request.contest):
-            return AccessDecision(True)
+            return True
         rtimes = self.get_round_times(request, problem_instance.round)
         if rtimes.is_future(request.timestamp):
-            return AccessDecision(False, PermissionDenied(
-                _("Round did not start yet")))
-        return AccessDecision(True)
+            return False
+        return True
 
     def can_submit(self, request, problem_instance):
         """Determines if the current user is allowed to submit a solution for
@@ -271,21 +223,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            checks if the round is active for the given user and also emits
            :data:`can_submit`. Subclasses should also call this default
            implementation.
-
-           :rtype: instance of :class:`~AccessDecision`
         """
         if request.user.is_anonymous():
-            return AccessDecision(False,
-                    PermissionDenied(_("Anonymous users cannot submit "
-                        "solutions")))
+            return False
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            return True
         rtimes = self.get_round_times(request, problem_instance.round)
-        if rtimes.is_past(request.timestamp):
-            return AccessDecision(False,
-                PermissionDenied(_("Round did not start yet")))
-        if rtimes.is_future(request.timestamp):
-            return AccessDecision(False,
-                    PermissionDenied(_("Round has ended")))
-        return AccessDecision(True)
+        return rtimes.is_active(request.timestamp):
 
     def adjust_submission_form(self, request, form):
         pass

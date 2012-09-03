@@ -86,7 +86,8 @@ def problem_statement_view(request, contest_id, problem_instance):
     pi = get_object_or_404(ProblemInstance, round__contest=request.contest,
             short_name=problem_instance)
 
-    controller.can_see_problem(request, pi).raise_()
+    if not controller.can_see_problem(request, pi):
+        raise PermissionDenied
 
     statements = ProblemStatement.objects.filter(problem=pi.problem)
     if not statements:
