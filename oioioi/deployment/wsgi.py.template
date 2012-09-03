@@ -21,8 +21,8 @@ if '__VIRTUAL_ENV__' and 'VIRTUAL_ENV' not in os.environ:
     sys.path.insert(0, '__SITE_PACKAGES__')
     os.environ['PATH'] = '__VIRTUAL_ENV__/bin:' + os.environ['PATH']
 
-sys.path.insert(0, '__DIR__')
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+from oioioi.deployment.init import init_env
+init_env('__DIR__')
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION

@@ -8,7 +8,7 @@ if __name__ == "__main__":
         sys.path.insert(0, '__SITE_PACKAGES__')
         os.environ['PATH'] = '__VIRTUAL_ENV__/bin:' + os.environ['PATH']
 
-    sys.path.insert(0, '__DIR__')
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
+    from oioioi.deployment.init import init_env
+    init_env('__DIR__')
     from django.core.management import execute_from_command_line
     execute_from_command_line(sys.argv)
