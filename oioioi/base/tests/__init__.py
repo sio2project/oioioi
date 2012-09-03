@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.forms import ValidationError
 
 from oioioi.base import utils
-from oioioi.base.utils import RegisteredSubclassesBase
+from oioioi.base.utils import RegisteredSubclassesBase, archive
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, is_contest_admin, \
@@ -24,6 +24,8 @@ import random
 import sys
 import os.path
 import re
+import tempfile
+import shutil
 
 basedir = os.path.dirname(__file__)
 
@@ -399,3 +401,21 @@ class TestRegistration(TestCase):
         self.assertTrue(user.is_active)
         self.assertEqual(user.first_name, 'Foo')
         self.assertEqual(user.last_name, 'Bar')
+
+class TestArchive(unittest.TestCase):
+    def test_archive(self):
+        tmpdir = tempfile.mkdtemp()
+        a = os.path.join(tmpdir, 'a')
+        try:
+            basedir = os.path.join(os.path.dirname(__file__), 'files')
+            for good_file in ['archive.tgz', 'archive.zip']:
+                archive.extract(os.path.join(basedir, good_file), tmpdir)
+                self.assertTrue(os.path.exists(a))
+                self.assertEqual(open(a, 'rb').read().strip(), 'foo')
+                os.unlink(a)
+            for bad_file in ['archive-with-symlink.tgz',
+                    'archive-with-hardlink.tgz']:
+                with self.assertRaises(archive.UnsafeArchive):
+                    archive.extract(os.path.join(basedir, bad_file), tmpdir)
+        finally:
+            shutil.rmtree(tmpdir)
