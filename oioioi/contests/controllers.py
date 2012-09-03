@@ -499,9 +499,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         raise NotImplementedError
 
-    def render_submission_json(self, request, submission):
-        raise NotImplementedError
-
     def render_report(self, request, report):
         """Renders the given report to HTML.
 
@@ -527,10 +524,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                             'environ': environ}))
         else:
             raise NotImplementedError
-
-    def render_report_json(self, request, report):
-        """Renders the given report to JSON."""
-        raise NotImplementedError
 
     def adjust_contest(self):
         """Called whan a (usually new) contest has just got the controller

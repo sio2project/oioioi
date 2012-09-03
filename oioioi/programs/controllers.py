@@ -166,9 +166,6 @@ class ProgrammingContestController(ContestController):
                     {'submission': submission_template_context(request,
                         submission.programsubmission)}))
 
-    def render_submission_json(self, request, submission):
-        raise NotImplementedError
-
     def render_report(self, request, report):
         if report.kind == 'FAILURE':
             return ContestController.render_report(self, request,
@@ -188,14 +185,8 @@ class ProgrammingContestController(ContestController):
             groups.append({'tests': list(tests),
                 'report': group_reports[group_name]})
 
-#        logger.warn(repr(bool(group_reports.values()[0].score)))
-
         return render_to_string('programs/report.html',
                 context_instance=RequestContext(request,
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
                         'groups': groups}))
-
-    def render_report_json(self, request, report):
-        """Renders the given report to JSON."""
-        raise NotImplementedError
