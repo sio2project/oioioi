@@ -95,8 +95,8 @@ def problem_statement_view(request, contest_id, problem_instance):
                 context_instance=RequestContext(request,
                     {'problem_instance': pi}))
 
-    lang_prefs = [translation.get_language()] + \
-            [l[0] for l in settings.LANGUAGES] + ['', None]
+    lang_prefs = [translation.get_language()] + ['', None] + \
+            [l[0] for l in settings.LANGUAGES]
     ext_prefs = ['.pdf', '.ps', '.html', '.txt']
 
     def sort_key(statement):

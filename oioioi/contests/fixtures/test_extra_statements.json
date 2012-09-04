@@ -1,0 +1,38 @@
+[
+  {
+    "pk": 2,
+    "model": "problems.problemstatement",
+    "fields": {
+      "content": "data:problems/1/en-us.txt:raw:en-us-txt",
+      "problem": 1,
+      "language": "en-us"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemstatement",
+    "fields": {
+      "content": "data:problems/1/pl.txt:raw:pl-txt",
+      "problem": 1,
+      "language": "pl"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemstatement",
+    "fields": {
+      "content": "data:problems/1/pl.pdf:raw:pl-pdf",
+      "problem": 1,
+      "language": "pl"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problemstatement",
+    "fields": {
+      "content": "data:problems/1/strange.strange:raw:strange-strange",
+      "problem": 1,
+      "language": "strange"
+    }
+  }
+]

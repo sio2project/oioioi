@@ -82,6 +82,8 @@ class ProgrammingProblemController(ProblemController):
 
         if getattr(settings, 'USE_UNSAFE_EXEC', False):
             environ['exec_mode'] = 'unsafe'
+        else:
+            environ['exec_mode'] = settings.SAFE_EXEC_MODE
 
         if getattr(settings, 'USE_LOCAL_COMPILERS', False):
             environ['compiler'] = 'system-' + environ['language']
@@ -154,11 +156,10 @@ class ProgrammingContestController(ContestController):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return queryset
         elif self.results_visible(request, submission):
-            return SubmissionReport.objects.filter(submission=submission,
-                    status='ACTIVE', kind__in=['INITIAL', 'NORMAL'])
+            return queryset.filter(status='ACTIVE',
+                    kind__in=['INITIAL', 'NORMAL'])
         else:
-            return SubmissionReport.objects.filter(submission=submission,
-                    status='ACTIVE', kind='INITIAL')
+            return queryset.filter(status='ACTIVE', kind='INITIAL')
 
     def render_submission(self, request, submission):
         return render_to_string('programs/submission_header.html',

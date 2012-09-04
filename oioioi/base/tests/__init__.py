@@ -6,7 +6,7 @@ from django.utils import unittest
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.test.client import Client, RequestFactory
+from django.test.client import RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django import forms
 from django.template import Context, Template, RequestContext
@@ -26,6 +26,8 @@ import os.path
 import re
 import tempfile
 import shutil
+from contextlib import contextmanager
+import threading
 
 basedir = os.path.dirname(__file__)
 
@@ -61,6 +63,24 @@ class IgnorePasswordAuthBackend(object):
         except User.DoesNotExist:
             return None
 
+class FakeTimeMiddleware(object):
+    _fake_timestamp = threading.local()
+    def process_request(self, request):
+        if not hasattr(request, 'timestamp'):
+            raise ImproperlyConfigured("FakeTimeMiddleware must go after "
+                    "TimestampingMiddleware")
+        fake_timestamp = getattr(self._fake_timestamp, 'value', None)
+        if fake_timestamp:
+            request.timestamp = fake_timestamp
+
+@contextmanager
+def fake_time(timestamp):
+    """A context manager which causes all requests having the specified
+       timestamp, regardless of the real wall clock time."""
+    FakeTimeMiddleware._fake_timestamp.value = timestamp
+    yield
+    del FakeTimeMiddleware._fake_timestamp.value
+
 class TestTestConfig(unittest.TestCase):
     def test_test_config(self):
         if not getattr(settings, 'TESTS', False):
@@ -85,9 +105,6 @@ class TestPermsTemplateTags(TestCase):
 
 class TestIndex(TestCase):
     fixtures = ('test_users', 'test_contest')
-
-    def setUp(self):
-        self.client = Client()
 
     def test_login(self):
         response = self.client.get('/', follow=True)
@@ -121,9 +138,6 @@ class TestIndex(TestCase):
 
 class TestIndexNoContest(TestCase):
     fixtures = ('test_users',)
-
-    def setUp(self):
-        self.client = Client()
 
     def test_no_contest(self):
         response = self.client.get('/')
@@ -379,9 +393,6 @@ class TestMisc(unittest.TestCase):
         self.assertIn('name2', links)
 
 class TestRegistration(TestCase):
-    def setUp(self):
-        self.client = Client()
-
     def test_registration_form_fields(self):
         response = self.client.get(reverse('registration_register'))
         form = response.context['form']

@@ -33,4 +33,4 @@ class Command(BaseCommand):
         except NoBackend:
             raise CommandError(_("Package format not recognized"))
 
-        problem = backend.unpack(filename, problem)
+        problem = backend.unpack(filename, existing_problem=problem)

@@ -177,10 +177,7 @@ def run_tests(env, kind=None, **kwargs):
         if kind and test_env['kind'] != kind:
             continue
         job = test_env.copy()
-        job_type = 'exec'
-        if 'exec_mode' in env:
-            job_type = env['exec_mode'] + '-exec'
-        job['job_type'] = job_type
+        job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
         job['exe_file'] = env['compiled_file']
         job['check_output'] = True
         if env.get('checker'):

@@ -14,7 +14,10 @@ class _FileDescriptor(files.FileDescriptor):
         file = instance.__dict__[self.field.name]
         if isinstance(file, basestring) and file.startswith('data:'):
             name, content = file.split(':', 2)[1:]
-            content = base64.b64decode(content)
+            if content.startswith('raw:'):
+                content = str(content[4:])
+            else:
+                content = base64.b64decode(content)
             try:
                 # We really don't want millions of the same files in the
                 # Filetracker. This way we get consistency with database
@@ -28,7 +31,18 @@ class _FileDescriptor(files.FileDescriptor):
         return files.FileDescriptor.__get__(self, instance, owner)
 
 class FileField(files.FileField):
-    """A :class:`~djando.db.models.FileField` with fixtures support."""
+    """A :class:`~django.db.models.FileField` with fixtures support.
+
+       Values of ``FileFields`` are serialized as::
+
+         data:<filename>:<base64-encoded data>
+
+       It is also possible to decode a more human-friendly representaion::
+
+         data:<filename>:raw:<raw data>
+
+       but this works only for ASCII content.
+    """
 
     descriptor_class = _FileDescriptor
 

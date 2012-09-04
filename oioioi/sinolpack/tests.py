@@ -1,7 +1,6 @@
 # coding: utf-8
 
 from django.test import TestCase
-from django.test.client import Client
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from oioioi.problems.package import backend_for_package
@@ -51,7 +50,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(t0.input_file.read(), '1 2\n')
         self.assertEqual(t0.output_file.read(), '3\n')
         self.assertEqual(t0.kind, 'EXAMPLE')
-        self.assertIsNone(t0.group)
+        self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
         self.assertEqual(t0.time_limit, DEFAULT_TIME_LIMIT)
         self.assertEqual(t0.memory_limit, 133000)
@@ -66,7 +65,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(t1b.time_limit, 100)
         t1ocen = tests.get(name='1ocen')
         self.assertEqual(t1ocen.kind, 'EXAMPLE')
-        self.assertIsNone(t1ocen.group)
+        self.assertEqual(t1ocen.group, '1ocen')
         self.assertEqual(t1ocen.max_score, 0)
         t2 = tests.get(name='2')
         self.assertEqual(t2.kind, 'NORMAL')
@@ -112,9 +111,6 @@ class TestSinolPackage(TestCase):
 
 class TestSinolPackageInContest(TestCase):
     fixtures = ['test_users', 'test_contest']
-
-    def setUp(self):
-        self.client = Client()
 
     def test_upload_and_download_package(self):
         contest = Contest.objects.get()
@@ -191,9 +187,6 @@ class TestSinolPackageCreator(TestCase):
 
 class TestJudging(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
-
-    def setUp(self):
-        self.client = Client()
 
     def test_judging(self):
         self.client.login(username='test_user')

@@ -1,6 +1,5 @@
 from django.utils import unittest
 from django.test import TestCase
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile, FileField
@@ -94,14 +93,13 @@ class TestFileStorageViews(TestCase):
         try:
             url = reverse('oioioi.filetracker.views.raw_file_view',
                     kwargs={'filename': filename})
-            client = Client()
-            response = client.get(url)
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
-            client.login(username='test_user')
-            response = client.get(url)
+            self.client.login(username='test_user')
+            response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
-            client.login(username='test_admin')
-            response = client.get(url)
+            self.client.login(username='test_admin')
+            response = self.client.get(url)
             self.assertEqual(response.content, content)
         finally:
             default_storage.delete(filename)

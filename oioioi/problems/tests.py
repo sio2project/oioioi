@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest
@@ -26,9 +25,6 @@ class TestModels(TestCase):
 
 class TestProblemViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
-
-    def setUp(self):
-        self.client = Client()
 
     def test_problem_statement_view(self):
         self.client.login(username='test_admin')

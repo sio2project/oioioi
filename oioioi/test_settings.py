@@ -11,6 +11,10 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+MIDDLEWARE_CLASSES += (
+    'oioioi.base.tests.FakeTimeMiddleware',
+)
+
 TESTS = True
 
 SECRET_KEY = 'no_secret'

@@ -277,6 +277,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'date']
     list_filter = ['user', 'problem_instance__problem__name', 'status']
     date_hierarchy = 'date'
+    actions = ['rejudge_action']
 
     def has_add_permission(self, request):
         return False
@@ -315,6 +316,16 @@ class SubmissionAdmin(admin.ModelAdmin):
         return instance.get_score_display() or ''
     score_display.short_description = _("Score")
 
+    def rejudge_action(self, request, queryset):
+        controller = request.contest.controller
+        counter = 0
+        for submission in queryset:
+            controller.judge(submission)
+            counter += 1
+        self.message_user(request, _("Queued %d submissions for rejudge.")
+                % (counter,))
+    rejudge_action.short_description = _("Rejudge selected submissions")
+
     def queryset(self, request):
         queryset = super(SubmissionAdmin, self).queryset(request)
         queryset = queryset.filter(problem_instance__contest=request.contest)
@@ -326,11 +337,9 @@ class SubmissionAdmin(admin.ModelAdmin):
             kwargs={'contest_id': request.contest.id,
                 'submission_id': unquote(object_id)}))
 
-
 admin.site.register(Submission, SubmissionAdmin)
 
 admin.contest_admin_menu_registry.register('submissions_admin',
         _("Submissions"), lambda request:
         reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
-

@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Submission
@@ -8,9 +7,6 @@ from oioioi.programs.models import Test
 class TestProgramsViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
-
-    def setUp(self):
-        self.client = Client()
 
     def test_submission_views(self):
         self.client.login(username='test_user')

@@ -105,7 +105,8 @@ class DefaultRankingController(RankingController):
                 # problems do not support scoring, or all the evaluations
                 # failed with System Errors).
                 data.append(user_data)
-        data.sort(key=itemgetter('sum', 'user_sort_key'))
+        data.sort(key=itemgetter('user_sort_key'))
+        data.sort(key=itemgetter('sum'), reverse=True)
         prev_sum = None
         place = None
         for i, row in enumerate(data):

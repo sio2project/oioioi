@@ -124,7 +124,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         self.contest = contest
 
     def registration_controller(self):
-        return PublicContestRegistrationController(self)
+        return PublicContestRegistrationController(self.contest)
 
     def default_view(self, request):
         """Determines the default landing page for the user from the passed
@@ -207,9 +207,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
         rtimes = self.get_round_times(request, problem_instance.round)
-        if rtimes.is_future(request.timestamp):
-            return False
-        return True
+        return not rtimes.is_future(request.timestamp)
 
     def can_submit(self, request, problem_instance):
         """Determines if the current user is allowed to submit a solution for
@@ -436,9 +434,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                               select only given submission's reports
            :returns: updated queryset
         """
-        if not self.results_visible(request, submission):
-            return queryset.none()
-        return queryset
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            return queryset
+        if self.results_visible(request, submission):
+            return queryset.filter(status='ACTIVE', kind='NORMAL')
+        return queryset.none()
 
     def can_see_submission_status(self, request, submission):
         """Determines whether a user can see one of his/her submissions'

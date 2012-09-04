@@ -23,8 +23,7 @@ class Test(models.Model):
     output_file = FileField(upload_to=make_problem_filename,
             verbose_name=_("output/hint"), null=True, blank=True)
     kind = EnumField(test_kinds, verbose_name=_("kind"))
-    group = models.CharField(max_length=30, verbose_name=_("group"),
-            null=True, blank=True)
+    group = models.CharField(max_length=30, verbose_name=_("group"))
     time_limit = models.IntegerField(verbose_name=_("time limit (ms)"),
             null=True, blank=True)
     memory_limit = models.IntegerField(verbose_name=_("memory limit (kB)"),

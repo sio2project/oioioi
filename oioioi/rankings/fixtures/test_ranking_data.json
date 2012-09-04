@@ -1,0 +1,58 @@
+[
+  {
+    "pk": 5,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "score": "int:35",
+      "user": 1002
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.userresultforround",
+    "fields": {
+      "score": "int:35",
+      "user": 1002,
+      "round": 3
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.userresultforcontest",
+    "fields": {
+      "score": "int:35",
+      "user": 1002,
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "score": "int:34",
+      "user": 1000
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.userresultforround",
+    "fields": {
+      "score": "int:34",
+      "user": 1000,
+      "round": 3
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.userresultforcontest",
+    "fields": {
+      "score": "int:34",
+      "user": 1000,
+      "contest": "c"
+    }
+  }
+]
