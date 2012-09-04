@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'djsupervisor',
     'registration',
     'grappelli',
+    'south',
     'django_nose',
     'django_extensions',
     'debug_toolbar',
@@ -154,7 +155,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'south',
 )
 
 AUTHENTICATION_BACKENDS = (
