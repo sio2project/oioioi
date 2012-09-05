@@ -34,7 +34,10 @@ Django settings and other deployment configuration::
 
 The created *deployment* directory looks like a new Django project, but already
 configured to serve the OIOIOI portal. You need to at least set the `database
-configuration`_ in *settings.py*.
+configuration`_ in *settings.py* and initialize it::
+
+  ./manage.py syncdb
+  ./manage.py migrate
 
 .. _virtualenv: http://www.virtualenv.org/en/latest/index.html
 .. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -107,7 +110,7 @@ Production configuration
    do not need to run *manage.py runserver*.
 
 #. Set admin email in settings. Error reports and teacher account requests will
-   be send there.
+   be sent there.
 
 #. You probably want to run *manage.py supervisor* automatically when the
    system starts. We do not have a ready-made solution for this yet. Sorry!
