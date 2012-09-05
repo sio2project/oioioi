@@ -20,10 +20,6 @@ def get_timezone():
     except IOError:
         return 'GMT'
 
-def find_site_packages():
-    from distutils.sysconfig import get_python_lib
-    return get_python_lib()
-
 def generate_from_template(dir, filename, context):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + '.template')).read()
@@ -50,17 +46,15 @@ def generate_all(dir):
     os.mkdir(os.path.join(dir, 'logs'))
     os.mkdir(os.path.join(dir, 'pidfiles'))
 
-    virtual_env = os.environ.get('VIRTUAL_ENV', ''),
-    site_packages = find_site_packages()
-    user = pwd.getpwuid(os.getuid())[0],
-    group = grp.getgrgid(os.getgid())[0],
+    virtual_env = os.environ.get('VIRTUAL_ENV', '')
+    user = pwd.getpwuid(os.getuid())[0]
+    group = grp.getgrgid(os.getgid())[0]
 
     manage_py = os.path.join(dir, 'manage.py')
     generate_from_template(dir, 'manage.py', {
             '__DIR__': dir,
             '__PYTHON_EXECUTABLE__': sys.executable,
             '__VIRTUAL_ENV__': virtual_env,
-            '__SITE_PACKAGES__': site_packages,
         })
     os.chmod(manage_py, 0755)
 
@@ -71,7 +65,6 @@ def generate_all(dir):
     generate_from_template(dir, 'wsgi.py', {
             '__DIR__': dir,
             '__VIRTUAL_ENV__': virtual_env,
-            '__SITE_PACKAGES__': site_packages,
         })
 
     generate_from_template(dir, 'apache-site.conf', {
