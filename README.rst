@@ -23,10 +23,8 @@ Then OIOIOI and its dependencies can be installed by simply running::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
 
-This will also store the source code in *src/*.
-
-There is no official release yet, so a simple ``pip install oioioi`` wouldn't
-work.
+This will also store the source code in *src/*. There is no official release
+yet, so a simple ``pip install oioioi`` wouldn't work.
 
 OIOIOI is a set of Django Applications, so you need to create a folder with
 Django settings and other deployment configuration::
@@ -34,7 +32,9 @@ Django settings and other deployment configuration::
   oioioi-create-config deployment
   cd deployment
 
-You need to at least set the `database configuration`_ in *settings.py*.
+The created *deployment* directory looks like a new Django project, but already
+configured to serve the OIOIOI portal. You need to at least set the `database
+configuration`_ in *settings.py*.
 
 .. _virtualenv: http://www.virtualenv.org/en/latest/index.html
 .. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -48,10 +48,12 @@ with the normal user privileges. **This is not a safe configuration and the
 judging will run quite slowly.** It is to easily make OIOIOI up and running for
 testing purposes.
 
-Just ensure that C, C++ and Pascal compilers are installed:
+Ensure that required dependencies are installed:
 
 * gcc/g++ (Ubuntu package: *build-essentials*)
 * fpc (Ubuntu package: *fp-compiler*)
+* latex with support for Polish (Ubuntu packages: *texlive-latex*,
+  *texlive-lang-polish*)
 
 and in one terminal run the Django web server::
 
@@ -74,6 +76,8 @@ Now you're ready to access the site at *http://localhost:8000*.
 
 Production configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Begin with the simple configuration described above.
 
 #. Make sure you are in the *deployment* folder and the virtualenv is activated.
 
