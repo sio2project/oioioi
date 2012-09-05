@@ -1,0 +1,154 @@
+======
+OIOIOI
+======
+
+SIO2 is a free platform for carrying out algorithmic contests and OIOIOI is its
+main component --- the web interface.
+
+Installation
+------------
+
+It should be easier to begin with a separate folder at first::
+
+  mkdir sio2
+  cd sio2
+
+and to install OIOIOI inside a `virtualenv`_::
+
+  pip install virtualenv
+  virtualenv venv
+  . venv/bin/activate
+
+Then OIOIOI and its dependencies can be installed by simply running::
+
+  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
+
+This will also store the source code in *src/*.
+
+There is no official release yet, so a simple ``pip install oioioi`` wouldn't
+work.
+
+OIOIOI is a set of Django Applications, so you need to create a folder with
+Django settings and other deployment configuration::
+
+  oioioi-create-config deployment
+  cd deployment
+
+You need to at least set the `database configuration`_ in *settings.py*.
+
+.. _virtualenv: http://www.virtualenv.org/en/latest/index.html
+.. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+
+Simple configuration
+~~~~~~~~~~~~~~~~~~~~
+
+In the simple configuration, OIOIOI will use the system-installed compilers,
+and will not use the safe execution environment. User's programs will be run
+with the normal user privileges. **This is not a safe configuration and the
+judging will run quite slowly.** It is to easily make OIOIOI up and running for
+testing purposes.
+
+Just ensure that C, C++ and Pascal compilers are installed:
+
+* gcc/g++ (Ubuntu package: *build-essentials*)
+* fpc (Ubuntu package: *fp-compiler*)
+
+and in one terminal run the Django web server::
+
+  ./manage.py runserver 0.0.0.0:8000
+
+and in the other the evaluation daemons::
+
+  ./manage.py supervisor
+
+The *supervisor* process monitor all processes needed by OIOIOI, except the
+web server. It has `many nice features`_.
+
+Finally you need an adminstrator account::
+
+  ./manage.py createsuperuser
+
+Now you're ready to access the site at *http://localhost:8000*.
+
+.. _many nice features: https://github.com/rfk/django-supervisor#usage
+
+Production configuration
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Make sure you are in the *deployment* folder and the virtualenv is activated.
+
+#. Install `RabbitMQ`_. We tested version 2.8.6 from `RabbitMQ Debian/Ubuntu
+   Repos`_. Anything newer should work as well.
+
+#. Uncomment and set *BROKER_URL* in *settings.py* to point to the configured
+   RabbitMQ vhost. The default setting corresponds to the default RabbitMQ
+   installation.
+
+#. Enable Filetracker server by uncommenting corresponding lines in
+   *settings.py* and restart the daemons.
+
+#. Download sandboxes::
+
+     ./manage.py download_sandboxes
+
+#. Disable system compilers and unsafe code execution by commenting out
+   *USE_UNSAFE_EXEC = True* and *USE_LOCAL_COMPILERS = True* in *settings.py*.
+
+#. (optionally) Disable starting the judging process on the server, especially
+   if you want to configure judging machines (see below) for judging, what is
+   strongly recommended. Comment out the *RUN_LOCAL_WORKERS = True* setting.
+
+#. Configure Apache with mod_wsgi. An example configuration is automatically
+   created as *apache-site.conf*. Have a look there. Once this is done, you
+   do not need to run *manage.py runserver*.
+
+#. Set admin email in settings. Error reports and teacher account requests will
+   be send there.
+
+#. You probably want to run *manage.py supervisor* automatically when the
+   system starts. We do not have a ready-made solution for this yet. Sorry!
+
+.. _judging-machines:
+
+Setting up judging machines
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#. Create a new user account for the judging processes and switch to it.
+
+#. Set up virtualenv::
+
+     virtualenv venv
+     . venv/bin/activate
+
+#. Install the *sioworkers* package::
+
+     pip install sioworkers
+
+#. Start the worker process::
+
+     sio-celery-worker BROKER_URL
+
+   The passed argument must point to the RabbitMQ server configured on the
+   server machine.
+
+#. That's all. You probably want to have the worker started automatically when
+   system starts. We do not have a ready-made solution for this yet. Sorry!
+
+The worker assumes that the Filetracker server is running on the same server as
+RabbitMQ, on the default port 9999. If this is not the case, you should pass
+the Filetracker server URL in the *FILETRACKER_URL* environment variable.
+
+Final notes
+~~~~~~~~~~~
+
+It is strongly recommended to install the *librabbitmq* Python module (on the
+server *and the worker machines*). We observed some not dispatched evaluation
+requests when running celery with its default AMQP binding library::
+
+  pip install librabbitmq
+
+Celery will pick up the new library automatically, once you restart the
+daemons.
+
+.. _RabbitMQ: http://www.rabbitmq.com/
+.. _RabbitMQ Debian/Ubuntu Repos: http://www.rabbitmq.com/install-debian.html
