@@ -81,3 +81,5 @@ def is_contest_admin(request):
     """Checks if the current user can administer the current contest."""
     return request.user.has_perm('contests.contest_admin', request.contest)
 
+def not_anonymous(request):
+    return request.user.is_authenticated()

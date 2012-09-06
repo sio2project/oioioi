@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from oioioi.base.menu import menu_registry
+from oioioi.base.menu import menu_registry, not_anonymous
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, Contest, ContestAttachment
@@ -39,8 +39,6 @@ def submitable_problem_instances(request):
             .select_related('problem')
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
-def not_anonymous(request):
-    return request.user.is_authenticated()
 
 menu_registry.register('problems_list', _("Problems"),
         lambda request: reverse('problems_list', kwargs={'contest_id':

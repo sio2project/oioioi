@@ -37,7 +37,6 @@ def contest_admin_permission_required(fn):
     def wrapped(request, *args, **kwargs):
         if not request.user.has_perm('contests.contest_admin',
                 request.contest):
-            raise PermissionDenied(_("Contest administration privileges "
-                "required"))
+            raise PermissionDenied
         return fn(request, *args, **kwargs)
     return wrapped

@@ -3,12 +3,12 @@ from django.shortcuts import render_to_response
 from django.core.urlresolvers import reverse
 from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.decorators import login_required
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import enter_contest_permission_required
-from oioioi.contests.controllers import ContestController
 from oioioi.contests.views import submission_template_context
 from oioioi.rankings.views import any_ranking_visible
-from oioioi.base.menu import MenuRegistry, menu_registry
+from oioioi.base.menu import MenuRegistry, menu_registry, not_anonymous
 from oioioi.messages.views import messages_template_context, \
         visible_messages
 import itertools
@@ -30,7 +30,7 @@ top_links_registry.register('ranking', _("Ranking"),
 
 menu_registry.register('dashboard', _("Dashboard"),
         lambda request: reverse('contest_dashboard', kwargs={'contest_id':
-            request.contest.id}), order=20)
+            request.contest.id}), condition=not_anonymous, order=20)
 
 # http://stackoverflow.com/questions/1624883/alternative-way-to-split-a-list-into-groups-of-n
 def grouper(n, iterable, fillvalue=None):
@@ -38,6 +38,7 @@ def grouper(n, iterable, fillvalue=None):
     args = [iter(iterable)] * n
     return list(itertools.izip_longest(*args, fillvalue=fillvalue))
 
+@login_required
 @enter_contest_permission_required
 def contest_dashboard_view(request, contest_id):
     top_links = grouper(3, top_links_registry.template_context(request))
