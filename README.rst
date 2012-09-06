@@ -53,10 +53,11 @@ testing purposes.
 
 Ensure that required dependencies are installed:
 
-* gcc/g++ (Ubuntu package: *build-essentials*)
+* gcc/g++ (Ubuntu package: *build-essential*)
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with support for Polish (Ubuntu packages: *texlive-latex*,
   *texlive-lang-polish*)
+* lessc (`LESS`_ compiler; Ubuntu package: *node-less*)
 
 and in one terminal run the Django web server::
 
@@ -75,6 +76,7 @@ Finally you need an adminstrator account::
 
 Now you're ready to access the site at *http://localhost:8000*.
 
+.. _LESS: http://lesscss.org/
 .. _many nice features: https://github.com/rfk/django-supervisor#usage
 
 Production configuration
@@ -108,6 +110,9 @@ Production configuration
 #. Configure Apache with mod_wsgi. An example configuration is automatically
    created as *apache-site.conf*. Have a look there. Once this is done, you
    do not need to run *manage.py runserver*.
+
+#. Comment out *DEBUG = True* in *settings.py*. This is crucial for security
+   and efficiency.
 
 #. Set admin email in settings. Error reports and teacher account requests will
    be sent there.

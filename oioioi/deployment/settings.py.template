@@ -2,7 +2,10 @@ from oioioi.default_settings import *
 import os.path
 
 # Enable debugging features.
-DEBUG = False
+#
+# COMMENT THIS OUT FOR PRODUCTION DEPLOYMENT.
+DEBUG = True
+
 TEMPLATE_DEBUG = DEBUG
 
 # Email addresses to send error message reports.
