@@ -2,7 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import get_valid_filename
-from django.core.validators import RegexValidator
+from django.core.validators import validate_slug
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import User
@@ -28,9 +28,7 @@ def make_contest_filename(instance, filename):
 
 class Contest(models.Model):
     id = models.CharField(max_length=32, primary_key=True,
-            validators=[RegexValidator(r'^[a-z0-9]+$',
-                message=_("Only digits and lowercase letters are allowed"))],
-            verbose_name=_("ID"))
+            validators=[validate_slug], verbose_name=_("ID"))
     name = models.CharField(max_length=255, verbose_name=_("full name"))
     controller_name = DottedNameField(
             'oioioi.contests.controllers.ContestController',
