@@ -12,6 +12,7 @@
 {% block javascripts %}
 {% compress js %}
 {{ block.super }}
+<script type="text/javascript"> var oioioi_base_url ="/"; </script>
 {% if debug %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.js"></script>
 {% else %}
