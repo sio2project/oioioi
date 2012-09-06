@@ -67,7 +67,7 @@ and in the other the evaluation daemons::
 
   ./manage.py supervisor
 
-The *supervisor* process monitor all processes needed by OIOIOI, except the
+The *supervisor* process monitors all processes needed by OIOIOI, except the
 web server. It has `many nice features`_.
 
 Finally you need an adminstrator account::
