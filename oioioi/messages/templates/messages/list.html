@@ -9,6 +9,7 @@
 {% block content %}
 <h2>{% trans "Questions and announcements" %}</h2>
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% if user.is_authenticated %}
 <div class="corner-icons">
     <ul>
         <li><a class="btn btn-small" href="{% url add_contest_message contest_id=contest.id %}">
@@ -19,6 +20,7 @@
             {% endif %}
     </ul>
 </div>
+{% endif %}
 {% if records %}
 {% paginate %}
 {% include "messages/list_table.html" %}

@@ -24,13 +24,17 @@ def visible_messages(request):
                     | Q(problem_id__in=problem_ids)) \
             .order_by('-date')
     if not request.user.has_perm('contests.contest_admin', request.contest):
-        messages = messages.filter(
-                (Q(author=request.user) & Q(kind='QUESTION'))
-                    | Q(kind='PUBLIC')
-                    | Q(top_reference__author=request.user))
+        q_expression = Q(kind='PUBLIC')
+        if request.user.is_authenticated():
+            q_expression = q_expression \
+                    | (Q(author=request.user) & Q(kind='QUESTION')) \
+                    | Q(top_reference__author=request.user)
+        messages = messages.filter(q_expression)
     return messages
 
 def new_messages(request, messages=None):
+    if not request.user.is_authenticated():
+        return messages.none()
     if messages is None:
         messages = visible_messages(request)
     return  messages.exclude(messageview__user=request.user) \
@@ -66,8 +70,9 @@ def message_view(request, contest_id, message_id):
         replies = list(vmessages.filter(top_reference=message).all())
     else:
         replies = []
-    for m in [message] + replies:
-        MessageView.objects.get_or_create(message=m, user=request.user)
+    if request.user.is_authenticated():
+        for m in [message] + replies:
+            MessageView.objects.get_or_create(message=m, user=request.user)
     return render_to_response('messages/message.html',
             context_instance=RequestContext(request,
                 {'message': message, 'replies': replies,
