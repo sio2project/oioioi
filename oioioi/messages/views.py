@@ -1,9 +1,8 @@
 from django.db.models import Q
 from django import forms
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
-from django.template import RequestContext
-from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from oioioi.base.menu import menu_registry
 from oioioi.messages.models import Message, message_kinds, MessageView
@@ -57,8 +56,8 @@ def messages_template_context(request, messages):
 @enter_contest_permission_required
 def messages_view(request, contest_id):
     messages = messages_template_context(request, visible_messages(request))
-    return render_to_response('messages/list.html',
-            context_instance=RequestContext(request, {'records': messages}))
+    return TemplateResponse(request, 'messages/list.html',
+                {'records': messages})
 
 @enter_contest_permission_required
 def message_view(request, contest_id, message_id):
@@ -73,10 +72,9 @@ def message_view(request, contest_id, message_id):
     if request.user.is_authenticated():
         for m in [message] + replies:
             MessageView.objects.get_or_create(message=m, user=request.user)
-    return render_to_response('messages/message.html',
-            context_instance=RequestContext(request,
+    return TemplateResponse(request, 'messages/message.html',
                 {'message': message, 'replies': replies,
-                    'reply_to_id': message.top_reference_id or message.id}))
+                    'reply_to_id': message.top_reference_id or message.id})
 
 class AddContestMessageForm(forms.ModelForm):
     class Meta:
@@ -134,8 +132,7 @@ def add_contest_message_view(request, contest_id):
             else:
                 instance.kind = 'QUESTION'
             instance.save()
-            return HttpResponseRedirect(reverse('contest_messages',
-                kwargs={'contest_id': contest_id}))
+            return redirect('contest_messages', contest_id=contest_id)
 
     else:
         form = AddContestMessageForm(request)
@@ -145,9 +142,8 @@ def add_contest_message_view(request, contest_id):
     else:
         title = _("Ask question")
 
-    return render_to_response('messages/add.html',
-            context_instance=RequestContext(request, {'form': form,
-                'title': title, 'is_announcement': is_admin}))
+    return TemplateResponse(request, 'messages/add.html',
+            {'form': form, 'title': title, 'is_announcement': is_admin})
 
 def quote_for_reply(content):
     lines = content.strip().split('\n')
@@ -164,14 +160,12 @@ def add_reply_view(request, contest_id, message_id):
             instance.top_reference = question
             instance.author = request.user
             instance.save()
-            return HttpResponseRedirect(reverse('contest_messages',
-                kwargs={'contest_id': contest_id}))
+            return redirect('contest_messages', contest_id=contest_id)
     else:
         form = AddReplyForm(request, initial={
                 'topic': _("Re: ") + question.topic,
                 'content': quote_for_reply(question.content),
             })
 
-    return render_to_response('messages/add.html',
-            context_instance=RequestContext(request, {'form': form,
-                'title': _("Reply"), 'is_reply': True}))
+    return TemplateResponse(request, 'messages/add.html',
+            {'form': form, 'title': _("Reply"), 'is_reply': True})

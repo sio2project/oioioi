@@ -1,6 +1,5 @@
 from django.contrib import admin, messages
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.template.response import TemplateResponse
 from django.conf.urls import patterns, url
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponse
@@ -111,8 +110,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
                 'rows': rows
         }
 
-        return render_to_response('programs/admin/model_solutions.html',
-                context_instance=RequestContext(request, context))
+        return TemplateResponse(request, 'programs/admin/model_solutions.html',
+                context)
 
     def rejudge_model_solutions_view(self, request, problem_instance_id):
         problem_instance = self.get_object(request,

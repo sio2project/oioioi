@@ -1,7 +1,6 @@
 from django.conf import settings
-from django.shortcuts import render_to_response
+from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
-from django.template import RequestContext
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from oioioi.contests.models import Submission
@@ -57,5 +56,4 @@ def contest_dashboard_view(request, contest_id):
             'records': messages,
             'show_scores': show_scores
         }
-    return render_to_response('dashboard/dashboard.html',
-            context_instance=RequestContext(request, context))
+    return TemplateResponse(request, 'dashboard/dashboard.html', context)
