@@ -3,7 +3,7 @@
 <div class="navbar navbar-fixed-top navbar-inverse">
     <div class="navbar-inner">
         <div class="{% block navbar-container-class %}container-fluid{% endblock %}">
-            {% block branding %}<a class="brand" href="{% url index %}">OIOIOI</a>{% endblock %}
+            {% include "ingredients/navbar_branding.html" %}
             {% if contest %}
                 {% if single_contest_mode %}
                 <div class="contest nav">
