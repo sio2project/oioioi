@@ -76,9 +76,18 @@ class ModelSolution(models.Model):
         return self.name.rsplit('.', 1)[0]
 
 @receiver(post_save, sender=ProblemInstance)
-def _autocreate_model_submissions(sender, instance, created, raw, **kwargs):
+def _autocreate_model_submissions_for_problem_instance(sender, instance,
+        created, raw, **kwargs):
     if created and not raw:
         ModelSolution.objects.recreate_model_submissions(instance)
+
+@receiver(post_save, sender=ModelSolution)
+def _autocreate_model_submissions_for_model_solutions(sender, instance,
+        created, raw, **kwargs):
+    if created and not raw:
+        pis = ProblemInstance.objects.filter(problem=instance.problem)
+        for pi in pis:
+            ModelSolution.objects.recreate_model_submissions(pi)
 
 def make_submission_filename(instance, filename):
     if not instance.id:

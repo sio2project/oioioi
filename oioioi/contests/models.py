@@ -89,8 +89,7 @@ class ContestAttachment(models.Model):
 class Round(models.Model):
     contest = models.ForeignKey(Contest)
     name = models.CharField(max_length=255, verbose_name=_("name"))
-    start_date = models.DateTimeField(default=datetime.datetime.now,
-            blank=True)
+    start_date = models.DateTimeField(default=datetime.datetime.now)
     end_date = models.DateTimeField(blank=True, null=True)
     results_date = models.DateTimeField(blank=True, null=True)
 

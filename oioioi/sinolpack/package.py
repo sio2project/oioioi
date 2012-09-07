@@ -265,6 +265,7 @@ class SinolPackage(object):
                         'b': 'INCORRECT',
                     }[match.group(1)]
                 instance.source_file.save(name, File(open(path, 'rb')))
+                logger.info('%s: model solution: %s', self.filename, name)
 
     def _save_original_package(self):
         original_package, created = \

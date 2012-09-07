@@ -4,7 +4,7 @@ from django.template import Template, RequestContext
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
-from django.utils.timezone import utc
+from django.utils.timezone import utc, LocalTimezone
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         ScoreFieldTestModel, Submission
@@ -12,6 +12,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
 from oioioi.problems.models import Problem, ProblemStatement
+from oioioi.programs.models import ModelSolution
 from oioioi.programs.controllers import ProgrammingContestController
 from datetime import datetime
 
@@ -185,6 +186,7 @@ class TestContestViews(TestCase):
             '<td class="subm_status subm_RE">Runtime error</td>'), 1)
         self.assertEqual(response.content.count(
             '<td class="subm_status subm_WA">Wrong answer</td>'), 1)
+        self.assertIn('program exited with code 1', response.content)
 
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
@@ -305,3 +307,83 @@ class TestRejudgeAndFailure(TestCase):
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertNotIn('failure report', response.content)
         self.assertNotIn('EXPECTED FAILURE', response.content)
+
+class TestContestAdmin(TestCase):
+    fixtures = ['test_users']
+
+    def test_simple_contest_create_and_change(self):
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:contests_contest_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        post_data = {
+                'name': 'cname',
+                'id': 'cid',
+                'start_date_0': '2012-02-03',
+                'start_date_1': '04:05:06',
+                'end_date_0': '2012-02-04',
+                'end_date_1': '05:06:07',
+                'results_date_0': '2012-02-05',
+                'results_date_1': '06:07:08',
+                'controller_name': 'oioioi.programs.controllers.ProgrammingContestController'
+            }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('was added successfully', response.content)
+        self.assertEqual(Contest.objects.count(), 1)
+        contest = Contest.objects.get()
+        self.assertEqual(contest.id, 'cid')
+        self.assertEqual(contest.name, 'cname')
+        self.assertEqual(contest.round_set.count(), 1)
+        round = contest.round_set.get()
+        self.assertEqual(round.start_date,
+                datetime(2012, 2, 3, 4, 5, 6, tzinfo=LocalTimezone()))
+        self.assertEqual(round.end_date,
+                datetime(2012, 2, 4, 5, 6, 7, tzinfo=LocalTimezone()))
+        self.assertEqual(round.results_date,
+                datetime(2012, 2, 5, 6, 7, 8, tzinfo=LocalTimezone()))
+
+        url = reverse('oioioiadmin:contests_contest_change', args=('cid',)) \
+                + '?simple=true'
+        response = self.client.get(url)
+        self.assertIn('2012-02-05', response.content)
+        self.assertIn('06:07:08', response.content)
+
+        post_data = {
+                'name': 'cname1',
+                'start_date_0': '2013-02-03',
+                'start_date_1': '14:05:06',
+                'end_date_0': '2013-02-04',
+                'end_date_1': '15:06:07',
+                'results_date_0': '2013-02-05',
+                'results_date_1': '16:07:08',
+            }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Contest.objects.count(), 1)
+        contest = Contest.objects.get()
+        self.assertEqual(contest.id, 'cid')
+        self.assertEqual(contest.name, 'cname1')
+        self.assertEqual(contest.round_set.count(), 1)
+        round = contest.round_set.get()
+        self.assertEqual(round.start_date,
+                datetime(2013, 2, 3, 14, 5, 6, tzinfo=LocalTimezone()))
+        self.assertEqual(round.end_date,
+                datetime(2013, 2, 4, 15, 6, 7, tzinfo=LocalTimezone()))
+        self.assertEqual(round.results_date,
+                datetime(2013, 2, 5, 16, 7, 8, tzinfo=LocalTimezone()))
+
+class TestSubmissionAdmin(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission']
+
+    def test_submissions_changelist(self):
+        self.client.login(username='test_admin')
+        pi = ProblemInstance.objects.get()
+        ModelSolution.objects.recreate_model_submissions(pi)
+        url = reverse('oioioiadmin:contests_submission_changelist')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('(sum.c)', response.content)
+        self.assertIn('test_user', response.content)
+        self.assertIn('subm_status subm_OK', response.content)

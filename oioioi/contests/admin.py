@@ -23,8 +23,7 @@ class SimpleContestForm(forms.ModelForm):
         model = Contest
         fields = ['name', 'id', 'controller_name']
 
-    start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False)
+    start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime)
     end_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
             required=False)
     results_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
@@ -123,7 +122,7 @@ class ContestAdmin(admin.ModelAdmin):
         return self.has_change_permission(request, obj)
 
     def get_fieldsets(self, request, obj=None):
-        if obj:
+        if obj and not request.GET.get('simple', False):
             return super(ContestAdmin, self).get_fieldsets(request, obj)
         fields = SimpleContestForm().base_fields.keys()
         return [(None, {'fields': fields})]
@@ -139,26 +138,25 @@ class ContestAdmin(admin.ModelAdmin):
         return self.prepopulated_fields
 
     def get_form(self, request, obj=None, **kwargs):
-        if obj:
+        if obj and not request.GET.get('simple', False):
             return super(ContestAdmin, self).get_form(request, obj, **kwargs)
-        return modelform_factory(self.model, form=SimpleContestForm,
+        return modelform_factory(self.model,
+                form=SimpleContestForm,
                 formfield_callback=partial(self.formfield_for_dbfield,
-                    request=request))
+                    request=request),
+                exclude=self.get_readonly_fields(request, obj))
 
     def get_formsets(self, request, obj=None):
-        if not obj:
-            return
-        for formset in super(ContestAdmin, self).get_formsets(request, obj):
-            if formset.model == Round and not obj:
-                continue
-            yield formset
+        if obj and not request.GET.get('simple', False):
+            return super(ContestAdmin, self).get_formsets(request, obj)
+        return []
 
     def response_change(self, request, obj):
         # Never redirect to the list of contests. Just re-display the edit
         # view.
         if '_popup' not in request.POST:
             return HttpResponseRedirect(request.get_full_path())
-        return super(ModelAdmin, self).response_change(request, obj)
+        return super(ContestAdmin, self).response_change(request, obj)
 
 class BaseContestAdmin(admin.MixinsAdmin):
     default_model_admin = ContestAdmin
