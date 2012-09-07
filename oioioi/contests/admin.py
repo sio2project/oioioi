@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django import forms
@@ -333,9 +334,8 @@ class SubmissionAdmin(admin.ModelAdmin):
         return queryset
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        return HttpResponseRedirect(reverse('submission',
-            kwargs={'contest_id': request.contest.id,
-                'submission_id': unquote(object_id)}))
+        return redirect('submission', contest_id=request.contest.id,
+            submission_id=unquote(object_id))
 
 admin.site.register(Submission, SubmissionAdmin)
 

@@ -2,8 +2,8 @@ from django.contrib import admin, messages
 from django.template.response import TemplateResponse
 from django.conf.urls import patterns, url
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
@@ -121,9 +121,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
             raise PermissionDenied
         ModelSolution.objects.recreate_model_submissions(problem_instance)
         messages.info(request, _("Model solutions sent for evaluation."))
-        return HttpResponseRedirect(reverse(
-            'oioioiadmin:contests_probleminstance_models',
-            args=(problem_instance.id,)))
+        return redirect('oioioiadmin:contests_probleminstance_models',
+            problem_instance.id)
 
     def get_urls(self):
         urls = super(ProgrammingProblemInstanceAdminMixin, self).get_urls()

@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseRedirect
 from oioioi.base import admin
 from oioioi.base.utils import ObjectWithMixins
 from oioioi.messages.models import Message
@@ -29,7 +29,6 @@ class MessageAdmin(admin.ModelAdmin):
         return queryset
 
     def add_view(self, request, form_url='', extra_context=None):
-        return HttpResponseRedirect(reverse('add_contest_message',
-            kwargs={'contest_id': request.contest.id}))
+        return redirect('add_contest_message', contest_id=request.contest.id)
 
 admin.site.register(Message, MessageAdmin)
