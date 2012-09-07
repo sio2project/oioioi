@@ -54,19 +54,25 @@ class DottedNameField(models.CharField):
                         dotted_name)
                 yield dotted_name, human_readable_name
 
+    def to_python(self, value):
+        superclass = self._get_superclass()
+        superclass.load_subclasses()
+        return super(DottedNameField, self).to_python(value)
+
     def validate(self, value, model_instance):
         try:
             obj = get_object_by_dotted_name(value)
         except Exception, e:
-            raise ValidationError(_("Invalid value %r") % (value,))
+            raise ValidationError(_("Object %s not found") % (value,))
 
         superclass = self._get_superclass()
         if not issubclass(obj, superclass):
-            raise ValidationError(_("%(value)r is not a %(class_name)s")
+            raise ValidationError(_("%(value)s is not a %(class_name)s")
                     % dict(value=value, class_name=superclass.__name__))
 
         if getattr(obj, 'abstract', False):
-            raise ValidationError(_("%r is an abstract class") % (obj,))
+            raise ValidationError(_("%s is an abstract class and cannot be "
+                "used") % (value,))
 
 add_introspection_rules([
     (

@@ -322,7 +322,9 @@ class TestFields(unittest.TestCase):
 
     def test_dotted_name_field_module_loading(self):
         if 'oioioi.base.tests.test_dotted_field_classes' in sys.modules:
-            del sys.modules['oioioi.base.tests.test_dotted_field_classes']
+            # Well, it must have been already loaded by
+            # TestDottedFieldClass.load_subclasses...
+            return
         TestDottedFieldClass.load_subclasses()
         self.assertIn('oioioi.base.tests.test_dotted_field_classes',
                 sys.modules)

@@ -1,0 +1,1369 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# 
+# Translators:
+#   <sio2@sio2project.mimuw.edu.pl>, 2012.
+msgid ""
+msgstr ""
+"Project-Id-Version: SIO2 Project\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-09-07 22:35+0200\n"
+"PO-Revision-Date: 2012-09-07 20:38+0000\n"
+"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"Language-Team: Polish (http://www.transifex.com/projects/p/sio2project/language/pl/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: pl\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: base/admin.py:71
+msgid "Personal info"
+msgstr "Dane osobowe"
+
+#: base/admin.py:72
+msgid "Permissions"
+msgstr "Uprawnienia"
+
+#: base/admin.py:74
+msgid "Important dates"
+msgstr "Ważne daty"
+
+#: base/admin.py:82
+msgid "Users"
+msgstr "Użytkownicy"
+
+#: base/fields.py:28
+msgid "Dotted name of some Python object"
+msgstr "Nazwa obiekty pythonowego"
+
+#: base/fields.py:66
+#, python-format
+msgid "Object %s not found"
+msgstr "Nie znaleziono obiektu: %s"
+
+#: base/fields.py:70
+#, python-format
+msgid "%(value)s is not a %(class_name)s"
+msgstr "%(value)s nie jest typu %(class_name)s"
+
+#: base/fields.py:74
+#, python-format
+msgid "%s is an abstract class and cannot be used"
+msgstr "%s to klasa abstrakcyjna i nie może zostać tu użyta"
+
+#: base/fields.py:113
+msgid "Enumeration"
+msgstr "Wybór z listy"
+
+#: base/registration_backend.py:18
+msgid "First name"
+msgstr "Imię"
+
+#: base/registration_backend.py:20
+msgid "Last name"
+msgstr "Nazwisko"
+
+#: base/views.py:11 base/templates/registration/password_change_form.html:3
+msgid "Change password"
+msgstr "Zmiana hasła"
+
+#: base/views.py:14
+msgid "Log out"
+msgstr "Wyloguj"
+
+#: base/templates/404.html:7
+msgid "404 &mdash; Page not found"
+msgstr "404 &mdash; Nie znaleziono strony"
+
+#: base/templates/500.html:7
+msgid "500 &mdash; Holy guacamole, internal server error!"
+msgstr "500 &mdash; Ojej, tożto wystąpił straszny błąd!"
+
+#: base/templates/500.html:11
+msgid "A report has been emailed to the admins. They will love it."
+msgstr "Admini już o nim wiedzą. Na pewno się ucieszą."
+
+#: base/templates/index-no-contests.html:19
+#, python-format
+msgid ""
+"\n"
+"    <p>This is a new OIOIOI installation. Begin by <a href=\"%(new_contest_link)s\">creating\n"
+"        a new contest</a>.\n"
+"    "
+msgstr "\n<p>To jest świeża instalacja OIOIOI. Rozpocznij, <a href=\"%(new_contest_link)s\">tworząc nowy konkurs</a>."
+
+#: base/templates/index-no-contests.html:24
+#, python-format
+msgid ""
+"\n"
+"    <p>There are no contests available to logged out users.\n"
+"    <p>Please <a href=\"%(login_link)s\">log in</a> or <a href=\"%(reg_link)s\">register</a>.\n"
+"    "
+msgstr "\n    <p>Brak konkursów dostępnych dla niezalogowanych użytkowników.\n    <p><a href=\"%(login_link)s\">Zaoguj się</a> lub <a href=\"%(reg_link)s\">zarejestruj</a>.\n    "
+
+#: base/templates/index-no-contests.html:29
+msgid ""
+"\n"
+"    <p>There are no contests available.\n"
+"    "
+msgstr "\n    <p>Brak dostępnych konkursów\n    "
+
+#: base/templates/navbar-with-login-box.html:6 base/templates/navbar.html:62
+#: base/templates/registration/registration_form.html:18
+msgid "Register"
+msgstr "Rejestracja"
+
+#: base/templates/navbar-with-login-box.html:10 contests/admin.py:297
+msgid "Login"
+msgstr "Login"
+
+#: base/templates/navbar-with-login-box.html:11
+msgid "Password"
+msgstr "Hasło"
+
+#: base/templates/navbar-with-login-box.html:24
+msgid "You may log in here!"
+msgstr "Tu możesz się zalogować!"
+
+#: base/templates/navbar-with-login-box.html:26
+#, python-format
+msgid ""
+"<p>Use this box to quickly log in without even using your mouse. If you "
+"don't have an account, feel free to <a "
+"href='%(registration_url)s'>register</a>.</p><p><small>Click to "
+"dismiss.</small></p>"
+msgstr "<p>Wpisując tu swój login i hasło, możesz się szybko zalogować, nie używając myszki. Jeśli nie masz jeszcze konta, możesz się <a href='%(registration_url)s'>zarejestrować</a>.</p><p><small>Kliknij dymek, żeby go zamknąć.</small></p>"
+
+#: base/templates/navbar.html:29
+msgid "Other..."
+msgstr "Inny..."
+
+#: base/templates/navbar.html:31
+msgid "Switch contest"
+msgstr "Przełącz się na inny konkurs"
+
+#: base/templates/navbar.html:37
+msgid "Create a new contest"
+msgstr "Stwórz nowy konkurs"
+
+#: base/templates/navbar.html:58
+#: base/templates/registration/activation_complete.html:9
+#: base/templates/registration/login.html:13
+#: base/templates/registration/login.html:26
+#: base/templates/registration/password_reset_complete.html:12
+#: teachers/templates/registration/activation_complete.html:10
+msgid "Log in"
+msgstr "Zaloguj"
+
+#: base/templates/simple-centered-form.html:13 contests/views.py:52
+#: contests/templates/contests/my_submissions.html:12
+#: contests/templates/contests/submit.html:12 dashboard/views.py:21
+#: messages/templates/messages/add.html:19
+#: problems/templates/admin/problems/problem_add.html:14
+#: problems/templates/admin/problems/problem_reupload.html:38
+msgid "Submit"
+msgstr "Wyślij"
+
+#: base/templates/admin/base_site.html:28
+#: base/templates/admin/base_site.html:31
+msgid "OIOIOI Admin"
+msgstr "OIOIOI Admin"
+
+#: base/templates/ingredients/footer.html:2
+msgid ""
+"\n"
+"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.</p>\n"
+msgstr "\n<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.</p>\n"
+
+#: base/templates/ingredients/footer_sidebar.html:2
+msgid ""
+"\n"
+"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>.</p>\n"
+msgstr "\n<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>.</p>\n"
+
+#: base/templates/ingredients/menu.html:7
+#: teachers/templates/ingredients/menu.html:7
+msgid "System Administration"
+msgstr "Administracja Systemem"
+
+#: base/templates/ingredients/menu.html:11
+#: teachers/templates/ingredients/menu.html:15
+msgid "Contest Administration"
+msgstr "Administracja Konkursem"
+
+#: base/templates/ingredients/menu.html:14
+#: teachers/templates/ingredients/menu.html:18
+msgid "User Menu"
+msgstr "Menu Użytkownika"
+
+#: base/templates/registration/activate.html:4
+msgid "Account activation"
+msgstr "Aktywacja konta"
+
+#: base/templates/registration/activate.html:8
+msgid "Account activation unsuccessful"
+msgstr "Błąd aktywacji konta"
+
+#: base/templates/registration/activate.html:10
+msgid "The activation link was invalid."
+msgstr "Niepoprawny link aktywacyjny."
+
+#: base/templates/registration/activate.html:11
+msgid ""
+"Please make sure that you correctly copied the entire link\n"
+"from the email to the web browser address bar."
+msgstr "Upewnij się, że dobrze skopiowałe/aś link z wiadomości e-mail do paska adresu przeglądarki."
+
+#: base/templates/registration/activation_complete.html:4
+#: teachers/templates/registration/activation_complete.html:4
+msgid "Registration complete"
+msgstr "Rejestracja zakończona"
+
+#: base/templates/registration/activation_complete.html:8
+#: teachers/templates/registration/activation_complete.html:8
+msgid "Your account is now active. You may go ahead and log in now."
+msgstr "Twoje konto jest już aktywne. Możesz się zalogować."
+
+#: base/templates/registration/logout.html:12
+msgid "You have been logged out."
+msgstr "Wylogowano."
+
+#: base/templates/registration/password_change_done.html:10
+#: base/templates/registration/password_change_done.html:13
+msgid "Password change successful"
+msgstr "Zmiana hasła"
+
+#: base/templates/registration/password_change_done.html:14
+msgid "Password changed."
+msgstr "Hasło zostało zmienione."
+
+#: base/templates/registration/password_reset_complete.html:4
+#: base/templates/registration/password_reset_complete.html:8
+msgid "Password reset complete"
+msgstr "Przypomnienie hasła"
+
+#: base/templates/registration/password_reset_complete.html:10
+msgid "Your password has been set.  You may go ahead and log in now."
+msgstr "Hasło zostało zmienione. Możesz się zalogować."
+
+#: base/templates/registration/password_reset_confirm.html:4
+#: base/templates/registration/password_reset_form.html:4
+#: base/templates/registration/password_reset_form.html:7
+msgid "Password reset"
+msgstr "Przypomnienie hasła"
+
+#: base/templates/registration/password_reset_confirm.html:10
+msgid "Enter new password"
+msgstr "Wprowadź nowe hasło."
+
+#: base/templates/registration/password_reset_confirm.html:12
+msgid ""
+"Please enter your new password twice so we can verify you typed it in "
+"correctly."
+msgstr "Wprowadź nowe hasło dwukrotnie, żeby na pewno się nie pomylić."
+
+#: base/templates/registration/password_reset_confirm.html:21
+msgid "Change my password"
+msgstr "Zmień moje hasło"
+
+#: base/templates/registration/password_reset_confirm.html:27
+msgid "Password reset unsuccessful"
+msgstr "Przypomnienie hasła"
+
+#: base/templates/registration/password_reset_confirm.html:29
+msgid ""
+"The password reset link was invalid, possibly because it has already been "
+"used.  Please request a new password reset."
+msgstr "Link jest niepoprawny. Byćmoże został już wcześniej zużyty. Spróbuj jeszcze raz użyć opcji przypominania hasła."
+
+#: base/templates/registration/password_reset_done.html:4
+#: base/templates/registration/password_reset_done.html:8
+msgid "Password reset successful"
+msgstr "Przypomnienie hasła"
+
+#: base/templates/registration/password_reset_done.html:10
+msgid ""
+"We've e-mailed you instructions for setting your password to the e-mail "
+"address you submitted. You should be receiving it shortly."
+msgstr "Email z instrukcją zmiany hasła został wysłany."
+
+#: base/templates/registration/password_reset_email.html:2
+msgid ""
+"You're receiving this e-mail because you requested a password\n"
+"reset for your OIOIOI user account."
+msgstr "You're receiving this e-mail because you requested a password\nreset for your OIOIOI user account."
+
+#: base/templates/registration/password_reset_email.html:5
+msgid "Please go to the following page and choose a new password:"
+msgstr "Odwiedź poniższy link i wpisz nowe hasło:"
+
+#: base/templates/registration/password_reset_email.html:9
+msgid "Your username, in case you've forgotten:"
+msgstr "Twój login:"
+
+#: base/templates/registration/password_reset_email.html:11
+#, python-format
+msgid "The %(site_name)s team"
+msgstr "Zespół %(site_name)s"
+
+#: base/templates/registration/password_reset_form.html:9
+msgid ""
+"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
+"instructions for setting a new one."
+msgstr "Nie pamiętasz już hasła? Wpisz swój adres e-mail, a wyślemy Ci instrukcję, jak ustawić nowe."
+
+#: base/templates/registration/password_reset_form.html:13
+msgid "E-mail address:"
+msgstr "Adres e-mail:"
+
+#: base/templates/registration/password_reset_form.html:15
+msgid "Reset my password"
+msgstr "Przypomnienie hasła"
+
+#: base/templates/registration/registration_complete.html:4
+#: base/templates/registration/registration_complete.html:8
+msgid "Registration successful"
+msgstr "Rejestracja zakończona"
+
+#: base/templates/registration/registration_complete.html:10
+msgid "Thank you for registering."
+msgstr "Dziękujemy za stworzenie konta."
+
+#: base/templates/registration/registration_complete.html:11
+msgid ""
+"We've e-mailed you instructions for activating the account to\n"
+"the e-mail address you submitted. You should be receiving it shortly.\n"
+msgstr "E-mail z instrukcją aktywacji konta już został wysłany i wkrótce powinien dotrzeć.\n"
+
+#: base/templates/registration/registration_form.html:4
+#: base/templates/registration/registration_form.html:7
+msgid "Registration"
+msgstr "Rejestracja"
+
+#: base/templates/registration/registration_form.html:9
+msgid "Please fill the form below to register."
+msgstr "Proszę wypełnić poniższy formularz zakładania konta."
+
+#: contestlogo/models.py:7
+msgid "URL"
+msgstr "URL"
+
+#: contestlogo/models.py:10 contestlogo/models.py:11
+msgid "contest logo"
+msgstr "logo konkursu"
+
+#: contests/admin.py:27
+msgid "Start date"
+msgstr "Data rozpoczęcia"
+
+#: contests/admin.py:29
+msgid "End date"
+msgstr "Data zakończenia"
+
+#: contests/admin.py:31
+msgid "Results date"
+msgstr "Data ogłoszenia wyników"
+
+#: contests/admin.py:67
+msgid "Round 1"
+msgstr "Runda 1"
+
+#: contests/admin.py:174
+msgid "Settings"
+msgstr "Ustawienia"
+
+#: contests/admin.py:226
+msgid "Move/rename"
+msgstr "Przenieś/zmień skrót"
+
+#: contests/admin.py:227
+msgid "Edit problem"
+msgstr "Edytuj"
+
+#: contests/admin.py:228
+msgid "Re-upload"
+msgstr "Wgraj ponownie"
+
+#: contests/admin.py:229
+msgid "Download package"
+msgstr "Pobierz paczkę"
+
+#: contests/admin.py:235 teachers/templates/teachers/participants.html:74
+msgid "Actions"
+msgstr "Operacje"
+
+#: contests/admin.py:241 contests/views.py:113
+#: contests/templates/contests/my_submissions_table.html:7
+#: messages/templates/messages/list_table.html:7
+#: programs/templates/programs/submission_header.html:21
+msgid "Problem"
+msgstr "Zadanie"
+
+#: contests/admin.py:248 contests/templates/contests/problems_list.html:15
+msgid "Symbol"
+msgstr "Skrót"
+
+#: contests/admin.py:267 contests/views.py:43
+#: contests/templates/contests/problems_list.html:5
+#: contests/templates/contests/problems_list.html:8 dashboard/views.py:17
+msgid "Problems"
+msgstr "Zadania"
+
+#: contests/admin.py:272 contests/models.py:127 contests/models.py:169
+#: problems/models.py:39
+msgid "problem"
+msgstr "zadanie"
+
+#: contests/admin.py:304
+msgid "User name"
+msgstr "Login"
+
+#: contests/admin.py:312
+#: contests/templates/contests/my_submissions_table.html:8
+#: programs/templates/programs/submission_header.html:23
+msgid "Status"
+msgstr "Status"
+
+#: contests/admin.py:317 contests/fields.py:12
+#: contests/templates/contests/my_submissions_table.html:10
+#: programs/templates/programs/report.html:27
+#: programs/templates/programs/submission_header.html:24
+msgid "Score"
+msgstr "Wynik"
+
+#: contests/admin.py:325
+#, python-format
+msgid "Queued %d submissions for rejudge."
+msgstr "Zakolejkowano %d zgłoszeń do ponownej oceny."
+
+#: contests/admin.py:327
+msgid "Rejudge selected submissions"
+msgstr "Oceń ponownie wybrane zgłoszenia"
+
+#: contests/admin.py:342 dashboard/templates/dashboard/dashboard.html:36
+msgid "Submissions"
+msgstr "Zgłoszenia"
+
+#: contests/controllers.py:102
+msgid "Public contest"
+msgstr "Konkurs publiczny"
+
+#: contests/models.py:31
+msgid "ID"
+msgstr "ID"
+
+#: contests/models.py:32 problems/models.py:27
+msgid "full name"
+msgstr "pełna nazwa"
+
+#: contests/models.py:35 problems/models.py:31
+msgid "type"
+msgstr "rodzaj"
+
+#: contests/models.py:37
+msgid "creation date"
+msgstr "data utworzenia"
+
+#: contests/models.py:40 contests/models.py:82 contests/models.py:97
+#: contests/models.py:125 problems/models.py:33
+msgid "contest"
+msgstr "konkurs"
+
+#: contests/models.py:41
+msgid "contests"
+msgstr "konkursy"
+
+#: contests/models.py:44
+msgid "Can administer the contest"
+msgstr "Może administrować konkursem"
+
+#: contests/models.py:45
+msgid "Can enter the contest"
+msgstr "Może uczestniczyć w konkursie"
+
+#: contests/models.py:84 problems/models.py:100
+msgid "description"
+msgstr "opis"
+
+#: contests/models.py:86 problems/models.py:74 problems/models.py:102
+msgid "content"
+msgstr "treść"
+
+#: contests/models.py:89 problems/models.py:105
+msgid "attachment"
+msgstr "załącznik"
+
+#: contests/models.py:90 problems/models.py:106
+msgid "attachments"
+msgstr "załączniki"
+
+#: contests/models.py:98 programs/models.py:20 programs/models.py:69
+msgid "name"
+msgstr "nazwa"
+
+#: contests/models.py:100
+msgid "start date"
+msgstr "data rozpoczęcia"
+
+#: contests/models.py:102
+msgid "end date"
+msgstr "data zakończenia"
+
+#: contests/models.py:104
+msgid "results date"
+msgstr "data ogłoszenia wyników"
+
+#: contests/models.py:107 contests/models.py:126
+msgid "round"
+msgstr "runda"
+
+#: contests/models.py:108
+msgid "rounds"
+msgstr "rundy"
+
+#: contests/models.py:121
+#, python-format
+msgid "Round %d"
+msgstr "Runda %d"
+
+#: contests/models.py:128 problems/models.py:28
+msgid "short name"
+msgstr "skrót"
+
+#: contests/models.py:131
+msgid "problem instance"
+msgstr "Zadanie"
+
+#: contests/models.py:132
+msgid "problem instances"
+msgstr "Zadania"
+
+#: contests/models.py:159
+msgid "Normal"
+msgstr "Normalne"
+
+#: contests/models.py:160
+msgid "Ignored"
+msgstr "Zignorowane"
+
+#: contests/models.py:163
+msgid "Pending"
+msgstr "Oczekuje na sprawdzenie"
+
+#: contests/models.py:164
+msgid "OK"
+msgstr "OK"
+
+#: contests/models.py:165
+msgid "Error"
+msgstr "Błąd"
+
+#: contests/models.py:171
+msgid "user"
+msgstr "użytkownik"
+
+#: contests/models.py:173
+msgid "date"
+msgstr "data"
+
+#: contests/models.py:175 programs/models.py:25 programs/models.py:72
+msgid "kind"
+msgstr "rodzaj"
+
+#: contests/models.py:177 programs/models.py:31
+msgid "score"
+msgstr "punkty"
+
+#: contests/models.py:179
+msgid "status"
+msgstr "status"
+
+#: contests/models.py:181
+msgid "comment"
+msgstr "komentarz"
+
+#: contests/models.py:184
+msgid "submission"
+msgstr "Zgłoszenie"
+
+#: contests/models.py:185
+msgid "submissions"
+msgstr "Zgłoszenia"
+
+#: contests/models.py:200
+msgid "Final report"
+msgstr "Raport ostateczny"
+
+#: contests/models.py:201 contests/templates/contests/failure_report.html:3
+msgid "Evaluation failure report"
+msgstr "Raport błędu sprawdzaczki"
+
+#: contests/models.py:204
+msgid "Inactive"
+msgstr "Nieaktywny"
+
+#: contests/models.py:205
+msgid "Active"
+msgstr "Aktywny"
+
+#: contests/models.py:206
+msgid "Superseded"
+msgstr "Przestarzały"
+
+#: contests/scores.py:57
+#, python-format
+msgid ""
+"Score must look like this: '<type>:<value>', for example 'int:100', not "
+"'%s'."
+msgstr "Pole \"wynik\" musi mieć postać \"<typ>:<wartość>\", np. \"int:100\", a nie \"%s\"."
+
+#: contests/scores.py:64
+#, python-format
+msgid "Unrecognized score type '%s'"
+msgstr "Nieznany typ wyniku '%s'"
+
+#: contests/views.py:47 contests/templates/contests/files.html:6
+#: contests/templates/contests/files.html:9
+msgid "Files"
+msgstr "Pliki"
+
+#: contests/views.py:57 contests/templates/contests/my_submissions.html:5
+#: contests/templates/contests/my_submissions.html:8
+msgid "My submissions"
+msgstr "Moje zgłoszenia"
+
+#: contests/views.py:135
+msgid "Invalid problem"
+msgstr "Nieznane zadanie"
+
+#: contests/views.py:217
+msgid "Rejudge request received."
+msgstr "Zapisano zlecenie ponownej oceny."
+
+#: contests/templates/admin/contests/probleminstance/change_list.html:6
+msgid "Add problem"
+msgstr "Dodaj zadanie"
+
+#: contests/templates/contests/failure_report.html:4
+msgid ""
+"This is a technical report of an evaluation failure. If you are\n"
+"an administrator and would like to report the problem to OIOIOI authors, make sure\n"
+"to send this entire information as well."
+msgstr "To jest szczegółowy raport błędu sprawdzaczki. Jeśli jesteś administratorem i chciałbyś zgłosić błąd autorom OIOIOI, koniecznie dołącz pełną zawartość tej strony."
+
+#: contests/templates/contests/failure_report.html:8
+msgid "The next step in the recipe was:"
+msgstr "Następny krok planu wykonania oceny:"
+
+#: contests/templates/contests/failure_report.html:10
+msgid ""
+"The final evaluation environment (with <code>recipe</code> and\n"
+"<code>error_handlers</code> removed for readability) was:"
+msgstr "Końcowy zbiór danych (<code>recipe</code> oraz <error_handlers> pominięte dla czytelności):"
+
+#: contests/templates/contests/files.html:15
+msgid "Add file"
+msgstr "Dodaj plik"
+
+#: contests/templates/contests/files.html:25
+msgid "File"
+msgstr "Plik"
+
+#: contests/templates/contests/files.html:26
+msgid "Description"
+msgstr "Opis"
+
+#: contests/templates/contests/files.html:41
+msgid "No files are available."
+msgstr "Żadne pliki nie są dostępne."
+
+#: contests/templates/contests/my_submissions.html:22
+msgid "You have not submitted anything yet."
+msgstr "Brak nadesłanych rozwiązań."
+
+#: contests/templates/contests/my_submissions_table.html:6
+msgid "Submission time"
+msgstr "Czas zgłoszenia"
+
+#: contests/templates/contests/no_problem_statement.html:4
+msgid "Problem statement"
+msgstr "Treść zadania"
+
+#: contests/templates/contests/no_problem_statement.html:9
+msgid ""
+"<p>Oops, problem statement is not available online.\n"
+"    <p>Please ask the organizers to provide it in some other way.\n"
+"    "
+msgstr "<p>Ups, treść zadania nie jest dostępna online.\n    <p>Poproś organizatorów o udostępnienie jej w jakiejś innej formie."
+
+#: contests/templates/contests/nothing_to_submit.html:4
+#: contests/templates/contests/nothing_to_submit.html:7
+#: contests/templates/contests/submit.html:4
+#: contests/templates/contests/submit.html:7
+msgid "Submit solution"
+msgstr "Zgłoś rozwiązanie"
+
+#: contests/templates/contests/nothing_to_submit.html:9
+msgid ""
+"Sorry, there is no problem for which you could submit a\n"
+"    solution..."
+msgstr "Sorry, nie ma tu żadnych zadań, dla których możesz przysłać rozwiązanie..."
+
+#: contests/templates/contests/problems_list.html:16
+msgid "Name"
+msgstr "Nazwa"
+
+#: contests/templates/contests/problems_list.html:17 problems/admin.py:68
+msgid "Round"
+msgstr "Runda"
+
+#: contests/templates/contests/problems_list.html:34
+msgid "No problems are active at the moment."
+msgstr "Brak aktywnych zadań."
+
+#: contests/templates/contests/select_contest.html:4
+#: contests/templates/contests/select_contest.html:8
+msgid "Select contest"
+msgstr "Wybierz konkurs"
+
+#: contests/templates/contests/submission.html:4
+#: contests/templates/contests/submission.html:7
+msgid "Submission"
+msgstr "Zgłoszenie"
+
+#: dashboard/views.py:25 rankings/views.py:17
+#: rankings/templates/rankings/no_rankings.html:4
+#: rankings/templates/rankings/no_rankings.html:7
+#: rankings/templates/rankings/ranking_view.html:4
+#: rankings/templates/rankings/ranking_view.html:7
+msgid "Ranking"
+msgstr "Ranking"
+
+#: dashboard/views.py:30
+msgid "Dashboard"
+msgstr "Start"
+
+#: dashboard/templates/dashboard/dashboard.html:25
+msgid ""
+"\n"
+"        <p>This is the landing page of the contest.\n"
+"        <p>Your submissions, important announcements and\n"
+"        answers to your questions<br> will be displayed\n"
+"        here.</p>\n"
+"        "
+msgstr "\n        <p>To jest główna strona uczestnika konkursu.\n        <p>Tutaj będą pojawiać się Twoje zgłoszenia, pytania<br> oraz publiczne ogłoszenia</p>\n        "
+
+#: dashboard/templates/dashboard/dashboard.html:45
+#: messages/templates/messages/list.html:7
+#: messages/templates/messages/list.html:10
+#: messages/templates/messages/message.html:5
+msgid "Questions and announcements"
+msgstr "Pytania i ogłoszenia"
+
+#: jotform/templates/jotform/jotform_head.html:21
+msgid "Send Feedback"
+msgstr "Kontakt"
+
+#: messages/models.py:11
+msgid "Question"
+msgstr "Pytanie"
+
+#: messages/models.py:12
+msgid "Private message"
+msgstr "Prywatna odpowiedź"
+
+#: messages/models.py:13
+msgid "Public message"
+msgstr "Publiczne ogłoszenie"
+
+#: messages/processors.py:27
+#, python-format
+msgid "%(count)d NEW MESSAGE"
+msgid_plural "%(count)d NEW MESSAGES"
+msgstr[0] "%(count)d WIADOMOŚĆ"
+msgstr[1] "%(count)d WIADOMOŚCI"
+msgstr[2] "%(count)d WIADOMOŚCI"
+
+#: messages/views.py:15
+msgid "Messages"
+msgstr "Wiadomości"
+
+#: messages/views.py:87
+msgid "Category"
+msgstr "Kategoria"
+
+#: messages/views.py:97 messages/templates/messages/message.html:28
+msgid "General"
+msgstr "Ogólne"
+
+#: messages/views.py:98
+#, python-format
+msgid "Problem %s"
+msgstr "Zadanie %s"
+
+#: messages/views.py:144 messages/templates/messages/list.html:17
+msgid "Add announcement"
+msgstr "Dodaj ogłoszenie"
+
+#: messages/views.py:146
+msgid "Ask question"
+msgstr "Zadaj pytanie"
+
+#: messages/views.py:169
+msgid "Re: "
+msgstr "Odp:"
+
+#: messages/views.py:174 messages/templates/messages/message.html:15
+msgid "Reply"
+msgstr "Odpowiedz"
+
+#: messages/templates/messages/add.html:14
+msgid "The announcement will be visible immediately."
+msgstr "Ogłoszenie będzie od razu widoczne."
+
+#: messages/templates/messages/list.html:19
+msgid "Ask a question"
+msgstr "Zadaj pytanie"
+
+#: messages/templates/messages/list.html:30
+msgid "No questions/announcements yet."
+msgstr "Brak pytań oraz ogłoszeń."
+
+#: messages/templates/messages/list_table.html:6
+msgid "Author"
+msgstr "Autor"
+
+#: messages/templates/messages/list_table.html:6
+msgid "Date"
+msgstr "Data"
+
+#: messages/templates/messages/list_table.html:8
+msgid "Topic"
+msgstr "Temat"
+
+#: messages/templates/messages/list_table.html:10
+msgid "Kind"
+msgstr "Rodzaj"
+
+#: messages/templates/messages/list_table.html:21
+msgid "NEW"
+msgstr "NOWA"
+
+#: messages/templates/messages/message.html:13
+msgid "Display user"
+msgstr "Pokaż profil użytkownika"
+
+#: problems/admin.py:56
+msgid "Package file"
+msgstr "Paczka"
+
+#: problems/admin.py:119
+msgid "Problem package uploaded."
+msgstr "Paczka załadowana."
+
+#: problems/admin.py:169
+msgid "Problem updated."
+msgstr "Zadanie zaktualizowane."
+
+#: problems/admin.py:206
+#, python-format
+msgid "Package not available for problem %s."
+msgstr "Paczka nie jest dostępna dla zadania %s."
+
+#: problems/models.py:36
+msgid "package type"
+msgstr "rodzaj paczki"
+
+#: problems/models.py:40
+msgid "problems"
+msgstr "zadania"
+
+#: problems/models.py:42
+msgid "Can administer the problems database"
+msgstr "Może administrować bazą zadań"
+
+#: problems/models.py:43
+msgid "Can administer the problem"
+msgstr "Może administrować zadaniem"
+
+#: problems/models.py:72
+msgid "language code"
+msgstr "kod języka"
+
+#: problems/models.py:77
+msgid "problem statement"
+msgstr "treść zadania"
+
+#: problems/models.py:78
+msgid "problem statements"
+msgstr "treści zadań"
+
+#: problems/management/commands/addproblem.py:7
+msgid "<filename>"
+msgstr "<plik>"
+
+#: problems/management/commands/addproblem.py:8
+msgid "Adds the problem from the given package to the database."
+msgstr "Dodaje zadanie z paczki do bazy zadań."
+
+#: problems/management/commands/addproblem.py:12
+msgid "Missing argument (filename)"
+msgstr "Brak argumentu (nazwy pliku)"
+
+#: problems/management/commands/addproblem.py:14
+msgid "Expected only one argument"
+msgstr "Oczekiwano tylko jednego argumentu"
+
+#: problems/management/commands/addproblem.py:18
+#: problems/management/commands/updateproblem.py:24
+msgid "File not found: "
+msgstr "Nie znaleziono pliku:"
+
+#: problems/management/commands/addproblem.py:23
+#: problems/management/commands/updateproblem.py:34
+msgid "Package format not recognized"
+msgstr "Nieznany format paczki"
+
+#: problems/management/commands/updateproblem.py:8
+msgid "<problem_id> <filename>"
+msgstr "<ID zadania> <plik>"
+
+#: problems/management/commands/updateproblem.py:9
+msgid "Updates an existing problem using the given package file."
+msgstr "Aktualizuje istniejące zadanie według podanej paczki."
+
+#: problems/management/commands/updateproblem.py:13
+msgid "Not enough arguments"
+msgstr "Za mało argumentów"
+
+#: problems/management/commands/updateproblem.py:15
+msgid "Too many arguments"
+msgstr "Za dużo argumentów"
+
+#: problems/management/commands/updateproblem.py:20
+msgid "Invalid problem id: "
+msgstr "Niepoprawny identyfikator zadania:"
+
+#: problems/management/commands/updateproblem.py:29
+#, python-format
+msgid "Problem #%d does not exist"
+msgstr "Zadanie #%d nie istnieje"
+
+#: problems/templates/admin/problems/problem_add.html:6
+#: problems/templates/admin/problems/problem_add.html:9
+msgid "Upload problem package"
+msgstr "Wgraj paczkę"
+
+#: problems/templates/admin/problems/problem_reupload.html:6
+#: problems/templates/admin/problems/problem_reupload.html:9
+msgid "Re-upload problem package"
+msgstr "Aktualizuj zadanie"
+
+#: problems/templates/admin/problems/problem_reupload.html:18
+#, python-format
+msgid ""
+"Please upload again the\n"
+"            package for problem <strong>%(problem)s</strong>.<br> The problem\n"
+"            will be updated. Existing submissions will not be lost.\n"
+"            "
+msgstr "Proszę wskazać plik z paczką dla zadania <strong>%(problem)s</strong>.<br> Zadanie zostanie zaktualizowane. Isniejące zgłoszenia nie zostaną stracone."
+
+#: programs/admin.py:40
+msgid "Input file"
+msgstr "Plik wejściowy"
+
+#: programs/admin.py:46
+msgid "Output/hint file"
+msgstr "Plik wyjściowy"
+
+#: programs/admin.py:123
+msgid "Model solutions sent for evaluation."
+msgstr "Wysłano rozwiązania wzorcowe do sprawdzenia."
+
+#: programs/admin.py:144
+#: programs/templates/programs/admin/model_solutions.html:4
+#: programs/templates/programs/admin/model_solutions.html:7
+msgid "Model solutions"
+msgstr "Rozwiązania wzorcowe"
+
+#: programs/controllers.py:25
+msgid "Simple programming problem"
+msgstr "Zwykłe zadanie programistyczne"
+
+#: programs/controllers.py:96
+msgid "Simple programming contest"
+msgstr "Zwykły konkurs programistyczny"
+
+#: programs/models.py:15
+msgid "Normal test"
+msgstr "Zwykły test"
+
+#: programs/models.py:16
+msgid "Example test"
+msgstr "Test przykładowy"
+
+#: programs/models.py:22
+msgid "input"
+msgstr "wejście"
+
+#: programs/models.py:24
+msgid "output/hint"
+msgstr "wyjście"
+
+#: programs/models.py:26
+msgid "group"
+msgstr "grupa"
+
+#: programs/models.py:27
+msgid "time limit (ms)"
+msgstr "limit czasu (ms)"
+
+#: programs/models.py:29
+msgid "memory limit (kB)"
+msgstr "limit pamięci (kB)"
+
+#: programs/models.py:45
+msgid "Model solution"
+msgstr "Rozwiązanie wzorcowe"
+
+#: programs/models.py:46
+msgid "Slow solution"
+msgstr "Rozwiązanie powolne"
+
+#: programs/models.py:47
+msgid "Incorrect solution"
+msgstr "Rozwiązanie niepoprawne"
+
+#: programs/models.py:71
+msgid "source"
+msgstr "kod"
+
+#: programs/models.py:104
+msgid "Compilation failed"
+msgstr "Błąd kompilacji"
+
+#: programs/models.py:105
+msgid "Runtime error"
+msgstr "Błąd wykonania"
+
+#: programs/models.py:106
+msgid "Wrong answer"
+msgstr "Zła odpowiedź"
+
+#: programs/models.py:107
+msgid "Time limit exceeded"
+msgstr "Przekroczenie limitu czasu"
+
+#: programs/models.py:108
+msgid "Memory limit exceeded"
+msgstr "Przekroczenie limitu pamięci"
+
+#: programs/models.py:109
+msgid "System error"
+msgstr "Błąd systemowy"
+
+#: programs/models.py:110
+msgid "Security violation"
+msgstr "Naruszenie bezpieczeństwa"
+
+#: programs/models.py:112
+msgid "Initial report"
+msgstr "Raport wstępnego sprawdzania"
+
+#: programs/models.py:113
+msgid "Hidden report (for admins only)"
+msgstr "Raport ukryty (widoczny dla adminów)"
+
+#: programs/templates/programs/report.html:5
+msgid "Initial testing report"
+msgstr "Raport wstępnego sprawdzania"
+
+#: programs/templates/programs/report.html:7
+msgid "Final testing report"
+msgstr "Raport ostatecznego sprawdzania"
+
+#: programs/templates/programs/report.html:9
+msgid "Hidden testing report"
+msgstr "Ukryty raport sprawdzania"
+
+#: programs/templates/programs/report.html:11
+msgid "Report:"
+msgstr "Raport:"
+
+#: programs/templates/programs/report.html:15
+msgid "Compilation failed."
+msgstr "Kompilacja zakończyła się porażką."
+
+#: programs/templates/programs/report.html:24
+msgid "Test"
+msgstr "Test"
+
+#: programs/templates/programs/report.html:25
+msgid "Result"
+msgstr "Wynik"
+
+#: programs/templates/programs/report.html:26
+msgid "Time"
+msgstr "Czas"
+
+#: programs/templates/programs/submission_header.html:9
+#: programs/templates/programs/admin/model_solutions.html:15
+msgid "Rejudge"
+msgstr "Oceń ponownie"
+
+#: programs/templates/programs/submission_header.html:12
+msgid "Show code"
+msgstr "Pokaż kod"
+
+#: programs/templates/programs/submission_header.html:14
+msgid "Download"
+msgstr "Pobierz"
+
+#: programs/templates/programs/submission_header.html:22
+msgid "Submission date"
+msgstr "Data zgłoszenia"
+
+#: programs/templates/programs/submission_header.html:38
+msgid "Submission comment"
+msgstr "Komentarz"
+
+#: programs/templates/programs/admin/model_solutions.html:9
+msgid "There are no model solutions in this problem package.\n"
+msgstr "W paczce nie było żadnych rozwiązań wzorcowych.\n"
+
+#: programs/templates/programs/admin/tests_inline.html:65
+msgid ""
+"Use TAB to effectively move between the boxes. Use Shift-Enter to copy the "
+"current value down up to the end of the table."
+msgstr "Użyj TAB-a, żeby szybko przemieszczać się między polami. Naciśnięcie Shift-Enter skopiuje bieżącą wartość w dół, do końca tabeli."
+
+#: rankings/controllers.py:42
+msgid "Default ranking"
+msgstr "Domyślny ranking"
+
+#: rankings/controllers.py:57
+msgid "Contest"
+msgstr "Konkurs"
+
+#: rankings/templates/rankings/default_ranking.html:8
+msgid "User"
+msgstr "Użytkownik"
+
+#: rankings/templates/rankings/default_ranking.html:12
+msgid "Sum"
+msgstr "Suma"
+
+#: rankings/templates/rankings/default_ranking.html:30
+msgid "Strange, there is no one in this ranking..."
+msgstr "Hmm, nie ma nikogo w rankingu..."
+
+#: rankings/templates/rankings/no_rankings.html:9
+msgid "No rankings available."
+msgstr "Brak dostępnych rankingów."
+
+#: sinolpack/controllers.py:7
+msgid "Sinol package problem"
+msgstr "Zadanie z paczki Sinola"
+
+#: sinolpack/package.py:244
+#, python-format
+msgid "Expected extra file '%s' not found in prog/"
+msgstr "Nie znaleziono dodatkowego pliku: %s"
+
+#: sinolpack/package.py:282
+#, python-format
+msgid ""
+"Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, "
+"changing problem short name is not possible."
+msgstr "Próba zastąpienia zadania '%(oldname)s' zadaniem '%(newname)s'. Dla bezpieczeństwa zmiana skrótu zadania nie jest możliwa."
+
+#: sinolpack/package.py:382
+msgid "Sinol Package"
+msgstr "Paczka Sinola"
+
+#: teachers/admin.py:27 teachers/templates/teachers/participants.html:50
+msgid "Teachers"
+msgstr "Nauczyciele"
+
+#: teachers/admin.py:73
+msgid "Contest added successfully."
+msgstr "Dodano konkurs."
+
+#: teachers/admin.py:81
+msgid "New contest"
+msgstr "Nowy konkurs"
+
+#: teachers/controllers.py:17
+msgid "Contest for teachers"
+msgstr "Konkurs dla nauczycieli"
+
+#: teachers/models.py:15
+msgid "Is a teacher"
+msgstr "Jest nauczycielem"
+
+#: teachers/views.py:31 teachers/templates/teachers/participants.html:59
+msgid "Participants"
+msgstr "Uczestnicy"
+
+#: teachers/views.py:36
+#: teachers/templates/registration/activation_complete.html:11
+#: teachers/templates/teachers/request.html:4
+#: teachers/templates/teachers/request.html:7
+#: teachers/templates/teachers/request_sent.html:4
+msgid "Request teacher account"
+msgstr "Poproś o konto nauczycielskie"
+
+#: teachers/views.py:46
+msgid ""
+"Please provide the full name. If the school is a part of a larger "
+"organization of schools, <br>enter the name of this organization."
+msgstr "Wpisz pełną nazwę szkoły. Jeśli szkoła należy do zespołu, <br>wpisz nazwę zespołu szkół."
+
+#: teachers/views.py:52
+msgid "Message"
+msgstr "Wiadomość"
+
+#: teachers/views.py:53
+msgid "Optional. If provided, this message will be sent to the managers."
+msgstr "Opcjonalnie. Jeśli tu coś wpiszesz, informacja zostanie przesłana do administratorów."
+
+#: teachers/views.py:114
+msgid "User already accepted."
+msgstr "Użytkownik już zaakceptowany."
+
+#: teachers/views.py:119
+msgid "Successfully accepted and emailed the new teacher."
+msgstr "Zaakeptowano i powiadomiono mailem nowego nauczyciela."
+
+#: teachers/views.py:166
+msgid "Activation successful."
+msgstr "Aktywacja zakończona."
+
+#: teachers/templates/ingredients/menu.html:11
+msgid "Teacher Menu"
+msgstr "Menu Nauczyciela"
+
+#: teachers/templates/teachers/acceptance_email.txt:1
+#, python-format
+msgid ""
+"Your request for a teacher account has been accepted.\n"
+"\n"
+"Visit the following link to create your first contest:\n"
+"\n"
+"  %(new_contest_link)s\n"
+"\n"
+"Best wishes,\n"
+"OIOIOI Portal Managers"
+msgstr "Prośba o konto nauczycielskie została zaakceptowana.\n\nPod poniższym linkiem możesz stworzyć nowy konkurs:\n\n  %(new_contest_link)s\n\nPozdrawiamy,\nAdministratorzy OIOIOI"
+
+#: teachers/templates/teachers/acceptance_email_subject.txt:1
+msgid "Teacher account request accepted"
+msgstr "Zaakceptowano prośbę o konto nauczycielskie"
+
+#: teachers/templates/teachers/activation_error.html:7
+msgid "Registration has been disabled by the teacher."
+msgstr "Rejestracja została wyłączona przez nauczyciela."
+
+#: teachers/templates/teachers/activation_error.html:9
+msgid "Invalid activation link."
+msgstr "Niepoprawny link aktywacyjny."
+
+#: teachers/templates/teachers/activation_type.html:9
+#: teachers/templates/teachers/activation_type.html:12
+msgid "Choose registration type"
+msgstr "Wybierz rodzaj rejestracji"
+
+#: teachers/templates/teachers/activation_type.html:13
+msgid ""
+"Your account is a techer account. Please choose, if you wish to\n"
+"register to this contest as a teacher or as a participant."
+msgstr "Twoje konto jest kontem nauczycielskim. Wybierz, czy chcesz dołączyć do konkursu jako nauczyciel czy jako zwykły uczestnik."
+
+#: teachers/templates/teachers/activation_type.html:19
+msgid "Register as a teacher"
+msgstr "Jako nauczyciel"
+
+#: teachers/templates/teachers/activation_type.html:20
+msgid "Register as a participant"
+msgstr "Jako uczestnik"
+
+#: teachers/templates/teachers/no_entry.html:7
+#, python-format
+msgid ""
+"<p>You are not registered to this contest.\n"
+"    <p>Please ask your teacher for instructions on how to register or <a href=\"%(link)s\">choose another contest</a>.\n"
+"    "
+msgstr "<p>Nie jesteś zapisany/zapisana do tego konkursu.\n    <p>Poproś nauczyciela o wskazówki, jak się zapisać (lub <a href=\"%(link)s\">wybierz inny konkurs</a>).\n    "
+
+#: teachers/templates/teachers/participants.html:14
+#: teachers/templates/teachers/participants.html:17
+msgid "Contest participants"
+msgstr "Uczestnicy konkursu"
+
+#: teachers/templates/teachers/participants.html:19
+msgid ""
+"To allow a user to access this contest, ask him/her to visit the following "
+"link:"
+msgstr "Aby dopisać użytkownika do konkursu, poproś, żeby wszedł na poniższy link:"
+
+#: teachers/templates/teachers/participants.html:22
+msgid "Copy to clipboard"
+msgstr "Skopiuj do schowka"
+
+#: teachers/templates/teachers/participants.html:38
+msgid "Disable link"
+msgstr "Zablokuj link"
+
+#: teachers/templates/teachers/participants.html:39
+msgid "Re-generate key"
+msgstr "Wygeneruj link ponownie"
+
+#: teachers/templates/teachers/participants.html:42
+msgid "Registration of new users is disabled."
+msgstr "Rejestracja nowych użytkowników jest zablokowana."
+
+#: teachers/templates/teachers/participants.html:44
+msgid "Re-enable registration"
+msgstr "Odblokuj"
+
+#: teachers/templates/teachers/participants.html:56
+msgid "No teachers."
+msgstr "Brak nauczycieli."
+
+#: teachers/templates/teachers/participants.html:71
+msgid "No participants."
+msgstr "Brak uczestników."
+
+#: teachers/templates/teachers/participants.html:77
+msgid "Select participants"
+msgstr "Zaznacz uczestników"
+
+#: teachers/templates/teachers/participants.html:79
+msgid "Select teachers"
+msgstr "Zaznacz nauczycieli"
+
+#: teachers/templates/teachers/participants.html:81
+msgid "Select none"
+msgstr "Odznacz wszystko"
+
+#: teachers/templates/teachers/participants.html:82
+msgid "Delete selected"
+msgstr "Usuń zaznaczone wpisy"
+
+#: teachers/templates/teachers/participants.html:85
+msgid "Add from other contest"
+msgstr "Skopiuj z innego konkursu"
+
+#: teachers/templates/teachers/request.html:16
+msgid "Send request"
+msgstr "Wyślij prośbę"
+
+#: teachers/templates/teachers/request_sent.html:8
+msgid "Request has been sent."
+msgstr "Prośba została wysłana."
+
+#: teachers/templates/teachers/request_sent.html:9
+msgid "You will receive an email once your teacher account is activated."
+msgstr "Otrzymasz wiadomość e-mail, gdy konto nauczycielskie zostanie aktywowane."

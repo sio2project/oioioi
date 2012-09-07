@@ -23,7 +23,7 @@
                             trigger: 'manual',
                             title: "{% trans "You may log in here!" %}",
                             {% url 'user_registration' as registration_url %}
-                            content: {% blocktrans %}"<p>Use this box to quickly log in without even using your mouse. If you don't have an account, feel free to <a href='{{ registration_url }}'>register</a>.</p><p><small>Click to dismiss.</small></p>{% endblocktrans %}",
+                            content: "{% blocktrans %}<p>Use this box to quickly log in without even using your mouse. If you don't have an account, feel free to <a href='{{ registration_url }}'>register</a>.</p><p><small>Click to dismiss.</small></p>{% endblocktrans %}",
                             html: 'html'
                         }).each(function(index, elem) {
                             var popover = $(elem).data('popover');

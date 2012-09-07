@@ -103,8 +103,12 @@ class RegisteredSubclassesBase(object):
 
     __metaclass__ = RegisteredSubclassesMeta
 
+    _subclasses_loaded = False
+
     @classmethod
     def load_subclasses(cls):
+        if cls._subclasses_loaded:
+            return
         from django.conf import settings
         modules_to_load = getattr(cls, 'modules_with_subclasses', [])
         if isinstance(modules_to_load, basestring):
@@ -116,6 +120,7 @@ class RegisteredSubclassesBase(object):
                     import_module(module)
                 except ImportError:
                     continue
+        cls._subclasses_loaded = True
 
 class _RemoveMixinsFromInitMixin(object):
     def __init__(self, *args, **kwargs):

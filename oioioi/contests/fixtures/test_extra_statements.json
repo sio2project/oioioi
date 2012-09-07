@@ -3,9 +3,9 @@
     "pk": 2,
     "model": "problems.problemstatement",
     "fields": {
-      "content": "data:problems/1/en-us.txt:raw:en-us-txt",
+      "content": "data:problems/1/en.txt:raw:en-txt",
       "problem": 1,
-      "language": "en-us"
+      "language": "en"
     }
   },
   {

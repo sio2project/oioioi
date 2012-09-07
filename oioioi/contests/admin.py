@@ -23,11 +23,12 @@ class SimpleContestForm(forms.ModelForm):
         model = Contest
         fields = ['name', 'id', 'controller_name']
 
-    start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime)
+    start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
+            label=_("Start date"))
     end_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False)
+            required=False, label=_("End date"))
     results_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False)
+            required=False, label=_("Results date"))
 
     def _generate_default_dates(self):
         now = datetime.datetime.now()

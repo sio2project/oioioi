@@ -1,0 +1,4 @@
+Here should be put .po and .mo files which override translations from Django
+or other external dependencies.
+
+These are not regenerated when runing 'manage.py makemessages'.

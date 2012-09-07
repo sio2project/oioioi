@@ -37,6 +37,8 @@ class Contest(models.Model):
             verbose_name=_("creation date"))
 
     class Meta:
+        verbose_name = _("contest")
+        verbose_name_plural = _("contests")
         get_latest_by = 'creation_date'
         permissions = (
             ('contest_admin', _("Can administer the contest")),
@@ -76,24 +78,34 @@ class ContestAttachment(models.Model):
        This may be used for additional materials, like rules, documentation
        etc.
     """
-    contest = models.ForeignKey(Contest, related_name='attachments')
+    contest = models.ForeignKey(Contest, related_name='attachments',
+            verbose_name=_("contest"))
     description = models.CharField(max_length=255,
-        verbose_name=_("description"))
+            verbose_name=_("description"))
     content = FileField(upload_to=make_contest_filename,
-        verbose_name=_("content"))
+            verbose_name=_("content"))
+
+    class Meta:
+        verbose_name = _("attachment")
+        verbose_name_plural = _("attachments")
 
     @property
     def filename(self):
         return os.path.split(self.content.name)[1]
 
 class Round(models.Model):
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     name = models.CharField(max_length=255, verbose_name=_("name"))
-    start_date = models.DateTimeField(default=datetime.datetime.now)
-    end_date = models.DateTimeField(blank=True, null=True)
-    results_date = models.DateTimeField(blank=True, null=True)
+    start_date = models.DateTimeField(default=datetime.datetime.now,
+            verbose_name=_("start date"))
+    end_date = models.DateTimeField(blank=True, null=True,
+            verbose_name=_("end date"))
+    results_date = models.DateTimeField(blank=True, null=True,
+            verbose_name=_("results date"))
 
     class Meta:
+        verbose_name = _("round")
+        verbose_name_plural = _("rounds")
         unique_together = ('contest', 'name')
         ordering = ('contest', 'start_date')
 
@@ -110,17 +122,19 @@ def _generate_round_id(sender, instance, raw, **kwargs):
 
 
 class ProblemInstance(models.Model):
-    contest = models.ForeignKey(Contest)
-    round = models.ForeignKey(Round)
-    problem = models.ForeignKey(Problem)
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    round = models.ForeignKey(Round, verbose_name=_("round"))
+    problem = models.ForeignKey(Problem, verbose_name=_("problem"))
     short_name = models.CharField(max_length=30, verbose_name=_("short name"))
 
     class Meta:
+        verbose_name = _("problem instance")
+        verbose_name_plural = _("problem instances")
         unique_together = ('contest', 'short_name')
         ordering = ('round', 'short_name')
 
     def __unicode__(self):
-        return _("%(name)s (%(short_name)s)") % \
+        return '%(name)s (%(short_name)s)' % \
                 dict(short_name=self.short_name, name=self.problem.name)
 
 @receiver(pre_save, sender=ProblemInstance)
@@ -151,15 +165,24 @@ submission_statuses.register('OK', _("OK"))
 submission_statuses.register('ERR', _("Error"))
 
 class Submission(models.Model):
-    problem_instance = models.ForeignKey(ProblemInstance)
-    user = models.ForeignKey(User, blank=True, null=True)
-    date = models.DateTimeField(default=datetime.datetime.now, blank=True)
-    kind = EnumField(submission_kinds, default='NORMAL')
-    score = ScoreField(blank=True, null=True)
-    status = EnumField(submission_statuses, default='?')
-    comment = models.TextField(blank=True)
+    problem_instance = models.ForeignKey(ProblemInstance,
+            verbose_name=_("problem"))
+    user = models.ForeignKey(User, blank=True, null=True,
+            verbose_name=_("user"))
+    date = models.DateTimeField(default=datetime.datetime.now, blank=True,
+            verbose_name=_("date"))
+    kind = EnumField(submission_kinds, default='NORMAL',
+            verbose_name=_("kind"))
+    score = ScoreField(blank=True, null=True,
+            verbose_name=_("score"))
+    status = EnumField(submission_statuses, default='?',
+            verbose_name=_("status"))
+    comment = models.TextField(blank=True,
+            verbose_name=_("comment"))
 
     class Meta:
+        verbose_name = _("submission")
+        verbose_name_plural = _("submissions")
         get_latest_by = 'id'
 
     def get_date_display(self):

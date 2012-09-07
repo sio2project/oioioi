@@ -28,13 +28,16 @@ class Problem(models.Model):
     short_name = models.CharField(max_length=30, verbose_name=_("short name"))
     controller_name = DottedNameField(
         'oioioi.problems.controllers.ProblemController',
-        verbose_name=_("controller"))
-    contest = models.ForeignKey('contests.Contest', null=True, blank=True)
+        verbose_name=_("type"))
+    contest = models.ForeignKey('contests.Contest', null=True, blank=True,
+        verbose_name=_("contest"))
     package_backend_name = \
             DottedNameField('oioioi.problems.package.ProblemPackageBackend',
-                    null=True, blank=True)
+                    null=True, blank=True, verbose_name=_("package type"))
 
     class Meta:
+        verbose_name = _("problem")
+        verbose_name_plural = _("problems")
         permissions = (
             ('problems_db_admin', _("Can administer the problems database")),
             ('problem_admin', _("Can administer the problem")),
@@ -49,7 +52,7 @@ class Problem(models.Model):
         return get_object_by_dotted_name(self.package_backend_name)()
 
     def __unicode__(self):
-        return _("%(name)s (%(short_name)s)") % \
+        return '%(name)s (%(short_name)s)' % \
                 dict(short_name=self.short_name, name=self.name)
 
 @receiver(post_save, sender=Problem)
@@ -70,6 +73,10 @@ class ProblemStatement(models.Model):
     content = FileField(upload_to=make_problem_filename,
         verbose_name=_("content"))
 
+    class Meta:
+        verbose_name = _("problem statement")
+        verbose_name_plural = _("problem statements")
+
     @property
     def filename(self):
         return os.path.split(self.content.name)[1]
@@ -79,11 +86,7 @@ class ProblemStatement(models.Model):
         return os.path.splitext(self.content.name)[1].lower()
 
     def __unicode__(self):
-        return _("Statement #%(id)d for %(problem_short_name)s: %(filename)s"
-                ) % dict(
-                        id=self.id,
-                        problem_short_name=self.problem.short_name,
-                        filename=self.filename)
+        return '%s / %s' % (self.problem.name, self.filename)
 
 class ProblemAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
@@ -98,14 +101,13 @@ class ProblemAttachment(models.Model):
     content = FileField(upload_to=make_problem_filename,
         verbose_name=_("content"))
 
+    class Meta:
+        verbose_name = _("attachment")
+        verbose_name_plural = _("attachments")
+
     @property
     def filename(self):
         return os.path.split(self.content.name)[1]
 
     def __unicode__(self):
-        return _("Attachment #%(id)d for %(problem_short_name)s: %(filename)s"
-                " %(description)s") % dict(
-                        id=self.id,
-                        problem_short_name=self.problem.short_name,
-                        filename=self.filename,
-                        description=self.description)
+        return '%s / %s' % (self.problem.name, self.filename)

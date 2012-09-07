@@ -9,7 +9,7 @@ def raw_file_view(request, filename):
     if not filename or filename.startswith('/'):
         raise Http404
     if not request.user.is_superuser:
-        raise PermissionDenied(_("Only superusers can access raw files"))
+        raise PermissionDenied
     if not default_storage.exists(filename):
         raise Http404
 

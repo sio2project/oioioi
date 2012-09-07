@@ -256,10 +256,10 @@ class TestMultilingualStatements(TestCase):
             'contest_id': pi.contest.id,
             'problem_instance': pi.short_name})
         response = self.client.get(url)
-        self.assertEqual('en-us-txt', response.content)
-        self.client.cookies['lang'] = 'en-us'
+        self.assertEqual('en-txt', response.content)
+        self.client.cookies['lang'] = 'en'
         response = self.client.get(url)
-        self.assertEqual('en-us-txt', response.content)
+        self.assertEqual('en-txt', response.content)
         self.client.cookies['lang'] = 'pl'
         response = self.client.get(url)
         self.assertEqual('pl-pdf', response.content)
@@ -268,7 +268,7 @@ class TestMultilingualStatements(TestCase):
         self.assertIn('%PDF', response.content)
         ProblemStatement.objects.get(language__isnull=True).delete()
         response = self.client.get(url)
-        self.assertEqual('en-us-txt', response.content)
+        self.assertEqual('en-txt', response.content)
 
 
 def failing_handler(env):

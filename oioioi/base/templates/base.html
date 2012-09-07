@@ -5,7 +5,7 @@
 
 {% load i18n all_with_prefix common_media compress %}
 
-<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
         {% block head %}
 

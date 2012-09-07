@@ -8,14 +8,15 @@ os.environ.setdefault('CELERY_LOADER', 'oioioi.celery.loaders.OioioiLoader')
 import djcelery
 djcelery.setup_loader()
 
+import oioioi
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',)
 
-gettext = lambda s: s
 LANGUAGES = (
-    ('en-us', gettext('English')),
-    ('pl', gettext('Polish')),
+    ('en', 'English'),
+    ('pl', 'Polish'),
 )
 
 # Local time zone for this installation. Choices can be found here:
@@ -29,12 +30,16 @@ TIME_ZONE = None
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 LANGUAGE_COOKIE_NAME = 'lang'
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = True
+LOCALE_PATHS = [
+    os.path.join(os.path.dirname(oioioi.__file__), 'locale'),
+    os.path.join(os.path.dirname(oioioi.__file__), 'locale-overrides'),
+]
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
