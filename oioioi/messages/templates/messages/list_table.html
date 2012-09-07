@@ -14,11 +14,7 @@
     <tbody>
         {% for record in records %}
         {% with record.message as msg %}
-        {% if msg.top_reference_id %}
-        {% url message contest_id=contest.id message_id=msg.top_reference_id as link %}
-        {% else %}
-        {% url message contest_id=contest.id message_id=msg.id as link %}
-        {% endif %}
+        {% url message contest_id=contest.id message_id=record.link_message.id as link %}
         <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
             <td><a href="{{ link }}">{% if is_admin %}{{ msg.author.get_full_name }}{% else %}{{ msg.date }}{% endif %}</a></td>
             <td>{{ msg.problem_instance|default_if_none:'' }}</td>

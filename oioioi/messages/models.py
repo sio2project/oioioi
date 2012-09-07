@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxLengthValidator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from oioioi.contests.models import Contest, ProblemInstance
@@ -19,7 +20,8 @@ class Message(models.Model):
     top_reference = models.ForeignKey('self', null=True, blank=True)
     author = models.ForeignKey(User)
     kind = EnumField(message_kinds, default='QUESTION')
-    topic = models.CharField(max_length=255)
+    topic = models.CharField(max_length=255,
+            validators=[MaxLengthValidator(255)])
     content = models.TextField()
     date = models.DateTimeField(auto_now_add=True, editable=False)
 

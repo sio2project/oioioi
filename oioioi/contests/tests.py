@@ -12,7 +12,6 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
 from oioioi.problems.models import Problem, ProblemStatement
-from oioioi.programs.models import ModelSolution
 from oioioi.programs.controllers import ProgrammingContestController
 from datetime import datetime
 
@@ -372,18 +371,3 @@ class TestContestAdmin(TestCase):
                 datetime(2013, 2, 4, 15, 6, 7, tzinfo=LocalTimezone()))
         self.assertEqual(round.results_date,
                 datetime(2013, 2, 5, 16, 7, 8, tzinfo=LocalTimezone()))
-
-class TestSubmissionAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
-
-    def test_submissions_changelist(self):
-        self.client.login(username='test_admin')
-        pi = ProblemInstance.objects.get()
-        ModelSolution.objects.recreate_model_submissions(pi)
-        url = reverse('oioioiadmin:contests_submission_changelist')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('(sum.c)', response.content)
-        self.assertIn('test_user', response.content)
-        self.assertIn('subm_status subm_OK', response.content)

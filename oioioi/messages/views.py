@@ -1,5 +1,6 @@
 from django.db.models import Q
 from django import forms
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
@@ -45,6 +46,8 @@ def messages_template_context(request, messages):
     new_ids = new_messages(request, messages).values_list('id', flat=True)
     to_display = [{
             'message': m,
+            'link_message': m.top_reference in messages \
+                    and m.top_reference or m,
             'needs_reply': is_admin and m.kind == 'QUESTION',
             'read': m.id not in new_ids,
         } for m in messages if m.id not in replied_ids]

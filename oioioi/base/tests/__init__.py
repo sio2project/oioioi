@@ -41,9 +41,15 @@ if not getattr(settings, 'TESTS', False):
 
 basedir = os.path.dirname(__file__)
 
-def check_not_accessible(testcase, *args, **kwargs):
+def check_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     data = kwargs.pop('data', {})
-    response = testcase.client.get(reverse(*args, **kwargs), data=data)
+    if url_or_viewname.startswith('/'):
+        url = url_or_viewname
+        assert not args
+        assert not kwargs
+    else:
+        url = reverse(url_or_viewname, *args, **kwargs)
+    response = testcase.client.get(url, data=data)
     testcase.assertIn(response.status_code, (403, 404, 302))
     if response.status_code == 302:
         testcase.assertIn('/login/', response['Location'])
