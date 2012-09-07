@@ -51,6 +51,19 @@ STATIC_ROOT = '__DIR__/static'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '__SECRET__'
 
+# Comment/uncomment components to disable/enable them.
+#
+# Additional components usually have to be prepended to the list in
+# INSTALLED_APPS, because thay may want to override some templates. But this is
+# not always the case. Please consult the documentation of particular extension
+# you're configuring.
+INSTALLED_APPS = (
+#    'oioioi.contestlogo',
+#    'oioioi.teachers',
+    'oioioi.dashboard',
+    'oioioi.clock',
+) + INSTALLED_APPS
+
 # SMTP server parameters for sending emails.
 EMAIL_USE_TLS = False
 EMAIL_HOST = 'mail'

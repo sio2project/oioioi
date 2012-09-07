@@ -6,6 +6,14 @@ DATABASES = {
     }
 }
 
+# Enable optional modules.
+INSTALLED_APPS = (
+    'oioioi.contestlogo',
+    'oioioi.teachers',
+    'oioioi.dashboard',
+    'oioioi.clock',
+) + INSTALLED_APPS
+
 AUTHENTICATION_BACKENDS = (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
     'django.contrib.auth.backends.ModelBackend',

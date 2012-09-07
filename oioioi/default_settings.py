@@ -122,17 +122,13 @@ COMPRESS_PRECOMPILERS = (
 )
 
 INSTALLED_APPS = (
-    'oioioi.clock',
     'oioioi.filetracker',
-    'oioioi.teachers',
     'oioioi.problems',
     'oioioi.programs',
     'oioioi.contests',
     'oioioi.sinolpack',
     'oioioi.messages',
     'oioioi.rankings',
-    'oioioi.dashboard',
-    'oioioi.contestlogo',
     'oioioi.sioworkers',
     'oioioi.base',
     'oioioi.jotform',
