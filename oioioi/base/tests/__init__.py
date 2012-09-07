@@ -372,6 +372,8 @@ class TestMisc(unittest.TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
         reload(oioioi.test_settings)
+        import oioioi.default_settings
+        reload(oioioi.default_settings)
 
     def test_uploaded_file_name(self):
         tmp_file = TemporaryUploadedFile('whatever',
