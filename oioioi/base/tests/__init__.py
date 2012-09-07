@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.core import mail
 from django.core.files.uploadedfile import TemporaryUploadedFile, \
         SimpleUploadedFile
@@ -28,6 +29,15 @@ import tempfile
 import shutil
 from contextlib import contextmanager
 import threading
+
+if not getattr(settings, 'TESTS', False):
+    print >>sys.stderr, 'The tests are not using the required test ' \
+            'settings from test_settings.py.'
+    print >>sys.stderr, 'Make sure the tests are run ' \
+            'using \'python setup.py test\' or ' \
+            '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python ' \
+            'manage.py test\'.'
+    sys.exit(1)
 
 basedir = os.path.dirname(__file__)
 
@@ -80,15 +90,6 @@ def fake_time(timestamp):
     FakeTimeMiddleware._fake_timestamp.value = timestamp
     yield
     del FakeTimeMiddleware._fake_timestamp.value
-
-class TestTestConfig(unittest.TestCase):
-    def test_test_config(self):
-        if not getattr(settings, 'TESTS', False):
-            self.fail('The tests are not using the required test settings '
-                    'from test_settings.py. Make sure the tests are run '
-                    'using \'python setup.py test\' or '
-                    '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python '
-                    'manage.py test\'.')
 
 class TestPermsTemplateTags(TestCase):
     fixtures = ('test_users',)
