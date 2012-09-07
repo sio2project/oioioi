@@ -4,9 +4,9 @@
 
 {% block navbar %}
 {% if user.is_anonymous %}
-{% include "navbar-with-login-box.html" %}
+{% include "ingredients/navbar-with-login-box.html" %}
 {% else %}
-{% include "navbar.html" %}
+{% include "ingredients/navbar.html" %}
 {% endif %}
 {% endblock %}
 
