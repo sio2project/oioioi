@@ -42,7 +42,6 @@ def common_media_tag(template_generator, context):
     value = t.render(context)
     if not settings.DEBUG:
         _cache[template_generator] = value
-    print repr(value)
     return value
 
 def common_styles_tag(context):
