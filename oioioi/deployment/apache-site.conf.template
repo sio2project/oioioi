@@ -9,7 +9,7 @@
         allow from all
     </Directory>
 
-    WSGIDaemonProcess __USER__ user=__USER__ group=__GROUP__ processes=2 threads=10
+    WSGIDaemonProcess __USER__ user=__USER__ group=__GROUP__ processes=2 threads=10 inactivity-timeout=600 maximum-requests=1000
     WSGIProcessGroup __USER__
 
     WSGIScriptAlias / __DIR__/wsgi.py
