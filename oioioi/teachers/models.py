@@ -6,9 +6,9 @@ import hashlib
 import random
 
 class Teacher(models.Model):
-    user = models.OneToOneField(User, primary_key=True)
-    is_active = models.BooleanField(default=False)
-    school = models.CharField(max_length=255)
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"))
+    is_active = models.BooleanField(default=False, verbose_name=_("active"))
+    school = models.CharField(max_length=255, verbose_name=_("school"))
 
     class Meta:
         permissions = (

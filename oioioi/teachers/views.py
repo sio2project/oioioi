@@ -43,6 +43,7 @@ class AddTeacherForm(forms.ModelForm):
         fields = ['school']
 
     school = forms.CharField(
+            label=_("School"),
             help_text=mark_safe(_("Please provide the full name. If the "
                 "school is a part of a larger organization of schools, "
                 "<br>enter the name of this organization.")),
