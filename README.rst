@@ -3,6 +3,7 @@ OIOIOI
 ======
 
 .. image:: https://hudson.sio2project.mimuw.edu.pl/job/oioioi-github-unittests/badge/icon
+   :target: https://hudson.sio2project.mimuw.edu.pl/job/oioioi-github-unittests/Unittests_Report/
 
 SIO2 is a free platform for carrying out algorithmic contests and OIOIOI is its
 main component --- the web interface.
