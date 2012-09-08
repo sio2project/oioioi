@@ -168,3 +168,27 @@ daemons.
 
 .. _RabbitMQ: http://www.rabbitmq.com/
 .. _RabbitMQ Debian/Ubuntu Repos: http://www.rabbitmq.com/install-debian.html
+
+Installing on 64-bit machines
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The sandboxes provided by the SIO2 Project contain 32-bit binaries. Therefore
+it is recommended that OIOIOI is installed on a 32-bit Linux. Otherwise,
+required libraries may be missing. Here we list some of them, which we found
+needed when installing OIOIOI in a pristine Ubuntu Server 12.04 LTS (Precise
+Pangolin):
+
+* *libz* (Ubuntu package: *zlib1g:i386*)
+
+Installing on Ubuntu
+~~~~~~~~~~~~~~~~~~~~
+
+Ubuntu has one `additional security feature`_ which interferes with the
+instruction counting sandbox used by default by OIOIOI. It must be disabled
+by adding the following line to */etc/sysctl.conf*::
+
+  kernel.yama.ptrace_scope = 0
+
+and rebooting the machine or reloading this file with ``sudo sysctl -p``.
+
+.. _additional security feature: https://wiki.ubuntu.com/Security/Features#ptrace_scope
