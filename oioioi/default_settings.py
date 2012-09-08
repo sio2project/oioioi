@@ -87,7 +87,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.contests.processors.register_recent_contests',
     'oioioi.contests.processors.register_only_default_contest',
     'oioioi.messages.processors.navbar_tip_processor',
-    'oioioi.contestlogo.processors.logo_processor',
+    'oioioi.analytics.processors.analytics_processor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -137,6 +137,7 @@ INSTALLED_APPS = (
     'oioioi.sioworkers',
     'oioioi.base',
     'oioioi.jotform',
+    'oioioi.analytics',
     'oioioi.celery',
     'djcelery',
     'kombu.transport.django',
@@ -162,8 +163,6 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'oioioi.teachers.auth.TeacherAuthBackend',
 )
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
@@ -191,6 +190,7 @@ PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',
 )
 
+SAFE_EXEC_MODE = 'vcpu'
 USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False
 RUN_LOCAL_WORKERS = False
@@ -257,3 +257,5 @@ CELERY_ROUTES.update({
 # ID of JotForm account for "Send Feedback" link.
 JOTFORM_ID = None
 
+# Google Analytics
+GOOGLE_ANALYTICS_TRACKING_ID = None

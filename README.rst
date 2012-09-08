@@ -57,7 +57,8 @@ Ensure that required dependencies are installed:
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with support for Polish (Ubuntu packages: *texlive-latex*,
   *texlive-lang-polish*)
-* lessc (`LESS`_ compiler; Ubuntu package: *node-less*)
+* lessc (`LESS`_ compiler, **minimum version 1.3.0**; on Ubuntu install *npm*
+  and then run ``sudo npm install --global less``)
 
 and in one terminal run the Django web server::
 
