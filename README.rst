@@ -18,7 +18,6 @@ It should be easier to begin with a separate folder at first::
 
 and to install OIOIOI inside a `virtualenv`_::
 
-  pip install virtualenv
   virtualenv venv
   . venv/bin/activate
 
