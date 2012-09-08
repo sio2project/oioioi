@@ -259,11 +259,14 @@ class TestUtils(unittest.TestCase):
                 self.name = 'derived3'
                 self.foo = foo
         Derived3.mix_in(Mixin2)
+        class Derived4(Base):
+            name = 'derived4'
         self.assertEqual(Base().name, 'mixin1')
         self.assertEqual(Derived1().name, 'mixin2')
         self.assertEqual(Derived2().name, 'mixin2')
         self.assertEqual(Derived3(foo='bar').name, 'derived3')
         self.assertTrue(Derived2().has_mixin1)
+        self.assertEqual(Derived4().name, 'derived4')
 
         Derived2.mix_in(Mixin3)
         with self.assertRaises(AssertionError):

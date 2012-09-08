@@ -15,7 +15,7 @@ import traceback
 class ClassInitMeta(type):
     """Meta class triggering __classinit__ on class intialization."""
     def __init__(cls, class_name, bases, new_attrs):
-        type.__init__(cls, class_name, bases, new_attrs)
+        super(ClassInitMeta, cls).__init__(class_name, bases, new_attrs)
         cls.__classinit__()
 
 class ClassInitBase(object):
@@ -54,41 +54,7 @@ class ClassInitBase(object):
         """
         pass
 
-class RegisteredSubclassesMeta(type):
-    def __new__(cls, name, bases, dct):
-        assert 'subclasses' not in dct, \
-                '%s defines attribute subclasses, but has ' \
-                'RegisteredSubclassesMeta metaclass'
-        dct['subclasses'] = []
-
-        # Each class must have its own 'abstract' attribute
-        dct.setdefault('abstract', False)
-
-        return type.__new__(cls, name, bases, dct)
-
-    def __init__(cls, name, bases, new_attrs):
-        type.__init__(cls, name, bases, new_attrs)
-
-        def find_superclass(cls):
-            superclasses = filter(
-                    lambda c: isinstance(c, RegisteredSubclassesMeta),
-                    cls.__bases__)
-            if not superclasses:
-                return None
-            if len(superclasses) > 1:
-                raise AssertionError('%s derives from more than one '
-                        'RegisteredSubclassesMeta instances' % (cls.__name__,))
-            return superclasses[0]
-
-        # Add the class to all superclasses' 'subclasses' attribute, including
-        # self.
-        superclass = cls
-        while superclass:
-            if not cls.abstract:
-                superclass.subclasses.append(cls)
-            superclass = find_superclass(superclass)
-
-class RegisteredSubclassesBase(object):
+class RegisteredSubclassesBase(ClassInitBase):
     """A base class for classes which should have a list of subclasses
        available.
 
@@ -101,9 +67,39 @@ class RegisteredSubclassesBase(object):
        calling :meth:`~RegisteredSubclassesBase.load_subclasses`.
     """
 
-    __metaclass__ = RegisteredSubclassesMeta
-
     _subclasses_loaded = False
+
+    @classmethod
+    def __classinit__(cls):
+        this_cls = globals().get('RegisteredSubclassesBase', cls)
+        super(this_cls, cls).__classinit__()
+        if this_cls is cls:
+            # This is RegisteredSubclassesBase class.
+            return
+
+        assert 'subclasses' not in cls.__dict__, \
+                '%s defines attribute subclasses, but has ' \
+                'RegisteredSubclassesMeta metaclass' % (cls,)
+        cls.subclasses = []
+        cls.abstract = cls.__dict__.get('abstract', False)
+
+        def find_superclass(cls):
+            superclasses = filter(lambda c: issubclass(c, this_cls),
+                    cls.__bases__)
+            if not superclasses:
+                return None
+            if len(superclasses) > 1:
+                raise AssertionError('%s derives from more than one '
+                        'RegisteredSubclassesBase' % (cls.__name__,))
+            return superclasses[0]
+
+        # Add the class to all superclasses' 'subclasses' attribute, including
+        # self.
+        superclass = cls
+        while superclass is not this_cls:
+            if not cls.abstract:
+                superclass.subclasses.append(cls)
+            superclass = find_superclass(superclass)
 
     @classmethod
     def load_subclasses(cls):
@@ -127,7 +123,7 @@ class _RemoveMixinsFromInitMixin(object):
         kwargs.pop('mixins', None)
         super(_RemoveMixinsFromInitMixin, self).__init__(*args, **kwargs)
 
-class ObjectWithMixins(object):
+class ObjectWithMixins(ClassInitBase):
     """Base class for objects which support mixins.
 
        Mixins are `nice tools in Python
@@ -155,9 +151,41 @@ class ObjectWithMixins(object):
        attribute or by passing an additional keyword argument ``mixins`` to the
        constructor.
 
-       The actual class with all the mixins is created each time the class
-       constructor is called.
+       A class with a mixin behave as if it was replaced with a subclass
+       which bases are the mixin and the original class.
+
+       The actual class with the mixins is created when the constructor is
+       called or a subclass defined. Mixing in a new mixin to a class which
+       have instances has an undefined effect on them.
     """
+
+    #
+    # Well, developers deserve some information on how this is implemented...
+    #
+    # Let's begin with a definition.
+    #
+    #   Let C be a class with mixins. Then the MX-class of C, denoted by MX(C),
+    #   is a class which derives from C and its mixins, like this:
+    #
+    #     class MX_of_C(Mixin1, Mixin2, Mixin3, C):
+    #         pass
+    #
+    # So... first imagine a clean class hierarchy without any mixins. Then
+    # someone adds a mixin to class C. Two things may happen:
+    #
+    #  1. If C has no subclasses, the new mixin is only added to C.mixins.
+    #
+    #  2. If C has subclasses S_i, they are also modified by replacing C
+    #     in S_i.__bases__ with MX(C).
+    #
+    # If a new subclass S of C is later created, S.__bases__ is
+    # immediately altered to contain MX(C) instead of C.
+    #
+    # If a new instance of C is requested, an instance of MX(C) is returned
+    # instead (see ObjectWithMixins.__new__). It works similarly if the 'mixin'
+    # keyword argument is passed to the constructor --- then a temporary
+    # MX-class is created and instantiated.
+    #
 
     #: A list of mixins to be automatically mixed in to all instances of the
     #: particular class and its subclasses.
@@ -167,32 +195,84 @@ class ObjectWithMixins(object):
     #: been instantiated. Existing instances will not have new mixins added.
     allow_too_late_mixins = False
 
+    @classmethod
+    def __classinit__(cls):
+        this_cls = globals().get('ObjectWithMixins', cls)
+        super(this_cls, cls).__classinit__()
+        if this_cls is cls:
+            # This is ObjectWithMixins class.
+            return
+        if '__unmixed_class__' in cls.__dict__:
+            # This is an artificially created class with mixins already
+            # applied.
+            return
+        cls._mx_class = None
+        cls._direct_subclasses = []
+        cls.__unmixed_class__ = cls
+        cls.mixins = cls.__dict__.get('mixins', [])
+        for base in cls.__bases__:
+            if issubclass(base, this_cls) and base is not this_cls:
+                base.__unmixed_class__._direct_subclasses.append(cls)
+                base.__unmixed_class__._fixup_subclass(cls)
+
     def __new__(cls, *args, **kwargs):
-        mixin_lists = [[_RemoveMixinsFromInitMixin], kwargs.pop('mixins', [])]
         for c in cls.__mro__:
             if issubclass(c, ObjectWithMixins):
                 c._has_instances = True
-                if 'mixins' in c.__dict__:
-                    mixin_lists.append(reversed(c.mixins))
-        bases = tuple(itertools.chain(*mixin_lists)) + (cls,)
-        if len(bases) > 1:
-            real_cls = type(cls.__name__ + 'WithMixins', bases,
-                    dict(__module__=cls.__module__))
+        if 'mixins' in kwargs:
+            mixins = [_RemoveMixinsFromInitMixin] + list(kwargs['mixins'])
         else:
-            real_cls = cls
-        real_cls.__unmixed_class__ = cls
-        return object.__new__(real_cls)
+            mixins = []
+        mixins.extend(cls.mixins)
+        return object.__new__(cls._make_mx_class(mixins))
+
+    @classmethod
+    def _make_mx_class(cls, mixins):
+        if mixins:
+            bases = tuple(mixins) + (cls,)
+            return type(cls.__name__ + 'WithMixins', bases,
+                    dict(__module__=cls.__module__, __unmixed_class__=cls))
+        else:
+            return cls
+
+    @classmethod
+    def _get_mx_class(cls):
+        if cls._mx_class:
+            return cls._mx_class
+        assert cls.__unmixed_class__ is cls
+        cls_with_mixins = cls._make_mx_class(cls.mixins)
+        cls._mx_class = cls_with_mixins
+        return cls_with_mixins
+
+    @classmethod
+    def _fixup_subclasses(cls):
+        assert cls.__unmixed_class__ is cls
+        for subclass in cls._direct_subclasses:
+            cls._fixup_subclass(subclass)
+
+    @classmethod
+    def _fixup_subclass(cls, subclass):
+        assert cls.__unmixed_class__ is cls
+        cls_with_mixins = cls._get_mx_class()
+        new_bases = []
+        for base in subclass.__bases__:
+            if base.__unmixed_class__ is cls:
+                new_bases.append(cls_with_mixins)
+            else:
+                new_bases.append(base)
+        subclass.__bases__ = tuple(new_bases)
 
     @classmethod
     def mix_in(cls, mixin):
         """Appends the given mixin to the list of class mixins."""
+        assert cls.__unmixed_class__ is cls
         assert cls.allow_too_late_mixins or \
                 '_has_instances' not in cls.__dict__, \
                 "Adding mixin %r to %r too late. The latter already has " \
                 "instances." % (mixin, cls)
-        if 'mixins' not in cls.__dict__:
-            cls.mixins = []
         cls.mixins.append(mixin)
+        cls._mx_class = None
+        cls._fixup_subclasses()
 
 # Memoized-related bits copied from SqlAlchemy.
 

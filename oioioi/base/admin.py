@@ -9,17 +9,22 @@ from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib import admin
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django import forms
 from django.utils.translation import ugettext_lazy as _
 from djcelery.models import TaskState, WorkerState
 from djcelery.admin import TaskMonitor, WorkerMonitor
-from oioioi.base.utils import ObjectWithMixins
+from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
 from oioioi.base.menu import MenuRegistry
 import urllib
 
 TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline
 
+class ModelAdminMeta(forms.MediaDefiningClass, ClassInitMeta):
+    pass
+
 class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
+    __metaclass__ = ModelAdminMeta
 
     # This is handled by AdminSite._reinit_model_admins
     allow_too_late_mixins = True
