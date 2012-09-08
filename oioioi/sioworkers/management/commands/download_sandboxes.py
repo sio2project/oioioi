@@ -29,6 +29,20 @@ class Command(BaseCommand):
 
     requires_model_validation = False
 
+    def display_license(self, license):
+        print >>self.stdout, "\nThe sandboxes are accompanied with a " \
+                "license:\n"
+        self.stdout.write(license)
+        msg = "\nDo you accept the license? (yes/no):"
+        confirm = raw_input(msg)
+        while 1:
+            if confirm not in ('yes', 'no'):
+                confirm = raw_input('Please enter either "yes" or "no": ')
+                continue
+            if confirm == 'no':
+                raise CommandError("License not accepted")
+            break
+
     def handle(self, *args, **options):
         print >>self.stdout, "--- Downloading Manifest ..."
         try:
@@ -37,6 +51,15 @@ class Command(BaseCommand):
             manifest = manifest.strip().splitlines()
         except Exception, e:
             raise CommandError("Error downloading manifest: %s" % (e,))
+
+        print >>self.stdout, "--- Looking for license ..."
+        try:
+            license_url = urlparse.urljoin(manifest_url, 'LICENSE')
+            license = urllib2.urlopen(license_url).read()
+            self.display_license(license)
+        except urllib2.HTTPError, e:
+            if e.code != 404:
+                raise
 
         if not args:
             args = manifest
