@@ -26,7 +26,7 @@ Then OIOIOI and its dependencies can be installed by simply running::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
 
-This will also store the source code in *src/*. There is no official release
+This will also store the source code in *venv/src*. There is no official release
 yet, so a simple ``pip install oioioi`` wouldn't work.
 
 OIOIOI is a set of Django Applications, so you need to create a folder with
