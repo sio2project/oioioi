@@ -74,7 +74,8 @@ and in the other the evaluation daemons::
 The *supervisor* process monitors all processes needed by OIOIOI, except the
 web server. It has `many nice features`_.
 
-Finally you need an administrator account::
+Finally, if you didn't create an administrator account when running *syncdb*,
+you can do it now::
 
   ./manage.py createsuperuser
 
