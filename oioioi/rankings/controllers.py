@@ -71,10 +71,15 @@ class DefaultRankingController(RankingController):
         return render_to_string('rankings/default_ranking.html',
                 context_instance=RequestContext(request, data))
 
+    def filter_users_for_ranking(self, request, key, queryset):
+        return queryset.filter(is_superuser=False)
+
     def serialize_ranking(self, request, key):
         rounds = list(self._rounds_for_ranking(request, key))
         pis = list(ProblemInstance.objects.filter(round__in=rounds))
-        results = UserResultForProblem.objects.filter(problem_instance__in=pis)
+        users = self.filter_users_for_ranking(request, key, User.objects.all())
+        results = UserResultForProblem.objects.filter(problem_instance__in=pis,
+                user__in=users)
         by_user = defaultdict(dict)
         for r in results:
             by_user[r.user_id][r.problem_instance_id] = r
