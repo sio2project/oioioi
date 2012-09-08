@@ -97,9 +97,6 @@ Production configuration
    RabbitMQ vhost. The default setting corresponds to the default RabbitMQ
    installation.
 
-#. Enable Filetracker server by uncommenting corresponding lines in
-   *settings.py* and restart the daemons.
-
 #. Download sandboxes::
 
      ./manage.py download_sandboxes
@@ -110,6 +107,9 @@ Production configuration
 #. (optionally) Disable starting the judging process on the server, especially
    if you want to configure judging machines (see below) for judging, what is
    strongly recommended. Comment out the *RUN_LOCAL_WORKERS = True* setting.
+
+#. (optionally) Enable Filetracker server by uncommenting corresponding lines
+   in *settings.py* and restart the daemons.
 
 #. Configure Apache with mod_wsgi. An example configuration is automatically
    created as *apache-site.conf*. Have a look there. Once this is done, you
@@ -173,7 +173,7 @@ Installing on 64-bit machines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The sandboxes provided by the SIO2 Project contain 32-bit binaries. Therefore
-it is recommended that OIOIOI is installed on a 32-bit Linux. Otherwise,
+it is recommended that OIOIOI is installed on a 32-bit Linux system. Otherwise,
 required libraries may be missing. Here we list some of them, which we found
 needed when installing OIOIOI in a pristine Ubuntu Server 12.04 LTS (Precise
 Pangolin):
