@@ -1,6 +1,9 @@
 from django.template.response import TemplateResponse
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
+from django.utils.encoding import force_unicode
+from django.utils.html import escape
 from django.contrib.admin.util import unquote
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib import admin
@@ -38,6 +41,54 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             response.context_data['form_url'] += '?' + \
                     urllib.urlencode({'came_from': request.GET['came_from']})
         return response
+
+    def response_delete(self, request):
+        opts = self.model._meta
+        if 'came_from' in request.GET:
+            return HttpResponseRedirect(request.GET['came_from'])
+        if not self.has_change_permission(request, None):
+            return HttpResponseRedirect(reverse('admin:index',
+                                            current_app=self.admin_site.name))
+        return HttpResponseRedirect(reverse('admin:%s_%s_changelist' %
+                                    (opts.app_label, opts.module_name),
+                                    current_app=self.admin_site.name))
+
+    def delete_view(self, request, object_id, extra_context=None):
+        opts = self.model._meta
+        app_label = opts.app_label
+        obj = self.get_object(request, unquote(object_id))
+        if not self.has_delete_permission(request, obj):
+            raise PermissionDenied
+
+        if obj is None:
+            raise Http404(_('%(name)s object with primary key %(key)r does '
+                'not exist.') % {'name': force_unicode(opts.verbose_name),
+                    'key': escape(object_id)})
+
+        if request.POST: # The user has already confirmed the deletion.
+            obj_display = force_unicode(obj)
+            self.log_deletion(request, obj, obj_display)
+            self.delete_model(request, obj)
+            self.message_user(request, _('The %(name)s "%(obj)s" was deleted '
+                'successfully.') % {'name': force_unicode(opts.verbose_name),
+                    'obj': force_unicode(obj_display)})
+            return self.response_delete(request)
+
+        object_name = force_unicode(opts.verbose_name)
+        context = {
+            "object_name": object_name,
+            "object": obj,
+            "opts": opts,
+            "app_label": app_label,
+        }
+        context.update(extra_context or {})
+
+        return TemplateResponse(request, self.delete_confirmation_template or [
+            "admin/%s/%s/delete_confirmation.html" % (app_label,
+                opts.object_name.lower()),
+            "admin/%s/delete_confirmation.html" % app_label,
+            "admin/delete_confirmation.html"
+        ], context, current_app=self.admin_site.name)
 
 class AdminSite(DjangoAdminSite):
     def has_permission(self, request):

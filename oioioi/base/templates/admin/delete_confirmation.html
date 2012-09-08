@@ -1,0 +1,28 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm deletion" %}{% endblock %}
+
+{% block content %}
+<div class="well span6 offset3 central-well">
+    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+        <input type="hidden" name="post" value="yes" />
+        <div class="control-group">
+            <div class="controls">
+                <h2>{% trans "Confirm deletion" %}</h2>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <p>{% trans "You chose the following object to delete:" %}
+                <ul><li>{{ object_name|capfirst }}: {{ object }}</li></ul>
+                <p>{% trans "Are you sure?" %}
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger">{% trans "Yes, I'm sure" %}</button>
+            <button type="button" class="btn" onclick="history.back()">{% trans "No, go back" %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

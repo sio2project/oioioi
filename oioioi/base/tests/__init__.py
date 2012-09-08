@@ -450,3 +450,18 @@ class TestArchive(unittest.TestCase):
                     archive.extract(os.path.join(basedir, bad_file), tmpdir)
         finally:
             shutil.rmtree(tmpdir)
+
+class TestAdmin(TestCase):
+    fixtures = ['test_users']
+
+    def test_admin_delete(self):
+        self.client.login(username='test_admin')
+        user = User.objects.get(username='test_user')
+        url = reverse('oioioiadmin:auth_user_delete', args=(user.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('User: test_user', response.content)
+        self.assertIn('central-well', response.content)
+        response = self.client.post(url, {'post': 'yes'}, follow=True)
+        self.assertIn('was deleted successfully', response.content)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 0)
