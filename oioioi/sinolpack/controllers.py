@@ -7,7 +7,7 @@ class SinolProblemController(ProgrammingProblemController):
     description = _("Sinol package problem")
 
     def fill_evaluation_environ(self, problem, environ, **kwargs):
-        ProgrammingProblemController.fill_evaluation_environ(self, problem,
+        super(SinolProblemController, self).fill_evaluation_environ(problem,
                 environ, **kwargs)
 
         try:

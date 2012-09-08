@@ -102,7 +102,8 @@ class ProgrammingContestController(ContestController):
         environ['language'] = \
             os.path.splitext(submission.source_file.name)[1][1:]
 
-        ContestController.fill_evaluation_environ(self, environ, submission)
+        super(ProgrammingContestController,
+                self).fill_evaluation_environ(environ, submission)
 
         add_before_placeholder(environ, 'after_initial_tests',
                 ('update_report_statuses',
