@@ -1,21 +1,21 @@
 <VirtualHost *:80>
     ServerName oioioi.example.com
-	ServerAdmin youremail@example.com
+    ServerAdmin youremail@example.com
 
-	<Directory __DIR__>
-		Options Indexes FollowSymLinks MultiViews
-		AllowOverride None
-		Order allow,deny
-		allow from all
-	</Directory>
+    <Directory __DIR__>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    </Directory>
 
-	WSGIDaemonProcess __USER__ user=__USER__ group=__GROUP__ processes=2 threads=10
-	WSGIProcessGroup __USER__
+    WSGIDaemonProcess __USER__ user=__USER__ group=__GROUP__ processes=2 threads=10
+    WSGIProcessGroup __USER__
 
-	WSGIScriptAlias / __DIR__/wsgi.py
-	Alias __STATIC_URL__ __STATIC_ROOT__/
+    WSGIScriptAlias / __DIR__/wsgi.py
+    Alias __STATIC_URL__ __STATIC_ROOT__/
 
-	ErrorLog __DIR__/logs/error.log
-	LogLevel warn
-	CustomLog __DIR__/logs/access.log combined
+    ErrorLog __DIR__/logs/error.log
+    LogLevel warn
+    CustomLog __DIR__/logs/access.log combined
 </VirtualHost>
