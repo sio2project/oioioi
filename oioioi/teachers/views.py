@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.core.mail import mail_managers, EmailMessage
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.mail import EmailMessage
+from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User
@@ -13,13 +13,12 @@ from django.contrib import messages
 from django.utils.safestring import mark_safe
 from oioioi.base import admin
 from oioioi.base.menu import account_menu_registry
-from oioioi.contests.utils import enter_contest_permission_required, \
-        contest_admin_permission_required
 from oioioi.contests.models import Contest
 from oioioi.teachers.models import RegistrationConfig, Participant, \
         ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
-from operator import attrgetter
+from oioioi.base.permissions import enforce_condition
+from oioioi.contests.utils import is_contest_admin
 
 def is_teachers_contest(request):
     return isinstance(request.contest.controller, TeacherContestController)
@@ -121,7 +120,7 @@ def accept_teacher_view(request, user_id):
             "new teacher."))
     return redirect('oioioiadmin:teachers_teacher_changelist')
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def participants_view(request, contest_id):
     teachers = User.objects.filter(teacher__contestteacher__contest=request.contest)
     participants = User.objects.filter(participant__contest=request.contest)
@@ -175,7 +174,7 @@ def redirect_to_participants(request):
     return redirect(reverse(participants_view, kwargs={'contest_id':
         request.contest.id}))
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def set_registration_view(request, contest_id, value):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
@@ -183,7 +182,7 @@ def set_registration_view(request, contest_id, value):
     registration_config.save()
     return redirect_to_participants(request)
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def regenerate_key_view(request, contest_id):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
@@ -191,7 +190,7 @@ def regenerate_key_view(request, contest_id):
     registration_config.save()
     return redirect_to_participants(request)
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def delete_participants_view(request, contest_id):
     ContestTeacher.objects.filter(contest=request.contest,
             user_id__in=request.POST.getlist('teacher')).delete()
@@ -199,7 +198,7 @@ def delete_participants_view(request, contest_id):
             user_id__in=request.POST.getlist('participant')).delete()
     return redirect_to_participants(request)
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def bulk_add_participants_view(request, contest_id, other_contest_id):
     ContestTeacher.objects.filter(contest=request.contest,
             user_id__in=request.POST.getlist('teacher')).delete()

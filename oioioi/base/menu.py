@@ -76,10 +76,3 @@ menu_registry = MenuRegistry()
 #: The menu registry for the user menu, shown as a drop down when a logged in
 #: user clicks on its login in the navbar.
 account_menu_registry = MenuRegistry()
-
-def is_contest_admin(request):
-    """Checks if the current user can administer the current contest."""
-    return request.user.has_perm('contests.contest_admin', request.contest)
-
-def not_anonymous(request):
-    return request.user.is_authenticated()

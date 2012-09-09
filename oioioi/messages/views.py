@@ -9,8 +9,8 @@ from oioioi.base.menu import menu_registry
 from oioioi.messages.models import Message, message_kinds, MessageView
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.views import visible_problem_instances
-from oioioi.contests.utils import contest_admin_permission_required, \
-        enter_contest_permission_required
+from oioioi.base.permissions import enforce_condition
+from oioioi.contests.utils import can_enter_contest, is_contest_admin
 
 menu_registry.register('contest_messages', _("Messages"),
         lambda request: reverse('contest_messages', kwargs={'contest_id':
@@ -56,13 +56,13 @@ def messages_template_context(request, messages):
     to_display.sort(key=key, reverse=True)
     return to_display
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def messages_view(request, contest_id):
     messages = messages_template_context(request, visible_messages(request))
     return TemplateResponse(request, 'messages/list.html',
                 {'records': messages})
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def message_view(request, contest_id, message_id):
     message = get_object_or_404(Message, id=message_id)
     vmessages = visible_messages(request)
@@ -122,7 +122,7 @@ class AddReplyForm(AddContestMessageForm):
         self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] != 'QUESTION']
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def add_contest_message_view(request, contest_id):
     is_admin = request.user.has_perm('contests.contest_admin', request.contest)
     if request.method == 'POST':
@@ -152,7 +152,7 @@ def quote_for_reply(content):
     lines = content.strip().split('\n')
     return ''.join('> ' + l for l in lines)
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def add_reply_view(request, contest_id, message_id):
     question = get_object_or_404(Message, id=message_id,
             contest_id=contest_id, kind='QUESTION')
