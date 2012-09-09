@@ -41,6 +41,8 @@ configuration`_ in *settings.py* and initialize it::
   ./manage.py syncdb
   ./manage.py migrate
 
+We use PostgreSQL.
+
 .. _virtualenv: http://www.virtualenv.org/en/latest/index.html
 .. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
