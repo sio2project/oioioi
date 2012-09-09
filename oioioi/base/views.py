@@ -34,6 +34,6 @@ def handler500(request):
                 context_instance=RequestContext(request, {'traceback': tb}))
     except Exception:
         message = '500 Internal Server Error'
-        if request.user.is_superuser:
+        if hasattr(request, 'user') and request.user.is_superuser:
             message += '\n' + tb
         return HttpResponse(message, status=500, content_type='text/plain')
