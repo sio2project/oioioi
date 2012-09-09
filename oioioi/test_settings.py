@@ -16,11 +16,11 @@ INSTALLED_APPS = (
 
 AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
+    'oioioi.teachers.auth.TeacherAuthBackend',
 )
 
 MIDDLEWARE_CLASSES += (
     'oioioi.base.tests.FakeTimeMiddleware',
-    'oioioi.teachers.auth.TeacherAuthBackend',
 )
 
 TESTS = True
