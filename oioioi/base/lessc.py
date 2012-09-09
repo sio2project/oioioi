@@ -8,15 +8,16 @@ import sys
 import tempfile
 
 def find_staticfiles_path(fs_path):
-    prefix, path = fs_path, ''
+    prefix, path = os.path.split(fs_path)
+    new_component = None
     longest_good = None
-    while prefix != os.sep:
-        prefix, new_component = os.path.split(prefix)
-        path = os.path.join(new_component, path)
+    while new_component != '':
         if finders.find(path):
             longest_good = path
+        prefix, new_component = os.path.split(prefix)
+        path = os.path.join(new_component, path)
     if not longest_good:
-        raise RuntimeError("File '%s' cannot be find in any of the "
+        raise RuntimeError("File '%s' cannot be found in any of the "
                 "static directories" % (fs_path,))
     return longest_good
 
@@ -33,7 +34,7 @@ def collect_sources(tmp_dir, staticfiles_path):
     shutil.copyfile(src_path, dst_path)
 
     content = open(dst_path, 'r').read()
-    for match in re.finditer(content):
+    for match in LESS_IMPORT_RE.finditer(content):
         url = match.group(1)
         if '://' in url:
             continue
