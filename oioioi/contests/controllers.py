@@ -357,7 +357,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         result.save()
 
     def _sum_scores(self, scores):
-        return scores and sum(scores[1:], scores[0])
+        scores = filter(lambda s: s is not None, scores)
+        return scores and sum(scores[1:], scores[0]) or None
 
     def update_user_result_for_round(self, result):
         """Updates a :class:`~oioioi.contests.models.UserResultForRound`.
