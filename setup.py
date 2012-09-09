@@ -54,8 +54,8 @@ setup(
     include_package_data=True,
     test_suite='oioioi.runtests.runtests',
     dependency_links=[
-        'https://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
-        'https://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
+        'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
+        'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
     ],
     entry_points = {
         'console_scripts': [
