@@ -8,14 +8,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib import messages
-from oioioi.base.menu import menu_registry, not_anonymous
+from oioioi.base.menu import menu_registry
+from oioioi.base.permissions import not_anonymous
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.contests.models import ProblemInstance, Submission, \
-        SubmissionReport, Contest, ContestAttachment
-from oioioi.contests.utils import enter_contest_permission_required, \
-        contest_admin_permission_required, visible_contests
+        SubmissionReport, ContestAttachment
+from oioioi.contests.utils import visible_contests, can_enter_contest, is_contest_admin
 from oioioi.filetracker.utils import stream_file
-import mimetypes
+from oioioi.base.permissions import enforce_condition
 import sys
 from operator import itemgetter
 
@@ -64,12 +64,12 @@ def select_contest_view(request):
     return TemplateResponse(request, 'contests/select_contest.html',
             {'contests': contests})
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def default_contest_view(request, contest_id):
     url = request.contest.controller.default_view(request)
     return HttpResponseRedirect(url)
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def problems_list_view(request, contest_id):
     problem_instances = visible_problem_instances(request)
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
@@ -77,7 +77,7 @@ def problems_list_view(request, contest_id):
                 {'problem_instances': problem_instances,
                  'show_rounds': show_rounds})
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def problem_statement_view(request, contest_id, problem_instance):
     controller = request.contest.controller
     pi = get_object_or_404(ProblemInstance, round__contest=request.contest,
@@ -143,7 +143,7 @@ class SubmissionForm(forms.Form):
         return self.request.contest.controller.validate_submission_form(
                 self.request, pi, self, cleaned_data)
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def submit_view(request, contest_id):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES)
@@ -168,7 +168,7 @@ def submission_template_context(request, submission):
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment}
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def my_submissions_view(request, contest_id):
     queryset = Submission.objects \
             .filter(problem_instance__contest=request.contest) \
@@ -191,7 +191,7 @@ def check_submission_access(request, submission):
     if not controller.filter_visible_submissions(request, queryset):
         raise PermissionDenied
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def submission_view(request, contest_id, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
     check_submission_access(request, submission)
@@ -209,7 +209,7 @@ def submission_view(request, contest_id, submission_id):
                 {'submission': submission, 'header': header,
                     'reports': reports})
 
-@contest_admin_permission_required
+@enforce_condition(is_contest_admin)
 def rejudge_submission_view(request, contest_id, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
     controller = request.contest.controller
@@ -218,7 +218,7 @@ def rejudge_submission_view(request, contest_id, submission_id):
     return redirect('submission', contest_id=contest_id,
             submission_id=submission_id)
 
-@enter_contest_permission_required
+@enforce_condition(is_contest_admin)
 def files_view(request, contest_id):
     contest_files = ContestAttachment.objects.filter(contest=request.contest)
     problem_instances = visible_problem_instances(request)
@@ -240,13 +240,13 @@ def files_view(request, contest_id):
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(request, 'contests/files.html', {'files': rows})
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def contest_attachment_view(request, contest_id, attachment_id):
     attachment = get_object_or_404(ContestAttachment, contest_id=contest_id,
         id=attachment_id)
     return stream_file(attachment.content)
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def problem_attachment_view(request, contest_id, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, contest_id=contest_id,
         id=attachment_id)

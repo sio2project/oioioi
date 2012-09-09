@@ -4,10 +4,12 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from oioioi.contests.models import Submission
-from oioioi.contests.utils import enter_contest_permission_required
+from oioioi.base.permissions import enforce_condition
 from oioioi.contests.views import submission_template_context
+from oioioi.contests.utils import can_enter_contest
 from oioioi.rankings.views import any_ranking_visible
-from oioioi.base.menu import MenuRegistry, menu_registry, not_anonymous
+from oioioi.base.menu import MenuRegistry, menu_registry
+from oioioi.base.permissions import not_anonymous
 from oioioi.messages.views import messages_template_context, \
         visible_messages
 import itertools
@@ -38,7 +40,7 @@ def grouper(n, iterable, fillvalue=None):
     return list(itertools.izip_longest(*args, fillvalue=fillvalue))
 
 @login_required
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def contest_dashboard_view(request, contest_id):
     top_links = grouper(3, top_links_registry.template_context(request))
     submissions = Submission.objects \
