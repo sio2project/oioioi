@@ -109,12 +109,11 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self._check_full_package(problem)
 
-    @attr('slow')
     def test_title_in_config_yml(self):
         filename = _test_filename('test_simple_package.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
-        self.assertEqual(problem.name, 'Sumowanie')
+        self.assertEqual(problem.name, 'Testowe')
 
 class TestSinolPackageInContest(TestCase):
     fixtures = ['test_users', 'test_contest']
