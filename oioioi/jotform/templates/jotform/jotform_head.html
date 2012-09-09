@@ -1,13 +1,5 @@
 {% load i18n %}
 
-{% comment %}
-{# Jotform is an easy to integrate feedback collection system. We have an account there,
-   linked to sio2@dasie.mimuw.edu.pl e-mail address.
-
-   TODO: Button style should somehow be taken from the stylesheets...
-   #}
-{% endcomment %}
-
 <script type="text/javascript">
 // Jotform imports its own jQuery version, which overrides $ global variable.
 // To restore our version afterwards, we keep the $ value in a temporary variable.
@@ -17,17 +9,19 @@ window.temporary_dollar = window.$
 <script type="text/javascript">
   if (JotformFeedback) {
     new JotformFeedback({
-      formId      : "{{ jotform_id }}",
-      buttonText  : "{% trans "Send Feedback" %}",
-      base        : "http://www.jotform.com/",
-      background  : "#A34947",
-      fontColor   : "#FFFFFF",
-      buttonSide  : "bottom",
-      buttonAlign : "right",
-      type        : false,
-      width       : 440,
-      height      : 420,
-      instant     : true
+      formId          : "{{ jotform_id }}",
+      buttonText      : "{{ _("Send Feedback")|escapejs }}",
+      base            : "http://www.jotform.com/",
+      background      : "invalid",   // This enables styling with CSS
+      fontColor       : "invalid",
+      hoverBackground : "invalid",
+      hoverFtonColor  : "invalid",
+      buttonSide      : "bottom",
+      buttonAlign     : "right",
+      type            : false,
+      width           : 440,
+      height          : 420,
+      instant         : true
     });
   }
 </script>
