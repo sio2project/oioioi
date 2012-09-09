@@ -14,13 +14,13 @@ INSTALLED_APPS = (
     'oioioi.clock',
 ) + INSTALLED_APPS
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
-    'django.contrib.auth.backends.ModelBackend',
 )
 
 MIDDLEWARE_CLASSES += (
     'oioioi.base.tests.FakeTimeMiddleware',
+    'oioioi.teachers.auth.TeacherAuthBackend',
 )
 
 TESTS = True

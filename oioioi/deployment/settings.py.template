@@ -103,7 +103,7 @@ USE_LOCAL_COMPILERS = True
 # you're configuring.
 #
 # Some components need also corresponding lines in TEMPLATE_CONTEXT_PROCESSORS
-# commented/uncommented.
+# and/or AUTHENTICATION_BACKENDS commented/uncommented.
 
 INSTALLED_APPS = (
 #    'oioioi.contestlogo',
@@ -114,4 +114,8 @@ INSTALLED_APPS = (
 
 TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.logo_processor',
+)
+
+AUTHENTICATION_BACKENDS += (
+#    'oioioi.teachers.auth.TeacherAuthBackend',
 )

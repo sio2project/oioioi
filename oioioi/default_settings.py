@@ -161,7 +161,6 @@ INSTALLED_APPS = (
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'oioioi.teachers.auth.TeacherAuthBackend',
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
