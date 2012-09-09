@@ -16,8 +16,9 @@ class SinolProblemController(ProgrammingProblemController):
             config = {}
 
         lang = environ['language']
-        environ['extra_compilation_args'] = \
-                str(config.get('extra_compilation_args', {}).get(lang, ''))
+        extra_args = config.get('extra_compilation_args', {}).get(lang)
+        if extra_args:
+            environ['extra_compilation_args'] = extra_args
 
         extra_file_names = config.get('extra_compilation_files', ())
         extra_files = ExtraFile.objects.filter(problem=problem,
