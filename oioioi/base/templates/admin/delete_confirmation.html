@@ -4,7 +4,7 @@
 {% block title %}{% trans "Confirm deletion" %}{% endblock %}
 
 {% block content %}
-<div class="well span6 offset3 central-well">
+<div class="well span10 offset1 central-well">
     <form action="" method="post" class="form-horizontal">{% csrf_token %}
         <input type="hidden" name="post" value="yes" />
         <div class="control-group">
