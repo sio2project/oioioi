@@ -54,12 +54,17 @@ class SinolPackage(object):
         self.config = instance.parsed_config
 
     def _detect_full_name(self):
-        """Sets the problem's full name from the ``title`` tag
-           in the LateX source file.
+        """Sets the problem's full name from the ``config.yml`` (key ``title``)
+           or from the ``title`` tag in the LateX source file.
 
            Example of how the ``title`` tag may look like:
            \title{A problem}
         """
+        if 'title' in self.config:
+           self.problem.name = self.config['title']
+           self.problem.save()
+           return
+
         source = os.path.join(self.rootdir, 'doc', self.short_name + 'zad.tex')
         if os.path.isfile(source):
             text = open(source, 'r').read()
