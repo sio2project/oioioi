@@ -13,8 +13,11 @@ ADMINS = (
     ('Your Name', 'youremail@example.com'),
 )
 
-# Sender email address for messages sent by OIOIOI.
+# Sender email address for messages sent by OIOIOI to users.
 DEFAULT_FROM_ADDRESS = 'webmaster@localhost'
+
+# Sender email address for error messages sent to admins.
+SERVER_EMAIL = DEFAULT_FROM_ADDRESS
 
 # Email addresses to send communication from users (for example requests for
 # teacher accounts).
