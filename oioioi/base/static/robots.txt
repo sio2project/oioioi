@@ -1,5 +1,4 @@
 # robots.txt for OIOIOI
-# Maintainer: Mateusz J. Kwapich <mitrandir77@0x04.net>
 
 # Prevent GoogleBot from trying to index the main page with query argument,
 # as this generates annoying emails.
