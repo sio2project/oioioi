@@ -1,7 +1,5 @@
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
-from django.utils.text import get_valid_filename
-from django.utils.translation import ugettext as _
 from south.modelsinspector import add_introspection_rules
 import base64
 

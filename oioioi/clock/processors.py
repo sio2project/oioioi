@@ -1,8 +1,3 @@
-from django.template import Template, Context
-from django.core.urlresolvers import reverse
-from django.utils.translation import ungettext
-from oioioi.messages.views import new_messages, visible_messages
-
 TEMPLATE = '<li><a href="{{ link }}"><span class="label label-important">' \
     '{{ text }}</span></a></li>'
 

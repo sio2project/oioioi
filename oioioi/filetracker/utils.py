@@ -1,9 +1,7 @@
-from django.shortcuts import get_object_or_404
 from django.core.servers.basehttp import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File
 from django.http import HttpResponse
-from oioioi.filetracker.storage import FiletrackerStorage
 import mimetypes
 
 class FileInFiletracker(File):

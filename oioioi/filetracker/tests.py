@@ -13,7 +13,6 @@ import filetracker.dummy
 
 import tempfile
 import shutil
-import os.path
 import datetime
 
 class TestFileField(TestCase):

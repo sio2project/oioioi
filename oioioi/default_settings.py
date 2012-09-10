@@ -1,6 +1,6 @@
 import sys
 if sys.version_info < (2, 6):
-    raise RuntimError("OIOIOI needs at least Python 2.6")
+    raise RuntimeError("OIOIOI needs at least Python 2.6")
 
 import os
 
