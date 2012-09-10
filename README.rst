@@ -194,3 +194,16 @@ by adding the following line to */etc/sysctl.conf*::
 and rebooting the machine or reloading this file with ``sudo sysctl -p``.
 
 .. _additional security feature: https://wiki.ubuntu.com/Security/Features#ptrace_scope
+
+
+Upgrading
+---------
+
+Make sure you are in the *deployment* folder and the virtualenv is activated.
+Then run::
+
+  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi``
+  ./manage.py collectstatic
+  ./manage.py supervisor restart all
+
+and restart Apache and the juding machines.
