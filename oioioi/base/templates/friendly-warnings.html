@@ -1,0 +1,71 @@
+{% load i18n %}
+{% comment %}
+This page is independent to our static files beacuse it is displayed
+even if STATIC_URL is unavailable.
+{% endcomment %}
+<html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+    <head>
+        <title>{% block title %}OIOIOI{% endblock %}</title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/js/bootstrap.min.js"></script>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.1.1/css/bootstrap-combined.min.css" rel="stylesheet">
+
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <link rel="shortcut icon" href="{{ STATIC_URL }}/favicon.ico" />
+
+        <style type="text/css">
+          body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+          }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="hero-unit" style="margin-top: 100px; max-width: 650px; margin-left:auto; margin-right:auto;">
+                 <p>Hi, I'm just a friendly warnings page. I'm here to help you.</p>
+                 You are probably going into production. So I carefully checked your
+                 <code>settings.py</code> file and I have some friendly warnings for you:
+                 <ul>
+                 {% if sqlite %}
+                     <li>You are using sqlite. This probably isn't the best database you can use.
+                         Please, consider using other database - for example mysql or postgresql.</li>
+                     {% if sqlite_relative_path %}
+                     <li>Moreover you are using relative path to access your db. Trust me,
+                     this can be cause of numerous errors in production.</li>
+                    {% endif %}
+                 {% endif %}
+                 {% if use_unsafe_exec %}
+                 <li>The <code>USE_UNSAFE_EXEC</code> setting  is set to <code>True</code>.
+                 Do you really want to be hacked?</li>
+                 {% endif %}
+                 {% if use_local_compilers %}
+                 <li>The <code>USE_LOCAL_COMPILERS</code> setting  is set to <code>True</code>.
+                 Turning it to false is only option to stay secure.</li>
+                 {% endif %}
+                 {% if debug %}
+                 <li>Comment out <code>DEBUG = True</code>. This is crucial for security and efficiency</li>
+                 {% endif %}
+                 </ul>
+
+            </div>
+            <div style="margin: auto; width: 630px;">
+                <a class="btn btn-danger" id="suppress_button" style="width: 600px;">
+                    I know what I'm doing, I want to suppress those warnings!</a>
+                <div class="alert alert-error suppress" style="display:none;">
+                    <strong>Oh,</strong> you should just add
+                    <code>SUPPRESS_FRIENDLY_WARNINGS = True</code> to your
+                    <code>settings.py</code> file.
+                <div>
+            </div>
+        </div>
+        <script>
+            $(function(){
+                $('#suppress_button').click(function(){
+                    $('.suppress').show();
+                    $('#suppress_button').hide();
+                });
+            });
+        </script>
+    </body>
+</html>

@@ -1,6 +1,6 @@
 import sys
 if sys.version_info < (2, 6):
-    raise RuntimError("OIOIOI needs at least Python 2.6")
+    raise RuntimeError("OIOIOI needs at least Python 2.6")
 
 import os
 
@@ -102,6 +102,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'linaro_django_pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
+    'oioioi.base.middleware.FriendlyWarningsMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -258,3 +259,6 @@ JOTFORM_ID = None
 
 # Google Analytics
 GOOGLE_ANALYTICS_TRACKING_ID = None
+
+# Friendly Warnings
+SUPPRESS_FRIENDLY_WARNINGS = False
