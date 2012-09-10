@@ -27,7 +27,11 @@ DEFAULT_MEMORY_LIMIT = 66000
 class SinolPackage(object):
     def __init__(self, path, original_filename=None):
         self.filename = original_filename or path
-        self.archive = Archive(path)
+        if self.filename.lower().endswith('.tar.gz'):
+            ext = '.tar.gz'
+        else:
+            ext = os.path.splitext(self.filename)[1]
+        self.archive = Archive(path, ext)
 
     def _find_main_folder(self):
         files = map(str.lower, self.archive.filenames())
@@ -386,8 +390,9 @@ class SinolPackageCreator(object):
 class SinolPackageBackend(ProblemPackageBackend):
     description = _('Sinol Package')
 
-    def identify(self, path):
-        return SinolPackage(path).identify()
+    def identify(self, path, original_filename=None):
+        print original_filename
+        return SinolPackage(path, original_filename).identify()
 
     def unpack(self, path, original_filename=None, existing_problem=None):
         return SinolPackage(path, original_filename) \

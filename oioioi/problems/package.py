@@ -21,7 +21,7 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
     abstract = True
     modules_with_subclasses = 'package'
 
-    def identify(self, path):
+    def identify(self, path, original_filename=None):
         """Returns ``True`` if the backend can handle the specified problem
            package file."""
         raise NotImplementedError
@@ -46,12 +46,12 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
 class NoBackend(Exception):
     pass
 
-def backend_for_package(filename):
+def backend_for_package(filename, original_filename=None):
     """Finds a backend suitable for unpacking the given package."""
     for backend_name in settings.PROBLEM_PACKAGE_BACKENDS:
         try:
             backend = get_object_by_dotted_name(backend_name)()
-            if backend.identify(filename):
+            if backend.identify(filename, original_filename):
                 return backend
         except Exception:
             logger.warning('Backend %s probe failed', backend_name,

@@ -103,7 +103,8 @@ class ProblemAdmin(admin.ModelAdmin):
     def _add_problem(self, request, round):
         uploaded_file = request.FILES['package_file']
         with uploaded_file_name(uploaded_file) as filename:
-            backend = backend_for_package(filename)
+            backend = backend_for_package(filename,
+                    original_filename=uploaded_file.name)
             problem = backend.unpack(filename,
                     original_filename=uploaded_file.name)
             if not problem.package_backend_name:
