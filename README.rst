@@ -208,4 +208,4 @@ Then run::
   ./manage.py collectstatic
   ./manage.py supervisor restart all
 
-and restart Apache and the juding machines.
+and restart Apache and the judging machines.
