@@ -202,7 +202,9 @@ Upgrading
 Make sure you are in the *deployment* folder and the virtualenv is activated.
 Then run::
 
-  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi``
+  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
+  ./manage.py syncdb
+  ./manage.py migrate
   ./manage.py collectstatic
   ./manage.py supervisor restart all
 
