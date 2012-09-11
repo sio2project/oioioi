@@ -18,8 +18,8 @@ from oioioi.base import utils
 from oioioi.base.utils import RegisteredSubclassesBase, archive
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.menu import menu_registry, is_contest_admin, \
-        MenuRegistry
+from oioioi.base.menu import menu_registry
+from oioioi.contests.utils import is_contest_admin
 
 import random
 import sys

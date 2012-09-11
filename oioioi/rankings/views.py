@@ -1,14 +1,12 @@
-from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.template import RequestContext
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.permissions import enforce_condition
 from oioioi.base.menu import menu_registry
-from oioioi.contests.utils import enter_contest_permission_required
+from oioioi.contests.utils import can_enter_contest
 
 # This adds the required mixin to the ContestController class
-import oioioi.rankings.controllers
 
 def any_ranking_visible(request):
     rcontroller = request.contest.controller.ranking_controller()
@@ -19,7 +17,7 @@ menu_registry.register('ranking', _("Ranking"),
             request.contest.id}), condition=any_ranking_visible,
         order=440)
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def ranking_view(request, contest_id, key=None):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)

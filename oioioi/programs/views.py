@@ -3,10 +3,11 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.contests.views import check_submission_access
-from oioioi.contests.utils import enter_contest_permission_required
+from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
+from oioioi.contests.utils import can_enter_contest
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def show_submission_source_view(request, contest_id, submission_id):
     submission = get_object_or_404(ProgramSubmission, id=submission_id)
     if contest_id != submission.problem_instance.contest_id:
@@ -17,7 +18,7 @@ def show_submission_source_view(request, contest_id, submission_id):
     response['Content-Disposition'] = 'inline'
     return response
 
-@enter_contest_permission_required
+@enforce_condition(can_enter_contest)
 def download_submission_source_view(request, contest_id, submission_id):
     submission = get_object_or_404(ProgramSubmission, id=submission_id)
     if contest_id != submission.problem_instance.contest_id:

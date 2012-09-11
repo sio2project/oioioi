@@ -1,8 +1,5 @@
-from django.template.response import TemplateResponse
-from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Contest
-import functools
+
 
 def aggregate_statuses(statuses):
     """Returns first unsuccessful status or 'OK' if all are successful"""
@@ -21,22 +18,11 @@ def visible_contests(request):
             contests.append(contest)
     return contests
 
-def enter_contest_permission_required(fn):
-    @functools.wraps(fn)
-    def wrapped(request, *args, **kwargs):
-        if not request.contest:
-            return TemplateResponse(request, "index-no-contests.html")
-        rcontroller = request.contest.controller.registration_controller()
-        if not rcontroller.can_enter_contest(request):
-            return rcontroller.no_entry_view(request)
-        return fn(request, *args, **kwargs)
-    return wrapped
+def is_contest_admin(request):
+    """Checks if the current user can administer the current contest."""
+    return request.user.has_perm('contests.contest_admin', request.contest)
 
-def contest_admin_permission_required(fn):
-    @functools.wraps(fn)
-    def wrapped(request, *args, **kwargs):
-        if not request.user.has_perm('contests.contest_admin',
-                request.contest):
-            raise PermissionDenied
-        return fn(request, *args, **kwargs)
-    return wrapped
+
+def can_enter_contest(request):
+    rcontroller = request.contest.controller.registration_controller()
+    return rcontroller.can_enter_contest(request)
