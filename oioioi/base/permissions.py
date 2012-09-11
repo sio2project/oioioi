@@ -1,4 +1,4 @@
-# coding: utf=8
+# coding: utf-8
 
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
