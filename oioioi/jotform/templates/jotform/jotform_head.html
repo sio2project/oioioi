@@ -1,13 +1,7 @@
 {% load i18n %}
 
 <script type="text/javascript">
-// Jotform imports its own jQuery version, which overrides $ global variable.
-// To restore our version afterwards, we keep the $ value in a temporary variable.
-window.temporary_dollar = window.$
-</script>
-<script src="http://www.jotform.com/min/?g=feedback2" type="text/javascript"></script>
-<script type="text/javascript">
-  if (JotformFeedback) {
+  function jotform_onload() {
     new JotformFeedback({
       formId          : "{{ jotform_id }}",
       buttonText      : "{{ _("Send Feedback")|escapejs }}",
@@ -24,7 +18,10 @@ window.temporary_dollar = window.$
       instant         : true
     });
   }
-</script>
-<script type="text/javascript">
-window.$ = window.jQuery = window.temporary_dollar
+
+  $(function() {
+    var script = document.createElement('script');
+    script.src = "{{ STATIC_URL }}jotform/jotform.js";
+    document.getElementsByTagName('head')[0].appendChild(script);
+  });
 </script>
