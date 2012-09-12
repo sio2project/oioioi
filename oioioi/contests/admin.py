@@ -317,6 +317,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     score_display.short_description = _("Score")
 
     def rejudge_action(self, request, queryset):
+        # Otherwise the submissions are rejudged in their default display
+        # order which is "newest first"
+        queryset = queryset.order_by('id')
+
         controller = request.contest.controller
         counter = 0
         for submission in queryset:
