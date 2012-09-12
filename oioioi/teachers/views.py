@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.core.mail import EmailMessage
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User
@@ -200,9 +200,13 @@ def delete_participants_view(request, contest_id):
 
 @enforce_condition(is_contest_admin)
 def bulk_add_participants_view(request, contest_id, other_contest_id):
-    ContestTeacher.objects.filter(contest=request.contest,
-            user_id__in=request.POST.getlist('teacher')).delete()
-    Participant.objects.filter(contest=request.contest,
-            user_id__in=request.POST.getlist('participant')).delete()
+    other_contest = get_object_or_404(Contest, id=other_contest_id)
+    if not request.user.has_perm('contests.contest_admin', other_contest):
+        raise PermissionDenied
+    for p in Participant.objects.filter(contest=other_contest):
+        Participant.objects.get_or_create(contest=request.contest,
+                user=p.user)
+    for ct in ContestTeacher.objects.filter(contest=other_contest):
+        ContestTeacher.objects.get_or_create(contest=request.contest,
+                user=ct.user)
     return redirect_to_participants(request)
-
