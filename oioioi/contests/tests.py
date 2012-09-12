@@ -4,14 +4,15 @@ from django.template import Template, RequestContext
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        ScoreFieldTestModel, Submission
+        ScoreFieldTestModel, Submission, ContestAttachment
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
-from oioioi.problems.models import Problem, ProblemStatement
+from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
 from datetime import datetime
 
@@ -371,3 +372,32 @@ class TestContestAdmin(TestCase):
                 datetime(2013, 2, 4, 15, 6, 7, tzinfo=LocalTimezone()))
         self.assertEqual(round.results_date,
                 datetime(2013, 2, 5, 16, 7, 8, tzinfo=LocalTimezone()))
+
+class TestAttachments(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def test_attachments(self):
+        contest = Contest.objects.get()
+        problem = Problem.objects.get()
+        ca = ContestAttachment(contest=contest,
+                description='contest-attachment',
+                content=ContentFile('content-of-conatt', name='conatt.txt'))
+        ca.save()
+        pa = ProblemAttachment(problem=problem,
+                description='problem-attachment',
+                content=ContentFile('content-of-probatt', name='probatt.txt'))
+        pa.save()
+
+        self.client.login(username='test_user')
+        response = self.client.get(reverse('contest_files',
+            kwargs={'contest_id': contest.id}))
+        self.assertEqual(response.status_code, 200)
+        for part in ['contest-attachment', 'conatt.txt', 'problem-attachment',
+                'probatt.txt']:
+            self.assertIn(part, response.content)
+        response = self.client.get(reverse('contest_attachment',
+            kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
+        self.assertEqual(response.content, 'content-of-conatt')
+        response = self.client.get(reverse('problem_attachment',
+            kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
+        self.assertEqual(response.content, 'content-of-probatt')

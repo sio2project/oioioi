@@ -218,7 +218,7 @@ def rejudge_submission_view(request, contest_id, submission_id):
     return redirect('submission', contest_id=contest_id,
             submission_id=submission_id)
 
-@enforce_condition(is_contest_admin)
+@enforce_condition(can_enter_contest)
 def files_view(request, contest_id):
     contest_files = ContestAttachment.objects.filter(contest=request.contest)
     problem_instances = visible_problem_instances(request)
@@ -233,7 +233,7 @@ def files_view(request, contest_id):
         } for cf in contest_files]
     rows += [{
         'name': pf.filename,
-        'description': '%s: %s' % (pf.problem, pf.description),
+        'description': u'%s: %s' % (pf.problem, pf.description),
         'link': reverse('problem_attachment', kwargs={'contest_id': contest_id,
             'attachment_id': pf.id}),
         } for pf in problem_files]
@@ -248,10 +248,9 @@ def contest_attachment_view(request, contest_id, attachment_id):
 
 @enforce_condition(can_enter_contest)
 def problem_attachment_view(request, contest_id, attachment_id):
-    attachment = get_object_or_404(ProblemAttachment, contest_id=contest_id,
-        id=attachment_id)
+    attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
     problem_instances = visible_problem_instances(request)
     problem_ids = [pi.problem_id for pi in problem_instances]
-    if not attachment.problem_id in problem_ids:
+    if attachment.problem_id not in problem_ids:
         raise PermissionDenied
     return stream_file(attachment.content)
