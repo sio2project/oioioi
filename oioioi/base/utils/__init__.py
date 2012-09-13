@@ -1,4 +1,5 @@
 from django.forms.util import flatatt
+from django.template import Template, Context
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
@@ -335,6 +336,11 @@ def make_html_link(href, name, extra_attrs={}):
 def make_html_links(links, extra_attrs={}):
     links = [make_html_link(href, name, extra_attrs) for href, name in links]
     return mark_safe(' | '.join(links))
+
+def make_navbar_badge(link, text):
+    template = Template('<li><a href="{{ link }}"><span class="label '
+            'label-important">{{ text }}</span></a></li>')
+    return template.render(Context({'link': link, 'text': text}))
 
 # File uploads
 
