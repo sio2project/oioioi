@@ -1,11 +1,12 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django import forms
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import PermissionDenied
+from django.utils.safestring import mark_safe
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.contrib import messages
 from oioioi.base.menu import menu_registry
@@ -13,11 +14,14 @@ from oioioi.base.permissions import not_anonymous
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
-from oioioi.contests.utils import visible_contests, can_enter_contest, is_contest_admin
+from oioioi.contests.utils import visible_contests, can_enter_contest, \
+        is_contest_admin
 from oioioi.filetracker.utils import stream_file
 from oioioi.base.permissions import enforce_condition
 import sys
 from operator import itemgetter
+import zipfile
+import mimetypes
 
 def has_any_submittable_problem(request):
     controller = request.contest.controller
@@ -93,7 +97,7 @@ def problem_statement_view(request, contest_id, problem_instance):
 
     lang_prefs = [translation.get_language()] + ['', None] + \
             [l[0] for l in settings.LANGUAGES]
-    ext_prefs = ['.pdf', '.ps', '.html', '.txt']
+    ext_prefs = ['.zip', '.pdf', '.ps', '.html', '.zip', '.txt']
 
     def sort_key(statement):
         try:
@@ -107,7 +111,44 @@ def problem_statement_view(request, contest_id, problem_instance):
         return lang_pref, ext_pref
 
     statement = sorted(statements, key=sort_key)[0]
+    if statement.extension == '.zip':
+        return redirect('problem_statement_zip_index', contest_id=contest_id,
+            problem_instance=problem_instance, statement_id=statement.id)
     return stream_file(statement.content)
+
+def problem_statement_zip_index_view(request, contest_id, problem_instance,
+        statement_id):
+    response = problem_statement_zip_view(request, contest_id,
+            problem_instance, statement_id, 'index.html')
+    return TemplateResponse(request, 'contests/html_statement.html',
+            {'content': mark_safe(response.content)})
+
+@enforce_condition(can_enter_contest)
+def problem_statement_zip_view(request, contest_id, problem_instance,
+        statement_id, path):
+    controller = request.contest.controller
+    pi = get_object_or_404(ProblemInstance, round__contest=request.contest,
+            short_name=problem_instance)
+    statement = get_object_or_404(ProblemStatement,
+        problem__probleminstance=pi, id=statement_id)
+
+    if not controller.can_see_problem(request, pi):
+        raise PermissionDenied
+
+    if statement.extension != '.zip':
+        raise SuspiciousOperation
+
+    zip = zipfile.ZipFile(statement.content)
+    try:
+        info = zip.getinfo(path)
+    except KeyError:
+        raise Http404
+
+    content_type = mimetypes.guess_type(path)[0] or \
+        'application/octet-stream'
+    response = HttpResponse(zip.read(path), content_type=content_type)
+    response['Content-Length'] = info.file_size
+    return response
 
 class SubmissionForm(forms.Form):
     problem_instance_id = forms.ChoiceField(label=_("Problem"))

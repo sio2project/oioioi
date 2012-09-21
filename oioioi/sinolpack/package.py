@@ -103,6 +103,14 @@ class SinolPackage(object):
             logger.warning('%s: no docdir', self.filename)
             return
 
+        self.problem.statements.all().delete()
+
+        htmlzipfile = os.path.join(docdir, self.short_name + 'zad.html.zip')
+        if os.path.exists(htmlzipfile):
+            statement = ProblemStatement(problem=self.problem)
+            statement.content.save(self.short_name + '.html.zip',
+                    File(open(htmlzipfile, 'rb')))
+
         pdffile = os.path.join(docdir, self.short_name + 'zad.pdf')
         texfile = os.path.join(docdir, self.short_name + 'zad.tex')
 
@@ -112,7 +120,6 @@ class SinolPackage(object):
             logger.warning('%s: no problem statement', self.filename)
             return
 
-        self.problem.statements.all().delete()
         statement = ProblemStatement(problem=self.problem)
         statement.content.save(self.short_name + '.pdf',
                 File(open(pdffile, 'rb')))
