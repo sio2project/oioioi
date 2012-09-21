@@ -71,7 +71,7 @@ class ContestAdminMixin(object):
             return super(ContestAdminMixin, self).response_add(request, obj,
                     post_url_continue)
         self.message_user(request, _("Contest added successfully."))
-        return redirect('oioioi.teachers.views.participants_view',
+        return redirect('oioioi.teachers.views.pupils_view',
                 contest_id=obj.id)
     def __init__(self, *args, **kwargs):
         super(ContestAdminMixin, self).__init__(*args, **kwargs)

@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 from oioioi.base import admin
 from oioioi.base.menu import account_menu_registry
 from oioioi.contests.models import Contest
-from oioioi.teachers.models import RegistrationConfig, Participant, \
+from oioioi.teachers.models import RegistrationConfig, Pupil, \
         ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.base.permissions import enforce_condition
@@ -26,9 +26,9 @@ def is_teachers_contest(request):
 def is_not_teacher(request):
     return not request.user.has_perm('teachers.teacher')
 
-admin.contest_admin_menu_registry.register('teachers_participants',
-        _("Participants"),
-        lambda request: reverse(participants_view, kwargs={'contest_id':
+admin.contest_admin_menu_registry.register('teachers_pupils',
+        _("Pupils"),
+        lambda request: reverse(pupils_view, kwargs={'contest_id':
             request.contest.id}),
         condition=is_teachers_contest, order=30)
 
@@ -121,41 +121,41 @@ def accept_teacher_view(request, user_id):
     return redirect('oioioiadmin:teachers_teacher_changelist')
 
 @enforce_condition(is_contest_admin)
-def participants_view(request, contest_id):
+def pupils_view(request, contest_id):
     teachers = User.objects.filter(teacher__contestteacher__contest=request.contest)
-    participants = User.objects.filter(participant__contest=request.contest)
+    pupils = User.objects.filter(pupil__contest=request.contest)
     registration_config, created = RegistrationConfig.objects.get_or_create(
             contest=request.contest)
     registration_link = request.build_absolute_uri(
-            reverse(activate_participant_view, kwargs=
+            reverse(activate_pupil_view, kwargs=
                 {'contest_id': contest_id, 'key': registration_config.key}))
     other_contests = Contest.objects \
             .filter(contestteacher__teacher__user=request.user) \
             .exclude(id=request.contest.id)
-    return TemplateResponse(request, 'teachers/participants.html', {
+    return TemplateResponse(request, 'teachers/pupils.html', {
                 'teachers': teachers,
-                'participants': participants,
+                'pupils': pupils,
                 'registration_config': registration_config,
                 'registration_link': registration_link,
                 'other_contests': other_contests,
             })
 
 @login_required
-def activate_participant_view(request, contest_id, key):
+def activate_pupil_view(request, contest_id, key):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
     key_ok = registration_config.key == key
     if key_ok and registration_config.is_active:
         is_teacher = request.user.has_perm('teachers.teacher')
         if not is_teacher:
-            register_as = 'participant'
+            register_as = 'pupil'
         elif 'register_as' in request.REQUEST:
             register_as = request.REQUEST['register_as']
         else:
             return TemplateResponse(request, 'teachers/activation_type.html',
                     {'key': key})
-        if register_as == 'participant':
-            Participant.objects.get_or_create(contest=request.contest,
+        if register_as == 'pupil':
+            Pupil.objects.get_or_create(contest=request.contest,
                     user=request.user)
         elif register_as == 'teacher':
             teacher_obj = get_object_or_404(Teacher, user=request.user)
@@ -170,8 +170,8 @@ def activate_participant_view(request, contest_id, key):
                 'registration_active': registration_config.is_active,
             })
 
-def redirect_to_participants(request):
-    return redirect(reverse(participants_view, kwargs={'contest_id':
+def redirect_to_pupils(request):
+    return redirect(reverse(pupils_view, kwargs={'contest_id':
         request.contest.id}))
 
 @enforce_condition(is_contest_admin)
@@ -180,7 +180,7 @@ def set_registration_view(request, contest_id, value):
             contest=request.contest)
     registration_config.is_active = value
     registration_config.save()
-    return redirect_to_participants(request)
+    return redirect_to_pupils(request)
 
 @enforce_condition(is_contest_admin)
 def regenerate_key_view(request, contest_id):
@@ -188,25 +188,25 @@ def regenerate_key_view(request, contest_id):
             contest=request.contest)
     registration_config.generate_key()
     registration_config.save()
-    return redirect_to_participants(request)
+    return redirect_to_pupils(request)
 
 @enforce_condition(is_contest_admin)
-def delete_participants_view(request, contest_id):
+def delete_pupils_view(request, contest_id):
     ContestTeacher.objects.filter(contest=request.contest,
             user_id__in=request.POST.getlist('teacher')).delete()
-    Participant.objects.filter(contest=request.contest,
-            user_id__in=request.POST.getlist('participant')).delete()
-    return redirect_to_participants(request)
+    Pupil.objects.filter(contest=request.contest,
+            user_id__in=request.POST.getlist('pupil')).delete()
+    return redirect_to_pupils(request)
 
 @enforce_condition(is_contest_admin)
-def bulk_add_participants_view(request, contest_id, other_contest_id):
+def bulk_add_pupils_view(request, contest_id, other_contest_id):
     other_contest = get_object_or_404(Contest, id=other_contest_id)
     if not request.user.has_perm('contests.contest_admin', other_contest):
         raise PermissionDenied
-    for p in Participant.objects.filter(contest=other_contest):
-        Participant.objects.get_or_create(contest=request.contest,
+    for p in Pupil.objects.filter(contest=other_contest):
+        Pupil.objects.get_or_create(contest=request.contest,
                 user=p.user)
     for ct in ContestTeacher.objects.filter(contest=other_contest):
         ContestTeacher.objects.get_or_create(contest=request.contest,
                 user=ct.user)
-    return redirect_to_participants(request)
+    return redirect_to_pupils(request)

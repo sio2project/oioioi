@@ -1,5 +1,5 @@
-form.teachers-delete-participants label.checkbox,
-form.teachers-delete-participants .info {
+form.teachers-delete-pupils label.checkbox,
+form.teachers-delete-pupils .info {
     padding-left: 3em;
     font-size: inherit;
 }
