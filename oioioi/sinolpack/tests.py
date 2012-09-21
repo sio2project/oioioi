@@ -17,6 +17,7 @@ from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from nose.plugins.attrib import attr
 import os.path
 from cStringIO import StringIO
+import urllib
 import zipfile
 
 def _test_filename(name):
@@ -119,22 +120,24 @@ class TestSinolPackageInContest(TestCase):
     fixtures = ['test_users', 'test_contest']
 
     def test_upload_and_download_package(self):
+        ProblemInstance.objects.all().delete()
+
         contest = Contest.objects.get()
         round = Round.objects.get()
         filename = _test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:problems_problem_add')
-        response = self.client.get(url, {'contest_id': contest.id})
+        response = self.client.get(url, {'contest_id': contest.id},
+                follow=True)
+        url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('admin/problems/problem_add.html',
+        self.assertIn('problems/add_or_update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         response = self.client.post(url,
-                {'package_file': open(filename, 'rb'),
-                    'round_id': round.id,
-                    'contest_id': contest.id}, follow=True)
+                {'package_file': open(filename, 'rb')}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
-        self.assertEqual(ProblemInstance.objects.count(), 2)
+        self.assertEqual(ProblemInstance.objects.count(), 1)
 
         # Delete tests and check if re-uploading will fix it.
         problem = Problem.objects.get()
@@ -142,11 +145,13 @@ class TestSinolPackageInContest(TestCase):
         for test in problem.test_set.all():
             test.delete()
         problem.save()
-        url = reverse('oioioiadmin:problems_problem_reupload',
-                args=(problem.id,))
-        response = self.client.get(url)
+        url = reverse('add_or_update_contest_problem',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'problem': problem.id})
+        response = self.client.get(url, follow=True)
+        url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('admin/problems/problem_reupload.html',
+        self.assertIn('problems/add_or_update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)

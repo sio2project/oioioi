@@ -14,7 +14,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.problems.package import backend_for_package
-from oioioi.problems.utils import can_add_problems
+from oioioi.problems.utils import can_add_problems, can_change_problem
 import logging
 
 logger = logging.getLogger(__name__)
@@ -81,14 +81,7 @@ class ProblemAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return True
-        if request.user.has_perm('problems.problems_db_admin'):
-            return True
-        if request.user.has_perm('problems.problem_admin', obj):
-            return True
-        if obj.contest and request.user.has_perm('contests.contest_admin',
-                obj.contest):
-            return True
-        return False
+        return can_change_problem(request, obj)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)

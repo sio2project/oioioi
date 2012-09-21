@@ -29,6 +29,7 @@ import tempfile
 import shutil
 from contextlib import contextmanager
 import threading
+import urllib
 
 if not getattr(settings, 'TESTS', False):
     print >>sys.stderr, 'The tests are not using the required test ' \
@@ -41,7 +42,7 @@ if not getattr(settings, 'TESTS', False):
 
 basedir = os.path.dirname(__file__)
 
-def check_not_accessible(testcase, url_or_viewname, *args, **kwargs):
+def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     data = kwargs.pop('data', {})
     if url_or_viewname.startswith('/'):
         url = url_or_viewname
@@ -49,10 +50,12 @@ def check_not_accessible(testcase, url_or_viewname, *args, **kwargs):
         assert not kwargs
     else:
         url = reverse(url_or_viewname, *args, **kwargs)
-    response = testcase.client.get(url, data=data)
-    testcase.assertIn(response.status_code, (403, 404, 302))
-    if response.status_code == 302:
-        testcase.assertIn('/login/', response['Location'])
+    if qs:
+        url += '?' + urllib.urlencode(qs)
+    response = testcase.client.get(url, data=data, follow=True)
+    testcase.assertIn(response.status_code, (403, 404, 200))
+    if response.status_code == 200:
+        testcase.assertIn('/login/', repr(response.redirect_chain))
 
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
@@ -292,7 +295,7 @@ class TestUtils(unittest.TestCase):
             utils.get_object_by_dotted_name('TestUtils')
         with self.assertRaisesRegexp(ImportError, 'object .* not found'):
             utils.get_object_by_dotted_name('oioioi.base.tests.Nonexistent')
-        with self.assertRaisesRegexp(ImportError, 'object .* not found'):
+        with self.assertRaises(ImportError):
             utils.get_object_by_dotted_name('oioioi.base.nonexistent.Foo')
 
 class TestAllWithPrefix(unittest.TestCase):

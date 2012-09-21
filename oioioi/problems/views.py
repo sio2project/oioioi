@@ -8,7 +8,7 @@ from oioioi.problems.models import ProblemStatement
 from oioioi.filetracker.utils import stream_file
 from oioioi.base.permissions import enforce_condition
 from oioioi.problems.models import Problem
-from oioioi.problems.utils import can_add_problems
+from oioioi.problems.utils import can_add_problems, can_change_problem
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.contests.models import ProblemInstance
 import urllib
@@ -41,8 +41,7 @@ def add_or_update_problem_view(request, contest_id=None):
         if contest and not existing_problem.probleminstance_set.filter(
                 contest=contest):
             raise Http404
-        if existing_problem.contest and not request.user.has_perm(
-                'contests.contest_admin', existing_problem.contest):
+        if not can_change_problem(request, existing_problem):
             raise PermissionDenied
     else:
         existing_problem = None

@@ -73,8 +73,8 @@ class TestProblemViews(TestCase):
         check_not_accessible(self, 'oioioiadmin:problems_problem_add',
                 data={'package_file': open(__file__, 'rb'),
                       'contest_id': contest.id})
-        check_not_accessible(self, 'oioioiadmin:problems_problem_reupload',
-                args=(problem.id,))
+        check_not_accessible(self, 'add_or_update_contest_problem',
+                kwargs={'contest_id': contest.id}, qs={'problem': problem.id})
         check_not_accessible(self, 'oioioiadmin:problems_problem_download',
                 args=(problem.id,))
         check_not_accessible(self, 'oioioiadmin:problems_problem_change',
