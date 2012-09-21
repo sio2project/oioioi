@@ -292,7 +292,7 @@ class TestUtils(unittest.TestCase):
             utils.get_object_by_dotted_name('TestUtils')
         with self.assertRaisesRegexp(ImportError, 'object .* not found'):
             utils.get_object_by_dotted_name('oioioi.base.tests.Nonexistent')
-        with self.assertRaisesRegexp(ImportError, 'object .* not found'):
+        with self.assertRaises(ImportError):
             utils.get_object_by_dotted_name('oioioi.base.nonexistent.Foo')
 
 class TestAllWithPrefix(unittest.TestCase):

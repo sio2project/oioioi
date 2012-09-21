@@ -322,7 +322,7 @@ def get_object_by_dotted_name(name):
     module, obj = name.rsplit('.', 1)
     try:
         return getattr(__import__(module, fromlist=[obj]), obj)
-    except (ImportError, AttributeError), e:
+    except AttributeError, e:
         raise ImportError('Requested object %r not found: %s' % (name, e))
 
 # Generating HTML
