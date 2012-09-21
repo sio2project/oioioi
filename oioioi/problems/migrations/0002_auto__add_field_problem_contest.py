@@ -4,7 +4,7 @@ from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 from django.db.models import F, Count, Max
-
+from django.db.utils import DatabaseError
 
 class Migration(SchemaMigration):
 
@@ -17,11 +17,16 @@ class Migration(SchemaMigration):
         # Problems which have exactly one instance should be attached to
         # corresponding contests.
         if not db.dry_run:
-            for problem in orm.Problem.objects \
-                    .annotate(num_instances=Count('probleminstance')) \
-                    .filter(num_instances=1):
-                problem.contest = problem.probleminstance_set.get().contest
-                problem.save()
+            try:
+                for problem in orm.Problem.objects \
+                        .annotate(num_instances=Count('probleminstance')) \
+                        .filter(num_instances=1):
+                    problem.contest = problem.probleminstance_set.get().contest
+                    problem.save()
+            except DatabaseError:
+                # This usually means that the contest_probleminstance table
+                # does not exist yet.
+                pass
 
     def backwards(self, orm):
         # Deleting field 'Problem.contest'
