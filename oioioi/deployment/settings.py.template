@@ -113,6 +113,7 @@ INSTALLED_APPS = (
 #    'oioioi.teachers',
     'oioioi.dashboard',
     'oioioi.clock',
+#    'oioioi.sharingcli',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -121,4 +122,12 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 AUTHENTICATION_BACKENDS += (
 #    'oioioi.teachers.auth.TeacherAuthBackend',
+)
+
+PROBLEM_SOURCES += (
+#    'oioioi.sharingcli.problem_sources.RemoteSource',
+)
+
+SHARING_SERVERS = (
+#    ('site_url', 'sharing_url', 'client_id', 'client_secret'),
 )
