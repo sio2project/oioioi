@@ -5,8 +5,8 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
 
 class TeacherRegistraionController(RegistrationController):
-    def filter_participants(self, queryset):
-        return queryset.filter(participant__contest=self.contest)
+    def filter_pupils(self, queryset):
+        return queryset.filter(pupil__contest=self.contest)
 
     def anonymous_can_enter_contest(self):
         return False
@@ -16,7 +16,7 @@ class TeacherRegistraionController(RegistrationController):
 
 class TeacherRankingController(DefaultRankingController):
     def filter_users_for_ranking(self, request, key, queryset):
-        return queryset.filter(participant__contest=self.contest)
+        return queryset.filter(pupil__contest=self.contest)
 
 class TeacherContestController(ProgrammingContestController):
     description = _("Contest for teachers")

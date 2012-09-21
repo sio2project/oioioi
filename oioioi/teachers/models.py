@@ -28,7 +28,7 @@ class ContestTeacher(models.Model):
     def __unicode__(self):
         return u'%s/%s' % (self.contest_id, self.teacher.user)
 
-class Participant(models.Model):
+class Pupil(models.Model):
     contest = models.ForeignKey(Contest)
     user = models.ForeignKey(User)
 
