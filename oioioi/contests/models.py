@@ -123,7 +123,8 @@ def _generate_round_id(sender, instance, raw, **kwargs):
 
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
-    round = models.ForeignKey(Round, verbose_name=_("round"))
+    round = models.ForeignKey(Round, verbose_name=_("round"), null=True,
+            blank=True)
     problem = models.ForeignKey(Problem, verbose_name=_("problem"))
     short_name = models.CharField(max_length=30, verbose_name=_("short name"))
 

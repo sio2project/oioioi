@@ -14,6 +14,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.problems.package import backend_for_package
+from oioioi.problems.utils import can_add_problems
 import logging
 
 logger = logging.getLogger(__name__)
@@ -75,9 +76,7 @@ class ProblemAdmin(admin.ModelAdmin):
     list_filter = ['short_name']
 
     def has_add_permission(self, request):
-        return request.user.has_perm('problems.problems_db_admin') \
-                or request.user.has_perm('contests.contest_admin',
-                        request.contest)
+        return can_add_problems(request)
 
     def has_change_permission(self, request, obj=None):
         if obj is None:
@@ -100,100 +99,9 @@ class ProblemAdmin(admin.ModelAdmin):
         else:
             return redirect('oioioiadmin:problems_problem_changelist')
 
-    def _add_problem(self, request, round):
-        uploaded_file = request.FILES['package_file']
-        with uploaded_file_name(uploaded_file) as filename:
-            backend = backend_for_package(filename,
-                    original_filename=uploaded_file.name)
-            problem = backend.unpack(filename,
-                    original_filename=uploaded_file.name)
-            if not problem.package_backend_name:
-                raise AssertionError("Problem package backend (%r) did not "
-                        "set Problem.package_backend_name. This is a bug in "
-                        "the problem package backend." % (backend,))
-            if round:
-                problem.contest = round.contest
-                problem.save()
-                pi = ProblemInstance(contest=round.contest, round=round,
-                        problem=problem)
-                pi.save()
-        self.message_user(request, _("Problem package uploaded."))
-        return self.redirect_to_list(request, problem)
-
     def add_view(self, request, form_url='', extra_context=None):
-        contest_id = request.REQUEST.get('contest_id')
-        if contest_id:
-            contest = get_object_or_404(Contest, id=contest_id)
-        else:
-            contest = None
-
-        if not contest and \
-                not request.user.has_perm('problems.problems_db_admin'):
-            if getattr(request, 'contest'):
-                contest = request.contest
-            else:
-                raise PermissionDenied
-
-        if contest and not request.user.has_perm('contests.contest_admin',
-                contest):
-            raise PermissionDenied
-
-        initial = {'contest_id': contest and contest.id or ''}
-
-        if request.method == 'POST':
-            form = ProblemUploadForm(contest, request.POST, request.FILES,
-                    initial=initial)
-            if form.is_valid():
-                try:
-                    if contest:
-                        round = get_object_or_404(Round, contest=contest,
-                                id=form.cleaned_data['round_id'])
-                    else:
-                        round = None
-                    return self._add_problem(request, round)
-                except Exception, e:
-                    logger.error("Error processing package", exc_info=True)
-                    form._errors['__all__'] = form.error_class([unicode(e)])
-        else:
-            form = ProblemUploadForm(contest, initial=initial)
-
-        return TemplateResponse(request, 'admin/problems/problem_add.html',
-                {'form': form})
-
-    def _reupload_problem(self, request, problem):
-        uploaded_file = request.FILES['package_file']
-        with uploaded_file_name(uploaded_file) as filename:
-            backend = backend_for_package(filename)
-            problem = backend.unpack(filename,
-                    original_filename=uploaded_file.name,
-                    existing_problem=problem)
-        self.message_user(request, _("Problem updated."))
-        return self.redirect_to_list(request, problem)
-
-    def reupload_view(self, request, object_id):
-        problem = self.get_object(request, unquote(object_id))
-        if not problem:
-            raise Http404
-        if not self.has_change_permission(request, problem):
-            raise PermissionDenied
-
-        if request.method == 'POST':
-            form = ProblemUploadForm(None, request.POST, request.FILES)
-            if form.is_valid():
-                try:
-                    return self._reupload_problem(request, problem)
-                except Exception, e:
-                    logger.error("Error processing package", exc_info=True)
-                    form._errors['__all__'] = form.error_class([unicode(e)])
-        else:
-            form = ProblemUploadForm(None)
-
-        context = {
-                'form': form,
-                'problem': problem,
-            }
-        return TemplateResponse(request,
-                'admin/problems/problem_reupload.html', context)
+        return redirect('add_or_update_contest_problem',
+                contest_id=request.contest.id)
 
     def download_view(self, request, object_id):
         problem = self.get_object(request, unquote(object_id))
@@ -243,8 +151,6 @@ class BaseProblemAdmin(admin.MixinsAdmin):
     def get_urls(self):
         urls = super(BaseProblemAdmin, self).get_urls()
         extra_urls = patterns('',
-            url(r'^(\d+)/reupload/$', self.reupload_view,
-                name='problems_problem_reupload'),
             url(r'^(\d+)/download/$', self.download_view,
                 name='problems_problem_download')
         )

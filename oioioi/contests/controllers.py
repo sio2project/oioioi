@@ -143,6 +143,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            :returns: an instance of :class:`RoundTimes`
         """
+        assert round is not None
         return RoundTimes(round.start_date, round.end_date, round.results_date)
 
     def order_rounds_by_focus(self, request, queryset=None):
@@ -206,6 +207,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
+        if not problem_instance.round:
+            return False
         rtimes = self.get_round_times(request, problem_instance.round)
         return not rtimes.is_future(request.timestamp)
 
@@ -222,6 +225,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
+        if not problem_instance.round:
+            return False
         rtimes = self.get_round_times(request, problem_instance.round)
         return rtimes.is_active(request.timestamp)
 

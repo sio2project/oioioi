@@ -52,6 +52,8 @@ class ModelSolutionsManager(models.Manager):
             for model_submission in ModelProgramSubmission.objects.filter(
                     problem_instance=problem_instance):
                 model_submission.delete()
+        if not problem_instance.round:
+            return
         controller = problem_instance.contest.controller
         for model_solution in self.filter(problem=problem_instance.problem):
             with transaction.commit_on_success():
@@ -78,7 +80,7 @@ class ModelSolution(models.Model):
 @receiver(post_save, sender=ProblemInstance)
 def _autocreate_model_submissions_for_problem_instance(sender, instance,
         created, raw, **kwargs):
-    if created and not raw:
+    if not raw:
         ModelSolution.objects.recreate_model_submissions(instance)
 
 @receiver(post_save, sender=ModelSolution)
