@@ -1,7 +1,7 @@
 .. OIOIOI Documentation Index File
 
 OIOIOI Developer's Reference
-==========================
+============================
 
 This is the reference documentation for the OIOIOI Project.
 
@@ -61,13 +61,6 @@ Table of Contents
     sections/evaluation
     sections/misc
     glossary
-
-..  modules/core/accounts
-    modules/core/evaluation
-    modules/core/fstorage
-    modules/core/pagination
-    modules/core/menu
-    modules/core/orm/sqlalchemy_patches
 
 Indices and tables
 ==================

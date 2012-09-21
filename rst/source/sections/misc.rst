@@ -57,10 +57,6 @@ use :meth:`~oioioi.base.menu.MenuRegistry.register`, preferably in
 
 .. autodata:: account_menu_registry
 
-There are also some utility functions which may be passed as ``condition``:
-
-.. autofunction:: is_contest_admin
-
 For rendering the menu inside a template, a special ``{% generate_menu %}`` tag is used.
 
 .. autofunction:: oioioi.base.templatetags.menu.generate_menu
