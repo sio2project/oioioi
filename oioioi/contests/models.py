@@ -270,8 +270,3 @@ class UserResultForContest(models.Model):
 
     class Meta:
         unique_together = ('user', 'contest')
-
-
-if getattr(settings, 'TESTS', False):
-    class ScoreFieldTestModel(models.Model):
-        score = ScoreField(null=True)
