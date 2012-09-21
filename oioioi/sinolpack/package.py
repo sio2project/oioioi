@@ -24,6 +24,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_TIME_LIMIT = 10000
 DEFAULT_MEMORY_LIMIT = 66000
 
+def _stringify_keys(dictionary):
+    return dict((str(k), v) for k, v in dictionary.iteritems())
+
 class SinolPackage(object):
     def __init__(self, path, original_filename=None):
         self.filename = original_filename or path
@@ -35,13 +38,24 @@ class SinolPackage(object):
 
     def _find_main_folder(self):
         files = map(str.lower, self.archive.filenames())
+        level2_folders = set()
         for f in files:
-            if '/' not in f \
-                    and f + '/in' in files \
-                    and f + '/out' in files:
-                return f
-        else:
+            f = f.split('/')
+            if len(f) >= 2:
+                f = tuple(f[:2])
+                if f[1] in ('in', 'out'):
+                    level2_folders.add(f)
+        if len(level2_folders) != 2:
             return None
+        level2_folders = list(level2_folders)
+        level2_folders.sort()
+        if level2_folders[0][0] != level2_folders[1][0]:
+            return None
+        if level2_folders[0][1] != 'in':
+            return None
+        if level2_folders[1][1] != 'out':
+            return None
+        return level2_folders[0][0]
 
     def identify(self):
         return self._find_main_folder() is not None
@@ -147,8 +161,14 @@ class SinolPackage(object):
         else:
             logger.info('%s: no inwer in package', self.filename)
 
-        logger.info('%s: outgen', self.filename)
-        execute('make outgen', cwd=self.rootdir)
+        indir = os.path.join(self.rootdir, 'in')
+        outdir = os.path.join(self.rootdir, 'out')
+        for test in os.listdir(indir):
+            basename = os.path.splitext(test)[0]
+            if not os.path.exists(os.path.join(outdir, basename + '.out')):
+                logger.info('%s: outgen', self.filename)
+                execute('make outgen', cwd=self.rootdir)
+                break
 
     def _process_tests(self, total_score=100):
         indir = os.path.join(self.rootdir, 'in')
@@ -157,6 +177,9 @@ class SinolPackage(object):
         scored_groups = set()
         names_re = re.compile(r'^(%s(([0-9]+)([a-z]?[a-z0-9]*))).in$'
                 % (re.escape(self.short_name),))
+
+        time_limits = _stringify_keys(self.config.get('time_limits', {}))
+        memory_limits = _stringify_keys(self.config.get('memory_limits', {}))
 
         # Find tests and create objects
         for test in os.listdir(indir):
@@ -169,7 +192,7 @@ class SinolPackage(object):
             # Examples for odl0ocen.in:
             basename = match.group(1)    # odl0ocen
             name = match.group(2)        # 0ocen
-            group = match.group(3)  # 0
+            group = match.group(3)       # 0
             suffix = match.group(4)      # ocen
 
             instance, created = Test.objects.get_or_create(
@@ -190,13 +213,12 @@ class SinolPackage(object):
                 scored_groups.add(group)
 
             if created:
-                instance.time_limit = self.config.get('time_limits', {}) \
-                        .get(name, DEFAULT_TIME_LIMIT)
+                instance.time_limit = time_limits.get(name, DEFAULT_TIME_LIMIT)
                 if 'memory_limit' in self.config:
                     instance.memory_limit = self.config['memory_limit']
                 else:
-                    instance.memory_limit = self.config.get('memory_limits',
-                            {}).get(name, DEFAULT_MEMORY_LIMIT)
+                    instance.memory_limit = memory_limits.get(name,
+                            DEFAULT_MEMORY_LIMIT)
             instance.save()
             test_names.append(name)
 
