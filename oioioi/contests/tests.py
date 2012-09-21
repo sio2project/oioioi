@@ -6,9 +6,10 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
+from django.contrib.auth.models import User
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        ScoreFieldTestModel, Submission, ContestAttachment
+        UserResultForContest, Submission, ContestAttachment
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
@@ -34,6 +35,8 @@ class TestModels(TestCase):
         self.assertEqual(pi.contest, contest)
 
 class TestScores(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
     def test_integer_score(self):
         s1 = IntegerScore(1)
         s2 = IntegerScore(2)
@@ -45,11 +48,15 @@ class TestScores(TestCase):
         self.assertEqual(IntegerScore._from_repr(s1._to_repr()), s1)
 
     def test_score_field(self):
-        instance = ScoreFieldTestModel(score=IntegerScore(42))
+        contest = Contest.objects.get()
+        user = User.objects.get(username='test_user')
+
+        instance = UserResultForContest(user=user, contest=contest,
+                score=IntegerScore(42))
         instance.save()
         del instance
 
-        instance = ScoreFieldTestModel.objects.get()
+        instance = UserResultForContest.objects.get()
         self.assertTrue(isinstance(instance.score, IntegerScore))
         self.assertEqual(instance.score.value, 42)
 
@@ -65,7 +72,7 @@ class TestScores(TestCase):
         instance.save()
         del instance
 
-        instance = ScoreFieldTestModel.objects.get()
+        instance = UserResultForContest.objects.get()
         self.assertIsNone(instance.score)
 
 
