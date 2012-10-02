@@ -2,7 +2,19 @@
 
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 import functools
+
+class AccessDenied(object):
+    """A ``False``-like class with additional response to use as the access
+       denied message.
+    """
+
+    def __init__(self, response=None):
+        self.response = response
+
+    def __nonzero__(self):
+        return False
 
 def enforce_condition(condition):
     """Decorator for views that checks that the request passes the given
@@ -12,13 +24,20 @@ def enforce_condition(condition):
        redirect to the login page is issued, otherwise :exc:`PermissionDenied`
        is raised.
 
+       If the condition returns an instance of :class:`AccessDenied` with a
+       specific response to use, this response is used instead of calling the
+       decorated view.
+
        :param condition: condition to check
        :type condition: function request → bool
     """
     def decorator(view_func):
         @functools.wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
-            if condition(request):
+            decision = condition(request)
+            if isinstance(decision, AccessDenied) and decision.response:
+                return decision.response
+            if decision:
                 return view_func(request, *args, **kwargs)
             if not request.user.is_authenticated():
                 return redirect_to_login(request.path)
