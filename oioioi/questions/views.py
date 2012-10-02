@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from oioioi.base.menu import menu_registry
-from oioioi.messages.models import Message, message_kinds, MessageView
+from oioioi.questions.models import Message, message_kinds, MessageView
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.views import visible_problem_instances
 from oioioi.base.permissions import enforce_condition
@@ -59,7 +59,7 @@ def messages_template_context(request, messages):
 @enforce_condition(can_enter_contest)
 def messages_view(request, contest_id):
     messages = messages_template_context(request, visible_messages(request))
-    return TemplateResponse(request, 'messages/list.html',
+    return TemplateResponse(request, 'questions/list.html',
                 {'records': messages})
 
 @enforce_condition(can_enter_contest)
@@ -75,7 +75,7 @@ def message_view(request, contest_id, message_id):
     if request.user.is_authenticated():
         for m in [message] + replies:
             MessageView.objects.get_or_create(message=m, user=request.user)
-    return TemplateResponse(request, 'messages/message.html',
+    return TemplateResponse(request, 'questions/message.html',
                 {'message': message, 'replies': replies,
                     'reply_to_id': message.top_reference_id or message.id})
 
@@ -145,7 +145,7 @@ def add_contest_message_view(request, contest_id):
     else:
         title = _("Ask question")
 
-    return TemplateResponse(request, 'messages/add.html',
+    return TemplateResponse(request, 'questions/add.html',
             {'form': form, 'title': title, 'is_announcement': is_admin})
 
 def quote_for_reply(content):
@@ -170,5 +170,5 @@ def add_reply_view(request, contest_id, message_id):
                 'content': quote_for_reply(question.content),
             })
 
-    return TemplateResponse(request, 'messages/add.html',
+    return TemplateResponse(request, 'questions/add.html',
             {'form': form, 'title': _("Reply"), 'is_reply': True})
