@@ -1,12 +1,18 @@
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, redirect
+from django import forms
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from oioioi.contests.views import default_contest_view
 from oioioi.base.menu import account_menu_registry
 import traceback
+
+account_menu_registry.register('edit_profile', _("Edit profile"),
+        lambda request: reverse('edit_profile'), order=99)
 
 account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
@@ -37,3 +43,20 @@ def handler500(request):
         if hasattr(request, 'user') and request.user.is_superuser:
             message += '\n' + tb
         return HttpResponse(message, status=500, content_type='text/plain')
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
+
+@login_required
+def edit_profile_view(request):
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect(index_view)
+    else:
+        form = UserForm(instance=request.user)
+    return TemplateResponse(request, 'registration/registration_form.html',
+            {'form': form})

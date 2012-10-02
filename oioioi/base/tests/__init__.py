@@ -468,3 +468,25 @@ class TestAdmin(TestCase):
         response = self.client.post(url, {'post': 'yes'}, follow=True)
         self.assertIn('was deleted successfully', response.content)
         self.assertEqual(User.objects.filter(username='test_user').count(), 0)
+
+class TestBaseViews(TestCase):
+    fixtures = ['test_users']
+
+    def test_edit_profile(self):
+        self.client.login(username='test_user')
+        user = User.objects.get(username='test_user')
+        url = reverse('edit_profile')
+        response = self.client.get(url)
+        self.assertIn('registration/registration_form.html',
+                [t.name for t in response.templates])
+        self.assertEqual(response.context['form'].instance, user)
+
+        data = {'username': 'changed_user', 'first_name': 'fn',
+                'last_name': 'ln', 'email': 'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 0)
+        user = User.objects.get(username='changed_user')
+        self.assertEqual(user.first_name, 'fn')
+        self.assertEqual(user.last_name, 'ln')
+        self.assertEqual(user.email, 'foo@bar.com')
