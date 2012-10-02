@@ -25,6 +25,16 @@ Then OIOIOI and its dependencies can be installed by simply running::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
 
+Alternatively - if you want to setup oioioi for development checkout the code
+of sio2 using::
+
+  git clone git://github.com/sio2project/oioioi.git#egg=oioioi
+
+And then install it (inside virtualenv) using ::
+
+  python setup.py develop
+
+
 This will also store the source code in *venv/src*. There is no official release
 yet, so a simple ``pip install oioioi`` wouldn't work.
 
