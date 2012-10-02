@@ -5,7 +5,7 @@
 {% block title %}{% trans "Questions and announcements" %}{% endblock %}
 
 {% block content %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}            
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
 {% if is_admin %}
 <div class="corner-icons">
     <ul>

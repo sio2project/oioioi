@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from oioioi.base.menu import menu_registry
-from oioioi.messages.models import Message, message_kinds, MessageView
+from oioioi.questions.models import Message, message_kinds, MessageView
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.views import visible_problem_instances
 from oioioi.base.permissions import enforce_condition

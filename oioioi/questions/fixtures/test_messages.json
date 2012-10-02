@@ -1,7 +1,7 @@
 [
   {
     "pk": 1,
-    "model": "messages.message",
+    "model": "questions.message",
     "fields": {
       "problem_instance": null,
       "kind": "QUESTION",
@@ -16,7 +16,7 @@
   },
   {
     "pk": 2,
-    "model": "messages.message",
+    "model": "questions.message",
     "fields": {
       "problem_instance": 1,
       "kind": "QUESTION",
@@ -31,7 +31,7 @@
   },
   {
     "pk": 3,
-    "model": "messages.message",
+    "model": "questions.message",
     "fields": {
       "problem_instance": 1,
       "kind": "PRIVATE",
@@ -46,7 +46,7 @@
   },
   {
     "pk": 4,
-    "model": "messages.message",
+    "model": "questions.message",
     "fields": {
       "problem_instance": null,
       "kind": "PUBLIC",

@@ -87,7 +87,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.contests.processors.register_recent_contests',
     'oioioi.contests.processors.register_only_default_contest',
     'oioioi.problems.processors.dangling_problems_processor',
-    'oioioi.messages.processors.navbar_tip_processor',
+    'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
 )
 
@@ -133,7 +133,7 @@ INSTALLED_APPS = (
     'oioioi.programs',
     'oioioi.contests',
     'oioioi.sinolpack',
-    'oioioi.messages',
+    'oioioi.questions',
     'oioioi.rankings',
     'oioioi.sioworkers',
     'oioioi.base',

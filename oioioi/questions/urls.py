@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 
-contest_patterns = patterns('oioioi.messages.views',
+contest_patterns = patterns('oioioi.questions.views',
     url(r'^messages$', 'messages_view', name='contest_messages'),
     url(r'^messages/(?P<message_id>\d+)$', 'message_view', name='message'),
     url(r'^messages/(?P<message_id>\d+)/reply$', 'add_reply_view',
