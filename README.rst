@@ -25,18 +25,13 @@ Then OIOIOI and its dependencies can be installed by simply running::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
 
-Alternatively - if you want to setup oioioi for development checkout the code
-of sio2 using::
+or (for development)::
 
-  git clone git://github.com/sio2project/oioioi.git#egg=oioioi
-
-And then install it (inside virtualenv) using ::
-
+  git clone git://github.com/sio2project/oioioi.git
   python setup.py develop
 
-
-This will also store the source code in *venv/src*. There is no official release
-yet, so a simple ``pip install oioioi`` wouldn't work.
+The first option will also store the source code in *venv/src*. There is no
+official release yet, so a simple ``pip install oioioi`` wouldn't work.
 
 OIOIOI is a set of Django Applications, so you need to create a folder with
 Django settings and other deployment configuration::
