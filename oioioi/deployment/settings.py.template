@@ -110,6 +110,7 @@ USE_LOCAL_COMPILERS = True
 
 INSTALLED_APPS = (
 #    'oioioi.contestlogo',
+    'oioioi.avatar',
 #    'oioioi.teachers',
     'oioioi.dashboard',
     'oioioi.clock',
@@ -118,6 +119,7 @@ INSTALLED_APPS = (
 
 TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.logo_processor',
+    'oioioi.avatar.processors.gravatar',
 )
 
 AUTHENTICATION_BACKENDS += (

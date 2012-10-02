@@ -63,7 +63,8 @@
                 </li>
                 {% else %}
                 <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" id="navbar-username" class="dropdown-toggle {% if avatar %}has-avatar{% endif %}" data-toggle="dropdown">
+                    {% if avatar %}<img alt="avatar" width="25" height="25" src="{{ avatar }}">{% endif %}
                     <strong>{{ user.username }}</strong>
                     <b class="caret"></b>
                 </a>
