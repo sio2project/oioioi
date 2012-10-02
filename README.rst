@@ -28,7 +28,7 @@ Then OIOIOI and its dependencies can be installed by simply running::
 or (for development)::
 
   git clone git://github.com/sio2project/oioioi.git
-  python oioioi/setup.py develop
+  pip install -e oioioi
 
 The first option will also store the source code in *venv/src*. There is no
 official release yet, so a simple ``pip install oioioi`` wouldn't work.
