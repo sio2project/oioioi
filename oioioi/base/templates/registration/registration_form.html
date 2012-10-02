@@ -6,7 +6,9 @@
 {% block content %}
 <h1>{% trans 'Registration' %}</h1>
 
+{% if not form.instance %}
 <p>{% trans "Please fill the form below to register." %}</p>
+{% endif %}
 
 <form action="" method="post" class="form-horizontal">
     {% csrf_token %}
@@ -14,8 +16,7 @@
         {% include "ingredients/form.html" %}
     </fieldset>
     <div class="form-actions">
-        <input type="submit" class="btn btn-primary"
-            value="{% trans 'Register' %}" />
+        <input type="submit" class="btn btn-primary" value="{% trans 'Submit' %}" />
     </div>
 </form>
 

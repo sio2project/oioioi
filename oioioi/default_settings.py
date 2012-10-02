@@ -81,6 +81,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
+    'oioioi.base.processors.base_url',
     'oioioi.jotform.processors.jotform',
     'oioioi.clock.processors.navbar_clock_processor',
     'oioioi.contests.processors.register_current_contest',
