@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
-from oioioi.contests.models import Submission, ProblemInstance
+from oioioi.contests.models import Submission, ProblemInstance, Contest
 from oioioi.programs.models import Test, ModelSolution
+from oioioi.sinolpack.tests import get_test_filename
 
 class TestProgramsViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -77,3 +78,44 @@ class TestSubmissionAdmin(TestCase):
         self.assertIn('(sum.c)', response.content)
         self.assertIn('test_user', response.content)
         self.assertIn('subm_status subm_OK', response.content)
+
+class TestSubmittingAsAdmin(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def test_ignored_submission(self):
+        self.client.login(username='test_user')
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('IGNORED', response.content)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('IGNORED', response.content)
+
+        data = {
+            'problem_instance_id': pi.id,
+            'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
+            'user': 'test_user',
+            'kind': 'IGNORED'
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.count(), 1)
+        submission = Submission.objects.get()
+        self.assertEqual(submission.user.username, 'test_user')
+        self.assertEqual(submission.kind, 'IGNORED')
+
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Test User', response.content)
+
+        self.client.login(username='test_user')
+        url = reverse('my_submissions', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('(Ignored)', response.content)

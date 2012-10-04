@@ -4,6 +4,7 @@ from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 from oioioi.problems.models import Problem
 from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController
@@ -130,9 +131,24 @@ class ProgrammingContestController(ContestController):
         form.fields['file'] = forms.FileField(allow_empty_file=False,
                 validators=[validate_file_size], label=_("File"))
 
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            form.fields['user'] = forms.CharField(label=_("User"),
+                    initial=request.user.username)
+            def clean_user():
+                try:
+                    return User.objects.get(username=form.cleaned_data['user'])
+                except User.DoesNotExist:
+                    raise forms.ValidationError(_("User does not exist"))
+            form.clean_user = clean_user
+            form.fields['kind'] = forms.ChoiceField(choices=[
+                ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
+                label=_("Kind"))
+
     def create_submission(self, request, problem_instance, form_data):
-        submission = ProgramSubmission(user=request.user,
-                problem_instance=problem_instance)
+        submission = ProgramSubmission(
+                user=form_data.get('user', request.user),
+                problem_instance=problem_instance,
+                kind=form_data.get('kind', 'NORMAL'))
         file = form_data['file']
         submission.source_file.save(file.name, file)
         submission.save()

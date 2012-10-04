@@ -281,8 +281,8 @@ class ProblemFilter(AllValuesFieldListFilter):
     title = _("problem")
 
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user_login', 'user_full_name', 'date', 'problem_instance',
-            'status_display', 'score_display']
+    list_display = ['id', 'user_login', 'user_full_name', 'date',
+            'problem_instance_display', 'status_display', 'score_display']
     list_display_links = ['id', 'date']
     list_filter = ['user', 'problem_instance__problem__name', 'status']
     date_hierarchy = 'date'
@@ -312,6 +312,15 @@ class SubmissionAdmin(admin.ModelAdmin):
         return instance.user.get_full_name()
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
+
+    def problem_instance_display(self, instance):
+        if instance.kind != 'NORMAL':
+            return '%s (%s)' % (instance.problem_instance,
+                    instance.get_kind_display())
+        else:
+            return instance.problem_instance
+    problem_instance_display.short_description = _("Problem")
+    problem_instance_display.admin_order_field = 'problem_instance'
 
     def status_display(self, instance):
         return '<span class="subm_admin subm_status subm_%s">%s</span>' % \

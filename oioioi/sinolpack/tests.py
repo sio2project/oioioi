@@ -15,20 +15,22 @@ from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
         TestReport
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from nose.plugins.attrib import attr
+from nose.tools import nottest
 import os.path
 from cStringIO import StringIO
 import zipfile
 
-def _test_filename(name):
+@nottest
+def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
 
 class TestSinolPackage(TestCase):
     def test_identify_zip(self):
-        filename = _test_filename('test_simple_package.zip')
+        filename = get_test_filename('test_simple_package.zip')
         self.assert_(SinolPackageBackend().identify(filename))
 
     def test_identify_tgz(self):
-        filename = _test_filename('test_full_package.tgz')
+        filename = get_test_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
 
     def _check_full_package(self, problem, doc=True):
@@ -99,7 +101,7 @@ class TestSinolPackage(TestCase):
 
     @attr('slow')
     def test_full_unpack_update(self):
-        filename = _test_filename('test_full_package.tgz')
+        filename = get_test_filename('test_full_package.tgz')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self._check_full_package(problem)
@@ -110,7 +112,7 @@ class TestSinolPackage(TestCase):
         self._check_full_package(problem)
 
     def test_title_in_config_yml(self):
-        filename = _test_filename('test_simple_package.zip')
+        filename = get_test_filename('test_simple_package.zip')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
@@ -121,7 +123,7 @@ class TestSinolPackageInContest(TestCase):
     def test_upload_and_download_package(self):
         contest = Contest.objects.get()
         round = Round.objects.get()
-        filename = _test_filename('test_simple_package.zip')
+        filename = get_test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id})
@@ -209,10 +211,9 @@ class TestJudging(TestCase):
         pi_id = form.fields['problem_instance_id'].choices[0][0]
 
         # Submit
-        filename = _test_filename('sum-various-results.cpp')
+        filename = get_test_filename('sum-various-results.cpp')
         response = self.client.post(url, {
             'problem_instance_id': pi_id, 'file': open(filename, 'rb')})
-        print response
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Submission.objects.count(), 1)
         self.assertEqual(TestReport.objects.count(), 6)
