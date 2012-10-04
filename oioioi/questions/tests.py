@@ -2,9 +2,9 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
-from oioioi.messages.models import Message
+from oioioi.questions.models import Message
 
-class TestMessages(TestCase):
+class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_messages']
 

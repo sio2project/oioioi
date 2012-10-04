@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ungettext
 from django.utils.functional import lazy
 from oioioi.base.utils import make_navbar_badge
-from oioioi.messages.views import new_messages, visible_messages
+from oioioi.questions.views import new_messages, visible_messages
 
 def navbar_tip_processor(request):
     if not getattr(request, 'contest', None):

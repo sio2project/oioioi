@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.utils import ObjectWithMixins
-from oioioi.messages.models import Message
+from oioioi.questions.models import Message
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'topic', 'author']

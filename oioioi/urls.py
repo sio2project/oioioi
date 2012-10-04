@@ -5,7 +5,7 @@ import oioioi.base.registration_backend
 import oioioi.contests.urls
 import oioioi.problems.urls
 import oioioi.programs.urls
-import oioioi.messages.urls
+import oioioi.questions.urls
 import oioioi.rankings.urls
 import oioioi.dashboard.urls
 from oioioi.base import admin
@@ -31,7 +31,7 @@ urlpatterns += oioioi.base.registration_backend.urlpatterns
 urlpatterns += oioioi.contests.urls.urlpatterns
 urlpatterns += oioioi.problems.urls.urlpatterns
 urlpatterns += oioioi.programs.urls.urlpatterns
-urlpatterns += oioioi.messages.urls.urlpatterns
+urlpatterns += oioioi.questions.urls.urlpatterns
 urlpatterns += oioioi.rankings.urls.urlpatterns
 urlpatterns += oioioi.dashboard.urls.urlpatterns
 
