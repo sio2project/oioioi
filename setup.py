@@ -41,8 +41,13 @@ setup(
         "django-extensions",
         "werkzeug",
 
-        # Earlier versions do not provide nose.plugins.attrib.attr decorator.
-        "nose >= 0.11.1",
+        # Old versions have buggy coverage reports generation, raising
+        # an exception like this:
+        #
+        #  IOError: [Errno 13] Permission denied: '/usr/share/pyshared/PIL/__init__.py,cover'
+        #
+        "nose >= 1.1",
+        
         "nose-capturestderr",
         "nose-html",
         "nose-profile",
