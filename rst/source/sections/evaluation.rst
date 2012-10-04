@@ -70,9 +70,9 @@ Environment for submission evaluation
 
 The evaluation environment is created when a new submission arrives or a
 rejudge request is received. The environment is built by
-:meth:`~oioioi.contests.controllers.ContestController.build_evaluation_environ`.
+:meth:`~oioioi.contests.controllers.ContestController.fill_evaluation_environ`.
 
-.. automethod:: oioioi.contests.controllers.ContestController.build_evaluation_environ
+.. automethod:: oioioi.contests.controllers.ContestController.fill_evaluation_environ
     :noindex:
 
 What's in the environment?
