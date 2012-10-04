@@ -53,7 +53,7 @@ setup(
         "nose-profile",
 
         "filetracker>=1.0.dev",
-        "sioworkers",
+        "sioworkers>=0.91",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
