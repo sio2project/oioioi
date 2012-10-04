@@ -11,10 +11,10 @@
 <script type="text/javascript" src="{{ STATIC_URL }}teachers/ZeroClipboard.min.js"></script>
 {% endblock %}
 
-{% block title %}{% trans "Contest participants" %}{% endblock %}
+{% block title %}{% trans "Contest pupils" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "Contest participants" %}</h2>
+<h2>{% trans "Contest pupils" %}</h2>
 {% if registration_config.is_active %}
 <p>{% trans "To allow a user to access this contest, ask him/her to visit the following link:" %}
 <pre>{{ registration_link }}</pre>
@@ -45,7 +45,7 @@
 </p>
 {% endif %}
 
-<form action="{% url teachers_delete_participants contest_id=contest.id %}" class="teachers-delete-participants" method="post">
+<form action="{% url teachers_delete_pupils contest_id=contest.id %}" class="teachers-delete-pupils" method="post">
     {% csrf_token %}
     <h3 style="margin-top: 1em">{% trans "Teachers" %}</h3>
     {% if teachers %}
@@ -56,36 +56,36 @@
     <p class="info">{% trans "No teachers." %}
     {% endif %}
 
-    <h3 style="margin-top: 1em">{% trans "Participants" %}</h3>
-    {% if participants %}
+    <h3 style="margin-top: 1em">{% trans "Pupils" %}</h3>
+    {% if pupils %}
     <div class="row-fluid">
-        {% for sublist in participants|partition:"3" %}
+        {% for sublist in pupils|partition:"3" %}
         <div class="span4">
-            {% for participant in sublist %}
-                <label class="checkbox"><input type="checkbox" name="participant" value="{{ participant.id }}">{{ participant.get_full_name }}</label>
+            {% for pupil in sublist %}
+                <label class="checkbox"><input type="checkbox" name="pupil" value="{{ pupil.id }}">{{ pupil.get_full_name }}</label>
             {% endfor %}
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <p class="info">{% trans "No participants." %}
+    <p class="info">{% trans "No pupils." %}
     {% endif %}
 
     <h3 style="margin-top: 1em">{% trans "Actions" %}</h3>
     <div class="info btn-toolbar">
         <button type="button" class="btn"
-            onclick="$('.teachers-delete-participants input[type=\'checkbox\'][name=\'participant\']').not('[disabled]').attr('checked', 'checked')">{% trans "Select participants" %}</button>
+            onclick="$('.teachers-delete-pupils input[type=\'checkbox\'][name=\'pupil\']').not('[disabled]').attr('checked', 'checked')">{% trans "Select pupils" %}</button>
         <button type="button" class="btn"
-            onclick="$('.teachers-delete-participants input[type=\'checkbox\'][name=\'teacher\']').not('[disabled]').attr('checked', 'checked')">{% trans "Select teachers" %}</button>
+            onclick="$('.teachers-delete-pupils input[type=\'checkbox\'][name=\'teacher\']').not('[disabled]').attr('checked', 'checked')">{% trans "Select teachers" %}</button>
         <button type="button" class="btn"
-            onclick="$('.teachers-delete-participants input[type=\'checkbox\']').not('[disabled]').removeAttr('checked')">{% trans "Select none" %}</button>
+            onclick="$('.teachers-delete-pupils input[type=\'checkbox\']').not('[disabled]').removeAttr('checked')">{% trans "Select none" %}</button>
         <button type="submit" class="btn btn-danger">{% trans "Delete selected" %}</button>
         {% if other_contests %}
         <div class="btn-group">
             <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Add from other contest" %} <span class="caret"></span></button>
             <ul class="dropdown-menu">
                 {% for c in other_contests %}
-                <li><a href="{% url teachers_bulk_add_participants contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
+                <li><a href="{% url teachers_bulk_add_pupils contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
                 {% endfor %}
             </ul>
         </div>
