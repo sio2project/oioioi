@@ -5,8 +5,7 @@
 
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
-        {% block head %}
-
+    {% block head %}
         <title>{% block title %}OIOIOI{% endblock %}</title>
         {% block styles %}
         {% compress css %}
@@ -16,11 +15,11 @@
         {% endblock %}
 
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <link rel="shortcut icon" href="{{ STATIC_URL }}/favicon.ico" />
+        <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
 
         {% block scripts %}
         {% compress js %}
-        <script type="text/javascript"> var oioioi_base_url ="/"; </script>
+        <script type="text/javascript">var oioioi_base_url = "{{ base_url|escapejs }}";</script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.7.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.Storage.js"></script>
