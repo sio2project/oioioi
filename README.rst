@@ -67,7 +67,8 @@ Ensure that required dependencies are installed:
 * latex with support for Polish (Ubuntu packages: *texlive-latex*,
   *texlive-lang-polish*)
 * lessc (`LESS`_ compiler, **minimum version 1.3.0**; on Ubuntu install *npm*
-  and then run ``sudo npm install --global less``)
+  and then run ``sudo npm install --global less``; can also `be installed inside
+  virtualenv`_)
 
 and in one terminal run the Django web server::
 
@@ -89,6 +90,7 @@ Now you're ready to access the site at *http://localhost:8000*.
 
 .. _LESS: http://lesscss.org/
 .. _many nice features: https://github.com/rfk/django-supervisor#usage
+.. _be installed inside virtualenv: http://stackoverflow.com/questions/8986709/how-to-install-lessc-and-nodejs-in-a-python-virtualenv
 
 Production configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
