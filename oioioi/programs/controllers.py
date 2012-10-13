@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -112,8 +113,17 @@ class ProgrammingContestController(ContestController):
                 ('update_submission_score',
                     'oioioi.contests.handlers.update_submission_score'))
 
+    def get_submission_size_limit(self):
+        return 102400  # in bytes
+
     def adjust_submission_form(self, request, form):
-        form.fields['file'] = forms.FileField(allow_empty_file=False)
+        size_limit = self.get_submission_size_limit()
+        def validate_file_size(file):
+            if file.size > size_limit:
+                raise ValidationError(_("File size limit exceeded."))
+
+        form.fields['file'] = forms.FileField(allow_empty_file=False,
+                validators=[validate_file_size], label=_("File"))
 
     def create_submission(self, request, problem_instance, form_data):
         submission = ProgramSubmission(user=request.user,

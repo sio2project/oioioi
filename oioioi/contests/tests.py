@@ -408,3 +408,32 @@ class TestAttachments(TestCase):
         response = self.client.get(reverse('problem_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
         self.assertEqual(response.content, 'content-of-probatt')
+
+class TestSubmission(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def submit_file(self, file_size):
+        contest = Contest.objects.get()
+        problem = Problem.objects.get()
+
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        huge_file = ContentFile('a'*file_size, name='submission.cpp')
+        post_data = {
+            'problem_instance_id': problem.id,
+            'file': huge_file
+        }
+        return self.client.post(url, post_data)
+
+    def test_huge_submission(self):
+        self.client.login(username='test_user')
+        response = self.submit_file(102405)
+        self.assertIn('File size limit exceeded.', response.content)
+
+    def test_size_limit_accuracy(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_user')
+        response = self.submit_file(102400)
+        self.assertEqual(302, response.status_code)
+        submissions = reverse('my_submissions',
+                              kwargs={'contest_id': contest.id})
+        self.assertTrue(response["Location"].endswith(submissions))
