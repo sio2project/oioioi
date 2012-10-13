@@ -126,6 +126,9 @@ class SubmissionForm(forms.Form):
     def clean(self):
         cleaned_data = forms.Form.clean(self)
 
+        if 'problem_instance_id' not in cleaned_data:
+            return cleaned_data
+
         try:
             pi = ProblemInstance.objects.filter(contest=self.request.contest) \
                     .get(id=cleaned_data['problem_instance_id'])
