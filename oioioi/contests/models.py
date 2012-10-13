@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import get_valid_filename
@@ -111,6 +112,11 @@ class Round(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    def clean(self):
+        if self.start_date and self.end_date and \
+           self.start_date > self.end_date:
+            raise ValidationError(_("Start date should be before end date."))
 
 @receiver(pre_save, sender=Round)
 def _generate_round_id(sender, instance, raw, **kwargs):

@@ -36,6 +36,10 @@ class SimpleContestForm(forms.ModelForm):
         self.initial['end_date'] = None
         self.initial['results_date'] = None
 
+    def _set_dates(self, round):
+        for date in ['start_date', 'end_date', 'results_date']:
+            setattr(round, date, self.cleaned_data.get(date, None))
+
     def __init__(self, *args, **kwargs):
         super(SimpleContestForm, self).__init__(*args, **kwargs)
         if 'instance' in kwargs:
@@ -54,6 +58,13 @@ class SimpleContestForm(forms.ModelForm):
         else:
             self._generate_default_dates()
 
+    def clean(self):
+        cleaned_data = super(SimpleContestForm, self).clean()
+        round = Round()
+        self._set_dates(round)
+        round.clean()
+        return cleaned_data
+
     def save(self, commit=True):
         instance = super(SimpleContestForm, self).save(commit=False)
         rounds = instance.round_set.all()
@@ -65,9 +76,7 @@ class SimpleContestForm(forms.ModelForm):
         else:
             instance.save()
             round = Round(contest=instance, name=_("Round 1"))
-        round.start_date = self.cleaned_data['start_date']
-        round.end_date = self.cleaned_data['end_date']
-        round.results_date = self.cleaned_data['results_date']
+        self._set_dates(round)
         round.save()
 
         if commit:

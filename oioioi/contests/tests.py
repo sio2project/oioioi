@@ -380,6 +380,23 @@ class TestContestAdmin(TestCase):
         self.assertEqual(round.results_date,
                 datetime(2013, 2, 5, 16, 7, 8, tzinfo=LocalTimezone()))
 
+        url = reverse('oioioiadmin:contests_contest_change', args=('cid',)) \
+                + '?simple=true'
+        response = self.client.get(url)
+        post_data = {
+                'name': 'cname1',
+                'start_date_0': '2013-02-03',
+                'start_date_1': '14:05:06',
+                'end_date_0': '2013-02-01',
+                'end_date_1': '15:06:07',
+                'results_date_0': '2013-02-05',
+                'results_date_1': '16:07:08',
+            }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Start date should be before end date.",
+                response.content)
+
 class TestAttachments(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
