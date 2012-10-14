@@ -38,7 +38,7 @@ class SimpleContestForm(forms.ModelForm):
 
     def _set_dates(self, round):
         for date in ['start_date', 'end_date', 'results_date']:
-            setattr(round, date, self.cleaned_data.get(date, None))
+            setattr(round, date, self.cleaned_data.get(date))
 
     def __init__(self, *args, **kwargs):
         super(SimpleContestForm, self).__init__(*args, **kwargs)
