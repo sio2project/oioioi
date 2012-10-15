@@ -12,6 +12,7 @@ INSTALLED_APPS = (
     'oioioi.teachers',
     'oioioi.dashboard',
     'oioioi.clock',
+    'oioioi.ipdnsauth',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (
