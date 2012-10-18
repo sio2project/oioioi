@@ -11,8 +11,10 @@
     <ul>
         <li><a class="btn btn-small" href="{% url oioioiadmin:auth_user_change message.author_id %}">
             <i class="icon-user"></i> {% trans "Display user" %}</a></li>
+        {% if message.can_have_replies %}
         <li><a class="btn btn-small" href="{% url message_reply contest_id=contest.id message_id=reply_to_id %}">
             <i class="icon-pencil"></i> {% trans "Reply" %}</a></li>
+        {% endif %}
     </ul>
 </div>
 {% endif %}

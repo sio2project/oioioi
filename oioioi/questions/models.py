@@ -25,6 +25,9 @@ class Message(models.Model):
     content = models.TextField()
     date = models.DateTimeField(auto_now_add=True, editable=False)
 
+    def can_have_replies(self):
+        return self.kind == 'QUESTION'
+
     def save(self):
         if self.top_reference:
             self.contest = self.top_reference.contest
