@@ -454,3 +454,18 @@ class TestSubmission(TestCase):
         submissions = reverse('my_submissions',
                               kwargs={'contest_id': contest.id})
         self.assertTrue(response["Location"].endswith(submissions))
+
+    def test_submit_limitation(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_user')
+
+        for i in range(10):
+            response = self.submit_file(1)
+            self.assertEqual(302, response.status_code)
+            submissions = reverse('my_submissions',
+                              kwargs={'contest_id': contest.id})
+            self.assertTrue(response["Location"].endswith(submissions))
+
+        response = self.submit_file(1)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('Submission limit for the problem', response.content)
