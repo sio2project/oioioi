@@ -112,6 +112,7 @@ INSTALLED_APPS = (
 #    'oioioi.contestlogo',
 #    'oioioi.teachers',
 #    'oioioi.ipdnsauth',
+#    'oioioi.sio1sync',
     'oioioi.dashboard',
     'oioioi.clock',
 ) + INSTALLED_APPS
