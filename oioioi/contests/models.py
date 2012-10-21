@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import get_valid_filename
 from django.core.validators import validate_slug
@@ -97,7 +98,7 @@ class ContestAttachment(models.Model):
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     name = models.CharField(max_length=255, verbose_name=_("name"))
-    start_date = models.DateTimeField(default=datetime.datetime.now,
+    start_date = models.DateTimeField(default=timezone.now,
             verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True,
             verbose_name=_("end date"))
@@ -175,7 +176,7 @@ class Submission(models.Model):
             verbose_name=_("problem"))
     user = models.ForeignKey(User, blank=True, null=True,
             verbose_name=_("user"))
-    date = models.DateTimeField(default=datetime.datetime.now, blank=True,
+    date = models.DateTimeField(default=timezone.now, blank=True,
             verbose_name=_("date"))
     kind = EnumField(submission_kinds, default='NORMAL',
             verbose_name=_("kind"))

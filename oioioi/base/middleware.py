@@ -1,5 +1,4 @@
-from django.utils.timezone import get_current_timezone
-import datetime
+from django.utils import timezone
 
 class TimestampingMiddleware(object):
     """Middleware which adds an attribute ``timestamp`` to each ``request``
@@ -11,4 +10,4 @@ class TimestampingMiddleware(object):
     """
 
     def process_request(self, request):
-        request.timestamp = datetime.datetime.now(get_current_timezone())
+        request.timestamp = timezone.now()

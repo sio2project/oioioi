@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 TEMPLATE = '<li><a href="{{ link }}"><span class="label label-important">' \
     '{{ text }}</span></a></li>'
 
@@ -6,5 +8,5 @@ def navbar_clock_processor(request):
     if not timestamp:
         return {}
     html = '<li><a href="#" id="clock">%s</a></li>' % \
-            (timestamp.strftime('%X'),)
+            (timezone.localtime(timestamp).strftime('%X'),)
     return {'extra_navbar_right_clock': html}

@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 from django.core.exceptions import PermissionDenied, ValidationError, \
         ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
@@ -486,7 +487,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            The default implementation returns the wall clock time.
         """
-        return submission.date.strftime('%Y-%m-%d %H:%M:%S')
+        localtime = timezone.localtime(submission.date)
+        return localtime.strftime('%Y-%m-%d %H:%M:%S')
 
     def render_submission_score(self, submission):
         """Returns a human-readable representation of the submission score.
