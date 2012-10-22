@@ -1,0 +1,3 @@
+test_user localhost
+test_user2 some.dotted.domain
+test_user2 localhost
