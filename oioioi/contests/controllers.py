@@ -232,6 +232,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             cleaned_data):
         return cleaned_data
 
+    def get_submissions_limit(self):
+        return 10
+
     def create_submission(self, request, problem_instance, form_data):
         raise NotImplementedError
 

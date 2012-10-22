@@ -13,6 +13,7 @@ from oioioi.base.permissions import not_anonymous
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
+from oioioi.contests.controllers import ContestController
 from oioioi.contests.utils import visible_contests, can_enter_contest, is_contest_admin
 from oioioi.filetracker.utils import stream_file
 from oioioi.base.permissions import enforce_condition
@@ -138,6 +139,15 @@ class SubmissionForm(forms.Form):
                 _("Invalid problem")])
             del cleaned_data['problem_instance_id']
             return cleaned_data
+
+        submissions_number = Submission.objects \
+            .filter(user=self.request.user, problem_instance__id=pi.id) \
+            .count()
+        submissions_limit = \
+            self.request.contest.controller.get_submissions_limit()
+        if submissions_limit and submissions_number >= submissions_limit:
+            raise forms.ValidationError(_("Submission limit for the problem \
+                '%s' exceeded." % (pi.problem.name,)))
 
         decision = self.request.contest.controller.can_submit(self.request, pi)
         if not decision:
