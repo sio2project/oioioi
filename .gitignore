@@ -1,11 +1,10 @@
-virtualenv
-build
-dist
+/build/
+/dist/
+/test_report.html
+/.coverage
+/cover/
 *.egg
 *.egg-info
-test_report.html
-.coverage
-cover
 *.pid
 .DS_Store
 *.pyc
