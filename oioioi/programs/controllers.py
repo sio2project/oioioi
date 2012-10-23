@@ -96,12 +96,17 @@ class ProgrammingProblemController(ProblemController):
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
 
+    def get_compilation_result_size_limit(self):
+        return 5 * 1024 * 1024
+
     def fill_evaluation_environ(self, environ, submission):
         submission = submission.programsubmission
         environ['source_file'] = \
             django_to_filetracker_path(submission.source_file)
         environ['language'] = \
             os.path.splitext(submission.source_file.name)[1][1:]
+        environ['compilation_result_size_limit'] = \
+            self.get_compilation_result_size_limit()
 
         super(ProgrammingContestController,
                 self).fill_evaluation_environ(environ, submission)
