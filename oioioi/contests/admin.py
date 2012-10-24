@@ -10,12 +10,12 @@ from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
+from django.utils import timezone
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment
 from functools import partial
-import datetime
 import urllib
 
 class SimpleContestForm(forms.ModelForm):
@@ -31,7 +31,7 @@ class SimpleContestForm(forms.ModelForm):
             required=False, label=_("Results date"))
 
     def _generate_default_dates(self):
-        now = datetime.datetime.now()
+        now = timezone.now()
         self.initial['start_date'] = now
         self.initial['end_date'] = None
         self.initial['results_date'] = None
