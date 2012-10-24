@@ -271,7 +271,7 @@ def grade_groups(env, **kwargs):
 
     return env
 
-def grade_submission(env, **kwargs):
+def grade_submission(env, kind='NORMAL', **kwargs):
     """Grades submision on a `Job` layer.
 
        This `Handler` aggregetes score from graded groups and gets
@@ -296,7 +296,7 @@ def grade_submission(env, **kwargs):
 
     fun = get_object_by_dotted_name(env.get('score_aggregator')
             or DEFAULT_SCORE_AGGREGATOR)
-    group_results = dict(filter(lambda (name, res): res['kind'] == 'NORMAL',
+    group_results = dict(filter(lambda (name, res): res['kind'] == kind,
             env['group_results'].iteritems()))
     score, status = fun(group_results)
     assert isinstance(score, (types.NoneType, ScoreValue))
