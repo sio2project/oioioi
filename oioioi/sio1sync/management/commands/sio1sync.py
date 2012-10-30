@@ -104,10 +104,9 @@ def get_sio1_submissions_ids(sio1_submission_type=1):
     if not sync_env['problems']:
         return []
 
-    sql = 'SELECT id FROM submits WHERE in_sio2 = 0 AND task IN ('
-    for sio2_id, sio1_id in sync_env['problems']:
-        sql += sio1_id + ', '
-    sql = sql[:-2] + ') AND type = %s '
+    sql = 'SELECT id FROM submits WHERE in_sio2 = 0 AND task' \
+          ' IN (' + ', '.join(y for (x,y) in sync_env['problems']) + ')' \
+          ' AND type = %s'
 
     sync_env['sioCursor'].execute(sql, (sio1_submission_type))
     return [x[0] for x in sync_env['sioCursor'].fetchall()]
