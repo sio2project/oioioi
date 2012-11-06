@@ -1,0 +1,5 @@
+test_user 127.0.0.1
+test_user 127.0.0.3
+test_user2 that.line.should.be.ignored
+test_user 127.0.0.1
+test_user2 fe80::762f:68ff:fedd:9bd8
