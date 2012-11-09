@@ -1,0 +1,26 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Printing" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Printing" %}</h2>
+{% if success_message %}
+<div class="alert alert-success">
+    {{ success_message }}
+</div>
+{% endif %}
+{% if error_message %}
+<div class="alert alert-error">
+    <strong>{% trans "Error occurred while printing." %}</strong>
+    <pre>{{ error_message }}</pre>
+</div>
+{% endif %}
+<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Print" %}">
+    </div>
+</form>
+{% endblock %}

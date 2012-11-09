@@ -47,13 +47,17 @@ setup(
         #  IOError: [Errno 13] Permission denied: '/usr/share/pyshared/PIL/__init__.py,cover'
         #
         "nose >= 1.1",
-        
+
         "nose-capturestderr",
         "nose-html",
         "nose-profile",
 
         "filetracker>=1.0.dev",
         "sioworkers>=0.92",
+
+        "fpdf",
+        "pdfminer",
+        "slate"
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
