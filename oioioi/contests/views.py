@@ -14,7 +14,8 @@ from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.controllers import ContestController
-from oioioi.contests.utils import visible_contests, can_enter_contest, is_contest_admin
+from oioioi.contests.utils import visible_contests, can_enter_contest, \
+        is_contest_admin
 from oioioi.filetracker.utils import stream_file
 from oioioi.base.permissions import enforce_condition
 import sys

@@ -116,6 +116,7 @@ INSTALLED_APPS = (
     'oioioi.dashboard',
     'oioioi.clock',
 #    'oioioi.participants',
+#    'oioioi.oi',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

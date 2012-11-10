@@ -1,0 +1,12 @@
+{% load i18n %}
+{% for suffix, opts, selected in options %}
+<p>
+<select name="{{ attr.name }}{{ suffix }}" id="{{ attr.id }}{{ suffix }}">
+    {% for x, y in opts %}
+    <option value="{{x}}" {% if x == selected %}selected{% endif %}>
+    {{y}}
+    </option>
+    {% endfor %}
+</select>
+</p>
+{% endfor %}
