@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
 from oioioi.contests.models import Submission
 from oioioi.base.permissions import enforce_condition
-from oioioi.contests.views import submission_template_context
+from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.utils import can_enter_contest
 from oioioi.rankings.views import any_ranking_visible
 from oioioi.base.menu import MenuRegistry, menu_registry

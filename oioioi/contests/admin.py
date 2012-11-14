@@ -1,89 +1,19 @@
-from django.conf.urls import patterns, include, url
+from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
+from django.contrib.admin.util import unquote
 from django.core.urlresolvers import reverse
+from django.forms.models import modelform_factory
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseRedirect
-from django import forms
-from django.forms.models import modelform_factory
-from django.contrib.admin import widgets, AllValuesFieldListFilter, \
-        SimpleListFilter
-from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
-from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
-from django.utils import timezone
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension
+from oioioi.contests.forms import SimpleContestForm, ProblemInstanceForm
 from functools import partial
 import urllib
-
-class SimpleContestForm(forms.ModelForm):
-    class Meta:
-        model = Contest
-        fields = ['name', 'id', 'controller_name']
-
-    start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            label=_("Start date"))
-    end_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False, label=_("End date"))
-    results_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False, label=_("Results date"))
-
-    def _generate_default_dates(self):
-        now = timezone.now()
-        self.initial['start_date'] = now
-        self.initial['end_date'] = None
-        self.initial['results_date'] = None
-
-    def _set_dates(self, round):
-        for date in ['start_date', 'end_date', 'results_date']:
-            setattr(round, date, self.cleaned_data.get(date))
-
-    def __init__(self, *args, **kwargs):
-        super(SimpleContestForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs:
-            instance = kwargs['instance']
-            rounds = instance.round_set.all()
-            if len(rounds) > 1:
-                raise ValueError("SimpleContestForm does not support contests "
-                        "with more than one round.")
-            if len(rounds) == 1:
-                round = rounds[0]
-                self.initial['start_date'] = round.start_date
-                self.initial['end_date'] = round.end_date
-                self.initial['results_date'] = round.results_date
-            else:
-                self._generate_default_dates()
-        else:
-            self._generate_default_dates()
-
-    def clean(self):
-        cleaned_data = super(SimpleContestForm, self).clean()
-        round = Round()
-        self._set_dates(round)
-        round.clean()
-        return cleaned_data
-
-    def save(self, commit=True):
-        instance = super(SimpleContestForm, self).save(commit=False)
-        rounds = instance.round_set.all()
-        if len(rounds) > 1:
-            raise ValueError("SimpleContestForm does not support contests "
-                    "with more than one round.")
-        if len(rounds) == 1:
-            round = rounds[0]
-        else:
-            instance.save()
-            round = Round(contest=instance, name=_("Round 1"))
-        self._set_dates(round)
-        round.save()
-
-        if commit:
-            instance.save()
-
-        return instance
 
 class RoundInline(admin.StackedInline):
     model = Round
@@ -184,13 +114,6 @@ admin.contest_admin_menu_registry.register('contest_change',
         _("Settings"),
         lambda request: reverse('oioioiadmin:contests_contest_change',
             args=(request.contest.id,)), order=20)
-
-class ProblemInstanceForm(forms.ModelForm):
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        super(ProblemInstanceForm, self).__init__(*args, **kwargs)
-        if instance:
-            self.fields['round'].queryset = instance.contest.round_set
 
 class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm

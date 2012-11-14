@@ -7,10 +7,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.util import unquote
 from django.conf.urls import patterns, url
-from django import forms
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link, uploaded_file_name
 from oioioi.contests.models import Contest, Round, ProblemInstance
+from oioioi.problems.forms import ProblemUploadForm
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.problems.package import backend_for_package
@@ -50,22 +50,6 @@ class AttachmentInline(admin.TabularInline):
 
     def has_delete_permission(self, request):
         return False
-
-class ProblemUploadForm(forms.Form):
-    contest_id = forms.CharField(widget=forms.HiddenInput, required=False)
-    package_file = forms.FileField(label=_("Package file"))
-
-    def __init__(self, contest, *args, **kwargs):
-        super(ProblemUploadForm, self).__init__(*args, **kwargs)
-
-        if contest:
-            choices = [(r.id, r.name) for r in contest.round_set.all()]
-            if len(choices) == 1:
-                self.fields.insert(0, 'round_id', forms.CharField(
-                    widget=forms.HiddenInput, initial=choices[0][0]))
-            else:
-                self.fields.insert(0, 'round_id', forms.ChoiceField(
-                    choices, label=_("Round")))
 
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [StatementInline, AttachmentInline]

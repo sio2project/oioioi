@@ -1,5 +1,4 @@
 from django.conf import settings
-from django import forms
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
@@ -17,6 +16,7 @@ from oioioi.contests.models import Contest
 from oioioi.teachers.models import RegistrationConfig, Pupil, \
         ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
+from oioioi.teachers.forms import AddTeacherForm
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.utils import is_contest_admin
 
@@ -35,29 +35,6 @@ admin.contest_admin_menu_registry.register('teachers_pupils',
 account_menu_registry.register('new_teacher', _("Request teacher account"),
         lambda request: reverse(add_teacher_view), condition=is_not_teacher,
         order=100)
-
-class AddTeacherForm(forms.ModelForm):
-    class Meta:
-        model = Teacher
-        fields = ['school']
-
-    school = forms.CharField(
-            label=_("School"),
-            help_text=mark_safe(_("Please provide the full name. If the "
-                "school is a part of a larger organization of schools, "
-                "<br>enter the name of this organization.")),
-            widget=forms.TextInput(attrs={'class': 'input-xxlarge'}))
-
-    message = forms.CharField(
-            label=_("Message"),
-            help_text=_("Optional. If provided, this message will be sent "
-                "to the managers."),
-            required=False,
-            widget=forms.Textarea(attrs={'class': 'input-xxlarge', 'rows': 10}))
-
-    def clean_school(self):
-        data = self.cleaned_data['school']
-        return ' '.join(data.splitlines())
 
 def send_request_email(request, teacher, message):
     context = {

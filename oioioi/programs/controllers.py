@@ -10,7 +10,7 @@ from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, FailureReport, \
         ScoreReport
-from oioioi.contests.views import submission_template_context
+from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport
 from oioioi.filetracker.utils import django_to_filetracker_path

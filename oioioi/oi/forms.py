@@ -1,11 +1,23 @@
 # coding: utf-8
 
 from django import forms
+from django.forms import ValidationError
 from django.forms.extras.widgets import SelectDateWidget
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from oioioi.oi.models import OIRegistration, PROVINCES, School
+from oioioi.oi.models import OIRegistration, PROVINCES, School, Region
 import datetime
+
+class RegionForm(forms.ModelForm):
+    class Meta:
+        model = Region
+
+    def clean_short_name(self):
+        if self.request_contest \
+                and Region.objects.filter(contest=self.request_contest,
+                short_name=self.cleaned_data['short_name']).exists():
+            raise ValidationError(_("Region with this name already exists."))
+        return self.cleaned_data['short_name']
 
 def city_options(province):
     cities = School.objects.filter(province=province).order_by('city') \

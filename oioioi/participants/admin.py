@@ -1,26 +1,13 @@
 from django.contrib.admin.util import unquote
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.forms import ModelForm, ValidationError
 from oioioi.base import admin
+from oioioi.participants.forms import ParticipantForm
 from oioioi.participants.models import Participant
 
 def has_participants(request):
     rcontroller = request.contest.controller.registration_controller()
     return hasattr(rcontroller, 'participant_admin')
-
-class ParticipantForm(ModelForm):
-    class Meta:
-        model = Participant
-
-    def clean_user(self):
-        if self.request_contest and Participant.objects.filter(
-                contest=self.request_contest, user=self.cleaned_data['user']) \
-                .exists():
-            raise ValidationError(
-                    _("%s is already a participant of this contest.")
-                    % self.cleaned_data['user'].username)
-        return self.cleaned_data['user']
 
 class ParticipantAdmin(admin.ModelAdmin):
     list_select_related = True

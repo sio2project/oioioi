@@ -1,5 +1,24 @@
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, ProblemInstance
 
+def has_any_submittable_problem(request):
+    controller = request.contest.controller
+    for pi in ProblemInstance.objects.filter(contest=request.contest) \
+            .select_related():
+        if controller.can_submit(request, pi):
+            return True
+    return False
+
+def visible_problem_instances(request):
+    controller = request.contest.controller
+    queryset = ProblemInstance.objects.filter(contest=request.contest) \
+            .select_related('problem')
+    return [pi for pi in queryset if controller.can_see_problem(request, pi)]
+
+def submitable_problem_instances(request):
+    controller = request.contest.controller
+    queryset = ProblemInstance.objects.filter(contest=request.contest) \
+            .select_related('problem')
+    return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 def aggregate_statuses(statuses):
     """Returns first unsuccessful status or 'OK' if all are successful"""

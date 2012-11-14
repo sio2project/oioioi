@@ -19,6 +19,18 @@ from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
+def submission_template_context(request, submission):
+    controller = submission.problem_instance.contest.controller
+    can_see_status = controller.can_see_submission_status(request, submission)
+    can_see_score = controller.can_see_submission_score(request, submission)
+    can_see_comment = controller.can_see_submission_comment(request,
+            submission)
+    return {'submission': submission,
+            'can_see_status': can_see_status,
+            'can_see_score': can_see_score,
+            'can_see_comment': can_see_comment}
+
+
 class RoundTimes(object):
     def __init__(self, start, end, show_results, round_id):
         self.start = start

@@ -1,23 +1,12 @@
 from django.conf.urls import patterns, url
 from django.contrib.sites.models import RequestSite
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
-from django import forms
-
 from registration import signals
-from registration.forms import RegistrationForm
 from registration.models import RegistrationProfile
 from registration.backends.default import DefaultBackend
+from oioioi.base.forms import RegistrationFormWithNames
 import registration.backends.default.urls
 import registration.views
-
-class RegistrationFormWithNames(RegistrationForm):
-    def __init__(self, *args, **kwargs):
-        super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
-        self.fields.insert(1, 'first_name',
-                forms.CharField(label=_("First name")))
-        self.fields.insert(2, 'last_name',
-                forms.CharField(label=_("Last name")))
 
 class Backend(DefaultBackend):
     def register(self, request, username, password1, email, first_name,

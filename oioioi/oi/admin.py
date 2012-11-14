@@ -1,27 +1,15 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.forms import ModelForm, ValidationError
 from oioioi.base import admin
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
-from oioioi.oi.forms import OIRegistrationForm
+from oioioi.oi.forms import OIRegistrationForm, RegionForm
 
 def is_onsite_contest(request):
     rcontroller = request.contest.controller.registration_controller()
     return issubclass(getattr(rcontroller, 'participant_admin', None),
                       OIOnsiteRegistrationParticipantAdmin)
-
-class RegionForm(ModelForm):
-    class Meta:
-        model = Region
-
-    def clean_short_name(self):
-        if self.request_contest \
-                and Region.objects.filter(contest=self.request_contest,
-                short_name=self.cleaned_data['short_name']).exists():
-            raise ValidationError(_("Region with this name already exists."))
-        return self.cleaned_data['short_name']
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ('short_name', 'name')

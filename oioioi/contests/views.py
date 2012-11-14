@@ -1,46 +1,25 @@
 from django.conf import settings
-from django.shortcuts import get_object_or_404, redirect
-from django.template.response import TemplateResponse
-from django.http import HttpResponseRedirect
-from django import forms
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.contrib import messages
+from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import not_anonymous
-from oioioi.problems.models import ProblemStatement, ProblemAttachment
+from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.contests.controllers import submission_template_context
+from oioioi.contests.forms import SubmissionForm
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
-from oioioi.contests.controllers import ContestController
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
-        is_contest_admin
+        is_contest_admin, has_any_submittable_problem, \
+        visible_problem_instances
 from oioioi.filetracker.utils import stream_file
-from oioioi.base.permissions import enforce_condition
-import sys
+from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from operator import itemgetter
-
-def has_any_submittable_problem(request):
-    controller = request.contest.controller
-    for pi in ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related():
-        if controller.can_submit(request, pi):
-            return True
-    return False
-
-def visible_problem_instances(request):
-    controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related('problem')
-    return [pi for pi in queryset if controller.can_see_problem(request, pi)]
-
-def submitable_problem_instances(request):
-    controller = request.contest.controller
-    queryset = ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related('problem')
-    return [pi for pi in queryset if controller.can_submit(request, pi)]
-
+import sys
 
 menu_registry.register('problems_list', _("Problems"),
         lambda request: reverse('problems_list', kwargs={'contest_id':
@@ -111,54 +90,6 @@ def problem_statement_view(request, contest_id, problem_instance):
     statement = sorted(statements, key=sort_key)[0]
     return stream_file(statement.content)
 
-class SubmissionForm(forms.Form):
-    problem_instance_id = forms.ChoiceField(label=_("Problem"))
-
-    def __init__(self, request, *args, **kwargs):
-        forms.Form.__init__(self, *args, **kwargs)
-
-        self.request = request
-
-        pis = submitable_problem_instances(request)
-        pi_choices = [(pi.id, unicode(pi)) for pi in pis]
-        pi_field = self.fields['problem_instance_id']
-        pi_field.choices = pi_choices
-        pi_field.widget.attrs['class'] = 'input-xlarge'
-
-        request.contest.controller.adjust_submission_form(request, self)
-
-    def clean(self):
-        cleaned_data = forms.Form.clean(self)
-
-        if 'problem_instance_id' not in cleaned_data:
-            return cleaned_data
-
-        try:
-            pi = ProblemInstance.objects.filter(contest=self.request.contest) \
-                    .get(id=cleaned_data['problem_instance_id'])
-            cleaned_data['problem_instance'] = pi
-        except ProblemInstance.DoesNotExist:
-            self._errors['problem_instance_id'] = self.error_class([
-                _("Invalid problem")])
-            del cleaned_data['problem_instance_id']
-            return cleaned_data
-
-        submissions_number = Submission.objects \
-            .filter(user=self.request.user, problem_instance__id=pi.id) \
-            .count()
-        submissions_limit = \
-            self.request.contest.controller.get_submissions_limit()
-        if submissions_limit and submissions_number >= submissions_limit:
-            raise forms.ValidationError(_("Submission limit for the problem \
-                '%s' exceeded." % (pi.problem.name,)))
-
-        decision = self.request.contest.controller.can_submit(self.request, pi)
-        if not decision:
-            raise forms.ValidationError(str(decision.exc))
-
-        return self.request.contest.controller.validate_submission_form(
-                self.request, pi, self, cleaned_data)
-
 @enforce_condition(can_enter_contest)
 def submit_view(request, contest_id):
     if request.method == 'POST':
@@ -172,17 +103,6 @@ def submit_view(request, contest_id):
         if not form.fields['problem_instance_id'].choices:
             return TemplateResponse(request, 'contests/nothing_to_submit.html')
     return TemplateResponse(request, 'contests/submit.html', {'form': form})
-
-def submission_template_context(request, submission):
-    controller = submission.problem_instance.contest.controller
-    can_see_status = controller.can_see_submission_status(request, submission)
-    can_see_score = controller.can_see_submission_score(request, submission)
-    can_see_comment = controller.can_see_submission_comment(request,
-            submission)
-    return {'submission': submission,
-            'can_see_status': can_see_status,
-            'can_see_score': can_see_score,
-            'can_see_comment': can_see_comment}
 
 @enforce_condition(can_enter_contest)
 def my_submissions_view(request, contest_id):

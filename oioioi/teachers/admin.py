@@ -3,10 +3,11 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.forms.models import modelform_factory
 from oioioi.base import admin
-from oioioi.contests.admin import ContestAdmin, SimpleContestForm
+from oioioi.contests.admin import ContestAdmin
+from oioioi.teachers.forms import TeacherContestForm
+from oioioi.teachers.menu import teacher_menu_registry
 from oioioi.teachers.models import Teacher, ContestTeacher, \
         RegistrationConfig
-from oioioi.teachers.menu import teacher_menu_registry
 from functools import partial
 
 class TeacherAdmin(admin.ModelAdmin):
@@ -29,10 +30,6 @@ admin.system_admin_menu_registry.register('teachers', _("Teachers"),
         condition=(lambda request: request.user.is_superuser),
         order=20)
 
-class TeacherContestForm(SimpleContestForm):
-    class Meta(SimpleContestForm.Meta):
-        fields = ['name', 'id']
-
 class ContestAdminMixin(object):
     def has_add_permission(self, request):
         if request.user.has_perm('teachers.teacher'):
@@ -41,7 +38,8 @@ class ContestAdminMixin(object):
 
     def save_model(self, request, obj, form, change):
         if not request.user.is_superuser:
-            obj.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
+            obj.controller_name = \
+                    'oioioi.teachers.controllers.TeacherContestController'
         super(ContestAdminMixin, self).save_model(request, obj, form, change)
         if not change and request.user.has_perm('teachers.teacher'):
             try:
