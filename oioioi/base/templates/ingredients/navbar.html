@@ -43,14 +43,19 @@
                 {% endif %}
             {% endif %}
 
-            {% block navbar-left-extras %}{% endblock %}
-            {% all_with_prefix extra_navbar_left_ %}
+            <ul class="nav pull-left">
+                {% all_with_prefix extra_navbar_left_ %}
+                {% block navbar-left-extras %}{% endblock %}
+                {% load get_clocks %}
+                {% navbar_countdown %}
+            </ul>
 
             {% include "ingredients/language_picker_pro.html" %}
 
             <ul class="nav pull-right">
                 {% all_with_prefix extra_navbar_right_ %}
                 {% block navbar-right-extras %}{% endblock %}
+                {% navbar_clock %}
                 {% block navbar_user_panel %}
                 {% if user.is_anonymous %}
                 <li>
