@@ -36,6 +36,7 @@ setup(
         "linaro-django-pagination",
         "django-grappelli",
         "django-compressor",
+        "pygments",
 
         "django-debug-toolbar",
         "django-extensions",

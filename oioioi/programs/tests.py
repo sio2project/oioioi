@@ -4,6 +4,20 @@ from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Submission, ProblemInstance, Contest
 from oioioi.programs.models import Test, ModelSolution
 from oioioi.sinolpack.tests import get_test_filename
+from django.utils.html import strip_tags, escape
+
+# Don't Repeat Yourself.
+# Serves for both TestProgramsViews and TestProgramsXssViews
+def extract_code(show_response):
+    # Current version of pygments generates two <pre> tags,
+    # first for line numeration, second for code.
+    preFirst = show_response.content.find('</pre>') + 6
+    preStart = show_response.content.find('<pre>', preFirst) + 5
+    preEnd = show_response.content.find('</pre>', preFirst)
+    # Get substring and strip tags.
+    show_response.content = strip_tags(
+        show_response.content[preStart:preEnd]
+    )
 
 class TestProgramsViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -14,11 +28,18 @@ class TestProgramsViews(TestCase):
         submission = Submission.objects.get()
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
+        # Download shown response.
         show_response = self.client.get(reverse('show_submission_source',
             kwargs=kwargs))
         self.assertEqual(show_response.status_code, 200)
+        # Download plain text response.
         download_response = self.client.get(reverse(
             'download_submission_source', kwargs=kwargs))
+        # Extract code from <pre>'s
+        extract_code(show_response)
+        # Shown code has entities like &gt; - let's escape the plaintext.
+        download_response.content = escape(download_response.content)
+        # Now it should work.
         self.assertEqual(download_response.status_code, 200)
         self.assertEqual(show_response.content, download_response.content)
         self.assertIn('main()', show_response.content)
@@ -64,6 +85,36 @@ class TestProgramsViews(TestCase):
         self.assertEqual(response.content.count('subm_status subm_WA'), 6)
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)
         self.assertEqual(response.content.count('>10.00s<'), 5)
+
+class TestProgramsXssViews(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission_xss']
+
+    def test_submission_xss_views(self):
+        self.client.login(username='test_user')
+        submission = Submission.objects.get()
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                'submission_id': submission.id}
+        # Download shown response.
+        show_response = self.client.get(reverse('show_submission_source',
+            kwargs=kwargs))
+        self.assertEqual(show_response.status_code, 200)
+        # Download plain text response.
+        download_response = self.client.get(reverse(
+            'download_submission_source', kwargs=kwargs))
+        # Extract code from <pre>'s
+        extract_code(show_response)
+        # Shown code has entities like &gt; - let's escape the plaintext.
+        download_response.content = escape(download_response.content)
+        # Now it should work.
+        self.assertEqual(download_response.status_code, 200)
+        self.assertEqual(show_response.content, download_response.content)
+        self.assertEqual(show_response.content.find('<script>'), -1)
+        self.assertEqual(download_response.content.find('<script>'), -1)
+        self.assertIn('main()', show_response.content)
+        self.assertTrue(show_response.content.strip().endswith('}'))
+        self.assertTrue(download_response['Content-Disposition'].startswith(
+            'attachment'))
 
 class TestSubmissionAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

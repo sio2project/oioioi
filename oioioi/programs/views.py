@@ -1,11 +1,18 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
+from django.template.response import TemplateResponse
+
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.contests.views import check_submission_access
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
 from oioioi.contests.utils import can_enter_contest
+
+from pygments import highlight
+from pygments.lexers import guess_lexer_for_filename
+from pygments.formatters import HtmlFormatter
+from pygments.util import ClassNotFound
 
 @enforce_condition(can_enter_contest)
 def show_submission_source_view(request, contest_id, submission_id):
@@ -13,10 +20,26 @@ def show_submission_source_view(request, contest_id, submission_id):
     if contest_id != submission.problem_instance.contest_id:
         raise Http404
     check_submission_access(request, submission)
-    response = HttpResponse(submission.source_file.read(),
-            content_type='text/plain')
-    response['Content-Disposition'] = 'inline'
-    return response
+    raw_source = submission.source_file.read()
+    filename = submission.source_file.file.name
+    is_source_safe = True
+    try:
+        lexer = guess_lexer_for_filename(
+            filename,
+            raw_source
+        )
+        formatter = HtmlFormatter(linenos=True, cssclass='syntax-highlight')
+        formatted_source = highlight(raw_source, lexer, formatter)
+        formatted_source_css = HtmlFormatter().get_style_defs('.syntax-highlight')
+    except ClassNotFound:
+        formatted_source = raw_source
+        formatted_source_css = ''
+        is_source_safe = False
+    return TemplateResponse(request, 'programs/source.html', {
+        'source': formatted_source,
+        'css': formatted_source_css,
+        'is_source_safe': is_source_safe
+    })
 
 @enforce_condition(can_enter_contest)
 def download_submission_source_view(request, contest_id, submission_id):
