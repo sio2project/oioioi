@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.oi.models import OIRegistration, School
