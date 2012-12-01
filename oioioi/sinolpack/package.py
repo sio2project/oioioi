@@ -10,6 +10,7 @@ from oioioi.problems.package import ProblemPackageBackend, \
 from oioioi.programs.models import Test, OutputChecker, ModelSolution
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.filetracker.utils import stream_file
+import chardet
 import glob
 import logging
 import re
@@ -26,6 +27,13 @@ DEFAULT_MEMORY_LIMIT = 66000
 
 def _stringify_keys(dictionary):
     return dict((str(k), v) for k, v in dictionary.iteritems())
+
+def _decode(text):
+    result = chardet.detect(text)
+    if result['encoding'] == 'utf-8':
+        return text.decode('utf-8')
+    else:
+        return text.decode('latin2')
 
 class SinolPackage(object):
     def __init__(self, path, original_filename=None):
@@ -89,7 +97,7 @@ class SinolPackage(object):
             text = open(source, 'r').read()
             r = re.search(r'\\title{(.+)}', text)
             if r is not None:
-                self.problem.name = r.group(1).decode('iso8859-2')
+                self.problem.name = _decode(r.group(1))
                 self.problem.save()
 
     def _compile_docs(self, docdir):

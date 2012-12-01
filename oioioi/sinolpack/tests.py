@@ -117,6 +117,18 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
 
+    def test_latin2_title(self):
+        filename = get_test_filename('test_simple_package_latin2.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, u'Łąka')
+
+    def test_utf8_title(self):
+        filename = get_test_filename('test_simple_package_utf8.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, u'Łąka')
+
 class TestSinolPackageInContest(TestCase):
     fixtures = ['test_users', 'test_contest']
 
