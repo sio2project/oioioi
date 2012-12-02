@@ -69,6 +69,8 @@ Ensure that required dependencies are installed:
 * lessc (`LESS`_ compiler, **minimum version 1.3.0**; on Ubuntu install *npm*
   and then run ``sudo npm install --global less``; can also `be installed inside
   virtualenv`_)
+* lighttpd binary (required for production-grade deployment only; Ubuntu
+  package: *lighttpd*)
 
 and in one terminal run the Django web server::
 
