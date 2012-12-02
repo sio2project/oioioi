@@ -1,12 +1,26 @@
 from django.contrib.admin.util import unquote
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.forms import ModelForm, ValidationError
 from oioioi.base import admin
 from oioioi.participants.models import Participant
 
 def has_participants(request):
     rcontroller = request.contest.controller.registration_controller()
     return hasattr(rcontroller, 'participant_admin')
+
+class ParticipantForm(ModelForm):
+    class Meta:
+        model = Participant
+
+    def clean_user(self):
+        if self.request_contest and Participant.objects.filter(
+                contest=self.request_contest, user=self.cleaned_data['user']) \
+                .exists():
+            raise ValidationError(
+                    _("%s is already a participant of this contest.")
+                    % self.cleaned_data['user'].username)
+        return self.cleaned_data['user']
 
 class ParticipantAdmin(admin.ModelAdmin):
     list_select_related = True
@@ -16,6 +30,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     fields = [('user', 'status'),]
     search_fields = ['user__username', 'user__last_name']
     actions = ['make_active', 'make_banned', 'delete_selected']
+    form = ParticipantForm
 
     def user_login(self, instance):
         if not instance.user:
@@ -39,6 +54,14 @@ class ParticipantAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.contest = request.contest
         obj.save()
+
+    def get_form(self, request, obj=None, **kwargs):
+        Form = super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
+        def form_wrapper(*args, **kwargs):
+            form = Form(*args, **kwargs)
+            form.request_contest = request.contest
+            return form
+        return form_wrapper
 
     def make_active(self, request, queryset):
         queryset.update(status='ACTIVE')
