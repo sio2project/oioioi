@@ -96,6 +96,10 @@ RUN_LOCAL_WORKERS = True
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
 
+# Uncomment this line to limit availability of programming languages.
+#SUBMITTABLE_EXTENSIONS = ['c', 'cpp', 'pas']
+
+
 # EXTRA MODULES
 #
 # Comment/uncomment components to disable/enable them.
