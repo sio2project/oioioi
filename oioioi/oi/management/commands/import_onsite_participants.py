@@ -50,9 +50,9 @@ class Command(BaseCommand):
 
         reader = csv.reader(stream)
         header = reader.next()
-        if header != COLUMNS:
+        if header != self.COLUMNS:
             raise CommandError(_("Missing header or invalid columns: %s\n"
-                "Expected: %s") % (', '.join(header), ', '.join(COLUMNS)))
+                "Expected: %s") % (', '.join(header), ', '.join(self.COLUMNS)))
 
         with transaction.commit_on_success():
             ok = True
@@ -60,12 +60,21 @@ class Command(BaseCommand):
             for row in reader:
                 all_count += 1
 
-                for i, column in enumerate(COLUMNS):
+                for i, column in enumerate(self.COLUMNS):
                     row[i] = row[i].decode('utf8')
 
                 try:
                     user = User.objects.get(username=row[1])
                     region = Region.objects.get(short_name=row[2])
+
+                    participant, created = Participant.objects \
+                            .get_or_create(contest=contest, user=user)
+
+                    reg = OIOnsiteRegistration(participant=participant,
+                            number=row[0], local_number=row[3], region=region)
+
+                    reg.full_clean()
+                    reg.save()
                 except User.DoesNotExist:
                     self.stdout.write(_("Error for user=%s: user does"
                                         " not exist\n") % (row[1]))
@@ -78,16 +87,6 @@ class Command(BaseCommand):
                     self.stdout.write(_("DB Error for user=%s: %s\n")
                                       % (row[1], e.message))
                     ok = False
-
-                try:
-                    participant = Participant.objects \
-                            .get_or_create(contest=contest, user=user)
-
-                    reg = OIOnsiteRegistration(participant=participant,
-                            number=row[0], local_number=row[3], region=region)
-
-                    reg.full_clean()
-                    reg.save()
                 except ValidationError, e:
                     for k, v in e.message_dict.iteritems():
                         for message in v:
@@ -98,10 +97,6 @@ class Command(BaseCommand):
                                 self.stdout.write(
                                         _("Error for user=%s, field %s: %s\n")
                                         % (row[1], k, message))
-                    ok = False
-                except DatabaseError, e:
-                    self.stdout.write(_("DB Error for user=%s: %s\n")
-                                      % (row[1], e.message))
                     ok = False
 
             if ok:

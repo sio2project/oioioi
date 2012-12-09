@@ -13,6 +13,8 @@ INSTALLED_APPS = (
     'oioioi.dashboard',
     'oioioi.clock',
     'oioioi.ipdnsauth',
+    'oioioi.participants',
+    'oioioi.oi',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (

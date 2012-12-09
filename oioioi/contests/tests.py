@@ -444,6 +444,12 @@ class SubmitFileMixin(object):
                               kwargs={'contest_id': contest.id})
         self.assertTrue(response["Location"].endswith(submissions))
 
+    def _assertNotSubmitted(self, contest, response):
+        self.assertEqual(302, response.status_code)
+        submissions = reverse('my_submissions',
+                              kwargs={'contest_id': contest.id})
+        self.assertFalse(response["Location"].endswith(submissions))
+
 
 class TestSubmission(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']

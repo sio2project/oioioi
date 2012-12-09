@@ -25,7 +25,6 @@ class ParticipantForm(ModelForm):
 class ParticipantAdmin(admin.ModelAdmin):
     list_select_related = True
     list_display = ['user_login', 'user_full_name', 'status']
-    list_display_links = ['status']
     list_filter = ['status', ]
     fields = [('user', 'status'),]
     search_fields = ['user__username', 'user__last_name']

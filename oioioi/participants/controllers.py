@@ -24,11 +24,13 @@ class ParticipantsController(RegistrationController):
                 participant__status='ACTIVE')
 
     def can_register(self, request):
-        return True
+        return False
 
     def can_edit_registration(self, request, participant):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
+        if participant.status == 'BANNED':
+            return False
         return bool(request.user == participant.user);
 
     def no_entry_view(self, request):

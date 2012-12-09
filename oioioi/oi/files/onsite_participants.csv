@@ -1,0 +1,4 @@
+number,username,region_short_name,local_number
+1,test_user,waw,1
+2,test_user2,waw,2
+3,test_admin,waw,3

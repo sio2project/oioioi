@@ -17,6 +17,9 @@ class OIRegistrationController(ParticipantsController):
     def can_enter_contest(self, request):
         return True
 
+    def can_register(self, request):
+        return True
+
 class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
 
@@ -40,7 +43,7 @@ class OIOnsiteRegistrationController(ParticipantsController):
     def can_register(self, request):
         return False
 
-    def can_edit_registration(self, request):
+    def can_edit_registration(self, request, participant):
         return False
 
 class OIOnsiteContestController(ProgrammingContestController):
@@ -48,3 +51,15 @@ class OIOnsiteContestController(ProgrammingContestController):
 
     def registration_controller(self):
         return OIOnsiteRegistrationController(self.contest)
+
+    def can_submit(self, request, problem_instance):
+        if request.user.is_anonymous():
+            return False
+        if request.user.has_perm('contests.contest_admin', self.contest):
+            return True
+        qs = User.objects.filter(id=request.user.id)
+        if not self.registration_controller().filter_participants(qs):
+            return False
+        return super(OIOnsiteContestController, self)\
+                .can_submit(request, problem_instance)
+
