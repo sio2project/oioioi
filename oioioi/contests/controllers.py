@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
-        UserResultForProblem, FailureReport
+        UserResultForProblem, FailureReport, RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
 from oioioi import evalmgr
 import functools
@@ -20,16 +20,23 @@ from datetime import timedelta
 logger = logging.getLogger(__name__)
 
 class RoundTimes(object):
-    def __init__(self, start, end, show_results):
+    def __init__(self, start, end, show_results, round_id):
         self.start = start
         self.end = end
         self.show_results = show_results
+        self.round_id = round_id
 
-    def is_past(self, current_datetime):
-        return self.end and current_datetime > self.end
+    def is_past(self, current_datetime, user):
+        try:
+            extra_time = RoundTimeExtension.objects.get(user=user,
+                    round__id=self.round_id).extra_time
+        except (TypeError, RoundTimeExtension.DoesNotExist):
+            extra_time = 0
+        return self.end \
+                and current_datetime > self.end + timedelta(minutes=extra_time)
 
-    def is_active(self, current_datetime):
-        return not (self.is_past(current_datetime) or
+    def is_active(self, current_datetime, user):
+        return not (self.is_past(current_datetime, user) or
                 self.is_future(current_datetime))
 
     def is_future(self, current_datetime):
@@ -144,7 +151,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            :returns: an instance of :class:`RoundTimes`
         """
-        return RoundTimes(round.start_date, round.end_date, round.results_date)
+        return RoundTimes(round.start_date, round.end_date,
+                round.results_date, round.id)
 
     def order_rounds_by_focus(self, request, queryset=None):
         """Sorts the rounds in the queryset according to probable user's
@@ -180,7 +188,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 to_event = now - rtimes.start
             if rtimes.is_future(now):
                 to_event = min(to_event, rtimes.start - now)
-            elif rtimes.is_active(now):
+            elif rtimes.is_active(now, request.user):
                 to_event = min(to_event, rtimes.end - now)
 
             to_event_inactive = timedelta(hours=6)
@@ -191,8 +199,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             if rtimes.is_future(now):
                 to_event_inactive = min(to_event_inactive, rtimes.start - now)
 
-            return (to_event, not rtimes.is_active(now), to_event_inactive,
-                    now - rtimes.start)
+            return (to_event, not rtimes.is_active(now, request.user),
+                    to_event_inactive, now - rtimes.start)
         return sorted(queryset, key=sort_key)
 
     def can_see_problem(self, request, problem_instance):
@@ -224,7 +232,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
         rtimes = self.get_round_times(request, problem_instance.round)
-        return rtimes.is_active(request.timestamp)
+        return rtimes.is_active(request.timestamp, request.user)
 
     def adjust_submission_form(self, request, form):
         pass

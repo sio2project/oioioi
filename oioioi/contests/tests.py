@@ -6,10 +6,10 @@ from django.core.exceptions import ValidationError, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        UserResultForContest, Submission, ContestAttachment
+        UserResultForContest, Submission, ContestAttachment, RoundTimeExtension
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
@@ -124,6 +124,7 @@ class TestContestController(TestCase):
         class FakeRequest(object):
             def __init__(self, timestamp):
                 self.timestamp = timestamp
+                self.user = AnonymousUser()
 
         for date, expected_order in (
                 (datetime(2011, 1, 1), [r1, r2, r3]),
@@ -426,18 +427,14 @@ class TestAttachments(TestCase):
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
         self.assertEqual(response.content, 'content-of-probatt')
 
-class TestSubmission(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
-
-    def submit_file(self, file_size, file_name='submission.cpp'):
-        contest = Contest.objects.get()
-        problem = Problem.objects.get()
-
+class SubmitFileMixin(object):
+    def submit_file(self, contest, problem_instance, file_size=1024,
+            file_name='submission.cpp'):
         url = reverse('submit', kwargs={'contest_id': contest.id})
-        huge_file = ContentFile('a' * file_size, name=file_name)
+        file = ContentFile('a' * file_size, name=file_name)
         post_data = {
-            'problem_instance_id': problem.id,
-            'file': huge_file
+            'problem_instance_id': problem_instance.id,
+            'file': file
         }
         return self.client.post(url, post_data)
 
@@ -448,47 +445,164 @@ class TestSubmission(TestCase):
         self.assertTrue(response["Location"].endswith(submissions))
 
 
-    def test_huge_submission(self):
+class TestSubmission(TestCase, SubmitFileMixin):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def setUp(self):
         self.client.login(username='test_user')
-        response = self.submit_file(102405)
+
+    def test_simple_submission(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        round = Round.objects.get()
+        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.save()
+
+        with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance)
+            self.assertEqual(200, response.status_code)
+            self.assertIn('Select a valid choice.', response.content)
+
+        with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance)
+            self._assertSubmitted(contest, response)
+
+        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance)
+            self._assertSubmitted(contest, response)
+
+        with fake_time(datetime(2012, 8, 10, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance)
+            self._assertSubmitted(contest, response)
+
+        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance)
+            self.assertEqual(200, response.status_code)
+            self.assertIn('Select a valid choice.', response.content)
+
+    def test_huge_submission(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        response = self.submit_file(contest, problem_instance, file_size=102405)
         self.assertIn('File size limit exceeded.', response.content)
 
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_user')
-        response = self.submit_file(102400)
+        problem_instance = ProblemInstance.objects.get()
+        response = self.submit_file(contest, problem_instance, file_size=102400)
         self._assertSubmitted(contest, response)
 
     def test_submit_limitation(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_user')
+        problem_instance = ProblemInstance.objects.get()
 
         for i in range(10):
-            response = self.submit_file(1)
+            response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
-        response = self.submit_file(1)
+        response = self.submit_file(contest, problem_instance)
         self.assertEqual(200, response.status_code)
         self.assertIn('Submission limit for the problem', response.content)
 
-    def _assertUnsupportedExtension(self, name, ext):
-        response = self.submit_file(1, file_name='%s.%s' % (name, ext))
+    def _assertUnsupportedExtension(self, contest, problem_instance, name, ext):
+        response = self.submit_file(contest, problem_instance,
+                file_name='%s.%s' % (name, ext))
         self.assertIn('Unknown or not supported file extension.',
                         response.content)
 
     def test_extension_checking(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_user')
-        self._assertUnsupportedExtension('xxx', '')
-        self._assertUnsupportedExtension('xxx', 'e')
-        self._assertUnsupportedExtension('xxx', 'cppp')
-        response = self.submit_file(1, file_name='a.tar.cpp')
+        problem_instance = ProblemInstance.objects.get()
+        self._assertUnsupportedExtension(contest, problem_instance, 'xxx', '')
+        self._assertUnsupportedExtension(contest, problem_instance, 'xxx', 'e')
+        self._assertUnsupportedExtension(contest, problem_instance,
+                'xxx', 'cppp')
+        response = self.submit_file(contest, problem_instance,
+                file_name='a.tar.cpp')
         self._assertSubmitted(contest, response)
 
     @override_settings(SUBMITTABLE_EXTENSIONS=['c'])
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_user')
-        self._assertUnsupportedExtension('xxx', 'cpp')
-        response = self.submit_file(1, file_name='a.c')
+        problem_instance = ProblemInstance.objects.get()
+        self._assertUnsupportedExtension(contest, problem_instance,
+                'xxx', 'cpp')
+        response = self.submit_file(contest, problem_instance, file_name='a.c')
         self._assertSubmitted(contest, response)
+
+class TestRoundExtension(TestCase, SubmitFileMixin):
+    fixtures = ['test_users', 'test_contest', 'test_extra_rounds',
+             'test_full_package']
+
+    def test_round_extension(self):
+        contest = Contest.objects.get()
+        round1 = Round.objects.get(pk=1)
+        round2 = Round.objects.get(pk=2)
+        problem_instance1 = ProblemInstance.objects.get(pk=1)
+        problem_instance2 = ProblemInstance.objects.get(pk=2)
+        self.assertTrue(problem_instance1.round == round1)
+        self.assertTrue(problem_instance2.round == round2)
+        round1.start_date = datetime(2012, 7, 31, tzinfo=utc)
+        round1.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        round1.save()
+        round2.start_date = datetime(2012, 8, 10, tzinfo=utc)
+        round2.end_date = datetime(2012, 8, 12, tzinfo=utc)
+        round2.save()
+
+        user = User.objects.get(username='test_user')
+        ext = RoundTimeExtension(user=user, round=round1, extra_time=10)
+        ext.save()
+
+        with fake_time(datetime(2012, 8, 5, 0, 5, tzinfo=utc)):
+            self.client.login(username='test_user2')
+            response = self.submit_file(contest, problem_instance1)
+            self.assertEqual(200, response.status_code)
+            self.assertIn('Select a valid choice.', response.content)
+            self.client.login(username='test_user')
+            response = self.submit_file(contest, problem_instance1)
+            self._assertSubmitted(contest, response)
+
+        with fake_time(datetime(2012, 8, 5, 0, 11, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance1)
+            self.assertEqual(200, response.status_code)
+            self.assertIn('Select a valid choice.', response.content)
+
+        with fake_time(datetime(2012, 8, 12, 0, 5, tzinfo=utc)):
+            response = self.submit_file(contest, problem_instance2)
+            self.assertEqual(200, response.status_code)
+            self.assertIn('Select a valid choice.', response.content)
+
+    def test_round_extension_admin(self):
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:contests_roundtimeextension_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        post_data = {
+                'user': '1001',
+                'round': '1',
+                'extra_time': '31415926'
+            }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('was added successfully', response.content)
+        self.assertEqual(RoundTimeExtension.objects.count(), 1)
+        rext = RoundTimeExtension.objects.get()
+        self.assertEqual(rext.round, Round.objects.get(pk=1))
+        self.assertEqual(rext.user, User.objects.get(pk=1001))
+        self.assertEqual(rext.extra_time, 31415926)
+
+        url = reverse('oioioiadmin:contests_roundtimeextension_change', \
+                args=('1',))
+        response = self.client.get(url)
+        self.assertIn('31415926', response.content)
+        post_data = {
+                'user': '1001',
+                'round': '1',
+                'extra_time': '27182818'
+            }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(RoundTimeExtension.objects.count(), 1)
+        rext = RoundTimeExtension.objects.get()
+        self.assertEqual(rext.extra_time, 27182818)

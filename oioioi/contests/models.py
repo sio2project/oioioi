@@ -277,3 +277,20 @@ class UserResultForContest(models.Model):
 
     class Meta:
         unique_together = ('user', 'contest')
+
+class RoundTimeExtension(models.Model):
+    """Represents the time the round has been extended by for a certain user.
+
+       The extra time is given in minutes.
+    """
+    user = models.ForeignKey(User)
+    round = models.ForeignKey(Round)
+    extra_time = models.PositiveIntegerField(_("Extra time (in minutes)"))
+
+    class Meta:
+        unique_together = ('user', 'round')
+        verbose_name = _("round time extension")
+        verbose_name_plural = _("round time extensions")
+
+    def __unicode__(self):
+        return unicode(self.round) + ': ' + unicode(self.user)

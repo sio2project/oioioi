@@ -5,7 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django import forms
 from django.forms.models import modelform_factory
-from django.contrib.admin import widgets, AllValuesFieldListFilter
+from django.contrib.admin import widgets, AllValuesFieldListFilter, \
+        SimpleListFilter
 from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
@@ -14,7 +15,7 @@ from django.utils import timezone
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        Submission, ContestAttachment
+        Submission, ContestAttachment, RoundTimeExtension
 from functools import partial
 import urllib
 
@@ -364,3 +365,54 @@ admin.contest_admin_menu_registry.register('submissions_admin',
         _("Submissions"), lambda request:
         reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
+
+class RoundListFilter(SimpleListFilter):
+    title = _("round")
+    parameter_name = 'round'
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.queryset(request)
+        return Round.objects.filter(id__in=qs.values_list('round')) \
+                .values_list('id', 'name')
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(round=self.value())
+        else:
+            return queryset
+
+class RoundTimeExtensionAdmin(admin.ModelAdmin):
+    list_display = ['user_login', 'user_full_name', 'round', 'extra_time']
+    list_display_links = ['extra_time']
+    list_filter = [RoundListFilter]
+    search_fields = ['user__username', 'user__last_name']
+
+    def user_login(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.username
+    user_login.short_description = _("Login")
+    user_login.admin_order_field = 'user__username'
+
+    def user_full_name(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.get_full_name()
+    user_full_name.short_description = _("User name")
+    user_full_name.admin_order_field = 'user__last_name'
+
+    def queryset(self, request):
+        qs = super(RoundTimeExtensionAdmin, self).queryset(request)
+        return qs.filter(round__contest=request.contest)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'round':
+            kwargs['queryset'] = Round.objects.filter(contest=request.contest)
+        return super(RoundTimeExtensionAdmin, self) \
+                .formfield_for_foreignkey(db_field, request, **kwargs)
+
+admin.site.register(RoundTimeExtension, RoundTimeExtensionAdmin)
+admin.contest_admin_menu_registry.register('roundtimeextension_admin',
+        _("Round extensions"), lambda request:
+        reverse('oioioiadmin:contests_roundtimeextension_changelist'),
+        order=50)

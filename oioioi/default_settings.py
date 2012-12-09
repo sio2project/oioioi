@@ -128,9 +128,9 @@ COMPRESS_PRECOMPILERS = (
 
 INSTALLED_APPS = (
     'oioioi.filetracker',
+    'oioioi.contests',
     'oioioi.problems',
     'oioioi.programs',
-    'oioioi.contests',
     'oioioi.sinolpack',
     'oioioi.questions',
     'oioioi.rankings',
