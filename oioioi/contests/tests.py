@@ -429,17 +429,24 @@ class TestAttachments(TestCase):
 class TestSubmission(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
-    def submit_file(self, file_size):
+    def submit_file(self, file_size, file_name='submission.cpp'):
         contest = Contest.objects.get()
         problem = Problem.objects.get()
 
         url = reverse('submit', kwargs={'contest_id': contest.id})
-        huge_file = ContentFile('a'*file_size, name='submission.cpp')
+        huge_file = ContentFile('a' * file_size, name=file_name)
         post_data = {
             'problem_instance_id': problem.id,
             'file': huge_file
         }
         return self.client.post(url, post_data)
+
+    def _assertSubmitted(self, contest, response):
+        self.assertEqual(302, response.status_code)
+        submissions = reverse('my_submissions',
+                              kwargs={'contest_id': contest.id})
+        self.assertTrue(response["Location"].endswith(submissions))
+
 
     def test_huge_submission(self):
         self.client.login(username='test_user')
@@ -450,10 +457,7 @@ class TestSubmission(TestCase):
         contest = Contest.objects.get()
         self.client.login(username='test_user')
         response = self.submit_file(102400)
-        self.assertEqual(302, response.status_code)
-        submissions = reverse('my_submissions',
-                              kwargs={'contest_id': contest.id})
-        self.assertTrue(response["Location"].endswith(submissions))
+        self._assertSubmitted(contest, response)
 
     def test_submit_limitation(self):
         contest = Contest.objects.get()
@@ -461,11 +465,30 @@ class TestSubmission(TestCase):
 
         for i in range(10):
             response = self.submit_file(1)
-            self.assertEqual(302, response.status_code)
-            submissions = reverse('my_submissions',
-                              kwargs={'contest_id': contest.id})
-            self.assertTrue(response["Location"].endswith(submissions))
+            self._assertSubmitted(contest, response)
 
         response = self.submit_file(1)
         self.assertEqual(200, response.status_code)
         self.assertIn('Submission limit for the problem', response.content)
+
+    def _assertUnsupportedExtension(self, name, ext):
+        response = self.submit_file(1, file_name='%s.%s' % (name, ext))
+        self.assertIn('Unknown or not supported file extension.',
+                        response.content)
+
+    def test_extension_checking(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_user')
+        self._assertUnsupportedExtension('xxx', '')
+        self._assertUnsupportedExtension('xxx', 'e')
+        self._assertUnsupportedExtension('xxx', 'cppp')
+        response = self.submit_file(1, file_name='a.tar.cpp')
+        self._assertSubmitted(contest, response)
+
+    @override_settings(SUBMITTABLE_EXTENSIONS=['c'])
+    def test_limiting_extensions(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_user')
+        self._assertUnsupportedExtension('xxx', 'cpp')
+        response = self.submit_file(1, file_name='a.c')
+        self._assertSubmitted(contest, response)

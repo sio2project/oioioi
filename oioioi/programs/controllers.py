@@ -101,12 +101,14 @@ class ProgrammingContestController(ContestController):
     def get_compilation_result_size_limit(self):
         return 5 * 1024 * 1024
 
+    def _get_language(self, source_file):
+        return os.path.splitext(source_file.name)[1][1:]
+
     def fill_evaluation_environ(self, environ, submission):
         submission = submission.programsubmission
         environ['source_file'] = \
             django_to_filetracker_path(submission.source_file)
-        environ['language'] = \
-            os.path.splitext(submission.source_file.name)[1][1:]
+        environ['language'] = self._get_language(submission.source_file)
         environ['compilation_result_size_limit'] = \
             self.get_compilation_result_size_limit()
 
@@ -123,14 +125,28 @@ class ProgrammingContestController(ContestController):
     def get_submission_size_limit(self):
         return 102400  # in bytes
 
+    def get_allowed_extensions(self):
+        return getattr(settings, 'SUBMITTABLE_EXTENSIONS', [])
+
     def adjust_submission_form(self, request, form):
         size_limit = self.get_submission_size_limit()
         def validate_file_size(file):
             if file.size > size_limit:
                 raise ValidationError(_("File size limit exceeded."))
 
+        def validate_language(file):
+            ext = self._get_language(file)
+            if ext not in self.get_allowed_extensions():
+                raise ValidationError(_(
+                    "Unknown or not supported file extension."))
+
         form.fields['file'] = forms.FileField(allow_empty_file=False,
-                validators=[validate_file_size], label=_("File"))
+                validators=[validate_file_size, validate_language],
+                label=_("File"),
+                help_text=_("Language is determined by the file extension."
+                            " It has to be one of: %s.") %
+                            (', '.join(self.get_allowed_extensions()),)
+                )
 
         if request.user.has_perm('contests.contest_admin', request.contest):
             form.fields['user'] = forms.CharField(label=_("User"),
