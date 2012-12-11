@@ -13,11 +13,66 @@
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 14px !important;
     line-height: 20px;
-    color: #333;
+    color: @grayDark;
 
     .brand {
-        color: white;
+        color: @white;
     }
+}
+
+.progressbar {
+    padding: 10px 0;
+
+    * {
+        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+        width: 384px;
+        position: absolute;
+
+        span {
+            color: @white;
+            text-align: center;
+            width: 100%;
+        }
+    }
+}
+
+#clock {
+    padding: 10px 0px;
+}
+
+.admin-time-form {
+    padding: 3px 20px;
+    color: lighten(@textColor, 15%);
+
+    form {
+        margin: 0;
+    }
+
+    .btn {
+        .buttonBackground(@btnPrimaryBackground, @btnPrimaryBackgroundHighlight);
+    }
+}
+
+#admin-time {
+    color: @gray !important;
+    margin: 5px 0;
+    padding: 5px 10px;
+    .transition(~"border linear .2s, box-shadow linear .2s");
+    border: 1px solid @inputBorder;
+    .box-shadow(inset 0 1px 1px rgba(0,0,0,.075));
+
+    &:focus {
+        border-color: rgba(82,168,236,.8);
+        outline: 0 none;
+        .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6)");
+    }
+}
+
+.admin-time-set .navbar-inner,
+.admin-time-set > a,
+.admin-time-set .dropdown-toggle:not(#admin-time-label) {
+    color: #FFF !important;
+    background: @linkColor !important;
 }
 
 #grp-context-navigation {

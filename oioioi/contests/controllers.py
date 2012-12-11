@@ -1,18 +1,17 @@
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.core.exceptions import PermissionDenied, ValidationError, \
-        ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
+from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances
 from oioioi import evalmgr
-import functools
 import json
 import logging
 import pprint
@@ -441,8 +440,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if not request.user.is_authenticated():
             return queryset.none()
-        return queryset.filter(user=request.user) \
+        qs = queryset.filter(user=request.user) \
             .filter(problem_instance__in=visible_problem_instances(request))
+        if is_contest_admin(request):
+            return qs
+        else:
+            return qs.filter(date__lte=request.timestamp)
 
     def results_visible(self, request, submission):
         """Determines whether it is a good time to show the submission's

@@ -1,0 +1,18 @@
+{% load i18n %}
+<li class="dropdown">
+    <a class="dropdown-toggle" id="admin-clock" data-toggle="dropdown" href="#">
+        <span id="admin-time-label" class="label label-inverse" {% if not is_admin_time_set %}style="display: none;"{% endif %}>{% trans "Admin time" %}</span>
+        <span id="clock">{{ current_time }}</span>
+        <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu"><li class="admin-time-form">
+        <form class="form-horizontal" action="{% url admin_time path=path %}" method="post">
+            {% csrf_token %}
+            <label for="admin-time">{% trans "Admin time:" %}</label>
+            <label for="admin-time">(yyyy-mm-dd hh:mm:ss)</label>
+            <input id="admin-time" name="admin-time" />
+            <input class="btn btn-primary" type="submit" name="ok-button" value="{% trans "Ok" %}"/>
+            <input class="btn btn-primary" type="submit" name="reset-button" value="{% trans "Reset" %}"/>
+        </form>
+    </li></ul>
+</li>

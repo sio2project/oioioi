@@ -10,4 +10,7 @@ class TimestampingMiddleware(object):
     """
 
     def process_request(self, request):
-        request.timestamp = timezone.now()
+        if 'admin_time' in request.session:
+            request.timestamp = request.session['admin_time']
+        else:
+            request.timestamp = timezone.now()

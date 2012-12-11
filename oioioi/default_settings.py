@@ -92,8 +92,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 
 MIDDLEWARE_CLASSES = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'oioioi.base.middleware.TimestampingMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'oioioi.base.middleware.TimestampingMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

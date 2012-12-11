@@ -1,10 +1,10 @@
 from django.db import models
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.base.fields import EnumRegistry, EnumField
+from django.utils import timezone
 
 message_kinds = EnumRegistry()
 message_kinds.register('QUESTION', _("Question"))
@@ -22,7 +22,7 @@ class Message(models.Model):
     topic = models.CharField(max_length=255,
             validators=[MaxLengthValidator(255)])
     content = models.TextField()
-    date = models.DateTimeField(auto_now_add=True, editable=False)
+    date = models.DateTimeField(default=timezone.now, editable=False)
 
     def can_have_replies(self):
         return self.kind == 'QUESTION'
@@ -43,4 +43,4 @@ class Message(models.Model):
 class MessageView(models.Model):
     message = models.ForeignKey(Message)
     user = models.ForeignKey(User)
-    date = models.DateTimeField(auto_now_add=True, editable=False)
+    date = models.DateTimeField(default=timezone.now, editable=False)

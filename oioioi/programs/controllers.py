@@ -5,17 +5,14 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
-from oioioi.problems.models import Problem
 from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController
-from oioioi.contests.models import SubmissionReport, FailureReport, \
-        ScoreReport
+from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport
 from oioioi.filetracker.utils import django_to_filetracker_path
-from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
-        replace_recipe_entry
+from oioioi.evalmgr import recipe_placeholder, add_before_placeholder
 import os.path
 import itertools
 from operator import attrgetter
@@ -165,7 +162,8 @@ class ProgrammingContestController(ContestController):
         submission = ProgramSubmission(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,
-                kind=form_data.get('kind', 'NORMAL'))
+                kind=form_data.get('kind', 'NORMAL'),
+                date=request.timestamp)
         file = form_data['file']
         submission.source_file.save(file.name, file)
         submission.save()

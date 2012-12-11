@@ -1,6 +1,10 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.utils import timezone
 from oioioi.contests.models import Round
+from django.shortcuts import redirect
+from datetime import datetime
+import pytz
+import re
 import json
 import time
 
@@ -13,17 +17,24 @@ def get_times_view(request):
        and the start of the current round if any exists; otherwise 0
        ``round_end_date`` the number of seconds between the epoch
        and the end of the current round if any exists; otherwise 0
+       ``is_admin_time_set``: ``True`` if admin changes the time
     """
     timestamp = getattr(request, 'timestamp', None)
     contest = getattr(request, 'contest', None)
-    response = dict(time=0, round_start_date=0, round_end_date=0)
+    response = dict(time=0, round_start_date=0, round_end_date=0,
+        is_admin=False, is_admin_time_set=False)
     user = getattr(request, 'user', None)
+
+    if 'admin_time' in request.session:
+        response['is_admin_time_set'] = True
+    if user and user.is_superuser:
+        response['is_admin'] = True
 
     next_rounds_times = None
     current_rounds_times = None
 
     if timestamp:
-        response['time'] = time.mktime((timezone \
+        response['time'] = time.mktime((timezone
              .localtime(timestamp)).timetuple())
         if contest:
             rounds_times = [contest.controller \
@@ -46,3 +57,24 @@ def get_times_view(request):
             .localtime(next_rounds_times[0].get_start())).timetuple())
 
     return HttpResponse(json.dumps(response), content_type='application/json')
+
+def admin_time(request, path):
+    contest = getattr(request, 'contest', None)
+    if request.method == 'POST':
+        if 'reset-button' in request.POST:
+            if 'admin_time' in request.session:
+                del request.session['admin_time']
+            return redirect(path)
+        elif contest and request.user.is_superuser:
+            admin_time = re.findall(r'\d+', request.POST['admin-time'])
+            admin_time = map(int, admin_time)
+            try:
+                admin_time = datetime(*admin_time)
+            except (ValueError, TypeError, OverflowError):
+                return redirect(path)
+            if admin_time.year >= 1900:
+                request.session['admin_time'] = \
+                    timezone.localtime(timezone.now()). \
+                    tzinfo.localize(admin_time).astimezone(pytz.utc)
+            return redirect(path)
+    raise Http404

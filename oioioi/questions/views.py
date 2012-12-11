@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-        visible_rounds, visible_problem_instances
+        visible_rounds
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm
 from oioioi.questions.models import Message, MessageView
 
@@ -26,7 +26,7 @@ def visible_messages(request):
             q_expression = q_expression \
                     | (Q(author=request.user) & Q(kind='QUESTION')) \
                     | Q(top_reference__author=request.user)
-        messages = messages.filter(q_expression)
+        messages = messages.filter(q_expression, date__lte=request.timestamp)
     return messages
 
 def new_messages(request, messages=None):
@@ -88,6 +88,7 @@ def add_contest_message_view(request, contest_id):
                 instance.kind = 'PUBLIC'
             else:
                 instance.kind = 'QUESTION'
+            instance.date = request.timestamp
             instance.save()
             return redirect('contest_messages', contest_id=contest_id)
 
@@ -116,6 +117,7 @@ def add_reply_view(request, contest_id, message_id):
             instance = form.save(commit=False)
             instance.top_reference = question
             instance.author = request.user
+            instance.date = request.timestamp
             instance.save()
             return redirect('contest_messages', contest_id=contest_id)
     else:

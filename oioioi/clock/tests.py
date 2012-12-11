@@ -2,7 +2,9 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from oioioi.contests.models import Contest, Round, RoundTimeExtension
+from django.utils.timezone import utc
 from datetime import datetime
+import calendar
 import json
 import time
 
@@ -53,3 +55,14 @@ class TestClock(TestCase):
         round_end_date = response['round_end_date']
         self.assertEqual(round_start_date, time.mktime(r1_start.timetuple()))
         self.assertEqual(round_end_date, time.mktime(r1_end.timetuple()) + 600)
+
+    def test_admin_time(self):
+        self.client.login(username='test_admin')
+        session = self.client.session
+        session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc)
+        session.save()
+        response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
+        response = json.loads(response.content)
+        self.assertTrue(response['is_admin_time_set'])
+        self.assertEqual(response['time'],
+            calendar.timegm(session['admin_time'].timetuple()))

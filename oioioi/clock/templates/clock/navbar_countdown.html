@@ -1,13 +1,10 @@
-<li>
+<li class="progressbar">
 {% if elapsed_part %}
-    <a href="#"><div class="progress" style="width: 384px; margin-bottom:0; position: relative;">
-        <div id="progressbar" class="bar" style="float: none; width: {{elapsed_part}}; background: {{ bar_color }};">
-        </div>
-        <span id="countdown" style="color: #333; position: absolute; text-align: center; width: 100%; top: 0%;">
-            {{ countdown_text }}
-        </span>
-    </div></a>
+    <div class="progress">
+        <div class="bar" id="navbar-progressbar" style="width: {{ elapsed_part }}; background: {{ bar_color }};"></div>
+        <span id="countdown">{{ countdown_text }}</span>
+    </div>
 {% elif countdown_text %}
-    <a href="#" id="countdown">{{ countdown_text }} </a>
+    <div id="countdown">{{ countdown_text }}</div>
 {% endif %}
 </li>

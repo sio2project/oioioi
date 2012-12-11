@@ -1,6 +1,9 @@
-{% load i18n check_perm all_with_prefix menu %}
+{% load i18n check_perm all_with_prefix menu get_clocks %}
 
-<div class="navbar navbar-fixed-top navbar-inverse">
+{% if contest %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% endif %}
+<div id="main-navbar" class="navbar navbar-fixed-top navbar-inverse {% if request.session.admin_time %} admin-time-set {% endif %}">
     <div class="navbar-inner">
         <div class="{% block navbar-container-class %}container-fluid{% endblock %}">
             {% include "ingredients/navbar_branding.html" %}
@@ -26,12 +29,11 @@
                                 {% for contest in recent_contests %}
                                 <li><a href="{% url default_contest_view contest_id=contest.id %}">{{ contest.name }}</a></li>
                                 {% endfor %}
-                                <li><a href="{% url select_contest %}">{% trans "Other..." %}</a> </li>
+                                <li><a href="{% url select_contest %}">{% trans "Other..." %}</a></li>
                             {% else %}
-                            <li><a href="{% url select_contest %}">{% trans "Switch contest" %}</a> </li>
+                            <li><a href="{% url select_contest %}">{% trans "Switch contest" %}</a></li>
                             {% endif %}
 
-                            {% check_perm 'contests.contest_admin' for contest as is_admin %}
                             {% if is_admin %}
                             {% if recent_contests %}<li class="divider"></li>{% endif %}
                             <li><a href="{% url oioioiadmin:contests_contest_add %}">{% trans "Create a new contest" %}</a></li>
@@ -46,7 +48,6 @@
             <ul class="nav pull-left">
                 {% all_with_prefix extra_navbar_left_ %}
                 {% block navbar-left-extras %}{% endblock %}
-                {% load get_clocks %}
                 {% navbar_countdown %}
             </ul>
 
@@ -55,7 +56,11 @@
             <ul class="nav pull-right">
                 {% all_with_prefix extra_navbar_right_ %}
                 {% block navbar-right-extras %}{% endblock %}
+                {% if user.is_superuser %}
+                {% navbar_admin_clock %}
+                {% else %}
                 {% navbar_clock %}
+                {% endif %}
                 {% block navbar_user_panel %}
                 {% if user.is_anonymous %}
                 <li>
