@@ -16,3 +16,13 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ['username', 'first_name', 'last_name', 'email']
 
+    def __init__(self, *args, **kwargs):
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update(disabled=True)
+
+    def clean_username(self):
+        instance = getattr(self, 'instance', None)
+        if instance:
+            return instance.username
+        else:
+            return self.cleaned_data['username']

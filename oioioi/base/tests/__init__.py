@@ -481,12 +481,22 @@ class TestBaseViews(TestCase):
                 [t.name for t in response.templates])
         self.assertEqual(response.context['form'].instance, user)
 
+        data = {'username': 'test_user', 'first_name': 'fn',
+                'last_name': 'ln', 'email': 'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+        user = User.objects.get(username='test_user')
+        self.assertEqual(user.first_name, 'fn')
+        self.assertEqual(user.last_name, 'ln')
+        self.assertEqual(user.email, 'foo@bar.com')
+
+    def test_username_change_attempt(self):
+        url = reverse('edit_profile')
         data = {'username': 'changed_user', 'first_name': 'fn',
                 'last_name': 'ln', 'email': 'foo@bar.com'}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username='test_user').count(), 0)
-        user = User.objects.get(username='changed_user')
-        self.assertEqual(user.first_name, 'fn')
-        self.assertEqual(user.last_name, 'ln')
-        self.assertEqual(user.email, 'foo@bar.com')
+        self.assertEqual(User.objects.filter(username='changed_user')
+                .count(), 0)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
