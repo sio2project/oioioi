@@ -7,6 +7,11 @@ from django.db import models, connection
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+            ("contests", "0001_initial"),
+            ("problems", "0001_initial"),
+    )
+
     def forwards(self, orm):
         existing_tables = connection.introspection.table_names()
 

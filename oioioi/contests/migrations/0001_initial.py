@@ -7,6 +7,10 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+            ("problems", "0001_initial"),
+    )
+
     def forwards(self, orm):
         # Adding model 'Contest'
         db.create_table('contests_contest', (

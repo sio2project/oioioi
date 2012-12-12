@@ -7,6 +7,11 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+            ("contests", "0001_initial"),
+            ("participants", "0001_initial"),
+    )
+
     def forwards(self, orm):
         # Adding model 'Region'
         db.create_table('oi_region', (
