@@ -1,0 +1,17 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block styles %}
+{{ block.super }}
+<style type="text/css">
+    {{ css|safe }}
+</style>
+{% endblock %}
+
+{% block content %}
+    {% if is_source_safe %}
+        {{ source|safe }}
+    {% else %}
+        <pre>{{ source }}</pre>
+    {% endif %}
+{% endblock %}
