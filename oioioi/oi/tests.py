@@ -3,6 +3,7 @@ from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import fake_time
+from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.participants.models import Participant
@@ -374,4 +375,33 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
+
+class TestIgnoringCE(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_submission']
+
+    def _test(self, controller_name):
+        contest = Contest.objects.get()
+        contest.controller.name = controller_name
+        contest.save()
+
+        test_env = {}
+        test_env['problem_instance_id'] = 1
+        test_env['round_id'] = 1
+        test_env['contest_id'] = contest.id
+
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+
+        for i in range(1,3):
+            test_env['submission_id'] = i
+            update_user_results(test_env)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertIn('Test User', response.content)
+        self.assertNotIn('Test User 2', response.content)
+        self.assertIn('34', response.content)
+
+    def test_all_oi_style_contests(self):
+        self._test('oioioi.oi.controllers.OIContestController')
+        self._test('oioioi.oi.controllers.OIOnsiteContestController')
 

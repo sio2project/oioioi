@@ -25,7 +25,7 @@ class TestProgramsViews(TestCase):
 
     def test_submission_views(self):
         self.client.login(username='test_user')
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
         # Download shown response.
@@ -59,7 +59,7 @@ class TestProgramsViews(TestCase):
         self.assertEqual(response.content.strip(), '3')
 
     def test_submissions_permissions(self):
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         test = Test.objects.get(name='0')
         for view in ['show_submission_source', 'download_submission_source']:
             check_not_accessible(self, view, kwargs={
@@ -92,7 +92,7 @@ class TestProgramsXssViews(TestCase):
 
     def test_submission_xss_views(self):
         self.client.login(username='test_user')
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
         # Download shown response.
@@ -157,7 +157,7 @@ class TestSubmittingAsAdmin(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.count(), 1)
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         self.assertEqual(submission.user.username, 'test_user')
         self.assertEqual(submission.kind, 'IGNORED')
 

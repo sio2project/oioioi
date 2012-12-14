@@ -175,7 +175,7 @@ class TestContestViews(TestCase):
 
     def test_submission_view(self):
         contest = Contest.objects.get()
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         self.client.login(username='test_user')
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
@@ -198,7 +198,7 @@ class TestContestViews(TestCase):
 
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         check_not_accessible(self, 'submission', kwargs={
             'contest_id': submission.problem_instance.contest.id,
             'submission_id': submission.id})
@@ -301,7 +301,7 @@ class TestRejudgeAndFailure(TestCase):
                 'oioioi.contests.tests.BrokenContestController'
         contest.save()
 
-        submission = Submission.objects.get()
+        submission = Submission.objects.get(pk=1)
         self.client.login(username='test_admin')
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.get(reverse('rejudge_submission',
