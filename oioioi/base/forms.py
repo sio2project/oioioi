@@ -18,7 +18,7 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs.update(disabled=True)
+        self.fields['username'].widget.attrs.update(readonly=True)
 
     def clean_username(self):
         instance = getattr(self, 'instance', None)
