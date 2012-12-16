@@ -235,7 +235,7 @@ class SinolPackage(object):
             num_groups = len(scored_groups)
             group_score = total_score/num_groups
             extra_score_groups = sorted(scored_groups)[
-                    -(total_score - num_groups*group_score):]
+                    num_groups - (total_score - num_groups*group_score):]
             for group in scored_groups:
                 score = group_score
                 if group in extra_score_groups:
