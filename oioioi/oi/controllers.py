@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+from oioioi.contests.models import Submission
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.oi.models import OIRegistration, School
@@ -37,6 +38,23 @@ class OIContestController(ProgrammingContestController):
         return super(OIContestController, self)\
                 .can_submit(request, problem_instance)
 
+    def update_user_result_for_problem(self, result):
+        try:
+            latest_submission = Submission.objects \
+                .filter(problem_instance=result.problem_instance) \
+                .filter(user=result.user) \
+                .filter(score__isnull=False) \
+                .exclude(status='CE') \
+                .filter(kind='NORMAL') \
+                .latest()
+            result.score = latest_submission.score
+            result.status = latest_submission.status
+        except Submission.DoesNotExist:
+            result.score = None
+            result.status = None
+        result.save()
+
+
 class OIOnsiteRegistrationController(ParticipantsController):
     participant_admin = OIOnsiteRegistrationParticipantAdmin
 
@@ -46,20 +64,9 @@ class OIOnsiteRegistrationController(ParticipantsController):
     def can_edit_registration(self, request, participant):
         return False
 
-class OIOnsiteContestController(ProgrammingContestController):
+class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
 
     def registration_controller(self):
         return OIOnsiteRegistrationController(self.contest)
-
-    def can_submit(self, request, problem_instance):
-        if request.user.is_anonymous():
-            return False
-        if request.user.has_perm('contests.contest_admin', self.contest):
-            return True
-        qs = User.objects.filter(id=request.user.id)
-        if not self.registration_controller().filter_participants(qs):
-            return False
-        return super(OIOnsiteContestController, self)\
-                .can_submit(request, problem_instance)
 
