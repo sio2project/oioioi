@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext as _
 from django.core.files import File
 from django.http import HttpResponse
+from oioioi.base.utils import naturalsort_key
 from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.problems.models import Problem, ProblemStatement, \
@@ -184,7 +185,8 @@ class SinolPackage(object):
         memory_limits = _stringify_keys(self.config.get('memory_limits', {}))
 
         # Find tests and create objects
-        for test in os.listdir(indir):
+        for order, test in enumerate(sorted(os.listdir(indir),
+                                            key=naturalsort_key)):
             match = names_re.match(test)
             if not match:
                 if test.endswith('.in'):
@@ -221,6 +223,7 @@ class SinolPackage(object):
                 else:
                     instance.memory_limit = memory_limits.get(name,
                             DEFAULT_MEMORY_LIMIT)
+            instance.order = order
             instance.save()
             test_names.append(name)
 
@@ -234,7 +237,7 @@ class SinolPackage(object):
             Test.objects.filter(problem=self.problem).update(max_score=0)
             num_groups = len(scored_groups)
             group_score = total_score/num_groups
-            extra_score_groups = sorted(scored_groups)[
+            extra_score_groups = sorted(scored_groups, key=naturalsort_key)[
                     num_groups - (total_score - num_groups*group_score):]
             for group in scored_groups:
                 score = group_score

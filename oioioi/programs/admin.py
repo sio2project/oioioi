@@ -26,7 +26,7 @@ class TestInline(admin.TabularInline):
             'input_file_link', 'output_file_link')
     readonly_fields = ('name', 'kind', 'group', 'input_file_link',
             'output_file_link')
-    ordering = ('kind', 'name')
+    ordering = ('kind', 'order', 'name')
 
     class Media:
         css = {
@@ -80,7 +80,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
                 .select_related('model_solution') \
                 .all()
         tests = problem_instance.problem.test_set \
-                .order_by('group', 'name').all()
+                .order_by('order', 'group', 'name').all()
 
         group_results = defaultdict(lambda: defaultdict(lambda: None))
         for gr in group_reports:

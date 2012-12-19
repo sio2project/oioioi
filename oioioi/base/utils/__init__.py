@@ -10,6 +10,7 @@ from contextlib import contextmanager
 import tempfile
 import shutil
 import traceback
+import re
 
 # Metaclasses
 
@@ -354,4 +355,10 @@ def uploaded_file_name(uploaded_file):
         f.flush()
         yield f.name
         f.close()
+
+# Natural sort key
+
+def naturalsort_key(key):
+    convert = lambda text: int(text) if text.isdigit() else text
+    return [ convert(c) for c in re.split('([0-9]+)', key) ]
 
