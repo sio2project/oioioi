@@ -7,10 +7,10 @@ from oioioi.questions.models import Message
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'topic', 'author']
-    fields = ['date', 'author', 'contest', 'problem_instance', 'problem',
-            'kind', 'topic', 'content']
-    readonly_fields = ['date', 'author', 'contest', 'problem_instance',
-        'problem', 'kind']
+    fields = ['date', 'author', 'contest', 'round', 'problem_instance',
+        'kind', 'topic', 'content']
+    readonly_fields = ['date', 'author', 'contest', 'round',
+        'problem_instance', 'kind']
 
     def has_add_permission(self, request):
         return request.user.has_perm('contests.contest_admin', request.contest)

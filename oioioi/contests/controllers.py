@@ -10,6 +10,7 @@ from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
+from oioioi.contests.utils import visible_problem_instances
 from oioioi import evalmgr
 import functools
 import json
@@ -29,7 +30,6 @@ def submission_template_context(request, submission):
             'can_see_status': can_see_status,
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment}
-
 
 class RoundTimes(object):
     def __init__(self, start, end, show_results, round_id):
@@ -215,20 +215,28 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                     to_event_inactive, now - rtimes.start)
         return sorted(queryset, key=sort_key)
 
+    def can_see_round(self, request, round):
+        """Determines if the current user is allowed to see the given round.
+
+           If not, everything connected with this round will be hidden.
+
+           The default implementation checks round dates.
+        """
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            return True
+        rtimes = self.get_round_times(request, round)
+        return not rtimes.is_future(request.timestamp)
+
     def can_see_problem(self, request, problem_instance):
         """Determines if the current user is allowed to see the given problem.
 
            If not, the problem will be hidden from all lists, so that its name
            should not be visible either.
 
-           The default implementation checks round dates and emits
-           :data:`can_see_problem` and subclasses should also call this default
-           implementation.
+           The default implementation checks if the user can see the given
+           round (calls :meth:`can_see_round`).
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return True
-        rtimes = self.get_round_times(request, problem_instance.round)
-        return not rtimes.is_future(request.timestamp)
+        return self.can_see_round(request, problem_instance.round)
 
     def can_submit(self, request, problem_instance):
         """Determines if the current user is allowed to submit a solution for
@@ -417,13 +425,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            "My submissions" view.
 
            The default implementation returns all submissions belonging to
-           the user.
+           the user for the problems that are visible.
 
            Should return the updated queryset.
         """
         if not request.user.is_authenticated():
             return queryset.none()
-        return queryset.filter(user=request.user)
+        return queryset.filter(user=request.user) \
+            .filter(problem_instance__in=visible_problem_instances(request))
 
     def results_visible(self, request, submission):
         """Determines whether it is a good time to show the submission's
