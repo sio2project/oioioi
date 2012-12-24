@@ -246,8 +246,9 @@ class TestManyRounds(TestCase):
         self.client.login(username='test_user')
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            for problem_name in ['zad1', 'zad2', 'zad3', 'zad4']:
+            for problem_name in ['zad1', 'zad3', 'zad4']:
                 self.assertIn(problem_name, response.content)
+            self.assertNotIn('zad2', response.content)
             self.assertIn('contests/my_submissions.html',
                     [t.name for t in response.templates])
             self.assertEqual(response.content.count('<td>34</td>'), 2)
