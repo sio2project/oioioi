@@ -1,9 +1,8 @@
 from django import forms
 from django.contrib.admin import widgets
-from django.forms.models import modelform_factory
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.utils import submitable_problem_instances
 
 class SimpleContestForm(forms.ModelForm):
@@ -111,14 +110,12 @@ class SubmissionForm(forms.Form):
             del cleaned_data['problem_instance_id']
             return cleaned_data
 
-        submissions_number = Submission.objects \
-            .filter(user=self.request.user, problem_instance__id=pi.id) \
-            .count()
-        submissions_limit = \
-            self.request.contest.controller.get_submissions_limit()
-        if submissions_limit and submissions_number >= submissions_limit:
-            raise forms.ValidationError(_("Submission limit for the problem \
-                '%s' exceeded." % (pi.problem.name,)))
+        kind = cleaned_data.get('kind', 'NORMAL')
+        if self.request.contest.controller.is_exceeded_submissions_limit(
+                self.request, pi, kind):
+            raise forms.ValidationError(
+                _("Submission limit for the problem '%s' exceeded.") %
+                pi.problem.name)
 
         decision = self.request.contest.controller.can_submit(self.request, pi)
         if not decision:

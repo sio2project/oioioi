@@ -54,7 +54,7 @@ class AttachmentInline(admin.TabularInline):
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline]
-    fields = ['name', 'id', 'controller_name']
+    fields = ['name', 'id', 'controller_name', 'default_submissions_limit']
     readonly_fields = ['creation_date']
     prepopulated_fields = {'id': ('name',)}
     list_display = ['name', 'id', 'creation_date']

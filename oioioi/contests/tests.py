@@ -507,14 +507,13 @@ class TestSubmission(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance, file_size=102400)
         self._assertSubmitted(contest, response)
 
-    def test_submit_limitation(self):
+    def test_submissions_limitation(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
-
-        for i in range(10):
-            response = self.submit_file(contest, problem_instance)
-            self._assertSubmitted(contest, response)
-
+        problem_instance.submissions_limit = 1
+        problem_instance.save()
+        response = self.submit_file(contest, problem_instance)
+        self._assertSubmitted(contest, response)
         response = self.submit_file(contest, problem_instance)
         self.assertEqual(200, response.status_code)
         self.assertIn('Submission limit for the problem', response.content)

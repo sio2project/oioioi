@@ -9,6 +9,10 @@ class ProblemUploadForm(forms.Form):
         super(ProblemUploadForm, self).__init__(*args, **kwargs)
 
         if contest:
+            self.fields['submissions_limit'] = \
+                forms.IntegerField(required=False)
+            self.fields['submissions_limit'].initial = \
+                contest.default_submissions_limit
             choices = [(r.id, r.name) for r in contest.round_set.all()]
             if len(choices) == 1:
                 self.fields.insert(0, 'round_id', forms.CharField(

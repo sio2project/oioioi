@@ -14,7 +14,6 @@ from oioioi.problems.models import Problem
 from oioioi.contests.fields import ScoreField
 from oioioi.filetracker.fields import FileField
 
-import datetime
 import itertools
 import os.path
 
@@ -37,6 +36,9 @@ class Contest(models.Model):
             verbose_name=_("type"))
     creation_date = models.DateTimeField(auto_now_add=True, editable=False,
             verbose_name=_("creation date"))
+    default_submissions_limit = models.IntegerField(
+            verbose_name=_("default submissions limit"),
+            default=settings.DEFAULT_SUBMISSIONS_LIMIT, blank=True)
 
     class Meta:
         verbose_name = _("contest")
@@ -133,6 +135,8 @@ class ProblemInstance(models.Model):
     round = models.ForeignKey(Round, verbose_name=_("round"))
     problem = models.ForeignKey(Problem, verbose_name=_("problem"))
     short_name = models.CharField(max_length=30, verbose_name=_("short name"))
+    submissions_limit = models.IntegerField(blank=True,
+        default=settings.DEFAULT_SUBMISSIONS_LIMIT)
 
     class Meta:
         verbose_name = _("problem instance")

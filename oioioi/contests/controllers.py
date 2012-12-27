@@ -263,6 +263,20 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         rtimes = self.get_round_times(request, problem_instance.round)
         return rtimes.is_active(request.timestamp)
 
+    def get_submissions_limit(self, request, problem_instance):
+        if is_contest_admin(request):
+            return None
+        return problem_instance.submissions_limit
+
+    def is_exceeded_submissions_limit(self, request, problem_instance, kind):
+        submissions_number = Submission.objects.filter(user=request.user,
+            problem_instance__id=problem_instance.id, kind=kind).count()
+        submissions_limit = self.get_submissions_limit(request,
+            problem_instance)
+        if submissions_limit and submissions_number >= submissions_limit:
+            return True
+        return False
+
     def adjust_submission_form(self, request, form):
         pass
 
@@ -270,16 +284,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             cleaned_data):
         return cleaned_data
 
-    def get_submissions_limit(self):
-        return 10
-
     def create_submission(self, request, problem_instance, form_data):
         raise NotImplementedError
 
     def fill_evaluation_environ(self, environ, submission):
         problem_instance = submission.problem_instance
         problem = problem_instance.problem
-        problem_controller = problem.controller
         round = problem_instance.round
         contest = round.contest
 

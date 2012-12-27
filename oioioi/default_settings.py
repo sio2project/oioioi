@@ -268,3 +268,6 @@ PRINTING_MAX_FILE_SIZE = 1024 * 100  # in kB
 PRINTING_MAX_FILE_PAGES = 10
 
 PRINTING_COMMAND = ['lp']  # as argv list
+
+# To get unlimited submissions count set to 0.
+DEFAULT_SUBMISSIONS_LIMIT = 10

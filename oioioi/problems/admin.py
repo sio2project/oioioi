@@ -2,7 +2,6 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
 from django.template.response import TemplateResponse
-from django.template import RequestContext
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.util import unquote
@@ -57,8 +56,23 @@ class AttachmentInline(admin.TabularInline):
                 kwargs={'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
 
+class ProblemInstanceInline(admin.StackedInline):
+    model = ProblemInstance
+    can_delete = False
+    fields = ['submissions_limit']
+    inline_classes = ('collapse open',)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request):
+        return True
+
+    def has_delete_permission(self, request):
+        return False
+
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [StatementInline, AttachmentInline]
+    inlines = [StatementInline, AttachmentInline, ProblemInstanceInline]
     readonly_fields = ['name', 'short_name', 'controller_name',
             'package_backend_name']
     exclude = ['contest']
@@ -90,7 +104,7 @@ class ProblemAdmin(admin.ModelAdmin):
         else:
             return redirect('oioioiadmin:problems_problem_changelist')
 
-    def _add_problem(self, request, round):
+    def _add_problem(self, request, round, submissions_limit):
         uploaded_file = request.FILES['package_file']
         with uploaded_file_name(uploaded_file) as filename:
             backend = backend_for_package(filename,
@@ -105,7 +119,7 @@ class ProblemAdmin(admin.ModelAdmin):
                 problem.contest = round.contest
                 problem.save()
                 pi = ProblemInstance(contest=round.contest, round=round,
-                        problem=problem)
+                        problem=problem, submissions_limit=submissions_limit)
                 pi.save()
         self.message_user(request, _("Problem package uploaded."))
         return self.redirect_to_list(request, problem)
@@ -140,7 +154,8 @@ class ProblemAdmin(admin.ModelAdmin):
                                 id=form.cleaned_data['round_id'])
                     else:
                         round = None
-                    return self._add_problem(request, round)
+                    return self._add_problem(request, round,
+                        form.cleaned_data['submissions_limit'])
                 except Exception, e:
                     logger.error("Error processing package", exc_info=True)
                     form._errors['__all__'] = form.error_class([unicode(e)])
