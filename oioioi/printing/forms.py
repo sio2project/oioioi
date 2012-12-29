@@ -1,6 +1,8 @@
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+from oioioi.printing.pdf import generator, PageLimitExceeded
 
 def is_text_file_validator(file):
     if not file.content_type.startswith('text/'):
@@ -26,6 +28,4 @@ class PrintForm(forms.Form):
                 header=unicode(self.user))
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))
-        return scleaned_data
-
-
+        return cleaned_data['file']

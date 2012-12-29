@@ -15,6 +15,7 @@ INSTALLED_APPS = (
     'oioioi.ipdnsauth',
     'oioioi.participants',
     'oioioi.oi',
+    'oioioi.printing',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (
