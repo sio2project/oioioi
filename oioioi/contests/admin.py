@@ -1,5 +1,6 @@
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.util import unquote
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
@@ -12,6 +13,8 @@ from oioioi.base.utils import make_html_links, make_html_link
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension
 from oioioi.contests.forms import SimpleContestForm, ProblemInstanceForm
+from oioioi.participants.models import Participant
+from oioioi.participants.controllers import ParticipantsController
 from functools import partial
 import urllib
 
@@ -338,6 +341,13 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'round':
             kwargs['queryset'] = Round.objects.filter(contest=request.contest)
+        elif db_field.name == 'user':
+            rcontroller = request.contest.controller.registration_controller()
+            if isinstance(rcontroller, ParticipantsController):
+                kwargs['queryset'] = User.objects \
+                        .filter(id__in=Participant.objects
+                            .filter(contest=request.contest)
+                            .values_list('user', flat=True))
         return super(RoundTimeExtensionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 

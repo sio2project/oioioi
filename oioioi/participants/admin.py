@@ -1,9 +1,12 @@
 from django.contrib.admin.util import unquote
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from oioioi.base import admin
-from oioioi.participants.forms import ParticipantForm
+from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
 from oioioi.participants.models import Participant
+from oioioi.contests.models import RoundTimeExtension
 
 def has_participants(request):
     rcontroller = request.contest.controller.registration_controller()
@@ -15,7 +18,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     list_filter = ['status', ]
     fields = [('user', 'status'),]
     search_fields = ['user__username', 'user__last_name']
-    actions = ['make_active', 'make_banned', 'delete_selected']
+    actions = ['make_active', 'make_banned', 'delete_selected', 'extend_round']
     form = ParticipantForm
 
     def user_login(self, instance):
@@ -56,6 +59,43 @@ class ParticipantAdmin(admin.ModelAdmin):
     def make_banned(self, request, queryset):
         queryset.update(status='BANNED')
     make_banned.short_description = _("Mark selected participants as banned")
+
+    def extend_round(self, request, queryset):
+        form = None
+
+        if 'submit' in request.POST:
+            form = ExtendRoundForm(request.contest, request.POST)
+
+            if form.is_valid():
+                round = form.cleaned_data['round']
+                extra_time = form.cleaned_data['extra_time']
+
+                users = [participant.user for participant in queryset]
+                existing_extensions = RoundTimeExtension.objects \
+                        .filter(round=round, user__in=users)
+                for extension in existing_extensions:
+                    extension.extra_time += extra_time;
+                    extension.save()
+                existing_count = existing_extensions.count()
+
+                new_extensions = [RoundTimeExtension(user=user, round=round,
+                        extra_time=extra_time) for user in users \
+                        if not existing_extensions.filter(user=user).exists()]
+                RoundTimeExtension.objects.bulk_create(new_extensions)
+
+                self.message_user(request, _("Created %d and updated %d %s.")
+                        % (len(new_extensions), existing_count,
+                        RoundTimeExtension._meta.verbose_name_plural.lower()))
+
+                return HttpResponseRedirect(request.get_full_path())
+
+        if not form:
+            form = ExtendRoundForm(request.contest,
+                    initial={'_selected_action': [p.id for p in queryset]})
+
+        return TemplateResponse(request, 'admin/participants/extend_round.html',
+                {'form': form})
+    extend_round.short_description = _("Extend round")
 
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
     default_participant_admin = ParticipantAdmin
