@@ -147,7 +147,8 @@ class ProblemAdmin(admin.ModelAdmin):
     def _reupload_problem(self, request, problem):
         uploaded_file = request.FILES['package_file']
         with uploaded_file_name(uploaded_file) as filename:
-            backend = backend_for_package(filename)
+            backend = backend_for_package(filename,
+                    original_filename=uploaded_file.name)
             problem = backend.unpack(filename,
                     original_filename=uploaded_file.name,
                     existing_problem=problem)

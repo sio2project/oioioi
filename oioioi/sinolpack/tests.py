@@ -173,6 +173,22 @@ class TestSinolPackageInContest(TestCase):
                     args=(problem.id,)))
         self.assertEqual(response.content, open(filename, 'rb').read())
 
+    @attr('slow')
+    def test_huge_unpack_update(self):
+        self.client.login(username='test_admin')
+        filename = get_test_filename('test_huge_package.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        # Rudimentary test of package updating
+        url = reverse('oioioiadmin:problems_problem_reupload',
+                args=(problem.id,))
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')})
+        self.assertEqual(response.status_code, 302)
+        url = reverse('oioioiadmin:problems_problem_changelist')
+        self.assertTrue(response['Location'].endswith(url))
+
 class TestSinolPackageCreator(TestCase):
     fixtures = ['test_users', 'test_full_package']
 
