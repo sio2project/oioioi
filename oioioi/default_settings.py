@@ -127,6 +127,10 @@ COMPRESS_PRECOMPILERS = (
 )
 
 INSTALLED_APPS = (
+    # south needs to be before oioioi.base
+    # because it overrides south's sncdb command
+    'south',
+
     'oioioi.filetracker',
     'oioioi.contests',
     'oioioi.problems',
@@ -135,22 +139,23 @@ INSTALLED_APPS = (
     'oioioi.questions',
     'oioioi.rankings',
     'oioioi.sioworkers',
-    'oioioi.base',
     'oioioi.jotform',
     'oioioi.analytics',
     'oioioi.celery',
     'oioioi.clock',
+    'oioioi.base',
+
     'djcelery',
     'kombu.transport.django',
     'djsupervisor',
     'registration',
     'grappelli',
-    'south',
     'django_nose',
     'django_extensions',
     'debug_toolbar',
     'compressor',
     'linaro_django_pagination',
+
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.auth',
