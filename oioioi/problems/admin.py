@@ -40,16 +40,22 @@ class StatementInline(admin.TabularInline):
 
 class AttachmentInline(admin.TabularInline):
     model = ProblemAttachment
-    can_delete = False
+    extra = 0
+    readonly_fields = ['content_link']
 
     def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request):
         return True
 
-    def has_delete_permission(self, request):
-        return False
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+    def content_link(self, instance):
+        href = reverse('oioioi.problems.views.show_problem_attachment_view',
+                kwargs={'attachment_id': str(instance.id)})
+        return make_html_link(href, instance.content.name)
 
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [StatementInline, AttachmentInline]
