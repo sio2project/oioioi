@@ -55,7 +55,7 @@ class TestQuestions(TestCase):
         self.assertEqual(len(form.fields['category'].choices), 2)
 
         post_data = {
-                'category': 'p_%d' % (pi.id,),
+                'category': str(pi.id),
                 'topic': 'the-new-question',
                 'content': 'the-new-body',
             }
@@ -66,6 +66,7 @@ class TestQuestions(TestCase):
         self.assertEqual(new_question.kind, 'QUESTION')
         self.assertIsNone(new_question.top_reference)
         self.assertEqual(new_question.contest, contest)
+        self.assertIsNone(new_question.problem)
         self.assertEqual(new_question.problem_instance, pi)
         self.assertEqual(new_question.author.username, 'test_user2')
 
@@ -92,6 +93,7 @@ class TestQuestions(TestCase):
         self.assertEqual(new_reply.kind, 'PUBLIC')
         self.assertEqual(new_reply.top_reference, new_question)
         self.assertEqual(new_reply.contest, contest)
+        self.assertIsNone(new_reply.problem)
         self.assertEqual(new_reply.problem_instance, pi)
         self.assertEqual(new_reply.author.username, 'test_admin')
 

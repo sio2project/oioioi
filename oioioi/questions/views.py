@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-        visible_rounds, visible_problem_instances
+        visible_problem_instances
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm
 from oioioi.questions.models import Message, MessageView
 
@@ -16,10 +16,11 @@ menu_registry.register('contest_messages', _("Messages"),
             request.contest.id}), order=450)
 
 def visible_messages(request):
-    rounds_ids = [round.id for round in visible_rounds(request)]
+    problem_instances = visible_problem_instances(request)
+    problem_ids = [pi.problem_id for pi in problem_instances]
     messages = Message.objects \
-            .filter(contest=request.contest.id) \
-            .filter(round_id__in=rounds_ids) \
+            .filter(Q(contest=request.contest.id)
+                    | Q(problem_id__in=problem_ids)) \
             .order_by('-date')
     if not request.user.has_perm('contests.contest_admin', request.contest):
         q_expression = Q(kind='PUBLIC')
