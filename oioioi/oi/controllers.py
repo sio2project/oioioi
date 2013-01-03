@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from oioioi.contests.models import Submission
+from oioioi.contests.utils import has_any_active_round
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.oi.models import OIRegistration, School
@@ -54,7 +55,6 @@ class OIContestController(ProgrammingContestController):
             result.status = None
         result.save()
 
-
 class OIOnsiteRegistrationController(ParticipantsController):
     participant_admin = OIOnsiteRegistrationParticipantAdmin
 
@@ -70,3 +70,11 @@ class OIOnsiteContestController(OIContestController):
     def registration_controller(self):
         return OIOnsiteRegistrationController(self.contest)
 
+    def can_see_round(self, request, round):
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            return True
+        rtimes = self.get_round_times(request, round)
+        if has_any_active_round(request):
+            return rtimes.is_active(request.timestamp, request.user)
+        return super(OIOnsiteContestController, self) \
+                .can_see_round(request, round)
