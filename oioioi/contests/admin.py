@@ -31,7 +31,8 @@ class RoundInline(admin.StackedInline):
 
 class AttachmentInline(admin.TabularInline):
     model = ContestAttachment
-    extra = 1
+    extra = 0
+    readonly_fields = ['content_link']
 
     def has_add_permission(self, request):
         return True
@@ -41,6 +42,12 @@ class AttachmentInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
+    def content_link(self, instance):
+        href = reverse('oioioi.contests.views.contest_attachment_view',
+                    kwargs={'contest_id': str(instance.contest),
+                            'attachment_id': str(instance.id)})
+        return make_html_link(href, instance.content.name)
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline]
