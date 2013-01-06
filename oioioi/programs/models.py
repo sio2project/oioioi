@@ -30,6 +30,7 @@ class Test(models.Model):
             null=True, blank=True)
     max_score = models.IntegerField(verbose_name=_("score"),
             default=10)
+    order = models.IntegerField(default=0)
 
 class OutputChecker(models.Model):
     problem = models.OneToOneField(Problem)
