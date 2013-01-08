@@ -249,8 +249,8 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def problem_instance_display(self, instance):
         if instance.kind != 'NORMAL':
-            return '%s (%s)' % (instance.problem_instance,
-                    instance.get_kind_display())
+            return '%s (%s)' % (force_unicode(instance.problem_instance),
+                    force_unicode(instance.get_kind_display()))
         else:
             return instance.problem_instance
     problem_instance_display.short_description = _("Problem")
