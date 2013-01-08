@@ -1,12 +1,13 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
-from oioioi.contests.models import Contest, Round
+from django.contrib.auth.models import User
+from oioioi.contests.models import Contest, Round, RoundTimeExtension
 from datetime import datetime
 import json
 import time
 
 class TestClock(TestCase):
-    fixtures = ['test_contest']
+    fixtures = ['test_contest', 'test_users']
 
     def test_clock(self):
         response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
@@ -34,3 +35,21 @@ class TestClock(TestCase):
         round_end_date = response['round_end_date']
         self.assertEqual(round_start_date, time.mktime(r2_start.timetuple()))
         self.assertEqual(round_end_date, time.mktime(r2_end.timetuple()))
+
+    def test_countdown_with_extended_rounds(self):
+        contest = Contest.objects.get()
+        now = time.time()
+        r1_start = datetime.fromtimestamp(now - 5)
+        r1_end = datetime.fromtimestamp(now + 10)
+        r1 = Round(contest=contest, start_date=r1_start, end_date=r1_end)
+        r1.save()
+        user = User.objects.get(username='test_user')
+        RoundTimeExtension(user=user, round=r1, extra_time=10).save()
+
+        self.client.login(username='test_user')
+        response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
+        response = json.loads(response.content)
+        round_start_date = response['round_start_date']
+        round_end_date = response['round_end_date']
+        self.assertEqual(round_start_date, time.mktime(r1_start.timetuple()))
+        self.assertEqual(round_end_date, time.mktime(r1_end.timetuple()) + 600)

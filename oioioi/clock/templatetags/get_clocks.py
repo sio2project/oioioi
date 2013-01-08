@@ -1,6 +1,7 @@
 from django import template
 from django.utils import timezone
 from django.utils.translation import ugettext as _
+from oioioi.contests.models import Round
 import time
 
 register = template.Library()
@@ -16,23 +17,30 @@ def navbar_clock(context):
 def navbar_countdown(context):
     timestamp = getattr(context['request'], 'timestamp', None)
     contest = getattr(context['request'], 'contest', None)
+    user = getattr(context['request'], 'user', None)
     if not (timestamp and contest):
         return {}
-    next_rounds = contest.round_set.filter(end_date__gt=timestamp) \
-        .order_by('start_date')
-    current_rounds = next_rounds.filter(start_date__lt=timestamp) \
-        .order_by('end_date')
+    rounds_times = [contest.controller \
+            .get_round_times(context['request'], round) \
+            for round in Round.objects.filter(contest=contest)]
+    next_rounds_times = filter(lambda rt: rt.is_future(timestamp),
+            rounds_times)
+    next_rounds_times.sort(key=lambda rt: rt.get_start())
+    current_rounds_times = filter(lambda rt: rt.get_end(),
+            filter(lambda rt: rt.is_active(timestamp), rounds_times))
+    current_rounds_times.sort(key=lambda rt: rt.get_end())
 
-    if current_rounds:
+    if current_rounds_times:
         countdown_text_sufix = _(" left to the end of the round.")
-        remaining_seconds = time.mktime((current_rounds[0].end_date) \
-            .timetuple()) - time.mktime(timestamp.timetuple())
-        round_duration = time.mktime(current_rounds[0].end_date.timetuple()) - \
-            time.mktime(current_rounds[0].start_date.timetuple())
+        remaining_seconds = time.mktime((current_rounds_times[0].get_end())
+                .timetuple()) - time.mktime(timestamp.timetuple())
+        round_duration = time.mktime(current_rounds_times[0].get_end()
+                .timetuple()) - time.mktime(current_rounds_times[0].get_start()
+                    .timetuple())
         elapsed_part = 1 - 1. * remaining_seconds / round_duration
-    elif next_rounds:
+    elif next_rounds_times:
         countdown_text_sufix = _(" left to the start of the round.")
-        remaining_seconds = time.mktime((next_rounds[0].start_date) \
+        remaining_seconds = time.mktime((next_rounds_times[0].get_start()) \
             .timetuple()) - time.mktime(timestamp.timetuple())
         round_duration = 0
     else:

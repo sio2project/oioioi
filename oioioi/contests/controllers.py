@@ -32,30 +32,41 @@ def submission_template_context(request, submission):
 
 
 class RoundTimes(object):
-    def __init__(self, start, end, show_results, round_id):
+    def __init__(self, start, end, show_results, round_id, user=None):
         self.start = start
         self.end = end
         self.show_results = show_results
         self.round_id = round_id
+        self.user = user
 
-    def is_past(self, current_datetime, user):
-        try:
-            extra_time = RoundTimeExtension.objects.get(user=user,
-                    round__id=self.round_id).extra_time
-        except (TypeError, RoundTimeExtension.DoesNotExist):
-            extra_time = 0
-        return self.end \
-                and current_datetime > self.end + timedelta(minutes=extra_time)
+    def is_past(self, current_datetime):
+        end = self.get_end()
+        return end and current_datetime > end
 
-    def is_active(self, current_datetime, user):
-        return not (self.is_past(current_datetime, user) or
+    def is_active(self, current_datetime):
+        return not (self.is_past(current_datetime) or
                 self.is_future(current_datetime))
 
     def is_future(self, current_datetime):
-        return self.start and current_datetime < self.start
+        start = self.get_start()
+        return start and current_datetime < start
 
     def results_visible(self, current_datetime):
         return self.show_results and current_datetime >= self.show_results
+
+    def get_start(self):
+        return self.start
+
+    def get_end(self):
+        if self.end:
+            try:
+                extra_time = RoundTimeExtension.objects.get(user=self.user,
+                        round__id=self.round_id).extra_time
+            except (TypeError, RoundTimeExtension.DoesNotExist):
+                extra_time = 0
+            return self.end + timedelta(minutes=extra_time)
+        else:
+            return self.end
 
 class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
     def __init__(self, contest):
@@ -164,7 +175,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            :returns: an instance of :class:`RoundTimes`
         """
         return RoundTimes(round.start_date, round.end_date,
-                round.results_date, round.id)
+                round.results_date, round.id, request.user)
 
     def order_rounds_by_focus(self, request, queryset=None):
         """Sorts the rounds in the queryset according to probable user's
@@ -200,7 +211,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 to_event = now - rtimes.start
             if rtimes.is_future(now):
                 to_event = min(to_event, rtimes.start - now)
-            elif rtimes.is_active(now, request.user):
+            elif rtimes.is_active(now):
                 to_event = min(to_event, rtimes.end - now)
 
             to_event_inactive = timedelta(hours=6)
@@ -211,7 +222,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             if rtimes.is_future(now):
                 to_event_inactive = min(to_event_inactive, rtimes.start - now)
 
-            return (to_event, not rtimes.is_active(now, request.user),
+            return (to_event, not rtimes.is_active(now),
                     to_event_inactive, now - rtimes.start)
         return sorted(queryset, key=sort_key)
 
@@ -244,7 +255,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
         rtimes = self.get_round_times(request, problem_instance.round)
-        return rtimes.is_active(request.timestamp, request.user)
+        return rtimes.is_active(request.timestamp)
 
     def adjust_submission_form(self, request, form):
         pass
