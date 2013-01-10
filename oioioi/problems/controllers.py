@@ -1,6 +1,6 @@
-from oioioi.base.utils import RegisteredSubclassesBase
+from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 
-class ProblemController(RegisteredSubclassesBase):
+class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
     modules_with_subclasses = ['controllers']
     abstract = True
@@ -8,7 +8,7 @@ class ProblemController(RegisteredSubclassesBase):
     def __init__(self, problem):
         self.problem = problem
 
-    def fill_evaluation_environ(self, environ):
+    def fill_evaluation_environ(self, environ, **kwargs):
         """Fills a minimal environment with evaluation receipt and other values
            required by the evaluation machinery.
 

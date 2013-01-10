@@ -1,0 +1,37 @@
+// From 3L: http://mateuszkocz.github.com/3l/
+.animation (...) {
+    -webkit-animation: @arguments;
+    -moz-animation: @arguments;
+    -o-animation: @arguments;
+    animation: @arguments;
+    }
+//
+
+.rotate-animation-mixin () {
+    from {
+        .rotate(0deg);
+    }
+    to {
+        .rotate(360deg);
+    }
+}
+
+@-webkit-keyframes loading-rotate-animation {
+    .rotate-animation-mixin;
+}
+@-moz-keyframes loading-rotate-animation {
+    .rotate-animation-mixin;
+}
+@-ms-keyframes loading-rotate-animation {
+    .rotate-animation-mixin;
+}
+@-o-keyframes loading-rotate-animation {
+    .rotate-animation-mixin;
+}
+@keyframes loading-rotate-animation {
+    .rotate-animation-mixin;
+}
+
+.btn.loading i.icon-refresh {
+    .animation(loading-rotate-animation 1s linear infinite);
+}

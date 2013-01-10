@@ -1,7 +1,8 @@
 {% load i18n %}
 {% load check_perm %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}            
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
 
+{% block program_controls %}
 <div class="corner-icons">
     <ul>
         {% if is_admin %}
@@ -14,7 +15,9 @@
             <i class="icon-download-alt"></i> {% trans "Download" %}</a></li>
     </ul>
 </div>
+{% endblock %}
 
+{% block submission_details %}
 <table class="details_table">
     <thead>
         <tr>
@@ -33,10 +36,13 @@
         </tr>
     </tbody>
 </table>
+{% endblock %}
 
+{% block submission_comment %}
 {% if submission.can_see_comment and submission.submission.comment %}
 <h4>{% trans "Submission comment" %}</h4>
 <pre class="hscroll">
-{{ submission.comment }}
+{{ submission.submission.comment }}
 </pre>
 {% endif %}
+{% endblock %}

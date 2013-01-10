@@ -1,0 +1,89 @@
+[
+    {
+        "pk": 1,
+        "model": "contests.submission",
+        "fields": {
+            "status": "OK",
+            "problem_instance": 1,
+            "kind": "TESTRUN",
+            "comment": "",
+            "score": null,
+            "user": 1001,
+            "date": "2011-07-24T23:57:49.270Z"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "programs.programsubmission",
+        "fields": {
+           "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "contests.submissionreport",
+        "fields": {
+            "status": "ACTIVE",
+            "kind": "TESTRUN",
+            "submission": 1,
+            "creation_date": "2011-07-24T23:58:48.242Z"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "testrun.testrunprogramsubmission",
+        "fields": {
+            "input_file": "data:testruns/test/1/in:OSA5Cg=="
+        }
+    },
+    {
+        "pk": 1,
+        "model": "contests.scorereport",
+        "fields": {
+            "status": "OK",
+            "comment": null,
+            "score": null,
+            "submission_report": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "contests.userresultforproblem",
+        "fields": {
+            "status": null,
+            "problem_instance": 1,
+            "score": null,
+            "user": 1001
+        }
+    },
+    {
+        "pk": 1,
+        "model": "programs.compilationreport",
+        "fields": {
+            "status": "OK",
+            "compiler_output": "",
+            "submission_report": 1
+        }
+    },
+    {
+        "pk": 1,
+        "model": "testrun.testrunconfig",
+        "fields": {
+            "time_limit": 1111,
+            "problem": 1,
+            "memory_limit": 1111
+        }
+    },
+    {
+        "pk": 1,
+        "model": "testrun.testrunreport",
+        "fields": {
+            "status": "OK",
+            "comment": "",
+            "test_time_limit": 1111,
+            "submission_report": 1,
+            "time_used": 0,
+            "output_file": "data:testruns/test/1/7a79b74e-b080-4b24-b715-d98e18f55206-out@1358207928:MTgK"
+        }
+    }
+]

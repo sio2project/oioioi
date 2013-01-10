@@ -2,20 +2,16 @@ from django.db import transaction
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 from oioioi.contests.scores import ScoreValue
-from oioioi.contests.models import Contest, Submission, SubmissionReport, \
+from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
 from oioioi.programs.models import CompilationReport, TestReport, \
         GroupReport, Test
 from oioioi.problems.models import Problem
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path
-import copy
-import uuid
 import logging
 import functools
 from collections import defaultdict
-import os
-import pprint
 import types
 
 logger = logging.getLogger(__name__)
@@ -76,7 +72,7 @@ def compile(env, **kwargs):
           * env['compiled_file'] - exists if and only if
             env['compilation_result'] is set to OK and contains compiled
             binary path
-          * env['compilation_message'] - contains compiler stdin and stdout
+          * env['compilation_message'] - contains compiler stdout and stderr
     """
 
     compilation_job = env.copy()
@@ -92,12 +88,11 @@ def compile(env, **kwargs):
     env['compilation_result'] = new_env.get('result_code', 'CE')
     return env
 
-
 @_if_compiled
 @transaction.commit_on_success
 def collect_tests(env, **kwargs):
     """Collects tests from the database and converts them to
-       evaluation enviroments.
+       evaluation environments.
 
        Used ``environ`` keys:
          * ``problem_id``
@@ -106,7 +101,6 @@ def collect_tests(env, **kwargs):
           * ``tests``: a dictionary mapping test names to test envs
     """
 
-    tests_of_type = {}
     env.setdefault('tests', {})
 
     problem = Problem.objects.get(id=env['problem_id'])
@@ -143,7 +137,8 @@ def run_tests(env, kind=None, **kwargs):
            otherwise (see the documentation for ``unsafe-exec`` job for
            more information),
          * ``compiled_file``: the compiled file which will be tested,
-         * ``checker``: if present, it should be the filetracker path]
+         * ``check_outputs``: set to ``True`` if the output should be verified
+         * ``checker``: if present, it should be the filetracker path
            of the binary used as the output checker,
          * ``save_outputs``: set to ``True`` if and only if each of
            test results should have its output file attached.
@@ -177,11 +172,11 @@ def run_tests(env, kind=None, **kwargs):
         job = test_env.copy()
         job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
         job['exe_file'] = env['compiled_file']
-        job['check_output'] = True
+        job['check_output'] = env.get('check_outputs', True)
         if env.get('checker'):
             job['chk_file'] = env['checker']
         if env.get('save_outputs'):
-            job['out_file'] = _make_filename(env, test_name + '.out')
+            job.setdefault('out_file', _make_filename(env, test_name + '.out'))
             job['upload_out'] = True
         jobs[test_name] = job
 
@@ -270,9 +265,9 @@ def grade_groups(env, **kwargs):
     return env
 
 def grade_submission(env, kind='NORMAL', **kwargs):
-    """Grades submision on a `Job` layer.
+    """Grades submission on a `Job` layer.
 
-       This `Handler` aggregetes score from graded groups and gets
+       This `Handler` aggregates score from graded groups and gets
        submission status from tests results.
 
        Used ``environ`` keys:
@@ -302,6 +297,43 @@ def grade_submission(env, kind='NORMAL', **kwargs):
     env['status'] = status
     return env
 
+def _make_base_report(env, kind):
+    """Helper function making: SubmissionReport, ScoreReport, CompilationReport.
+
+       Used ``environ`` keys:
+           * ``status``
+           * ``score``
+           * ``compilation_result``
+           * ``compilation_message``
+
+       Alters ``environ`` by adding:
+           * ``report_id``: id of the produced
+             :class:`~oioioi.contests.models.SubmissionReport`
+
+       Returns: tuple (submission, submission_report)
+    """
+    submission = Submission.objects.get(id=env['submission_id'])
+    submission_report = SubmissionReport(submission=submission)
+    submission_report.kind = kind
+    submission_report.save()
+
+    env['report_id'] = submission_report.id
+
+    status_report = ScoreReport(submission_report=submission_report)
+    status_report.status = env['status']
+    status_report.score = env['score']
+    status_report.save()
+
+    compilation_report = CompilationReport(submission_report=submission_report)
+    compilation_report.status = env['compilation_result']
+    compilation_message = env['compilation_message']
+
+    if not isinstance(compilation_message, unicode):
+        compilation_message = compilation_message.decode('utf8')
+    compilation_report.compiler_output = compilation_message
+    compilation_report.save()
+
+    return submission, submission_report
 
 @transaction.commit_on_success
 def make_report(env, kind='NORMAL', **kwargs):
@@ -313,29 +345,14 @@ def make_report(env, kind='NORMAL', **kwargs):
            * ``group_results``
            * ``status``
            * ``score``
+           * ``compilation_result``
+           * ``compilation_message``
 
        Produced ``environ`` keys:
            * ``report_id``: id of the produced
              :class:`~oioioi.contests.models.SubmissionReport`
     """
-
-    submission = Submission.objects.get(id=env['submission_id'])
-    submission_report = SubmissionReport(submission=submission)
-    submission_report.kind = kind
-    submission_report.save()
-
-    status_report = ScoreReport(submission_report=submission_report)
-    status_report.status = env['status']
-    status_report.score = env['score']
-    status_report.save()
-
-    compilation_report = CompilationReport(submission_report=submission_report)
-    compilation_report.status = env['compilation_result']
-    compilation_message = env['compilation_message']
-    if not isinstance(compilation_message, unicode):
-        compilation_message = compilation_message.decode('utf8')
-    compilation_report.compiler_output = compilation_message
-    compilation_report.save()
+    submission, submission_report = _make_base_report(env, kind)
 
     if env['compilation_result'] != 'OK':
         return env
@@ -356,7 +373,7 @@ def make_report(env, kind='NORMAL', **kwargs):
         test_report.status = result['status']
         test_report.time_used = result['time_used']
         comment = result.get('result_string', '')
-        if comment == 'ok':  # Annoying
+        if comment.lower() == 'ok':  # Annoying
             comment = ''
         test_report.comment = comment
         test_report.save()

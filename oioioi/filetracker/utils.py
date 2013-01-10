@@ -52,8 +52,14 @@ def filetracker_to_django_file(filetracker_path, storage=None):
     return FileInFiletracker(storage,
             filetracker_path[prefix_len + 1:])
 
-def stream_file(django_file):
-    name = unicode(django_file.name.rsplit('/', 1)[-1])
+def stream_file(django_file, name=None):
+    """Returns a :class:`HttpResponse` representing a file download.
+
+       Optional argument ``name`` sets default filename under which
+       user is prompted to save that ``django_file``.
+    """
+    if name is None:
+        name = unicode(django_file.name.rsplit('/', 1)[-1])
     content_type = mimetypes.guess_type(name)[0] or \
         'application/octet-stream'
     response = HttpResponse(FileWrapper(django_file),

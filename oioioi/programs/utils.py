@@ -1,5 +1,6 @@
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.utils import aggregate_statuses
+from oioioi.programs.controllers import ProgrammingContestController
 
 def sum_score_aggregator(group_results):
     if not group_results:

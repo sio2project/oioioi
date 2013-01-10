@@ -1,0 +1,14 @@
+{% load i18n %}
+<h4>{{ header }}</h4>
+<pre class="hscroll">
+{{ data }}
+</pre>
+{% if left > 0 %}
+<div class="alert alert-info">
+    <small>{% blocktrans count left=left %}
+        One byte truncated.
+    {% plural %}
+        Bytes truncated: {{ left }}.
+    {% endblocktrans %}</small>
+</div>
+{% endif %}

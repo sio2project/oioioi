@@ -131,7 +131,7 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
-    def can_enter_contest(sel, request):
+    def can_enter_contest(self, request):
         return True
 
     def anonymous_can_enter_contest(self):
@@ -294,12 +294,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         contest = round.contest
 
         environ['submission_id'] = submission.id
+        environ['submission_kind'] = submission.kind
         environ['problem_instance_id'] = problem_instance.id
         environ['problem_id'] = problem.id
         environ['round_id'] = round.id
         environ['contest_id'] = contest.id
 
-        problem.controller.fill_evaluation_environ(problem, environ)
+        problem.controller.fill_evaluation_environ(environ)
 
     def judge(self, submission, extra_args={}):
         environ = {}

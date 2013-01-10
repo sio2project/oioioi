@@ -16,7 +16,7 @@ def has_any_submittable_problem(request):
             return True
     return False
 
-def submitable_problem_instances(request):
+def submittable_problem_instances(request):
     controller = request.contest.controller
     queryset = ProblemInstance.objects.filter(contest=request.contest) \
             .select_related('problem')

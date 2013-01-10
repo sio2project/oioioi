@@ -26,7 +26,7 @@ class Test(models.Model):
     group = models.CharField(max_length=30, verbose_name=_("group"))
     time_limit = models.IntegerField(verbose_name=_("time limit (ms)"),
             null=True, blank=True)
-    memory_limit = models.IntegerField(verbose_name=_("memory limit (kB)"),
+    memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"),
             null=True, blank=True)
     max_score = models.IntegerField(verbose_name=_("score"),
             default=10)
@@ -108,9 +108,10 @@ submission_statuses.register('WA', _("Wrong answer"))
 submission_statuses.register('TLE', _("Time limit exceeded"))
 submission_statuses.register('MLE', _("Memory limit exceeded"))
 submission_statuses.register('SE', _("System error"))
-submission_statuses.register('SV', _("Security violation"))
+submission_statuses.register('RV', _("Rule violation"))
 
 submission_report_kinds.register('INITIAL', _("Initial report"))
+submission_report_kinds.register('NORMAL', _("Normal report"))
 submission_report_kinds.register('HIDDEN', _("Hidden report (for admins only)"))
 
 class CompilationReport(models.Model):

@@ -1,3 +1,8 @@
+import os.path
+import itertools
+import logging
+from operator import attrgetter
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django import forms
@@ -5,6 +10,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+
 from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, ScoreReport
@@ -12,23 +18,39 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport
 from oioioi.filetracker.utils import django_to_filetracker_path
-from oioioi.evalmgr import recipe_placeholder, add_before_placeholder
-import os.path
-import itertools
-from operator import attrgetter
-import logging
+from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
+        extend_after_placeholder
+from oioioi.contests.utils import is_contest_admin
 
 logger = logging.getLogger(__name__)
 
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
 
-    def fill_evaluation_environ(self, problem, environ, **kwargs):
+    def generate_base_environ(self, environ, **kwargs):
         environ['recipe'] = [
                 ('compile',
                     'oioioi.programs.handlers.compile'),
+
                 recipe_placeholder('after_compile'),
 
+                ('delete_executable',
+                    'oioioi.programs.handlers.delete_executable'),
+            ]
+        environ['error_handlers'] = [('delete_executable',
+                    'oioioi.programs.handlers.delete_executable')]
+
+        if getattr(settings, 'USE_UNSAFE_EXEC', False):
+            environ['exec_mode'] = 'unsafe'
+        else:
+            environ['exec_mode'] = settings.SAFE_EXEC_MODE
+
+        if getattr(settings, 'USE_LOCAL_COMPILERS', False):
+            environ['compiler'] = 'system-' + environ['language']
+
+    def fill_evaluation_environ(self, environ, **kwargs):
+        self.generate_base_environ(environ, **kwargs)
+        recipe_body = [
                 ('collect_tests',
                     'oioioi.programs.handlers.collect_tests'),
 
@@ -63,30 +85,17 @@ class ProgrammingProblemController(ProblemController):
                 ('final_make_report',
                     'oioioi.programs.handlers.make_report'),
                 recipe_placeholder('after_final_tests'),
-
-                ('delete_executable',
-                    'oioioi.programs.handlers.delete_executable'),
             ]
+        extend_after_placeholder(environ, 'after_compile', recipe_body)
 
-        environ['error_handlers'] = [ ('delete_executable',
-                    'oioioi.programs.handlers.delete_executable') ]
+        environ.setdefault('group_scorer',
+                            'oioioi.programs.utils.min_group_scorer')
+        environ.setdefault('score_aggregator',
+                'oioioi.programs.utils.sum_score_aggregator')
 
-        environ['group_scorer'] = \
-                'oioioi.programs.utils.min_group_scorer'
-        environ['score_aggregator'] = \
-                'oioioi.programs.utils.sum_score_aggregator'
-
-        checker = OutputChecker.objects.get(problem=problem).exe_file
+        checker = OutputChecker.objects.get(problem=self.problem).exe_file
         if checker:
             environ['checker'] = django_to_filetracker_path(checker)
-
-        if getattr(settings, 'USE_UNSAFE_EXEC', False):
-            environ['exec_mode'] = 'unsafe'
-        else:
-            environ['exec_mode'] = settings.SAFE_EXEC_MODE
-
-        if getattr(settings, 'USE_LOCAL_COMPILERS', False):
-            environ['compiler'] = 'system-' + environ['language']
 
     def mixins_for_admin(self):
         from oioioi.programs.admin import ProgrammingProblemAdminMixin
@@ -112,6 +121,10 @@ class ProgrammingContestController(ContestController):
         super(ProgrammingContestController,
                 self).fill_evaluation_environ(environ, submission)
 
+        self.fill_evaluation_environ_post_problem(environ, submission)
+
+    def fill_evaluation_environ_post_problem(self, environ, submission):
+        """Run after ProblemController.fill_evaluation_environ."""
         add_before_placeholder(environ, 'after_initial_tests',
                 ('update_report_statuses',
                     'oioioi.contests.handlers.update_report_statuses'))
@@ -127,6 +140,7 @@ class ProgrammingContestController(ContestController):
 
     def adjust_submission_form(self, request, form):
         size_limit = self.get_submission_size_limit()
+
         def validate_file_size(file):
             if file.size > size_limit:
                 raise ValidationError(_("File size limit exceeded."))
@@ -145,9 +159,10 @@ class ProgrammingContestController(ContestController):
                             (', '.join(self.get_allowed_extensions()),)
                 )
 
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             form.fields['user'] = forms.CharField(label=_("User"),
                     initial=request.user.username)
+
             def clean_user():
                 try:
                     return User.objects.get(username=form.cleaned_data['user'])
@@ -156,7 +171,7 @@ class ProgrammingContestController(ContestController):
             form.clean_user = clean_user
             form.fields['kind'] = forms.ChoiceField(choices=[
                 ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
-                label=_("Kind"))
+                initial=form.kind, label=_("Kind"))
 
     def create_submission(self, request, problem_instance, form_data):
         submission = ProgramSubmission(
@@ -199,14 +214,19 @@ class ProgrammingContestController(ContestController):
             submission.score = None
         submission.save()
 
+    def get_visible_reports_kinds(self, request, submission):
+        if self.results_visible(request, submission):
+            return ['INITIAL', 'NORMAL']
+        else:
+            return ['INITIAL']
+
     def filter_visible_reports(self, request, submission, queryset):
         if request.user.has_perm('contests.contest_admin', request.contest):
             return queryset
-        elif self.results_visible(request, submission):
-            return queryset.filter(status='ACTIVE',
-                    kind__in=['INITIAL', 'NORMAL'])
         else:
-            return queryset.filter(status='ACTIVE', kind='INITIAL')
+            return queryset.filter(status='ACTIVE',
+                    kind__in=self.get_visible_reports_kinds(request,
+                                                            submission))
 
     def render_submission(self, request, submission):
         return render_to_string('programs/submission_header.html',

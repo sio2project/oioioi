@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.admin import widgets
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.models import Contest, ProblemInstance, Round
-from oioioi.contests.utils import submitable_problem_instances
+from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.contests.utils import submittable_problem_instances
 
 class SimpleContestForm(forms.ModelForm):
     class Meta:
@@ -79,14 +79,26 @@ class ProblemInstanceForm(forms.ModelForm):
             self.fields['round'].queryset = instance.contest.round_set
 
 class SubmissionForm(forms.Form):
+    """Represents base submission form containing task selector.
+
+       Recognized optional ``**kwargs`` fields:
+         * ``problem_filter`` Function filtering submittable tasks.
+         * ``kind`` Kind of submission accessible with ``kind`` property.
+    """
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
     def __init__(self, request, *args, **kwargs):
+        self.kind = kwargs.pop('kind', 'NORMAL')
+        problem_filter = kwargs.pop('problem_filter', None)
+
         forms.Form.__init__(self, *args, **kwargs)
 
         self.request = request
 
-        pis = submitable_problem_instances(request)
+        pis = submittable_problem_instances(request)
+        if problem_filter:
+            pis = problem_filter(pis)
+
         pi_choices = [(pi.id, unicode(pi)) for pi in pis]
         pi_field = self.fields['problem_instance_id']
         pi_field.choices = pi_choices
@@ -96,6 +108,9 @@ class SubmissionForm(forms.Form):
 
     def clean(self):
         cleaned_data = forms.Form.clean(self)
+
+        if 'kind' not in cleaned_data:
+            cleaned_data['kind'] = self.kind
 
         if 'problem_instance_id' not in cleaned_data:
             return cleaned_data

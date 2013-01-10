@@ -6,12 +6,12 @@ from oioioi.filetracker.utils import django_to_filetracker_path
 class SinolProblemController(ProgrammingProblemController):
     description = _("Sinol package problem")
 
-    def fill_evaluation_environ(self, problem, environ, **kwargs):
-        super(SinolProblemController, self).fill_evaluation_environ(problem,
+    def fill_evaluation_environ(self, environ, **kwargs):
+        super(SinolProblemController, self).fill_evaluation_environ(
                 environ, **kwargs)
 
         try:
-            config = ExtraConfig.objects.get(problem=problem).parsed_config
+            config = ExtraConfig.objects.get(problem=self.problem).parsed_config
         except ExtraConfig.DoesNotExist:
             config = {}
 
@@ -21,7 +21,7 @@ class SinolProblemController(ProgrammingProblemController):
             environ['extra_compilation_args'] = extra_args
 
         extra_file_names = config.get('extra_compilation_files', ())
-        extra_files = ExtraFile.objects.filter(problem=problem,
+        extra_files = ExtraFile.objects.filter(problem=self.problem,
                 name__in=extra_file_names).all()
         if len(extra_file_names) != len(extra_files):
             raise RuntimeError('Did not find expected extra files: '

@@ -196,6 +196,10 @@ class Submission(models.Model):
         verbose_name_plural = _("submissions")
         get_latest_by = 'id'
 
+    @property
+    def problem(self):
+        return self.problem_instance.problem
+
     def get_date_display(self):
         return self.problem_instance.contest.controller \
                 .render_submission_date(self)

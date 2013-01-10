@@ -30,7 +30,17 @@ def add_after_placeholder(environ, name, entry):
 def add_before_placeholder(environ, name, entry):
     recipe = environ['recipe']
     index = _find_placeholder(recipe, name)
-    recipe.insert(index + 1, entry)
+    recipe.insert(index, entry)
+
+def extend_after_placeholder(environ, name, entries):
+    recipe = environ['recipe']
+    index = _find_placeholder(recipe, name)
+    recipe[index + 1:index + 1] = entries
+
+def extend_before_placeholder(environ, name, entries):
+    recipe = environ['recipe']
+    index = _find_placeholder(recipe, name)
+    recipe[index:index] = entries
 
 def replace_recipe_entry(environ, name, new_entry):
     recipe = environ['recipe']
@@ -45,7 +55,7 @@ def replace_recipe_entry(environ, name, new_entry):
 def _run_phase(env, phase, extra_kwargs={}):
     phaseName = phase[0]
     handlerName = phase[1]
-    if len(phase) not in [2,3]:
+    if len(phase) not in [2, 3]:
         raise TypeError('Receipt element has length neither 2 nor 3: %r'
                 % phase)
     if len(phase) == 2:

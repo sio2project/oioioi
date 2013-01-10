@@ -1,0 +1,29 @@
+{% extends "programs/submission_header.html" %}
+{% load i18n %}
+
+{% block submission_details %}
+<table class="details_table">
+    <thead>
+        <tr>
+            <th style="min-width: 120px">{% trans "Problem" %}</th>
+            <th style="min-width: 150px">{% trans "Submission date" %}</th>
+            <th style="min-width: 150px">{% trans "Status" %}</th>
+            <th style="min-width: 50px">{% trans "Input" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ submission.submission.problem_instance }}</td>
+            <td>{{ submission.submission.get_date_display }}</td>
+            {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
+            <td>
+                <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-down"></i></button>
+                <a class="btn" href="{% url download_testrun_input contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-download-alt"></i></a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div id="input_data" class="collapse" data-loadurl="{% url get_testrun_input contest_id=contest.id submission_id=submission.submission.id %}">
+</div>
+{% endblock %}

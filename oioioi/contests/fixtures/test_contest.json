@@ -5,7 +5,7 @@
     "fields": {
       "name": "Test contest",
       "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
-      "creation_date": "2012-07-31T20:27:58.768Z"
+      "creation_date": "2011-07-31T20:27:58.768Z"
     }
   },
   {
@@ -14,7 +14,7 @@
     "fields": {
       "name": "Round 1",
       "contest": "c",
-      "start_date": "2012-07-31T20:27:58.768Z",
+      "start_date": "2011-07-31T20:27:58.768Z",
       "results_date": "2012-07-31T20:27:58.768Z"
     }
   },

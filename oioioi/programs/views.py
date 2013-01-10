@@ -22,7 +22,7 @@ def show_submission_source_view(request, contest_id, submission_id):
     check_submission_access(request, submission)
     raw_source = submission.source_file.read()
     filename = submission.source_file.file.name
-    is_source_safe = True
+    is_source_safe = False
     try:
         lexer = guess_lexer_for_filename(
             filename,
@@ -31,10 +31,10 @@ def show_submission_source_view(request, contest_id, submission_id):
         formatter = HtmlFormatter(linenos=True, cssclass='syntax-highlight')
         formatted_source = highlight(raw_source, lexer, formatter)
         formatted_source_css = HtmlFormatter().get_style_defs('.syntax-highlight')
+        is_source_safe = True
     except ClassNotFound:
         formatted_source = raw_source
         formatted_source_css = ''
-        is_source_safe = False
     return TemplateResponse(request, 'programs/source.html', {
         'source': formatted_source,
         'css': formatted_source_css,
