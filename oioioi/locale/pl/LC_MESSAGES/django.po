@@ -1,34 +1,33 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
+# 
 # Translators:
+# Maciej Matraszek <matraszek.maciej@gmail.com>, 2013.
 #   <sio2@sio2project.mimuw.edu.pl>, 2012.
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-10 01:34+0100\n"
-"PO-Revision-Date: 2012-09-07 20:38+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
-"Language-Team: Polish (http://www.transifex.com/projects/p/sio2project/"
-"language/pl/)\n"
-"Language: pl\n"
+"POT-Creation-Date: 2013-01-10 01:32+0100\n"
+"PO-Revision-Date: 2013-01-10 01:18+0000\n"
+"Last-Translator: Maciej Matraszek <matraszek.maciej@gmail.com>\n"
+"Language-Team: Polish (http://www.transifex.com/projects/p/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
+"Language: pl\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: base/admin.py:69
 #, python-format
 msgid "%(name)s object with primary key %(key)r does not exist."
-msgstr ""
+msgstr "Nie istnieje obiekt %(name)s z kluczem głównym %(key)r."
 
 #: base/admin.py:77
 #, python-format
 msgid "The %(name)s \"%(obj)s\" was deleted successfully."
-msgstr ""
+msgstr "Pomyślnie usunięto %(name)s \"%(obj)s\"."
 
 #: base/admin.py:127
 msgid "Personal info"
@@ -78,9 +77,8 @@ msgid "Last name"
 msgstr "Nazwisko"
 
 #: base/views.py:13
-#, fuzzy
 msgid "Edit profile"
-msgstr "Edytuj"
+msgstr "Edycja profilu"
 
 #: base/views.py:16 base/templates/registration/password_change_form.html:3
 msgid "Change password"
@@ -106,39 +104,26 @@ msgstr "Admini już o nim wiedzą. Na pewno się ucieszą."
 #, python-format
 msgid ""
 "\n"
-"    <p>This is a new OIOIOI installation. Begin by <a href="
-"\"%(new_contest_link)s\">creating\n"
+"    <p>This is a new OIOIOI installation. Begin by <a href=\"%(new_contest_link)s\">creating\n"
 "        a new contest</a>.\n"
 "    "
-msgstr ""
-"\n"
-"<p>To jest świeża instalacja OIOIOI. Rozpocznij, <a href="
-"\"%(new_contest_link)s\">tworząc nowy konkurs</a>."
+msgstr "\n<p>To jest świeża instalacja OIOIOI. Rozpocznij, <a href=\"%(new_contest_link)s\">tworząc nowy konkurs</a>."
 
 #: base/templates/index-no-contests.html:24
 #, python-format
 msgid ""
 "\n"
 "    <p>There are no contests available to logged out users.\n"
-"    <p>Please <a href=\"%(login_link)s\">log in</a> or <a href=\"%(reg_link)s"
-"\">register</a>.\n"
+"    <p>Please <a href=\"%(login_link)s\">log in</a> or <a href=\"%(reg_link)s\">register</a>.\n"
 "    "
-msgstr ""
-"\n"
-"    <p>Brak konkursów dostępnych dla niezalogowanych użytkowników.\n"
-"    <p><a href=\"%(login_link)s\">Zaoguj się</a> lub <a href=\"%(reg_link)s"
-"\">zarejestruj</a>.\n"
-"    "
+msgstr "\n    <p>Brak konkursów dostępnych dla niezalogowanych użytkowników.\n    <p><a href=\"%(login_link)s\">Zaoguj się</a> lub <a href=\"%(reg_link)s\">zarejestruj</a>.\n    "
 
 #: base/templates/index-no-contests.html:29
 msgid ""
 "\n"
 "    <p>There are no contests available.\n"
 "    "
-msgstr ""
-"\n"
-"    <p>Brak dostępnych konkursów\n"
-"    "
+msgstr "\n    <p>Brak dostępnych konkursów\n    "
 
 #: base/templates/simple-centered-form.html:13
 #: base/templates/registration/registration_form.html:30 contests/views.py:33
@@ -159,47 +144,37 @@ msgstr "OIOIOI Admin"
 #: base/templates/admin/delete_confirmation.html:4
 #: base/templates/admin/delete_confirmation.html:12
 msgid "Confirm deletion"
-msgstr ""
+msgstr "Potwierdź usunięcie"
 
 #: base/templates/admin/delete_confirmation.html:17
 msgid "You chose the following object to delete:"
-msgstr ""
+msgstr "Wybrano następujące obiekty do usunięcia:"
 
 #: base/templates/admin/delete_confirmation.html:19
 msgid "Are you sure?"
-msgstr ""
+msgstr "Na pewno?"
 
 #: base/templates/admin/delete_confirmation.html:23
 #: participants/templates/participants/unregister.html:22
 msgid "Yes, I'm sure"
-msgstr ""
+msgstr "Tak, na pewno."
 
 #: base/templates/admin/delete_confirmation.html:24
 #: participants/templates/participants/unregister.html:25
 msgid "No, go back"
-msgstr ""
+msgstr "Nie. Powrót."
 
 #: base/templates/ingredients/footer.html:2
 msgid ""
 "\n"
-"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</"
-"a>, from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.</"
-"p>\n"
-msgstr ""
-"\n"
-"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</"
-"a>, from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.</"
-"p>\n"
+"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.</p>\n"
+msgstr "\n<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.</p>\n"
 
 #: base/templates/ingredients/footer_sidebar.html:2
 msgid ""
 "\n"
-"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</"
-"a>.</p>\n"
-msgstr ""
-"\n"
-"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</"
-"a>.</p>\n"
+"<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>.</p>\n"
+msgstr "\n<p>Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>.</p>\n"
 
 #: base/templates/ingredients/menu.html:7
 #: teachers/templates/ingredients/menu.html:7
@@ -238,13 +213,10 @@ msgstr "Tu możesz się zalogować!"
 #, python-format
 msgid ""
 "<p>Use this box to quickly log in without even using your mouse. If you "
-"don't have an account, feel free to <a href='%(registration_url)s'>register</"
-"a>.</p><p><small>Click to dismiss.</small></p>"
-msgstr ""
-"<p>Wpisując tu swój login i hasło, możesz się szybko zalogować, nie używając "
-"myszki. Jeśli nie masz jeszcze konta, możesz się <a "
-"href='%(registration_url)s'>zarejestrować</a>.</p><p><small>Kliknij dymek, "
-"żeby go zamknąć.</small></p>"
+"don't have an account, feel free to <a "
+"href='%(registration_url)s'>register</a>.</p><p><small>Click to "
+"dismiss.</small></p>"
+msgstr "<p>Wpisując tu swój login i hasło, możesz się szybko zalogować, nie używając myszki. Jeśli nie masz jeszcze konta, możesz się <a href='%(registration_url)s'>zarejestrować</a>.</p><p><small>Kliknij dymek, żeby go zamknąć.</small></p>"
 
 #: base/templates/ingredients/navbar.html:29
 msgid "Other..."
@@ -265,7 +237,7 @@ msgstr "Stwórz nowy konkurs"
 #: base/templates/registration/password_reset_complete.html:12
 #: teachers/templates/registration/activation_complete.html:10
 msgid "Log in"
-msgstr "Zaloguj"
+msgstr "Zaloguj się"
 
 #: base/templates/registration/activate.html:4
 msgid "Account activation"
@@ -283,9 +255,7 @@ msgstr "Niepoprawny link aktywacyjny."
 msgid ""
 "Please make sure that you correctly copied the entire link\n"
 "from the email to the web browser address bar."
-msgstr ""
-"Upewnij się, że dobrze skopiowałe/aś link z wiadomości e-mail do paska "
-"adresu przeglądarki."
+msgstr "Upewnij się, że dobrze skopiowałe/aś link z wiadomości e-mail do paska adresu przeglądarki."
 
 #: base/templates/registration/activation_complete.html:4
 #: teachers/templates/registration/activation_complete.html:4
@@ -298,9 +268,8 @@ msgid "Your account is now active. You may go ahead and log in now."
 msgstr "Twoje konto jest już aktywne. Możesz się zalogować."
 
 #: base/templates/registration/login.html:20
-#, fuzzy
 msgid "Forgot password?"
-msgstr "Zmiana hasła"
+msgstr "Nie pamiętasz hasła?"
 
 #: base/templates/registration/logout.html:12
 msgid "You have been logged out."
@@ -352,9 +321,7 @@ msgstr "Przypomnienie hasła"
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
-msgstr ""
-"Link jest niepoprawny. Byćmoże został już wcześniej zużyty. Spróbuj jeszcze "
-"raz użyć opcji przypominania hasła."
+msgstr "Link jest niepoprawny. Byćmoże został już wcześniej zużyty. Spróbuj jeszcze raz użyć opcji przypominania hasła."
 
 #: base/templates/registration/password_reset_done.html:4
 #: base/templates/registration/password_reset_done.html:8
@@ -371,9 +338,7 @@ msgstr "Email z instrukcją zmiany hasła został wysłany."
 msgid ""
 "You're receiving this e-mail because you requested a password\n"
 "reset for your OIOIOI user account."
-msgstr ""
-"You're receiving this e-mail because you requested a password\n"
-"reset for your OIOIOI user account."
+msgstr "You're receiving this e-mail because you requested a password\nreset for your OIOIOI user account."
 
 #: base/templates/registration/password_reset_email.html:5
 msgid "Please go to the following page and choose a new password:"
@@ -392,9 +357,7 @@ msgstr "Zespół %(site_name)s"
 msgid ""
 "Forgotten your password? Enter your e-mail address below, and we'll e-mail "
 "instructions for setting a new one."
-msgstr ""
-"Nie pamiętasz już hasła? Wpisz swój adres e-mail, a wyślemy Ci instrukcję, "
-"jak ustawić nowe."
+msgstr "Nie pamiętasz już hasła? Wpisz swój adres e-mail, a wyślemy Ci instrukcję, jak ustawić nowe."
 
 #: base/templates/registration/password_reset_form.html:13
 msgid "E-mail address:"
@@ -417,9 +380,7 @@ msgstr "Dziękujemy za stworzenie konta."
 msgid ""
 "We've e-mailed you instructions for activating the account to\n"
 "the e-mail address you submitted. You should be receiving it shortly.\n"
-msgstr ""
-"E-mail z instrukcją aktywacji konta już został wysłany i wkrótce powinien "
-"dotrzeć.\n"
+msgstr "E-mail z instrukcją aktywacji konta już został wysłany i wkrótce powinien dotrzeć.\n"
 
 #: base/templates/registration/registration_form.html:6
 #: base/templates/registration/registration_form.html:15
@@ -428,9 +389,8 @@ msgstr "Rejestracja"
 
 #: base/templates/registration/registration_form.html:8
 #: base/templates/registration/registration_form.html:17
-#, fuzzy
 msgid "Edit your profile"
-msgstr "Edytuj"
+msgstr "Edycja Twojego profilu"
 
 #: base/templates/registration/registration_form.html:21
 msgid "Please fill the form below to register."
@@ -446,11 +406,11 @@ msgstr ""
 
 #: clock/templatetags/get_clocks.py:67
 msgid "The round is over!"
-msgstr ""
+msgstr "Runda zakończyła się!"
 
 #: clock/templatetags/get_clocks.py:69
 msgid "The round has started!"
-msgstr ""
+msgstr "Runda rozpoczęła się!"
 
 #: contestlogo/models.py:7
 msgid "URL"
@@ -541,7 +501,7 @@ msgstr "runda"
 
 #: contests/admin.py:356
 msgid "Round extensions"
-msgstr ""
+msgstr "Przedłużenia rund"
 
 #: contests/controllers.py:133
 msgid "Public contest"
@@ -643,7 +603,7 @@ msgstr "rundy"
 
 #: contests/models.py:120
 msgid "Start date should be before end date."
-msgstr ""
+msgstr "Data początku powinna być wcześniejsza od daty zakończenia."
 
 #: contests/models.py:128
 #, python-format
@@ -736,23 +696,22 @@ msgstr "Przestarzały"
 
 #: contests/models.py:288 participants/forms.py:23
 msgid "Extra time (in minutes)"
-msgstr ""
+msgstr "Dodatkowy czas (w minutach)"
 
 #: contests/models.py:292
 msgid "round time extension"
-msgstr ""
+msgstr "przedłużenie trwania rundy"
 
 #: contests/models.py:293
 msgid "round time extensions"
-msgstr ""
+msgstr "przedłużenia trwania rundy"
 
 #: contests/scores.py:57
 #, python-format
 msgid ""
-"Score must look like this: '<type>:<value>', for example 'int:100', not '%s'."
-msgstr ""
-"Pole \"wynik\" musi mieć postać \"<typ>:<wartość>\", np. \"int:100\", a nie "
-"\"%s\"."
+"Score must look like this: '<type>:<value>', for example 'int:100', not "
+"'%s'."
+msgstr "Pole \"wynik\" musi mieć postać \"<typ>:<wartość>\", np. \"int:100\", a nie \"%s\"."
 
 #: contests/scores.py:64
 #, python-format
@@ -780,13 +739,9 @@ msgstr "Dodaj zadanie"
 #: contests/templates/contests/failure_report.html:4
 msgid ""
 "This is a technical report of an evaluation failure. If you are\n"
-"an administrator and would like to report the problem to OIOIOI authors, "
-"make sure\n"
+"an administrator and would like to report the problem to OIOIOI authors, make sure\n"
 "to send this entire information as well."
-msgstr ""
-"To jest szczegółowy raport błędu sprawdzaczki. Jeśli jesteś administratorem "
-"i chciałbyś zgłosić błąd autorom OIOIOI, koniecznie dołącz pełną zawartość "
-"tej strony."
+msgstr "To jest szczegółowy raport błędu sprawdzaczki. Jeśli jesteś administratorem i chciałbyś zgłosić błąd autorom OIOIOI, koniecznie dołącz pełną zawartość tej strony."
 
 #: contests/templates/contests/failure_report.html:8
 msgid "The next step in the recipe was:"
@@ -796,9 +751,7 @@ msgstr "Następny krok planu wykonania oceny:"
 msgid ""
 "The final evaluation environment (with <code>recipe</code> and\n"
 "<code>error_handlers</code> removed for readability) was:"
-msgstr ""
-"Końcowy zbiór danych (<code>recipe</code> oraz <error_handlers> pominięte "
-"dla czytelności):"
+msgstr "Końcowy zbiór danych (<code>recipe</code> oraz <error_handlers> pominięte dla czytelności):"
 
 #: contests/templates/contests/files.html:15
 msgid "Add file"
@@ -834,9 +787,7 @@ msgid ""
 "<p>Oops, problem statement is not available online.\n"
 "    <p>Please ask the organizers to provide it in some other way.\n"
 "    "
-msgstr ""
-"<p>Ups, treść zadania nie jest dostępna online.\n"
-"    <p>Poproś organizatorów o udostępnienie jej w jakiejś innej formie."
+msgstr "<p>Ups, treść zadania nie jest dostępna online.\n    <p>Poproś organizatorów o udostępnienie jej w jakiejś innej formie."
 
 #: contests/templates/contests/nothing_to_submit.html:4
 #: contests/templates/contests/nothing_to_submit.html:7
@@ -849,8 +800,7 @@ msgstr "Zgłoś rozwiązanie"
 msgid ""
 "Sorry, there is no problem for which you could submit a\n"
 "    solution..."
-msgstr ""
-"Sorry, nie ma tu żadnych zadań, dla których możesz przysłać rozwiązanie..."
+msgstr "Sorry, nie ma tu żadnych zadań, dla których możesz przysłać rozwiązanie..."
 
 #: contests/templates/contests/problems_list.html:16
 #: contests/templates/contests/select_contest.html:12
@@ -895,12 +845,7 @@ msgid ""
 "        answers to your questions<br> will be displayed\n"
 "        here.</p>\n"
 "        "
-msgstr ""
-"\n"
-"        <p>To jest główna strona uczestnika konkursu.\n"
-"        <p>Tutaj będą pojawiać się Twoje zgłoszenia, pytania<br> oraz "
-"publiczne ogłoszenia</p>\n"
-"        "
+msgstr "\n        <p>To jest główna strona uczestnika konkursu.\n        <p>Tutaj będą pojawiać się Twoje zgłoszenia, pytania,<br>a także publiczne ogłoszenia.</p>\n        "
 
 #: dashboard/templates/dashboard/dashboard.html:45
 #: questions/templates/questions/list.html:7
@@ -910,156 +855,141 @@ msgid "Questions and announcements"
 msgstr "Pytania i ogłoszenia"
 
 #: ipdnsauth/models.py:9
-#, fuzzy
 msgid "IP address"
-msgstr "Adres e-mail:"
+msgstr "adres IP"
 
 #: ipdnsauth/models.py:13
 msgid "IP autoauth mapping"
-msgstr ""
+msgstr "autologowanie po IP"
 
 #: ipdnsauth/models.py:14
 msgid "IP autoauth mappings"
-msgstr ""
+msgstr "autologowania po IP"
 
 #: ipdnsauth/models.py:22
-#, fuzzy
 msgid "DNS hostname"
-msgstr "skrót"
+msgstr "nazwa DNS"
 
 #: ipdnsauth/models.py:26
 msgid "DNS autoauth mapping"
-msgstr ""
+msgstr "autologowanie po DNS"
 
 #: ipdnsauth/models.py:27
 msgid "DNS autoauth mappings"
-msgstr ""
+msgstr "autologowania po DNS"
 
 #: jotform/templates/jotform/jotform_head.html:7
 msgid "Send Feedback"
 msgstr "Kontakt"
 
 #: oi/admin.py:38
-#, fuzzy
 msgid "Regions"
-msgstr "Rejestracja"
+msgstr "Regiony"
 
 #: oi/admin.py:50
 msgid "Schools"
-msgstr ""
+msgstr "Szkoły"
 
 #: oi/admin.py:74 teachers/forms.py:17
 msgid "School"
-msgstr ""
+msgstr "Szkola"
 
 #: oi/controllers.py:25
 msgid "Polish Olympiad in Informatics - Online"
-msgstr ""
+msgstr "Olimpiada Informatyczna - zdalnie"
 
 #: oi/controllers.py:68
 msgid "Polish Olympiad in Informatics - Onsite"
-msgstr ""
+msgstr "Olimpiada Informatyczna - lokalnie"
 
 #: oi/forms.py:19
 msgid "Region with this name already exists."
-msgstr ""
+msgstr "Region z tą nazwą już istnieje."
 
 #: oi/forms.py:84
-#, fuzzy
 msgid "Terms not accepted"
-msgstr "Zaakceptowano prośbę o konto nauczycielskie"
+msgstr ""
 
 #: oi/models.py:60 oi/models.py:78
-#, fuzzy
 msgid "address"
-msgstr "Adres e-mail:"
+msgstr "adres"
 
 #: oi/models.py:61 oi/models.py:79
-#, fuzzy
 msgid "postal code"
-msgstr "Pokaż kod"
+msgstr "kod pocztowy"
 
 #: oi/models.py:63 oi/models.py:81
 msgid "Enter a postal code in the format XX-XXX"
-msgstr ""
+msgstr "Wprowadź kod pocztowy w formacie XX-XXX"
 
 #: oi/models.py:65 oi/models.py:83
 msgid "city"
-msgstr ""
+msgstr "miasto"
 
 #: oi/models.py:67
 msgid "province"
-msgstr ""
+msgstr "województwo"
 
 #: oi/models.py:69 oi/models.py:85
-#, fuzzy
 msgid "Invalid phone number"
-msgstr "Nieznane zadanie"
+msgstr "Nieprawidłowy numer telefonu"
 
 #: oi/models.py:70 oi/models.py:86
 msgid "phone number"
-msgstr ""
+msgstr "numer telefonu"
 
 #: oi/models.py:87
-#, fuzzy
 msgid "birth date"
-msgstr "Data rozpoczęcia"
+msgstr "data urodzenia"
 
 #: oi/models.py:88
 msgid "birthplace"
-msgstr ""
+msgstr "miejsce urodzenia"
 
 #: oi/models.py:90
 msgid "t-shirt size"
-msgstr ""
+msgstr "rozmiar koszulki"
 
 #: oi/models.py:92 teachers/models.py:11
 msgid "school"
-msgstr ""
+msgstr "szkoła"
 
 #: oi/models.py:94
 msgid "class"
-msgstr ""
+msgstr "klasa"
 
 #: oi/models.py:95
-#, fuzzy
 msgid "terms accepted"
-msgstr "Użytkownik już zaakceptowany."
+msgstr ""
 
 #: oi/management/commands/export_schools.py:8
 msgid "Exports schools list to a CSV file"
 msgstr ""
 
 #: oi/management/commands/import_onsite_participants.py:18
-#, fuzzy
 msgid "<contest_id> <filename_or_url>"
-msgstr "<ID zadania> <plik>"
+msgstr ""
 
 #: oi/management/commands/import_onsite_participants.py:19
 #, python-format
 msgid ""
-"Updates the list of participants of <contest_id> from the given CSV file "
-"<filename or url>, with the following columns: %(columns)s.\n"
+"Updates the list of participants of <contest_id> from the given CSV file <filename or url>, with the following columns: %(columns)s.\n"
 "\n"
-"Given csv file should contain a header row with columns' names (respectively "
-"%(columns)s) separeted by commas. Following rows should contain participants "
-"data."
+"Given csv file should contain a header row with columns' names (respectively %(columns)s) separeted by commas. Following rows should contain participants data."
 msgstr ""
 
 #: oi/management/commands/import_onsite_participants.py:30
-#, fuzzy
 msgid "Expected two arguments"
-msgstr "Oczekiwano tylko jednego argumentu"
+msgstr ""
 
 #: oi/management/commands/import_onsite_participants.py:35
-#, fuzzy, python-format
+#, python-format
 msgid "Contest %s does not exist"
-msgstr "Zadanie #%d nie istnieje"
+msgstr "Konkurs %s nie istnieje"
 
 #: oi/management/commands/import_onsite_participants.py:40
-#, fuzzy
 msgid "Wrong type of contest"
-msgstr "Może uczestniczyć w konkursie"
+msgstr "Niepoprawny rodzaj konkursu"
 
 #: oi/management/commands/import_onsite_participants.py:45
 #: oi/management/commands/import_schools.py:37
@@ -1121,17 +1051,14 @@ msgstr ""
 #: oi/management/commands/import_schools.py:20
 #, python-format
 msgid ""
-"Updates the list of schools from the given CSV file <filename or url>, with "
-"the following columns: %(columns)s.\n"
+"Updates the list of schools from the given CSV file <filename or url>, with the following columns: %(columns)s.\n"
 "\n"
-"Given csv file should contain a header row with columns' names (respectively "
-"%(columns)s) separeted by commas. Following rows should contain schools data."
+"Given csv file should contain a header row with columns' names (respectively %(columns)s) separeted by commas. Following rows should contain schools data."
 msgstr ""
 
 #: oi/management/commands/import_schools.py:30
-#, fuzzy
 msgid "Expected no more than one argument"
-msgstr "Oczekiwano tylko jednego argumentu"
+msgstr ""
 
 #: oi/management/commands/import_schools.py:47
 #, python-format
@@ -1160,14 +1087,12 @@ msgid "There were some errors. Database not changed\n"
 msgstr ""
 
 #: participants/admin.py:57
-#, fuzzy
 msgid "Mark selected participants as active"
-msgstr "Zaznacz uczestników"
+msgstr "Oznacz wybranych uczestników jako aktywnych"
 
 #: participants/admin.py:61
-#, fuzzy
 msgid "Mark selected participants as banned"
-msgstr "Zaznacz uczestników"
+msgstr "Oznacz wybranych uczestników jako zbanowanych"
 
 #: participants/admin.py:86
 #, python-format
@@ -1176,7 +1101,7 @@ msgstr ""
 
 #: participants/admin.py:100
 msgid "Extend round"
-msgstr ""
+msgstr "Przedłuż rundę"
 
 #: participants/admin.py:117
 msgid "Participants"
@@ -1185,94 +1110,83 @@ msgstr "Uczestnicy"
 #: participants/forms.py:16
 #, python-format
 msgid "%s is already a participant of this contest."
-msgstr ""
+msgstr "%s jest już uczestnikiem tego konkursu."
 
 #: participants/models.py:9
 msgid "Banned"
-msgstr ""
+msgstr "Zbanowany"
 
 #: participants/views.py:13
 #: participants/templates/participants/registration.html:15
-#, fuzzy
 msgid "Register to the contest"
-msgstr "Może uczestniczyć w konkursie"
+msgstr "Rejestracja na konkurs"
 
 #: participants/views.py:20
-#, fuzzy
 msgid "Edit contest registration"
-msgstr "Administracja Konkursem"
+msgstr "Zmiana danych rejestracji"
 
 #: participants/templates/admin/participants/extend_round.html:4
 #: participants/templates/admin/participants/extend_round.html:7
-#, fuzzy
 msgid "Extend round for participants"
-msgstr "Brak uczestników."
+msgstr "Przedłużenie rundy uczestnikom"
 
 #: participants/templates/admin/participants/extend_round.html:13
 msgid "Extend"
-msgstr ""
+msgstr "Przedłuż"
 
 #: participants/templates/participants/registration.html:19
-#, fuzzy
 msgid "To enter this contest, you need to fill the following form."
-msgstr ""
-"Aby dopisać użytkownika do konkursu, poproś, żeby wszedł na poniższy link:"
+msgstr "Aby wziąć udział w konkursie, należy wypełnić poniższy formularz."
 
 #: participants/templates/participants/registration.html:32
-#, fuzzy
 msgid "Unregister"
-msgstr "Rejestracja"
+msgstr "Wyrejestruj"
 
 #: participants/templates/participants/unregister.html:10
-#, fuzzy
 msgid "Confirm unregistration"
-msgstr "Wybierz rodzaj rejestracji"
+msgstr "Potwierdzenie wyrejestrowania"
 
 #: participants/templates/participants/unregister.html:16
 msgid "Are you sure to unregister from the current contest?"
-msgstr ""
+msgstr "Czy na pewno chcesz się wyrejestrować z obecnego konkursu?"
 
 #: printing/forms.py:9
 msgid "The file should be a text file."
-msgstr ""
+msgstr "Plik powinien być tekstowy."
 
 #: printing/forms.py:13
-#, fuzzy
 msgid "The file size limit exceeded."
-msgstr "Przekroczenie limitu czasu"
+msgstr "Plik jest za duży."
 
 #: printing/forms.py:30
-#, fuzzy
 msgid "The page limit exceeded."
-msgstr "Przekroczenie limitu czasu"
+msgstr "Przekroczono limit stron."
 
 #: printing/pdf.py:72
 #, python-format
 msgid "Page %s/{nb}"
-msgstr ""
+msgstr "Strona %s/{nb}"
 
 #: printing/views.py:11
-#, fuzzy
 msgid "Print file"
-msgstr "Plik wejściowy"
+msgstr "Drukowanie"
 
 #: printing/views.py:28
-#, fuzzy
 msgid "File has been printed."
-msgstr "Prośba została wysłana."
+msgstr "Plik został wydrukowany."
 
 #: printing/templates/printing/print.html:4
 #: printing/templates/printing/print.html:7
 msgid "Printing"
-msgstr ""
+msgstr "Drukowanie"
 
 #: printing/templates/printing/print.html:15
 msgid "Error occurred while printing."
-msgstr ""
+msgstr "Podczas drukowania wystąpił błąd."
 
 #: printing/templates/printing/print.html:23
 msgid "Print"
-msgstr ""
+msgstr "Wydrukuj"
 
 #: problems/admin.py:110
 msgid "Problem package uploaded."
@@ -1379,13 +1293,10 @@ msgstr "Aktualizuj zadanie"
 #, python-format
 msgid ""
 "Please upload again the\n"
-"            package for problem <strong>%(problem)s</strong>.<br> The "
-"problem\n"
+"            package for problem <strong>%(problem)s</strong>.<br> The problem\n"
 "            will be updated. Existing submissions will not be lost.\n"
 "            "
-msgstr ""
-"Proszę wskazać plik z paczką dla zadania <strong>%(problem)s</strong>.<br> "
-"Zadanie zostanie zaktualizowane. Isniejące zgłoszenia nie zostaną stracone."
+msgstr "Proszę wskazać plik z paczką dla zadania <strong>%(problem)s</strong>.<br> Zadanie zostanie zaktualizowane. Isniejące zgłoszenia nie zostaną stracone."
 
 #: programs/admin.py:40
 msgid "Input file"
@@ -1414,18 +1325,17 @@ msgid "Simple programming contest"
 msgstr "Zwykły konkurs programistyczny"
 
 #: programs/controllers.py:135
-#, fuzzy
 msgid "File size limit exceeded."
-msgstr "Przekroczenie limitu czasu"
+msgstr "Plik jest za duży."
 
 #: programs/controllers.py:141
 msgid "Unknown or not supported file extension."
-msgstr ""
+msgstr "Plik ma nieznane lub niewspierane rozszerzenie."
 
 #: programs/controllers.py:146
 #, python-format
 msgid "Language is determined by the file extension. It has to be one of: %s."
-msgstr ""
+msgstr "Język jest rozpoznawany na podstawie rozszerzenia. Dopuszczalne to: %s."
 
 #: programs/controllers.py:152
 #: rankings/templates/rankings/default_ranking.html:8
@@ -1433,9 +1343,8 @@ msgid "User"
 msgstr "Użytkownik"
 
 #: programs/controllers.py:158
-#, fuzzy
 msgid "User does not exist"
-msgstr "Zadanie #%d nie istnieje"
+msgstr "Użytkownik nie istnieje"
 
 #: programs/controllers.py:162
 #: questions/templates/questions/list_table.html:10
@@ -1583,9 +1492,7 @@ msgstr "W paczce nie było żadnych rozwiązań wzorcowych.\n"
 msgid ""
 "Use TAB to effectively move between the boxes. Use Shift-Enter to copy the "
 "current value down up to the end of the table."
-msgstr ""
-"Użyj TAB-a, żeby szybko przemieszczać się między polami. Naciśnięcie Shift-"
-"Enter skopiuje bieżącą wartość w dół, do końca tabeli."
+msgstr "Użyj TAB-a, żeby szybko przemieszczać się między polami. Naciśnięcie Shift-Enter skopiuje bieżącą wartość w dół, do końca tabeli."
 
 #: questions/forms.py:12 questions/templates/questions/list_table.html:7
 msgid "Category"
@@ -1707,9 +1614,7 @@ msgstr "Nie znaleziono dodatkowego pliku: %s"
 msgid ""
 "Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, "
 "changing problem short name is not possible."
-msgstr ""
-"Próba zastąpienia zadania '%(oldname)s' zadaniem '%(newname)s'. Dla "
-"bezpieczeństwa zmiana skrótu zadania nie jest możliwa."
+msgstr "Próba zastąpienia zadania '%(oldname)s' zadaniem '%(newname)s'. Dla bezpieczeństwa zmiana skrótu zadania nie jest możliwa."
 
 #: sinolpack/package.py:425
 msgid "Sinol Package"
@@ -1735,9 +1640,7 @@ msgstr "Konkurs dla nauczycieli"
 msgid ""
 "Please provide the full name. If the school is a part of a larger "
 "organization of schools, <br>enter the name of this organization."
-msgstr ""
-"Wpisz pełną nazwę szkoły. Jeśli szkoła należy do zespołu, <br>wpisz nazwę "
-"zespołu szkół."
+msgstr "Wpisz pełną nazwę szkoły. Jeśli szkoła należy do zespołu, <br>wpisz nazwę zespołu szkół."
 
 #: teachers/forms.py:24
 msgid "Message"
@@ -1745,14 +1648,11 @@ msgstr "Wiadomość"
 
 #: teachers/forms.py:25
 msgid "Optional. If provided, this message will be sent to the managers."
-msgstr ""
-"Opcjonalnie. Jeśli tu coś wpiszesz, informacja zostanie przesłana do "
-"administratorów."
+msgstr "Opcjonalnie. Jeśli tu coś wpiszesz, informacja zostanie przesłana do administratorów."
 
 #: teachers/models.py:10
-#, fuzzy
 msgid "active"
-msgstr "Nieaktywny"
+msgstr "aktywny"
 
 #: teachers/models.py:15
 msgid "Is a teacher"
@@ -1760,7 +1660,7 @@ msgstr "Jest nauczycielem"
 
 #: teachers/views.py:30 teachers/templates/teachers/pupils.html:59
 msgid "Pupils"
-msgstr ""
+msgstr "Uczniowie"
 
 #: teachers/views.py:35
 #: teachers/templates/registration/activation_complete.html:11
@@ -1797,15 +1697,7 @@ msgid ""
 "\n"
 "Best wishes,\n"
 "OIOIOI Portal Managers"
-msgstr ""
-"Prośba o konto nauczycielskie została zaakceptowana.\n"
-"\n"
-"Pod poniższym linkiem możesz stworzyć nowy konkurs:\n"
-"\n"
-"  %(new_contest_link)s\n"
-"\n"
-"Pozdrawiamy,\n"
-"Administratorzy OIOIOI"
+msgstr "Prośba o konto nauczycielskie została zaakceptowana.\n\nPod poniższym linkiem możesz stworzyć nowy konkurs:\n\n  %(new_contest_link)s\n\nPozdrawiamy,\nAdministratorzy OIOIOI"
 
 #: teachers/templates/teachers/acceptance_email_subject.txt:1
 msgid "Teacher account request accepted"
@@ -1825,48 +1717,37 @@ msgid "Choose registration type"
 msgstr "Wybierz rodzaj rejestracji"
 
 #: teachers/templates/teachers/activation_type.html:13
-#, fuzzy
 msgid ""
 "Your account is a techer account. Please choose, if you wish to\n"
 "register to this contest as a teacher or as a pupil."
 msgstr ""
-"Twoje konto jest kontem nauczycielskim. Wybierz, czy chcesz dołączyć do "
-"konkursu jako nauczyciel czy jako zwykły uczestnik."
 
 #: teachers/templates/teachers/activation_type.html:19
 msgid "Register as a teacher"
 msgstr "Jako nauczyciel"
 
 #: teachers/templates/teachers/activation_type.html:20
-#, fuzzy
 msgid "Register as a pupil"
-msgstr "Jako uczestnik"
+msgstr ""
 
 #: teachers/templates/teachers/no_entry.html:7
 #, python-format
 msgid ""
 "<p>You are not registered to this contest.\n"
-"    <p>Please ask your teacher for instructions on how to register or <a "
-"href=\"%(link)s\">choose another contest</a>.\n"
+"    <p>Please ask your teacher for instructions on how to register or <a href=\"%(link)s\">choose another contest</a>.\n"
 "    "
-msgstr ""
-"<p>Nie jesteś zapisany/zapisana do tego konkursu.\n"
-"    <p>Poproś nauczyciela o wskazówki, jak się zapisać (lub <a href="
-"\"%(link)s\">wybierz inny konkurs</a>).\n"
-"    "
+msgstr "<p>Nie jesteś zapisany/zapisana do tego konkursu.\n    <p>Poproś nauczyciela o wskazówki, jak się zapisać (lub <a href=\"%(link)s\">wybierz inny konkurs</a>).\n    "
 
 #: teachers/templates/teachers/pupils.html:14
 #: teachers/templates/teachers/pupils.html:17
-#, fuzzy
 msgid "Contest pupils"
-msgstr "Konkurs"
+msgstr ""
 
 #: teachers/templates/teachers/pupils.html:19
 msgid ""
 "To allow a user to access this contest, ask him/her to visit the following "
 "link:"
-msgstr ""
-"Aby dopisać użytkownika do konkursu, poproś, żeby wszedł na poniższy link:"
+msgstr "Aby dopisać użytkownika do konkursu, poproś, żeby wszedł na poniższy link:"
 
 #: teachers/templates/teachers/pupils.html:22
 msgid "Copy to clipboard"
@@ -1897,9 +1778,8 @@ msgid "No pupils."
 msgstr ""
 
 #: teachers/templates/teachers/pupils.html:77
-#, fuzzy
 msgid "Select pupils"
-msgstr "Zaznacz uczestników"
+msgstr ""
 
 #: teachers/templates/teachers/pupils.html:79
 msgid "Select teachers"
@@ -1927,8 +1807,4 @@ msgstr "Prośba została wysłana."
 
 #: teachers/templates/teachers/request_sent.html:9
 msgid "You will receive an email once your teacher account is activated."
-msgstr ""
-"Otrzymasz wiadomość e-mail, gdy konto nauczycielskie zostanie aktywowane."
-
-#~ msgid "Contest participants"
-#~ msgstr "Uczestnicy konkursu"
+msgstr "Otrzymasz wiadomość e-mail, gdy konto nauczycielskie zostanie aktywowane."
