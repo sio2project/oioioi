@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition
 from oioioi.contests.controllers import submission_template_context
@@ -146,6 +147,7 @@ def submission_view(request, contest_id, submission_id):
                     'reports': reports})
 
 @enforce_condition(is_contest_admin)
+@require_POST
 def rejudge_submission_view(request, contest_id, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
     controller = request.contest.controller

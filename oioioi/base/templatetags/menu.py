@@ -40,7 +40,9 @@ def generate_menu(parser, token):
 
            {% generate_menu %}
            {% for item in menu %}
-               <li><a href="{{ item.url }}">{{ item.text }}</a></li>
+               <li>
+               <a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a>
+               </li>
            {% endfor %}
 
        Usage with non-default menu registry:
@@ -51,7 +53,9 @@ def generate_menu(parser, token):
 
            {% generate_menu 'oioioi.base.admin.admin_menu_registry' %}
            {% for item in menu %}
-               <li><a href="{{ item.url }}">{{ item.text }}</a></li>
+               <li>
+               <a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a>
+               </li>
            {% endfor %}
 
        It's also possible to pass a variable containing an instance of

@@ -75,7 +75,7 @@
                 <ul class="dropdown-menu">
                     {% generate_menu 'oioioi.base.menu.account_menu_registry' %}
                     {% for item in menu %}
-                    <li><a href="{{ item.url }}">{{ item.text }}</a></li>
+                    <li><a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a></li>
                     {% endfor %}
                 </ul>
 

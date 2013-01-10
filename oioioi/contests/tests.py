@@ -296,6 +296,14 @@ class TestRejudgeAndFailure(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
 
+    def test_rejudge_request(self):
+        contest = Contest.objects.get()
+        kwargs = {'contest_id': contest.id, 'submission_id': 1}
+        rejudge_url = reverse('rejudge_submission', kwargs=kwargs)
+        self.client.login(username='test_admin')
+        response = self.client.get(rejudge_url)
+        self.assertEqual(405, response.status_code)
+
     def test_rejudge_and_failure(self):
         contest = Contest.objects.get()
         contest.controller_name = \
@@ -305,8 +313,8 @@ class TestRejudgeAndFailure(TestCase):
         submission = Submission.objects.get(pk=1)
         self.client.login(username='test_admin')
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
-        response = self.client.get(reverse('rejudge_submission',
-            kwargs=kwargs))
+        response = self.client.post(reverse('rejudge_submission',
+                kwargs=kwargs))
         self.assertEqual(response.status_code, 302)
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertIn('failure report', response.content)

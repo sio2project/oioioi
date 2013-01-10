@@ -3,8 +3,10 @@ from django.http import HttpResponse
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_POST
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import logout as auth_logout
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
 from oioioi.base.menu import account_menu_registry
@@ -17,7 +19,8 @@ account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
 
 account_menu_registry.register('logout', _("Log out"),
-        lambda request: reverse('auth_logout'), order=200)
+        lambda request: '#',
+        order=200, attrs={'data-post-url': reverse_lazy('logout')})
 
 def index_view(request):
     try:
@@ -54,3 +57,7 @@ def edit_profile_view(request):
         form = UserForm(instance=request.user)
     return TemplateResponse(request, 'registration/registration_form.html',
             {'form': form})
+
+@require_POST
+def logout_view(request):
+    return auth_logout(request, template_name='registration/logout.html')

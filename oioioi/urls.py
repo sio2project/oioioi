@@ -9,16 +9,7 @@ django_admin.autodiscover()
 
 handler500 = 'oioioi.base.views.handler500'
 
-urlpatterns = patterns('',
-#    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^grappelli/', include('grappelli.urls')),
-
-    url(r'^file/(?P<filename>.*)$',
-        'oioioi.filetracker.views.raw_file_view'),
-)
-
-urlpatterns += oioioi.base.registration_backend.urlpatterns
+urlpatterns = []
 
 for app in settings.INSTALLED_APPS:
     if app.startswith('oioioi.'):
@@ -27,3 +18,14 @@ for app in settings.INSTALLED_APPS:
             urlpatterns += getattr(urls_module, 'urlpatterns')
         except ImportError:
             pass
+
+urlpatterns.extend([
+#    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
+
+    url(r'^file/(?P<filename>.*)$',
+        'oioioi.filetracker.views.raw_file_view'),
+])
+
+urlpatterns += oioioi.base.registration_backend.urlpatterns

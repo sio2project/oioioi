@@ -1,17 +1,20 @@
 # coding: utf-8
 
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from operator import attrgetter
 import sys
 
 _menu_items = []
 
 class _MenuItem(object):
-    def __init__(self, name, text, url_generator, order, condition):
+    def __init__(self, name, text, url_generator, order, condition, attrs):
         self.name = name
         self.text = text
         self.url_generator = url_generator
         self.order = order
         self.condition = condition
+        self.attrs = attrs
 
 class MenuRegistry(object):
     """Maintains a collection of menu items."""
@@ -20,7 +23,7 @@ class MenuRegistry(object):
         self.items = []
 
     def register(self, name, text, url_generator, order=sys.maxint,
-            condition=None):
+            condition=None, attrs=None):
         """Registers a new menu item.
 
         :param name: a short identifier, for example used to find a matching
@@ -39,7 +42,11 @@ class MenuRegistry(object):
         if condition is None:
             condition = lambda request: True
 
-        menu_item = _MenuItem(name, text, url_generator, order, condition)
+        if attrs is None:
+            attrs = {}
+
+        menu_item = _MenuItem(name, text, url_generator, order,
+                condition, attrs)
         self.items.append(menu_item)
         self.items.sort(key=attrgetter('order'))
 
@@ -62,9 +69,13 @@ class MenuRegistry(object):
         for item in self.items:
             try:
                 if item.condition(request):
+                    attrs_str = ' '.join(['%s="%s"' % (escape(k), escape(v))
+                            for (k, v) in item.attrs.items()])
+                    attrs_str = mark_safe(attrs_str)
                     context_items.append(dict(
                         url=item.url_generator(request),
-                        text=item.text))
+                        text=item.text,
+                        attrs=attrs_str))
             except Exception:
                 pass
         return context_items

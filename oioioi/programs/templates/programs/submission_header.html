@@ -5,7 +5,7 @@
 <div class="corner-icons">
     <ul>
         {% if is_admin %}
-        <li><a class="btn btn-small" href="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}">
+        <li><a class="btn btn-small" href="#" data-post-url="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}">
             <i class="icon-repeat"></i> {% trans "Rejudge" %}</a></li>
         {% endif %}
         <li><a class="btn btn-small" href="{% url show_submission_source contest_id=contest.id submission_id=submission.submission.id %}">

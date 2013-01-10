@@ -120,6 +120,15 @@ class TestIndex(TestCase):
         response = self.client.get('/', follow=True)
         self.assertIn('test_user', response.content)
 
+    def test_logout(self):
+        logout_url = reverse('logout')
+        response = self.client.get(logout_url)
+        self.assertEqual(405, response.status_code)
+        self.client.login(username='test_user')
+        response = self.client.post(logout_url)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('been logged out', response.content)
+
     def test_language_flags(self):
         response = self.client.get('/', follow=True)
         for lang_code, lang_name in settings.LANGUAGES:
@@ -205,6 +214,14 @@ class TestMenu(TestCase):
         self.assertIn('test_admin_link', response)
         response = self._render_menu(user=user)
         self.assertNotIn('test_admin_link', response)
+
+    def test_menu_item_attrs_escape(self):
+        menu_registry.register('test', 'Test Menu',
+                lambda request: '/test_link',
+                attrs={'name<>\'"&': 'value<>\'"&'})
+        response = self._render_menu()
+        self.assertIn('name&lt;&gt;&#39;&quot;&amp;='
+                '"value&lt;&gt;&#39;&quot;&amp;"', response)
 
 class TestUtils(unittest.TestCase):
     def test_classinit(self):
