@@ -17,10 +17,11 @@ class Command(BaseCommand):
 
     args = _("<contest_id> <filename_or_url>")
     help = _("Updates the list of participants of <contest_id> from the given "
-             "CSV file <filename or url>, with the following columns: %s.\n\n"
+             "CSV file <filename or url>, with the following columns: "
+             "%(columns)s.\n\n"
              "Given csv file should contain a header row with columns' names "
-             "(respectively %s) separeted by commas. Following rows should "
-             "contain participants data.") % (columns_str, columns_str)
+             "(respectively %(columns)s) separeted by commas. Following rows "
+             "should contain participants data.") % {'columns': columns_str}
 
     requires_model_validation = True
 
@@ -51,8 +52,10 @@ class Command(BaseCommand):
         reader = csv.reader(stream)
         header = reader.next()
         if header != self.COLUMNS:
-            raise CommandError(_("Missing header or invalid columns: %s\n"
-                "Expected: %s") % (', '.join(header), ', '.join(self.COLUMNS)))
+            raise CommandError(_("Missing header or invalid columns: "
+                "%(header)s\nExpected: %(expected)s") % {
+                    'header': ', '.join(header),
+                    'expected': ', '.join(self.COLUMNS)})
 
         with transaction.commit_on_success():
             ok = True
@@ -76,27 +79,32 @@ class Command(BaseCommand):
                     reg.full_clean()
                     reg.save()
                 except User.DoesNotExist:
-                    self.stdout.write(_("Error for user=%s: user does"
-                                        " not exist\n") % (row[1]))
+                    self.stdout.write(_("Error for user=%(user)s: user does"
+                        " not exist\n") % {'user':row[1]})
                     ok = False
                 except Region.DoesNotExist:
-                    self.stdout.write(_("Error for user=%s: region %s does"
-                                        " not exist\n") % (row[1], row[2]))
+                    self.stdout.write(_(
+                        "Error for user=%(user)s: region %(region)s does"
+                        " not exist\n") % {'user': row[1], 'region': row[2]})
                     ok = False
                 except DatabaseError, e:
-                    self.stdout.write(_("DB Error for user=%s: %s\n")
-                                      % (row[1], e.message))
+                    self.stdout.write(_(
+                        "DB Error for user=%(user)s: %(message)s\n")
+                            % {'user': row[1], 'message': e.message})
                     ok = False
                 except ValidationError, e:
                     for k, v in e.message_dict.iteritems():
                         for message in v:
                             if k == '__all__':
-                                self.stdout.write(_("Error for user=%s: %s\n")
+                                self.stdout.write(_(
+                                    "Error for user=%(user)s: %s\n")
                                         % (row[1], message))
                             else:
                                 self.stdout.write(
-                                        _("Error for user=%s, field %s: %s\n")
-                                        % (row[1], k, message))
+                                        _("Error for user=%(user)s, "
+                                            "field %(field)s: %(message)s\n")
+                                        % {'user': row[1], 'field': k,
+                                            'message': message})
                     ok = False
 
             if ok:

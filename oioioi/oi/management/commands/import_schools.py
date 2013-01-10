@@ -18,10 +18,10 @@ class Command(BaseCommand):
 
     args = _("[filename_or_url]")
     help = _("Updates the list of schools from the given CSV file "
-             "<filename or url>, with the following columns: %s.\n\n"
+             "<filename or url>, with the following columns: %(columns)s.\n\n"
              "Given csv file should contain a header row with columns' names "
-             "(respectively %s) separeted by commas. Following rows should "
-             "contain schools data.") % (columns_str, columns_str)
+             "(respectively %(columns)s) separeted by commas. Following rows "
+             "should contain schools data.") % {'columns': columns_str}
 
     requires_model_validation = True
 
@@ -44,8 +44,8 @@ class Command(BaseCommand):
         reader = csv.reader(stream)
         header = reader.next()
         if header != COLUMNS:
-            raise CommandError(_("Missing header or invalid columns: %s\n"
-                "Expected: %s") % (', '.join(header), ', '.join(COLUMNS)))
+            raise CommandError(_("Missing header or invalid columns: %(header)s\n"
+                "Expected: %(columns)s") % {'header': ', '.join(header), 'columns': ', '.join(COLUMNS)})
 
         with transaction.commit_on_success():
             ok = True
@@ -73,17 +73,17 @@ class Command(BaseCommand):
                     for k, v in e.message_dict.iteritems():
                         for message in v:
                             if k == '__all__':
-                                self.stdout.write(_("Error in ID=%s: %s\n")
-                                        % (row[0], message))
+                                self.stdout.write(_("Error in ID=%(id)s: %(message)s\n")
+                                        % {'id': row[0], 'message': message})
                             else:
                                 self.stdout.write(
-                                        _("Error in ID=%s, field %s: %s\n")
-                                        % (row[0], k, message))
+                                        _("Error in ID=%(id)s, field %(field)s: %(message)s\n")
+                                        % {'id': row[0], 'field': k, 'message': message})
                     ok = False
 
             if ok:
-                self.stdout.write(_("Processed %d entries (%d new)\n") %
-                        (all_count, created_count))
+                self.stdout.write(_("Processed %(all_count)d entries (%(new_count)d new)\n") %
+                        {'all_count': all_count, 'new_count': created_count})
             else:
                 raise CommandError(_("There were some errors. Database not "
                     "changed\n"))

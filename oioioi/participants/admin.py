@@ -83,9 +83,11 @@ class ParticipantAdmin(admin.ModelAdmin):
                         if not existing_extensions.filter(user=user).exists()]
                 RoundTimeExtension.objects.bulk_create(new_extensions)
 
-                self.message_user(request, _("Created %d and updated %d %s.")
-                        % (len(new_extensions), existing_count,
-                        RoundTimeExtension._meta.verbose_name_plural.lower()))
+                self.message_user(request, _("Created %(new_count)d and updated"
+                    "%(updated_count)d %(name)s.")
+                    % {'new_count': len(new_extensions),
+                       'updated_count': existing_count,
+                       'name': RoundTimeExtension._meta.verbose_name_plural.lower()})
 
                 return HttpResponseRedirect(request.get_full_path())
 
