@@ -191,20 +191,6 @@ Pangolin):
 
 * *libz* (Ubuntu package: *zlib1g:i386*)
 
-Installing on Ubuntu
-~~~~~~~~~~~~~~~~~~~~
-
-Ubuntu has one `additional security feature`_ which interferes with the
-instruction counting sandbox used by default by OIOIOI. It must be disabled
-by adding the following line to */etc/sysctl.conf*::
-
-  kernel.yama.ptrace_scope = 0
-
-and rebooting the machine or reloading this file with ``sudo sysctl -p``.
-
-.. _additional security feature: https://wiki.ubuntu.com/Security/Features#ptrace_scope
-
-
 Upgrading
 ---------
 
