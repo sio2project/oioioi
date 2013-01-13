@@ -7,6 +7,7 @@ import os
 import os.path
 import tempfile
 import datetime
+from oioioi.filetracker.utils import FileInFiletracker
 
 class FiletrackerStorage(Storage):
     def __init__(self, prefix='/', client=None):
@@ -40,6 +41,14 @@ class FiletrackerStorage(Storage):
                 and hasattr(content.file, 'name') \
                 and os.path.isfile(content.file.name):
             filename = content.file.name
+        elif isinstance(getattr(content, 'file', None), FileInFiletracker):
+            # This happens when used with field assignment
+            # We are ignoring suggested name, as copying files in filetracker
+            # isn't implemented
+            return content.file.name
+        elif isinstance(content, FileInFiletracker):
+            # This happens when file_field.save(path, file) is called explicitly
+            raise NotImplementedError("Filename cannot be changed")
         else:
             f = tempfile.NamedTemporaryFile()
             for chunk in content.chunks():

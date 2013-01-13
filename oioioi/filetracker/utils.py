@@ -17,6 +17,15 @@ class FileInFiletracker(File):
         File.__init__(self, None, name)
         self.storage = storage
 
+    def _get_size(self):
+        if not hasattr(self, '_size'):
+            self._size = self.storage.size(self.name)
+        return self._size
+    size = property(_get_size, File._set_size)
+
+    def close(self):
+        pass
+
 def django_to_filetracker_path(django_file):
     """Returns the filetracker path of a :class:`django.core.files.File`."""
     storage = getattr(django_file, 'storage', None)
@@ -34,13 +43,14 @@ def filetracker_to_django_file(filetracker_path, storage=None):
        :class:`~django.db.models.FileField`)"""
     if storage is None:
         storage = default_storage
+
+    prefix_len = len(storage.prefix.rstrip('/'))
     if not filetracker_path.startswith(storage.prefix) or \
-            filetracker_path[len(storage.prefix):len(storage.prefix) + 1] \
-                != '/':
+            filetracker_path[prefix_len:prefix_len + 1] != '/':
         raise ValueError('Path %s is outside of storage prefix %s' %
                 (filetracker_path, storage.prefix))
     return FileInFiletracker(storage,
-            filetracker_path[len(storage.prefix) + 1:])
+            filetracker_path[prefix_len + 1:])
 
 def stream_file(django_file):
     name = unicode(django_file.name.rsplit('/', 1)[-1])
