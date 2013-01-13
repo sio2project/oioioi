@@ -9,12 +9,12 @@ class ParticipantForm(forms.ModelForm):
         model = Participant
 
     def clean_user(self):
-        if self.request_contest and Participant.objects.filter(
-                contest=self.request_contest, user=self.cleaned_data['user']) \
-                .exists():
-            raise ValidationError(
-                    _("%s is already a participant of this contest.")
-                    % self.cleaned_data['user'].username)
+        if Participant.objects.filter(contest=self.request_contest,
+            user=self.cleaned_data['user']).exists() \
+            and (self.instance is None or
+                 self.instance.user != self.cleaned_data['user']):
+            raise ValidationError(_("%s is already a participant"
+                    " of this contest.") % self.cleaned_data['user'].username)
         return self.cleaned_data['user']
 
 class ExtendRoundForm(forms.Form):
