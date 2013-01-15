@@ -13,9 +13,10 @@ class RegionForm(forms.ModelForm):
         model = Region
 
     def clean_short_name(self):
-        if self.request_contest \
-                and Region.objects.filter(contest=self.request_contest,
-                short_name=self.cleaned_data['short_name']).exists():
+        if Region.objects.filter(contest=self.request_contest,
+            short_name=self.cleaned_data['short_name']).exists() \
+            and (self.instance is None or
+                 self.instance.short_name != self.cleaned_data['short_name']):
             raise ValidationError(_("Region with this name already exists."))
         return self.cleaned_data['short_name']
 
