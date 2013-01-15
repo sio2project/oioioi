@@ -231,7 +231,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return request.user.has_perm('contests.contest_admin', request.contest)
 
     def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(self, request)
+        return self.has_change_permission(request)
 
     def user_login(self, instance):
         if not instance.user:
