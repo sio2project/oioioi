@@ -25,6 +25,14 @@ class OIRegistrationController(ParticipantsController):
 class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
 
+    def fill_evaluation_environ(self, environ, submission):
+        environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
+        environ['test_scorer'] = \
+                'oioioi.programs.utils.threshold_linear_test_scorer'
+
+        super(OIContestController, self) \
+                .fill_evaluation_environ(environ, submission)
+
     def registration_controller(self):
         return OIRegistrationController(self.contest)
 

@@ -129,6 +129,9 @@ class IntegerScore(ScoreValue):
     def __unicode__(self):
         return unicode(self.value)
 
+    def __repr__(self):
+        return "IntegerScore(%s)" % (self.value,)
+
     @classmethod
     def _from_repr(cls, value):
         return cls(int(value))
