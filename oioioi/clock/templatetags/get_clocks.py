@@ -1,6 +1,6 @@
 from django import template
 from django.utils import timezone
-from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext, ugettext as _
 from oioioi.contests.models import Round
 import time
 
@@ -40,7 +40,7 @@ def navbar_countdown(context):
     current_rounds_times.sort(key=lambda rt: rt.get_end())
 
     if current_rounds_times:
-        countdown_text_description = _("%s left to the end of the round.")
+        countdown_destination = _("end of the round.")
         remaining_seconds = time.mktime((current_rounds_times[0].get_end())
                 .timetuple()) - time.mktime(timestamp.timetuple())
         round_duration = time.mktime(current_rounds_times[0].get_end()
@@ -48,7 +48,7 @@ def navbar_countdown(context):
                     .timetuple())
         elapsed_part = 1 - 1. * remaining_seconds / round_duration
     elif next_rounds_times:
-        countdown_text_description = _("%s left to the start of the round.")
+        countdown_destination = _("start of the round.")
         remaining_seconds = time.mktime((next_rounds_times[0].get_start()) \
             .timetuple()) - time.mktime(timestamp.timetuple())
         round_duration = 0
@@ -56,27 +56,53 @@ def navbar_countdown(context):
         return {}
 
     seconds = remaining_seconds % 60
+    seconds_str = ungettext('%(seconds)d second ',
+        '%(seconds)d seconds ', seconds) % {'seconds': seconds}
     remaining_seconds /= 60
     minutes = int(remaining_seconds % 60)
+    minutes_str = ungettext('%(minutes)d minute ',
+        '%(minutes)d minutes ', minutes) % {'minutes': minutes}
     remaining_seconds /= 60
     hours = int(remaining_seconds % 24)
+    hours_str = ungettext('%(hours)d hour ',
+        '%(hours)d hours ', hours) % {'hours': hours}
     remaining_seconds /= 24
     days = int(remaining_seconds)
+    days_str = ungettext('%(days)d day ',
+        '%(days)d days ', days) % {'days': days}
     if days:
-        countdown_text = '%dd %dh %dm %ds' % (days, hours, minutes, seconds)
+        countdown_days = days_str + hours_str + minutes_str + seconds_str
+        countdown_text = \
+            ungettext('%(countdown_days)sleft to the %(countdown_destination)s',
+            '%(countdown_days)sleft to the %(countdown_destination)s', days) % \
+            {'countdown_days': countdown_days,
+            'countdown_destination': countdown_destination}
     elif hours:
-        countdown_text = '%dh %dm %ds' % (hours, minutes, seconds)
+        countdown_hours = hours_str + minutes_str + seconds_str
+        countdown_text = \
+            ungettext('%(countdown_hours)sleft to the %(countdown_destination)s',
+            '%(countdown_hours)sleft to the %(countdown_destination)s',
+            hours) % {'countdown_hours': countdown_hours,
+            'countdown_destination': countdown_destination}
     elif minutes:
-        countdown_text = '%dm %ds' % (minutes, seconds)
+        countdown_minutes = minutes_str + seconds_str
+        countdown_text = \
+            ungettext('%(countdown_minutes)sleft to the %(countdown_destination)s',
+            '%(countdown_minutes)sleft to the %(countdown_destination)s',
+            minutes) % {'countdown_minutes': countdown_minutes,
+            'countdown_destination': countdown_destination}
     elif seconds:
-        countdown_text = '%ds' % seconds
+        countdown_seconds = seconds_str
+        countdown_text = \
+            ungettext('%(countdown_seconds)sleft to the %(countdown_destination)s',
+            '%(countdown_seconds)sleft to the %(countdown_destination)s',
+            seconds) % {'countdown_seconds': countdown_seconds,
+            'countdown_destination': countdown_destination}
     else:
-        countdown_text_description = '%s'
         if round_duration:
             countdown_text = _("The round is over!")
         else:
             countdown_text = _("The round has started!")
-    countdown_text = countdown_text_description % countdown_text
 
     if round_duration:
         if elapsed_part < 0.5:
