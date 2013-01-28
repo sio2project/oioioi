@@ -62,6 +62,8 @@ To assign a file, which is already in Filetracker::
     from oioioi.filetracker.utils import filetracker_to_django_file
     my_model.file_field = filetracker_to_django_file('/path/in/filetracker/to/myfile.txt')
 
+.. note:: This is assignment, so any output of ``upload_to`` will be ignored.
+
 .. autofunction:: oioioi.filetracker.utils.filetracker_to_django_file
 
 .. autofunction:: oioioi.filetracker.utils.django_to_filetracker_path
