@@ -1,8 +1,6 @@
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.utils import aggregate_statuses
 
-# TODO: unittests for all functions
-
 def sum_score_aggregator(group_results):
     if not group_results:
         return None, 'OK'
@@ -40,4 +38,27 @@ def min_group_scorer(test_results):
 def discrete_test_scorer(test, result):
     status = result['result_code']
     score = (status == 'OK') and test['max_score'] or 0
+    return IntegerScore(score), status
+
+def threshold_linear_test_scorer(test, result):
+    """Full score if took less than half of limit and then decreasing to 0."""
+    limit = test.get('exec_time_limit', 0)
+    used = result.get('time_used', 0)
+    status = result['result_code']
+    percentage = result.get('result_percentage', 100)
+    max_score = percentage * test['max_score'] / 100
+
+    if status != 'OK':
+        return IntegerScore(0), status
+    elif not limit:
+        return IntegerScore(max_score), status
+
+    if used <= limit / 2.:
+        score = max_score
+    elif used <= limit:
+        score = int(max_score * ((limit - used) / (limit / 2.)))
+    else:
+        score = 0
+        status = 'TLE'
+
     return IntegerScore(score), status

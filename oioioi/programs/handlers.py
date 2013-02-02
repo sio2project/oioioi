@@ -158,11 +158,9 @@ def run_tests(env, kind=None, **kwargs):
                detailed supervisor information (for example, where the
                required and returned outputs differ)
              ``time_used``
-               total time used, in seconds
-             ``exectime_used``
-               CPU time used, in seconds
+               total time used, in miliseconds
              ``mem_used``
-               memory usage, in kB
+               memory usage, in KiB
              ``num_syscalls``
                number of syscalls performed
              ``out_file``
