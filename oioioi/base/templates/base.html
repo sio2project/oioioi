@@ -29,8 +29,10 @@
         <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
+        <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>
         {% common_scripts %}
         {% endcompress %}
+        <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
 
         {% endblock %}
         {% all_with_prefix extra_head_ %}

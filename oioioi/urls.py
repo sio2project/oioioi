@@ -9,7 +9,13 @@ django_admin.autodiscover()
 
 handler500 = 'oioioi.base.views.handler500'
 
-urlpatterns = []
+js_info_dict = {
+    'packages': ('oioioi',),
+}
+
+urlpatterns = patterns('',
+    (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
+)
 
 for app in settings.INSTALLED_APPS:
     if app.startswith('oioioi.'):

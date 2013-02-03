@@ -17,40 +17,63 @@ $(function() {
         if (remaining_seconds >= 0) {
             var countdown = remaining_seconds;
             if (round_duration_in_s) {
-                var countdown_text_description = " left to the end" +
-                    " of the round.";
+                var countdown_destination = gettext("end of the round.");
             } else {
-                var countdown_text_description = " left to the start" +
-                    " of the round.";
+                var countdown_destination = gettext("start of the round.");
             }
 
             var seconds = countdown % 60;
+            var seconds_str = ngettext("%(seconds)s second ",
+                "%(seconds)s seconds ", seconds).fmt({seconds: seconds});
             countdown = Math.floor(countdown / 60);
             var minutes = countdown % 60;
+            var minutes_str = ngettext("%(minutes)s minute ",
+                "%(minutes)s minutes ", minutes).fmt({minutes: minutes});
             countdown = Math.floor(countdown / 60);
             var hours = countdown % 24;
+            var hours_str = ngettext("%(hours)s hour ", "%(hours)s hours ",
+                hours).fmt({hours: hours});
             countdown = Math.floor(countdown / 24);
             var days = countdown;
+            var days_str = ngettext("%(days)s day ", "%(days)s days ",
+                days).fmt({days: days});
 
             if (days) {
-                var countdown_text = days + "d " + hours + "h " +
-                    minutes + "m " + seconds + "s ";
+                var countdown_days = days_str + hours_str + minutes_str +
+                    seconds_str;
+                var countdown_text =
+                    ngettext("%(countdown_days)sleft to the %(countdown_destination)s",
+                    "%(countdown_days)sleft to the %(countdown_destination)s",
+                    days).fmt({countdown_days: countdown_days,
+                    countdown_destination: countdown_destination});
             } else if (hours) {
-                var countdown_text = hours + "h " + minutes + "m " +
-                    seconds +"s ";
+                var countdown_hours = hours_str + minutes_str + seconds_str;
+                var countdown_text =
+                    ngettext("%(countdown_hours)sleft to the %(countdown_destination)s",
+                    "%(countdown_hours)sleft to the %(countdown_destination)s",
+                    hours).fmt({countdown_hours: countdown_hours,
+                    countdown_destination: countdown_destination});
             } else if (minutes) {
-                var countdown_text =  minutes + "m " + seconds + "s ";
+                var countdown_minutes = minutes_str + seconds_str;
+                var countdown_text =
+                    ngettext("%(countdown_minutes)sleft to the %(countdown_destination)s",
+                    "%(countdown_minutes)sleft to the %(countdown_destination)s",
+                    minutes).fmt({countdown_minutes: countdown_minutes,
+                    countdown_destination: countdown_destination});
             } else if (seconds) {
-                var countdown_text = seconds + "s ";
+                var countdown_seconds = seconds_str;
+                var countdown_text =
+                    ngettext("%(countdown_seconds)sleft to the %(countdown_destination)s",
+                    "%(countdown_seconds)sleft to the %(countdown_destination)s",
+                    seconds).fmt({countdown_seconds: countdown_seconds,
+                    countdown_destination: countdown_destination});
             } else {
-                countdown_text_description = "";
                 if (round_duration_in_s) {
-                    var countdown_text = "The round is over!";
+                    var countdown_text = gettext("The round is over!");
                 } else {
-                    var countdown_text = "The round has started!";
+                    var countdown_text = gettext("The round has started!");
                 }
             }
-            countdown_text += countdown_text_description;
 
             if (round_duration_in_s) {
                 var elapsed_part = 1 - remaining_seconds / round_duration_in_s;
