@@ -46,7 +46,7 @@ def threshold_linear_test_scorer(test, result):
     used = result.get('time_used', 0)
     status = result['result_code']
     percentage = result.get('result_percentage', 100)
-    max_score = percentage * test['max_score'] / 100
+    max_score = int(percentage * test['max_score'] / 100)
 
     if status != 'OK':
         return IntegerScore(0), status
