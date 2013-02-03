@@ -29,12 +29,22 @@ DEFAULT_MEMORY_LIMIT = 66000
 def _stringify_keys(dictionary):
     return dict((str(k), v) for k, v in dictionary.iteritems())
 
-def _decode(text):
-    result = chardet.detect(text)
-    if result['encoding'] == 'utf-8':
-        return text.decode('utf-8')
+def _determine_encoding(title, file):
+    r = re.search(r'\\documentclass\[(.+)\]{sinol}', file)
+    encoding = 'latin2'
+
+    if r is not None and 'utf8' in r.group(1):
+        encoding = 'utf8'
     else:
-        return text.decode('latin2')
+        result = chardet.detect(title)
+        if result['encoding'] == 'utf-8':
+            encoding = 'utf-8'
+
+    return encoding
+
+def _decode(title, file):
+    encoding = _determine_encoding(title, file)
+    return title.decode(encoding)
 
 class SinolPackage(object):
     def __init__(self, path, original_filename=None):
@@ -98,7 +108,7 @@ class SinolPackage(object):
             text = open(source, 'r').read()
             r = re.search(r'\\title{(.+)}', text)
             if r is not None:
-                self.problem.name = _decode(r.group(1))
+                self.problem.name = _decode(r.group(1), text)
                 self.problem.save()
 
     def _compile_docs(self, docdir):
