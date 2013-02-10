@@ -1,0 +1,305 @@
+\documentclass[a4paper,twoside]{article}
+\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{pslatex}
+\usepackage{longtable}
+
+\newcommand\q{\hspace{0pt}}
+\newcommand\ampersand{\&}
+\newcommand\singlequote{\textnormal{'}}
+\newcommand\doublequote{\textnormal{"}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% paper size
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\textwidth}{6in}
+\setlength{\textheight}{8in}
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\topmargin}{0pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% page settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{fancy}
+\renewcommand{\headrulewidth}{0pt}
+\lfoot{ {\small \sioUser,}\\
+\ifsubcontestdefed
+{\small \sioSubContest\ (\sioDate)}\\
+\else
+{\small \sioDate}\\
+\fi
+{\tiny \sioUserNo/\sioRaportNo} }
+\cfoot{}
+\rfoot{ {\small \thepage} }
+
+\newcommand{\sfb}{\sffamily\bfseries}
+
+\def\ucase#1{\expandafter\uppercase\expandafter{#1}}
+\def\lcase#1{\expandafter\lowercase\expandafter{#1}}
+
+\makeatletter
+\def\ifeq#1#2#3{
+  \edef\@tempeqa{#1}
+  \edef\@tempeqb{#2}
+  \ifx\@tempeqa\@tempeqb
+    #3
+  \fi
+}
+\def\ifneq#1#2#3{
+  \edef\@tempeqa{#1}
+  \edef\@tempeqb{#2}
+  \ifx\@tempeqa\@tempeqb\else
+    #3
+  \fi
+}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newif\ifdatedefed \datedefedfalse
+\newif\ifcontestdefed \contestdefedfalse
+\newif\ifsubcontestdefed \subcontestdefedfalse
+\newif\ifuserdefed \userdefedfalse
+\newif\ifetapdefed \etapdefedfalse
+\newif\ifdaydefed \daydefedfalse
+
+\newif\ifusernodefed \usernodefedfalse
+\newif\ifraportnodefed \raportnodefedfalse
+
+\newif\ifresultdefed \resultdefedfalse
+
+\newif\iftaskcommentdefed \taskcommentdefedfalse
+
+\newif\iftaskshowpoints \taskshowpointstrue
+\newif\iftaskshowtimes \taskshowtimestrue
+
+\newcounter{sioCommentNo}
+
+\newcommand{\contest}[1]{
+  \def\sioContest{#1}
+  \global\contestdefedtrue
+}
+
+\newcommand{\result}[1]{\def\sioResult{#1}\global\resultdefedtrue}
+
+
+\newcommand{\subcontest}[1]{
+  \def\sioSubContest{#1}
+  \global\subcontestdefedtrue
+}
+
+\newcommand{\user}[1]{
+  \def\sioUser{#1}
+  \global\userdefedtrue
+}
+
+\newcommand{\userno}[1]{
+  \def\sioUserNo{#1}
+  \global\usernodefedtrue
+}
+
+\newcommand{\raportno}[1]{
+  \def\sioRaportNo{#1}
+  \global\raportnodefedtrue
+}
+
+\renewcommand{\date}[1]{
+  \def\sioDate{#1}
+  \global\datedefedtrue
+}
+
+\newcommand{\etap}[1]{
+  \def\sioEtap{#1}
+  \global\etapdefedtrue
+}
+
+\renewcommand{\day}[1]{
+  \def\sioDay{#1}
+  \global\daydefedtrue
+}
+
+%%%
+% Task
+\newcommand{\taskid}[1]{\def\siotaskID{#1}}
+\newcommand{\taskname}[1]{\def\siotaskName{#1}}
+\newcommand{\taskcomment}[1]{
+  \gdef\siotaskComment{#1}
+  \ifneq{#1}{}{\taskcommentdefedtrue}
+}
+\newcommand{\taskpoints}[2]{\def\siotaskPoints{#1}\def\siotaskMaxPoints{#2}}
+
+\newcommand{\tasknopoints}{\global\taskshowpointsfalse}
+\newcommand{\tasknotimes}{\global\taskshowtimesfalse}
+
+\newcommand{\tasksummary}{
+  \noindent
+  \begin{longtable}{p{2cm}p{10cm}}
+  \large {\sfb Zadanie:} & \large {\sf \ucase{\siotaskID}/\siotaskName} \\
+  \iftaskshowpoints
+    \large {\sfb Wynik:} & \large {\sf \siotaskPoints \quad (max. \siotaskMaxPoints)} \\
+  \fi
+  \iftaskcommentdefed
+     \large {\sfb Uwagi:} & {\sf \siotaskComment} \\
+  \fi
+  \end{longtable}
+  \hrule
+  \nobreak
+  \medskip
+}
+
+%%%
+% Tests
+\newcommand{\test}[7]{
+\hline
+\iftaskshowtimes
+  \iftaskshowpoints
+    #1 & #2 & #3/#4 & #5/#6 & #7 \\
+  \else
+    #1 & #2 & #3/#4 & #7 \\
+  \fi
+\else
+  \iftaskshowpoints
+    #1 & #2 & #5/#6 & #7 \\
+  \else
+    #1 & #2 & #7 \\
+  \fi
+\fi
+}
+%% Grouped test
+\newcommand{\testg}[5]{
+\iftaskshowtimes
+  \iftaskshowpoints
+    #1 & #2 & #3/#4 & & #5 \\
+  \else
+    #1 & #2 & #3/#4 & #5 \\
+  \fi
+\else
+  \iftaskshowpoints
+    #1 & #2 & & #5 \\
+  \else
+    #1 & #2 & #5 \\
+  \fi
+\fi
+}
+%%%
+
+%%%
+\def\resOK{OK}
+\def\resWA{Z³a odpowiedŒ}
+\def\resTLE{Wyw³aszczenie}
+
+%% currently unused (replaced by footnote)
+\newcommand\showTestComments{
+\par
+{\small
+\begin{list}{x}{
+\setlength{\topsep}{0pt}
+\setlength{\parsep}{0cm}
+\setlength{\itemsep}{0cm}
+}
+\end{list}
+}
+}
+
+\newcommand\?[1]{
+  {
+    \rm
+    [[[#1]]]
+  }
+  \global\sioshortagestrue
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{rpt}{
+  \setcounter{page}{1}
+  \noindent
+  \begin{tabular}{p{3cm}p{10cm}}
+  \Large {\sfb Zawodnik:} & \Large {\sf \sioUser} \\
+  \Large {\sfb Konkurs:} & \Large {\sf \sioContest} \\
+  \ifresultdefed
+  \Large {\sfb Wynik:} & \Large {\sf \sioResult} \\
+  \fi
+  \end{tabular}
+  \hrule
+  \smallskip
+  \ifsubcontestdefed
+    {\sf \hfill\sioSubContest\quad\sioDate} \\
+  \else
+    {\sf \sioDate} \\
+  \fi
+  \medskip
+}{
+  \vfill
+  \cleardoublepage
+%  \label{koniec}
+}
+
+\newenvironment{task}{
+  \goodbreak
+  \bigskip
+  \gdef\siotaskComment{}
+  \taskcommentdefedfalse
+  \taskshowpointstrue
+  \taskshowtimestrue
+% Maybe something will be here...
+}{
+% Maybe something will be here...
+}
+
+\newenvironment{tests}{
+%% TODO increase padding!
+  \renewcommand{\thefootnote}{\arabic{footnote}} % that doesn't work!
+  \renewcommand{\footnoterule}{} % without \hrule
+  \setcounter{sioCommentNo}{0}
+  \iftaskshowtimes
+    \iftaskshowpoints
+      \begin{longtable}{|r|l|r|r|p{7cm}|}
+    \else
+      \begin{longtable}{|r|l|r|p{7cm}|}
+    \fi
+  \else
+    \iftaskshowpoints
+      \begin{longtable}{|r|l|r|p{7cm}|}
+    \else
+      \begin{longtable}{|r|l|p{7cm}|}
+    \fi
+  \fi
+  \hline
+  \iftaskshowtimes
+    \iftaskshowpoints
+      \multicolumn{1}{|c}{\sfb Test} &
+      \multicolumn{1}{|c}{\sfb Wynik} &
+      \multicolumn{1}{|c}{\sfb Czas} &
+      \multicolumn{1}{|c|}{\sfb Punkty} &
+      \multicolumn{1}{|c|}{} \\
+    \else
+      \multicolumn{1}{|c}{\sfb Test} &
+      \multicolumn{1}{|c}{\sfb Wynik} &
+      \multicolumn{1}{|c|}{\sfb Czas} &
+      \multicolumn{1}{|c|}{} \\
+    \fi
+  \else
+    \iftaskshowpoints
+      \multicolumn{1}{|c}{\sfb Test} &
+      \multicolumn{1}{|c}{\sfb Wynik} &
+      \multicolumn{1}{|c|}{\sfb Punkty} &
+      \multicolumn{1}{|c|}{} \\
+    \else
+      \multicolumn{1}{|c}{\sfb Test} &
+      \multicolumn{1}{|c|}{\sfb Wynik} &
+      \multicolumn{1}{|c|}{} \\
+    \fi
+  \fi
+  \hline
+  \endhead
+}{
+  \hline
+  \end{longtable}
+  \medskip
+%  \showTestComments
+}
+

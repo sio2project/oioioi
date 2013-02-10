@@ -274,6 +274,8 @@ class UserResultForProblem(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance)
     score = ScoreField(blank=True, null=True)
     status = EnumField(submission_statuses, blank=True, null=True)
+    submission_report = models.ForeignKey(SubmissionReport, blank=True,
+            null=True)
 
     class Meta:
         unique_together = ('user', 'problem_instance')

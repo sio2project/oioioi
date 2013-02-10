@@ -1,13 +1,13 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
-from oioioi.contests.models import Submission
+from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.utils import has_any_active_round
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIRegistration, School
 from oioioi.oi.admin import OIRegistrationParticipantAdmin, \
-                        OIOnsiteRegistrationParticipantAdmin
+        OIOnsiteRegistrationParticipantAdmin
 from oioioi.oi.forms import OIRegistrationForm
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 
@@ -57,11 +57,19 @@ class OIContestController(ProgrammingContestController):
                 .exclude(status='CE') \
                 .filter(kind='NORMAL') \
                 .latest()
+            try:
+                report = SubmissionReport.objects.get(
+                        submission=latest_submission, status='ACTIVE',
+                        kind='NORMAL')
+            except SubmissionReport.DoesNotExist:
+                report = None
             result.score = latest_submission.score
             result.status = latest_submission.status
+            result.submission_report = report
         except Submission.DoesNotExist:
             result.score = None
             result.status = None
+            result.submission_report = None
         result.save()
 OIContestController.mix_in(SplitEvalContestControllerMixin)
 

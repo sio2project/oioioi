@@ -125,6 +125,7 @@ INSTALLED_APPS = (
 #    'oioioi.spliteval'
 #    'oioioi.printing',
 #    'oioioi.scoresreveal',
+#    'oioioi.oireports',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

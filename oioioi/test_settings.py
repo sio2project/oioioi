@@ -17,7 +17,8 @@ INSTALLED_APPS = (
     'oioioi.oi',
     'oioioi.printing',
     'oioioi.testrun',
-    'oioioi.scoresreveal'
+    'oioioi.scoresreveal',
+    'oioioi.oireports',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (

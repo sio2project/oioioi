@@ -85,7 +85,8 @@
       "status": "OK",
       "problem_instance": 1,
       "score": "int:34",
-      "user": 1001
+      "user": 1001,
+      "submission_report": 2
     }
   },
   {
