@@ -1,6 +1,7 @@
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -27,7 +28,8 @@ def visible_messages(request):
                     | (Q(author=request.user) & Q(kind='QUESTION')) \
                     | Q(top_reference__author=request.user)
         messages = messages.filter(q_expression, date__lte=request.timestamp)
-    return messages
+    return messages.select_related('top_reference', 'author',
+            'problem_instance', 'problem_instance__problem')
 
 def new_messages(request, messages=None):
     if not request.user.is_authenticated():
@@ -71,7 +73,12 @@ def message_view(request, contest_id, message_id):
         replies = []
     if request.user.is_authenticated():
         for m in [message] + replies:
-            MessageView.objects.get_or_create(message=m, user=request.user)
+            try:
+                MessageView.objects.get_or_create(message=m, user=request.user)
+            except IntegrityError:
+                # get_or_greate does not guarantee race-free execution, so we
+                # silently ignore the IntegrityError from the unique index
+                pass
     return TemplateResponse(request, 'questions/message.html',
                 {'message': message, 'replies': replies,
                     'reply_to_id': message.top_reference_id or message.id})

@@ -44,3 +44,6 @@ class MessageView(models.Model):
     message = models.ForeignKey(Message)
     user = models.ForeignKey(User)
     date = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        unique_together = ('message', 'user')
