@@ -129,6 +129,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 MIDDLEWARE_CLASSES += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
+#    'oioioi.oi.middleware.OiForceDnsIpAuthMiddleware',
 )
 
 AUTHENTICATION_BACKENDS += (
