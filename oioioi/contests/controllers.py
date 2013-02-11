@@ -215,7 +215,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return self.can_see_round(request, problem_instance.round)
 
-    def can_submit(self, request, problem_instance):
+    def can_submit(self, request, problem_instance, check_round_times=True):
         """Determines if the current user is allowed to submit a solution for
            the given problem.
 
@@ -227,8 +227,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
-        rtimes = self.get_round_times(request, problem_instance.round)
-        return rtimes.is_active(request.timestamp)
+
+        if check_round_times:
+            rtimes = self.get_round_times(request, problem_instance.round)
+            return rtimes.is_active(request.timestamp)
+        else:
+            return True
 
     def get_submissions_limit(self, request, problem_instance):
         if is_contest_admin(request):
@@ -251,7 +255,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             cleaned_data):
         return cleaned_data
 
-    def create_submission(self, request, problem_instance, form_data):
+    def create_submission(self, request, problem_instance, form_data, **kwargs):
         raise NotImplementedError
 
     def fill_evaluation_environ(self, environ, submission):

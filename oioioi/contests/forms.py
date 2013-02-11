@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.admin import widgets
+from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
@@ -106,8 +107,9 @@ class SubmissionForm(forms.Form):
 
         request.contest.controller.adjust_submission_form(request, self)
 
-    def clean(self):
+    def clean(self, check_submission_limit=True, check_round_times=True):
         cleaned_data = forms.Form.clean(self)
+        ccontroller = self.request.contest.controller
 
         if 'kind' not in cleaned_data:
             cleaned_data['kind'] = self.kind
@@ -120,22 +122,22 @@ class SubmissionForm(forms.Form):
                     .get(id=cleaned_data['problem_instance_id'])
             cleaned_data['problem_instance'] = pi
         except ProblemInstance.DoesNotExist:
-            self._errors['problem_instance_id'] = self.error_class([
-                _("Invalid problem")])
+            self._errors['problem_instance_id'] = \
+                    self.error_class([_("Invalid problem")])
             del cleaned_data['problem_instance_id']
             return cleaned_data
 
         kind = cleaned_data.get('kind', 'NORMAL')
-        if self.request.contest.controller.is_exceeded_submissions_limit(
-                self.request, pi, kind):
-            raise forms.ValidationError(
-                _("Submission limit for the problem '%s' exceeded.") %
-                pi.problem.name)
+        if check_submission_limit and \
+            ccontroller.is_exceeded_submissions_limit(self.request, pi, kind):
+            raise ValidationError(_("Submission limit for the problem '%s'"
+                                    "exceeded.") % pi.problem.name)
 
-        decision = self.request.contest.controller.can_submit(self.request, pi)
+        decision = ccontroller.can_submit(self.request, pi, check_round_times)
         if not decision:
-            raise forms.ValidationError(str(decision.exc))
+            raise ValidationError(str(getattr(decision, 'exc',
+                                              _("Permission denied"))))
 
-        return self.request.contest.controller \
-                .validate_submission_form(self.request, pi, self, cleaned_data)
+        return ccontroller.validate_submission_form(self.request, pi, self,
+                                                    cleaned_data)
 

@@ -206,7 +206,8 @@ class ProgrammingContestController(ContestController):
                 ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
                 initial=form.kind, label=_("Kind"))
 
-    def create_submission(self, request, problem_instance, form_data):
+    def create_submission(self, request, problem_instance, form_data,
+                    judge_after_create = True, **kwargs):
         submission = ProgramSubmission(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,
@@ -215,7 +216,9 @@ class ProgrammingContestController(ContestController):
         file = form_data['file']
         submission.source_file.save(file.name, file)
         submission.save()
-        self.judge(submission)
+        if judge_after_create:
+            self.judge(submission)
+        return submission
 
     def update_report_statuses(self, submission, queryset):
         self._activate_newest_report(submission, queryset,

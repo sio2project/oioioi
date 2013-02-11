@@ -41,7 +41,7 @@ class OIContestController(ProgrammingContestController):
     def registration_controller(self):
         return OIRegistrationController(self.contest)
 
-    def can_submit(self, request, problem_instance):
+    def can_submit(self, request, problem_instance, check_round_times=True):
         if request.user.is_anonymous():
             return False
         if request.user.has_perm('contests.contest_admin', self.contest):
@@ -49,7 +49,7 @@ class OIContestController(ProgrammingContestController):
         if not is_participant(request):
             return False
         return super(OIContestController, self)\
-                .can_submit(request, problem_instance)
+                .can_submit(request, problem_instance, check_round_times)
 
     def update_user_result_for_problem(self, result):
         try:

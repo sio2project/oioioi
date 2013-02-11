@@ -57,6 +57,9 @@ STATIC_ROOT = '__DIR__/static'
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '__SECRET__'
 
+# Uncomment once oisubmit is used.
+#OISUBMIT_MAGICKEY = '__OTHER_SECRET__'
+
 # SMTP server parameters for sending emails.
 EMAIL_SUBJECT_PREFIX = '[OIOIOI] '
 EMAIL_USE_TLS = False
@@ -121,6 +124,7 @@ INSTALLED_APPS = (
     'oioioi.clock',
 #    'oioioi.participants',
 #    'oioioi.oi',
+#    'oioioi.oisubmit',
 #    'oioioi.testrun',
 #    'oioioi.spliteval'
 #    'oioioi.printing',
