@@ -59,6 +59,7 @@ Table of Contents
     sections/filestorage
     sections/scoring
     sections/evaluation
+    sections/spliteval
     sections/misc
     glossary
 

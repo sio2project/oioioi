@@ -10,9 +10,15 @@ command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_
 startretries=0
 
 [program:evalmgr]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c 1
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
+
+[program:evalmgr-lowprio]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-lowprio -c {{ settings.EVALMGR_CONCURRENCY }}
+startretries=0
+stopwaitsecs=15
+{% if not settings.SPLITEVAL_EVALMGR %}exclude=true{% endif %}
 
 [program:sioworkers]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q sioworkers -c 1

@@ -69,10 +69,6 @@ class ProgrammingProblemController(ProblemController):
                     dict(kind='INITIAL')),
                 recipe_placeholder('after_initial_tests'),
 
-#                ('postpone_final',
-#                    'oioioi.programs.handlers.postpone',
-#                    dict(queue='evalmgr-lowprio')),
-
                 ('final_run_tests',
                     'oioioi.programs.handlers.run_tests',
                     dict(kind='NORMAL')),

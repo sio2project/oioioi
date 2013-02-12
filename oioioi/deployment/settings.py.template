@@ -136,3 +136,6 @@ AUTHENTICATION_BACKENDS += (
 #    'oioioi.teachers.auth.TeacherAuthBackend',
 #    'oioioi.ipdnsauth.backends.IpDnsBackend',
 )
+
+# Number of concurrently evaluated submissions (default is 1).
+#EVALMGR_CONCURRENCY = 30

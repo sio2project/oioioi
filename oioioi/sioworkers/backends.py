@@ -15,29 +15,30 @@ class LocalBackend(object):
        Perfect for tests or a single-machine OIOIOI setup.
     """
 
-    def run_job(self, job):
+    def run_job(self, job, **kwargs):
         with _local_backend_lock:
             return sio.workers.runner.run(job)
 
-    def run_jobs(self, dict_of_jobs):
+    def run_jobs(self, dict_of_jobs, **kwargs):
         results = {}
         for key, value in dict_of_jobs.iteritems():
-            results[key] = self.run_job(value)
+            results[key] = self.run_job(value, **kwargs)
         return results
 
 class CeleryBackend(object):
     """A backend which uses Celery for sioworkers jobs."""
 
-    def _delayed_job(self, job):
-        return sio.celery.job.sioworkers_job.delay(job)
+    def _delayed_job(self, job, **kwargs):
+        return sio.celery.job.sioworkers_job.apply_async(args=[job], **kwargs)
 
-    def run_job(self, job):
-        return self._delayed_job(job).get()
+    def run_job(self, job, **kwargs):
+        return self._delayed_job(job, **kwargs).get()
 
-    def run_jobs(self, dict_of_jobs):
+    def run_jobs(self, dict_of_jobs, **kwargs):
         async_jobs = dict()
         for key, env in dict_of_jobs.iteritems():
-            async_jobs[key] = sio.celery.job.sioworkers_job.delay(env)
+            async_jobs[key] = sio.celery.job.sioworkers_job.apply_async(
+                args=[env], **kwargs)
         results = dict()
         for key, async_job in async_jobs.iteritems():
             results[key] = async_job.get()

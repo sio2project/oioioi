@@ -1,4 +1,5 @@
 from oioioi import evalmgr
+import copy
 import logging
 import pprint
 

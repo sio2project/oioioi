@@ -9,6 +9,7 @@ from oioioi.oi.models import OIRegistration, School
 from oioioi.oi.admin import OIRegistrationParticipantAdmin, \
                         OIOnsiteRegistrationParticipantAdmin
 from oioioi.oi.forms import OIRegistrationForm
+from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 
 class OIRegistrationController(ParticipantsController):
     form_class = OIRegistrationForm
@@ -62,6 +63,8 @@ class OIContestController(ProgrammingContestController):
             result.score = None
             result.status = None
         result.save()
+OIContestController.mix_in(SplitEvalContestControllerMixin)
+
 
 class OIOnsiteRegistrationController(ParticipantsController):
     participant_admin = OIOnsiteRegistrationParticipantAdmin

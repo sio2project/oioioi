@@ -260,6 +260,12 @@ CELERY_ROUTES.update({
     'oioioi.evalmgr.evalmgr_job': dict(queue='evalmgr'),
 })
 
+# Number of concurrently evaluated submissions
+EVALMGR_CONCURRENCY = 1
+
+# Split-priority evaluation
+SPLITEVAL_EVALMGR = False
+
 # ID of JotForm account for "Send Feedback" link.
 JOTFORM_ID = None
 
@@ -267,11 +273,8 @@ JOTFORM_ID = None
 GOOGLE_ANALYTICS_TRACKING_ID = None
 
 PRINTING_FONT_SIZE = 8  # in pt
-
 PRINTING_MAX_FILE_SIZE = 1024 * 100  # in kB
-
 PRINTING_MAX_FILE_PAGES = 10
-
 PRINTING_COMMAND = ['lp']  # as argv list
 
 # To get unlimited submissions count set to 0.

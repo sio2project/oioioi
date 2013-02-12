@@ -142,6 +142,9 @@ def run_tests(env, kind=None, **kwargs):
            of the binary used as the output checker,
          * ``save_outputs``: set to ``True`` if and only if each of
            test results should have its output file attached.
+         * ``sioworkers_extra_args``: dict mappting kinds to additional
+           arguments passed to :fun:`oioioi.sioworkers.jobs.run_sioworkers_jobs`
+           (kwargs).
 
        Produced ``environ`` keys:
          * ``test_results``: a dictionary, mapping test names into
@@ -180,7 +183,8 @@ def run_tests(env, kind=None, **kwargs):
             job['upload_out'] = True
         jobs[test_name] = job
 
-    jobs = run_sioworkers_jobs(jobs)
+    extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
+    jobs = run_sioworkers_jobs(jobs, **extra_args)
     env.setdefault('test_results', {})
     for test_name, result in jobs.iteritems():
         env['test_results'].setdefault(test_name, {}).update(result)
