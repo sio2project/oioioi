@@ -50,7 +50,9 @@ class DefaultRankingController(RankingController):
     description = _("Default ranking")
 
     def _rounds_for_ranking(self, request, key=CONTEST_RANKING_KEY):
-        is_admin = request.user.has_perm('contests.contest_admin',
+        can_see_all = request.user.has_perm('contests.contest_admin',
+                request.contest) or \
+                request.user.has_perm('contests.contest_observer',
                 request.contest)
         ccontroller = self.contest.controller
         queryset = self.contest.round_set.all()
@@ -58,7 +60,7 @@ class DefaultRankingController(RankingController):
             queryset = queryset.filter(id=key)
         for round in queryset:
             times = ccontroller.get_round_times(request, round)
-            if is_admin or times.results_visible(request.timestamp):
+            if can_see_all or times.results_visible(request.timestamp):
                 yield round
 
     def available_rankings(self, request):

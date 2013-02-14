@@ -55,6 +55,8 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
             return self.anonymous_can_enter_contest()
         if request.user.has_perm('contests.contest_admin', self.contest):
             return True
+        if request.user.has_perm('contests.contest_observer', self.contest):
+            return True
         queryset = User.objects.filter(id=request.user.id)
         return bool(self.filter_participants(queryset))
 
@@ -464,6 +466,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True
+        if request.user.has_perm('contests.contest_observer', request.contest):
+            return True
         round = submission.problem_instance.round
         rtimes = self.get_round_times(request, round)
         return rtimes.results_visible(request.timestamp)
@@ -484,6 +488,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            :returns: updated queryset
         """
         if request.user.has_perm('contests.contest_admin', request.contest):
+            return queryset
+        if request.user.has_perm('contests.contest_observer', request.contest):
             return queryset
         if self.results_visible(request, submission):
             return queryset.filter(status='ACTIVE', kind='NORMAL')

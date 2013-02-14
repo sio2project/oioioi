@@ -1,22 +1,21 @@
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.db import models
-from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-from django.utils.text import get_valid_filename
-from django.core.validators import validate_slug
-from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_slug
+from django.db import models
+from django.db.models.signals import pre_save, post_save
+from django.dispatch import receiver
+from django.utils import timezone
+from django.utils.text import get_valid_filename
+from django.utils.translation import ugettext_lazy as _
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
-from oioioi.problems.models import Problem
 from oioioi.contests.fields import ScoreField
 from oioioi.filetracker.fields import FileField
+from oioioi.problems.models import Problem
 
 import itertools
 import os.path
-
 
 def make_contest_filename(instance, filename):
     if not isinstance(instance, Problem):
@@ -46,6 +45,7 @@ class Contest(models.Model):
         get_latest_by = 'creation_date'
         permissions = (
             ('contest_admin', _("Can administer the contest")),
+            ('contest_observer', _("Can observe the contest")),
             ('enter_contest', _("Can enter the contest")),
         )
 
@@ -130,7 +130,6 @@ def _generate_round_id(sender, instance, raw, **kwargs):
                 .exclude(pk=instance.pk).count()
         instance.name = _("Round %d") % (num_other_rounds + 1,)
 
-
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     round = models.ForeignKey(Round, verbose_name=_("round"))
@@ -165,7 +164,6 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
                 if candidate not in short_names:
                     instance.short_name = candidate
                     break
-
 
 submission_kinds = EnumRegistry()
 submission_kinds.register('NORMAL', _("Normal"))
@@ -213,7 +211,6 @@ class Submission(models.Model):
             return None
         return self.problem_instance.contest.controller \
                 .render_submission_score(self)
-
 
 submission_report_kinds = EnumRegistry()
 submission_report_kinds.register('FINAL', _("Final report"))
@@ -265,7 +262,6 @@ class FailureReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     message = models.TextField()
     json_environ = models.TextField()
-
 
 class UserResultForProblem(models.Model):
     """User result (score) for the problem.
@@ -324,3 +320,21 @@ class RoundTimeExtension(models.Model):
 
     def __unicode__(self):
         return unicode(self.round) + ': ' + unicode(self.user)
+
+contest_permissions = EnumRegistry()
+contest_permissions.register('contests.contest_admin', _("Admin"))
+contest_permissions.register('contests.contest_observer', _("Observer"))
+
+class ContestPermission(models.Model):
+    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest)
+    permission = EnumField(contest_permissions,
+            default='contests.contest_admin', verbose_name=_("permission"))
+
+    class Meta:
+        unique_together = ('user', 'contest', 'permission')
+        verbose_name = _("contest permission")
+        verbose_name_plural = _("contest permissions")
+
+    def __unicode__(self):
+        return u'%s/%s: %s' % (self.contest, self.permission, self.user)

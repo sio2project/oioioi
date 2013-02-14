@@ -122,6 +122,11 @@ def is_contest_admin(request):
     return request.user.has_perm('contests.contest_admin', request.contest)
 
 @request_cached
+def is_contest_observer(request):
+    """Checks if the current user can observe the current contest."""
+    return request.user.has_perm('contests.contest_observer', request.contest)
+
+@request_cached
 def can_enter_contest(request):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.can_enter_contest(request)
@@ -130,6 +135,8 @@ def check_submission_access(request, submission):
     if submission.problem_instance.contest != request.contest:
         raise PermissionDenied
     if request.user.has_perm('contests.contest_admin', request.contest):
+        return
+    if request.user.has_perm('contests.contest_observer', request.contest):
         return
     controller = request.contest.controller
     queryset = Submission.objects.filter(id=submission.id)

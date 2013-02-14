@@ -15,9 +15,10 @@ from django.utils.encoding import force_unicode
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
 from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm
-from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.menu import contest_admin_menu_registry, contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        Submission, ContestAttachment, RoundTimeExtension
+        Submission, ContestAttachment, RoundTimeExtension, ContestPermission
+
 
 class RoundInline(admin.StackedInline):
     model = Round
@@ -272,7 +273,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj:
             return False
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return (request.user.has_perm('contests.contest_admin', request.contest)
+                or request.user.has_perm('contests.contest_observer',
+                    request.contest))
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request)
@@ -347,6 +350,10 @@ contest_admin_menu_registry.register('submissions_admin', _("Submissions"),
         lambda request: reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
 
+contest_observer_menu_registry.register('submissions_admin', _("Submissions"),
+        lambda request: reverse('oioioiadmin:contests_submission_changelist'),
+        order=40)
+
 class RoundListFilter(SimpleListFilter):
     title = _("round")
     parameter_name = 'round'
@@ -407,4 +414,37 @@ admin.site.register(RoundTimeExtension, RoundTimeExtensionAdmin)
 contest_admin_menu_registry.register('roundtimeextension_admin',
         _("Round extensions"), lambda request:
         reverse('oioioiadmin:contests_roundtimeextension_changelist'),
+        order=50)
+
+class ContestPermissionAdmin(admin.ModelAdmin):
+    list_display = ['permission', 'user', 'user_full_name']
+    list_display_links = ['user']
+    ordering = ['permission', 'user']
+
+    def user_full_name(self, instance):
+        if not instance.user:
+            return ''
+        return instance.user.get_full_name()
+    user_full_name.short_description = _("User name")
+    user_full_name.admin_order_field = 'user__last_name'
+
+    def queryset(self, request):
+        qs = super(ContestPermissionAdmin, self).queryset(request)
+        if request.contest:
+            qs = qs.filter(contest=request.contest)
+        return qs
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'contest':
+            qs = Contest.objects
+            if request.contest:
+                qs = qs.filter(id=request.contest.id)
+            kwargs['queryset'] = qs
+        return super(ContestPermissionAdmin, self) \
+                .formfield_for_foreignkey(db_field, request, **kwargs)
+
+admin.site.register(ContestPermission, ContestPermissionAdmin)
+admin.system_admin_menu_registry.register('contestspermission_admin',
+        _("Contest rights"), lambda request:
+        reverse('oioioiadmin:contests_contestpermission_changelist'),
         order=50)

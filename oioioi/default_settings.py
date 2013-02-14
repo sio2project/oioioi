@@ -168,6 +168,7 @@ INSTALLED_APPS = (
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
+    'oioioi.contests.auth.ContestPermissionsAuthBackend',
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
