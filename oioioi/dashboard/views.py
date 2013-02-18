@@ -19,16 +19,18 @@ top_links_registry = MenuRegistry()
 
 top_links_registry.register('problems_list', _("Problems"),
         lambda request: reverse('problems_list', kwargs={'contest_id':
-            request.contest.id}), order=100)
+            request.contest.id}), condition=has_any_visible_problem_instance,
+        order=100)
 
 top_links_registry.register('submit', _("Submit"),
         lambda request: reverse('submit', kwargs={'contest_id':
-            request.contest.id}), order=200)
+            request.contest.id}), condition=has_any_submittable_problem,
+        order=200)
 
 top_links_registry.register('ranking', _("Ranking"),
         lambda request: reverse('default_ranking', kwargs={'contest_id':
             request.contest.id}), condition=any_ranking_visible,
-        order=200)
+        order=300)
 
 menu_registry.register('dashboard', _("Dashboard"),
         lambda request: reverse('contest_dashboard', kwargs={'contest_id':
