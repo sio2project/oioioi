@@ -231,6 +231,7 @@ class SinolPackage(object):
         for test in Test.objects.filter(problem=self.problem) \
                 .exclude(name__in=test_names):
             logger.info('%s: deleting test %s', self.filename, test.name)
+            test.delete()
 
         # Assign scores
         if scored_groups:
