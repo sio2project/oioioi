@@ -107,6 +107,7 @@ submission_statuses.register('RE', _("Runtime error"))
 submission_statuses.register('WA', _("Wrong answer"))
 submission_statuses.register('TLE', _("Time limit exceeded"))
 submission_statuses.register('MLE', _("Memory limit exceeded"))
+submission_statuses.register('OLE', _("Output limit exceeded"))
 submission_statuses.register('SE', _("System error"))
 submission_statuses.register('RV', _("Rule violation"))
 

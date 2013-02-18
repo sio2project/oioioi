@@ -105,7 +105,7 @@ class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
 
     def get_compilation_result_size_limit(self):
-        return 5 * 1024 * 1024
+        return 10 * 1024 * 1024
 
     def _get_language(self, source_file):
         return os.path.splitext(source_file.name)[1][1:]
