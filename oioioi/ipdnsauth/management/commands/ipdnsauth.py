@@ -37,8 +37,8 @@ class Command(BaseCommand):
         with open(filename, 'w') as csvfile:
             writer = csv.writer(csvfile, delimiter=' ',
                                 lineterminator='\n')
-            for row in data:
-                writer.writerow([row.user.username, str(row)])
+            for username, binding in data:
+                writer.writerow([username, binding])
 
     def _read(self, filename):
         with open(filename, 'r') as csvfile:
