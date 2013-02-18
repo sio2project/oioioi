@@ -34,7 +34,7 @@
     <p class="message_body">{{ message.content }}</p>
 </div>
 {% for message in replies %}
-<div class="message message_reply {% if is_admin %}admin{% endif %}">
+<div class="message message_reply {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if is_admin %}admin{% endif %}">
     {% if is_admin %}
     <div class="pull-right">
         <a class="action" href="{% url oioioiadmin:questions_message_change message.id %}"><i class="icon-edit"></i></a>
@@ -43,7 +43,7 @@
     {% endif %}
     <p class="message_body">{{ message.content }}</p>
     <p class="message_info">
-    --{{ message.author.get_full_name }}
+    --{{ message.author.get_full_name }} | {{ message.date }}
     </p>
 </div>
 {% endfor %}

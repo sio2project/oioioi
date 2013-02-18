@@ -20,8 +20,8 @@ class Message(models.Model):
     author = models.ForeignKey(User)
     kind = EnumField(message_kinds, default='QUESTION')
     topic = models.CharField(max_length=255,
-            validators=[MaxLengthValidator(255)])
-    content = models.TextField()
+            validators=[MaxLengthValidator(255)], verbose_name=_("topic"))
+    content = models.TextField(verbose_name=_('content'))
     date = models.DateTimeField(default=timezone.now, editable=False)
 
     def can_have_replies(self):

@@ -23,15 +23,19 @@ def navbar_tip_processor(request):
         if count:
             text = ungettext('%(count)d NEW MESSAGE', '%(count)d NEW MESSAGES',
                     count) % {'count': count}
-            if count == 1:
-                message = messages.get()
-                link = reverse('message', kwargs={
-                        'contest_id': request.contest.id,
-                        'message_id': message.top_reference_id or message.id
-                    })
-            else:
-                link = reverse('contest_messages', kwargs={'contest_id':
-                    request.contest.id})
+
+            # FIXME: this work arounds an unidentified 403 errors got when
+            #   clicking on the badge, when there is a single PUBLIC ANSWER.
+
+            #if count == 1:
+            #    message = messages.get()
+            #    link = reverse('message', kwargs={
+            #            'contest_id': request.contest.id,
+            #            'message_id': message.top_reference_id or message.id
+            #        })
+            #else:
+            link = reverse('contest_messages', kwargs={'contest_id':
+                request.contest.id})
             return make_navbar_badge(link, text)
         else:
             return ''
