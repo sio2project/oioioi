@@ -4,6 +4,7 @@ from oioioi.contests.models import Submission
 from oioioi.contests.utils import has_any_active_round
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
+from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIRegistration, School
 from oioioi.oi.admin import OIRegistrationParticipantAdmin, \
                         OIOnsiteRegistrationParticipantAdmin
@@ -41,8 +42,7 @@ class OIContestController(ProgrammingContestController):
             return False
         if request.user.has_perm('contests.contest_admin', self.contest):
             return True
-        qs = User.objects.filter(id=request.user.id)
-        if not self.registration_controller().filter_participants(qs):
+        if not is_participant(request):
             return False
         return super(OIContestController, self)\
                 .can_submit(request, problem_instance)

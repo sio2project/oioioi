@@ -285,6 +285,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     def queryset(self, request):
         queryset = super(SubmissionAdmin, self).queryset(request)
         queryset = queryset.filter(problem_instance__contest=request.contest)
+        queryset = queryset.select_related('user', 'problem_instance',
+                    'problem_instance__problem', 'problem_instance__contest')
         queryset = queryset.order_by('-id')
         return queryset
 

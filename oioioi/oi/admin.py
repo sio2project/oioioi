@@ -69,6 +69,11 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
     list_filter = ParticipantAdmin.list_filter \
             + ['oi_oiregistration__school__province' ]
 
+    def queryset(self, request):
+        qs = super(OIRegistrationParticipantAdmin, self).queryset(request)
+        qs = qs.select_related('oi_oiregistration', 'oi_oiregistration__school')
+        return qs
+
     def school_name(self, instance):
         return instance.oi_oiregistration.school.name
     school_name.short_description = _("School")
@@ -107,6 +112,11 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_filter = ParticipantAdmin.list_filter \
             + ['oi_oionsiteregistration__region' ]
     ordering = ['oi_oionsiteregistration__number']
+
+    def queryset(self, request):
+        qs = super(OIOnsiteRegistrationParticipantAdmin, self).queryset(request)
+        qs = qs.select_related('oi_oionsiteregistration', 'oi_oionsiteregistration__region')
+        return qs
 
     def number(self, instance):
         return instance.oi_oionsiteregistration.number

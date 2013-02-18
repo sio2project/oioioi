@@ -38,6 +38,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     def queryset(self, request):
         qs = super(ParticipantAdmin, self).queryset(request)
         qs = qs.filter(contest=request.contest)
+        qs = qs.select_related('participant__user') #TODO: make it better
         return qs
 
     def save_model(self, request, obj, form, change):

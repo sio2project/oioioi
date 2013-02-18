@@ -314,6 +314,17 @@ def reset_memoized(memoized_fn):
 
 # Finding objects by name
 
+def request_cached(fn):
+    """Adds per-request caching for functions which operate on sole request."""
+    @functools.wraps(fn)
+    def cacher(request):
+        if not hasattr(request, '_cache'):
+            setattr(request, '_cache', {})
+        if fn not in request._cache:
+            request._cache[fn] = fn(request)
+        return request._cache[fn]
+    return cacher
+
 @memoized
 def get_object_by_dotted_name(name):
     """Returns an object by its dotted name, e.g.
