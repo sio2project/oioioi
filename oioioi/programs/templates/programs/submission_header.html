@@ -21,6 +21,7 @@
 <table class="details_table">
     <thead>
         <tr>
+            {% if is_admin %}<th style="min-width: 120px">{% trans "User name" %}</th>{% endif %}
             <th style="min-width: 120px">{% trans "Problem" %}</th>
             <th style="min-width: 150px">{% trans "Submission date" %}</th>
             <th style="min-width: 150px">{% trans "Status" %}</th>
@@ -29,6 +30,7 @@
     </thead>
     <tbody>
         <tr>
+            {% if is_admin %}<td>{{ submission.submission.user.get_full_name }}</td>{% endif %}
             <td>{{ submission.submission.problem_instance }}</td>
             <td>{{ submission.submission.get_date_display }}</td>
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
