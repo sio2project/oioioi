@@ -20,7 +20,7 @@ def show_submission_source_view(request, contest_id, submission_id):
     if contest_id != submission.problem_instance.contest_id:
         raise Http404
     check_submission_access(request, submission)
-    raw_source = submission.source_file.read()
+    raw_source = submission.source_file.read().decode('utf-8', 'replace')
     filename = submission.source_file.file.name
     is_source_safe = False
     try:
@@ -28,9 +28,11 @@ def show_submission_source_view(request, contest_id, submission_id):
             filename,
             raw_source
         )
-        formatter = HtmlFormatter(linenos=True, cssclass='syntax-highlight')
+        formatter = HtmlFormatter(linenos=True, line_number_chars=3,
+                            cssclass='syntax-highlight')
         formatted_source = highlight(raw_source, lexer, formatter)
-        formatted_source_css = HtmlFormatter().get_style_defs('.syntax-highlight')
+        formatted_source_css = HtmlFormatter() \
+                .get_style_defs('.syntax-highlight')
         is_source_safe = True
     except ClassNotFound:
         formatted_source = raw_source
