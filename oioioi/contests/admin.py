@@ -218,9 +218,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_login', 'user_full_name', 'date',
             'problem_instance_display', 'status_display', 'score_display']
     list_display_links = ['id', 'date']
-    list_filter = ['user', 'problem_instance__problem__name', 'status']
+    list_filter = ['problem_instance__problem__name', 'status']
     date_hierarchy = 'date'
     actions = ['rejudge_action']
+    search_fields = ['user__username', 'user__last_name']
 
     def has_add_permission(self, request):
         return False
