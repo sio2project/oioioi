@@ -25,15 +25,6 @@
 
 <script>
     $(function(){
-        $('form [rel=twipsy]').each(function () {
-            var trigger = $(this).attr('data-trigger');
-            $(this).twipsy({
-                live: true,
-                placement: 'right',
-                offset: 2,
-                trigger: 'hover'
-            });
-        });
         if ($(":focus").length == 0) $(":input:visible:first").focus();
     })
 </script>
