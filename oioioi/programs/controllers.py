@@ -243,7 +243,7 @@ class ProgrammingContestController(ContestController):
         compilation_report = \
                 CompilationReport.objects.get(submission_report=report)
         test_reports = TestReport.objects.filter(submission_report=report) \
-                .order_by('test_group', 'test_name')
+                .order_by('test__order', 'test_group', 'test_name')
         group_reports = GroupReport.objects.filter(submission_report=report)
         group_reports = dict((g.group, g) for g in group_reports)
 

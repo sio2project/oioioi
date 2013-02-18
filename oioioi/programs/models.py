@@ -32,6 +32,9 @@ class Test(models.Model):
             default=10)
     order = models.IntegerField(default=0)
 
+    class Meta:
+        ordering = ['order']
+
 class OutputChecker(models.Model):
     problem = models.OneToOneField(Problem)
     exe_file = FileField(upload_to=make_problem_filename,
