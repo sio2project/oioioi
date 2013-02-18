@@ -1,7 +1,7 @@
 from django import forms
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
@@ -47,8 +47,13 @@ class ParticipantsController(RegistrationController):
         return super(ParticipantsController, self).no_entry_view(request)
 
     def get_model_class(self):
+        """Returns registration model class used within current registration
+           controller.
+
+           The default implementation infers it from form_class form metadata.
+        """
         assert self.form_class, 'ParticipantsController.form_class must ' \
-                    'be overridden in subclasses'
+            'be overridden in subclasses'
         assert issubclass(self.form_class, forms.ModelForm), \
             'ParticipantsController.form_class must be a ModelForm'
         model_class = self.form_class._meta.model
@@ -58,12 +63,11 @@ class ParticipantsController(RegistrationController):
         return model_class
 
     def get_form(self, request, participant=None):
-        model_class = self.get_model_class()
         instance = None
         if participant:
             try:
-                instance = model_class.objects.get(participant=participant)
-            except model_class.DoesNotExist:
+                instance = participant.registration_model
+            except ObjectDoesNotExist:
                 pass
         if request.method == 'POST':
             return self.form_class(request.POST, instance=instance)

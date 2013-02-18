@@ -5,6 +5,7 @@ from oioioi.contests.utils import has_any_active_round
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.utils import is_participant
+from oioioi.oi.models import OIOnsiteRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 
 class OIRegistrationController(ParticipantsController):
@@ -82,6 +83,9 @@ class OIOnsiteRegistrationController(ParticipantsController):
     def participant_admin(self):
         from oioioi.oi.admin import OIOnsiteRegistrationParticipantAdmin
         return OIOnsiteRegistrationParticipantAdmin
+
+    def get_model_class(self):
+        return OIOnsiteRegistration
 
     def can_register(self, request):
         return False

@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
@@ -15,6 +16,16 @@ class Participant(models.Model):
 
     class Meta:
         unique_together = ('contest', 'user')
+
+    @property
+    def registration_model(self):
+        rcontroller = self.contest.controller.registration_controller()
+        model_class = rcontroller.get_model_class()
+
+        try:
+            return model_class.objects.get(participant=self)
+        except model_class.DoesNotExist:
+            raise ObjectDoesNotExist
 
     def __unicode__(self):
         return unicode(self.user)

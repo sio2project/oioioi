@@ -1,7 +1,6 @@
 # coding: utf-8
 from django.db import models
 from django.core.validators import RegexValidator
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
@@ -70,7 +69,7 @@ class School(models.Model):
     email = models.EmailField(blank=True)
 
     def __unicode__(self):
-        return '%(name)s, %(city)s' % \
+        return _("%(name)s, %(city)s") % \
                 dict(name=self.name, city=self.city)
 
 class OIRegistration(RegistrationModel):
@@ -93,10 +92,19 @@ class OIRegistration(RegistrationModel):
         verbose_name=_("class"))
     terms_accepted = models.BooleanField(_("terms accepted"))
 
+    def __unicode__(self):
+        return _("%(class_type)s of %(school)s") % \
+                dict(class_type=self.get_class_type_display(),
+                    school=self.school)
+
 class OIOnsiteRegistration(RegistrationModel):
     number = models.IntegerField()
     region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL)
     local_number = models.IntegerField()
 
+    def __unicode__(self):
+        return _("%(number)s/%(region)s/%(local_number)s") % \
+                dict(number=self.number, region=self.region,
+                    local_number=self.local_number)
     class Meta:
         unique_together = ('region', 'local_number')

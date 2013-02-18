@@ -1,4 +1,6 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+from django.utils.encoding import force_unicode
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -91,6 +93,10 @@ class TestOIOnsiteAdmin(TestCase):
         self.assertEqual(Participant.objects.count(), 3)
         self.assertEqual(OIOnsiteRegistration.objects.count(), 3)
 
+        p = Participant.objects.get(pk=1)
+        self.assertEqual(p.status, 'ACTIVE')
+        self.assertEqual(force_unicode(p.registration_model), '1/waw/1')
+
 class TestOIRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -144,6 +150,20 @@ class TestOIRegistration(TestCase):
 
 class TestOIOnsiteRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
+
+    def test_missing_registration_model(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.oi.controllers.OIOnsiteContestController'
+        contest.save()
+        user = User.objects.get(username='test_user')
+
+        p = Participant(contest=contest, user=user)
+        p.save()
+
+        self.assertRaises(ObjectDoesNotExist,
+            lambda: getattr(p, 'registration_model'))
+
 
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()

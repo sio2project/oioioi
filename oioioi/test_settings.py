@@ -20,6 +20,7 @@ INSTALLED_APPS = (
     'oioioi.scoresreveal',
     'oioioi.oireports',
     'oioioi.oisubmit',
+    'oioioi.complaints',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (
@@ -42,3 +43,6 @@ SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.LocalBackend'
 FILETRACKER_CLIENT_FACTORY = 'filetracker.dummy.DummyClient'
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
+
+COMPLAINTS_EMAIL = 'dummy@example.com'
+COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
