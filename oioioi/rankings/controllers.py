@@ -86,6 +86,8 @@ class DefaultRankingController(RankingController):
         users = User.objects.in_bulk(by_user.keys())
 
         data = []
+        all_rounds_trial = all(r.is_trial for r in rounds)
+
         for user in users.itervalues():
             by_user_row = by_user[user.id]
             user_results = []
@@ -96,10 +98,12 @@ class DefaultRankingController(RankingController):
                     'results': user_results,
                     'sum': None
                 }
+
             for pi in pis:
                 result = by_user_row.get(pi.id)
                 user_results.append(result)
-                if result and result.score:
+                if result and result.score and \
+                    (not pi.round.is_trial or all_rounds_trial):
                     if user_data['sum'] is None:
                         user_data['sum'] = result.score
                     else:
