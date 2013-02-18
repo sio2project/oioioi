@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-10 01:34+0100\n"
+"POT-Creation-Date: 2013-03-13 19:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,19 +27,19 @@ msgstr ""
 msgid "The %(name)s \"%(obj)s\" was deleted successfully."
 msgstr ""
 
-#: base/admin.py:127
+#: base/admin.py:143
 msgid "Personal info"
 msgstr ""
 
-#: base/admin.py:128
+#: base/admin.py:144
 msgid "Permissions"
 msgstr ""
 
-#: base/admin.py:130
+#: base/admin.py:146
 msgid "Important dates"
 msgstr ""
 
-#: base/admin.py:138
+#: base/admin.py:155
 msgid "Users"
 msgstr ""
 
@@ -74,16 +74,20 @@ msgstr ""
 msgid "Last name"
 msgstr ""
 
-#: base/views.py:13
+#: base/views.py:16
 msgid "Edit profile"
 msgstr ""
 
-#: base/views.py:16 base/templates/registration/password_change_form.html:3
+#: base/views.py:19 base/templates/registration/password_change_form.html:3
 msgid "Change password"
 msgstr ""
 
-#: base/views.py:19
+#: base/views.py:22
 msgid "Log out"
+msgstr ""
+
+#: base/templates/403.html:7
+msgid "403 &mdash; Sorry, but you're not allowed to see anything here. "
 msgstr ""
 
 #: base/templates/404.html:7
@@ -126,18 +130,19 @@ msgid ""
 msgstr ""
 
 #: base/templates/simple-centered-form.html:13
-#: base/templates/registration/registration_form.html:30 contests/views.py:33
+#: base/templates/registration/registration_form.html:30 contests/views.py:34
 #: contests/templates/contests/my_submissions.html:12
-#: contests/templates/contests/submit.html:12 dashboard/views.py:23
+#: contests/templates/contests/submit.html:12 dashboard/views.py:25
 #: participants/templates/participants/registration.html:29
 #: problems/templates/admin/problems/problem_add.html:14
 #: problems/templates/admin/problems/problem_reupload.html:38
 #: questions/templates/questions/add.html:19
+#: testrun/templates/testrun/submit.html:12
 msgid "Submit"
 msgstr ""
 
-#: base/templates/admin/base_site.html:28
-#: base/templates/admin/base_site.html:31
+#: base/templates/admin/base_site.html:33
+#: base/templates/admin/base_site.html:36
 msgid "OIOIOI Admin"
 msgstr ""
 
@@ -179,28 +184,32 @@ msgid ""
 "a>.</p>\n"
 msgstr ""
 
-#: base/templates/ingredients/menu.html:7
+#: base/templates/ingredients/menu.html:8
 #: teachers/templates/ingredients/menu.html:7
 msgid "System Administration"
 msgstr ""
 
-#: base/templates/ingredients/menu.html:11
+#: base/templates/ingredients/menu.html:12
 #: teachers/templates/ingredients/menu.html:15
 msgid "Contest Administration"
 msgstr ""
 
-#: base/templates/ingredients/menu.html:14
+#: base/templates/ingredients/menu.html:16
+msgid "Observer Menu"
+msgstr ""
+
+#: base/templates/ingredients/menu.html:19
 #: teachers/templates/ingredients/menu.html:18
 msgid "User Menu"
 msgstr ""
 
 #: base/templates/ingredients/navbar-with-login-box.html:6
-#: base/templates/ingredients/navbar.html:67
+#: base/templates/ingredients/navbar.html:70
 msgid "Register"
 msgstr ""
 
 #: base/templates/ingredients/navbar-with-login-box.html:10
-#: contests/admin.py:240 contests/admin.py:327 participants/admin.py:28
+#: contests/admin.py:286 contests/admin.py:386 participants/admin.py:29
 msgid "Login"
 msgstr ""
 
@@ -220,11 +229,15 @@ msgid ""
 "a>.</p><p><small>Click to dismiss.</small></p>"
 msgstr ""
 
-#: base/templates/ingredients/navbar.html:29
+#: base/templates/ingredients/navbar.html:4
+msgid "OIOIOI works properly only if javascript is enabled."
+msgstr ""
+
+#: base/templates/ingredients/navbar.html:30
 msgid "Other..."
 msgstr ""
 
-#: base/templates/ingredients/navbar.html:31
+#: base/templates/ingredients/navbar.html:32
 msgid "Switch contest"
 msgstr ""
 
@@ -232,7 +245,7 @@ msgstr ""
 msgid "Create a new contest"
 msgstr ""
 
-#: base/templates/ingredients/navbar.html:63
+#: base/templates/ingredients/navbar.html:66
 #: base/templates/registration/activation_complete.html:9
 #: base/templates/registration/login.html:13
 #: base/templates/registration/login.html:26
@@ -398,20 +411,205 @@ msgstr ""
 msgid "Please fill the form below to register."
 msgstr ""
 
-#: clock/templatetags/get_clocks.py:34
-msgid " left to the end of the round."
+#: clock/templates/clock/navbar_admin_clock.html:4
+msgid "Admin time"
 msgstr ""
 
-#: clock/templatetags/get_clocks.py:42
-msgid " left to the start of the round."
+#: clock/templates/clock/navbar_admin_clock.html:11
+msgid "Admin time:"
 msgstr ""
+
+#: clock/templates/clock/navbar_admin_clock.html:14
+msgid "Ok"
+msgstr ""
+
+#: clock/templates/clock/navbar_admin_clock.html:15
+msgid "Reset"
+msgstr ""
+
+#: clock/templatetags/get_clocks.py:43
+msgid "end of the round."
+msgstr ""
+
+#: clock/templatetags/get_clocks.py:51
+msgid "start of the round."
+msgstr ""
+
+#: clock/templatetags/get_clocks.py:59
+#, python-format
+msgid "%(seconds)d second "
+msgid_plural "%(seconds)d seconds "
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:63
+#, python-format
+msgid "%(minutes)d minute "
+msgid_plural "%(minutes)d minutes "
+msgstr[0] ""
+msgstr[1] ""
 
 #: clock/templatetags/get_clocks.py:67
+#, python-format
+msgid "%(hours)d hour "
+msgid_plural "%(hours)d hours "
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:71
+#, python-format
+msgid "%(days)d day "
+msgid_plural "%(days)d days "
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:76
+#, python-format
+msgid "%(countdown_days)sleft to the %(countdown_destination)s"
+msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:83
+#, python-format
+msgid "%(countdown_hours)sleft to the %(countdown_destination)s"
+msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:90
+#, python-format
+msgid "%(countdown_minutes)sleft to the %(countdown_destination)s"
+msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:97
+#, python-format
+msgid "%(countdown_seconds)sleft to the %(countdown_destination)s"
+msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s"
+msgstr[0] ""
+msgstr[1] ""
+
+#: clock/templatetags/get_clocks.py:103
 msgid "The round is over!"
 msgstr ""
 
-#: clock/templatetags/get_clocks.py:69
+#: clock/templatetags/get_clocks.py:105
 msgid "The round has started!"
+msgstr ""
+
+#: complaints/forms.py:6 complaints/templates/complaints/email_subject.txt:1
+msgid "Complaint"
+msgstr ""
+
+#: complaints/models.py:7
+msgid "complaints configuration"
+msgstr ""
+
+#: complaints/models.py:9
+msgid "enabled"
+msgstr ""
+
+#: complaints/models.py:10 contests/models.py:104
+msgid "start date"
+msgstr ""
+
+#: complaints/models.py:12 contests/models.py:106
+msgid "end date"
+msgstr ""
+
+#: complaints/models.py:15 complaints/models.py:16
+msgid "complaints config"
+msgstr ""
+
+#: complaints/views.py:32
+#: complaints/templates/complaints/complaint_sent.html:4
+#: complaints/templates/complaints/make.html:4
+msgid "Complaints"
+msgstr ""
+
+#: complaints/views.py:49
+msgid "NOT A PARTICIPANT"
+msgstr ""
+
+#: complaints/templates/complaints/complainer_email.txt:1
+#, python-format
+msgid ""
+"Dear Sir or Madam,\n"
+"\n"
+"this is to confirm that we have received the following complaint from you in "
+"the\n"
+"%(contest)s contest:"
+msgstr ""
+
+#: complaints/templates/complaints/complainer_email.txt:10
+#, python-format
+msgid ""
+"If you need to add or clarify anything, please reply to this\n"
+"email. The reply should be addressed to %(complaints_email)s."
+msgstr ""
+
+#: complaints/templates/complaints/complaint_sent.html:8
+#, python-format
+msgid ""
+"\n"
+"    <p>Your complaint has been sent. You should get it by e-mail shortly.</"
+"p>\n"
+"    <p>If in any case you reply to an e-mail related to the complaint,<br /"
+">\n"
+"        <u>please keep <strong>%(complaints_email)s</strong> in CC.</p>\n"
+"    "
+msgstr ""
+
+#: complaints/templates/complaints/jury_email.txt:1
+msgid ""
+"Hi,\n"
+"\n"
+"the following complaint was received:"
+msgstr ""
+
+#: complaints/templates/complaints/jury_email.txt:5 oireports/views.py:36
+#: rankings/controllers.py:60
+msgid "Contest"
+msgstr ""
+
+#: complaints/templates/complaints/jury_email.txt:6
+#: programs/controllers.py:196
+#: rankings/templates/rankings/default_ranking.html:8
+msgid "User"
+msgstr ""
+
+#: complaints/templates/complaints/jury_email.txt:7
+msgid "Participant status"
+msgstr ""
+
+#: complaints/templates/complaints/jury_email.txt:8 contests/admin.py:349
+#: contests/admin.py:354 dashboard/templates/dashboard/dashboard.html:37
+msgid "Submissions"
+msgstr ""
+
+#: complaints/templates/complaints/jury_email.txt:14
+#, python-format
+msgid ""
+"To contact the complainer, just reply to this email, keeping\n"
+"%(complaints_email)s in CC."
+msgstr ""
+
+#: complaints/templates/complaints/make.html:7
+msgid "Make complaint"
+msgstr ""
+
+#: complaints/templates/complaints/make.html:13
+msgid ""
+"<p>Please write your complaint in the box. Specify as\n"
+"            many details, as possible.<br /> This increases the chances that "
+"the complaint\n"
+"            will actually be accepted as valid.</p>"
+msgstr ""
+
+#: complaints/templates/complaints/make.html:22
+msgid "Make a complaint"
 msgstr ""
 
 #: contestlogo/models.py:7
@@ -442,13 +640,15 @@ msgstr ""
 msgid "Download package"
 msgstr ""
 
-#: contests/admin.py:178 teachers/templates/teachers/pupils.html:74
+#: contests/admin.py:178 contests/templates/contests/submission.html:38
+#: teachers/templates/teachers/pupils.html:74
 msgid "Actions"
 msgstr ""
 
-#: contests/admin.py:184 contests/admin.py:256 contests/forms.py:83
+#: contests/admin.py:184 contests/admin.py:302 contests/forms.py:89
 #: contests/templates/contests/my_submissions_table.html:7
-#: programs/templates/programs/submission_header.html:21
+#: programs/templates/programs/submission_header.html:32
+#: testrun/templates/testrun/submission_header.html:8
 msgid "Problem"
 msgstr ""
 
@@ -456,57 +656,79 @@ msgstr ""
 msgid "Symbol"
 msgstr ""
 
-#: contests/admin.py:210 contests/views.py:24
+#: contests/admin.py:213 contests/views.py:25
 #: contests/templates/contests/problems_list.html:5
-#: contests/templates/contests/problems_list.html:8 dashboard/views.py:19
+#: contests/templates/contests/problems_list.html:8 dashboard/views.py:20
 msgid "Problems"
 msgstr ""
 
-#: contests/admin.py:215 contests/models.py:134 contests/models.py:176
-#: problems/models.py:39
+#: contests/admin.py:218 contests/models.py:136 contests/models.py:179
+#: problems/models.py:39 scoresreveal/models.py:16 testrun/models.py:19
 msgid "problem"
 msgstr ""
 
-#: contests/admin.py:247 contests/admin.py:334 participants/admin.py:35
+#: contests/admin.py:221 contests/models.py:181 teachers/models.py:9
+msgid "user"
+msgstr ""
+
+#: contests/admin.py:231
+msgid "(None)"
+msgstr ""
+
+#: contests/admin.py:244 contests/models.py:32 problems/models.py:27
+msgid "full name"
+msgstr ""
+
+#: contests/admin.py:293 contests/admin.py:393 contests/admin.py:429
+#: participants/admin.py:36
+#: programs/templates/programs/submission_header.html:31
 msgid "User name"
 msgstr ""
 
-#: contests/admin.py:264
+#: contests/admin.py:310
 #: contests/templates/contests/my_submissions_table.html:8
-#: programs/templates/programs/submission_header.html:23
+#: contests/templates/contests/submission.html:42
+#: programs/templates/programs/submission_header.html:34
+#: testrun/templates/testrun/submission_header.html:10
 msgid "Status"
 msgstr ""
 
-#: contests/admin.py:269 contests/fields.py:12
+#: contests/admin.py:315 contests/fields.py:12
 #: contests/templates/contests/my_submissions_table.html:10
+#: contests/templates/contests/submission.html:43
 #: programs/templates/programs/report.html:27
-#: programs/templates/programs/submission_header.html:24
+#: programs/templates/programs/submission_header.html:35
+#: scoresreveal/templates/scoresreveal/submission_footer.html:8
 msgid "Score"
 msgstr ""
 
-#: contests/admin.py:281
+#: contests/admin.py:327
 #, python-format
 msgid "Queued %d submissions for rejudge."
 msgstr ""
 
-#: contests/admin.py:283
+#: contests/admin.py:329
 msgid "Rejudge selected submissions"
 msgstr ""
 
-#: contests/admin.py:298 dashboard/templates/dashboard/dashboard.html:36
-msgid "Submissions"
-msgstr ""
-
-#: contests/admin.py:303 contests/models.py:109 contests/models.py:133
+#: contests/admin.py:359 contests/models.py:112 contests/models.py:135
 msgid "round"
 msgstr ""
 
-#: contests/admin.py:356
+#: contests/admin.py:416
 msgid "Round extensions"
 msgstr ""
 
-#: contests/controllers.py:133
+#: contests/admin.py:449
+msgid "Contest rights"
+msgstr ""
+
+#: contests/controllers.py:136
 msgid "Public contest"
+msgstr ""
+
+#: contests/controllers.py:325
+msgid "Visible only for admins"
 msgstr ""
 
 #: contests/forms.py:15
@@ -525,187 +747,209 @@ msgstr ""
 msgid "Round 1"
 msgstr ""
 
-#: contests/forms.py:110
+#: contests/forms.py:126
 msgid "Invalid problem"
 msgstr ""
 
-#: contests/forms.py:120
+#: contests/forms.py:134
 #, python-format
-msgid "Submission limit for the problem                 '%s' exceeded."
+msgid "Submissions limit for the problem '%s'exceeded."
 msgstr ""
 
-#: contests/models.py:33 contests/templates/contests/select_contest.html:12
+#: contests/forms.py:140
+msgid "Permission denied"
+msgstr ""
+
+#: contests/models.py:31 contests/templates/contests/select_contest.html:12
+#: contests/templates/contests/submission.html:39
 msgid "ID"
 msgstr ""
 
-#: contests/models.py:34 problems/models.py:27
-msgid "full name"
-msgstr ""
-
-#: contests/models.py:37 problems/models.py:31
+#: contests/models.py:35 problems/models.py:31
 msgid "type"
 msgstr ""
 
-#: contests/models.py:39
+#: contests/models.py:37
 msgid "creation date"
 msgstr ""
 
-#: contests/models.py:42 contests/models.py:84 contests/models.py:99
-#: contests/models.py:132 problems/models.py:33
+#: contests/models.py:39
+msgid "default submissions limit"
+msgstr ""
+
+#: contests/models.py:43 contests/models.py:86 contests/models.py:101
+#: contests/models.py:134 problems/models.py:33
 msgid "contest"
 msgstr ""
 
-#: contests/models.py:43
+#: contests/models.py:44
 msgid "contests"
 msgstr ""
 
-#: contests/models.py:46
+#: contests/models.py:47
 msgid "Can administer the contest"
 msgstr ""
 
-#: contests/models.py:47
+#: contests/models.py:48
+msgid "Can observe the contest"
+msgstr ""
+
+#: contests/models.py:49
 msgid "Can enter the contest"
 msgstr ""
 
-#: contests/models.py:86 problems/models.py:100
+#: contests/models.py:88 problems/models.py:100
 msgid "description"
 msgstr ""
 
-#: contests/models.py:88 problems/models.py:74 problems/models.py:102
+#: contests/models.py:90 problems/models.py:74 problems/models.py:102
+#: questions/models.py:24
 msgid "content"
 msgstr ""
 
-#: contests/models.py:91 problems/models.py:105
+#: contests/models.py:93 problems/models.py:105
 msgid "attachment"
 msgstr ""
 
-#: contests/models.py:92 problems/models.py:106
+#: contests/models.py:94 problems/models.py:106
 msgid "attachments"
 msgstr ""
 
-#: contests/models.py:100 programs/models.py:20 programs/models.py:70
+#: contests/models.py:102 programs/models.py:20 programs/models.py:73
 msgid "name"
 msgstr ""
 
-#: contests/models.py:102
-msgid "start date"
-msgstr ""
-
-#: contests/models.py:104
-msgid "end date"
-msgstr ""
-
-#: contests/models.py:106
+#: contests/models.py:108
 msgid "results date"
 msgstr ""
 
-#: contests/models.py:110
+#: contests/models.py:109
+msgid "is trial"
+msgstr ""
+
+#: contests/models.py:113
 msgid "rounds"
 msgstr ""
 
-#: contests/models.py:120
+#: contests/models.py:123
 msgid "Start date should be before end date."
 msgstr ""
 
-#: contests/models.py:128
+#: contests/models.py:131
 #, python-format
 msgid "Round %d"
 msgstr ""
 
-#: contests/models.py:135 problems/models.py:28
+#: contests/models.py:137 problems/models.py:28
 msgid "short name"
 msgstr ""
 
-#: contests/models.py:138
+#: contests/models.py:142
 msgid "problem instance"
 msgstr ""
 
-#: contests/models.py:139
+#: contests/models.py:143
 msgid "problem instances"
 msgstr ""
 
-#: contests/models.py:166 programs/controllers.py:161
+#: contests/models.py:169 programs/controllers.py:206
 msgid "Normal"
 msgstr ""
 
-#: contests/models.py:167 programs/controllers.py:161
+#: contests/models.py:170 programs/controllers.py:206
 msgid "Ignored"
 msgstr ""
 
-#: contests/models.py:170
+#: contests/models.py:173
 msgid "Pending"
 msgstr ""
 
-#: contests/models.py:171
+#: contests/models.py:174
 msgid "OK"
 msgstr ""
 
-#: contests/models.py:172
+#: contests/models.py:175
 msgid "Error"
 msgstr ""
 
-#: contests/models.py:178 teachers/models.py:9
-msgid "user"
-msgstr ""
-
-#: contests/models.py:180
+#: contests/models.py:183
 msgid "date"
 msgstr ""
 
-#: contests/models.py:182 programs/models.py:25 programs/models.py:73
+#: contests/models.py:185 programs/models.py:25 programs/models.py:76
 msgid "kind"
 msgstr ""
 
-#: contests/models.py:184 programs/models.py:31
+#: contests/models.py:187 programs/models.py:31
 msgid "score"
 msgstr ""
 
-#: contests/models.py:186
+#: contests/models.py:189
 msgid "status"
 msgstr ""
 
-#: contests/models.py:188
+#: contests/models.py:191
 msgid "comment"
 msgstr ""
 
-#: contests/models.py:191
+#: contests/models.py:194 scoresreveal/models.py:8
 msgid "submission"
 msgstr ""
 
-#: contests/models.py:192
+#: contests/models.py:195
 msgid "submissions"
 msgstr ""
 
-#: contests/models.py:207
+#: contests/models.py:216
 msgid "Final report"
 msgstr ""
 
-#: contests/models.py:208 contests/templates/contests/failure_report.html:3
+#: contests/models.py:217 contests/templates/contests/failure_report.html:3
 msgid "Evaluation failure report"
 msgstr ""
 
-#: contests/models.py:211
+#: contests/models.py:220
 msgid "Inactive"
 msgstr ""
 
-#: contests/models.py:212 participants/models.py:8
+#: contests/models.py:221 participants/models.py:8
 msgid "Active"
 msgstr ""
 
-#: contests/models.py:213
+#: contests/models.py:222
 msgid "Superseded"
 msgstr ""
 
-#: contests/models.py:288 participants/forms.py:23
+#: contests/models.py:311 participants/forms.py:23
 msgid "Extra time (in minutes)"
 msgstr ""
 
-#: contests/models.py:292
+#: contests/models.py:315
 msgid "round time extension"
 msgstr ""
 
-#: contests/models.py:293
+#: contests/models.py:316
 msgid "round time extensions"
+msgstr ""
+
+#: contests/models.py:322
+msgid "Admin"
+msgstr ""
+
+#: contests/models.py:323
+msgid "Observer"
+msgstr ""
+
+#: contests/models.py:329
+msgid "permission"
+msgstr ""
+
+#: contests/models.py:333
+msgid "contest permission"
+msgstr ""
+
+#: contests/models.py:334
+msgid "contest permissions"
 msgstr ""
 
 #: contests/scores.py:57
@@ -719,17 +963,17 @@ msgstr ""
 msgid "Unrecognized score type '%s'"
 msgstr ""
 
-#: contests/views.py:28 contests/templates/contests/files.html:6
+#: contests/views.py:29 contests/templates/contests/files.html:6
 #: contests/templates/contests/files.html:9
 msgid "Files"
 msgstr ""
 
-#: contests/views.py:38 contests/templates/contests/my_submissions.html:5
+#: contests/views.py:39 contests/templates/contests/my_submissions.html:5
 #: contests/templates/contests/my_submissions.html:8
 msgid "My submissions"
 msgstr ""
 
-#: contests/views.py:153
+#: contests/views.py:160
 msgid "Rejudge request received."
 msgstr ""
 
@@ -760,7 +1004,7 @@ msgid "Add file"
 msgstr ""
 
 #: contests/templates/contests/files.html:25 printing/forms.py:16
-#: programs/controllers.py:145
+#: programs/controllers.py:189
 msgid "File"
 msgstr ""
 
@@ -809,7 +1053,7 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: contests/templates/contests/problems_list.html:17 problems/forms.py:18
+#: contests/templates/contests/problems_list.html:17 problems/forms.py:22
 msgid "Round"
 msgstr ""
 
@@ -822,12 +1066,25 @@ msgstr ""
 msgid "Select contest"
 msgstr ""
 
-#: contests/templates/contests/submission.html:4
-#: contests/templates/contests/submission.html:7
+#: contests/templates/contests/submission.html:5
+#: contests/templates/contests/submission.html:25
 msgid "Submission"
 msgstr ""
 
-#: dashboard/views.py:27 rankings/views.py:15
+#: contests/templates/contests/submission.html:33
+msgid "Hidden reports"
+msgstr ""
+
+#: contests/templates/contests/submission.html:40
+msgid "Creation date"
+msgstr ""
+
+#: contests/templates/contests/submission.html:41 programs/controllers.py:207
+#: questions/templates/questions/list_table.html:11
+msgid "Kind"
+msgstr ""
+
+#: dashboard/views.py:30 rankings/views.py:15
 #: rankings/templates/rankings/no_rankings.html:4
 #: rankings/templates/rankings/no_rankings.html:7
 #: rankings/templates/rankings/ranking_view.html:4
@@ -835,11 +1092,15 @@ msgstr ""
 msgid "Ranking"
 msgstr ""
 
-#: dashboard/views.py:32
+#: dashboard/views.py:35 questions/templates/questions/list.html:19
+msgid "Ask a question"
+msgstr ""
+
+#: dashboard/views.py:39
 msgid "Dashboard"
 msgstr ""
 
-#: dashboard/templates/dashboard/dashboard.html:25
+#: dashboard/templates/dashboard/dashboard.html:26
 msgid ""
 "\n"
 "        <p>This is the landing page of the contest.\n"
@@ -849,7 +1110,7 @@ msgid ""
 "        "
 msgstr ""
 
-#: dashboard/templates/dashboard/dashboard.html:45
+#: dashboard/templates/dashboard/dashboard.html:46
 #: questions/templates/questions/list.html:7
 #: questions/templates/questions/list.html:10
 #: questions/templates/questions/message.html:5
@@ -884,7 +1145,7 @@ msgstr ""
 msgid "Send Feedback"
 msgstr ""
 
-#: oi/admin.py:38
+#: oi/admin.py:38 oireports/templates/oireports/report_options.html:60
 msgid "Regions"
 msgstr ""
 
@@ -892,75 +1153,75 @@ msgstr ""
 msgid "Schools"
 msgstr ""
 
-#: oi/admin.py:74 teachers/forms.py:17
+#: oi/admin.py:79 teachers/forms.py:17
 msgid "School"
 msgstr ""
 
-#: oi/controllers.py:25
+#: oi/controllers.py:29
 msgid "Polish Olympiad in Informatics - Online"
 msgstr ""
 
-#: oi/controllers.py:68
+#: oi/controllers.py:89
 msgid "Polish Olympiad in Informatics - Onsite"
 msgstr ""
 
-#: oi/forms.py:19
+#: oi/forms.py:20
 msgid "Region with this name already exists."
 msgstr ""
 
-#: oi/forms.py:84
+#: oi/forms.py:85
 msgid "Terms not accepted"
 msgstr ""
 
-#: oi/models.py:60 oi/models.py:78
+#: oi/models.py:59 oi/models.py:77
 msgid "address"
 msgstr ""
 
-#: oi/models.py:61 oi/models.py:79
+#: oi/models.py:60 oi/models.py:78
 msgid "postal code"
 msgstr ""
 
-#: oi/models.py:63 oi/models.py:81
+#: oi/models.py:62 oi/models.py:80
 msgid "Enter a postal code in the format XX-XXX"
 msgstr ""
 
-#: oi/models.py:65 oi/models.py:83
+#: oi/models.py:64 oi/models.py:82
 msgid "city"
 msgstr ""
 
-#: oi/models.py:67
+#: oi/models.py:66
 msgid "province"
 msgstr ""
 
-#: oi/models.py:69 oi/models.py:85
+#: oi/models.py:68 oi/models.py:84
 msgid "Invalid phone number"
 msgstr ""
 
-#: oi/models.py:70 oi/models.py:86
+#: oi/models.py:69 oi/models.py:85
 msgid "phone number"
 msgstr ""
 
-#: oi/models.py:87
+#: oi/models.py:86
 msgid "birth date"
 msgstr ""
 
-#: oi/models.py:88
+#: oi/models.py:87
 msgid "birthplace"
 msgstr ""
 
-#: oi/models.py:90
+#: oi/models.py:89
 msgid "t-shirt size"
 msgstr ""
 
-#: oi/models.py:92 teachers/models.py:11
+#: oi/models.py:91 teachers/models.py:11
 msgid "school"
 msgstr ""
 
-#: oi/models.py:94
+#: oi/models.py:93
 msgid "class"
 msgstr ""
 
-#: oi/models.py:95
+#: oi/models.py:94
 msgid "terms accepted"
 msgstr ""
 
@@ -1016,36 +1277,36 @@ msgid ""
 "Expected: %(expected)s"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:82
+#: oi/management/commands/import_onsite_participants.py:83
 #, python-format
 msgid "Error for user=%(user)s: user does not exist\n"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:87
+#: oi/management/commands/import_onsite_participants.py:88
 #, python-format
 msgid "Error for user=%(user)s: region %(region)s does not exist\n"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:92
+#: oi/management/commands/import_onsite_participants.py:93
 #, python-format
 msgid "DB Error for user=%(user)s: %(message)s\n"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:100
+#: oi/management/commands/import_onsite_participants.py:101
 msgid "Error for user=%(user)s: %s\n"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:104
+#: oi/management/commands/import_onsite_participants.py:105
 #, python-format
 msgid "Error for user=%(user)s, field %(field)s: %(message)s\n"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:111
+#: oi/management/commands/import_onsite_participants.py:112
 #, python-format
 msgid "Processed %d entries"
 msgstr ""
 
-#: oi/management/commands/import_onsite_participants.py:113
+#: oi/management/commands/import_onsite_participants.py:114
 msgid "There were some errors. Database not changed.\n"
 msgstr ""
 
@@ -1093,24 +1354,156 @@ msgstr ""
 msgid "There were some errors. Database not changed\n"
 msgstr ""
 
-#: participants/admin.py:57
+#: oi/templates/oi/access_blocked.html:7
+msgid ""
+"\n"
+"    <p>You participate in the onsite competition. Why the heck would you "
+"like\n"
+"    to log in this way?</p>\n"
+"    "
+msgstr ""
+
+#: oireports/views.py:28
+msgid "Printing reports"
+msgstr ""
+
+#: oireports/views.py:48
+msgid "All"
+msgstr ""
+
+#: oireports/templates/oireports/no_reports.html:4
+#: oireports/templates/oireports/no_reports.html:7
+#: oireports/templates/oireports/report_options.html:4
+#: oireports/templates/oireports/report_options.html:7
+msgid "Report"
+msgstr ""
+
+#: oireports/templates/oireports/no_reports.html:9
+msgid "No reports available."
+msgstr ""
+
+#: oireports/templates/oireports/report_options.html:11
+msgid "Ranking type"
+msgstr ""
+
+#: oireports/templates/oireports/report_options.html:33
+msgid "Rounds"
+msgstr ""
+
+#: oireports/templates/oireports/report_options.html:107
+msgid "Generate report"
+msgstr ""
+
+#: oisubmit/admin.py:23 oisubmit/templates/oisubmit/submission_footer.html:5
+msgid "Suspected"
+msgstr ""
+
+#: oisubmit/err_dict.py:4
+msgid "Submission limit exceeded."
+msgstr ""
+
+#: oisubmit/err_dict.py:5
+msgid "Sent after the end of the round."
+msgstr ""
+
+#: oisubmit/err_dict.py:6
+msgid "Submissiontime and servertime differs too much."
+msgstr ""
+
+#: oisubmit/err_dict.py:10
+msgid "Incorrect problem short name."
+msgstr ""
+
+#: oisubmit/err_dict.py:11
+msgid "Script error."
+msgstr ""
+
+#: oisubmit/err_dict.py:12 oisubmit/err_dict.py:13
+msgid "Error sending date."
+msgstr ""
+
+#: oisubmit/forms.py:14
+msgid "problem short name"
+msgstr ""
+
+#: oisubmit/forms.py:16 oisubmit/models.py:9
+msgid "local time"
+msgstr ""
+
+#: oisubmit/forms.py:18 oisubmit/models.py:11
+msgid "sio time"
+msgstr ""
+
+#: oisubmit/forms.py:20
+msgid "magic key"
+msgstr ""
+
+#: oisubmit/forms.py:26
+msgid "Magickey is not valid."
+msgstr ""
+
+#: oisubmit/forms.py:40
+msgid "Invalid problem shortname"
+msgstr ""
+
+#: oisubmit/models.py:13
+msgid "server time"
+msgstr ""
+
+#: oisubmit/models.py:15
+msgid "is suspected"
+msgstr ""
+
+#: oisubmit/templates/is_suspected.html:5
+#: oisubmit/templates/oisubmit/submission_footer.html:16
+#: scoresreveal/templates/scoresreveal/submission_footer.html:30
+msgid "Yes"
+msgstr ""
+
+#: oisubmit/templates/is_suspected.html:11
+#: oisubmit/templates/oisubmit/submission_footer.html:18
+#: scoresreveal/templates/scoresreveal/submission_footer.html:29
+msgid "No"
+msgstr ""
+
+#: oisubmit/templates/oisubmit/submission_footer.html:2
+msgid "OI submit data"
+msgstr ""
+
+#: oisubmit/templates/oisubmit/submission_footer.html:7
+msgid "Reason"
+msgstr ""
+
+#: oisubmit/templates/oisubmit/submission_footer.html:9
+msgid "Local time"
+msgstr ""
+
+#: oisubmit/templates/oisubmit/submission_footer.html:10
+msgid "SIO time"
+msgstr ""
+
+#: oisubmit/templates/oisubmit/submission_footer.html:11
+msgid "Server time"
+msgstr ""
+
+#: participants/admin.py:68
 msgid "Mark selected participants as active"
 msgstr ""
 
-#: participants/admin.py:61
+#: participants/admin.py:72
 msgid "Mark selected participants as banned"
 msgstr ""
 
-#: participants/admin.py:86
+#: participants/admin.py:97
 #, python-format
 msgid "Created %(new_count)d and updated%(updated_count)d %(name)s."
 msgstr ""
 
-#: participants/admin.py:100
+#: participants/admin.py:111
 msgid "Extend round"
 msgstr ""
 
-#: participants/admin.py:117
+#: participants/admin.py:128
 msgid "Participants"
 msgstr ""
 
@@ -1195,15 +1588,15 @@ msgstr ""
 msgid "Print"
 msgstr ""
 
-#: problems/admin.py:110
+#: problems/admin.py:124
 msgid "Problem package uploaded."
 msgstr ""
 
-#: problems/admin.py:161
+#: problems/admin.py:176
 msgid "Problem updated."
 msgstr ""
 
-#: problems/admin.py:198
+#: problems/admin.py:213
 #, python-format
 msgid "Package not available for problem %s."
 msgstr ""
@@ -1324,39 +1717,29 @@ msgstr ""
 msgid "Model solutions"
 msgstr ""
 
-#: programs/controllers.py:27
+#: programs/controllers.py:28
 msgid "Simple programming problem"
 msgstr ""
 
-#: programs/controllers.py:99
+#: programs/controllers.py:137
 msgid "Simple programming contest"
 msgstr ""
 
-#: programs/controllers.py:135
+#: programs/controllers.py:179
 msgid "File size limit exceeded."
 msgstr ""
 
-#: programs/controllers.py:141
+#: programs/controllers.py:185
 msgid "Unknown or not supported file extension."
 msgstr ""
 
-#: programs/controllers.py:146
+#: programs/controllers.py:190
 #, python-format
 msgid "Language is determined by the file extension. It has to be one of: %s."
 msgstr ""
 
-#: programs/controllers.py:152
-#: rankings/templates/rankings/default_ranking.html:8
-msgid "User"
-msgstr ""
-
-#: programs/controllers.py:158
+#: programs/controllers.py:203
 msgid "User does not exist"
-msgstr ""
-
-#: programs/controllers.py:162
-#: questions/templates/questions/list_table.html:10
-msgid "Kind"
 msgstr ""
 
 #: programs/models.py:15
@@ -1379,63 +1762,79 @@ msgstr ""
 msgid "group"
 msgstr ""
 
-#: programs/models.py:27
+#: programs/models.py:27 testrun/models.py:22
 msgid "time limit (ms)"
 msgstr ""
 
-#: programs/models.py:29
-msgid "memory limit (kB)"
+#: programs/models.py:29 testrun/models.py:24
+msgid "memory limit (KiB)"
 msgstr ""
 
-#: programs/models.py:46
+#: programs/models.py:49
 msgid "Model solution"
 msgstr ""
 
-#: programs/models.py:47
+#: programs/models.py:50
 msgid "Slow solution"
 msgstr ""
 
-#: programs/models.py:48
+#: programs/models.py:51
 msgid "Incorrect solution"
 msgstr ""
 
-#: programs/models.py:72
+#: programs/models.py:75
 msgid "source"
 msgstr ""
 
-#: programs/models.py:105
+#: programs/models.py:108
 msgid "Compilation failed"
 msgstr ""
 
-#: programs/models.py:106
+#: programs/models.py:109
 msgid "Runtime error"
 msgstr ""
 
-#: programs/models.py:107
+#: programs/models.py:110
 msgid "Wrong answer"
 msgstr ""
 
-#: programs/models.py:108
+#: programs/models.py:111
 msgid "Time limit exceeded"
 msgstr ""
 
-#: programs/models.py:109
+#: programs/models.py:112
 msgid "Memory limit exceeded"
 msgstr ""
 
-#: programs/models.py:110
-msgid "System error"
-msgstr ""
-
-#: programs/models.py:111
-msgid "Security violation"
-msgstr ""
-
 #: programs/models.py:113
-msgid "Initial report"
+msgid "Output limit exceeded"
 msgstr ""
 
 #: programs/models.py:114
+msgid "System error"
+msgstr ""
+
+#: programs/models.py:115
+msgid "Rule violation"
+msgstr ""
+
+#: programs/models.py:117
+msgid "Initial tests: OK"
+msgstr ""
+
+#: programs/models.py:118
+msgid "Initial tests: failed"
+msgstr ""
+
+#: programs/models.py:120
+msgid "Initial report"
+msgstr ""
+
+#: programs/models.py:121
+msgid "Normal report"
+msgstr ""
+
+#: programs/models.py:122
 msgid "Hidden report (for admins only)"
 msgstr ""
 
@@ -1456,6 +1855,7 @@ msgid "Report:"
 msgstr ""
 
 #: programs/templates/programs/report.html:15
+#: testrun/templates/testrun/report.html:9
 msgid "Compilation failed."
 msgstr ""
 
@@ -1464,10 +1864,12 @@ msgid "Test"
 msgstr ""
 
 #: programs/templates/programs/report.html:25
+#: testrun/templates/testrun/report.html:19
 msgid "Result"
 msgstr ""
 
 #: programs/templates/programs/report.html:26
+#: testrun/templates/testrun/report.html:20
 msgid "Time"
 msgstr ""
 
@@ -1476,19 +1878,24 @@ msgstr ""
 msgid "Rejudge"
 msgstr ""
 
-#: programs/templates/programs/submission_header.html:12
+#: programs/templates/programs/submission_header.html:13
+msgid "Normal rejudge"
+msgstr ""
+
+#: programs/templates/programs/submission_header.html:21
 msgid "Show code"
 msgstr ""
 
-#: programs/templates/programs/submission_header.html:14
+#: programs/templates/programs/submission_header.html:23
 msgid "Download"
 msgstr ""
 
-#: programs/templates/programs/submission_header.html:22
+#: programs/templates/programs/submission_header.html:33
+#: testrun/templates/testrun/submission_header.html:9
 msgid "Submission date"
 msgstr ""
 
-#: programs/templates/programs/submission_header.html:38
+#: programs/templates/programs/submission_header.html:52
 msgid "Submission comment"
 msgstr ""
 
@@ -1502,30 +1909,42 @@ msgid ""
 "current value down up to the end of the table."
 msgstr ""
 
-#: questions/forms.py:12 questions/templates/questions/list_table.html:7
+#: questions/forms.py:12 questions/templates/questions/list_table.html:8
 msgid "Category"
 msgstr ""
 
-#: questions/forms.py:22 questions/templates/questions/list_table.html:20
-#: questions/templates/questions/message.html:30
-msgid "General"
-msgstr ""
-
-#: questions/forms.py:23
+#: questions/forms.py:21
 #, python-format
 msgid "Problem %s"
 msgstr ""
 
-#: questions/models.py:11
+#: questions/forms.py:23
+#, python-format
+msgid "General, %s"
+msgstr ""
+
+#: questions/forms.py:41
+msgid "Unknown category type."
+msgstr ""
+
+#: questions/models.py:10
 msgid "Question"
 msgstr ""
 
-#: questions/models.py:12
+#: questions/models.py:11
 msgid "Private message"
 msgstr ""
 
-#: questions/models.py:13
+#: questions/models.py:12
 msgid "Public message"
+msgstr ""
+
+#: questions/models.py:23
+msgid "topic"
+msgstr ""
+
+#: questions/models.py:36
+msgid "Exactly one of round or problem_instance must be set"
 msgstr ""
 
 #: questions/processors.py:24
@@ -1535,32 +1954,28 @@ msgid_plural "%(count)d NEW MESSAGES"
 msgstr[0] ""
 msgstr[1] ""
 
-#: questions/views.py:14
+#: questions/views.py:15
 msgid "Messages"
 msgstr ""
 
-#: questions/views.py:100 questions/templates/questions/list.html:17
+#: questions/views.py:106 questions/templates/questions/list.html:17
 msgid "Add announcement"
 msgstr ""
 
-#: questions/views.py:102
+#: questions/views.py:108
 msgid "Ask question"
 msgstr ""
 
-#: questions/views.py:125
+#: questions/views.py:132
 msgid "Re: "
 msgstr ""
 
-#: questions/views.py:130 questions/templates/questions/message.html:16
+#: questions/views.py:137 questions/templates/questions/message.html:16
 msgid "Reply"
 msgstr ""
 
 #: questions/templates/questions/add.html:14
 msgid "The announcement will be visible immediately."
-msgstr ""
-
-#: questions/templates/questions/list.html:19
-msgid "Ask a question"
 msgstr ""
 
 #: questions/templates/questions/list.html:30
@@ -1571,15 +1986,20 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
-#: questions/templates/questions/list_table.html:6
+#: questions/templates/questions/list_table.html:7
 msgid "Date"
 msgstr ""
 
-#: questions/templates/questions/list_table.html:8
+#: questions/templates/questions/list_table.html:9
 msgid "Topic"
 msgstr ""
 
-#: questions/templates/questions/list_table.html:21
+#: questions/templates/questions/list_table.html:22
+#: questions/templates/questions/message.html:23
+msgid "General"
+msgstr ""
+
+#: questions/templates/questions/list_table.html:23
 msgid "NEW"
 msgstr ""
 
@@ -1589,10 +2009,6 @@ msgstr ""
 
 #: rankings/controllers.py:42
 msgid "Default ranking"
-msgstr ""
-
-#: rankings/controllers.py:57
-msgid "Contest"
 msgstr ""
 
 #: rankings/templates/rankings/default_ranking.html:12
@@ -1607,35 +2023,111 @@ msgstr ""
 msgid "No rankings available."
 msgstr ""
 
+#: scoresreveal/admin.py:26
+msgid "Revealed"
+msgstr ""
+
+#: scoresreveal/models.py:11
+msgid "score reveal"
+msgstr ""
+
+#: scoresreveal/models.py:12
+msgid "score reveals"
+msgstr ""
+
+#: scoresreveal/models.py:18
+msgid "Reveal limit"
+msgstr ""
+
+#: scoresreveal/models.py:20
+msgid "disable for last minutes of the round"
+msgstr ""
+
+#: scoresreveal/models.py:23
+msgid "score reveal config"
+msgstr ""
+
+#: scoresreveal/models.py:24
+msgid "score reveal configs"
+msgstr ""
+
+#: scoresreveal/views.py:22
+msgid "Submission score has been revealed."
+msgstr ""
+
+#: scoresreveal/views.py:24
+msgid "You cannot reveal score of the submission."
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:3
+msgid "Score revealing"
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:4
+#, python-format
+msgid ""
+"You have already used <strong>%(scores_reveals)s</strong>/"
+"%(scores_reveals_limit)s reveals."
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:14
+#, python-format
+msgid ""
+"Scores reveal will be disabled during the last <strong>"
+"%(scores_reveals_disable_time)s</strong> minutes of the round."
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:17
+#: scoresreveal/templates/scoresreveal/submission_footer.html:21
+msgid "Reveal score"
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:24
+msgid "You are going to reveal your score. <br>Would you like to proceed?"
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:35
+msgid ""
+"Unfortunately, this submission has not been scored yet, so you can't see "
+"your score. Please come back later."
+msgstr ""
+
+#: scoresreveal/templates/scoresreveal/submission_footer.html:37
+#, python-format
+msgid ""
+"Scores reveal is disabled during the last <strong>"
+"%(scores_reveals_disable_time)s</strong> minutes of the round."
+msgstr ""
+
 #: sinolpack/controllers.py:7
 msgid "Sinol package problem"
 msgstr ""
 
-#: sinolpack/package.py:287
+#: sinolpack/package.py:298
 #, python-format
 msgid "Expected extra file '%s' not found in prog/"
 msgstr ""
 
-#: sinolpack/package.py:325
+#: sinolpack/package.py:336
 #, python-format
 msgid ""
 "Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, "
 "changing problem short name is not possible."
 msgstr ""
 
-#: sinolpack/package.py:425
+#: sinolpack/package.py:436
 msgid "Sinol Package"
 msgstr ""
 
-#: teachers/admin.py:28 teachers/templates/teachers/pupils.html:50
+#: teachers/admin.py:38 teachers/templates/teachers/pupils.html:50
 msgid "Teachers"
 msgstr ""
 
-#: teachers/admin.py:71
+#: teachers/admin.py:81
 msgid "Contest added successfully."
 msgstr ""
 
-#: teachers/admin.py:79
+#: teachers/admin.py:89
 msgid "New contest"
 msgstr ""
 
@@ -1816,3 +2308,52 @@ msgstr ""
 #: teachers/templates/teachers/request_sent.html:9
 msgid "You will receive an email once your teacher account is activated."
 msgstr ""
+
+#: testrun/controllers.py:68
+msgid "Input file size limit exceeded."
+msgstr ""
+
+#: testrun/controllers.py:71 testrun/views.py:71
+#: testrun/templates/testrun/report.html:18
+#: testrun/templates/testrun/submission_header.html:11
+msgid "Input"
+msgstr ""
+
+#: testrun/controllers.py:74 testrun/models.py:10 testrun/views.py:17
+#: testrun/templates/testrun/submit.html:4
+#: testrun/templates/testrun/submit.html:7
+msgid "Test run"
+msgstr ""
+
+#: testrun/models.py:11 testrun/templates/testrun/report.html:6
+msgid "Test run report"
+msgstr ""
+
+#: testrun/models.py:28
+msgid "test run config"
+msgstr ""
+
+#: testrun/models.py:29
+msgid "test run configs"
+msgstr ""
+
+#: testrun/views.py:67 testrun/views.py:91
+msgid "Error: can't display non ascii/utf8 file"
+msgstr ""
+
+#: testrun/views.py:95 testrun/templates/testrun/report.html:21
+msgid "Output"
+msgstr ""
+
+#: testrun/templates/testrun/data.html:8
+#, python-format
+msgid ""
+"\n"
+"        One byte truncated.\n"
+"    "
+msgid_plural ""
+"\n"
+"        Bytes truncated: %(left)s.\n"
+"    "
+msgstr[0] ""
+msgstr[1] ""
