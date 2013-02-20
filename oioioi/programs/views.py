@@ -14,6 +14,11 @@ from pygments.lexers import guess_lexer_for_filename
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
+# Workaround for race condition in fnmatchcase which is used by pygments
+import fnmatch
+import sys
+fnmatch._MAXCACHE = sys.maxint
+
 @enforce_condition(can_enter_contest)
 def show_submission_source_view(request, contest_id, submission_id):
     submission = get_object_or_404(ProgramSubmission, id=submission_id)
