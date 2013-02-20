@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.util import unquote
 from django.conf.urls import patterns, url
+from django.db import transaction
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link, uploaded_file_name
 from oioioi.contests.models import Contest, Round, ProblemInstance
@@ -124,6 +125,7 @@ class ProblemAdmin(admin.ModelAdmin):
         self.message_user(request, _("Problem package uploaded."))
         return self.redirect_to_list(request, problem)
 
+    @transaction.commit_manually
     def add_view(self, request, form_url='', extra_context=None):
         contest_id = request.REQUEST.get('contest_id')
         if contest_id:
@@ -154,13 +156,22 @@ class ProblemAdmin(admin.ModelAdmin):
                                 id=form.cleaned_data['round_id'])
                     else:
                         round = None
-                    return self._add_problem(request, round,
+                    result = self._add_problem(request, round,
                         form.cleaned_data['submissions_limit'])
+                    transaction.commit()
+                    return result
                 except Exception, e:
                     logger.error("Error processing package", exc_info=True)
                     form._errors['__all__'] = form.error_class([unicode(e)])
+                    transaction.rollback()
         else:
-            form = ProblemUploadForm(contest, initial=initial)
+            try:
+                form = ProblemUploadForm(contest, initial=initial)
+                transaction.commit()
+            except Exception, e:
+                logger.error("Error processing package", exc_info=True)
+                form._errors['__all__'] = form.error_class([unicode(e)])
+                transaction.rollback()
 
         return TemplateResponse(request, 'admin/problems/problem_add.html',
                 {'form': form})
