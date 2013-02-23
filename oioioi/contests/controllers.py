@@ -300,10 +300,21 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         environ['round_id'] = round.id
         environ['contest_id'] = contest.id
 
+        environ['report_kinds'] = ['INITIAL', 'NORMAL']
+        if 'hidden_judge' in environ['extra_args']:
+            environ['report_kinds'] = ['HIDDEN']
+
         problem.controller.fill_evaluation_environ(environ)
+
+    def get_supported_extra_args(self, submission):
+        """Returns dict of all values which can be provided in extra_args
+           argument to the judge method.
+        """
+        return {'hidden_judge': _("Visible only for admins")}
 
     def judge(self, submission, extra_args={}):
         environ = {}
+        environ['extra_args'] = extra_args
         self.fill_evaluation_environ(environ, submission)
 
         extra_steps = [

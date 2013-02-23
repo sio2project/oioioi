@@ -48,40 +48,76 @@ class ProgrammingProblemController(ProblemController):
         if getattr(settings, 'USE_LOCAL_COMPILERS', False):
             environ['compiler'] = 'system-' + environ['language']
 
-    def fill_evaluation_environ(self, environ, **kwargs):
-        self.generate_base_environ(environ, **kwargs)
+    def generate_recipe(self, kinds):
         recipe_body = [
                 ('collect_tests',
-                    'oioioi.programs.handlers.collect_tests'),
+                'oioioi.programs.handlers.collect_tests'),
+        ]
 
-                ('initial_run_tests',
-                    'oioioi.programs.handlers.run_tests',
-                    dict(kind='EXAMPLE')),
-                ('initial_grade_tests',
-                    'oioioi.programs.handlers.grade_tests'),
-                ('initial_grade_groups',
-                    'oioioi.programs.handlers.grade_groups'),
-                ('initial_grade_submission',
-                    'oioioi.programs.handlers.grade_submission',
-                    dict(kind='EXAMPLE')),
-                ('initial_make_report',
-                    'oioioi.programs.handlers.make_report',
-                    dict(kind='INITIAL')),
-                recipe_placeholder('after_initial_tests'),
+        if 'INITIAL' in kinds:
+            recipe_body.extend(
+                    [
+                        ('initial_run_tests',
+                            'oioioi.programs.handlers.run_tests',
+                            dict(kind='EXAMPLE')),
+                        ('initial_grade_tests',
+                            'oioioi.programs.handlers.grade_tests'),
+                        ('initial_grade_groups',
+                            'oioioi.programs.handlers.grade_groups'),
+                        ('initial_grade_submission',
+                            'oioioi.programs.handlers.grade_submission',
+                            dict(kind='EXAMPLE')),
+                        ('initial_make_report',
+                            'oioioi.programs.handlers.make_report',
+                            dict(kind='INITIAL')),
+                        recipe_placeholder('after_initial_tests'),
+                    ]
+            )
 
-                ('final_run_tests',
-                    'oioioi.programs.handlers.run_tests',
-                    dict(kind='NORMAL')),
-                ('final_grade_tests',
-                    'oioioi.programs.handlers.grade_tests'),
-                ('final_grade_groups',
-                    'oioioi.programs.handlers.grade_groups'),
-                ('final_grade_submission',
-                    'oioioi.programs.handlers.grade_submission'),
-                ('final_make_report',
-                    'oioioi.programs.handlers.make_report'),
-                recipe_placeholder('after_final_tests'),
-            ]
+        if 'NORMAL' in kinds or 'HIDDEN' in kinds:
+            recipe_body.append(recipe_placeholder('before_final_tests'))
+
+        if 'NORMAL' in kinds:
+            recipe_body.extend(
+                [
+                    ('final_run_tests',
+                        'oioioi.programs.handlers.run_tests',
+                        dict(kind='NORMAL')),
+                    ('final_grade_tests',
+                        'oioioi.programs.handlers.grade_tests'),
+                    ('final_grade_groups',
+                        'oioioi.programs.handlers.grade_groups'),
+                    ('final_grade_submission',
+                        'oioioi.programs.handlers.grade_submission'),
+                    ('final_make_report',
+                        'oioioi.programs.handlers.make_report'),
+                    recipe_placeholder('after_final_tests'),
+                ])
+
+        if 'HIDDEN' in kinds:
+            recipe_body.extend(
+                [
+                    ('hidden_run_tests',
+                        'oioioi.programs.handlers.run_tests'),
+                    ('hidden_grade_tests',
+                        'oioioi.programs.handlers.grade_tests'),
+                    ('hidden_grade_groups',
+                        'oioioi.programs.handlers.grade_groups'),
+                    ('hidden_grade_submission',
+                        'oioioi.programs.handlers.grade_submission',
+                        dict(kind=None)),
+                    ('hidden_make_report',
+                        'oioioi.programs.handlers.make_report',
+                        dict(kind='HIDDEN')),
+                    recipe_placeholder('after_all_tests'),
+                ])
+        return recipe_body
+
+    def fill_evaluation_environ(self, environ, **kwargs):
+        self.generate_base_environ(environ, **kwargs)
+
+        recipe_body = self.generate_recipe(environ['report_kinds'])
+
         extend_after_placeholder(environ, 'after_compile', recipe_body)
 
         environ.setdefault('group_scorer',
@@ -121,12 +157,13 @@ class ProgrammingContestController(ContestController):
 
     def fill_evaluation_environ_post_problem(self, environ, submission):
         """Run after ProblemController.fill_evaluation_environ."""
-        add_before_placeholder(environ, 'after_initial_tests',
-                ('update_report_statuses',
-                    'oioioi.contests.handlers.update_report_statuses'))
-        add_before_placeholder(environ, 'after_initial_tests',
-                ('update_submission_score',
-                    'oioioi.contests.handlers.update_submission_score'))
+        if 'INITIAL' in environ['report_kinds']:
+            add_before_placeholder(environ, 'after_initial_tests',
+                    ('update_report_statuses',
+                        'oioioi.contests.handlers.update_report_statuses'))
+            add_before_placeholder(environ, 'after_initial_tests',
+                    ('update_submission_score',
+                        'oioioi.contests.handlers.update_submission_score'))
 
     def get_submission_size_limit(self):
         return 102400  # in bytes
@@ -185,8 +222,6 @@ class ProgrammingContestController(ContestController):
                 kind=['NORMAL', 'FAILURE'])
         self._activate_newest_report(submission, queryset,
                 kind=['INITIAL'])
-        self._activate_newest_report(submission, queryset,
-                kind=['HIDDEN'])
 
     def can_see_submission_status(self, request, submission):
         """Statuses are taken from initial tests which are always public."""
@@ -239,7 +274,9 @@ class ProgrammingContestController(ContestController):
         return render_to_string('programs/submission_header.html',
                 context_instance=RequestContext(request,
                     {'submission': submission_template_context(request,
-                        submission.programsubmission)}))
+                        submission.programsubmission),
+                    'supported_extra_args':
+                        self.get_supported_extra_args(submission)}))
 
     def render_report(self, request, report):
         if report.kind == 'FAILURE':

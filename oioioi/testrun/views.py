@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect, get_object_or_404
 
 from oioioi.base.menu import menu_registry
-from oioioi.contests.utils import can_enter_contest
+from oioioi.contests.utils import can_enter_contest, is_contest_admin
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.forms import SubmissionForm
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
@@ -46,6 +46,16 @@ def get_submission_or_404(request, contest_id, submission_id):
 def get_preview_size_limit():
     return 1024;
 
+def get_testrun_report_or_404(request, submission, testrun_report_id=None):
+    qs = TestRunReport.objects.filter(submission_report__submission=submission)
+
+    if is_contest_admin(request) and testrun_report_id is not None:
+        qs = qs.filter(id=testrun_report_id)
+    else:
+        qs = qs.filter(submission_report__status='ACTIVE')
+
+    return get_object_or_404(qs)
+
 @enforce_condition(can_enter_contest)
 def show_input_file_view(request, contest_id, submission_id):
     submission = get_submission_or_404(request, contest_id, submission_id)
@@ -70,11 +80,10 @@ def download_input_file_view(request, contest_id, submission_id):
     return stream_file(submission.input_file, name='input.in')
 
 @enforce_condition(can_enter_contest)
-def show_output_file_view(request, contest_id, submission_id):
+def show_output_file_view(request, contest_id, submission_id,
+                          testrun_report_id=None):
     submission = get_submission_or_404(request, contest_id, submission_id)
-    result = get_object_or_404(TestRunReport,
-                               submission_report__submission=submission,
-                               submission_report__status='ACTIVE')
+    result = get_testrun_report_or_404(request, submission, testrun_report_id)
 
     try:
         data = result.output_file.read(get_preview_size_limit()).decode('utf-8')
@@ -89,9 +98,8 @@ def show_output_file_view(request, contest_id, submission_id):
     })
 
 @enforce_condition(can_enter_contest)
-def download_output_file_view(request, contest_id, submission_id):
+def download_output_file_view(request, contest_id, submission_id,
+                              testrun_report_id=None):
     submission = get_submission_or_404(request, contest_id, submission_id)
-    result = get_object_or_404(TestRunReport,
-                               submission_report__submission=submission,
-                               submission_report__status='ACTIVE')
+    result = get_testrun_report_or_404(request, submission, testrun_report_id)
     return stream_file(result.output_file, name='output.out')

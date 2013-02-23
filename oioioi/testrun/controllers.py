@@ -123,15 +123,23 @@ class TestRunContestControllerMixin(object):
         return ['TESTRUN'] + super(TestRunContestControllerMixin, self) \
                 .get_visible_reports_kinds(request, submission)
 
+    def get_supported_extra_args(self, submission):
+        if submission.kind != 'TESTRUN':
+            return super(TestRunContestControllerMixin, self) \
+                .get_supported_extra_args(submission)
+        return {}
+
     def render_submission(self, request, submission):
         if submission.kind != 'TESTRUN':
             return super(TestRunContestControllerMixin, self) \
                     .render_submission(request, submission)
 
         return render_to_string('testrun/submission_header.html',
-            context_instance=RequestContext(request, {'submission':
-                submission_template_context(request,
-                    submission.programsubmission.testrunprogramsubmission)}))
+            context_instance=RequestContext(request,
+                {'submission': submission_template_context(request,
+                    submission.programsubmission.testrunprogramsubmission),
+                'supported_extra_args':
+                    self.get_supported_extra_args(submission)}))
 
     def render_report(self, request, report):
         if report.kind != 'TESTRUN':
@@ -147,10 +155,14 @@ class TestRunContestControllerMixin(object):
         except:
             testrun_report = None
 
+        output_container_id_prefix = \
+            request.is_ajax() and 'hidden_output_data_' or 'output_data_'
+
         return render_to_string('testrun/report.html',
                 context_instance=RequestContext(request, {
                     'report': report, 'score_report': score_report,
                     'compilation_report': compilation_report,
-                    'testrun_report': testrun_report}))
+                    'testrun_report': testrun_report,
+                    'output_container_id_prefix': output_container_id_prefix}))
 
 ProgrammingContestController.mix_in(TestRunContestControllerMixin)

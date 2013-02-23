@@ -39,7 +39,7 @@ def enforce_condition(condition):
                 return decision.response
             if decision:
                 return view_func(request, *args, **kwargs)
-            if not request.user.is_authenticated():
+            if not request.user.is_authenticated() and not request.is_ajax():
                 return redirect_to_login(request.path)
             else:
                 raise PermissionDenied

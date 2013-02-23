@@ -227,8 +227,16 @@ class SubmissionReport(models.Model):
     kind = EnumField(submission_report_kinds, default='FINAL')
     status = EnumField(submission_report_statuses, default='INACTIVE')
 
+    @property
+    def score_report(self):
+        try:
+            return self.scorereport_set.all()[0]
+        except (ScoreReport.DoesNotExist, IndexError):
+            return None
+
     class Meta:
         get_latest_by = 'creation_date'
+        ordering = ('-creation_date',)
         unique_together = ('submission', 'creation_date')
 
 class ScoreReport(models.Model):
@@ -236,6 +244,11 @@ class ScoreReport(models.Model):
     status = EnumField(submission_statuses, blank=True, null=True)
     score = ScoreField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
+
+    def get_score_display(self):
+        if self.score is None:
+            return ''
+        return unicode(self.score)
 
 class FailureReport(models.Model):
     """A report generated when evaluation process failed.

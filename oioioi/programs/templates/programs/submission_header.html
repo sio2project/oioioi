@@ -1,19 +1,26 @@
 {% load i18n %}
 {% load check_perm %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-
 {% block program_controls %}
-<div class="corner-icons">
-    <ul>
+<div class="corner-icons btn-toolbar">
         {% if is_admin %}
-        <li><a class="btn btn-small" href="#" data-post-url="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}">
-            <i class="icon-repeat"></i> {% trans "Rejudge" %}</a></li>
+            <div class="btn-group">
+                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="icon-repeat"></i> {% trans "Rejudge" %}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#" data-post-url="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}"><i class="pull-left icon-eye-open"></i>{% trans "Normal rejudge" %}</a></li>
+                    {% for link, name in supported_extra_args.items %}
+                        <li><a href="#" data-post-url="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}"><i class="pull-left icon-eye-close"></i>{{ name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         {% endif %}
-        <li><a class="btn btn-small" href="{% url show_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
-            <i class="icon-eye-open"></i> {% trans "Show code" %}</a></li>
-        <li><a class="btn btn-small" href="{% url download_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
-            <i class="icon-download-alt"></i> {% trans "Download" %}</a></li>
-    </ul>
+        <a class="btn btn-small" href="{% url show_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
+            <i class="icon-eye-open"></i> {% trans "Show code" %}</a>
+        <a class="btn btn-small" href="{% url download_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
+            <i class="icon-download-alt"></i> {% trans "Download" %}</a>
 </div>
 {% endblock %}
 

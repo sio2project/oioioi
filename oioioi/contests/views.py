@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import translation
@@ -136,15 +136,29 @@ def submission_view(request, contest_id, submission_id):
     controller = request.contest.controller
     header = controller.render_submission(request, submission)
     reports = []
-    queryset = SubmissionReport.objects.filter(submission=submission,
-            status='ACTIVE')
+    queryset = SubmissionReport.objects.filter(submission=submission). \
+        prefetch_related('scorereport_set')
     for report in controller.filter_visible_reports(request, submission,
-            queryset):
+            queryset.filter(status='ACTIVE')):
         reports.append(controller.render_report(request, report))
+
+    all_reports = is_contest_admin(request) and \
+        controller.filter_visible_reports(request, submission, queryset) or \
+        []
 
     return TemplateResponse(request, 'contests/submission.html',
                 {'submission': submission, 'header': header,
-                    'reports': reports})
+                    'reports': reports, 'all_reports': all_reports})
+
+@enforce_condition(is_contest_admin)
+def report_view(request, contest_id, submission_id, report_id):
+    submission = get_object_or_404(Submission, id=submission_id)
+    check_submission_access(request, submission)
+
+    controller = request.contest.controller
+    queryset = SubmissionReport.objects.filter(submission=submission)
+    report = get_object_or_404(queryset, id=report_id)
+    return HttpResponse(controller.render_report(request, report))
 
 @enforce_condition(is_contest_admin)
 @require_POST

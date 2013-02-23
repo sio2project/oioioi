@@ -269,7 +269,9 @@ def grade_groups(env, **kwargs):
     return env
 
 def grade_submission(env, kind='NORMAL', **kwargs):
-    """Grades submission on a `Job` layer.
+    """Grades submission with specified kind of tests on a `Job` layer.
+
+       If ``kind`` is None, all tests will be graded.
 
        This `Handler` aggregates score from graded groups and gets
        submission status from tests results.
@@ -293,8 +295,13 @@ def grade_submission(env, kind='NORMAL', **kwargs):
 
     fun = get_object_by_dotted_name(env.get('score_aggregator')
             or DEFAULT_SCORE_AGGREGATOR)
-    group_results = dict(filter(lambda (name, res): res['kind'] == kind,
-            env['group_results'].iteritems()))
+
+    if kind is None:
+        group_results = env['group_results']
+    else:
+        group_results = dict(filter(lambda (name, res): res['kind'] == kind,
+                env['group_results'].iteritems()))
+
     score, status = fun(group_results)
     assert isinstance(score, (types.NoneType, ScoreValue))
     env['score'] = score and score.serialize()

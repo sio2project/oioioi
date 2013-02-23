@@ -1,4 +1,4 @@
-from oioioi.evalmgr import add_after_placeholder
+from oioioi.evalmgr import add_before_placeholder
 
 class SplitEvalContestControllerMixin(object):
     def fill_evaluation_environ(self, environ, submission, **kwargs):
@@ -7,7 +7,7 @@ class SplitEvalContestControllerMixin(object):
         environ.setdefault('sioworkers_extra_args', {}) \
             .setdefault('NORMAL', {})['queue'] = 'sioworkers-lowprio'
         try:
-            add_after_placeholder(environ, 'after_initial_tests',
+            add_before_placeholder(environ, 'before_final_tests',
                     ('postpone_final',
                         'oioioi.evalmgr.handlers.postpone',
                         dict(queue='evalmgr-lowprio')))

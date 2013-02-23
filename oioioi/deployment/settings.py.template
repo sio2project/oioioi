@@ -121,6 +121,8 @@ INSTALLED_APPS = (
     'oioioi.clock',
 #    'oioioi.participants',
 #    'oioioi.oi',
+#    'oioioi.testrun',
+#    'oioioi.spliteval'
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -139,3 +141,5 @@ AUTHENTICATION_BACKENDS += (
 
 # Number of concurrently evaluated submissions (default is 1).
 #EVALMGR_CONCURRENCY = 30
+
+#SPLITEVAL_EVALMGR = True
