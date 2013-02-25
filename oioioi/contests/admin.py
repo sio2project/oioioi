@@ -214,11 +214,51 @@ admin.contest_admin_menu_registry.register('problems_change',
 class ProblemFilter(AllValuesFieldListFilter):
     title = _("problem")
 
+class UserListFilter(SimpleListFilter):
+    title = _("user")
+    parameter_name = 'user'
+
+    def lookups(self, request, model_admin):
+        # Unique users that have submitted something in this contest
+        users = list(set(Submission.objects
+                .filter(problem_instance__contest=request.contest)
+                .values_list('user__id', 'user__username')))
+        if (None, None) in users:
+            users = filter(lambda x: x != (None, None), users)
+            users.append(('None', _("(None)")))
+        return users
+
+    def queryset(self, request, queryset):
+        if self.value():
+            if self.value() != 'None':
+                return queryset.filter(user=self.value())
+            else:
+                return queryset.filter(user=None)
+        else:
+            return queryset
+
+class ProblemNameListFilter(SimpleListFilter):
+    title = _("full name")
+    parameter_name = 'pi'
+
+    def lookups(self, request, model_admin):
+        # Unique problem names
+        p_names = list(set(ProblemInstance.objects \
+                .filter(contest=request.contest) \
+                .values_list('problem__name', flat=True)))
+        return map(lambda x: (x, x), p_names)
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(problem_instance__problem__name=self.value())
+        else:
+            return queryset
+
 class SubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_login', 'user_full_name', 'date',
             'problem_instance_display', 'status_display', 'score_display']
     list_display_links = ['id', 'date']
-    list_filter = ['problem_instance__problem__name', 'status']
+    list_filter = [UserListFilter, ProblemNameListFilter, 'status']
     date_hierarchy = 'date'
     actions = ['rejudge_action']
     search_fields = ['user__username', 'user__last_name']
