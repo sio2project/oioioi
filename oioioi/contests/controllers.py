@@ -8,14 +8,15 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
-        UserResultForProblem, FailureReport, RoundTimeExtension
+        UserResultForProblem, FailureReport
 from oioioi.contests.scores import ScoreValue
-from oioioi.contests.utils import visible_problem_instances
+from oioioi.contests.utils import visible_problem_instances, rounds_times
 from oioioi import evalmgr
+
+from datetime import timedelta
 import json
 import logging
 import pprint
-from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -29,43 +30,6 @@ def submission_template_context(request, submission):
             'can_see_status': can_see_status,
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment}
-
-class RoundTimes(object):
-    def __init__(self, start, end, show_results, round_id, user=None):
-        self.start = start
-        self.end = end
-        self.show_results = show_results
-        self.round_id = round_id
-        self.user = user
-
-    def is_past(self, current_datetime):
-        end = self.get_end()
-        return end and current_datetime > end
-
-    def is_active(self, current_datetime):
-        return not (self.is_past(current_datetime) or
-                self.is_future(current_datetime))
-
-    def is_future(self, current_datetime):
-        start = self.get_start()
-        return start and current_datetime < start
-
-    def results_visible(self, current_datetime):
-        return self.show_results and current_datetime >= self.show_results
-
-    def get_start(self):
-        return self.start
-
-    def get_end(self):
-        if self.end:
-            try:
-                extra_time = RoundTimeExtension.objects.get(user=self.user,
-                        round__id=self.round_id).extra_time
-            except (TypeError, RoundTimeExtension.DoesNotExist):
-                extra_time = 0
-            return self.end + timedelta(minutes=extra_time)
-        else:
-            return self.end
 
 class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
     def __init__(self, contest):
@@ -165,16 +129,16 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return reverse('problems_list', kwargs={'contest_id': self.contest.id})
 
     def get_round_times(self, request, round):
-        """Determines the (start, end and results) times of the round for
-           for the user doing the request.
+        """Determines the times of the round for the user doing the request.
 
-           The default implementation uses data from the
-           :class:`~oioioi.contests.models.Round` model directly.
+           The default implementation returns an instance of :class:`RoundTimes`
+           cached by round_times() method.
+
+           Round must belong to request.contest.
 
            :returns: an instance of :class:`RoundTimes`
         """
-        return RoundTimes(round.start_date, round.end_date,
-                round.results_date, round.id, request.user)
+        return rounds_times(request)[round]
 
     def order_rounds_by_focus(self, request, queryset=None):
         """Sorts the rounds in the queryset according to probable user's
@@ -185,7 +149,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                1. If a round starts or ends in 10 minutes or less
                   or started less than a minute ago, it's prioritized.
                1. Then active rounds are appended.
-               1. If a round starts in less than 6 hours, it's appended.
+               1. If a round starts in less than 6 hours or has ended in less
+                  than 1 hour, it's appended.
                1. Then come past rounds.
                1. Then other future rounds.
 
@@ -202,27 +167,27 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         now = request.timestamp
         def sort_key(round):
             rtimes = self.get_round_times(request, round)
-
             to_event = timedelta(minutes=10)
             focus_after_start = timedelta(minutes=1)
-            if rtimes.start and now >= rtimes.start \
-                    and now <= rtimes.start + focus_after_start:
-                to_event = now - rtimes.start
+            if rtimes.get_start() and now >= rtimes.get_start() \
+                    and now <= rtimes.get_start() + focus_after_start:
+                to_event = now - rtimes.get_start()
             if rtimes.is_future(now):
-                to_event = min(to_event, rtimes.start - now)
+                to_event = min(to_event, rtimes.get_start() - now)
             elif rtimes.is_active(now):
-                to_event = min(to_event, rtimes.end - now)
+                to_event = min(to_event, rtimes.get_end() - now)
 
             to_event_inactive = timedelta(hours=6)
             focus_after_end = timedelta(hours=1)
-            if rtimes.end and now >= rtimes.end \
-                    and now <= rtimes.end + focus_after_end:
-                to_event_inactive = now - rtimes.end
+            if rtimes.get_end() and now >= rtimes.get_end() \
+                    and now <= rtimes.get_end() + focus_after_end:
+                to_event_inactive = now - rtimes.get_end()
             if rtimes.is_future(now):
-                to_event_inactive = min(to_event_inactive, rtimes.start - now)
-
+                to_event_inactive = min(to_event_inactive,
+                                        rtimes.get_start() - now)
             return (to_event, not rtimes.is_active(now),
-                    to_event_inactive, now - rtimes.start)
+                    to_event_inactive, bool(now < rtimes.get_start()),
+                    abs(rtimes.get_start() - now))
         return sorted(queryset, key=sort_key)
 
     def can_see_round(self, request, round):

@@ -1,7 +1,7 @@
 from django import template
 from django.utils import timezone
 from django.utils.translation import ungettext, ugettext as _
-from oioioi.contests.models import Round
+from oioioi.contests.utils import rounds_times
 import time
 
 register = template.Library()
@@ -29,14 +29,12 @@ def navbar_countdown(context):
     contest = getattr(context['request'], 'contest', None)
     if not (timestamp and contest):
         return {}
-    rounds_times = [contest.controller \
-            .get_round_times(context['request'], round) \
-            for round in Round.objects.filter(contest=contest)]
+    rtimes = rounds_times(context['request']).values()
     next_rounds_times = filter(lambda rt: rt.is_future(timestamp),
-            rounds_times)
+            rtimes)
     next_rounds_times.sort(key=lambda rt: rt.get_start())
     current_rounds_times = filter(lambda rt: rt.get_end(),
-            filter(lambda rt: rt.is_active(timestamp), rounds_times))
+            filter(lambda rt: rt.is_active(timestamp), rtimes))
     current_rounds_times.sort(key=lambda rt: rt.get_end())
 
     if current_rounds_times:

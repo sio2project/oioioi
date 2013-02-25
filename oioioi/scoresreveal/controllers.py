@@ -2,7 +2,6 @@ from datetime import timedelta
 from django.core.exceptions import PermissionDenied
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from oioioi.contests.controllers import RoundTimes
 from oioioi.contests.models import Submission
 from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.controllers import ProgrammingProblemController, \
