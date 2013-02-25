@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils.functional import lazy
+from oioioi.base.utils import request_cached
 from oioioi.contests.models import Contest
 
 def register_current_contest(request):
@@ -17,6 +18,7 @@ def register_current_contest(request):
     else:
         return {}
 
+@request_cached
 def recent_contests(request):
     ids = request.session.get('recent_contests', [])
     mapping = Contest.objects.in_bulk(ids)

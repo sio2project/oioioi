@@ -52,8 +52,7 @@ class Region(models.Model):
         unique_together = ('contest', 'short_name')
 
     def __unicode__(self):
-        return '%(contest)s-%(short_name)s' % \
-                dict(short_name=self.short_name, contest=self.contest.id)
+        return '%s' % (self.short_name,)
 
 class School(models.Model):
     name = models.CharField(max_length=255)

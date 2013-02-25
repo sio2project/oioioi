@@ -95,6 +95,21 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             "admin/delete_confirmation.html"
         ], context, current_app=self.admin_site.name)
 
+    def get_list_select_related(self):
+        """Returns a list of fields passed to queryset.select_related
+           By default - empty list. Override this method (instead of queryset())
+           to pass another field to the select_related
+        """
+        return []
+
+    def queryset(self, request):
+        qs = super(ModelAdmin, self).queryset(request)
+        list_select_related = self.get_list_select_related()
+        if list_select_related:
+            return qs.select_related(*list_select_related)
+        else:
+            return qs
+
 class AdminSite(DjangoAdminSite):
     def has_permission(self, request):
         return request.user.is_active

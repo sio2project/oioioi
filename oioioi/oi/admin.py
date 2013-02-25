@@ -69,10 +69,10 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
     list_filter = ParticipantAdmin.list_filter \
             + ['oi_oiregistration__school__province' ]
 
-    def queryset(self, request):
-        qs = super(OIRegistrationParticipantAdmin, self).queryset(request)
-        qs = qs.select_related('oi_oiregistration', 'oi_oiregistration__school')
-        return qs
+    def get_list_select_related(self):
+        return super(OIRegistrationParticipantAdmin, self) \
+                .get_list_select_related() + ['oi_oiregistration',
+                                              'oi_oiregistration__school']
 
     def school_name(self, instance):
         return instance.oi_oiregistration.school.name
@@ -115,10 +115,10 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     search_fields = ParticipantAdmin.search_fields \
             + ['oi_oionsiteregistration__number' ]
 
-    def queryset(self, request):
-        qs = super(OIOnsiteRegistrationParticipantAdmin, self).queryset(request)
-        qs = qs.select_related('oi_oionsiteregistration', 'oi_oionsiteregistration__region')
-        return qs
+    def get_list_select_related(self):
+        return super(OIOnsiteRegistrationParticipantAdmin, self) \
+                .get_list_select_related() + ['oi_oionsiteregistration',
+                                              'oi_oionsiteregistration__region']
 
     def number(self, instance):
         return instance.oi_oionsiteregistration.number

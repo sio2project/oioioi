@@ -31,4 +31,8 @@ class MessageAdmin(admin.ModelAdmin):
     def add_view(self, request, form_url='', extra_context=None):
         return redirect('add_contest_message', contest_id=request.contest.id)
 
+    def get_list_select_related(self):
+        return super(MessageAdmin, self).get_list_select_related() \
+                + ['author', 'problem_instance', 'contest']
+
 admin.site.register(Message, MessageAdmin)

@@ -5,12 +5,19 @@ from oioioi.participants.models import Participant
 from oioioi.base.utils import request_cached
 
 @request_cached
+def get_participant(request):
+    try:
+        return Participant.objects.get(contest=request.contest,
+                                       user=request.user)
+    except Participant.DoesNotExist:
+        return None
+
+@request_cached
 def can_register(request):
     rcontroller = request.contest.controller.registration_controller()
     if not isinstance(rcontroller, ParticipantsController):
         return False
-    if Participant.objects.filter(contest=request.contest,
-            user=request.user):
+    if get_participant(request) is not None:
         return False
     return rcontroller.can_register(request)
 
@@ -19,10 +26,8 @@ def can_edit_registration(request):
     rcontroller = request.contest.controller.registration_controller()
     if not isinstance(rcontroller, ParticipantsController):
         return False
-    try:
-        participant = Participant.objects.get(contest=request.contest,
-            user=request.user)
-    except Participant.DoesNotExist:
+    participant = get_participant(request)
+    if participant is None:
         return False
     return rcontroller.can_edit_registration(request, participant)
 

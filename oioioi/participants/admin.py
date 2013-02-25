@@ -36,10 +36,13 @@ class ParticipantAdmin(admin.ModelAdmin):
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
+    def get_list_select_related(self):
+        return super(ParticipantAdmin, self).get_list_select_related() \
+                + ['user']
+
     def queryset(self, request):
         qs = super(ParticipantAdmin, self).queryset(request)
         qs = qs.filter(contest=request.contest)
-        qs = qs.select_related('participant__user') #TODO: make it better
         return qs
 
     def save_model(self, request, obj, form, change):

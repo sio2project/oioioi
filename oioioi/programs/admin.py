@@ -136,8 +136,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
         return extra_urls + urls
 
     def inline_actions(self, instance):
-        actions = super(ProgrammingProblemInstanceAdminMixin,
-                self).inline_actions(instance)
+        actions = super(ProgrammingProblemInstanceAdminMixin, self) \
+                .inline_actions(instance)
         if ModelSolution.objects.filter(problem_id=instance.problem_id):
             models_view = reverse('oioioiadmin:contests_probleminstance_models',
                     args=(instance.id,))
@@ -158,5 +158,10 @@ class ModelSubmissionAdminMixin(object):
         return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
     user_full_name.short_description = SubmissionAdmin.user_full_name.short_description
     user_full_name.admin_order_field = SubmissionAdmin.user_full_name.admin_order_field
+
+    def get_list_select_related(self):
+        return super(ModelSubmissionAdminMixin, self) \
+                .get_list_select_related() \
+                + ['programsubmission', 'modelprogramsubmission']
 
 SubmissionAdmin.mix_in(ModelSubmissionAdminMixin)

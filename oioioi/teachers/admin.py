@@ -30,6 +30,9 @@ class TeacherAdmin(admin.ModelAdmin):
         return super(TeacherAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 
+    def get_list_select_related(self):
+        return super(TeacherAdmin, self).get_list_select_related() + ['user']
+
 admin.site.register(Teacher, TeacherAdmin)
 
 admin.system_admin_menu_registry.register('teachers', _("Teachers"),

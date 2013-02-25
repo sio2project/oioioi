@@ -198,10 +198,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
+    def get_list_select_related(self):
+        return super(ProblemInstanceAdmin, self).get_list_select_related() \
+                + ['contest', 'round', 'problem']
+
     def queryset(self, request):
         qs = super(ProblemInstanceAdmin, self).queryset(request)
         qs = qs.filter(contest=request.contest)
-        qs = qs.select_related('contest', 'round', 'problem')
         return qs
 
 admin.site.register(ProblemInstance, ProblemInstanceAdmin)
@@ -323,11 +326,14 @@ class SubmissionAdmin(admin.ModelAdmin):
                 % (counter,))
     rejudge_action.short_description = _("Rejudge selected submissions")
 
+    def get_list_select_related(self):
+        return super(SubmissionAdmin, self).get_list_select_related() \
+                + ['user', 'problem_instance', 'problem_instance__problem',
+                   'problem_instance__contest']
+
     def queryset(self, request):
         queryset = super(SubmissionAdmin, self).queryset(request)
         queryset = queryset.filter(problem_instance__contest=request.contest)
-        queryset = queryset.select_related('user', 'problem_instance',
-                    'problem_instance__problem', 'problem_instance__contest')
         queryset = queryset.order_by('-id')
         return queryset
 

@@ -13,27 +13,17 @@ def has_any_active_round(request):
 
 @request_cached
 def has_any_submittable_problem(request):
-    controller = request.contest.controller
-    for pi in ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related():
-        if controller.can_submit(request, pi):
-            return True
-    return False
+    return bool(submittable_problem_instances(request))
 
 @request_cached
 def has_any_visible_problem_instance(request):
-    controller = request.contest.controller
-    for pi in ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related('problem').prefetch_related('round'):
-        if controller.can_see_problem(request, pi):
-            return True
-    return False
+    return bool(visible_problem_instances(request))
 
 @request_cached
 def submittable_problem_instances(request):
     controller = request.contest.controller
     queryset = ProblemInstance.objects.filter(contest=request.contest) \
-            .select_related('problem')
+            .select_related('problem').prefetch_related('round')
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
 @request_cached
