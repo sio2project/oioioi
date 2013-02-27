@@ -112,6 +112,8 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_filter = ParticipantAdmin.list_filter \
             + ['oi_oionsiteregistration__region' ]
     ordering = ['oi_oionsiteregistration__number']
+    search_fields = ParticipantAdmin.search_fields \
+            + ['oi_oionsiteregistration__number' ]
 
     def queryset(self, request):
         qs = super(OIOnsiteRegistrationParticipantAdmin, self).queryset(request)
