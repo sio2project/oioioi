@@ -201,6 +201,9 @@ class Submission(models.Model):
     def problem(self):
         return self.problem_instance.problem
 
+    def is_scored(self):
+        return self.score is not None
+
     def get_date_display(self):
         return self.problem_instance.contest.controller \
                 .render_submission_date(self)

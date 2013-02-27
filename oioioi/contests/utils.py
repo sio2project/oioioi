@@ -1,4 +1,5 @@
-from oioioi.contests.models import Contest, Round, ProblemInstance
+from django.core.exceptions import PermissionDenied
+from oioioi.contests.models import Contest, Round, ProblemInstance, Submission
 from oioioi.base.utils import request_cached
 
 @request_cached
@@ -75,3 +76,13 @@ def is_contest_admin(request):
 def can_enter_contest(request):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.can_enter_contest(request)
+
+def check_submission_access(request, submission):
+    if submission.problem_instance.contest != request.contest:
+        raise PermissionDenied
+    if request.user.has_perm('contests.contest_admin', request.contest):
+        return
+    controller = request.contest.controller
+    queryset = Submission.objects.filter(id=submission.id)
+    if not controller.filter_visible_submissions(request, queryset):
+        raise PermissionDenied

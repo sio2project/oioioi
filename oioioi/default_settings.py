@@ -128,7 +128,7 @@ COMPRESS_PRECOMPILERS = (
 
 INSTALLED_APPS = (
     # south needs to be before oioioi.base
-    # because it overrides south's sncdb command
+    # because it overrides south's syncdb command
     'south',
 
     'oioioi.filetracker',

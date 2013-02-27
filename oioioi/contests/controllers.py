@@ -571,6 +571,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         raise NotImplementedError
 
+    def render_submission_footer(self, request, submission):
+        """Renders the given submission footer to HTML.
+
+           Footer is shown under the submission reports.
+           The default implementation returns an empty string.
+        """
+        return ""
+
     def render_report(self, request, report):
         """Renders the given report to HTML.
 

@@ -4,7 +4,7 @@ from django.http import HttpResponse, Http404
 from django.template.response import TemplateResponse
 
 from oioioi.programs.models import ProgramSubmission, Test
-from oioioi.contests.views import check_submission_access
+from oioioi.contests.utils import check_submission_access
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
 from oioioi.contests.utils import can_enter_contest

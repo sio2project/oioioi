@@ -16,7 +16,7 @@ from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         is_contest_admin, has_any_submittable_problem, \
-        visible_problem_instances
+        visible_problem_instances, check_submission_access
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from operator import itemgetter
@@ -118,16 +118,6 @@ def my_submissions_view(request, contest_id):
                 {'submissions': [submission_template_context(request, s)
                     for s in queryset], 'show_scores': show_scores})
 
-def check_submission_access(request, submission):
-    if submission.problem_instance.contest != request.contest:
-        raise PermissionDenied
-    if request.user.has_perm('contests.contest_admin', request.contest):
-        return
-    controller = request.contest.controller
-    queryset = Submission.objects.filter(id=submission.id)
-    if not controller.filter_visible_submissions(request, queryset):
-        raise PermissionDenied
-
 @enforce_condition(can_enter_contest)
 def submission_view(request, contest_id, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
@@ -135,6 +125,7 @@ def submission_view(request, contest_id, submission_id):
 
     controller = request.contest.controller
     header = controller.render_submission(request, submission)
+    footer = controller.render_submission_footer(request, submission)
     reports = []
     queryset = SubmissionReport.objects.filter(submission=submission). \
         prefetch_related('scorereport_set')
@@ -147,7 +138,7 @@ def submission_view(request, contest_id, submission_id):
         []
 
     return TemplateResponse(request, 'contests/submission.html',
-                {'submission': submission, 'header': header,
+                {'submission': submission, 'header': header, 'footer': footer,
                     'reports': reports, 'all_reports': all_reports})
 
 @enforce_condition(is_contest_admin)

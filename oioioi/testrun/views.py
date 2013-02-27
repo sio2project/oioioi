@@ -9,7 +9,7 @@ from oioioi.contests.utils import can_enter_contest, is_contest_admin
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.forms import SubmissionForm
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
-from oioioi.contests.views import check_submission_access
+from oioioi.contests.utils import check_submission_access
 from oioioi.filetracker.utils import stream_file
 from oioioi.testrun.utils import has_any_testrun_problem, \
     filter_testrun_problem_instances

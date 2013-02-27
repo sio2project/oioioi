@@ -1,0 +1,102 @@
+[
+    {
+        "pk": 1,
+        "model": "contests.submission",
+        "fields": {
+            "status": "OK",
+            "problem_instance": 1,
+            "kind": "NORMAL",
+            "comment": "",
+            "score": "int:34",
+            "user": 1001,
+            "date": "2012-08-03T22:07:07.516Z"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "programs.programsubmission",
+        "fields": {
+            "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "contests.submission",
+        "fields": {
+            "status": "CE",
+            "problem_instance": 1,
+            "kind": "NORMAL",
+            "comment": "compile error description",
+            "score": null,
+            "user": 1001,
+            "date": "2012-08-03T22:07:09.516Z"
+        }
+    },
+    {
+        "pk": 2,
+        "model": "programs.programsubmission",
+        "fields": {
+            "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "contests.submission",
+        "fields": {
+            "status": "?",
+            "problem_instance": 1,
+            "kind": "NORMAL",
+            "comment": "",
+            "score": null,
+            "user": 1001,
+            "date": "2012-08-03T22:07:09.116Z"
+        }
+    },
+    {
+        "pk": 3,
+        "model": "programs.programsubmission",
+        "fields": {
+            "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "contests.submission",
+        "fields": {
+            "status": "OK",
+            "problem_instance": 1,
+            "kind": "NORMAL",
+            "comment": "",
+            "score": "int:100",
+            "user": 1001,
+            "date": "2012-08-03T22:08:07.516Z"
+        }
+    },
+    {
+        "pk": 4,
+        "model": "programs.programsubmission",
+        "fields": {
+            "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "contests.submission",
+        "fields": {
+            "status": "OK",
+            "problem_instance": 1,
+            "kind": "NORMAL",
+            "comment": "",
+            "score": "int:90",
+            "user": 1001,
+            "date": "2012-08-03T22:09:07.516Z"
+        }
+    },
+    {
+        "pk": 5,
+        "model": "programs.programsubmission",
+        "fields": {
+            "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+        }
+    }
+]

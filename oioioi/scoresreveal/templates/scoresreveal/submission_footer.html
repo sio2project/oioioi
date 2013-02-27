@@ -1,0 +1,45 @@
+{% load i18n %}
+<div>
+<h4>{% trans "Score reveal" %}</h4>
+<p>{% blocktrans %}You have already used <strong>{{ scores_reveals }}</strong>/{{ scores_reveals_limit }} reveals.{% endblocktrans %}</p>
+
+{% if submission.submission.revealed %}
+    {% if not submission.submission.is_scored %}
+        <div class="alert alert-error">{% blocktrans %}<strong>Be patient!</strong> Unfortunately, this submission has not been scored yet, so you can't see your score. Please come back later.{% endblocktrans %}</div>
+    {% endif %}
+    <table class="table auto-width dense space-columns full-grid">
+        <tr><th style="min-width: 60px">{% trans "Score" %}</th></tr>
+        <tr><td>{{ submission.submission.get_score_display|default_if_none:"&#8212;" }}</td></tr>
+    </table>
+{% else %}
+        {% if can_reveal %}
+            {% if scores_reveals_disable_time %}
+                <p>{% blocktrans %}Scores reveal will be disabled during the last <strong>{{ scores_reveals_disable_time }}</strong> minutes of the round.{% endblocktrans %}</p>
+            {% endif %}
+
+            <p><a href="#reveal_confirmation" class="btn" role="button" data-toggle="modal"><i class="icon-align-left"></i> {% trans "Reveal score" %}</a></p>
+            <div id="reveal_confirmation" class="modal hide fade" role="dialog">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h3>{% trans "Score reveal" %}</h3>
+                </div>
+                <div class="modal-body">
+                    <p>{% blocktrans %}You are going to reveal your score. This operation cannot be undone.<br>Would you like to proceed?{% endblocktrans %}</p>
+                </div>
+                <div class="modal-footer">
+                    <form action="{% url submission_score_reveal submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn" data-dismiss="modal">{% trans "No" %}</button>
+                        <input type="submit" value="{% trans "Yes" %}" class="btn btn-primary">
+                    </form>
+                </div>
+            </div>
+
+        {% elif is_reveal_disabled %}
+            <div class="alert alert-info">{% blocktrans %}Scores reveal is disabled during the last <strong>{{ scores_reveals_disable_time }}</strong> minutes of the round.{% endblocktrans %}</div>
+        {% elif is_scores_reveals_limit_reached %}
+            <div class="alert alert-info">{% blocktrans %}<strong>Oops...</strong> You have already reached the limit of the reveals.{% endblocktrans %}</div>
+        {% endif %}
+{% endif %}
+
+</div>
