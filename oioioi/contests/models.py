@@ -106,6 +106,7 @@ class Round(models.Model):
             verbose_name=_("end date"))
     results_date = models.DateTimeField(blank=True, null=True,
             verbose_name=_("results date"))
+    is_trial = models.BooleanField(default=False, verbose_name=_("is trial"))
 
     class Meta:
         verbose_name = _("round")
