@@ -24,7 +24,8 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django >= 1.4",
+        # SIO-1214 temporary and quick workaround
+        "Django>=1.4, <1.5",
         "pytz",
         "South",
         "BeautifulSoup",
