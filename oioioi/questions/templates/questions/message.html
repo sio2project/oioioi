@@ -18,20 +18,25 @@
     </ul>
 </div>
 {% endif %}
-<div class="message {% if is_admin %}admin{% endif %}">
-    <h3 class="message_topic">{{ message.topic }}</h3>
+<div class="message {% if is_admin %}admin{% endif %} {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %}">
+    <h3 class="message_topic">
+        {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}: 
+        {{ message.topic }}
+    </h3>
     {% if is_admin %}
     <div class="pull-right">
         <a class="action" href="{% url oioioiadmin:questions_message_change message.id %}"><i class="icon-edit"></i></a>
         <a class="action" href="{% url oioioiadmin:questions_message_delete message.id %}"><i class="icon-remove"></i></a>
     </div>
     {% endif %}
-    <p class="message_info">
-    {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %} |
-    {{ message.author.username }}
-    ({{ message.author.get_full_name }}) | {{ message.date }}
-    </p>
-    <p class="message_body">{{ message.content }}</p>
+    <div class="message_container">
+        <p class="message_info">
+        {{ message.author.username }}
+        ({{ message.author.get_full_name }}) | <span class="message_timestamp">{{ message.date }}</span>
+        <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.kind }}</span>
+        </p>
+        <p class="message_body">{{ message.content }}</p>
+    </div>
 </div>
 {% for message in replies %}
 <div class="message message_reply {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if is_admin %}admin{% endif %}">
@@ -41,10 +46,13 @@
         <a class="action" href="{% url oioioiadmin:questions_message_delete message.id %}"><i class="icon-remove"></i></a>
     </div>
     {% endif %}
-    <p class="message_body">{{ message.content }}</p>
-    <p class="message_info">
-    --{{ message.author.get_full_name }} | {{ message.date }}
-    </p>
+    <div class="message_container">
+        <p class="message_info">
+        {{ message.author.username }}
+        ({{ message.author.get_full_name }}) | <span class="message_timestamp">{{ message.date }}</span>
+        </p>
+        <p class="message_body">{{ message.content }}</p>
+    </div>
 </div>
 {% endfor %}
 {% endblock %}

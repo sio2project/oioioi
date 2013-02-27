@@ -6,7 +6,7 @@
     margin-top: 20px;
 
     .message_topic {
-        margin-bottom: 0;
+        margin-bottom: 10;
         line-height: 32px;
     }
 
@@ -14,6 +14,14 @@
         font-size: smaller;
         line-height: 1.2em;
         color: @grayLight;
+        border-bottom: 1px solid @grayLight;
+        padding-bottom: 10px;
+        .message_timestamp {
+            font-style: italic;
+        }
+        .label {
+            margin-left: 10px;
+        }
     }
 
     .message_body {
@@ -38,18 +46,27 @@
 }
 
 .message_reply {
-    padding-left: 10px;
-    border-left: 1px solid @blueDark;
-
+    padding-left: 20px;
     .message_topic {
         font-size: small;
     }
     .message_body {
-    color: @blueDark;
+        color: @blueDark;
     }
 }
 
+.message_container {
+    border: 1px solid @grayLight;
+    .border-radius(3px);
+    padding: 10px;
+}
+
 .message_reply_public {
-    border-left: 1px solid red;
+    .message_container {
+        background: @infoBackground;
+        border-color: @infoBackground;
+        padding: 10px;
+        .border-radius(3px);
+    }
 }
 
