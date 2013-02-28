@@ -1,4 +1,5 @@
 from django.contrib.admin.util import unquote
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
@@ -52,6 +53,12 @@ class ParticipantAdmin(admin.ModelAdmin):
             form.request_contest = request.contest
             return form
         return form_wrapper
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'user':
+            kwargs['queryset'] = User.objects.all().order_by('username')
+        return super(ParticipantAdmin, self) \
+                .formfield_for_foreignkey(db_field, request, **kwargs)
 
     def make_active(self, request, queryset):
         queryset.update(status='ACTIVE')
