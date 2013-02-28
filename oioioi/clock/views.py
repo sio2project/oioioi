@@ -59,13 +59,14 @@ def get_times_view(request):
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 def admin_time(request, path):
-    contest = getattr(request, 'contest', None)
+    if not path.startswith('/'):
+        path = '/' + path
     if request.method == 'POST':
         if 'reset-button' in request.POST:
             if 'admin_time' in request.session:
                 del request.session['admin_time']
             return redirect(path)
-        elif contest and request.user.is_superuser:
+        elif request.user.is_superuser:
             admin_time = re.findall(r'\d+', request.POST['admin-time'])
             admin_time = map(int, admin_time)
             try:
