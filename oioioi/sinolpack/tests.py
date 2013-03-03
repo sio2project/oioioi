@@ -249,7 +249,7 @@ class TestJudging(TestCase):
         self.assertEqual(TestReport.objects.filter(status='WA').count(), 1)
         self.assertEqual(TestReport.objects.filter(status='RE').count(), 1)
         submission = Submission.objects.get()
-        self.assertEqual(submission.status, 'OK')
+        self.assertEqual(submission.status, 'INI_OK')
         self.assertEqual(submission.score, IntegerScore(34))
 
         urc = UserResultForContest.objects.get()

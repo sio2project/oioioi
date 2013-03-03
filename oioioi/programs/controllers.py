@@ -188,19 +188,30 @@ class ProgrammingContestController(ContestController):
         self._activate_newest_report(submission, queryset,
                 kind=['HIDDEN'])
 
+    def can_see_submission_status(self, request, submission):
+        """Statuses are taken from initial tests which are always public."""
+        return True
+
+    def _map_report_to_submission_status(self, status):
+        mapping = {'OK': 'INI_OK', 'CE': 'CE'}
+        return mapping.get(status, 'INI_WR')
+
     def update_submission_score(self, submission):
-        # Status is taken from the initial report, score from the final
+        # Status is taken from the initial report
         try:
             report = SubmissionReport.objects.filter(submission=submission,
                     status='ACTIVE', kind='INITIAL').get()
             score_report = ScoreReport.objects.get(submission_report=report)
-            submission.status = score_report.status
+            submission.status = self._map_report_to_submission_status(
+                    score_report.status)
         except SubmissionReport.DoesNotExist:
             if SubmissionReport.objects.filter(submission=submission,
                     status='ACTIVE', kind='FAILURE'):
                 submission.status = 'SE'
             else:
                 submission.status = '?'
+
+        # Score from the final
         try:
             report = SubmissionReport.objects.filter(submission=submission,
                     status='ACTIVE', kind='NORMAL').get()

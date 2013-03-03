@@ -85,8 +85,10 @@ class TestProgramsViews(TestCase):
         for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<',
                 '>0<']:
             self.assertIn(element, response.content)
-        self.assertEqual(response.content.count('subm_status subm_OK'), 8)
-        self.assertEqual(response.content.count('subm_status subm_WA'), 6)
+        self.assertEqual(response.content.count('subm_status subm_INI_OK'), 1)
+        self.assertEqual(response.content.count('subm_status subm_INI_WR'), 1)
+        self.assertEqual(response.content.count('subm_status subm_OK'), 7)
+        self.assertEqual(response.content.count('subm_status subm_WA'), 5)
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)
         self.assertEqual(response.content.count('>10.00s<'), 5)
 
