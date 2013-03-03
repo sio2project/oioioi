@@ -1,7 +1,8 @@
 from django.shortcuts import render_to_response, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -45,6 +46,14 @@ def handler500(request):
         if hasattr(request, 'user') and request.user.is_superuser:
             message += '\n' + tb
         return HttpResponse(message, status=500, content_type='text/plain')
+
+def handler403(request):
+    if request.is_ajax():
+        return HttpResponse('403 Forbidden', status=403,
+                content_type='text/plain')
+    message = render_to_string('403.html',
+            context_instance=RequestContext(request))
+    return HttpResponseForbidden(message)
 
 @login_required
 def edit_profile_view(request):

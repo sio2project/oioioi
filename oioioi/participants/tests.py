@@ -80,6 +80,10 @@ class TestParticipantsContestViews(TestCase):
         self.client.login(username='test_user2')
         response = self.client.get('/c/%s/' % (contest.id,), follow=True)
         self.assertEqual(403, response.status_code)
+        # Make sure we get nice page, allowing to log out.
+        self.assertNotIn('My submissions', response.content)
+        self.assertIn('OIOIOI', response.content)
+        self.assertIn('Log out', response.content)
 
         self.client.login(username='test_user')
         response = self.client.get('/c/%s/' % (contest.id,), follow=True)
