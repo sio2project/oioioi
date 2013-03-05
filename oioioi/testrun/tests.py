@@ -8,7 +8,7 @@ from django.utils.timezone import utc
 
 from oioioi.testrun import handlers
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
-from oioioi.base.tests import check_not_accessible
+from oioioi.base.tests import check_not_accessible, check_ajax_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.storage import FiletrackerStorage
@@ -42,7 +42,7 @@ class TestTestrunViews(TestCase):
 
         with fake_time(datetime(2011, 8, 5, tzinfo=utc)):
             show_output = self.client.get(reverse('get_testrun_input',
-                kwargs=kwargs))
+                kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '9 9')
             self.assertIn('Input', show_output.content)
 
@@ -63,7 +63,7 @@ class TestTestrunViews(TestCase):
 
         with fake_time(datetime(2011, 8, 5, tzinfo=utc)):
             show_output = self.client.get(reverse('get_testrun_output',
-                kwargs=kwargs))
+                kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '18')
             self.assertIn('Output', show_output.content)
 
@@ -77,7 +77,7 @@ class TestTestrunViews(TestCase):
 
         with fake_time(datetime(2014, 8, 5, tzinfo=utc)):
             show_output = self.client.get(reverse('get_testrun_output',
-                kwargs=kwargs))
+                kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '18')
 
     def test_submit_view(self):
@@ -114,9 +114,20 @@ class TestTestrunViews(TestCase):
                 'submission_id': submission.id}
 
         self.client.login(username='test_user2')
-        for view in ['get_testrun_output', 'download_testrun_output',
+        for view in ['get_testrun_output', 'get_testrun_input',
                         'download_testrun_output', 'download_testrun_input']:
             check_not_accessible(self, view, kwargs=kwargs)
+
+        for view in ['get_testrun_output', 'get_testrun_input']:
+            check_ajax_not_accessible(self, view, kwargs=kwargs)
+
+        contest = Contest.objects.get(pk='c')
+        contest.controller_name = \
+                'oioioi.contests.tests.PrivateContestController'
+        contest.save()
+        self.client.logout()
+        for view in ['get_testrun_output', 'get_testrun_input']:
+            check_ajax_not_accessible(self, view, kwargs=kwargs)
 
 class TestWithNoTestruns(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
