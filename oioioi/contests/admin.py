@@ -350,7 +350,8 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
                 kwargs['queryset'] = User.objects \
                         .filter(id__in=Participant.objects
                             .filter(contest=request.contest)
-                            .values_list('user', flat=True))
+                            .values_list('user', flat=True)) \
+                        .order_by('username')
         return super(RoundTimeExtensionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 

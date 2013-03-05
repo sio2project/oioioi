@@ -1,5 +1,6 @@
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.forms.models import modelform_factory
 from oioioi.base import admin
@@ -22,6 +23,12 @@ class TeacherAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return self.has_add_permission(request)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'user':
+            kwargs['queryset'] = User.objects.all().order_by('username')
+        return super(TeacherAdmin, self) \
+                .formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(Teacher, TeacherAdmin)
 
