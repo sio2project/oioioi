@@ -114,6 +114,9 @@ submission_statuses.register('OLE', _("Output limit exceeded"))
 submission_statuses.register('SE', _("System error"))
 submission_statuses.register('RV', _("Rule violation"))
 
+submission_statuses.register('INI_OK', _("Initial tests: OK"))
+submission_statuses.register('INI_WR', _("Initial tests: wrong"))
+
 submission_report_kinds.register('INITIAL', _("Initial report"))
 submission_report_kinds.register('NORMAL', _("Normal report"))
 submission_report_kinds.register('HIDDEN', _("Hidden report (for admins only)"))

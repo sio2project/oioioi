@@ -2,7 +2,9 @@
 @import "../bootstrap/less/mixins.less";
 
 @submBlue: #bbbbff;
+@submBlueGradientTo: rgba(204,204,255,0);
 @submGreen: #bbeebb;
+@submGreenGradientTo: rgba(204,255,204,0);
 
 .subm_margin {
     border-right: none;
@@ -13,11 +15,11 @@ td.subm_margin {
     padding: 0;
 
     &.subm_SE {
-        #gradient > .horizontal(@submBlue, rgba(204,204,255,0));
+        #gradient > .horizontal(@submBlue, @submBlueGradientTo);
     }
 
     &.subm_OK {
-        #gradient > .horizontal(@submGreen, rgba(204,255,204,0));
+        #gradient > .horizontal(@submGreen, @submGreenGradientTo);
     }
 }
 
