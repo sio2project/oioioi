@@ -7,3 +7,9 @@ source_file = oioioi/locale/en/LC_MESSAGES/django.po
 source_lang = en
 type = PO
 
+[sio2project.oioioi-js]
+file_filter = oioioi/locale/<lang>/LC_MESSAGES/djangojs.po
+source_file = oioioi/locale/en/LC_MESSAGES/djangojs.po
+source_lang = en
+type = PO
+
