@@ -63,3 +63,13 @@ def threshold_linear_test_scorer(test, result):
         status = 'TLE'
 
     return IntegerScore(score), status
+
+def decode_str(str):
+    try:
+        str = str.decode('utf-8')
+        decode_error = False
+    except UnicodeDecodeError:
+        str = str.decode('utf-8', 'replace')
+        decode_error = True
+
+    return (str, decode_error)

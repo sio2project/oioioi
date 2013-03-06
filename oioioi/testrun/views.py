@@ -8,6 +8,7 @@ from oioioi.base.menu import menu_registry
 from oioioi.contests.utils import can_enter_contest, is_contest_admin
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.forms import SubmissionForm
+from oioioi.programs.utils import decode_str
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 from oioioi.contests.utils import check_submission_access
 from oioioi.filetracker.utils import stream_file
@@ -59,18 +60,18 @@ def get_testrun_report_or_404(request, submission, testrun_report_id=None):
 @enforce_condition(can_enter_contest)
 def show_input_file_view(request, contest_id, submission_id):
     submission = get_submission_or_404(request, contest_id, submission_id)
-
-    try:
-        data = submission.input_file.read(get_preview_size_limit()) \
-                .decode('utf-8')
-    except UnicodeDecodeError: #TODO: use alert-warning
-        data = _("Error: can't display non ascii/utf8 file")
-
+    data = submission.input_file.read(get_preview_size_limit())
+    data, decode_error = decode_str(data)
     size = submission.input_file.size
+    download_url = reverse('download_testrun_input',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission_id})
     return TemplateResponse(request, 'testrun/data.html', {
         'header': _("Input"),
         'data': data,
         'left': size - get_preview_size_limit(),
+        'decode_error': decode_error,
+        'download_url': download_url
     })
 
 @enforce_condition(can_enter_contest)
@@ -84,17 +85,18 @@ def show_output_file_view(request, contest_id, submission_id,
                           testrun_report_id=None):
     submission = get_submission_or_404(request, contest_id, submission_id)
     result = get_testrun_report_or_404(request, submission, testrun_report_id)
-
-    try:
-        data = result.output_file.read(get_preview_size_limit()).decode('utf-8')
-    except UnicodeDecodeError:
-        data = _("Error: can't display non ascii/utf8 file")
-
+    data = result.output_file.read(get_preview_size_limit())
+    data, decode_error = decode_str(data)
     size = result.output_file.size
+    download_url = reverse('download_testrun_output',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission_id})
     return TemplateResponse(request, 'testrun/data.html', {
         'header': _("Output"),
         'data': data,
         'left': size - get_preview_size_limit(),
+        'decode_error': decode_error,
+        'download_url': download_url
     })
 
 @enforce_condition(can_enter_contest)
