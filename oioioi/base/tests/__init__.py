@@ -54,6 +54,18 @@ def check_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     if response.status_code == 302:
         testcase.assertIn('/login/', response['Location'])
 
+def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
+    data = kwargs.pop('data', {})
+    if url_or_viewname.startswith('/'):
+        url = url_or_viewname
+        assert not args
+        assert not kwargs
+    else:
+        url = reverse(url_or_viewname, *args, **kwargs)
+    response = testcase.client.get(url, data=data,
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    testcase.assertIn(response.status_code, (403, 404))
+
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
        user.
