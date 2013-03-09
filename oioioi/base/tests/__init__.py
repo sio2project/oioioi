@@ -358,6 +358,28 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(AssertionError):
             Derived1.mix_in(Mixin3)
 
+    def test_registered_with_mixing(self):
+        class Base(utils.ObjectWithMixins, utils.RegisteredSubclassesBase):
+            spam = 'spam'
+        class Derived(Base):
+            derived = 'spam'
+        class BaseMixin(object):
+            basemixin = 'spam'
+        class DerivedMixin(object):
+            derivedmixin = 'spam'
+
+        Derived.mix_in(DerivedMixin)
+        Base.mix_in(BaseMixin)
+
+        self.assertEquals(Derived().derivedmixin, 'spam')
+        self.assertEquals(Derived().basemixin, 'spam')
+        with self.assertRaises(AttributeError):
+            Base().derivedmixin == 'spam'
+
+        self.assertListEqual(Base.subclasses, [Base, Derived])
+        self.assertListEqual(Derived.subclasses, [Derived])
+
+
     def test_memoized(self):
         memoized_random = utils.memoized(random.random)
         self.assertEqual(memoized_random(), memoized_random())
