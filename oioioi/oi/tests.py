@@ -190,8 +190,7 @@ class TestOIOnsiteRegistration(TestCase):
         self.assertEqual(403, response.status_code)
 
 class TestOIViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_contest_visibility(self):
         contest = Contest(id='visible', name='Visible Contest')
@@ -232,8 +231,7 @@ class TestOIViews(TestCase):
         self.assertEqual(200, response.status_code)
 
 class TestOIOnsiteViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
@@ -301,8 +299,7 @@ class TestOIOnsiteViews(TestCase):
         self.assertEqual(200, response.status_code)
 
 class TestOISubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_extra_rounds',
-             'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_submit_permissions(self):
         contest = Contest.objects.get()
@@ -344,8 +341,7 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             self._assertSubmitted(contest, response)
 
 class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_extra_rounds',
-             'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_submit_permissions(self):
         contest = Contest.objects.get()
@@ -385,7 +381,8 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
             self._assertSubmitted(contest, response)
 
 class TestIgnoringCE(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission']
+    fixtures = ['test_users', 'test_contest', 'test_submission',
+        'test_submissions_CE']
 
     def _test(self, controller_name):
         contest = Contest.objects.get()

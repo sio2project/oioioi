@@ -116,7 +116,7 @@ class TestFileStorage(unittest.TestCase):
             shutil.rmtree(dir)
 
 class TestFileStorageViews(TestCase):
-    fixtures = ('test_users',)
+    fixtures = ['test_users']
 
     def test_raw_file_view(self):
         filename = 'tests/test_raw_file_view.txt'
@@ -137,8 +137,7 @@ class TestFileStorageViews(TestCase):
             default_storage.delete(filename)
 
 class TestFileFixtures(TestCase):
-
-    fixtures = ('test_file_field',)
+    fixtures = ['test_file_field']
 
     def test_file_fixtures(self):
         instance = TestFileModel.objects.get()

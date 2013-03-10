@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.template import Template, RequestContext
@@ -7,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
+
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, RoundTimeExtension
@@ -15,7 +18,7 @@ from oioioi.contests.controllers import ContestController, \
         RegistrationController
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
-from datetime import datetime
+
 
 class TestModels(TestCase):
     def test_fields_autogeneration(self):
@@ -234,25 +237,39 @@ class TestContestViews(TestCase):
                 kwargs={'contest_id': contest.id})
 
 class TestManyRounds(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission', 'test_extra_rounds']
+    fixtures = ['test_users', 'test_contest', 'test_submission',
+            'test_full_package', 'test_extra_rounds']
+
+    def assertAllIn(self, elems, container, msg=None):
+        """Checks that ``container`` contains all ``elems``."""
+        for e in elems:
+            self.assertIn(e, container, msg)
+
+    def assertNoneIn(self, elems, container, msg=None):
+        """Checks that ``container`` doesn't contain any of ``elems``."""
+        for e in elems:
+            self.assertNotIn(e, container, msg)
 
     def test_problems_visibility(self):
         contest = Contest.objects.get()
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
-            self.client.login(username='test_admin')
-            response = self.client.get(url)
-            for problem_name in ['zad1', 'zad2', 'zad3', 'zad4']:
-                self.assertIn(problem_name, response.content)
-            self.assertIn('contests/problems_list.html',
-                    [t.name for t in response.templates])
-            self.assertEqual(len(response.context['problem_instances']), 4)
-            self.assertTrue(response.context['show_rounds'])
-            self.client.login(username='test_user')
-            response = self.client.get(url)
-            self.assertNotIn('zad2', response.content)
-            self.assertEqual(len(response.context['problem_instances']), 3)
+            for user in ['test_admin']:
+                self.client.login(username=user)
+                response = self.client.get(url)
+                self.assertAllIn(['zad1', 'zad2', 'zad3', 'zad4'],
+                        response.content)
+                self.assertIn('contests/problems_list.html',
+                        [t.name for t in response.templates])
+                self.assertEqual(len(response.context['problem_instances']), 4)
+                self.assertTrue(response.context['show_rounds'])
+
+            for user in ['test_user']:
+                self.client.login(username=user)
+                response = self.client.get(url)
+                self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
+                self.assertNotIn('zad2', response.content)
+                self.assertEqual(len(response.context['problem_instances']), 3)
 
     def test_submissions_visibility(self):
         contest = Contest.objects.get()
@@ -260,11 +277,13 @@ class TestManyRounds(TestCase):
         self.client.login(username='test_user')
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            for problem_name in ['zad1', 'zad2', 'zad3', 'zad4']:
-                self.assertNotIn(problem_name, response.content)
+            self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
+            self.assertNoneIn(['zad2', ], response.content)
+
             self.assertIn('contests/my_submissions.html',
                     [t.name for t in response.templates])
-            self.assertEqual(response.content.count('<td>34</td>'), 0)
+            self.assertEqual(response.content.count('<td>34</td>'), 2)
+
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 4)
@@ -559,8 +578,8 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self._assertSubmitted(contest, response)
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_extra_rounds',
-             'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_extra_rounds']
 
     def test_round_extension(self):
         contest = Contest.objects.get()

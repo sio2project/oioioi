@@ -31,8 +31,7 @@ class OpenRegistrationContestController(ContestController):
         return OpenRegistrationController(self.contest)
 
 class TestParticipantsContestViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_participants_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
@@ -97,8 +96,7 @@ class TestParticipantsContestViews(TestCase):
         self.assertEqual(200, response.status_code)
 
 class TestParticipantsSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_extra_rounds',
-             'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_submit_permissions(self):
         contest = Contest.objects.get()

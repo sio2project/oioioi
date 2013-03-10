@@ -1,0 +1,28 @@
+[
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "CE",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "compile error description",
+      "score": null,
+      "user": 1001,
+      "date": "2012-08-03T23:07:09.516Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.submission",
+    "fields": {
+      "status": "CE",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "compile error description",
+      "score": null,
+      "user": 1002,
+      "date": "2012-08-03T23:07:09.116Z"
+    }
+  }
+]

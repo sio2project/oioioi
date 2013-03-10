@@ -130,8 +130,7 @@ class TestTestrunViews(TestCase):
             check_ajax_not_accessible(self, view, kwargs=kwargs)
 
 class TestWithNoTestruns(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submissions']
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_not_visible(self):
         self.client.login(username='test_user')
