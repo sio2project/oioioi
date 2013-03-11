@@ -86,7 +86,7 @@ class TestProgramsViews(TestCase):
                 '>0<']:
             self.assertIn(element, response.content)
         self.assertEqual(response.content.count('subm_status subm_INI_OK'), 1)
-        self.assertEqual(response.content.count('subm_status subm_INI_WR'), 1)
+        self.assertEqual(response.content.count('subm_status subm_INI_ERR'), 1)
         self.assertEqual(response.content.count('subm_status subm_OK'), 7)
         self.assertEqual(response.content.count('subm_status subm_WA'), 5)
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)

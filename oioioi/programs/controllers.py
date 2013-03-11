@@ -229,7 +229,7 @@ class ProgrammingContestController(ContestController):
 
     def _map_report_to_submission_status(self, status):
         mapping = {'OK': 'INI_OK', 'CE': 'CE'}
-        return mapping.get(status, 'INI_WR')
+        return mapping.get(status, 'INI_ERR')
 
     def update_submission_score(self, submission):
         # Status is taken from the initial report
