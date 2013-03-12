@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
@@ -556,7 +557,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            Footer is shown under the submission reports.
            The default implementation returns an empty string.
         """
-        return ""
+        return mark_safe("")
 
     def render_report(self, request, report):
         """Renders the given report to HTML.

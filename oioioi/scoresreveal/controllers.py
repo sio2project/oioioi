@@ -70,10 +70,12 @@ class ScoresRevealContestControllerMixin(object):
             and rtimes.is_active(request.timestamp)
 
     def render_submission_footer(self, request, submission):
+        super_footer = super(ScoresRevealContestControllerMixin, self). \
+                render_submission_footer(request, submission)
+
         if not has_scores_reveal(submission.problem) or \
                 submission.kind != 'NORMAL' or submission.user is None:
-            return super(ScoresRevealContestControllerMixin, self). \
-                render_submission_footer(request, submission)
+            return super_footer
 
         scores_reveals = self.get_revealed_submissions(submission.user,
             submission.problem_instance).count()
@@ -96,6 +98,6 @@ class ScoresRevealContestControllerMixin(object):
                  'is_scores_reveals_limit_reached':
                      is_scores_reveals_limit_reached,
                  'is_reveal_disabled': self.is_scores_reveals_disabled(
-                     request, submission.problem_instance)}))
+                     request, submission.problem_instance)})) + super_footer
 
 ProgrammingContestController.mix_in(ScoresRevealContestControllerMixin)
