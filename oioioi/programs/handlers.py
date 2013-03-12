@@ -6,6 +6,7 @@ from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
 from oioioi.programs.models import CompilationReport, TestReport, \
         GroupReport, Test
+from oioioi.programs.utils import slice_str
 from oioioi.problems.models import Problem
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path
@@ -386,7 +387,8 @@ def make_report(env, kind='NORMAL', **kwargs):
         comment = result.get('result_string', '')
         if comment.lower() == 'ok':  # Annoying
             comment = ''
-        test_report.comment = comment
+        test_report.comment = \
+            slice_str(comment, TestReport._meta.get_field('comment').max_length)
         test_report.save()
         result['report_id'] = test_report.id
 

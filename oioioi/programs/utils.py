@@ -73,3 +73,7 @@ def decode_str(str):
         decode_error = True
 
     return (str, decode_error)
+
+def slice_str(str, length):
+    # After slicing UTF-8 can be invalid.
+    return str[:length].decode('utf-8', 'ignore').encode('utf-8')
