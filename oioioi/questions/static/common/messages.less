@@ -4,18 +4,30 @@
 .message {
     margin-left: 10px;
     margin-top: 20px;
+    max-width: 700px;
+
+    &.message_has_replies .message_body {
+        color: @grayLight;
+    }
 
     .message_topic {
-        margin-bottom: 10;
         line-height: 32px;
     }
 
+    .message_actions {
+        float: right;
+        margin-right: -32px;
+        padding-top: 6px;
+    }
+
     .message_info {
+        text-align: right;
         font-size: smaller;
         line-height: 1.2em;
         color: @grayLight;
-        border-bottom: 1px solid @grayLight;
-        padding-bottom: 10px;
+        border-bottom: 1px solid @blue;
+        padding-bottom: 5px;
+        padding-right: 20px;
         .message_timestamp {
             font-style: italic;
         }
@@ -47,26 +59,12 @@
 
 .message_reply {
     padding-left: 20px;
-    .message_topic {
-        font-size: small;
-    }
-    .message_body {
-        color: @blueDark;
+    margin-top: 10px;
+    .message_info {
+        border-bottom: 1px solid #e70;
     }
 }
 
 .message_container {
-    border: 1px solid @grayLight;
-    .border-radius(3px);
     padding: 10px;
 }
-
-.message_reply_public {
-    .message_container {
-        background: @infoBackground;
-        border-color: @infoBackground;
-        padding: 10px;
-        .border-radius(3px);
-    }
-}
-
