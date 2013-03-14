@@ -155,11 +155,32 @@ def report_view(request, contest_id, submission_id, report_id):
 @require_POST
 def rejudge_submission_view(request, contest_id, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
+    check_submission_access(request, submission)
+
     controller = request.contest.controller
     controller.judge(submission, request.GET.dict())
     messages.info(request, _("Rejudge request received."))
     return redirect('submission', contest_id=contest_id,
             submission_id=submission_id)
+
+@enforce_condition(is_contest_admin)
+@require_POST
+def change_submission_kind_view(request, contest_id, submission_id, kind):
+    submission = get_object_or_404(Submission, id=submission_id)
+    check_submission_access(request, submission)
+
+    controller = request.contest.controller
+    if kind in controller.valid_kinds_for_submission(submission):
+        controller.change_submission_kind(submission, kind)
+        messages.success(request, _("Submission kind has been changed."))
+    else:
+        messages.error(request,
+            _("%(kind)s is not valid kind for submission %(submission_id)d.")
+            % {'kind': kind,
+               'submission_id': submission.id
+            })
+    return redirect('submission', contest_id=contest_id,
+                    submission_id=submission_id)
 
 @enforce_condition(can_enter_contest)
 def files_view(request, contest_id):

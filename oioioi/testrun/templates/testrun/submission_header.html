@@ -1,13 +1,16 @@
 {% extends "programs/submission_header.html" %}
 {% load i18n %}
+{% load check_perm %}
 
 {% block submission_details %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
 <table class="details_table">
     <thead>
         <tr>
             <th style="min-width: 120px">{% trans "Problem" %}</th>
             <th style="min-width: 150px">{% trans "Submission date" %}</th>
             <th style="min-width: 150px">{% trans "Status" %}</th>
+            {% if is_admin %}<th style="min-width: 120px">{% trans "Kind" %}</th>{% endif %}
             <th style="min-width: 50px">{% trans "Input" %}</th>
         </tr>
     </thead>
@@ -16,6 +19,7 @@
             <td>{{ submission.submission.problem_instance }}</td>
             <td>{{ submission.submission.get_date_display }}</td>
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
+            {% if is_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
             <td>
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-down"></i></button>
                 <a class="btn" href="{% url download_testrun_input contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-download-alt"></i></a>

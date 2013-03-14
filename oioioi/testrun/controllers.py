@@ -165,4 +165,12 @@ class TestRunContestControllerMixin(object):
                     'testrun_report': testrun_report,
                     'output_container_id_prefix': output_container_id_prefix}))
 
+    def valid_kinds_for_submission(self, submission):
+        if submission.kind != 'TESTRUN':
+            return super(TestRunContestControllerMixin, self). \
+                valid_kinds_for_submission(submission)
+
+        assert submission.kind == 'TESTRUN'
+        return ['TESTRUN']
+
 ProgrammingContestController.mix_in(TestRunContestControllerMixin)
