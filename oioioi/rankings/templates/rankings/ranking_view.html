@@ -1,18 +1,29 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
+{% load check_perm %}
 
 {% block title %}{% trans "Ranking" %}{% endblock %}
 
 {% block content %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
 <h2>{% trans "Ranking" %}</h2>
-{% if choices|length > 1 %}
+{% if is_admin %}
 <div class="corner-icons">
-    <ul class="nav nav-pills">
+    {% if key %}
+    <a class="btn btn-small" href="{% url ranking_csv contest_id=contest.id key=key %}"><i class="icon-download"></i> {% trans "Export to CSV" %}</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% if choices|length > 1 %}
+<div>
+    <ul class="nav nav-pills inline-nav">
         {% for choice in choices %}
         <li {% if choice.0 == key %}class="active"{% endif %}><a href="{% url ranking contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a></li>
         {% endfor %}
     </ul>
 </div>
 {% endif %}
+
 {{ ranking }}
 {% endblock %}

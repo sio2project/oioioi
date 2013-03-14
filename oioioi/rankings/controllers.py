@@ -1,13 +1,18 @@
-from django.template import RequestContext
-from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
-from oioioi.contests.models import ProblemInstance, UserResultForProblem, \
-        Round
-from oioioi.contests.controllers import ContestController
 from collections import defaultdict
 from operator import itemgetter
+import unicodecsv
+
+from django.http import HttpResponse
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
+
+from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
+from oioioi.contests.models import ProblemInstance, UserResultForProblem
+from oioioi.contests.controllers import ContestController
+
 
 CONTEST_RANKING_KEY = 'c'
 
@@ -33,6 +38,9 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
         raise NotImplementedError
 
     def render_ranking(self, request, key):
+        raise NotImplementedError
+
+    def render_ranking_to_csv(self, request, key):
         raise NotImplementedError
 
     def serialize_ranking(self, request, key):
@@ -71,6 +79,35 @@ class DefaultRankingController(RankingController):
         return render_to_string('rankings/default_ranking.html',
                 context_instance=RequestContext(request, data))
 
+    def render_ranking_to_csv(self, request, key):
+        data = self.serialize_ranking(request, key)
+
+        response = HttpResponse(mimetype='text/csv')
+        response['Content-Disposition'] = \
+            'attachment; filename=%s-%s-%s.csv' % \
+            ("ranking", request.contest.id, key)
+        writer = unicodecsv.writer(response)
+
+        header = [_("No."), _("First name"), _("Last name")]
+        for pi in data['problem_instances']:
+            header.append(pi.short_name)
+        header.append(_("Sum"))
+        writer.writerow(map(force_unicode, header))
+
+        def default_if_none(value, arg):
+            if value is None:
+                return arg
+            return value
+
+        for row in data['rows']:
+            line = [row['place'], row['user'].first_name, row['user'].last_name]
+            line += [default_if_none(getattr(r, 'score', None), '')
+                for r in row['results']]
+            line.append(row['sum'])
+            writer.writerow(map(force_unicode, line))
+
+        return response
+
     def filter_users_for_ranking(self, request, key, queryset):
         return queryset.filter(is_superuser=False)
 
@@ -83,18 +120,16 @@ class DefaultRankingController(RankingController):
         by_user = defaultdict(dict)
         for r in results:
             by_user[r.user_id][r.problem_instance_id] = r
-        users = User.objects.in_bulk(by_user.keys())
+        users = users.filter(id__in=by_user.keys())
 
         data = []
         all_rounds_trial = all(r.is_trial for r in rounds)
 
-        for user in users.itervalues():
+        for user in users.order_by('last_name', 'first_name', 'username'):
             by_user_row = by_user[user.id]
             user_results = []
             user_data = {
                     'user': user,
-                    'user_sort_key': (user.last_name, user.first_name,
-                        user.id),
                     'results': user_results,
                     'sum': None
                 }
@@ -114,7 +149,6 @@ class DefaultRankingController(RankingController):
                 # problems do not support scoring, or all the evaluations
                 # failed with System Errors).
                 data.append(user_data)
-        data.sort(key=itemgetter('user_sort_key'))
         data.sort(key=itemgetter('sum'), reverse=True)
         prev_sum = None
         place = None
