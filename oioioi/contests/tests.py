@@ -111,37 +111,51 @@ class TestCurrentContest(TestCase):
         self.assertEqual(self.client.get('/render_contest_id').content, 'c2')
 
 class TestContestController(TestCase):
+    fixtures = ['test_contest', 'test_extra_rounds']
+
     def test_order_rounds_by_focus(self):
-        r1 = Round(start_date=datetime(2012, 1, 1,  8,  0),
-                   end_date=  datetime(2012, 1, 1, 10,  0))
-        r2 = Round(start_date=datetime(2012, 1, 1,  9, 59),
-                   end_date=  datetime(2012, 1, 1, 11, 00))
-        r3 = Round(start_date=datetime(2012, 1, 2,  8,  0),
-                   end_date=  datetime(2012, 1, 2, 10,  0))
+        contest = Contest.objects.get()
+        r1 = Round.objects.get(pk=1)
+        r2 = Round.objects.get(pk=2)
+        r3 = Round.objects.get(pk=3)
+
+        r1.start_date = datetime(2012, 1, 1,  8,  0, tzinfo=utc)
+        r1.end_date =   datetime(2012, 1, 1, 10,  0, tzinfo=utc)
+        r1.save()
+
+        r2.start_date = datetime(2012, 1, 1,  9, 59, tzinfo=utc)
+        r2.end_date =   datetime(2012, 1, 1, 11, 00, tzinfo=utc)
+        r2.save()
+
+        r3.start_date = datetime(2012, 1, 2,  8,  0, tzinfo=utc)
+        r3.end_date  =  datetime(2012, 1, 2, 10,  0, tzinfo=utc)
+        r3.save()
+
         rounds = [r1, r2, r3]
-        controller = ContestController(None)
 
         class FakeRequest(object):
-            def __init__(self, timestamp):
+            def __init__(self, timestamp, contest):
                 self.timestamp = timestamp
                 self.user = AnonymousUser()
+                self.contest = contest
 
         for date, expected_order in (
-                (datetime(2011, 1, 1), [r1, r2, r3]),
-                (datetime(2012, 1, 1, 7, 0), [r1, r2, r3]),
-                (datetime(2012, 1, 1, 7, 55), [r1, r2, r3]),
-                (datetime(2012, 1, 1, 9, 40), [r1, r2, r3]),
-                (datetime(2012, 1, 1, 9, 45), [r2, r1, r3]),
-                (datetime(2012, 1, 1, 9, 59, 29), [r2, r1, r3]),
-                (datetime(2012, 1, 1, 9, 59, 31), [r1, r2, r3]),
-                (datetime(2012, 1, 1, 10, 0, 1), [r2, r3, r1]),
-                (datetime(2012, 1, 1, 11, 0, 1), [r2, r3, r1]),
-                (datetime(2012, 1, 2, 2, 0, 1), [r3, r2, r1]),
-                (datetime(2012, 1, 2, 2, 7, 55), [r3, r2, r1]),
-                (datetime(2012, 1, 2, 2, 9, 0), [r3, r2, r1]),
-                (datetime(2012, 1, 2, 2, 11, 0), [r3, r2, r1])):
-            self.assertEqual(controller.order_rounds_by_focus(
-                FakeRequest(date), rounds), expected_order)
+                (datetime(2011, 1, 1, tzinfo=utc), [r1, r2, r3]),
+                (datetime(2012, 1, 1, 7, 0, tzinfo=utc), [r1, r2, r3]),
+                (datetime(2012, 1, 1, 7, 55, tzinfo=utc), [r1, r2, r3]),
+                (datetime(2012, 1, 1, 9, 40, tzinfo=utc), [r1, r2, r3]),
+                (datetime(2012, 1, 1, 9, 55, tzinfo=utc), [r2, r1, r3]),
+                (datetime(2012, 1, 1, 9, 59, 29, tzinfo=utc), [r2, r1, r3]),
+                (datetime(2012, 1, 1, 9, 59, 31, tzinfo=utc), [r1, r2, r3]),
+                (datetime(2012, 1, 1, 10, 0, 1, tzinfo=utc), [r2, r1, r3]),
+                (datetime(2012, 1, 1, 11, 0, 1, tzinfo=utc), [r2, r1, r3]),
+                (datetime(2012, 1, 1, 12, 0, 1, tzinfo=utc), [r2, r1, r3]),
+                (datetime(2012, 1, 2, 2, 0, 1, tzinfo=utc), [r3, r2, r1]),
+                (datetime(2012, 1, 2, 2, 7, 55, tzinfo=utc), [r3, r2, r1]),
+                (datetime(2012, 1, 2, 2, 9, 0, tzinfo=utc), [r3, r2, r1]),
+                (datetime(2012, 1, 2, 2, 11, 0, tzinfo=utc), [r3, r2, r1])):
+            self.assertEqual(contest.controller.order_rounds_by_focus(
+                FakeRequest(date, contest), rounds), expected_order)
 
 class PrivateRegistrationController(RegistrationController):
     def anonymous_can_enter_contest(self):
