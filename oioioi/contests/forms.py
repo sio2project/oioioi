@@ -3,7 +3,8 @@ from django.contrib.admin import widgets
 from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.contests.controllers import ContestController
+from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.utils import submittable_problem_instances
 
 class SimpleContestForm(forms.ModelForm):
@@ -89,7 +90,7 @@ class SubmissionForm(forms.Form):
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
     def __init__(self, request, *args, **kwargs):
-        self.kind = kwargs.pop('kind', 'NORMAL')
+        self.kind = kwargs.pop('kind', self.get_default_kind(request))
         problem_filter = kwargs.pop('problem_filter', None)
 
         forms.Form.__init__(self, *args, **kwargs)
@@ -106,6 +107,10 @@ class SubmissionForm(forms.Form):
         pi_field.widget.attrs['class'] = 'input-xlarge'
 
         request.contest.controller.adjust_submission_form(request, self)
+
+    def get_default_kind(self, request):
+        # It's here to allow subforms alter this on their own.
+        return request.contest.controller.get_default_submission_kind(request)
 
     def clean(self, check_submission_limit=True, check_round_times=True):
         cleaned_data = forms.Form.clean(self)
@@ -127,7 +132,7 @@ class SubmissionForm(forms.Form):
             del cleaned_data['problem_instance_id']
             return cleaned_data
 
-        kind = cleaned_data.get('kind', 'NORMAL')
+        kind = cleaned_data['kind']
         if check_submission_limit and \
             ccontroller.is_exceeded_submissions_limit(self.request, pi, kind):
             raise ValidationError(_("Submission limit for the problem '%s'"

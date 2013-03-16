@@ -1,0 +1,60 @@
+[
+  {
+    "pk": 1003,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_observer",
+      "first_name": "Test",
+      "last_name": "Observer",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_observer@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+    {
+        "pk": 1004,
+        "model": "auth.user",
+        "fields": {
+            "username": "test_contest_admin",
+            "first_name": "Test",
+            "last_name": "Contest admin",
+            "is_active": true,
+            "is_superuser": false,
+            "is_staff": false,
+            "last_login": "2012-07-31T20:27:58.768Z",
+            "groups": [],
+            "user_permissions": [],
+            "password": "",
+            "email": "test_contest_admin@example.com",
+            "date_joined": "2012-07-31T20:27:58.768Z"
+        }
+    },
+  {
+    "pk": 1,
+    "model": "contests.contestpermission",
+    "fields": {
+      "permission": "contests.contest_admin",
+      "user": [
+        "test_contest_admin"
+      ],
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.contestpermission",
+    "fields": {
+      "permission": "contests.contest_observer",
+      "user": [
+        "test_observer"
+      ],
+      "contest": "c"
+    }
+  }
+]

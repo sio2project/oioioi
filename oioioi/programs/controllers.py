@@ -211,7 +211,8 @@ class ProgrammingContestController(ContestController):
         submission = ProgramSubmission(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,
-                kind=form_data.get('kind', 'NORMAL'),
+                kind=form_data.get('kind',
+                        self.get_default_submission_kind(request)),
                 date=request.timestamp)
         file = form_data['file']
         submission.source_file.save(file.name, file)

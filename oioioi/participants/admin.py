@@ -22,6 +22,15 @@ class ParticipantAdmin(admin.ModelAdmin):
     actions = ['make_active', 'make_banned', 'delete_selected', 'extend_round']
     form = ParticipantForm
 
+    def has_add_permission(self, request):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
     def user_login(self, instance):
         if not instance.user:
             return ''

@@ -1,6 +1,7 @@
 from datetime import datetime
+from functools import partial
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
 from django.template import Template, RequestContext
 from django.http import HttpResponse
@@ -12,10 +13,12 @@ from django.contrib.auth.models import User, AnonymousUser
 
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        UserResultForContest, Submission, ContestAttachment, RoundTimeExtension
+    UserResultForContest, Submission, ContestAttachment, RoundTimeExtension, ContestPermission
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
+from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
+    can_enter_contest
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -238,7 +241,7 @@ class TestContestViews(TestCase):
 
 class TestManyRounds(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission',
-            'test_full_package', 'test_extra_rounds']
+            'test_full_package', 'test_extra_rounds', 'test_permissions']
 
     def assertAllIn(self, elems, container, msg=None):
         """Checks that ``container`` contains all ``elems``."""
@@ -254,7 +257,7 @@ class TestManyRounds(TestCase):
         contest = Contest.objects.get()
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
-            for user in ['test_admin']:
+            for user in ['test_admin', 'test_contest_admin']:
                 self.client.login(username=user)
                 response = self.client.get(url)
                 self.assertAllIn(['zad1', 'zad2', 'zad3', 'zad4'],
@@ -264,7 +267,7 @@ class TestManyRounds(TestCase):
                 self.assertEqual(len(response.context['problem_instances']), 4)
                 self.assertTrue(response.context['show_rounds'])
 
-            for user in ['test_user']:
+            for user in ['test_user', 'test_observer']:
                 self.client.login(username=user)
                 response = self.client.get(url)
                 self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
@@ -652,3 +655,87 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         self.assertEqual(RoundTimeExtension.objects.count(), 1)
         rext = RoundTimeExtension.objects.get()
         self.assertEqual(rext.extra_time, 27182818)
+
+
+class TestPermissions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_submissions',
+            'test_permissions']
+
+    def get_fake_request_factory(self, contest=None):
+        factory = RequestFactory()
+
+        def with_timestamp(user, timestamp):
+            request = factory.request()
+            request.contest = contest
+            request.user = user
+            request.timestamp = timestamp
+            return request
+
+        return with_timestamp
+
+    def setUp(self):
+        self.contest = Contest.objects.get()
+        self.contest.controller_name = \
+            'oioioi.contests.tests.PrivateContestController'
+        self.contest.save()
+        self.ccontr = self.contest.controller
+        self.round = Round.objects.get()
+        self.round.start_date = datetime(2012, 7, 31, tzinfo=utc)
+        self.round.end_date = datetime(2012, 8, 5, tzinfo=utc)
+        self.round.save()
+
+        self.during = datetime(2012, 8, 1, tzinfo=utc)
+
+        self.observer = User.objects.get(username='test_observer')
+        self.cadmin = User.objects.get(username='test_contest_admin')
+        self.factory = self.get_fake_request_factory(self.contest)
+
+    def test_utils(self):
+        ofactory = partial(self.factory, self.observer)
+        cfactory = partial(self.factory, self.cadmin)
+        ufactory = partial(self.factory, User.objects.get(username='test_user'))
+        self.assertFalse(can_enter_contest(ufactory(self.during)))
+        self.assertTrue(is_contest_admin(cfactory(self.during)))
+        self.assertTrue(can_enter_contest(cfactory(self.during)))
+        self.assertTrue(is_contest_observer(ofactory(self.during)))
+        self.assertTrue(can_enter_contest(ofactory(self.during)))
+
+    def test_privilege_manipulation(self):
+        self.assertTrue(self.observer.has_perm('contests.contest_observer',
+            self.contest))
+        self.assertFalse(self.observer.has_perm('contests.contest_admin',
+            self.contest))
+
+        self.assertFalse(self.cadmin.has_perm('contests.contest_observer',
+            self.contest))
+        self.assertTrue(self.cadmin.has_perm('contests.contest_admin',
+            self.contest))
+
+        test_user = User.objects.get(username='test_user')
+
+        self.assertFalse(test_user.has_perm('contests.contest_observer',
+            self.contest))
+        self.assertFalse(test_user.has_perm('contests.contest_admin',
+            self.contest))
+
+        ContestPermission(user=test_user, contest=self.contest,
+            permission='contests.contest_observer').save()
+        self.assertTrue(test_user.has_perm('contests.contest_observer',
+            self.contest))
+        ContestPermission(user=test_user, contest=self.contest,
+            permission='contests.contest_admin').save()
+        self.assertTrue(test_user.has_perm('contests.contest_observer',
+            self.contest))
+
+    def test_menu(self):
+        self.client.login(username='test_contest_admin')
+        response = self.client.get(reverse('default_contest_view',
+            kwargs={'contest_id': self.contest.id}), follow=True)
+        self.assertNotIn('System Administration', response.content)
+        self.assertIn('Contest Administration', response.content)
+        self.assertNotIn('Observer Menu', response.content)
+
+        self.client.login(username='test_observer')
+        response = self.client.get(reverse('problems_list',
+            kwargs={'contest_id': self.contest.id}), follow=True)
+        self.assertIn('Observer Menu', response.content)

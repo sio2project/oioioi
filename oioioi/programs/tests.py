@@ -178,6 +178,40 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
 
+class TestSubmittingAsObserver(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_permissions']
+
+    def test_ignored_submission(self):
+        self.client.login(username='test_observer')
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('IGNORED', response.content)
+
+        data = {
+            'problem_instance_id': pi.id,
+            'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.count(), 1)
+        submission = Submission.objects.get(pk=1)
+        self.assertEqual(submission.user.username, 'test_observer')
+        self.assertEqual(submission.kind, 'IGNORED')
+
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Test Observer', response.content)
+
+        url = reverse('my_submissions', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('(Ignored)', response.content)
+
 class TestScorers(TestCase):
     t_results_ok = (
         ({'exec_time_limit': 100, 'max_score': 100},

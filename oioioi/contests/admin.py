@@ -375,6 +375,15 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     list_filter = [RoundListFilter]
     search_fields = ['user__username', 'user__last_name']
 
+    def has_add_permission(self, request):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
     def user_login(self, instance):
         if not instance.user:
             return ''
@@ -439,6 +448,7 @@ class ContestPermissionAdmin(admin.ModelAdmin):
             qs = Contest.objects
             if request.contest:
                 qs = qs.filter(id=request.contest.id)
+                kwargs['initial'] = request.contest
             kwargs['queryset'] = qs
         return super(ContestPermissionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)

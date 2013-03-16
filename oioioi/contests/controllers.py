@@ -237,6 +237,18 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         else:
             return True
 
+    def get_default_submission_kind(self, request):
+        """Returns default kind of newly created submission by the current used.
+
+           The default implementation returns ``'IGNORED'`` for non-contestants.
+           In other cases it returns ``'NORMAL'``.
+        """
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            return 'IGNORED'
+        if request.user.has_perm('contests.contest_observer', request.contest):
+            return 'IGNORED'
+        return 'NORMAL'
+
     def get_submissions_limit(self, request, problem_instance):
         if is_contest_admin(request):
             return None

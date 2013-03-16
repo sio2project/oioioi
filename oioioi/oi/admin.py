@@ -17,6 +17,15 @@ class RegionAdmin(admin.ModelAdmin):
     fields = ['short_name', 'name']
     form = RegionForm
 
+    def has_add_permission(self, request):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
     def queryset(self, request):
         qs = super(RegionAdmin, self).queryset(request)
         qs = qs.filter(contest=request.contest)
@@ -105,6 +114,12 @@ class OIOnsiteRegistrationInline(admin.TabularInline):
     model = OIOnsiteRegistration
     fk_name = 'participant'
     can_delete = False
+
+    def has_add_permission(self, request):
+        return request.user.has_perm('contests.contest_admin', request.contest)
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.has_perm('contests.contest_admin', request.contest)
 
 class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display \
