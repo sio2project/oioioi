@@ -7,6 +7,14 @@
 <h2>{{ title }}</h2>
 <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
     {% csrf_token %}
+    {% if is_reply %}
+        <div class="control-group">
+            <label for="id_enquirer" class="control-label">{% trans "Enquirer" %}</label>
+            <div class="controls">
+                <label id="id_enquirer">{{ question.author.username }}{% if question.author.get_full_name %} ({{ question.author.get_full_name }}){% endif %}</label>
+            </div>
+        </div>
+    {% endif %}
     {% include "ingredients/form.html" %}
     {% if is_announcement %}
     <div class="control-group">

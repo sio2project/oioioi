@@ -134,4 +134,5 @@ def add_reply_view(request, contest_id, message_id):
             })
 
     return TemplateResponse(request, 'questions/add.html',
-            {'form': form, 'title': _("Reply"), 'is_reply': True})
+            {'form': form, 'title': _("Reply"), 'is_reply': True,
+             'question': question})
