@@ -1,21 +1,21 @@
+import itertools
+
 from django.conf import settings
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required
+
+from oioioi.base.menu import menu_registry
+from oioioi.base.permissions import not_anonymous, enforce_condition
 from oioioi.contests.models import Submission
-from oioioi.base.permissions import enforce_condition
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.utils import can_enter_contest, has_any_submittable_problem, \
         has_any_visible_problem_instance
+from oioioi.dashboard.menu import top_links_registry
 from oioioi.rankings.views import any_ranking_visible
-from oioioi.base.menu import MenuRegistry, menu_registry
-from oioioi.base.permissions import not_anonymous
 from oioioi.questions.views import messages_template_context, \
         visible_messages
-import itertools
-
-top_links_registry = MenuRegistry()
 
 top_links_registry.register('problems_list', _("Problems"),
         lambda request: reverse('problems_list', kwargs={'contest_id':

@@ -1,10 +1,10 @@
-from django.contrib.admin.util import unquote
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
 from oioioi.participants.models import Participant
 from oioioi.contests.models import RoundTimeExtension
@@ -124,7 +124,6 @@ class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
         return participant_admin
 
 admin.site.register(Participant, ContestDependentParticipantAdmin)
-admin.contest_admin_menu_registry.register('participants',
-    _("Participants"),
+contest_admin_menu_registry.register('participants', _("Participants"),
     lambda request: reverse('oioioiadmin:participants_participant_changelist'),
     condition=has_participants, order=30)

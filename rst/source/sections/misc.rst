@@ -33,7 +33,8 @@ Menu
 
 .. currentmodule:: oioioi.base.menu
 
-In OIOIOI we show a menu on the left. Menu items are stored in
+In OIOIOI we have several menus, some of them are shown on the left.
+Menu items are stored in registries like
 :data:`oioioi.base.menu.menu_registry`, which is an instance of
 :class:`oioioi.base.menu.MenuRegistry`. To add a new menu item,
 use :meth:`~oioioi.base.menu.MenuRegistry.register`, preferably in
@@ -56,6 +57,17 @@ use :meth:`~oioioi.base.menu.MenuRegistry.register`, preferably in
 .. autodata:: menu_registry
 
 .. autodata:: account_menu_registry
+
+Feel free to create new menu registries. If you want it to be visible on the
+left pane, register it in :data:`oioioi.base.menu.side_pane_menus_registry`, for
+example::
+
+    from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
+    new_menu_registry = MenuRegistry(_("Some Menu"),
+        lambda request: request.user.is_authenticated())
+    side_pane_menus_registry.register(new_menu_registry, order=500)
+
+.. autodata:: side_pane_menus_registry
 
 For rendering the menu inside a template, a special ``{% generate_menu %}`` tag is used.
 

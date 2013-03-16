@@ -7,14 +7,19 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from oioioi.contests.controllers import RegistrationController
 from oioioi.participants.models import Participant, RegistrationModel
-from oioioi.participants.admin import ParticipantAdmin
 import urllib
 
 class ParticipantsController(RegistrationController):
     registration_template = 'participants/registration.html'
 
-    form_class = None
-    participant_admin = ParticipantAdmin
+    @property
+    def form_class(self):
+        return None
+
+    @property
+    def participant_admin(self):
+        from oioioi.participants.admin import ParticipantAdmin
+        return ParticipantAdmin
 
     def anonymous_can_enter_contest(self):
         return False
@@ -31,7 +36,7 @@ class ParticipantsController(RegistrationController):
             return True
         if participant.status == 'BANNED':
             return False
-        return bool(request.user == participant.user);
+        return bool(request.user == participant.user)
 
     def no_entry_view(self, request):
         if self.can_register(request):

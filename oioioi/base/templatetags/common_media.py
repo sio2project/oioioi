@@ -1,10 +1,6 @@
 from django.conf import settings
 from django import template
 from django.contrib.staticfiles import finders
-from oioioi.base import menu
-from oioioi.base.utils import get_object_by_dotted_name, memoized
-from oioioi.base.menu import MenuRegistry, menu_registry
-from functools import partial
 
 def find_common_media():
     for finder in finders.get_finders():

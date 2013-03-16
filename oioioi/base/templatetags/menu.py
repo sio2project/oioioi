@@ -1,6 +1,5 @@
 from django import template
-from django.template import defaulttags, Node, Variable
-from oioioi.base import menu
+from django.template import Node, TemplateSyntaxError
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.base.menu import MenuRegistry, menu_registry
 
@@ -8,7 +7,7 @@ register = template.Library()
 
 class GenerateMenuNode(Node):
     def __init__(self, registry):
-        self.registry = Variable(registry)
+        self.registry = registry
 
     def render(self, context):
         request = context['request']
@@ -66,6 +65,7 @@ def generate_menu(parser, token):
         raise TemplateSyntaxError("Unexpected arguments to {%% %s %%}" %
                 (bits[0],))
     if len(bits) == 2:
-        return GenerateMenuNode(bits[1])
+        target = parser.compile_filter(bits[1])
+        return GenerateMenuNode(target)
     else:
         return GenerateMenuNode('""')

@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
@@ -34,8 +35,8 @@ class RegionAdmin(admin.ModelAdmin):
         return form_wrapper
 
 admin.site.register(Region, RegionAdmin)
-admin.contest_admin_menu_registry.register('regions',
-    _("Regions"), lambda request: reverse('oioioiadmin:oi_region_changelist'),
+contest_admin_menu_registry.register('regions', _("Regions"),
+    lambda request: reverse('oioioiadmin:oi_region_changelist'),
     condition=is_onsite_contest, order=21)
 
 class SchoolAdmin(admin.ModelAdmin):

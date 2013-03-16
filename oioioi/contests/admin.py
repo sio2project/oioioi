@@ -1,3 +1,6 @@
+from functools import partial
+import urllib
+
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.util import unquote
 from django.contrib.auth.models import User
@@ -8,15 +11,13 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
+
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
+from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension
-from oioioi.contests.forms import SimpleContestForm, ProblemInstanceForm
-from oioioi.participants.models import Participant
-from oioioi.participants.controllers import ParticipantsController
-from functools import partial
-import urllib
 
 class RoundInline(admin.StackedInline):
     model = Round
@@ -120,8 +121,7 @@ class BaseContestAdmin(admin.MixinsAdmin):
 
 admin.site.register(Contest, BaseContestAdmin)
 
-admin.contest_admin_menu_registry.register('contest_change',
-        _("Settings"),
+contest_admin_menu_registry.register('contest_change', _("Settings"),
         lambda request: reverse('oioioiadmin:contests_contest_change',
             args=(request.contest.id,)), order=20)
 
@@ -209,7 +209,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
 admin.site.register(ProblemInstance, ProblemInstanceAdmin)
 
-admin.contest_admin_menu_registry.register('problems_change',
+contest_admin_menu_registry.register('problems_change',
         _("Problems"), lambda request:
         reverse('oioioiadmin:contests_probleminstance_changelist'),
         order=30)
@@ -343,9 +343,8 @@ class SubmissionAdmin(admin.ModelAdmin):
 
 admin.site.register(Submission, SubmissionAdmin)
 
-admin.contest_admin_menu_registry.register('submissions_admin',
-        _("Submissions"), lambda request:
-        reverse('oioioiadmin:contests_submission_changelist'),
+contest_admin_menu_registry.register('submissions_admin', _("Submissions"),
+        lambda request: reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
 
 class RoundListFilter(SimpleListFilter):
@@ -388,6 +387,9 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
         return qs.filter(round__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        from oioioi.participants.models import Participant
+        from oioioi.participants.controllers import ParticipantsController
+
         if db_field.name == 'round':
             kwargs['queryset'] = Round.objects.filter(contest=request.contest)
         elif db_field.name == 'user':
@@ -402,7 +404,7 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 
 admin.site.register(RoundTimeExtension, RoundTimeExtensionAdmin)
-admin.contest_admin_menu_registry.register('roundtimeextension_admin',
+contest_admin_menu_registry.register('roundtimeextension_admin',
         _("Round extensions"), lambda request:
         reverse('oioioiadmin:contests_roundtimeextension_changelist'),
         order=50)

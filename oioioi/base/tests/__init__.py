@@ -1,3 +1,12 @@
+import random
+import sys
+import os.path
+import re
+import tempfile
+import shutil
+from contextlib import contextmanager
+import threading
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core import mail
@@ -8,8 +17,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import RequestFactory
-from django.contrib.auth.models import User, AnonymousUser
-from django import forms
+from django.contrib.auth.models import User
 from django.template import Context, Template, RequestContext
 from django.template.loader import render_to_string
 from django.forms import ValidationError
@@ -18,17 +26,10 @@ from oioioi.base import utils
 from oioioi.base.utils import RegisteredSubclassesBase, archive
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.menu import menu_registry
+from oioioi.base.menu import menu_registry, OrderedRegistry, \
+    side_pane_menus_registry, MenuRegistry
 from oioioi.contests.utils import is_contest_admin
 
-import random
-import sys
-import os.path
-import re
-import tempfile
-import shutil
-from contextlib import contextmanager
-import threading
 
 if not getattr(settings, 'TESTS', False):
     print >>sys.stderr, 'The tests are not using the required test ' \
@@ -185,16 +186,29 @@ class TestIndexNoContest(TestCase):
         response = self.client.get('/')
         self.assertIn('navbar-login', response.content)
 
+
+class TestOrderedRegistry(TestCase):
+    def test_ordered_registry(self):
+        reg = OrderedRegistry()
+        reg.register(1, 12)
+        reg.register(3)
+        reg.register(2, 3)
+        reg.register(4)
+        self.assertListEqual([2, 1, 3, 4], list(reg))
+        reg.unregister(3)
+        self.assertListEqual([2, 1, 4], list(reg))
+        self.assertEqual(len(reg), 3)
+
 class TestMenu(TestCase):
     fixtures = ('test_users',)
 
     def setUp(self):
         self.factory = RequestFactory()
-        self.saved_menu = menu_registry.items
-        menu_registry.items = []
+        self.saved_menu = menu_registry._registry
+        menu_registry._registry = OrderedRegistry()
 
     def tearDown(self):
-        menu_registry.items = self.saved_menu
+        menu_registry._registry = self.saved_menu
 
     def _render_menu(self, user=None):
         request = self.factory.get('/')
@@ -234,6 +248,40 @@ class TestMenu(TestCase):
         response = self._render_menu()
         self.assertIn('name&lt;&gt;&#39;&quot;&amp;='
                 '"value&lt;&gt;&#39;&quot;&amp;"', response)
+
+    def test_side_menus_registry(self):
+        admin = User.objects.get(username='test_admin')
+        user = User.objects.get(username='test_user')
+        old_keys = side_pane_menus_registry.keys
+        old_items = side_pane_menus_registry.items
+        side_pane_menus_registry.keys = []
+        side_pane_menus_registry.items = []
+        try:
+            side_pane_menus_registry.register(menu_registry, order=200)
+            admin_menu_registry = MenuRegistry("Admin Menu",
+                lambda request: request.user.is_superuser)
+            side_pane_menus_registry.register(admin_menu_registry, order=100)
+
+            menu_registry.register('test', 'Test Menu Item',
+                lambda request: '/test_menu_link', order=2)
+            admin_menu_registry.register('test_admin', 'Test Admin Item',
+                lambda request: '/spam', order=100)
+
+            response = self._render_menu(user=user)
+            self.assertIn('/menu/menu-icon', response)
+            self.assertNotIn('User Menu', response)
+            self.assertNotIn('Admin Menu', response)
+
+            response = self._render_menu(user=admin)
+            self.assertNotIn('/menu/menu-icon', response)
+            self.assertIn('User Menu', response)
+            self.assertIn('Admin Menu', response)
+            self.assertLess(response.index('Test Admin Item'),
+                    response.index('Test Menu Item'))
+        finally:
+            side_pane_menus_registry.keys = old_keys
+            side_pane_menus_registry.items = old_items
+
 
 class TestUtils(unittest.TestCase):
     def test_classinit(self):
@@ -453,6 +501,7 @@ class TestRegistration(TestCase):
         })
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
+        del mail.outbox
         self.assertEqual(list(message.to), ['foo@bar.com'])
         url = re.search('^http://[^/]*(/.*)$', message.body, re.M).group(1)
 

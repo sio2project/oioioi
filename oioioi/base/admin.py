@@ -11,10 +11,8 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from djcelery.models import TaskState, WorkerState
-from djcelery.admin import TaskMonitor, WorkerMonitor
 from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
-from oioioi.base.menu import MenuRegistry
+from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
 import urllib
 
 TabularInline = admin.TabularInline
@@ -130,11 +128,9 @@ class AdminSite(DjangoAdminSite):
 
 site = AdminSite(name='oioioiadmin')
 
-contest_admin_menu_registry = MenuRegistry()
-system_admin_menu_registry = MenuRegistry()
-
-#contest_admin_menu_registry.register('dashboard', _("Dashboard"),
-#        lambda request: reverse('oioioiadmin:index'), order=10)
+system_admin_menu_registry = MenuRegistry(_("System Administration"),
+        lambda request: request.user.is_superuser)
+side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 class OioioiUserAdmin(UserAdmin):
     fieldsets = (

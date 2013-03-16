@@ -9,9 +9,9 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
-from django.utils.safestring import mark_safe
-from oioioi.base import admin
+
 from oioioi.base.menu import account_menu_registry
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Contest
 from oioioi.teachers.models import RegistrationConfig, Pupil, \
         ContestTeacher, Teacher
@@ -26,7 +26,7 @@ def is_teachers_contest(request):
 def is_not_teacher(request):
     return not request.user.has_perm('teachers.teacher')
 
-admin.contest_admin_menu_registry.register('teachers_pupils',
+contest_admin_menu_registry.register('teachers_pupils',
         _("Pupils"),
         lambda request: reverse(pupils_view, kwargs={'contest_id':
             request.contest.id}),

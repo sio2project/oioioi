@@ -1,25 +1,29 @@
 {% load menu check_perm i18n all_with_prefix %}
-{% check_perm 'contests.contest_admin' for contest as is_contest_admin %}
 {% all_with_prefix extra_menu_top_ %}
-{% if is_contest_admin or user.is_superuser %}
+{% if side_menus|length > 1 %}
 <ul class="nav nav-list admin-menu">
-    {% if user.is_superuser %}
-    {% include "ingredients/admin_menu_section.html" with registry='oioioi.base.admin.system_admin_menu_registry' header=_("System Administration") %}
-    {% endif %}
-
-    {% if is_contest_admin %}
-    {% include "ingredients/admin_menu_section.html" with registry='oioioi.base.admin.contest_admin_menu_registry' header=_("Contest Administration") %}
-    {% endif %}
-
-    {% include "ingredients/admin_menu_section.html" with registry=None header=_("User Menu")%}
+    {% for registry in side_menus %}
+        {% generate_menu registry %}
+            <li class="nav-header">{{ registry.text }}</li>
+            {% for item in menu %}
+                <li {% if item.url == request.path %}class="active"{% endif %}>
+                    <a href="{{ item.url }}" {{ item.attrs }}>
+                        {% if item.icon %}<i class="icon-{{ item.icon }}"></i>{% endif %}
+                        {{ item.text }}</a>
+                </li>
+            {% endfor %}
+    {%  endfor %}
 </ul>
 {% else %}
 <ul class="nav nav-list user-menu">
-    {% generate_menu %}
+    {% generate_menu side_menus|first %}
     {% for item in menu %}
-    <li id="{{ item.name }}" {% if item.url == request.path %}class="active"{% endif %}>
-    <a href="{{ item.url }}" {{ item.attrs }}><img src="{{ STATIC_URL }}images/menu/menu-icon-{% cycle '1' '2' '3' %}.png"/>{{ item.text }}</a>
-    </li>
+        <li id="{{ item.name }}" {% if item.url == request.path %}class="active"{% endif %}>
+        <a href="{{ item.url }}" {{ item.attrs }}>
+            <img src="{{ STATIC_URL }}images/menu/menu-icon-{% cycle '1' '2' '3' %}.png"/>
+            {{ item.text }}
+        </a>
+        </li>
     {% endfor %}
 </ul>
 {% endif %}

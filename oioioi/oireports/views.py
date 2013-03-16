@@ -15,8 +15,8 @@ from django.core.files.base import ContentFile, File
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
-from oioioi.base import admin
 from oioioi.base.permissions import enforce_condition
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.filetracker.utils import stream_file
 from oioioi.contests.models import ProblemInstance, Round, \
         UserResultForProblem
@@ -25,7 +25,7 @@ from oioioi.programs.models import CompilationReport, GroupReport, \
         TestReport, Test
 from oioioi.oi.models import Region
 
-admin.contest_admin_menu_registry.register('report', _("Printing reports"),
+contest_admin_menu_registry.register('report', _("Printing reports"),
         lambda request: reverse('report_options', kwargs={'contest_id':
             request.contest.id}),
         order=440)

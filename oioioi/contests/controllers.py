@@ -1,3 +1,8 @@
+from datetime import timedelta
+import json
+import logging
+import pprint
+
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
@@ -5,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
@@ -13,10 +19,6 @@ from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times
 from oioioi import evalmgr
 
-from datetime import timedelta
-import json
-import logging
-import pprint
 
 logger = logging.getLogger(__name__)
 

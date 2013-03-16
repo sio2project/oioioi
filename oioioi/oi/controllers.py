@@ -1,19 +1,22 @@
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
+
 from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.utils import has_any_active_round
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.utils import is_participant
-from oioioi.oi.models import OIRegistration, School
-from oioioi.oi.admin import OIRegistrationParticipantAdmin, \
-        OIOnsiteRegistrationParticipantAdmin
-from oioioi.oi.forms import OIRegistrationForm
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 
 class OIRegistrationController(ParticipantsController):
-    form_class = OIRegistrationForm
-    participant_admin = OIRegistrationParticipantAdmin
+    @property
+    def form_class(self):
+        from oioioi.oi.forms import OIRegistrationForm
+        return OIRegistrationForm
+
+    @property
+    def participant_admin(self):
+        from oioioi.oi.admin import OIRegistrationParticipantAdmin
+        return OIRegistrationParticipantAdmin
 
     def anonymous_can_enter_contest(self):
         return True
@@ -75,7 +78,10 @@ OIContestController.mix_in(SplitEvalContestControllerMixin)
 
 
 class OIOnsiteRegistrationController(ParticipantsController):
-    participant_admin = OIOnsiteRegistrationParticipantAdmin
+    @property
+    def participant_admin(self):
+        from oioioi.oi.admin import OIOnsiteRegistrationParticipantAdmin
+        return OIOnsiteRegistrationParticipantAdmin
 
     def can_register(self, request):
         return False
