@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
 from django.template.response import TemplateResponse
 
-from oioioi.programs.models import ProgramSubmission, Test
+from oioioi.programs.models import ProgramSubmission, Test, OutputChecker
 from oioioi.programs.utils import decode_str
 from oioioi.contests.utils import check_submission_access
 from oioioi.base.permissions import enforce_condition
@@ -75,3 +75,11 @@ def download_output_file_view(request, test_id):
     if not request.user.has_perm('problems.problem_admin', test.problem):
         raise PermissionDenied
     return stream_file(test.output_file)
+
+def download_checker_exe_view(request, checker_id):
+    checker = get_object_or_404(OutputChecker, id=checker_id)
+    if not request.user.has_perm('problems.problem_admin', checker.problem):
+        raise PermissionDenied
+    if not checker.exe_file:
+        raise Http404
+    return stream_file(checker.exe_file)

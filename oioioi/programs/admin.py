@@ -13,7 +13,7 @@ from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
 from oioioi.problems.admin import ProblemAdmin
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
-        GroupReport, ModelProgramSubmission
+        GroupReport, ModelProgramSubmission, OutputChecker
 from collections import defaultdict
 
 class TestInline(admin.TabularInline):
@@ -45,10 +45,29 @@ class TestInline(admin.TabularInline):
         return make_html_link(href, instance.output_file.name.split('/')[-1])
     output_file_link.short_description = _("Output/hint file")
 
+class OutputCheckerInline(admin.TabularInline):
+    model = OutputChecker
+    extra = 0
+    fields = ['checker_link']
+    readonly_fields = ['checker_link']
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return False
+
+    def checker_link(self, instance):
+        if not instance.exe_file:
+            return _("No checker for this task.")
+
+        href = reverse('oioioi.programs.views.download_checker_exe_view',
+            kwargs={'checker_id': str(instance.id)})
+        return make_html_link(href, instance.exe_file.name.split('/')[-1])
+    checker_link.short_description = _("Checker exe")
+
 class ProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestInline]
+        self.inlines = self.inlines + [TestInline, OutputCheckerInline]
 
 class ProgrammingProblemInstanceAdminMixin(object):
     def _is_partial_score(self, test_report):

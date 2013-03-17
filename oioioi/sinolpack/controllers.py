@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
+from oioioi.sinolpack.admin import SinolpackProblemAdminMixin
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from oioioi.programs.controllers import ProgrammingProblemController
 from oioioi.filetracker.utils import django_to_filetracker_path
@@ -29,3 +30,7 @@ class SinolProblemController(ProgrammingProblemController):
         environ['extra_files'] = dict(
                 (ef.name, django_to_filetracker_path(ef.file))
                 for ef in extra_files)
+
+    def mixins_for_admin(self):
+        return super(SinolProblemController, self).mixins_for_admin() + \
+               (SinolpackProblemAdminMixin,)

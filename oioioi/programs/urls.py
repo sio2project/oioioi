@@ -13,4 +13,6 @@ urlpatterns = patterns('oioioi.programs.views',
         name='download_input_file'),
     url(r'^tests/(?P<test_id>\d+)/out$', 'download_output_file_view',
         name='download_output_file'),
+    url(r'^checker/(?P<checker_id>\d+)$', 'download_checker_exe_view',
+        name='download_checker_file'),
 )
