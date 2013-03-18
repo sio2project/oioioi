@@ -12,7 +12,7 @@ td.subm_margin {
     width: 7px;
     padding: 0;
 
-    &.subm_WA, &.subm_RE, &.subm_RV, &.subm_INI_WR {
+    &.subm_WA, &.subm_RE, &.subm_RV, &.subm_INI_ERR {
         #gradient > .horizontal(@submRed, @submRedGradientTo);
     }
 
@@ -26,7 +26,7 @@ td.subm_margin {
 }
 
 .subm_status {
-    &.subm_WA, &.subm_RE, &.subm_RV, &.subm_INI_WR {
+    &.subm_WA, &.subm_RE, &.subm_RV, &.subm_INI_ERR {
         background: lighten(@submRed, 5%);
     }
 
