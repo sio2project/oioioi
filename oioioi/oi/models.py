@@ -94,7 +94,7 @@ class OIRegistration(RegistrationModel):
     terms_accepted = models.BooleanField(_("terms accepted"))
 
 class OIOnsiteRegistration(RegistrationModel):
-    number = models.IntegerField(unique=True)
+    number = models.IntegerField()
     region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL)
     local_number = models.IntegerField()
 

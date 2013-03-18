@@ -68,7 +68,8 @@ class Command(BaseCommand):
 
                 try:
                     user = User.objects.get(username=row[1])
-                    region = Region.objects.get(short_name=row[2])
+                    region = Region.objects.get(short_name=row[2],
+                                                contest=contest)
 
                     participant, created = Participant.objects \
                             .get_or_create(contest=contest, user=user)
