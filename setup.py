@@ -60,6 +60,7 @@ setup(
         "fpdf",
         "pdfminer",
         "slate",
+        "unicodecsv",
 
         "chardet"
     ],
