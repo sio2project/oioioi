@@ -1,0 +1,64 @@
+{% load i18n %}
+{% load runtimeformat %}
+{% load latex_escape %}
+
+{% if rows %}
+{% include 'oireports/pdfreport_head.tex' %}
+    \begin{document}
+    {% for row in rows %}
+        \userno{ {{ row.user.id|latex_escape }} }
+        \raportno{ {% for set in row.resultsets %}{{ set.compilation_report.id }}{% if not forloop.last %} / {% endif %}{% endfor %} }
+        \user{ {{ row.user.get_full_name|latex_escape }}\ ({{ row.user.username|latex_escape }}) }
+        \contest{ {{ title|latex_escape }} }
+        \date{\q{{ request.timestamp }}\q}
+        \result{ {{row.sum}} }
+        \begin{rpt}
+        {% for set in row.resultsets %}
+        {% if set.compilation_report.status == 'OK' %}
+            \begin{task}
+                \taskid{ {{ set.result.problem_instance.short_name|latex_escape }} }
+                \taskname{ {{ set.result.problem_instance.problem.name|latex_escape }} }
+                \taskpoints{ {{ set.score|default_if_none:'' }} }{ {{ set.max_score }}\q}
+                {% if set.result.submission_report.submission.comment %}\taskcomment{ {{ set.result.submission_report.submission.comment|latex_escape }} }{% endif %}%
+                \tasksummary
+
+                \begin{tests}
+                {% for group in set.groups %}
+                {% for test in group.tests %}
+                {% if forloop.first %}
+                    \test
+                        { {{ test.test_name|latex_escape }} }
+                        { {{ test.get_status_display }} }
+                        { {{ test.time_used|runtimeformat }} }
+                        { {{ test.test_time_limit|runtimeformat }} }
+                        {% if group.report.score %} { {{ group.report.score }} }{ {{ group.max_score }} } {% else %} {}{} {% endif %}
+                        { {% if test.comment %} {{ test.comment|latex_escape }} {% endif %} }
+                {% else %}
+                    \testg
+                        { {{ test.test_name|latex_escape }} }
+                        { {{ test.get_status_display }} }
+                        { {{ test.time_used|runtimeformat }} }
+                        { {{ test.test_time_limit|runtimeformat }} }
+                        { {% if test.comment %} {{ test.comment|latex_escape }} {% endif %} }
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+                \end{tests}
+            \end{task}
+        {% endif %}
+        {% endfor %}
+        \end{rpt} %
+    {% endfor %}
+    \end{document}
+{% else %}
+\documentclass[a4paper,twoside]{article}
+\usepackage[polish]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{pslatex}
+\usepackage{longtable}
+\begin{document}
+    {% blocktrans %}Strange, there is no one in this report{% endblocktrans %}\ldots
+\end{document}
+{% endif %}

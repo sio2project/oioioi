@@ -1,0 +1,111 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Report" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Report" %}</h2>
+<div class="btn-toolbar">
+    <div class="btn-group">
+        <button class="btn dropdown-toggle" data-toggle="dropdown">
+            {% trans "Ranking type" %}
+            <span id="report_type_display">&ndash; PDF</span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a href="#" onclick="
+                    $('#report_form').attr('action', '{% url pdfreport contest_id=contest.id %}');
+                    $('#report_type_display').text('&ndash; PDF');
+                ">PDF</a>
+            </li>
+            <li>
+                <a href="#" onclick="
+                    $('#report_form').attr('action', '{% url xmlreport contest_id=contest.id %}');
+                    $('#report_type_display').text('&ndash; XML');
+                ">XML</a>
+            </li>
+        </ul>
+    </div>
+    {% if rounds|length > 1 %}
+    <div class="btn-group">
+        <button class="btn dropdown-toggle" data-toggle="dropdown">
+            {% trans "Rounds" %}
+            <span id="report_round_key_display">&ndash; {% for round in rounds %}{% if forloop.first %}{{ round.1 }}{% endif %}{% endfor %}</span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            {% for round in rounds %}
+            <li>
+                <a href="#" onclick="
+                    $('#report_round_key').val('{{ round.0 }}');
+                    $('#report_round_key_display').text('&ndash; {{ round.1 }}');
+                    {% if forloop.first %}
+                        $('.report_round_boxes').show();
+                    {% else %}
+                        $('.report_round_boxes').hide();
+                        $('#report_round_boxes_{{ round.0 }}').show();
+                    {% endif %}
+                ">
+                    {{ round.1 }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    {% if regions|length > 1 %}
+    <div class="btn-group">
+        <button class="btn dropdown-toggle" data-toggle="dropdown">
+            {% trans "Regions" %}
+            <span id="report_region_key_display">&ndash; {% for region in regions %}{% if forloop.first %}{{ region.1 }}{% endif %}{% endfor %}</span>
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            {% for region in regions %}
+            <li>
+                <a href="#" onclick="
+                    $('#report_region_key').val('{{ region.0 }}');
+                    $('#report_region_key_display').text('&ndash; {{ region.1 }}');
+                ">
+                    {{ region.1 }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+<div>
+    <form id="report_form"
+            action="{% url pdfreport contest_id=contest.id %}"
+            method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="round_key"
+            id="report_round_key" value="{{ CONTEST_REPORT_KEY }}" />
+        <input type="hidden" name="region_key"
+            id="report_region_key" value="{{ CONTEST_REPORT_KEY }}" />
+        {% for round in testgroups %}
+            <div class="report_round_boxes"
+                id="report_round_boxes_{{ round.id }}">
+            {% for task in round.tasks %}
+                <div class="well well-small">
+                    <h4>{{ task.name }}</h4>
+                    {% for testgroup in task.testgroups %}
+                        <label class="checkbox">
+                        <input type="checkbox"
+                            name="testgroup[{{ task.short_name }}][{{ testgroup }}]"
+                            value="yes" />{{ testgroup }}
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            </div>
+        {% endfor %}
+        <input type="submit" class="btn btn-primary"
+        value="{% trans "Generate report" %}" />
+    </form>
+</div>
+
+{% endblock %}

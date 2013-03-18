@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
-        UserResultForProblem, FailureReport
+        UserResultForProblem, FailureReport, SubmissionReport
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times
 from oioioi import evalmgr
@@ -377,11 +377,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 .filter(score__isnull=False) \
                 .filter(kind='NORMAL') \
                 .latest()
+            try:
+                report = SubmissionReport.objects.get(
+                        submission=latest_submission, status='ACTIVE',
+                        kind='NORMAL')
+            except SubmissionReport.DoesNotExist:
+                report = None
             result.score = latest_submission.score
             result.status = latest_submission.status
+            result.submission_report = report
         except Submission.DoesNotExist:
             result.score = None
             result.status = None
+            result.submission_report = None
         result.save()
 
     def _sum_scores(self, scores):

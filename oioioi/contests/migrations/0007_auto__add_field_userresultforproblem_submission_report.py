@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Round.is_trial'
-        db.add_column('contests_round', 'is_trial',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
+        # Adding field 'UserResultForProblem.submission_report'
+        db.add_column('contests_userresultforproblem', 'submission_report',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.SubmissionReport'], null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Round.is_trial'
-        db.delete_column('contests_round', 'is_trial')
+        # Deleting field 'UserResultForProblem.submission_report'
+        db.delete_column('contests_userresultforproblem', 'submission_report_id')
 
 
     models = {
@@ -131,7 +131,7 @@ class Migration(SchemaMigration):
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
         },
         'contests.submissionreport': {
-            'Meta': {'unique_together': "(('submission', 'creation_date'),)", 'object_name': 'SubmissionReport'},
+            'Meta': {'ordering': "('-creation_date',)", 'unique_together': "(('submission', 'creation_date'),)", 'object_name': 'SubmissionReport'},
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'kind': ('oioioi.base.fields.EnumField', [], {'default': "'FINAL'", 'max_length': '64'}),
@@ -151,6 +151,7 @@ class Migration(SchemaMigration):
             'problem_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.ProblemInstance']"}),
             'score': ('oioioi.contests.fields.ScoreField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'status': ('oioioi.base.fields.EnumField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'submission_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.SubmissionReport']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'contests.userresultforround': {

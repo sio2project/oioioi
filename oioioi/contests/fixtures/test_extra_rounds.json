@@ -121,7 +121,8 @@
       "status": "OK",
       "problem_instance": 2,
       "score": "int:34",
-      "user": 1001
+      "user": 1001,
+      "submission_report": 4
     }
   },
   {
@@ -200,7 +201,8 @@
       "status": "OK",
       "problem_instance": 3,
       "score": "int:34",
-      "user": 1001
+      "user": 1001,
+      "submission_report": 6
     }
   },
   {
@@ -279,7 +281,8 @@
       "status": "OK",
       "problem_instance": 4,
       "score": "int:34",
-      "user": 1001
+      "user": 1001,
+      "submission_report": 8
     }
   },
   {

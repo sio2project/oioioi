@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+{% load i18n %}
+{% load runtimeformat %}
+{% load xmlreport_result %}
+<siorpt>
+
+{% if rows %}
+    {% for row in rows %}
+    <rpt>
+        <userno>{{ row.user.id }}</userno>
+        <raportno>{% for set in row.resultsets %}{{ set.compilation_report.id }}{% if not forloop.last %} / {% endif %}{% endfor %}</raportno>
+        <user>{{ row.user.get_full_name }} ({{ row.user.username }})</user>
+        <contest>{{ title }}</contest>
+        <date>{{ request.timestamp }}</date>
+        <result>{{row.sum}}</result>
+
+        {% for set in row.resultsets %}
+        {% if set.compilation_report.status == 'OK' %}
+        <task>
+            <taskid>{{ set.result.problem_instance.short_name }}</taskid>
+            <taskname>{{ set.result.problem_instance.problem.name }}</taskname>
+            <taskcomment>{% if set.result.submission_report.submission.can_see_comment and set.result.submission_report.submission.comment %}{{ set.result.submission_report.submission.comment }}{% endif %}</taskcomment>
+            <taskpoints>{{ set.max_score }}</taskpoints>
+            <taskresult>{{ set.score|default_if_none:'' }}</taskresult>
+            <code>{{ set.code|urlencode:"" }}</code>
+            <codefile>{{ set.codefile }}</codefile>
+
+            {% for group in set.groups %}
+            {% for test in group.tests %}
+                <test{% if forloop.first %} newgroup="1"{% endif %}>
+                <testname>{{ test.test_name }}</testname>
+                <testresult>{{ test.status|xmlreport_result }}</testresult>
+                <testtime>{{ test.time_used|runtimeformat }}</testtime>
+                <testtimelimit>{{ test.test_time_limit|runtimeformat }}</testtimelimit>
+                <testpoints>{% if group.report.score %}{{ group.report.score }}{% endif %}</testpoints>
+                <testmaxpoints>{{ group.max_score }}</testmaxpoints>
+                <testcomment>{% if test.comment %}{{ test.comment }}{% endif %}</testcomment>
+                </test>
+            {% endfor %}
+            {% endfor %}
+        </task>
+        {% endif %}
+        {% endfor %}
+    </rpt>
+    {% endfor %}
+{% else %}
+{% blocktrans %}Strange, there is no one in this report{% endblocktrans %}
+{% endif %}
+
+</siorpt>
