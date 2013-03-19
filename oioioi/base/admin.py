@@ -144,9 +144,10 @@ class OioioiUserAdmin(UserAdmin):
                                        'groups')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
-
+    list_filter = ['is_superuser', 'is_active']
     list_display = ['username', 'email', 'first_name', 'last_name',
             'is_active']
+    filter_horizontal = ()
 
 site.register(User, OioioiUserAdmin)
 
