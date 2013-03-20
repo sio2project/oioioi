@@ -9,6 +9,9 @@
 {% endblock %}
 
 {% block content %}
+    {% if decode_error %}
+        {% include "programs/file_decoding_error.html" %}
+    {% endif %}
     {% if is_source_safe %}
         {{ source|safe }}
     {% else %}

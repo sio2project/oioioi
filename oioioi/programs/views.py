@@ -1,9 +1,11 @@
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse, Http404
 from django.template.response import TemplateResponse
 
 from oioioi.programs.models import ProgramSubmission, Test
+from oioioi.programs.utils import decode_str
 from oioioi.contests.utils import check_submission_access
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
@@ -25,7 +27,8 @@ def show_submission_source_view(request, contest_id, submission_id):
     if contest_id != submission.problem_instance.contest_id:
         raise Http404
     check_submission_access(request, submission)
-    raw_source = submission.source_file.read().decode('utf-8', 'replace')
+    raw_source = submission.source_file.read()
+    raw_source, decode_error = decode_str(raw_source)
     filename = submission.source_file.file.name
     is_source_safe = False
     try:
@@ -42,10 +45,15 @@ def show_submission_source_view(request, contest_id, submission_id):
     except ClassNotFound:
         formatted_source = raw_source
         formatted_source_css = ''
+    download_url = reverse('download_submission_source',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission_id})
     return TemplateResponse(request, 'programs/source.html', {
         'source': formatted_source,
         'css': formatted_source_css,
-        'is_source_safe': is_source_safe
+        'is_source_safe': is_source_safe,
+        'download_url': download_url,
+        'decode_error': decode_error
     })
 
 @enforce_condition(can_enter_contest)

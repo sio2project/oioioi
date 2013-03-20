@@ -1,5 +1,10 @@
 {% load i18n %}
+
 <h4>{{ header }}</h4>
+
+{% if decode_error %}
+    {% include "programs/file_decoding_error.html" %}
+{% endif %}
 <pre class="hscroll">
 {{ data }}
 </pre>
@@ -9,6 +14,10 @@
         One byte truncated.
     {% plural %}
         Bytes truncated: {{ left }}.
+    {% endblocktrans %}
+    {% blocktrans %}
+        You can download the entire file
+        <a href="{{ download_url }}">here</a>.
     {% endblocktrans %}</small>
 </div>
 {% endif %}
