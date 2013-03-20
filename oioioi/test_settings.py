@@ -19,6 +19,7 @@ INSTALLED_APPS = (
     'oioioi.testrun',
     'oioioi.scoresreveal',
     'oioioi.oireports',
+    'oioioi.oisubmit',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (
@@ -33,6 +34,7 @@ MIDDLEWARE_CLASSES += (
 TESTS = True
 
 SECRET_KEY = 'no_secret'
+OISUBMIT_MAGICKEY = 'abcdef'
 COMPRESS_ENABLED = False
 COMPRESS_PRECOMPILERS = ()
 CELERY_ALWAYS_EAGER = True
