@@ -1,7 +1,7 @@
 {% load i18n %}
 
 {% if is_oisubmit %}
- {% if is_suspected %}
+ {% if received_suspected %}
   <span class="subm_admin subm_suspected" data-toggle="tooltip" data-placement="top" title="{{ comments }}"> {% trans "Yes" %}
    <script>
     $('.subm_suspected').tooltip()

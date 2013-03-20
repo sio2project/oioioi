@@ -23,6 +23,7 @@ def oisubmit_view(request, contest_id):
     if request.method == 'POST':
         form = OISubmitSubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
+            # Dates are interpreted as local timezone.
             if form.cleaned_data.get('siotime', None) is not None:
                 submission_date = form.cleaned_data['siotime']
             elif form.cleaned_data.get('localtime', None) is not None:
@@ -59,6 +60,10 @@ def oisubmit_view(request, contest_id):
 
             err_msg = ','.join(errors)
 
+            received_suspected = bool(errors)
+            if(received_suspected):
+                form.cleaned_data['kind'] = 'SUSPECTED'
+
             submission = request.contest.controller.create_submission(request,
                     pi, form.cleaned_data, judge_after_create = not(errors))
 
@@ -66,7 +71,7 @@ def oisubmit_view(request, contest_id):
                                 localtime = form.cleaned_data['localtime'],
                                 siotime = form.cleaned_data['siotime'],
                                 servertime = servertime,
-                                is_suspected = bool(errors),
+                                received_suspected = received_suspected,
                                 comments = err_msg)
             extra_data.save()
 
