@@ -136,3 +136,24 @@ admin.site.register(Participant, ContestDependentParticipantAdmin)
 contest_admin_menu_registry.register('participants', _("Participants"),
     lambda request: reverse('oioioiadmin:participants_participant_changelist'),
     condition=has_participants, order=30)
+
+class ParticipantInline(admin.TabularInline):
+    model = Participant
+    extra = 0
+    readonly_fields = ('contest', 'status')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # Protected by parent ModelAdmin
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class UserWithParticipantsAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [ParticipantInline]
+admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)

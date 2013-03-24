@@ -132,7 +132,12 @@ system_admin_menu_registry = MenuRegistry(_("System Administration"),
         lambda request: request.user.is_superuser)
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
-class OioioiUserAdmin(UserAdmin):
+class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
+    __metaclass__ = ModelAdminMeta
+
+    # This is handled by AdminSite._reinit_model_admins
+    allow_too_late_mixins = True
+
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),

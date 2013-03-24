@@ -18,6 +18,13 @@ Remembering the current contest
 .. autofunction:: oioioi.contests.processors.register_current_contest
 
 
+Exclusive contests
+------------------
+
+.. autoclass:: oioioi.contestexcl.middleware.ExclusiveContestsMiddleware
+
+.. autoclass:: oioioi.participants.ExclusiveContestsWithParticipantsMiddlewareMixin
+
 Checking for instance-level permissions in templates
 ----------------------------------------------------
 

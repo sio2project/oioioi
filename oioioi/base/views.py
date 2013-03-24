@@ -4,11 +4,13 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
+from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout as auth_logout, login as auth_login
+from oioioi.base.utils import safe_redirect
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
 from oioioi.base.menu import account_menu_registry
@@ -72,8 +74,9 @@ def edit_profile_view(request):
 def logout_view(request):
     return auth_logout(request, template_name='registration/logout.html')
 
-def login_view(request, **kwargs):
+def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
     if request.user.is_authenticated():
-        return redirect(request.GET.get(REDIRECT_FIELD_NAME, index_view))
+        redirect_to = request.REQUEST.get(redirect_field_name, None)
+        return safe_redirect(request, redirect_to)
     else:
         return auth_login(request, **kwargs)

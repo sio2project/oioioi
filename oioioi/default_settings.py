@@ -87,7 +87,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.jotform.processors.jotform',
     'oioioi.contests.processors.register_current_contest',
     'oioioi.contests.processors.register_recent_contests',
-    'oioioi.contests.processors.register_only_default_contest',
+    'oioioi.contestexcl.processors.register_contest_exclusive',
     'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
     'oioioi.status.processors.status_processor',
@@ -217,7 +217,6 @@ FILETRACKER_LISTEN_ADDR = '127.0.0.1'
 FILETRACKER_LISTEN_PORT = 9999
 
 DEFAULT_CONTEST = None
-ONLY_DEFAULT_CONTEST = False
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

@@ -131,6 +131,7 @@ INSTALLED_APPS = (
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.complaints',
+#    'oioioi.contestexcl',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -139,6 +140,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 MIDDLEWARE_CLASSES += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
+#    'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.oi.middleware.OiForceDnsIpAuthMiddleware',
 )
 

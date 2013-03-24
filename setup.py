@@ -31,7 +31,7 @@ setup(
         "BeautifulSoup",
         "PyYAML",
         "django-nose",
-        "django-registration",
+        "django-registration==0.8",
         "django-celery",
         "django-supervisor",
         "linaro-django-pagination",

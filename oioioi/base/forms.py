@@ -26,3 +26,9 @@ class UserForm(forms.ModelForm):
             return instance.username
         else:
             return self.cleaned_data['username']
+
+# http://stackoverflow.com/questions/3657709/how-to-force-save-an-empty-unchanged-django-admin-inline
+class AlwaysChangedModelForm(forms.ModelForm):
+    def has_changed(self):
+        """By always returning True even unchanged inlines will get saved."""
+        return True

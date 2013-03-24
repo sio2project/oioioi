@@ -110,10 +110,6 @@ class TestCurrentContest(TestCase):
     def test_current_contest_from_settings(self):
         self.assertEqual(self.client.get('/contest_id/').content, 'c1')
 
-    @override_settings(DEFAULT_CONTEST='c2', ONLY_DEFAULT_CONTEST=True)
-    def test_only_default_contest(self):
-        self.assertEqual(self.client.get('/c/c1/id/').status_code, 404)
-
     def test_current_contest_processor(self):
         #self.assertEqual(self.client.get('/contest_id/').content, 'c2')
         self.assertEqual(self.client.get('/render_contest_id/').content, 'c2')
