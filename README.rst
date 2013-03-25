@@ -66,7 +66,7 @@ Ensure that required dependencies are installed:
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with support for Polish (Ubuntu packages: *texlive-latex*,
   *texlive-lang-polish*)
-* lessc (`LESS`_ compiler, **minimum version 1.3.0**; on Ubuntu install *npm*
+* lessc (`LESS`_ compiler, **minimum version 1.3.3**; on Ubuntu install *npm*
   and then run ``sudo npm install --global less``; can also `be installed inside
   virtualenv`_)
 * lighttpd binary (required for production-grade deployment only; Ubuntu
