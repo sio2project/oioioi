@@ -15,7 +15,8 @@ from django.utils.encoding import force_unicode
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
 from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm
-from oioioi.contests.menu import contest_admin_menu_registry, contest_observer_menu_registry
+from oioioi.contests.menu import contest_admin_menu_registry, \
+        contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension, ContestPermission
 
