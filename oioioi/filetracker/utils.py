@@ -52,11 +52,16 @@ def filetracker_to_django_file(filetracker_path, storage=None):
     return FileInFiletracker(storage,
             filetracker_path[prefix_len + 1:])
 
-def stream_file(django_file, name=None):
+def stream_file(django_file, name=None, showable=None):
     """Returns a :class:`HttpResponse` representing a file download.
 
        Optional argument ``name`` sets default filename under which
        user is prompted to save that ``django_file``.
+
+       Some types of files, as listed below in ``showable_exts`` variable, may
+       by default be displayed in browser. Other are forced to be downloaded.
+       Using ``showable`` flag, default behaviour may be overriden in both
+       directions.
     """
     if name is None:
         name = unicode(django_file.name.rsplit('/', 1)[-1])
@@ -65,6 +70,14 @@ def stream_file(django_file, name=None):
     response = HttpResponse(FileWrapper(django_file),
         content_type=content_type)
     response['Content-Length'] = django_file.size
-    response['Content-Disposition'] = 'attachment; filename=%s' \
-        % (name.encode('ascii', 'ignore'),)
+    showable_exts = ['pdf', 'ps', 'txt']
+    if showable is None:
+        extension = name.rsplit('.')[-1]
+        showable = extension in showable_exts
+    if not showable:
+        response['Content-Disposition'] = 'attachment; filename=%s' % \
+                (name.encode('ascii', 'ignore'),)
+    else:
+        response['Content-Disposition'] = 'filename=%s' % (name.encode('ascii',
+                'ignore'),)
     return response
