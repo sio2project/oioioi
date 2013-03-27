@@ -9,5 +9,6 @@ side_pane_menus_registry.register(contest_admin_menu_registry, order=100)
 
 contest_observer_menu_registry = MenuRegistry(_("Observer Menu"),
     lambda request: hasattr(request, 'contest') and
-                    is_contest_observer(request) and not is_contest_admin(request))
+                    is_contest_observer(request) and
+                    not is_contest_admin(request))
 side_pane_menus_registry.register(contest_observer_menu_registry, order=200)

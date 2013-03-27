@@ -13,12 +13,13 @@ from django.contrib.auth.models import User, AnonymousUser
 
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-    UserResultForContest, Submission, ContestAttachment, RoundTimeExtension, ContestPermission
+        UserResultForContest, Submission, ContestAttachment, \
+        RoundTimeExtension, ContestPermission
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-    can_enter_contest
+        can_enter_contest
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
 
