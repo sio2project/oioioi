@@ -1,5 +1,6 @@
 import random
 import sys
+from django.contrib.auth import REDIRECT_FIELD_NAME
 import os.path
 import re
 import tempfile
@@ -132,6 +133,12 @@ class TestIndex(TestCase):
         self.assert_(self.client.login(username='test_user'))
         response = self.client.get('/', follow=True)
         self.assertIn('test_user', response.content)
+        login_url = reverse('login')
+        response = self.client.get(login_url)
+        self.assertEqual(302, response.status_code)
+        response = self.client.get(login_url, {REDIRECT_FIELD_NAME: '/test'})
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(response['Location'].endswith('/test'))
 
     def test_logout(self):
         logout_url = reverse('logout')
