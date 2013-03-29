@@ -1,3 +1,4 @@
+from django.contrib.admin import RelatedFieldListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
@@ -121,12 +122,19 @@ class OIOnsiteRegistrationInline(admin.TabularInline):
     def has_change_permission(self, request, obj=None):
         return request.user.has_perm('contests.contest_admin', request.contest)
 
+class RegionFilter(RelatedFieldListFilter):
+    def __init__(self, field, request, *args, **kwargs):
+        super(RegionFilter, self).__init__(field, request, *args, **kwargs)
+        contest = request.contest
+        self.lookup_choices = [(r.id, unicode(r))
+                               for r in contest.region_set.all()]
+
 class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display \
             + ['number', 'region', 'local_number']
     inlines = ParticipantAdmin.inlines + [OIOnsiteRegistrationInline]
     list_filter = ParticipantAdmin.list_filter \
-            + ['oi_oionsiteregistration__region' ]
+            + [('oi_oionsiteregistration__region', RegionFilter) ]
     ordering = ['oi_oionsiteregistration__number']
     search_fields = ParticipantAdmin.search_fields \
             + ['oi_oionsiteregistration__number' ]
