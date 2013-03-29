@@ -1,0 +1,11 @@
+{% load i18n %}{% blocktrans %}Dear Sir or Madam,
+
+this is to confirm that we have received the following complaint from you in the
+{{ contest }} contest:{% endblocktrans %}
+
+---
+{{ message|safe|wordwrap:80 }}
+---
+
+{% blocktrans %}If you need to add or clarify anything, please reply to this
+email. The reply should be addressed to {{ complaints_email }}.{% endblocktrans %}

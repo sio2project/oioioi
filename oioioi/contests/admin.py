@@ -341,6 +341,11 @@ class SubmissionAdmin(admin.ModelAdmin):
         queryset = queryset.order_by('-id')
         return queryset
 
+    def lookup_allowed(self, key, value):
+        if key == 'user__username':
+            return True
+        return super(SubmissionAdmin, self).lookup_allowed(key, value)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
         return redirect('submission', contest_id=request.contest.id,
             submission_id=unquote(object_id))

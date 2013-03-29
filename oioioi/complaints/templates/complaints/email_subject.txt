@@ -1,0 +1,1 @@
+{% load i18n %}{% trans "Complaint" %}: {{ user.get_full_name|safe }} ({{ user|safe }})

@@ -1,0 +1,15 @@
+{% load i18n %}{% blocktrans %}Hi,
+
+the following complaint was received:{% endblocktrans %}
+
+{% trans "Contest" %}: {{ contest|safe }}
+{% trans "User" %}: {{ user_info|safe }}
+{% trans "Participant status" %}: {{ participant_status|safe }}
+{% trans "Submissions" %}: {{ submissions_link|safe }}
+
+---
+{{ message|safe|wordwrap:80 }}
+---
+
+{% blocktrans %}To contact the complainer, just reply to this email, keeping
+{{ complaints_email }} in CC.{% endblocktrans %}
