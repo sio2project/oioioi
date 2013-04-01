@@ -45,8 +45,8 @@ def messages_template_context(request, messages):
     new_ids = new_messages(request, messages).values_list('id', flat=True)
     to_display = [{
             'message': m,
-            'link_message': m.top_reference in messages \
-                    and m.top_reference or m,
+            'link_message': m.top_reference \
+                    if m.top_reference in messages else m,
             'needs_reply': is_admin and m.kind == 'QUESTION',
             'read': m.id not in new_ids,
         } for m in messages if m.id not in replied_ids]
