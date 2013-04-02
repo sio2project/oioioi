@@ -27,8 +27,21 @@ class RoundTimes(object):
         return start is not None and current_datetime < start
 
     def results_visible(self, current_datetime):
-        return self.show_results is not None and \
-               current_datetime >= self.show_results
+        """Returns True if results are visible for a user.
+
+           Usually show_results date decides.
+
+           When a RoundTimeExtension is set for a given user and the round
+           is still active, results publication is delayed.
+        """
+        if self.show_results is None:
+            return False
+
+        if self.is_active(current_datetime):
+            return current_datetime >= \
+                    self.show_results + timedelta(minutes=self.extra_time)
+
+        return current_datetime >= self.show_results
 
     def get_start(self):
         return self.start

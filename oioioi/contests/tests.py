@@ -292,6 +292,45 @@ class TestManyRounds(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 4)
 
+        with fake_time(datetime(2012, 7, 31, 21, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('<td>34</td>'), 1)
+
+        with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('<td>34</td>'), 2)
+
+        round4 = Round.objects.get(pk=4)
+        user = User.objects.get(username='test_user')
+        ext = RoundTimeExtension(user=user, round=round4, extra_time=60)
+        ext.save()
+
+        with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('<td>34</td>'), 1)
+
+        round4.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=utc)
+        round4.results_date = datetime(2012, 8, 10, 0, 10, tzinfo=utc)
+        round4.save()
+
+        ext.extra_time = 0
+        ext.save()
+
+        with fake_time(datetime(2012, 8, 10, 0, 5, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('<td>34</td>'), 1)
+
+        ext.extra_time = 20
+        ext.save()
+
+        with fake_time(datetime(2012, 8, 10, 0, 15, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('<td>34</td>'), 1)
+
+        with fake_time(datetime(2012, 8, 10, 0, 21, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('<td>34</td>'), 2)
+
 class TestMultilingualStatements(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_extra_statements']
