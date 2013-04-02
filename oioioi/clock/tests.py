@@ -12,7 +12,7 @@ class TestClock(TestCase):
     fixtures = ['test_contest', 'test_users']
 
     def test_clock(self):
-        response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
+        response = self.client.get(reverse('get_status'))
         response = json.loads(response.content)
         response_time = response['time']
         now = time.time()
@@ -31,7 +31,8 @@ class TestClock(TestCase):
         r1.save()
         r2.save()
 
-        response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
+        response = self.client.get(reverse('get_contest_status',
+            kwargs={'contest_id': contest.id}))
         response = json.loads(response.content)
         round_start_date = response['round_start_date']
         round_end_date = response['round_end_date']
@@ -49,7 +50,8 @@ class TestClock(TestCase):
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
         self.client.login(username='test_user')
-        response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
+        response = self.client.get(reverse('get_contest_status',
+            kwargs={'contest_id': contest.id}))
         response = json.loads(response.content)
         round_start_date = response['round_start_date']
         round_end_date = response['round_end_date']
@@ -61,7 +63,7 @@ class TestClock(TestCase):
         session = self.client.session
         session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc)
         session.save()
-        response = self.client.get(reverse('oioioi.clock.views.get_times_view'))
+        response = self.client.get(reverse('get_status'))
         response = json.loads(response.content)
         self.assertTrue(response['is_admin_time_set'])
         self.assertEqual(response['time'],

@@ -5,14 +5,19 @@
         <span id="clock">{{ current_time }}</span>
         <b class="caret"></b>
     </a>
-    <ul class="dropdown-menu"><li class="admin-time-form">
-        <form class="form-horizontal" action="{% url admin_time path=path %}" method="post">
+    <ul class="dropdown-menu"><li class="dropdown-form">
+        <form  action="{% url admin_time %}" method="post">
             {% csrf_token %}
+            <div style="display: none">
+                <input type="hidden" name="next" value="{{ path }}">
+            </div>
             <label for="admin-time">{% trans "Admin time:" %}</label>
             <label for="admin-time">(yyyy-mm-dd hh:mm:ss)</label>
-            <input id="admin-time" name="admin-time" />
-            <input class="btn btn-primary" type="submit" name="ok-button" value="{% trans "Ok" %}"/>
-            <input class="btn btn-primary" type="submit" name="reset-button" value="{% trans "Reset" %}"/>
+            <input type="text" id="admin-time" name="admin-time" />
+            <div>
+                <button class="btn btn-primary" type="submit" name="ok-button">{% trans "Ok" %}</button>
+                <button class="btn btn-primary" type="submit" name="reset-button">{% trans "Reset" %}</button>
+            </div>
         </form>
     </li></ul>
 </li>

@@ -22,6 +22,7 @@ from django.contrib.auth.models import User
 from django.template import Context, Template, RequestContext
 from django.template.loader import render_to_string
 from django.forms import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import utils
 from oioioi.base.utils import RegisteredSubclassesBase, archive
@@ -74,6 +75,8 @@ class IgnorePasswordAuthBackend(object):
 
        It's configured in ``settings_test.py`` and available for all tests.
     """
+    supports_authentication = True
+    description = _("Testing backend")
 
     def authenticate(self, username=None, password=None):
         if not username:
@@ -210,10 +213,9 @@ class TestOrderedRegistry(TestCase):
         self.assertEqual(len(reg), 3)
 
 class TestMenu(TestCase):
-    fixtures = ('test_users',)
+    fixtures = ['test_users', 'test_contest']
 
     def setUp(self):
-        self.factory = RequestFactory()
         self.saved_menu = menu_registry._registry
         menu_registry._registry = OrderedRegistry()
 
@@ -221,11 +223,8 @@ class TestMenu(TestCase):
         menu_registry._registry = self.saved_menu
 
     def _render_menu(self, user=None):
-        request = self.factory.get('/')
-        request.user = user or User.objects.get(username='test_user')
-        request.contest = None
-        return render_to_string('base-with-menu.html',
-                context_instance=RequestContext(request))
+        self.client.login(username=user)
+        return self.client.get(reverse('index'), follow=True).content
 
     def test_menu(self):
         menu_registry.register('test2', 'Test Menu Item 2',
@@ -588,3 +587,14 @@ class TestBaseViews(TestCase):
         self.assertEqual(User.objects.filter(username='changed_user')
                 .count(), 0)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+
+
+class TestBackendMiddleware(TestCase):
+    fixtures = ['test_users']
+
+    def test_backend_middleware(self):
+        self.client.login(username='test_user')
+        response = self.client.get(reverse('index'))
+        self.assertEquals('test_user', response.context['user'].username)
+        self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
+            response.context['user'].backend)

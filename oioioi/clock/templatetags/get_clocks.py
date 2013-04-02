@@ -20,7 +20,7 @@ def navbar_clock(context):
 @register.inclusion_tag('clock/navbar_admin_clock.html', takes_context=True)
 def navbar_admin_clock(context):
     result = navbar_clock(context)
-    result['path'] = context['request'].path
+    result['path'] = context['request'].get_full_path()
     return result
 
 @register.inclusion_tag('clock/navbar_countdown.html', takes_context=True)

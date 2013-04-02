@@ -1,7 +1,11 @@
+from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import ContestPermission, Contest
 
 
 class ContestPermissionsAuthBackend(object):
+    description = _("Contests permissions")
+    supports_authentication = False
+
     def authenticate(self, **kwargs):
         return None
 

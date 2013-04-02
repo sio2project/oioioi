@@ -1,89 +1,69 @@
 @import "../bootstrap/less/variables.less";
 @import "../bootstrap/less/mixins.less";
+
+.full-bootstrap {
+    // Reset styles from grappelli
+    @import "../bootstrap/less/reset.less";
+    input[type="text"],
+    input[type="password"] {
+        .box-sizing(content-box);
+    }
+    input[type="text"],
+    input[type="password"],
+    .btn {
+        height: 30px;
+    }
+    .btn {
+        width: inherit;
+    }
+    select {
+        appearance: menulist;
+        -moz-appearance: menulist;
+        -webkit-appearance: menulist;
+    }
+}
+
 @import "../bootstrap/less/layouts.less";
 @import "../bootstrap/less/navbar.less";
 @import "../bootstrap/less/navs.less";
 @import "../bootstrap/less/dropdowns.less";
-@import "../bootstrap/less/tooltip.less";
 @import "../bootstrap/less/wells.less";
 @import "../bootstrap/less/labels-badges.less";
+@import "../bootstrap/less/tooltip.less";
+
+// Can't import full component-animation as it has name clash with grappelli
+.fade {
+    opacity: 0;
+    .transition(opacity .15s linear);
+    &.in {
+        opacity: 1;
+    }
+}
+
+@import "../bootstrap/less/modals.less";
+
+.full-bootstrap {
+    // Import only in navbar namespace to prevent name clashes with grappelli
+    @import "../bootstrap/less/type.less";
+    @import "../bootstrap/less/code.less";
+    @import "../bootstrap/less/forms.less";
+    @import "../bootstrap/less/sprites.less";
+    @import "../bootstrap/less/close.less";
+    @import "../bootstrap/less/buttons.less";
+    @import "../bootstrap/less/button-groups.less";
+    @import "../bootstrap/less/alerts.less";
+    @import "../bootstrap/less/progress-bars.less";
+    @import "../bootstrap/less/utilities.less";
+}
+
 @import "sidebar.less";
+@import "navbar.less";
 @import "debug_toolbar.less";
 
 .js-disabled-info {
     background: @red;
     color: @white;
     text-align: center;
-}
-
-.navbar {
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px !important;
-    line-height: 20px;
-    color: @grayLight;
-
-    .brand {
-        color: @white;
-    }
-}
-
-.progressbar {
-    padding: 10px 0;
-
-    #countdown {
-        color: @grayLight;
-    }
-
-    * {
-        text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-        width: 550px;
-        position: absolute;
-
-        span {
-            color: @white;
-            text-align: center;
-            width: 100%;
-        }
-    }
-}
-
-#clock {
-    padding: 10px 0px;
-}
-
-.admin-time-form {
-    padding: 3px 20px;
-    color: lighten(@textColor, 15%);
-
-    form {
-        margin: 0;
-    }
-
-    .btn {
-        .buttonBackground(@btnPrimaryBackground, @btnPrimaryBackgroundHighlight);
-    }
-}
-
-#admin-time {
-    color: @gray !important;
-    margin: 5px 0;
-    padding: 5px 10px;
-    .transition(~"border linear .2s, box-shadow linear .2s");
-    border: 1px solid @inputBorder;
-    .box-shadow(inset 0 1px 1px rgba(0,0,0,.075));
-
-    &:focus {
-        border-color: rgba(82,168,236,.8);
-        outline: 0 none;
-        .box-shadow(~"inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(82,168,236,.6)");
-    }
-}
-
-.admin-time-set .navbar-inner,
-.admin-time-set > a,
-.admin-time-set .dropdown-toggle:not(#admin-time-label) {
-    color: #FFF !important;
-    background: @linkColor !important;
 }
 
 #grp-context-navigation {
@@ -126,17 +106,6 @@ table.grp-sortable thead th.sortable {
 
 .grp-fixed-footer > ul {
     .span-fixed-sidebar;
-}
-
-#lang_list {
-    display: block;
-    float: right;
-    padding: 10px 10px 12px;
-    img {
-        margin-right: 1px;
-        width: 16px;
-        height: 11px;
-    }
 }
 
 #menu_div {

@@ -11,7 +11,16 @@ class OiForceDnsIpAuthMiddleware(object):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         if not hasattr(request, 'user'):
-            return
+            raise ImproperlyConfigured(
+                "The OiForceDnsIpAuthMiddleware middleware requires the"
+                " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
+                " earlier in MIDDLEWARE_CLASSES.")
+        if not request.user.is_anonymous() and \
+                not hasattr(request.user, 'backend'):
+            raise ImproperlyConfigured(
+                "The OiForceDnsIpAuthMiddleware middleware requires the"
+                " 'oioioi.base.middleware.AnnotateUserBackendMiddleware'"
+                " earlier in MIDDLEWARE_CLASSES.")
         if not hasattr(request, 'contest'):
             raise ImproperlyConfigured(
                 "The OiForceDnsIpAuthMiddleware middleware requires the"
@@ -29,8 +38,8 @@ class OiForceDnsIpAuthMiddleware(object):
         if not Participant.objects.filter(user=request.user,
                 contest=request.contest, status='ACTIVE'):
             return
-        backend_key = request.session[auth.BACKEND_SESSION_KEY]
-        if backend_key != 'oioioi.ipdnsauth.backends.IpDnsBackend':
+        backend_path = request.user.backend
+        if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':
             auth.logout(request)
             return TemplateResponse(request, 'oi/access_blocked.html',
-                {'auth_backend': backend_key})
+                {'auth_backend': backend_path})

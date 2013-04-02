@@ -1,17 +1,24 @@
-from django.http import HttpResponse, Http404
-from django.utils import timezone
-from oioioi.contests.models import Round
-from django.shortcuts import redirect
-from datetime import datetime
-import pytz
 import re
-import json
 import time
+from datetime import datetime
 
-def get_times_view(request):
-    """Returns the current rounds times as JSON.
+import pytz
+from django.contrib import messages
+from django.http import Http404
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils import safe_redirect
 
-       Returns a dictionary with keys:
+from oioioi.contests.models import Round
+from oioioi.status import status_registry
+from oioioi.su.utils import is_real_superuser
+
+
+@status_registry.register
+def get_times_status(request, response):
+    """Extends the response dictionary with rounds times.
+
+       Extends the dictionary with keys:
        ``time``: the number of seconds elapsed since the epoch
        ``round_start_date``: the number of seconds between the epoch
        and the start of the current round if any exists; otherwise 0
@@ -21,14 +28,15 @@ def get_times_view(request):
     """
     timestamp = getattr(request, 'timestamp', None)
     contest = getattr(request, 'contest', None)
-    response = dict(time=0, round_start_date=0, round_end_date=0,
-        is_admin=False, is_admin_time_set=False)
-    user = getattr(request, 'user', None)
+    response.update(dict(time=0, round_start_date=0, round_end_date=0,
+        is_time_admin=False, is_admin_time_set=False))
 
     if 'admin_time' in request.session:
         response['is_admin_time_set'] = True
-    if user and user.is_superuser:
-        response['is_admin'] = True
+
+    if getattr(request, 'real_user', None) and is_real_superuser(request):
+        response['is_time_admin'] = True
+        response['sync_time'] = min(10000, response.get('sync_time', 10000))
 
     next_rounds_times = None
     current_rounds_times = None
@@ -54,26 +62,32 @@ def get_times_view(request):
         response['round_start_date'] = time.mktime((timezone \
             .localtime(next_rounds_times[0].get_start())).timetuple())
 
-    return HttpResponse(json.dumps(response), content_type='application/json')
+    return response
 
-def admin_time(request, path):
-    if not path.startswith('/'):
-        path = '/' + path
+def admin_time(request, next_page=None):
+    if 'next' in request.REQUEST:
+        next_page = request.REQUEST['next']
+
     if request.method == 'POST':
         if 'reset-button' in request.POST:
             if 'admin_time' in request.session:
                 del request.session['admin_time']
-            return redirect(path)
-        elif request.user.is_superuser:
+            return safe_redirect(request, next_page)
+        elif is_real_superuser(request):
             admin_time = re.findall(r'\d+', request.POST['admin-time'])
             admin_time = map(int, admin_time)
             try:
                 admin_time = datetime(*admin_time)
             except (ValueError, TypeError, OverflowError):
-                return redirect(path)
+                messages.error(request,
+                    _("Invalid date. Admin-time was not set."))
+                return safe_redirect(request, next_page)
             if admin_time.year >= 1900:
                 request.session['admin_time'] = \
                     timezone.localtime(timezone.now()). \
                     tzinfo.localize(admin_time).astimezone(pytz.utc)
-            return redirect(path)
+            else:
+                messages.error(request, _("Date has to be after 1900."
+                    " Admin-time was not set."))
+            return safe_redirect(request, next_page)
     raise Http404

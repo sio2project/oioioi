@@ -48,3 +48,7 @@ def enforce_condition(condition):
 
 def not_anonymous(request):
     return request.user.is_authenticated()
+
+
+def is_superuser(request):
+    return request.user.is_superuser

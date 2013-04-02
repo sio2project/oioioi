@@ -24,7 +24,7 @@ def generate_scripts():
     for path in find_common_media():
         if path.endswith('.js'):
             lines.append('<script type="text/javascript" '
-                    'src="{{ STATIC_URL }}%s">' % (path,))
+                    'src="{{ STATIC_URL }}%s"></script>' % (path,))
     return '\n'.join(lines)
 
 register = template.Library()

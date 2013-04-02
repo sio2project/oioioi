@@ -81,6 +81,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.tz',
     'django.core.context_processors.request',
     'django.contrib.messages.context_processors.messages',
+    'oioioi.su.processors.real_user',
     'oioioi.base.processors.base_url',
     'oioioi.base.processors.side_menus',
     'oioioi.jotform.processors.jotform',
@@ -89,6 +90,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.contests.processors.register_only_default_contest',
     'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
+    'oioioi.status.processors.status_processor',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -98,6 +100,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'oioioi.base.middleware.AnnotateUserBackendMiddleware',
+    'oioioi.su.middleware.SuAuthenticationMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -144,6 +148,8 @@ INSTALLED_APPS = (
     'oioioi.jotform',
     'oioioi.analytics',
     'oioioi.celery',
+    'oioioi.status',
+    'oioioi.su',
     'oioioi.clock',
     'oioioi.base',
 
@@ -193,6 +199,8 @@ PAGINATION_DEFAULT_WINDOW = 2
 PAGINATION_DEFAULT_MARGIN = 1
 
 NUM_DASHBOARD_SUBMISSIONS = 8
+
+NUM_SUDO_HINTS = 10
 
 PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',

@@ -1,6 +1,12 @@
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.teachers.models import Teacher, ContestTeacher
 
+
 class TeacherAuthBackend(object):
+    description = _("Teachers permissions")
+    supports_authentication = False
+
     def authenticate(self, **kwargs):
         return None
 

@@ -25,7 +25,7 @@ setup(
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
         # SIO-1214 temporary and quick workaround
-        "Django>=1.4, <1.5",
+        "Django>=1.4.5, <1.5",
         "pytz",
         "South",
         "BeautifulSoup",

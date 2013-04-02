@@ -18,6 +18,7 @@ class OrderedRegistry(object):
         pos = bisect.bisect_right(self.keys, order)
         self.items.insert(pos, value)
         self.keys.insert(pos, order)
+        return value
 
     def unregister(self, value):
         pos = self.items.index(value)

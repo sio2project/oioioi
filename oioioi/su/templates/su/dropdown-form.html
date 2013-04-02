@@ -1,0 +1,43 @@
+{% load i18n %}
+
+{% if ctx.user.is_superuser %}
+    <li class="divider"></li>
+    <li class="dropdown-form">
+        <form action="{% url su %}" method="post">
+            {% csrf_token %}
+            <div style="display: none">
+                <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
+            </div>
+            <div>
+                <label for="su-username">{% trans "Username" %}</label>
+                <input type="text" name="user" id="su-username" autocomplete="off" placeholder="{% trans "Su to..." %}">
+            </div>
+            <div>
+                {{ form.backend.label_tag }}
+                {{ form.backend }}
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">{% trans "Login as user" %}</button>
+            </div>
+        </form>
+        <script>
+            $(document).ready(function() {
+                $('#su-username').typeahead({
+                    source: function(query, process) {
+                        $.getJSON('{% url get_suable_users %}', {substr: query}, process);
+                    },
+                    items: 10,
+                    minLength: 2
+                });
+            });
+        </script>
+
+    </li>
+{% elif is_under_su %}
+    <li class="divider"></li>
+    <li>
+        <a href="#" data-post-url="{% url su_reset %}" data-post-field-next="{{ ctx.request.get_full_path }}">
+            {% trans "Back to admin" %}
+        </a>
+    </li>
+{% endif %}

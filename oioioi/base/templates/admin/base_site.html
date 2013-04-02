@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load i18n grp_tags compress common_media %}
+{% load i18n grp_tags compress common_media all_with_prefix %}
 
 {% block stylesheets %}
 {% compress css %}
@@ -22,17 +22,28 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/csrf_link_protect.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/lang_select_pro.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/menu.js"></script>
 {% common_scripts %}
 {% endcompress %}
 <script type="text/javascript" src="{% url django.views.i18n.javascript_catalog %}"></script>
 {% endblock %}
+{% block extrahead %}
+{% all_with_prefix extra_head_ %}
+{% endblock %}
 
 {% block title %}{{ title }} | {% trans 'OIOIOI Admin' %}{% endblock %}
 
 {% block branding %}
     <h1 id="site-name">{% trans 'OIOIOI Admin' %}</h1>
+{% endblock %}
+
+{% block footer %}
+    <div class="full-bootstrap">
+        {% all_with_prefix extra_footer_ %}
+    </div>
 {% endblock %}

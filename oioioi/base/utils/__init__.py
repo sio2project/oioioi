@@ -1,6 +1,9 @@
+from django.core.urlresolvers import reverse
 from django.forms.util import flatatt
+from django.shortcuts import redirect
 from django.template import Template, Context
 from django.utils.html import conditional_escape
+from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.importlib import import_module
@@ -352,6 +355,16 @@ def make_navbar_badge(link, text):
     template = Template('<li><a href="{{ link }}"><span class="label '
             'label-important">{{ text }}</span></a></li>')
     return template.render(Context({'link': link, 'text': text}))
+
+# Redirects
+
+def safe_redirect(request, url, fallback='index'):
+    if url and is_safe_url(url=url, host=request.get_host()):
+        next_page = url
+    else:
+        next_page = reverse(fallback)
+
+    return redirect(next_page)
 
 # File uploads
 

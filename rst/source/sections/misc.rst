@@ -72,3 +72,14 @@ example::
 For rendering the menu inside a template, a special ``{% generate_menu %}`` tag is used.
 
 .. autofunction:: oioioi.base.templatetags.menu.generate_menu
+
+Switching users (su)
+--------------------
+
+.. currentmodule:: oioioi.su
+
+.. automodule:: oioioi.su
+
+.. autofunction:: oioioi.su.utils.su_to_user
+
+.. autofunction:: oioioi.su.utils.reset_to_real_user

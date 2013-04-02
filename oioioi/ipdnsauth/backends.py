@@ -1,6 +1,9 @@
+import socket
+
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
-import socket
+from django.utils.translation import ugettext_lazy as _
+
 
 class IpDnsBackend(ModelBackend):
     """Authenticates users by their ip or dns hostname.
@@ -10,6 +13,9 @@ class IpDnsBackend(ModelBackend):
        When dns_name is not given, then it tries to call
        reverse-dns service on ip_addr.
     """
+    description = _("IP/DNS based authentication")
+    supports_authentication = True
+
     def authenticate(self, dns_name=None, ip_addr=None):
         if ip_addr:
             try:

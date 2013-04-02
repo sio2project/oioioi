@@ -1,6 +1,6 @@
-{% load i18n check_perm all_with_prefix menu get_clocks %}
+{% load i18n check_perm all_with_prefix menu get_clocks get_su %}
 
-<div id="main-navbar" class="navbar navbar-fixed-top navbar-inverse {% if request.session.admin_time %} admin-time-set {% endif %}">
+<div id="main-navbar" class="navbar navbar-fixed-top navbar-inverse {% if request.session.admin_time %} admin-time-set {% endif %}{% if is_under_su %} under-su{% endif %} {% block navbar-class %}{% endblock %}">
     <noscript><div class="js-disabled-info">{% trans "OIOIOI works properly only if javascript is enabled." %}</div></noscript>
     <div class="navbar-inner">
         <div class="{% block navbar-container-class %}container-fluid{% endblock %}">
@@ -54,7 +54,7 @@
             <ul class="nav pull-right">
                 {% all_with_prefix extra_navbar_right_ %}
                 {% block navbar-right-extras %}{% endblock %}
-                {% if user.is_superuser %}
+                {% if real_user.is_superuser %}
                 {% navbar_admin_clock %}
                 {% else %}
                 {% navbar_clock %}
@@ -72,7 +72,10 @@
                 {% else %}
                 <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <strong>{{ user.username }}</strong>
+                    {% if real_user.is_superuser %}
+                        <span id="su-label" class="label label-inverse"{% if not is_under_su %} style="display: none"{% endif %}>{% trans "Switched user" %}</span>
+                    {% endif %}
+                    <strong id="username">{{ user.username }}</strong>
                     <b class="caret"></b>
                 </a>
                 <ul class="dropdown-menu">
@@ -80,6 +83,8 @@
                     {% for item in menu %}
                     <li><a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a></li>
                     {% endfor %}
+
+                    {% su_dropdown_form %}
                 </ul>
 
                 </li>
