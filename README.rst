@@ -88,6 +88,11 @@ you can do it now::
 
   ./manage.py createsuperuser
 
+If you see a locale error, you may want to circumvent it by providing
+another locale to the command::
+
+  LC_ALL=en_US.UTF-8 ./manage.py createsuperuser
+
 Now you're ready to access the site at *http://localhost:8000*.
 
 .. _LESS: http://lesscss.org/
