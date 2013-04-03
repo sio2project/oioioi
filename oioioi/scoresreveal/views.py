@@ -18,8 +18,13 @@ def score_reveal_view(request, contest_id, submission_id):
     controller = request.contest.controller
     if not has_scores_reveal(submission.problem):
         raise Http404
-    controller.reveal_score(request, submission)
-    messages.info(request, _("Submission score has been revealed."))
+    decision, reason = controller.can_reveal(request, submission)
+    if not decision:
+        messages.error(request, reason)
+    else:
+        controller.reveal_score(request, submission)
+        messages.success(request, _("Submission score has been revealed."))
+
     return redirect('submission',
         contest_id=submission.problem_instance.contest_id,
         submission_id=submission.id)
