@@ -14,7 +14,7 @@ from django.contrib.auth.models import User, AnonymousUser
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
-        RoundTimeExtension, ContestPermission
+        RoundTimeExtension, ContestPermission, UserResultForProblem
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
@@ -740,3 +740,41 @@ class TestPermissions(TestCase):
         response = self.client.get(reverse('problems_list',
             kwargs={'contest_id': self.contest.id}), follow=True)
         self.assertIn('Observer Menu', response.content)
+
+class TestSubmissionChangeKind(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_multiple_submissions']
+
+    def setUp(self):
+        self.client.login(username='test_admin')
+
+    def change_kind(self, submission, kind):
+        contest = Contest.objects.get()
+        url1 = reverse('change_submission_kind',
+                       kwargs={'contest_id': contest.id,
+                               'submission_id': submission.id,
+                               'kind': kind})
+        response = self.client.post(url1, follow=True)
+        self.assertContains(response, 'has been changed.')
+        return response
+
+    def test_kind_change(self):
+        pi = ProblemInstance.objects.get()
+        contest = Contest.objects.get()
+        s1 = Submission.objects.get(id=4)   # 100 points
+        s2 = Submission.objects.get(id=5)   # 90 points
+
+        self.change_kind(s1, 'NORMAL')
+        self.change_kind(s2, 'NORMAL')
+
+        urp = UserResultForProblem.objects.get(user__username='test_user',
+                problem_instance=pi)
+        self.assertEqual(urp.score, 90)
+
+        self.change_kind(s2, 'IGNORED')
+        urp = UserResultForProblem.objects.get(user__username='test_user',
+                                               problem_instance=pi)
+        urc = UserResultForContest.objects.get(user__username='test_user',
+                                               contest=contest)
+        self.assertEqual(urp.score, 100)
+        self.assertEqual(urc.score, 100)

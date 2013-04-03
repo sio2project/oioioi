@@ -37,28 +37,7 @@ def update_user_results(env, **kwargs):
         contest = round.contest
         assert contest.id == env['contest_id']
 
-    # We do this in three separate transaction, because in some database
-    # engines (namely MySQL in REPEATABLE READ transaction isolation level)
-    # data changed by a transaction is not visible in subsequent selects even
-    # in the same transaction.
-
-    # First: UserResultForProblem
-    with transaction.commit_on_success():
-        result, created = UserResultForProblem.objects.select_for_update() \
-                .get_or_create(user=user, problem_instance=problem_instance)
-        contest.controller.update_user_result_for_problem(result)
-
-    # Second: UserResultForRound
-    with transaction.commit_on_success():
-        result, created = UserResultForRound.objects.select_for_update() \
-                .get_or_create(user=user, round=round)
-        contest.controller.update_user_result_for_round(result)
-
-    # Third: UserResultForContest
-    with transaction.commit_on_success():
-        result, created = UserResultForContest.objects.select_for_update() \
-                .get_or_create(user=user, contest=contest)
-        contest.controller.update_user_result_for_contest(result)
+    contest.controller.update_user_results(user, problem_instance)
 
     return env
 

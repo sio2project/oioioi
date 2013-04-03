@@ -3,7 +3,19 @@
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 {% block program_controls %}
 <div class="corner-icons btn-toolbar">
-        {% if is_admin %}
+        {% if is_admin and submission.valid_kinds_for_submission %}
+            <div class="btn-group">
+                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                    <i class="icon-tags"></i> {% trans "Change kind" %}
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    {% for value, description in submission.valid_kinds_for_submission %}
+                        <li><a href="#" data-post-url="{% url change_submission_kind contest_id=contest.id submission_id=submission.submission.id kind=value %}"><i class="icon-tag"></i> {{ description }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+
             <div class="btn-group">
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="icon-repeat"></i> {% trans "Rejudge" %}
@@ -32,6 +44,7 @@
             <th style="min-width: 120px">{% trans "Problem" %}</th>
             <th style="min-width: 150px">{% trans "Submission date" %}</th>
             <th style="min-width: 150px">{% trans "Status" %}</th>
+            {% if is_admin %}<th style="min-width: 120px"> {% trans "Kind" %}</th>{% endif %}
             <th style="min-width: 80px">{% trans "Score" %}</th>
         </tr>
     </thead>
@@ -41,6 +54,7 @@
             <td>{{ submission.submission.problem_instance }}</td>
             <td>{{ submission.submission.get_date_display }}</td>
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
+            {% if is_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
             <td>{% if submission.can_see_score %}{{ submission.submission.score|default_if_none:'' }}{% endif %}</td>
         </tr>
     </tbody>

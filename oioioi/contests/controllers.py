@@ -3,6 +3,7 @@ import json
 import logging
 import pprint
 
+from django.db import transaction
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
@@ -15,7 +16,8 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
-        UserResultForProblem, FailureReport, SubmissionReport
+        UserResultForProblem, FailureReport, SubmissionReport, \
+        UserResultForContest, submission_kinds
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times
 from oioioi import evalmgr
@@ -23,16 +25,30 @@ from oioioi import evalmgr
 
 logger = logging.getLogger(__name__)
 
+def export_entries(registry, values):
+    result = []
+    for value, description in registry.entries:
+        if value in values:
+            result.append((value, description))
+    return result
+
 def submission_template_context(request, submission):
     controller = submission.problem_instance.contest.controller
     can_see_status = controller.can_see_submission_status(request, submission)
     can_see_score = controller.can_see_submission_score(request, submission)
     can_see_comment = controller.can_see_submission_comment(request,
             submission)
+
+    valid_kinds = controller.valid_kinds_for_submission(submission)
+    valid_kinds.remove(submission.kind)
+    valid_kinds_for_submission = export_entries(submission_kinds,
+            valid_kinds)
+
     return {'submission': submission,
             'can_see_status': can_see_status,
             'can_see_score': can_see_score,
-            'can_see_comment': can_see_comment}
+            'can_see_comment': can_see_comment,
+            'valid_kinds_for_submission': valid_kinds_for_submission}
 
 class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
     def __init__(self, contest):
@@ -445,6 +461,42 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         result.score = self._sum_scores(map(ScoreValue.deserialize, scores))
         result.save()
 
+    def update_user_results(self, user, problem_instance):
+        """Updates score for problem instance, round and contest.
+
+           Usually this method creates instances (if they don't exist) of:
+           * :class:`~oioioi.contests.models.UserResultForProblem`
+           * :class:`~oioioi.contests.models.UserResultForRound`
+           * :class:`~oioioi.contests.models.UserResultForContest`
+
+           and then calls proper methods of ContestController to update them.
+        """
+        round = problem_instance.round
+        contest = round.contest
+
+        # We do this in three separate transaction, because in some database
+        # engines (namely MySQL in REPEATABLE READ transaction isolation level)
+        # data changed by a transaction is not visible in subsequent selects
+        # even in the same transaction.
+
+        # First: UserResultForProblem
+        with transaction.commit_on_success():
+            result, created = UserResultForProblem.objects.select_for_update() \
+                .get_or_create(user=user, problem_instance=problem_instance)
+            self.update_user_result_for_problem(result)
+
+        # Second: UserResultForRound
+        with transaction.commit_on_success():
+            result, created = UserResultForRound.objects.select_for_update() \
+                .get_or_create(user=user, round=round)
+            self.update_user_result_for_round(result)
+
+        # Third: UserResultForContest
+        with transaction.commit_on_success():
+            result, created = UserResultForContest.objects.select_for_update() \
+                .get_or_create(user=user, contest=contest)
+            self.update_user_result_for_contest(result)
+
     def filter_visible_submissions(self, request, queryset):
         """Returns the submissions which the user should see in the
            "My submissions" view.
@@ -607,6 +659,28 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """Called whan a (usually new) contest has just got the controller
            attached or after the contest has been modified."""
         pass
+
+    def valid_kinds_for_submission(self, submission):
+        """Returns list of all valid kinds we can change to
+           for the given submission.
+
+           Default implementation supports only kinds
+           ``NORMAL`` and ``IGNORED``.
+        """
+        valid = ['NORMAL', 'IGNORED']
+        if submission.kind in valid:
+            return valid
+        else:
+            return []
+
+    def change_submission_kind(self, submission, kind):
+        """Changes kind of the submission. Also updates user reports for
+           problem, round and contest which may contain given submission.
+        """
+        assert kind in self.valid_kinds_for_submission(submission)
+        submission.kind = kind
+        submission.save()
+        self.update_user_results(submission.user, submission.problem_instance)
 
     def mixins_for_admin(self):
         """Returns an iterable of mixins to add to the default
