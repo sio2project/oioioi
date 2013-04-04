@@ -229,7 +229,7 @@ class UserListFilter(SimpleListFilter):
                 .filter(problem_instance__contest=request.contest)
                 .values_list('user__id', 'user__username')))
         if (None, None) in users:
-            users = filter(lambda x: x != (None, None), users)
+            users = [x for x in users if x != (None, None)]
             users.append(('None', _("(None)")))
         return users
 
@@ -251,7 +251,7 @@ class ProblemNameListFilter(SimpleListFilter):
         p_names = list(set(ProblemInstance.objects \
                 .filter(contest=request.contest) \
                 .values_list('problem__name', flat=True)))
-        return map(lambda x: (x, x), p_names)
+        return [(x, x) for x in p_names]
 
     def queryset(self, request, queryset):
         if self.value():

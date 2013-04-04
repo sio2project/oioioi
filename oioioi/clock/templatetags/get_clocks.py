@@ -30,11 +30,10 @@ def navbar_countdown(context):
     if not (timestamp and contest):
         return {}
     rtimes = rounds_times(context['request']).values()
-    next_rounds_times = filter(lambda rt: rt.is_future(timestamp),
-            rtimes)
+    next_rounds_times = [rt for rt in rtimes if rt.is_future(timestamp)]
     next_rounds_times.sort(key=lambda rt: rt.get_start())
-    current_rounds_times = filter(lambda rt: rt.get_end(),
-            filter(lambda rt: rt.is_active(timestamp), rtimes))
+    current_rounds_times = [rt for rt in rtimes
+                            if rt.is_active(timestamp) and rt.get_end()]
     current_rounds_times.sort(key=lambda rt: rt.get_end())
 
     if current_rounds_times:

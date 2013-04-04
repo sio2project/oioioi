@@ -73,8 +73,8 @@ class SinolPackage(object):
         problem_folders = []
         for folder in toplevel_folders:
             for required_subfolder in ('in', 'out'):
-                if not filter(lambda f: f.split(os.sep)[:2] == [folder,
-                        required_subfolder], files):
+                if all(f.split(os.sep)[:2] != [folder, required_subfolder]
+                       for f in files):
                     break
             else:
                 problem_folders.append(folder)

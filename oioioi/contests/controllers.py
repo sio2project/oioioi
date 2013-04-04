@@ -430,7 +430,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         result.save()
 
     def _sum_scores(self, scores):
-        scores = filter(lambda s: s is not None, scores)
+        scores = [s for s in scores if s is not None]
         return scores and sum(scores[1:], scores[0]) or None
 
     def update_user_result_for_round(self, result):

@@ -86,8 +86,7 @@ class RegisteredSubclassesBase(ClassInitBase):
         cls.abstract = cls.__dict__.get('abstract', False)
 
         def find_superclass(cls):
-            superclasses = filter(lambda c: issubclass(c, this_cls),
-                    cls.__bases__)
+            superclasses = [c for c in cls.__bases__ if issubclass(c, this_cls)]
             if not superclasses:
                 return None
             if len(superclasses) > 1:

@@ -300,8 +300,9 @@ def grade_submission(env, kind='NORMAL', **kwargs):
     if kind is None:
         group_results = env['group_results']
     else:
-        group_results = dict(filter(lambda (name, res): res['kind'] == kind,
-                env['group_results'].iteritems()))
+        group_results = dict((name, res) for (name, res)
+                             in env['group_results'].iteritems()
+                             if res['kind'] == kind)
 
     score, status = fun(group_results)
     assert isinstance(score, (types.NoneType, ScoreValue))

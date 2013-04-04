@@ -22,8 +22,9 @@ def register_current_contest(request):
 def recent_contests(request):
     ids = request.session.get('recent_contests', [])
     mapping = Contest.objects.in_bulk(ids)
-    return filter(lambda c: c is not None and c != request.contest,
-            [mapping.get(id) for id in ids])
+    return [c for c in (mapping.get(id) for id in ids)
+            if c is not None and c != request.contest]
+
 
 def register_recent_contests(request):
     if not hasattr(request, 'contest') or not hasattr(request, 'session'):

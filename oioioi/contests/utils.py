@@ -65,10 +65,8 @@ def rounds_times(request):
     if request.user.is_anonymous():
         rtexts = {}
     else:
-        rtexts = dict(map(lambda x: (x['round_id'], x),
-                          RoundTimeExtension.objects
-                            .filter(user=request.user, round__id__in=rids)
-                            .values()))
+        rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects
+                      .filter(user=request.user, round__id__in=rids).values())
 
     return dict((r, RoundTimes(r.start_date, r.end_date, r.results_date,
                           rtexts[r.id]['extra_time'] if r.id in rtexts else 0))
@@ -114,7 +112,7 @@ def visible_rounds(request):
 def aggregate_statuses(statuses):
     """Returns first unsuccessful status or 'OK' if all are successful"""
 
-    failures = filter(lambda status: status != 'OK', statuses)
+    failures = [s for s in statuses if s != 'OK']
     if failures:
         return failures[0]
     else:
