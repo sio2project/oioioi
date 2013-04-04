@@ -401,6 +401,7 @@ class SinolPackageCreator(object):
             else:
                 filename = os.path.join(self.short_name, 'doc', '%szad.pdf'
                         % (self.short_name,))
+            self._pack_django_file(statement.content, filename)
 
     def _pack_tests(self):
         for test in Test.objects.filter(problem=self.problem):

@@ -209,6 +209,7 @@ class TestSinolPackageCreator(TestCase):
         stream = StringIO(response.content)
         zip = zipfile.ZipFile(stream, 'r')
         self.assertEqual(sorted(zip.namelist()), [
+                'sum/doc/sumzad.pdf',
                 'sum/in/sum0.in',
                 'sum/in/sum1a.in',
                 'sum/in/sum1b.in',

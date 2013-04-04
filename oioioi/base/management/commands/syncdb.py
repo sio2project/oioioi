@@ -9,7 +9,7 @@ class Command(syncdb.Command):
 
     def handle_noargs(self, **options):
         db = settings.DATABASES['default']
-        split = string.split(db['ENGINE'], '.')
+        split = db['ENGINE'].split('.')
         if (len(split) >= 4 and split[3] == 'sqlite3'
             and not os.path.isabs(db['NAME'])):
             self.stderr.write("Since you are using sqlite3 it is important" \

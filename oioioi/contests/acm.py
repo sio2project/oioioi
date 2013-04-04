@@ -64,14 +64,14 @@ class ACMScore(ScoreValue):
                                 self.total_time % 60)
 
     @classmethod
-    def from_repr(cls, value):
+    def _from_repr(cls, value):
         problems_solved, total_time, penalties_count = map(int,
                                                            value.split(':'))
         return ACMScore(problems_solved,
                         total_time - cls.penalty_time * penalties_count,
                         penalties_count)
 
-    def to_repr(self):
+    def _to_repr(self):
         """Store score as string \
            ``"ACM:problems_solved:total_time:penalties_count"`` where:
 

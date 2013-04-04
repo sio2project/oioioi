@@ -13,7 +13,7 @@ class ScoreField(models.CharField):
 
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('max_length', 255)
-        models.Field.__init__(self, *args, **kwargs)
+        super(ScoreField, self).__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
         if value is None:

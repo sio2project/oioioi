@@ -136,7 +136,7 @@ def activate_pupil_view(request, contest_id, key):
                     user=request.user)
         elif register_as == 'teacher':
             teacher_obj = get_object_or_404(Teacher, user=request.user)
-            ContestTeacher.get_or_create(contest=request.contest,
+            ContestTeacher.objects.get_or_create(contest=request.contest,
                     teacher=teacher_obj)
         else:
             raise SuspiciousOperation

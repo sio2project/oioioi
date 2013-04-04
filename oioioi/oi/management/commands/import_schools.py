@@ -30,7 +30,7 @@ class Command(BaseCommand):
             raise CommandError(_("Expected no more than one argument"))
 
         if not args:
-            arg = DEFAULT_URL
+            arg = self.DEFAULT_URL
         else:
             arg = args[0]
         if arg.startswith('http://') or arg.startswith('https://'):

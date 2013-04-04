@@ -173,7 +173,8 @@ class TestRemoteJobs(SimpleTestCase):
 
 police_files = {}
 
-class SuspectNotFoundException(object):
+
+class SuspectNotFoundException(Exception):
     pass
 
 def police_handler(env, **kwargs):
@@ -184,7 +185,8 @@ def police_handler(env, **kwargs):
     return env
 
 def corrupted_police_handler(env, **kwargs):
-    raise SuspectNotFoundException()
+    raise SuspectNotFoundException
+
 
 def set_mood(env, **kwargs):
     case = env['case']

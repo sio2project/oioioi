@@ -27,7 +27,7 @@ class Message(models.Model):
     def can_have_replies(self):
         return self.kind == 'QUESTION'
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if self.top_reference:
             self.contest = self.top_reference.contest
             self.round = self.top_reference.round
@@ -38,7 +38,7 @@ class Message(models.Model):
         if self.problem_instance:
             self.round = self.problem_instance.round
         self.contest = self.round.contest
-        super(Message, self).save()
+        super(Message, self).save(*args, **kwargs)
 
 class MessageView(models.Model):
     message = models.ForeignKey(Message)

@@ -1,4 +1,4 @@
-""" Escape string for generating LaTeX report.
+r""" Escape string for generating LaTeX report.
 
     Usage:
     {{ malicious|latex_escape }}

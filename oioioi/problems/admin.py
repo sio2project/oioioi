@@ -27,10 +27,10 @@ class StatementInline(admin.TabularInline):
     def has_add_permission(self, request):
         return False
 
-    def has_change_permission(self, request):
+    def has_change_permission(self, request, obj=None):
         return True
 
-    def has_delete_permission(self, request):
+    def has_delete_permission(self, request, obj=None):
         return False
 
     def content_link(self, instance):
@@ -66,10 +66,10 @@ class ProblemInstanceInline(admin.StackedInline):
     def has_add_permission(self, request):
         return False
 
-    def has_change_permission(self, request):
+    def has_change_permission(self, request, obj=None):
         return True
 
-    def has_delete_permission(self, request):
+    def has_delete_permission(self, request, obj=None):
         return False
 
 class ProblemAdmin(admin.ModelAdmin):

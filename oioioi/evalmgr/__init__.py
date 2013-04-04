@@ -12,10 +12,9 @@ def _placeholder(environ, **kwargs):
     return environ
 
 def _find_placeholder(recipe, name):
-    for index, element in enumerate(recipe):
-        if element[0] == name \
-                and element[1] == 'oioioi.evalmgr._placeholder':
-            return index
+    for i, entry in enumerate(recipe):
+        if entry[0] == name and entry[1] == 'oioioi.evalmgr._placeholder':
+            return i
     else:
         raise IndexError("Placeholder '%s' not found in recipe" % (name,))
 
@@ -45,7 +44,7 @@ def extend_before_placeholder(environ, name, entries):
 def replace_recipe_entry(environ, name, new_entry):
     recipe = environ['recipe']
     for i, entry in enumerate(recipe):
-        if phase[0] == name:
+        if entry[0] == name:
             index = i
             break
     else:
