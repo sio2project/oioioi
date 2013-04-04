@@ -25,6 +25,7 @@ class PrintPDF(FPDF):
         self.column_width = (self.w - self.l_margin - self.r_margin) / 2
         self.center = self.l_margin + self.column_width
         self.cell_height = FONT_SIZE * MM_IN_POINT
+        self.col = 0
         self.set_col(0)
 
     def set_col(self, col):

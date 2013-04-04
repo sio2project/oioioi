@@ -54,6 +54,10 @@ class SinolPackage(object):
         else:
             ext = os.path.splitext(self.filename)[1]
         self.archive = Archive(path, ext)
+        self.config = None
+        self.problem = None
+        self.rootdir = None
+        self.short_name = self._find_main_folder()
 
     def _find_main_folder(self):
         # Looks for the only folder which has at least the in/ and out/
@@ -371,6 +375,7 @@ class SinolPackageCreator(object):
     def __init__(self, problem):
         self.problem = problem
         self.short_name = problem.short_name
+        self.zip = None
 
     def _pack_django_file(self, django_file, arcname):
         reader = django_file.file
