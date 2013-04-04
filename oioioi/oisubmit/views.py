@@ -22,7 +22,6 @@ def oisubmit_response(error_occured, comment):
 def oisubmit_view(request, contest_id):
     if request.method == 'POST':
         form = OISubmitSubmissionForm(request, request.POST, request.FILES)
-        response = dict(status=None,comment="")
         if form.is_valid():
             if form.cleaned_data.get('siotime', None) is not None:
                 submission_date = form.cleaned_data['siotime']

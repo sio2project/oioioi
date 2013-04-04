@@ -66,14 +66,13 @@ class PrintPDF(FPDF):
         self.set_y(self.h - self.b_margin)
 
         self.set_font('Times', size=FONT_SIZE)
-        """FPDF does not support {nb} alias with unicode.
-        It's already fixed in it's hg repository, we are waiting for release.
-        """
+        # FPDF does not support {nb} alias with unicode.
+        #  It's already fixed in hg repository, we are waiting for release.
         self.gray_cell(
             w=0, h=self.cell_height, txt=_("Page %s/{nb}") % self.page_no(),
             border=1, ln=1, align='C')
 
-        """Draw lines on margins and between columns"""
+        # Draw lines on margins and between columns
         self.line(self.initial_l_margin, self.t_margin, self.initial_l_margin,
                   self.h - self.b_margin)
         self.line(self.center, self.t_margin + self.cell_height, self.center,

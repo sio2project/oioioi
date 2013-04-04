@@ -65,7 +65,6 @@ class DefaultRankingController(RankingController):
 
     def available_rankings(self, request):
         rankings = [(CONTEST_RANKING_KEY, _("Contest"))]
-        ccontroller = self.contest.controller
         for round in self._rounds_for_ranking(request):
             rankings.append((str(round.id), round.name))
         if len(rankings) == 1:

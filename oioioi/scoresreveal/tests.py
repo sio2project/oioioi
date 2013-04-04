@@ -54,8 +54,6 @@ class TestScoresReveal(TestCase):
         config.save()
 
     def test_simple_reveal(self):
-        contest = Contest.objects.get()
-
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
             response = self.reveal_submit(1)
             self.assertIn('<tr><td>34</td></tr>', response.content)
@@ -76,15 +74,10 @@ class TestScoresReveal(TestCase):
         r1 = Round.objects.get()
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
-        contest = Contest.objects.get()
-
         with fake_time(datetime(2012, 8, 9, 23, 10, tzinfo=utc)):
-            kwargs = {'contest_id': contest.id, 'submission_id': 1}
             self.reveal_submit(1)
 
     def test_reveal_limit(self):
-        contest = Contest.objects.get()
-
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
             self.reveal_submit(4)
             self.reveal_submit(5)
@@ -93,8 +86,6 @@ class TestScoresReveal(TestCase):
             self.assertIn('used <strong>2</strong>/2 reveals', response.content)
 
     def test_compilation_error(self):
-        contest = Contest.objects.get()
-
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
             self.reveal_submit(2, success=False)
 
@@ -122,5 +113,4 @@ class TestScoresReveal(TestCase):
             self.assertIn('already used <strong>1</strong>/2 reveals.',
                           response.content)
             self.assertIn('<td>100</td>', response.content)
-
-            response = self.reveal_submit(5, success=False)
+            self.reveal_submit(5, success=False)

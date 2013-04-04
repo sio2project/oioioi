@@ -49,7 +49,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
         opts = self.model._meta
         if 'came_from' in request.GET:
             return HttpResponseRedirect(request.GET['came_from'])
-        if not self.has_change_permission(request, None):
+        if not self.has_change_permission(request):
             return HttpResponseRedirect(reverse('admin:index',
                                             current_app=self.admin_site.name))
         return HttpResponseRedirect(reverse('admin:%s_%s_changelist' %

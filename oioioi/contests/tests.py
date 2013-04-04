@@ -229,7 +229,6 @@ class TestContestViews(TestCase):
                 'oioioi.contests.tests.PrivateContestController'
         contest.save()
         problem_instance = ProblemInstance.objects.get()
-        problem = problem_instance.problem
         self.client.login(username='test_user')
         check_not_accessible(self, 'problems_list',
                 kwargs={'contest_id': contest.id})

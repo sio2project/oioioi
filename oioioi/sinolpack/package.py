@@ -131,7 +131,7 @@ class SinolPackage(object):
 
         try:
             execute('make', cwd=docdir)
-        except ExecuteError, e:
+        except ExecuteError:
             logger.warning('%s: failed to compile statement', self.filename,
                     exc_info=True)
 
@@ -142,7 +142,6 @@ class SinolPackage(object):
             return
 
         pdffile = os.path.join(docdir, self.short_name + 'zad.pdf')
-        texfile = os.path.join(docdir, self.short_name + 'zad.tex')
 
         if not os.path.isfile(pdffile):
             self._compile_docs(docdir)
@@ -216,11 +215,9 @@ class SinolPackage(object):
             instance, created = Test.objects.get_or_create(
                 problem=self.problem, name=name)
             instance.input_file.save(basename + '.in',
-                    File(open(os.path.join(
-                        self.rootdir, 'in', basename + '.in'), 'rb')))
+                    File(open(os.path.join(indir, basename + '.in'), 'rb')))
             instance.output_file.save(basename + '.out',
-                    File(open(os.path.join(
-                        self.rootdir, 'out', basename + '.out'), 'rb')))
+                    File(open(os.path.join(outdir, basename + '.out'), 'rb')))
             if group == '0' or 'ocen' in suffix:
                 # Example tests
                 instance.kind = 'EXAMPLE'
@@ -424,7 +421,6 @@ class SinolPackageCreator(object):
         except OriginalPackage.DoesNotExist:
             # If the original package is not available, produce the most basic
             # output: tests, statements, model solutions.
-            response = HttpResponse(content_type='appliction/zip')
             fd, tmp_filename = tempfile.mkstemp()
             try:
                 self.zip = zipfile.ZipFile(os.fdopen(fd, 'wb'), 'w')

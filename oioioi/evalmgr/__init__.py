@@ -89,7 +89,7 @@ def _run_error_handlers(env, exc_info):
 
 @task
 def evalmgr_job(env):
-    """Takes environment and evaluates it according to its recipe.
+    r"""Takes environment and evaluates it according to its recipe.
 
        It needs some env elements to be set:
 

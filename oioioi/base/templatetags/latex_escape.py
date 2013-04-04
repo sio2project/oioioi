@@ -16,12 +16,12 @@ register = template.Library()
 @register.filter
 def latex_escape(x):
     res = unicode(x)
-    "Braces + backslashes"
+    # Braces + backslashes
     res = res.replace('\\', '\\textbackslash\\q{}')
     res = res.replace('{', '\\{')
     res = res.replace('}', '\\}')
     res = res.replace('\\q\\{\\}', '\\q{}')
-    "then everything followed by empty space."
+    # then everything followed by empty space
     repls = [
         ('#', '\\#'),
         ('$', '\\$'),

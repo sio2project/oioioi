@@ -73,7 +73,7 @@ class TestOIOnsiteAdmin(TestCase):
             self.assertIn(element, response.content)
 
         url = reverse('oioioiadmin:oi_region_delete', args=(r.id,))
-        response = self.client.post(url, {'post': 'yes'})
+        self.client.post(url, {'post': 'yes'})
         self.assertEqual(Region.objects.count(), 0)
 
     def test_participants_import(self):
@@ -221,7 +221,6 @@ class TestOIViews(TestCase):
         self.assertEqual(len(response.context['contests']), 2)
         self.assertIn('Visible Contest', response.content)
 
-        user = User.objects.get(username='test_user')
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
         self.assertIn('Visible Contest', response.content)

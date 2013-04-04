@@ -96,7 +96,7 @@ def main():
 
     try:
         generate_all(dir)
-    except BaseException, e:
+    except BaseException:
         shutil.rmtree(dir)
         raise
 

@@ -13,7 +13,6 @@ def raw_file_view(request, filename):
     if not default_storage.exists(filename):
         raise Http404
 
-    size = default_storage.size(filename)
     file = default_storage.open(filename, 'rb')
     content_type = mimetypes.guess_type(filename)[0] or \
         'application/octet-stream'

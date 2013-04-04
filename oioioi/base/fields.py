@@ -62,7 +62,7 @@ class DottedNameField(models.CharField):
     def validate(self, value, model_instance):
         try:
             obj = get_object_by_dotted_name(value)
-        except Exception, e:
+        except Exception:
             raise ValidationError(_("Object %s not found") % (value,))
 
         superclass = self._get_superclass()

@@ -63,7 +63,7 @@ class TestProblemViews(TestCase):
         problem = Problem.objects.get()
         url = reverse('oioioiadmin:problems_problem_delete',
                 args=(problem.id,))
-        response = self.client.post(url, {'post': 'yes'})
+        self.client.post(url, {'post': 'yes'})
         self.assertEqual(Problem.objects.count(), 0)
 
     def _test_problem_permissions(self):

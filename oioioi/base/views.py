@@ -28,7 +28,7 @@ def index_view(request):
     try:
         return render_to_response("index.html",
                 context_instance=RequestContext(request))
-    except TemplateDoesNotExist, e:
+    except TemplateDoesNotExist:
         if not request.contest:
             return TemplateResponse(request, "index-no-contests.html")
         return default_contest_view(request, request.contest.id)
