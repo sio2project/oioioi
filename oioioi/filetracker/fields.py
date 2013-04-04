@@ -48,4 +48,4 @@ class FileField(files.FileField):
         value = self._get_val_from_obj(obj)
         return 'data:' + value.name + ':' + base64.b64encode(value.read())
 
-add_introspection_rules([], ["^oioioi\.filetracker\.fields\.FileField"])
+add_introspection_rules([], [r'^oioioi\.filetracker\.fields\.FileField'])

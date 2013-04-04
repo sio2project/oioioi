@@ -82,7 +82,7 @@ add_introspection_rules([
             'superclass': ['superclass_name', {}],
         }
     )
-], ["^oioioi\.base\.fields\.DottedNameField"])
+], [r'^oioioi\.base\.fields\.DottedNameField'])
 
 
 class EnumRegistry(object):
@@ -128,4 +128,4 @@ class EnumField(models.CharField):
         for item in self.registry.entries:
             yield item
 
-add_introspection_rules([], ["^oioioi\.base\.fields\.EnumField"])
+add_introspection_rules([], [r'^oioioi\.base\.fields\.EnumField'])

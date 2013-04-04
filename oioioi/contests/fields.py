@@ -37,4 +37,4 @@ class ScoreField(models.CharField):
             raise ValueError("ScoreField.to_python got neither ScoreValue nor "
                     "string: %r" % (value,))
 
-add_introspection_rules([], ["^oioioi\.contests\.fields\.ScoreField"])
+add_introspection_rules([], [r'^oioioi\.contests\.fields\.ScoreField'])
