@@ -14,9 +14,6 @@ class Participant(models.Model):
     user = models.ForeignKey(User)
     status = EnumField(participant_statuses, default='ACTIVE')
 
-    class Meta:
-        unique_together = ('contest', 'user')
-
     @property
     def registration_model(self):
         rcontroller = self.contest.controller.registration_controller()
@@ -27,8 +24,12 @@ class Participant(models.Model):
         except model_class.DoesNotExist:
             raise ObjectDoesNotExist
 
+    class Meta:
+        unique_together = ('contest', 'user')
+
     def __unicode__(self):
         return unicode(self.user)
+
 
 class RegistrationModel(models.Model):
     participant = models.OneToOneField(Participant,

@@ -43,11 +43,11 @@ class RegistrationConfig(models.Model):
     is_active = models.BooleanField(default=True)
     key = models.CharField(max_length=40)
 
-    def generate_key(self):
-        data = str(random.random()) + str(self.contest_id)
-        self.key = hashlib.sha1(data).hexdigest()
-
     def save(self, *args, **kwargs):
         if not self.key:
             self.generate_key()
         super(RegistrationConfig, self).save(*args, **kwargs)
+
+    def generate_key(self):
+        data = str(random.random()) + str(self.contest_id)
+        self.key = hashlib.sha1(data).hexdigest()

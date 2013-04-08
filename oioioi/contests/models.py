@@ -39,6 +39,12 @@ class Contest(models.Model):
             verbose_name=_("default submissions limit"),
             default=settings.DEFAULT_SUBMISSIONS_LIMIT, blank=True)
 
+    @property
+    def controller(self):
+        if not self.controller_name:
+            return None
+        return get_object_by_dotted_name(self.controller_name)(self)
+
     class Meta:
         verbose_name = _("contest")
         verbose_name_plural = _("contests")
@@ -49,14 +55,9 @@ class Contest(models.Model):
             ('enter_contest', _("Can enter the contest")),
         )
 
-    @property
-    def controller(self):
-        if not self.controller_name:
-            return None
-        return get_object_by_dotted_name(self.controller_name)(self)
-
     def __unicode__(self):
         return self.name
+
 
 @receiver(pre_save, sender=Contest)
 def _generate_contest_id(sender, instance, raw, **kwargs):
@@ -89,13 +90,13 @@ class ContestAttachment(models.Model):
     content = FileField(upload_to=make_contest_filename,
             verbose_name=_("content"))
 
-    class Meta:
-        verbose_name = _("attachment")
-        verbose_name_plural = _("attachments")
-
     @property
     def filename(self):
         return os.path.split(self.content.name)[1]
+
+    class Meta:
+        verbose_name = _("attachment")
+        verbose_name_plural = _("attachments")
 
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
@@ -190,14 +191,14 @@ class Submission(models.Model):
     comment = models.TextField(blank=True,
             verbose_name=_("comment"))
 
+    @property
+    def problem(self):
+        return self.problem_instance.problem
+
     class Meta:
         verbose_name = _("submission")
         verbose_name_plural = _("submissions")
         get_latest_by = 'id'
-
-    @property
-    def problem(self):
-        return self.problem_instance.problem
 
     def is_scored(self):
         return self.score is not None

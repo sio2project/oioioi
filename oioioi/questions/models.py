@@ -24,9 +24,6 @@ class Message(models.Model):
     content = models.TextField(verbose_name=_('content'))
     date = models.DateTimeField(default=timezone.now, editable=False)
 
-    def can_have_replies(self):
-        return self.kind == 'QUESTION'
-
     def save(self, *args, **kwargs):
         if self.top_reference:
             self.contest = self.top_reference.contest
@@ -39,6 +36,9 @@ class Message(models.Model):
             self.round = self.problem_instance.round
         self.contest = self.round.contest
         super(Message, self).save(*args, **kwargs)
+
+    def can_have_replies(self):
+        return self.kind == 'QUESTION'
 
 class MessageView(models.Model):
     message = models.ForeignKey(Message)

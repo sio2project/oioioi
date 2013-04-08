@@ -102,9 +102,10 @@ class OIOnsiteRegistration(RegistrationModel):
     region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL)
     local_number = models.IntegerField()
 
+    class Meta:
+        unique_together = ('region', 'local_number')
+
     def __unicode__(self):
         return _("%(number)s/%(region)s/%(local_number)s") % \
                 dict(number=self.number, region=self.region,
                     local_number=self.local_number)
-    class Meta:
-        unique_together = ('region', 'local_number')
