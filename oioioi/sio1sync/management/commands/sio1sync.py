@@ -41,15 +41,20 @@ def sync_user(sio1_user):
         sio2_user = User.objects.get(username=sio1_user['username'])
         if sio1_user['first_name'] != sio2_user.first_name or \
            sio1_user['last_name'] != sio2_user.last_name:
-            logger.warning("User already exists, but names differ. "
-                           "SIO1:(%s, %s %s), SIO2: (%s, %s %s)" %
-                           (sio1_user['username'], sio1_user['first_name'],
-                            sio1_user['last_name'], sio2_user.username,
-                            sio2_user.first_name, sio2_user.last_name))
+            logger.warning("User already exists, but names differ."
+                           " SIO1: (%(login1)s, %(fname1)s %(lname1)s),"
+                           " SIO2: (%(login2)s, %(fname2)s %(lname2)s)",
+                           {'login1': sio1_user['username'],
+                            'fname1': sio1_user['first_name'],
+                            'lname1': sio1_user['last_name'],
+                            'login2': sio2_user.username,
+                            'fname2': sio2_user.first_name,
+                            'lname2': sio2_user.last_name})
         else:
-            logger.debug("User (%s, %s %s) already exists." %
-                         (sio2_user.username, sio2_user.first_name,
-                          sio2_user.last_name))
+            logger.debug("User (%(login)s, %(fname)s %(lname)s) exists.",
+                         {'login': sio2_user.username,
+                          'fname': sio2_user.first_name,
+                          'lname': sio2_user.last_name})
 
     except User.DoesNotExist:
         sio2_user = User.objects.create_user(sio1_user['username'],
@@ -64,9 +69,10 @@ def sync_user(sio1_user):
         reg_profile.activation_key = RegistrationProfile.ACTIVATED
         reg_profile.save()
 
-        logger.info("User (%s, %s %s) synced." %
-                    (sio2_user.username, sio2_user.first_name,
-                     sio2_user.last_name))
+        logger.info("User (%(login)s, %(fname)s %(lname)s) synced.",
+                    {'login': sio2_user.username,
+                     'fname': sio2_user.first_name,
+                     'lname': sio2_user.last_name})
 
     return sio2_user
 
@@ -145,9 +151,10 @@ def sync_submission(sio1_submission_id):
     sql = 'UPDATE submits SET in_sio2 = %s WHERE id = %s'
     sync_env['sioCursor'].execute(sql, (submission.id, sio1_submission_id))
 
-    logger.info("Submission (id: %s, u: %s, p: %s) synced to SIO2 (id: %s)." %
-               (sio1_submission_id, sio1_user['username'],
-                pi.short_name, submission.id))
+    logger.info("Submission (id: %(id1)s, u: %(login)s, p: %(pshortname)s)"
+                " synced to SIO2 (id: %(id2)s).",
+                {'id1': sio1_submission_id, 'login': sio1_user['username'],
+                 'pshortname': pi.short_name, 'id2': submission.id})
 
 
 def sync_submissions():

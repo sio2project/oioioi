@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 def postpone(env, **extra_args):
     saved_env = copy.copy(env)
     env['recipe'] = []
-    logger.debug('Postponing evaluation of %r' % (saved_env,))
+    logger.debug('Postponing evaluation of %(env)r', {'env': saved_env})
     evalmgr.evalmgr_job.apply_async((saved_env,), **extra_args)
     return env
 
