@@ -13,7 +13,15 @@
                 </li>
             {% endfor %}
     {%  endfor %}
+    <li class="divider" id="nav-dropdown-divider" style="display: none;"></li>
+    <li class="dropdown nav-dropdown-submenu" style="display: none;">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {% trans 'More' %}
+        </a>
+        <ul class="dropdown-menu"></ul>
+    </li>
 </ul>
+
 {% else %}
 <ul class="nav nav-list user-menu">
     {% generate_menu side_menus|first %}
@@ -25,6 +33,13 @@
         </a>
         </li>
     {% endfor %}
+    <li class="divider" id="nav-dropdown-divider" style="display: none;"></li>
+    <li class="dropdown nav-dropdown-submenu" style="display: none;">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            {% trans 'More' %}
+        </a>
+        <ul class="dropdown-menu"></ul>
+    </li>
 </ul>
 {% endif %}
 {% all_with_prefix extra_menu_bottom_ %}
