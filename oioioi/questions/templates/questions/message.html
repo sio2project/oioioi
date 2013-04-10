@@ -6,6 +6,10 @@
 
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
+<h3 class="message_topic">
+    {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}: 
+    {{ message.topic }}
+</h3>
 {% if is_admin %}
 <div class="corner-icons">
     <ul>
@@ -19,10 +23,6 @@
 </div>
 {% endif %}
 <div class="message {% if is_admin %}admin{% endif %} {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if replies %}message_has_replies{% endif %}">
-    <h3 class="message_topic">
-        {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}: 
-        {{ message.topic }}
-    </h3>
     {% if is_admin %}
     <div class="message_actions">
         <a class="action" href="{% url oioioiadmin:questions_message_change message.id %}"><i class="icon-edit"></i></a>
