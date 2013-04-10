@@ -8,6 +8,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
@@ -336,6 +337,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         environ.setdefault('error_handlers', [])
         environ['error_handlers'].append(('create_error_report',
                     'oioioi.contests.handlers.create_error_report'))
+
+        if settings.MAIL_ADMINS_ON_GRADING_ERROR:
+            environ['error_handlers'].append(('mail_admins_on_error',
+                        'oioioi.contests.handlers.mail_admins_on_error'))
+
         environ['error_handlers'].extend(extra_steps)
         environ['error_handlers'].append(('error_handled',
                     'oioioi.evalmgr.handlers.error_handled'))

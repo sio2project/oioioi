@@ -1,11 +1,13 @@
-from django.db import transaction
-from oioioi.contests.models import Contest, ProblemInstance, Submission, \
-        SubmissionReport, FailureReport, UserResultForContest, \
-        UserResultForRound, UserResultForProblem
 import json
 import logging
 import traceback
 import pprint
+from smtplib import SMTPException
+from django.core.mail import mail_admins
+from django.db import transaction
+from oioioi.contests.models import Contest, ProblemInstance, Submission, \
+        SubmissionReport, FailureReport, UserResultForContest, \
+        UserResultForRound, UserResultForProblem
 
 logger = logging.getLogger(__name__)
 
@@ -80,3 +82,20 @@ def create_error_report(env, exc_info, **kwargs):
 
     return env
 
+def mail_admins_on_error(env, exc_info, **kwargs):
+    """Sends email to all admins defined in settings.ADMINS on each
+       grading error occurrence.
+
+       USES
+           * `env['submission_id']`
+    """
+
+    try:
+        mail_admins("System Error evaluating submission #%s" %
+                    env.get('submission_id', '???'),
+                    traceback.format_exc(exc_info))
+    except SMTPException, e:
+        logger.error("An error occurred while sending email: %s",
+                     e.message)
+
+    return env

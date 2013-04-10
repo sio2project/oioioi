@@ -1,5 +1,6 @@
 from datetime import datetime
 from functools import partial
+from django.core import mail
 
 from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
@@ -394,6 +395,12 @@ class TestRejudgeAndFailure(TestCase):
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertIn('failure report', response.content)
         self.assertIn('EXPECTED FAILURE', response.content)
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('System Error evaluating submission #',
+                      mail.outbox[0].subject)
+        self.assertIn('Traceback (most recent call last)', mail.outbox[0].body)
+        self.assertEqual(mail.outbox[0].to, ['admin@example.com'])
 
         self.client.login(username='test_user')
         response = self.client.get(reverse('submission', kwargs=kwargs))

@@ -1,5 +1,9 @@
 from oioioi.default_settings import *
 
+ADMINS = (
+    ('Test admin', 'admin@example.com'),
+)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
