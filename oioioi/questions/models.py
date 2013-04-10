@@ -29,9 +29,6 @@ class Message(models.Model):
             self.contest = self.top_reference.contest
             self.round = self.top_reference.round
             self.problem_instance = self.top_reference.problem_instance
-        elif bool(self.round) == bool(self.problem_instance):
-            raise ValueError(_("Exactly one of round or problem_instance must "
-                               "be set"))
         if self.problem_instance:
             self.round = self.problem_instance.round
         self.contest = self.round.contest
