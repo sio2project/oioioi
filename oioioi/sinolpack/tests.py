@@ -129,6 +129,12 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, u'Łąka')
 
+
+# Fixes error "no such table: nose_c" as described in
+# https://github.com/jbalogh/django-nose/issues/15#issuecomment-1033686
+Test._meta.get_all_related_objects()
+
+
 class TestSinolPackageInContest(TestCase):
     fixtures = ['test_users', 'test_contest']
 
