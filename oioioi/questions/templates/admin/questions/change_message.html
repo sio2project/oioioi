@@ -1,0 +1,41 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block content %}
+    <h2>{% trans "Change message" %}</h2>
+    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+        {% csrf_token %}
+        <div class="control-group">
+            <label for="id_author" class="control-label">{% trans "Author" %}</label>
+            <div class="controls">
+                <label id="id_author">{{ message.author.username }}{% if message.author.get_full_name %} ({{ message.author.get_full_name }}){% endif %}</label>
+            </div>
+            <label for="message_date" class="control-label">{% trans "Date" %}</label>
+            <div class="controls">
+                <label id="message_date">{{ message.date }}</label>
+            </div>
+            <label for="message_contest" class="control-label">{% trans "Contest" %}</label>
+            <div class="controls">
+                <label id="message_contest">{{ message.contest.name }}</label>
+            </div>
+            <label for="message_category" class="control-label">{% trans "Category" %}</label>
+            <div class="controls">
+                <label id="message_category">
+                    {% if message.problem_instance %}
+                        {% trans "Problem " %}{{ message.problem_instance.problem.name }}
+                    {% else %}
+                        {% trans "General, " %}{{ message.round }}
+                    {% endif %}
+                </label>
+            </div>
+        </div>
+        {% include "ingredients/form.html" %}
+        <div class="form-actions">
+            <div class="right-side">
+                <a class="btn btn-primary" href="history/">{% trans "History" %}</a>
+                <a class="btn btn-danger" href="delete/">{% trans "Delete" %}</a>
+            </div>
+            <input type="submit" class="btn btn-primary" value="{% trans "Save" %}">
+        </div>
+    </form>
+{% endblock %}

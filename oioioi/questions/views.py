@@ -9,6 +9,7 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
         visible_rounds
+from oioioi.questions.utils import log_addition
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm
 from oioioi.questions.models import Message, MessageView
 
@@ -97,6 +98,7 @@ def add_contest_message_view(request, contest_id):
                 instance.kind = 'QUESTION'
             instance.date = request.timestamp
             instance.save()
+            log_addition(request, instance)
             return redirect('contest_messages', contest_id=contest_id)
 
     else:
@@ -126,6 +128,7 @@ def add_reply_view(request, contest_id, message_id):
             instance.author = request.user
             instance.date = request.timestamp
             instance.save()
+            log_addition(request, instance)
             return redirect('contest_messages', contest_id=contest_id)
     else:
         form = AddReplyForm(request, initial={

@@ -53,3 +53,17 @@ class AddReplyForm(AddContestMessageForm):
         self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] != 'QUESTION']
 
+class ChangeContestMessageForm(AddContestMessageForm):
+    class Meta:
+        model = Message
+        fields = ['kind', 'topic', 'content']
+
+    def __init__(self, kind, *args, **kwargs):
+        super(ChangeContestMessageForm, self).__init__(*args, **kwargs)
+        del self.fields['category']
+        if kind == 'QUESTION':
+            self.fields['kind'].choices = \
+                [c for c in message_kinds.entries if c[0] == 'QUESTION']
+        else:
+            self.fields['kind'].choices = \
+                [c for c in message_kinds.entries if c[0] != 'QUESTION']
