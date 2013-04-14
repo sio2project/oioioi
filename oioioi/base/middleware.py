@@ -1,4 +1,7 @@
 from django.utils import timezone
+from django.http import HttpResponseNotAllowed
+from django.template import RequestContext
+from django.template.loader import render_to_string
 
 class TimestampingMiddleware(object):
     """Middleware which adds an attribute ``timestamp`` to each ``request``
@@ -14,3 +17,12 @@ class TimestampingMiddleware(object):
             request.timestamp = request.session['admin_time']
         else:
             request.timestamp = timezone.now()
+
+
+class HttpResponseNotAllowedMiddleware(object):
+    def process_response(self, request, response):
+        if isinstance(response, HttpResponseNotAllowed):
+            response.content = render_to_string("405.html",
+                    context_instance=RequestContext(request,
+                        {'allowed': response['Allow']}))
+        return response
