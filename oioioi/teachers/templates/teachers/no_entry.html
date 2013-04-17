@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-{% url select_contest as link %}
+{% url 'select_contest' as link %}
 <div class="empty-space-filler">
     {% blocktrans %}<p>You are not registered to this contest.
     <p>Please ask your teacher for instructions on how to register or <a href="{{ link }}">choose another contest</a>.

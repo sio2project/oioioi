@@ -8,7 +8,7 @@
 <h2>{% trans "My submissions" %}</h2>
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url submit contest_id=contest.id %}">
+        <li><a class="btn btn-small" href="{% url 'submit' contest_id=contest.id %}">
             <i class="icon-upload"></i> {% trans "Submit" %}</a></li>
     </ul>
 </div>

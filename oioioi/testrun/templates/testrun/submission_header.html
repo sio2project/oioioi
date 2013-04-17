@@ -22,12 +22,12 @@
             {% if is_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
             <td>
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-down"></i></button>
-                <a class="btn" href="{% url download_testrun_input contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-download-alt"></i></a>
+                <a class="btn" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-download-alt"></i></a>
             </td>
         </tr>
     </tbody>
 </table>
 
-<div id="input_data" class="collapse" data-loadurl="{% url get_testrun_input contest_id=contest.id submission_id=submission.submission.id %}">
+<div id="input_data" class="collapse" data-loadurl="{% url 'get_testrun_input' contest_id=contest.id submission_id=submission.submission.id %}">
 </div>
 {% endblock %}

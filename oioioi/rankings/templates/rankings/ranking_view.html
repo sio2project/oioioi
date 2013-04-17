@@ -10,7 +10,7 @@
 {% if is_admin %}
 <div class="corner-icons">
     {% if key %}
-    <a class="btn btn-small" href="{% url ranking_csv contest_id=contest.id key=key %}"><i class="icon-download"></i> {% trans "Export to CSV" %}</a>
+    <a class="btn btn-small" href="{% url 'ranking_csv' contest_id=contest.id key=key %}"><i class="icon-download"></i> {% trans "Export to CSV" %}</a>
     {% endif %}
 </div>
 {% endif %}
@@ -19,7 +19,7 @@
 <div>
     <ul class="nav nav-pills inline-nav">
         {% for choice in choices %}
-        <li {% if choice.0 == key %}class="active"{% endif %}><a href="{% url ranking contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a></li>
+        <li {% if choice.0 == key %}class="active"{% endif %}><a href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a></li>
         {% endfor %}
     </ul>
 </div>

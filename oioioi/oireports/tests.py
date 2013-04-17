@@ -9,11 +9,12 @@ from django.utils.timezone import utc
 
 from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.oireports.views import CONTEST_REPORT_KEY
 from oioioi.participants.models import Participant
 
 
-class TestReportViews(TestCase):
+class TestReportViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
 
@@ -47,7 +48,7 @@ class TestReportViews(TestCase):
         self.client.login(username='test_admin')
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            pages = slate.PDF(StringIO(response.content))
+            pages = slate.PDF(StringIO(self.streamingContent(response)))
             self.assertIn("test_user", pages[0])
             self.assertIn("Wynik:34", pages[0])
             self.assertIn("ZAD1", pages[0])
@@ -75,8 +76,7 @@ class TestReportViews(TestCase):
         self.client.login(username='test_admin')
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            # We are using str, because response is a stream
-            content = str(response.content)
+            content = self.streamingContent(response)
             self.assertIn("<user>Test User (test_user)", content)
             self.assertIn("<result>34</result>", content)
             self.assertIn("<taskid>zad1</taskid>", content)

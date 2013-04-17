@@ -13,7 +13,7 @@
     </thead>
     <tbody>
         {% for record in submissions %}
-        {% url submission contest_id=contest.id submission_id=record.submission.id as link %}
+        {% url 'submission' contest_id=contest.id submission_id=record.submission.id as link %}
         <tr>
             <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"></td>
             <td><a href="{{ link }}">{{ record.submission.get_date_display }}</a></td>

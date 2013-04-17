@@ -1,7 +1,7 @@
 from django.core.servers.basehttp import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 import mimetypes
 
 class FileInFiletracker(File):
@@ -67,7 +67,7 @@ def stream_file(django_file, name=None, showable=None):
         name = unicode(django_file.name.rsplit('/', 1)[-1])
     content_type = mimetypes.guess_type(name)[0] or \
         'application/octet-stream'
-    response = HttpResponse(FileWrapper(django_file),
+    response = StreamingHttpResponse(FileWrapper(django_file),
         content_type=content_type)
     response['Content-Length'] = django_file.size
     showable_exts = ['pdf', 'ps', 'txt']

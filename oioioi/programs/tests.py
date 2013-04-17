@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils.html import strip_tags, escape
 from django.core.urlresolvers import reverse
+from oioioi.filetracker.tests import TestStreamingMixin
 
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible
@@ -23,7 +24,7 @@ def extract_code(show_response):
         show_response.content[preStart:preEnd]
     )
 
-class TestProgramsViews(TestCase):
+class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
 
@@ -42,10 +43,12 @@ class TestProgramsViews(TestCase):
         # Extract code from <pre>'s
         extract_code(show_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
-        download_response.content = escape(download_response.content)
+        download_response_content = \
+            escape(self.streamingContent(download_response))
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
-        self.assertEqual(show_response.content, download_response.content)
+        self.assertTrue(download_response.streaming)
+        self.assertEqual(show_response.content, download_response_content)
         self.assertIn('main()', show_response.content)
         self.assertTrue(show_response.content.strip().endswith('}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
@@ -57,10 +60,10 @@ class TestProgramsViews(TestCase):
         kwargs = {'test_id': test.id}
         response = self.client.get(reverse('download_input_file',
             kwargs=kwargs))
-        self.assertEqual(response.content.strip(), '1 2')
+        self.assertStreamingEqual(response, '1 2\n')
         response = self.client.get(reverse('download_output_file',
             kwargs=kwargs))
-        self.assertEqual(response.content.strip(), '3')
+        self.assertStreamingEqual(response, '3\n')
 
     def test_submissions_permissions(self):
         submission = Submission.objects.get(pk=1)
@@ -92,7 +95,7 @@ class TestProgramsViews(TestCase):
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)
         self.assertEqual(response.content.count('>10.00s<'), 5)
 
-class TestProgramsXssViews(TestCase):
+class TestProgramsXssViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission_xss']
 
@@ -111,12 +114,14 @@ class TestProgramsXssViews(TestCase):
         # Extract code from <pre>'s
         extract_code(show_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
-        download_response.content = escape(download_response.content)
+        download_response_content = \
+            escape(self.streamingContent(download_response))
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
-        self.assertEqual(show_response.content, download_response.content)
+        self.assertTrue(download_response.streaming)
+        self.assertEqual(show_response.content, download_response_content)
         self.assertEqual(show_response.content.find('<script>'), -1)
-        self.assertEqual(download_response.content.find('<script>'), -1)
+        self.assertEqual(download_response_content.find('<script>'), -1)
         self.assertIn('main()', show_response.content)
         self.assertTrue(show_response.content.strip().endswith('}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(

@@ -11,7 +11,7 @@
                 </a>
                 <ul class="dropdown-menu">
                     {% for value, description in submission.valid_kinds_for_submission %}
-                        <li><a href="#" data-post-url="{% url change_submission_kind contest_id=contest.id submission_id=submission.submission.id kind=value %}"><i class="icon-tag"></i> {{ description }}</a></li>
+                        <li><a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=submission.submission.id kind=value %}"><i class="icon-tag"></i> {{ description }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -24,16 +24,16 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#" data-post-url="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}"><i class="pull-left icon-eye-open"></i>{% trans "Normal rejudge" %}</a></li>
+                    <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}"><i class="pull-left icon-eye-open"></i>{% trans "Normal rejudge" %}</a></li>
                     {% for link, name in supported_extra_args.items %}
-                        <li><a href="#" data-post-url="{% url rejudge_submission contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}"><i class="pull-left icon-eye-close"></i>{{ name }}</a></li>
+                        <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}"><i class="pull-left icon-eye-close"></i>{{ name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
         {% endif %}
-        <a class="btn btn-small" href="{% url show_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
+        <a class="btn btn-small" href="{% url 'show_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
             <i class="icon-eye-open"></i> {% trans "Show code" %}</a>
-        <a class="btn btn-small" href="{% url download_submission_source contest_id=contest.id submission_id=submission.submission.id %}">
+        <a class="btn btn-small" href="{% url 'download_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
             <i class="icon-download-alt"></i> {% trans "Download" %}</a>
 </div>
 {% endblock %}

@@ -15,13 +15,13 @@
         <ul class="dropdown-menu">
             <li>
                 <a href="#" onclick="
-                    $('#report_form').attr('action', '{% url pdfreport contest_id=contest.id %}');
+                    $('#report_form').attr('action', '{% url 'pdfreport' contest_id=contest.id %}');
                     $('#report_type_display').text('&ndash; PDF');
                 ">PDF</a>
             </li>
             <li>
                 <a href="#" onclick="
-                    $('#report_form').attr('action', '{% url xmlreport contest_id=contest.id %}');
+                    $('#report_form').attr('action', '{% url 'xmlreport' contest_id=contest.id %}');
                     $('#report_type_display').text('&ndash; XML');
                 ">XML</a>
             </li>
@@ -79,7 +79,7 @@
 
 <div>
     <form id="report_form"
-            action="{% url pdfreport contest_id=contest.id %}"
+            action="{% url 'pdfreport' contest_id=contest.id %}"
             method="POST">
         {% csrf_token %}
         <input type="hidden" name="round_key"

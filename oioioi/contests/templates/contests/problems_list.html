@@ -19,7 +19,7 @@
     </thead>
     <tbody>
         {% for pi in problem_instances %}
-        {% url problem_statement contest_id=contest.id problem_instance=pi.short_name as link %}
+        {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
         <tr>
             <td>{{ pi.short_name }}</td>
             <td><a href="{{ link }}">{{ pi.problem.name }}</a></td>

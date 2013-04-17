@@ -11,7 +11,7 @@
 {% else %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url oioioiadmin:contests_probleminstance_models_rejudge problem_instance.id %}">
+        <li><a class="btn btn-small" href="{% url 'oioioiadmin:contests_probleminstance_models_rejudge' problem_instance.id %}">
             <i class="icon-repeat"></i> {% trans "Rejudge" %}</a></li>
     </ul>
 </div>
@@ -21,7 +21,7 @@
         <tr>
             <th rowspan="3" colspan="2" class="corner"></th>
             {% for s in submissions %}
-            <th><a href="{% url submission contest_id=contest.id submission_id=s.id %}">{{ s.model_solution.short_name }}</a></th>
+            <th><a href="{% url 'submission' contest_id=contest.id submission_id=s.id %}">{{ s.model_solution.short_name }}</a></th>
             {% endfor %}
         </tr>
         <tr>

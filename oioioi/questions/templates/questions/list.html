@@ -12,7 +12,7 @@
 {% if user.is_authenticated %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url add_contest_message contest_id=contest.id %}">
+        <li><a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
             {% if is_admin %}
             <i class="icon-comment"></i> {% trans "Add announcement" %}</a></li>
             {% else %}

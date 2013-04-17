@@ -3,9 +3,9 @@
 
 {% block navbar_user_panel %}
     <li style="float: right;">
-        <a href="{% url registration_register %}">{% trans "Register" %}</a>
+        <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>
     </li>
-    <form class="pull-right navbar-form navbar-login" action="{% url auth_login %}" method="post">
+    <form class="pull-right navbar-form navbar-login" action="{% url 'auth_login' %}" method="post">
         {% csrf_token %}
         <input type="text" name="username" class="default" placeholder="{% trans "Login" %}">
         <input type="password" name="password" placeholder="{% trans "Password" %}">

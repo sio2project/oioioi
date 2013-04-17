@@ -240,10 +240,8 @@ class SubmissionReport(models.Model):
     class Meta:
         get_latest_by = 'creation_date'
         ordering = ('-creation_date',)
-        # We're using this for having an index over this table.
-        # This could be changed in SIO-1214 as Django 1.5 explicitly supports it
-        # Check https://code.djangoproject.com/ticket/373
-        unique_together = ('submission', 'creation_date', 'id')
+        index_together = (('submission', 'creation_date'),)
+
 
 class ScoreReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)

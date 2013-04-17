@@ -21,6 +21,7 @@ from oioioi.contests.controllers import ContestController, \
         RegistrationController
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -327,7 +328,7 @@ class TestManyRounds(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 2)
 
-class TestMultilingualStatements(TestCase):
+class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_extra_statements']
 
@@ -337,19 +338,21 @@ class TestMultilingualStatements(TestCase):
             'contest_id': pi.contest.id,
             'problem_instance': pi.short_name})
         response = self.client.get(url)
-        self.assertEqual('en-txt', response.content)
+        self.assertStreamingEqual(response, 'en-txt')
         self.client.cookies['lang'] = 'en'
         response = self.client.get(url)
-        self.assertEqual('en-txt', response.content)
+        self.assertStreamingEqual(response, 'en-txt')
         self.client.cookies['lang'] = 'pl'
         response = self.client.get(url)
-        self.assertEqual('pl-pdf', response.content)
+        self.assertStreamingEqual(response, 'pl-pdf')
         ProblemStatement.objects.filter(language='pl').delete()
         response = self.client.get(url)
-        self.assertIn('%PDF', response.content)
+        self.assertTrue(response.streaming)
+        content = self.streamingContent(response)
+        self.assertIn('%PDF', content)
         ProblemStatement.objects.get(language__isnull=True).delete()
         response = self.client.get(url)
-        self.assertEqual('en-txt', response.content)
+        self.assertStreamingEqual(response, 'en-txt')
 
 
 def failing_handler(env):
@@ -488,7 +491,7 @@ class TestContestAdmin(TestCase):
         self.assertIn("Start date should be before end date.",
                 response.content)
 
-class TestAttachments(TestCase):
+class TestAttachments(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_attachments(self):
@@ -512,10 +515,10 @@ class TestAttachments(TestCase):
             self.assertIn(part, response.content)
         response = self.client.get(reverse('contest_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
-        self.assertEqual(response.content, 'content-of-conatt')
+        self.assertStreamingEqual(response, 'content-of-conatt')
         response = self.client.get(reverse('problem_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
-        self.assertEqual(response.content, 'content-of-probatt')
+        self.assertStreamingEqual(response, 'content-of-probatt')
 
 class SubmitFileMixin(object):
     def submit_file(self, contest, problem_instance, file_size=1024,
