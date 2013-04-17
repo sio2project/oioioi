@@ -181,7 +181,7 @@ class Submission(models.Model):
     user = models.ForeignKey(User, blank=True, null=True,
             verbose_name=_("user"))
     date = models.DateTimeField(default=timezone.now, blank=True,
-            verbose_name=_("date"))
+            verbose_name=_("date"), db_index=True)
     kind = EnumField(submission_kinds, default='NORMAL',
             verbose_name=_("kind"))
     score = ScoreField(blank=True, null=True,
@@ -198,7 +198,7 @@ class Submission(models.Model):
     class Meta:
         verbose_name = _("submission")
         verbose_name_plural = _("submissions")
-        get_latest_by = 'id'
+        get_latest_by = 'date'
 
     def is_scored(self):
         return self.score is not None
