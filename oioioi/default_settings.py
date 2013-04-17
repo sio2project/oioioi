@@ -103,6 +103,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'linaro_django_pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
+    'oioioi.base.middleware.HttpResponseNotAllowedMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )

@@ -378,6 +378,10 @@ class TestRejudgeAndFailure(TestCase):
         self.client.login(username='test_admin')
         response = self.client.get(rejudge_url)
         self.assertEqual(405, response.status_code)
+        self.assertNotIn('My submissions', response.content)
+        self.assertIn('OIOIOI', response.content)
+        self.assertIn('method is not allowed', response.content)
+        self.assertIn('Log out', response.content)
 
     def test_rejudge_and_failure(self):
         contest = Contest.objects.get()
