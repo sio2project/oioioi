@@ -59,24 +59,21 @@ def execute(command, env=None, split_lines=False, ignore_errors=False,
     if isinstance(command, (list, tuple)):
         command = ' '.join(quote(x) for x in command)
 
-    # I'm not quite sure this is necessary. I leave it mostly
-    # as I don't have a development-ready Windows box to test it.
-    if sys.platform.startswith('win'):
-        close_fds = False
-    else:
-        close_fds = True
-
     original_cwd = os.getcwd()
     try:
-        if cwd:
-            os.chdir(cwd)
+        def set_cwd():
+            if cwd:
+                os.chdir(cwd)
+
         if capture_output:
             p = subprocess.Popen(command, stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    shell=True, close_fds=close_fds, env=env)
+                    shell=True, close_fds=True, env=env,
+                    preexec_fn=set_cwd)
         else:
             p = subprocess.Popen(command, stdin=subprocess.PIPE,
-                    shell=True, close_fds=close_fds, env=env)
+                    shell=True, close_fds=True, env=env,
+                    preexec_fn=set_cwd)
 
         stdout, _ = p.communicate(stdin)
         rc = p.returncode
