@@ -11,7 +11,7 @@ from oioioi.contests.models import RoundTimeExtension
 
 def has_participants(request):
     rcontroller = request.contest.controller.registration_controller()
-    return hasattr(rcontroller, 'participant_admin')
+    return getattr(rcontroller, 'participant_admin', None) is not None
 
 class ParticipantAdmin(admin.ModelAdmin):
     list_select_related = True
@@ -119,12 +119,22 @@ class ParticipantAdmin(admin.ModelAdmin):
                 {'form': form})
     extend_round.short_description = _("Extend round")
 
+class NoParticipantAdmin(ParticipantAdmin):
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
-    default_participant_admin = ParticipantAdmin
+    default_participant_admin = NoParticipantAdmin
 
     def _find_model_admin(self, request, object_id):
         rcontroller = request.contest.controller.registration_controller()
-        if hasattr(rcontroller, 'participant_admin'):
+        if has_participants(request):
             participant_admin = rcontroller.participant_admin(self.model,
                                                               self.admin_site)
         else:

@@ -198,7 +198,10 @@ class ProgrammingContestController(ContestController):
 
             def clean_user():
                 try:
-                    return User.objects.get(username=form.cleaned_data['user'])
+                    return self.registration_controller() \
+                        .filter_participants(User.objects
+                            .filter(username=form.cleaned_data['user'])) \
+                        .get()
                 except User.DoesNotExist:
                     raise forms.ValidationError(_("User does not exist"))
             form.clean_user = clean_user

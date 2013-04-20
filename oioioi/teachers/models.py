@@ -28,16 +28,6 @@ class ContestTeacher(models.Model):
     def __unicode__(self):
         return u'%s/%s' % (self.contest_id, self.teacher.user)
 
-class Pupil(models.Model):
-    contest = models.ForeignKey(Contest)
-    user = models.ForeignKey(User)
-
-    class Meta:
-        unique_together = ('contest', 'user')
-
-    def __unicode__(self):
-        return u'%s/%s' % (self.contest_id, self.user.username)
-
 class RegistrationConfig(models.Model):
     contest = models.OneToOneField(Contest, primary_key=True)
     is_active = models.BooleanField(default=True)

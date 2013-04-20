@@ -127,7 +127,7 @@ class TestOIRegistration(TestCase):
         self.client.login(username='test_user')
         response = self.client.post('/c/%s/unregister' % (contest.id,),
                                     {'post': 'yes'})
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
@@ -189,7 +189,7 @@ class TestOIOnsiteRegistration(TestCase):
         self.client.login(username='test_user')
         response = self.client.post('/c/%s/unregister' % (contest.id,),
                                     {'post': 'yes'})
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')

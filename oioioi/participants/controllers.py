@@ -80,13 +80,16 @@ class ParticipantsController(RegistrationController):
         instance.save()
 
     def registration_view(self, request):
-        if not self.can_register(request):
-            raise PermissionDenied
         try:
             participant = Participant.objects.get(contest=self.contest,
                     user=request.user)
+            if not self.can_edit_registration(request, participant):
+                raise PermissionDenied
         except Participant.DoesNotExist:
             participant = None
+
+        if participant is None and not self.can_register(request):
+            raise PermissionDenied
 
         form = self.get_form(request, participant)
         if request.method == 'POST':

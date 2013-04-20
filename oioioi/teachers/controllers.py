@@ -1,14 +1,22 @@
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
-from oioioi.contests.controllers import RegistrationController
+from oioioi.participants.controllers import ParticipantsController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
 
-class TeacherRegistraionController(RegistrationController):
-    def filter_participants(self, queryset):
-        return queryset.filter(pupil__contest=self.contest)
+class TeacherRegistrationController(ParticipantsController):
+    @property
+    def form_class(self):
+        return None
 
-    def anonymous_can_enter_contest(self):
+    @property
+    def participant_admin(self):
+        return None
+
+    def can_register(self, request):
+        return False
+
+    def can_edit_registration(self, request, participant):
         return False
 
     def no_entry_view(self, request):
@@ -16,13 +24,14 @@ class TeacherRegistraionController(RegistrationController):
 
 class TeacherRankingController(DefaultRankingController):
     def filter_users_for_ranking(self, request, key, queryset):
-        return queryset.filter(pupil__contest=self.contest)
+        return request.contest.controller.registration_controller() \
+                .filter_participants(queryset)
 
 class TeacherContestController(ProgrammingContestController):
     description = _("Contest for teachers")
 
     def registration_controller(self):
-        return TeacherRegistraionController(self.contest)
+        return TeacherRegistrationController(self.contest)
 
     def ranking_controller(self):
         return TeacherRankingController(self.contest)
