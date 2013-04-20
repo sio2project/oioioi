@@ -1,25 +1,25 @@
-from django.utils.translation import ugettext as _
-from django.core.files import File
-from django.http import HttpResponse
-from oioioi.base.utils import naturalsort_key
-from oioioi.base.utils.archive import Archive
-from oioioi.base.utils.execute import execute, ExecuteError
-from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment
-from oioioi.problems.package import ProblemPackageBackend, \
-        ProblemPackageError
-from oioioi.programs.models import Test, OutputChecker, ModelSolution
-from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
-from oioioi.filetracker.utils import stream_file
-import chardet
 import glob
 import logging
 import re
 import shutil
 import tempfile
 import os
-import os.path
 import zipfile
+
+from django.utils.translation import ugettext as _
+from django.core.files import File
+import chardet
+
+from oioioi.base.utils import naturalsort_key
+from oioioi.base.utils.archive import Archive
+from oioioi.base.utils.execute import execute, ExecuteError
+from oioioi.problems.models import Problem, ProblemStatement
+from oioioi.problems.package import ProblemPackageBackend, \
+        ProblemPackageError
+from oioioi.programs.models import Test, OutputChecker, ModelSolution
+from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
+from oioioi.filetracker.utils import stream_file
+
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +141,14 @@ class SinolPackage(object):
             logger.warning('%s: no docdir', self.filename)
             return
 
+        self.problem.statements.all().delete()
+
+        htmlzipfile = os.path.join(docdir, self.short_name + 'zad.html.zip')
+        if os.path.exists(htmlzipfile):
+            statement = ProblemStatement(problem=self.problem)
+            statement.content.save(self.short_name + '.html.zip',
+                    File(open(htmlzipfile, 'rb')))
+
         pdffile = os.path.join(docdir, self.short_name + 'zad.pdf')
 
         if not os.path.isfile(pdffile):
@@ -149,7 +157,6 @@ class SinolPackage(object):
             logger.warning('%s: no problem statement', self.filename)
             return
 
-        self.problem.statements.all().delete()
         statement = ProblemStatement(problem=self.problem)
         statement.content.save(self.short_name + '.pdf',
                 File(open(pdffile, 'rb')))

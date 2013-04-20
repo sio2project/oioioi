@@ -7,6 +7,7 @@ import tempfile
 import shutil
 from contextlib import contextmanager
 import threading
+import urllib
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -44,7 +45,7 @@ if not getattr(settings, 'TESTS', False):
 
 basedir = os.path.dirname(__file__)
 
-def check_not_accessible(testcase, url_or_viewname, *args, **kwargs):
+def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     data = kwargs.pop('data', {})
     if url_or_viewname.startswith('/'):
         url = url_or_viewname
@@ -52,10 +53,12 @@ def check_not_accessible(testcase, url_or_viewname, *args, **kwargs):
         assert not kwargs
     else:
         url = reverse(url_or_viewname, *args, **kwargs)
-    response = testcase.client.get(url, data=data)
-    testcase.assertIn(response.status_code, (403, 404, 302))
-    if response.status_code == 302:
-        testcase.assertIn('/login/', response['Location'])
+    if qs:
+        url += '?' + urllib.urlencode(qs)
+    response = testcase.client.get(url, data=data, follow=True)
+    testcase.assertIn(response.status_code, (403, 404, 200))
+    if response.status_code == 200:
+        testcase.assertIn('/login/', repr(response.redirect_chain))
 
 def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     data = kwargs.pop('data', {})

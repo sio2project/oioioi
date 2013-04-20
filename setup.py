@@ -62,7 +62,9 @@ setup(
         "slate",
         "unicodecsv",
 
-        "chardet"
+        "chardet",
+
+        "django-gravatar2",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

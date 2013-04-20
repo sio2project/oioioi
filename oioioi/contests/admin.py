@@ -151,10 +151,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                         urllib.urlencode({'came_from': came_from})
 
     def _problem_reupload_href(self, instance):
-        came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
-        return reverse('oioioiadmin:problems_problem_reupload',
-                args=(instance.problem_id,)) + '?' + \
-                        urllib.urlencode({'came_from': came_from})
+        return reverse('add_or_update_contest_problem',
+                kwargs={'contest_id': instance.contest.id}) + '?' + \
+                        urllib.urlencode({'problem': instance.problem.id})
 
     def _problem_download_href(self, instance):
         came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
@@ -163,7 +162,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                         urllib.urlencode({'came_from': came_from})
 
     def inline_actions(self, instance):
-        move_href = reverse('oioioiadmin:contests_probleminstance_change', args=(instance.id,))
+        move_href = reverse('oioioiadmin:contests_probleminstance_change',
+                args=(instance.id,))
         edit_href = self._problem_change_href(instance)
         reupload_href = self._problem_reupload_href(instance)
         download_href = self._problem_download_href(instance)

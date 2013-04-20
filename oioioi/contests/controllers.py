@@ -233,6 +233,10 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation checks if the user can see the given
            round (calls :meth:`can_see_round`).
         """
+        if not problem_instance.round:
+            return False
+        if request.user.has_perm('contests.contest_admin', request.contest):
+            return True
         return self.can_see_round(request, problem_instance.round)
 
     def can_submit(self, request, problem_instance, check_round_times=True):
@@ -244,6 +248,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            also call this default implementation.
         """
         if request.user.is_anonymous():
+            return False
+        if not problem_instance.round:
             return False
         if request.user.has_perm('contests.contest_admin', request.contest):
             return True

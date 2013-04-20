@@ -3,35 +3,24 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from django.db.models import F, Count, Max
-from django.db.utils import DatabaseError
+
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Problem.contest'
-        db.add_column('problems_problem', 'contest',
-                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.Contest'], null=True, blank=True),
-                      keep_default=False)
 
-        # Problems which have exactly one instance should be attached to
-        # corresponding contests.
-        if not db.dry_run:
-            try:
-                for problem in orm.Problem.objects \
-                        .annotate(num_instances=Count('probleminstance')) \
-                        .filter(num_instances=1):
-                    problem.contest = problem.probleminstance_set.get().contest
-                    problem.save()
-            except DatabaseError:
-                # This usually means that the contest_probleminstance table
-                # does not exist yet.
-                pass
+        # Changing field 'ProblemInstance.round'
+        db.alter_column('contests_probleminstance', 'round_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.Round'], null=True))
 
     def backwards(self, orm):
-        # Deleting field 'Problem.contest'
-        db.delete_column('problems_problem', 'contest_id')
 
+        if not db.dry_run:
+            if orm.ProblemInstance.objects.filter(round__isnull=True).exists():
+                raise RuntimeError("Cannot reverse this migration."
+                                   " There exists some ProblemInstances without round."
+                                   " Please fix it, if you want to reverse this migration. ")
+
+        db.alter_column('contests_probleminstance', 'round_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.Round']))
 
     models = {
         'auth.group': {
@@ -74,6 +63,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Contest'},
             'controller_name': ('oioioi.base.fields.DottedNameField', [], {'max_length': '255', 'superclass': "'oioioi.contests.controllers.ContestController'"}),
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'default_submissions_limit': ('django.db.models.fields.IntegerField', [], {'default': '10', 'blank': 'True'}),
             'id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         },
@@ -83,6 +73,13 @@ class Migration(SchemaMigration):
             'contest': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attachments'", 'to': "orm['contests.Contest']"}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
+        },
+        'contests.contestpermission': {
+            'Meta': {'unique_together': "(('user', 'contest', 'permission'),)", 'object_name': 'ContestPermission'},
+            'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Contest']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'permission': ('oioioi.base.fields.EnumField', [], {'default': "'contests.contest_admin'", 'max_length': '64'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'contests.failurereport': {
             'Meta': {'object_name': 'FailureReport'},
@@ -96,17 +93,26 @@ class Migration(SchemaMigration):
             'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Contest']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'problem': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['problems.Problem']"}),
-            'round': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Round']"}),
-            'short_name': ('django.db.models.fields.CharField', [], {'max_length': '30'})
+            'round': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Round']", 'null': 'True', 'blank': 'True'}),
+            'short_name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
+            'submissions_limit': ('django.db.models.fields.IntegerField', [], {'default': '10', 'blank': 'True'})
         },
         'contests.round': {
             'Meta': {'ordering': "('contest', 'start_date')", 'unique_together': "(('contest', 'name'),)", 'object_name': 'Round'},
             'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Contest']"}),
             'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_trial': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'results_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'start_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'})
+            'start_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'})
+        },
+        'contests.roundtimeextension': {
+            'Meta': {'unique_together': "(('user', 'round'),)", 'object_name': 'RoundTimeExtension'},
+            'extra_time': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'round': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Round']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'contests.scorereport': {
             'Meta': {'object_name': 'ScoreReport'},
@@ -119,7 +125,7 @@ class Migration(SchemaMigration):
         'contests.submission': {
             'Meta': {'object_name': 'Submission'},
             'comment': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'db_index': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'kind': ('oioioi.base.fields.EnumField', [], {'default': "'NORMAL'", 'max_length': '64'}),
             'problem_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.ProblemInstance']"}),
@@ -128,7 +134,7 @@ class Migration(SchemaMigration):
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
         },
         'contests.submissionreport': {
-            'Meta': {'unique_together': "(('submission', 'creation_date'),)", 'object_name': 'SubmissionReport'},
+            'Meta': {'ordering': "('-creation_date',)", 'unique_together': "(('submission', 'creation_date', 'id'),)", 'object_name': 'SubmissionReport'},
             'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'kind': ('oioioi.base.fields.EnumField', [], {'default': "'FINAL'", 'max_length': '64'}),
@@ -148,6 +154,7 @@ class Migration(SchemaMigration):
             'problem_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.ProblemInstance']"}),
             'score': ('oioioi.contests.fields.ScoreField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'status': ('oioioi.base.fields.EnumField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'submission_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.SubmissionReport']", 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
         'contests.userresultforround': {
@@ -163,22 +170,9 @@ class Migration(SchemaMigration):
             'controller_name': ('oioioi.base.fields.DottedNameField', [], {'max_length': '255', 'superclass': "'oioioi.problems.controllers.ProblemController'"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'package_backend_name': ('oioioi.base.fields.DottedNameField', [], {'max_length': '255', 'null': 'True', 'superclass': "'oioioi.problems.package.ProblemPackageBackend'", 'blank': 'True'}),
             'short_name': ('django.db.models.fields.CharField', [], {'max_length': '30'})
-        },
-        'problems.problemattachment': {
-            'Meta': {'object_name': 'ProblemAttachment'},
-            'content': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100'}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'problem': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'attachments'", 'to': "orm['problems.Problem']"})
-        },
-        'problems.problemstatement': {
-            'Meta': {'object_name': 'ProblemStatement'},
-            'content': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'language': ('django.db.models.fields.CharField', [], {'max_length': '6', 'null': 'True', 'blank': 'True'}),
-            'problem': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'statements'", 'to': "orm['problems.Problem']"})
         }
     }
 
-    complete_apps = ['contests', 'problems']
+    complete_apps = ['contests']

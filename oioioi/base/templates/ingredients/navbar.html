@@ -71,10 +71,11 @@
                 </li>
                 {% else %}
                 <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <a href="#" id="navbar-username" class="dropdown-toggle {% if avatar %}has-avatar{% endif %}" data-toggle="dropdown">
                     {% if real_user.is_superuser %}
                         <span id="su-label" class="label label-inverse"{% if not is_under_su %} style="display: none"{% endif %}>{% trans "Switched user" %}</span>
                     {% endif %}
+                    {% if avatar %}<img alt="avatar" width="25" height="25" src="{{ avatar }}">{% endif %}
                     <strong id="username">{{ user.username }}</strong>
                     <b class="caret"></b>
                 </a>

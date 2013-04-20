@@ -17,7 +17,7 @@ from oioioi.teachers.models import RegistrationConfig, Pupil, \
         ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
-from oioioi.base.permissions import enforce_condition
+from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.contests.utils import is_contest_admin
 
 def is_teachers_contest(request):
@@ -83,7 +83,7 @@ def add_teacher_view(request):
         form = AddTeacherForm(instance=instance)
     return TemplateResponse(request, 'teachers/request.html', {'form': form})
 
-@user_passes_test(lambda u: u.is_superuser)
+@enforce_condition(is_superuser)
 def accept_teacher_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
     teacher, created = Teacher.objects.get_or_create(user=user)
@@ -170,7 +170,7 @@ def regenerate_key_view(request, contest_id):
 @enforce_condition(is_contest_admin)
 def delete_pupils_view(request, contest_id):
     ContestTeacher.objects.filter(contest=request.contest,
-            user_id__in=request.POST.getlist('teacher')).delete()
+            teacher__user_id__in=request.POST.getlist('teacher')).delete()
     Pupil.objects.filter(contest=request.contest,
             user_id__in=request.POST.getlist('pupil')).delete()
     return redirect_to_pupils(request)
@@ -185,5 +185,5 @@ def bulk_add_pupils_view(request, contest_id, other_contest_id):
                 user=p.user)
     for ct in ContestTeacher.objects.filter(contest=other_contest):
         ContestTeacher.objects.get_or_create(contest=request.contest,
-                user=ct.user)
+                teacher=ct.teacher)
     return redirect_to_pupils(request)

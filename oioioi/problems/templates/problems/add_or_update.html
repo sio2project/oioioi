@@ -1,0 +1,20 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block content %}
+<h2>{% if existing_problem %}{% blocktrans with existing_problem as name %}Update problem {{ name }}{% endblocktrans %}{% else %}{% trans "Add problem" %}{% endif %}</h2>
+{% if sources|length > 1 %}
+<div class="tabbable">
+    <ul class="nav nav-tabs">
+        {% for s in sources %}
+        <li {% if s.obj == current_source %}class="active"{% endif %}><a href="{{ s.link }}">{{ s.obj.short_description }}</a></li>
+        {% endfor %}
+    </ul>
+    <div class="tab-content">
+        {{ content }}
+    </div>
+</div>
+{% else %}
+{{ content }}
+{% endif %}
+{% endblock %}

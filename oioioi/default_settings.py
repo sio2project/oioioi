@@ -88,6 +88,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.contests.processors.register_current_contest',
     'oioioi.contests.processors.register_recent_contests',
     'oioioi.contests.processors.register_only_default_contest',
+    'oioioi.problems.processors.dangling_problems_processor',
     'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
     'oioioi.status.processors.status_processor',
@@ -201,6 +202,10 @@ PAGINATION_DEFAULT_MARGIN = 1
 NUM_DASHBOARD_SUBMISSIONS = 8
 
 NUM_SUDO_HINTS = 10
+
+PROBLEM_SOURCES = (
+    'oioioi.problems.problem_sources.PackageSource',
+)
 
 PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',

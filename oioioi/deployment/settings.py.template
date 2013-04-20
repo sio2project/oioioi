@@ -117,6 +117,7 @@ USE_LOCAL_COMPILERS = True
 
 INSTALLED_APPS = (
 #    'oioioi.contestlogo',
+#    'oioioi.avatar',
 #    'oioioi.teachers',
 #    'oioioi.ipdnsauth',
 #    'oioioi.sio1sync',
@@ -131,10 +132,12 @@ INSTALLED_APPS = (
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.complaints',
+#    'oioioi.sharingcli',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.logo_processor',
+#    'oioioi.avatar.processors.gravatar',
 )
 
 MIDDLEWARE_CLASSES += (
@@ -151,6 +154,14 @@ AUTHENTICATION_BACKENDS += (
 #EVALMGR_CONCURRENCY = 30
 
 #SPLITEVAL_EVALMGR = True
+
+PROBLEM_SOURCES += (
+#    'oioioi.sharingcli.problem_sources.RemoteSource',
+)
+
+SHARING_SERVERS = (
+#    ('site_url', 'sharing_url', 'client_id', 'client_secret'),
+)
 
 # Complaints
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
