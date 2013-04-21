@@ -1,4 +1,4 @@
-$(function(){
+$(window).load(function(){
     var menu_ul = '#menu_div .nav-list';
     var last_li = menu_ul + ' > li:nth-last-of-type(3)';
     var submenu = menu_ul + ' .nav-dropdown-submenu';
@@ -27,7 +27,8 @@ $(function(){
 
     var recalculate_menu = function() {
         var ul = $(menu_ul);
-        var cut_y = footer.length ? footer.offset().top : $(window).height();
+        var cut_y = footer.length ? footer.offset().top
+                : $('#menu_div').offset().top + $(window).height();
 
         while ($(submenu_first_li).length == 1
             && ul.offset().top + ul.height() < cut_y) {
