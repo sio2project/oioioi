@@ -25,7 +25,8 @@ class TestOIAdmin(TestCase):
         contest.save()
 
         self.client.login(username='test_admin')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
         self.assertIn('Schools', response.content)
         self.assertNotIn('Regions', response.content)
 
@@ -46,7 +47,8 @@ class TestOIOnsiteAdmin(TestCase):
         contest.save()
 
         self.client.login(username='test_admin')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
         self.assertIn('Schools', response.content)
         self.assertIn('Regions', response.content)
 
@@ -105,8 +107,10 @@ class TestOIRegistration(TestCase):
         contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
 
@@ -115,7 +119,7 @@ class TestOIRegistration(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertIn('Edit contest registration', response.content)
 
@@ -124,9 +128,11 @@ class TestOIRegistration(TestCase):
         contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
+        url = reverse('participants_unregister',
+                      kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(404, response.status_code)
 
         user = User.objects.get(username='test_user')
@@ -135,16 +141,14 @@ class TestOIRegistration(TestCase):
         self.assertEqual(Participant.objects.count(), 1)
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(302, response.status_code)
         self.assertEqual(Participant.objects.count(), 0)
 
@@ -176,7 +180,8 @@ class TestOIOnsiteRegistration(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
 
@@ -186,9 +191,11 @@ class TestOIOnsiteRegistration(TestCase):
                 'oioioi.oi.controllers.OIOnsiteContestController'
         contest.save()
 
+        url = reverse('participants_unregister',
+                      kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(404, response.status_code)
 
         user = User.objects.get(username='test_user')
@@ -197,16 +204,14 @@ class TestOIOnsiteRegistration(TestCase):
         self.assertEqual(Participant.objects.count(), 1)
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
 class TestOIViews(TestCase):
@@ -234,19 +239,21 @@ class TestOIViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user2')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
 class TestOIOnsiteViews(TestCase):
@@ -294,8 +301,10 @@ class TestOIOnsiteViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user2')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
         self.assertNotIn('My submissions', response.content)
@@ -303,7 +312,7 @@ class TestOIOnsiteViews(TestCase):
         self.assertIn('Log out', response.content)
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
         self.assertNotIn('My submissions', response.content)
@@ -314,7 +323,7 @@ class TestOIOnsiteViews(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
 class TestOISubmit(TestCase, SubmitFileMixin):

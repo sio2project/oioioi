@@ -148,7 +148,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
         extra_urls = patterns('',
                 url(r'(\d+)/models/$', self.model_solutions_view,
                     name='contests_probleminstance_models'),
-                url(r'(\d+)/models/rejudge$',
+                url(r'(\d+)/models/rejudge/$',
                     self.rejudge_model_solutions_view,
                     name='contests_probleminstance_models_rejudge'),
             )
