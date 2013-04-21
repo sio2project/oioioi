@@ -255,7 +255,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return True
 
     def get_default_submission_kind(self, request):
-        """Returns default kind of newly created submission by the current used.
+        """Returns default kind of newly created submission by the current user.
 
            The default implementation returns ``'IGNORED'`` for non-contestants.
            In other cases it returns ``'NORMAL'``.
@@ -271,7 +271,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return None
         return problem_instance.submissions_limit
 
-    def is_exceeded_submissions_limit(self, request, problem_instance, kind):
+    def is_submissions_limit_exceeded(self, request, problem_instance, kind):
         submissions_number = Submission.objects.filter(user=request.user,
             problem_instance__id=problem_instance.id, kind=kind).count()
         submissions_limit = self.get_submissions_limit(request,
@@ -662,7 +662,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             raise NotImplementedError
 
     def adjust_contest(self):
-        """Called whan a (usually new) contest has just got the controller
+        """Called when a (usually new) contest has just got the controller
            attached or after the contest has been modified."""
         pass
 
@@ -686,7 +686,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         assert kind in self.valid_kinds_for_submission(submission)
         submission.kind = kind
         submission.save()
-        self.update_user_results(submission.user, submission.problem_instance)
+        if submission.user:
+            self.update_user_results(submission.user,
+                    submission.problem_instance)
 
     def mixins_for_admin(self):
         """Returns an iterable of mixins to add to the default
