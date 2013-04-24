@@ -41,6 +41,7 @@ setup(
 
         "django-debug-toolbar",
         "django-extensions",
+        "django-output-validator",
         "werkzeug",
 
         # Old versions have buggy coverage reports generation, raising
