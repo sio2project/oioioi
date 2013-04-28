@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
 
@@ -326,8 +326,12 @@ class SubmissionAdmin(admin.ModelAdmin):
         for submission in queryset:
             controller.judge(submission)
             counter += 1
-        self.message_user(request, _("Queued %d submissions for rejudge.")
-                % (counter,))
+        self.message_user(
+            request,
+            ungettext_lazy("Queued one submission for rejudge.",
+                           "Queued %(counter)d submissions for rejudge.",
+                           counter)
+            % {'counter': counter})
     rejudge_action.short_description = _("Rejudge selected submissions")
 
     def get_list_select_related(self):

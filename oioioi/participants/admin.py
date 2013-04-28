@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
@@ -103,11 +104,28 @@ class ParticipantAdmin(admin.ModelAdmin):
                         if not existing_extensions.filter(user=user).exists()]
                 RoundTimeExtension.objects.bulk_create(new_extensions)
 
-                self.message_user(request, _("Created %(new_count)d and updated"
-                    "%(updated_count)d %(name)s.")
-                    % {'new_count': len(new_extensions),
-                       'updated_count': existing_count,
-                       'name': RoundTimeExtension._meta.verbose_name_plural.lower()})
+                if existing_count:
+                    if existing_count > 1:
+                        name = capfirst(
+                            RoundTimeExtension._meta.verbose_name_plural)
+                    else:
+                        name = RoundTimeExtension._meta.verbose_name
+                    self.message_user(request, ungettext_lazy(
+                        "Updated one %(name)s.",
+                        "%(name)s updated: %(existing_count)d.",
+                        existing_count
+                    ) % {'existing_count': existing_count, 'name': name})
+                if new_extensions:
+                    if len(new_extensions) > 1:
+                        name = capfirst(
+                            RoundTimeExtension._meta.verbose_name_plural)
+                    else:
+                        name = RoundTimeExtension._meta.verbose_name
+                    self.message_user(request, ungettext_lazy(
+                        "Created one %(name)s.",
+                        "%(name)s created: %(new_count)d.",
+                        len(new_extensions)
+                    ) % {'new_count': len(new_extensions), 'name': name})
 
                 return HttpResponseRedirect(request.get_full_path())
 
