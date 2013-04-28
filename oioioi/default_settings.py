@@ -279,6 +279,7 @@ CELERY_ROUTES.update({
 EVALMGR_CONCURRENCY = 1
 
 # Split-priority evaluation
+ENABLE_SPLITEVAL = False
 SPLITEVAL_EVALMGR = False
 
 # ID of JotForm account for "Send Feedback" link.

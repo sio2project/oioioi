@@ -158,6 +158,10 @@ AUTHENTICATION_BACKENDS += (
 # Number of concurrently evaluated submissions (default is 1).
 #EVALMGR_CONCURRENCY = 30
 
+# Uncomment the following lines to enable judging prioritisation.
+# Workers serving both high- and low-priority tasks should be started with
+# '-Q sioworkers,sioworkers-lowprio' commandline option.
+#ENABLE_SPLITEVAL = True
 #SPLITEVAL_EVALMGR = True
 
 PROBLEM_SOURCES += (
