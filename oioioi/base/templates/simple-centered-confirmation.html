@@ -1,0 +1,26 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="empty-space-filler">
+    <h2>{% block title %}{% trans "Confirm your action" %}{% endblock %}</h2>
+    <p>
+        {% block help_text %}
+            {% trans "The action you are trying to complete needs additional confirmation." %}
+        {% endblock %}
+    </p>
+
+    <form method="post" action="">
+        {% csrf_token %}
+        {% block buttons %}
+            <button type="submit" class="btn btn-primary btn-block btn-large" name="confirmation" value="">
+                {% block proceed_label %}{% trans "Confirm" %}{% endblock %}
+            </button>
+            <button type="submit" class="btn btn-block">
+                {% block cancel_label %}{% trans "Cancel" %}{% endblock %}
+            </button>
+        {% endblock %}
+    </form>
+</div>
+{% endblock %}
+

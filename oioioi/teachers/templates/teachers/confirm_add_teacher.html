@@ -1,0 +1,9 @@
+{% extends "simple-centered-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm granting teacher rights" %}{% endblock %}
+
+{% block help_text %}
+    {% blocktrans with fullname=teacher.user.get_full_name username=teacher.user school=teacher.school%}Are you sure, that you want to grant teacher rights to {{ fullname }} ({{ username }}) from {{ school }}?{% endblocktrans %}
+{% endblock %}
+

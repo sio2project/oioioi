@@ -35,13 +35,13 @@
         });
 </script>
 <p>
-    <a class="btn btn-info" href="{% url teachers_disable_registration contest_id=contest.id%}">{% trans "Disable link" %}</a>
-    <a class="btn" href="{% url teachers_regenerate_key contest_id=contest.id %}">{% trans "Re-generate key" %}</a>
+    <a class="btn btn-info" data-post-url="{% url teachers_disable_registration contest_id=contest.id%}">{% trans "Disable link" %}</a>
+    <a class="btn" data-post-url="{% url teachers_regenerate_key contest_id=contest.id %}">{% trans "Re-generate key" %}</a>
 </p>
 {% else %}
 <p>{% trans "Registration of new users is disabled." %}
 <p>
-    <a class="btn btn-info" href="{% url teachers_enable_registration contest_id=contest.id%}">{% trans "Re-enable registration" %}</a>
+    <a class="btn btn-info" data-post-url="{% url teachers_enable_registration contest_id=contest.id%}">{% trans "Re-enable registration" %}</a>
 </p>
 {% endif %}
 
@@ -85,7 +85,7 @@
             <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Add from other contest" %} <span class="caret"></span></button>
             <ul class="dropdown-menu">
                 {% for c in other_contests %}
-                <li><a href="{% url teachers_bulk_add_pupils contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
+                <li><a data-post-url="{% url teachers_bulk_add_pupils contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
                 {% endfor %}
             </ul>
         </div>

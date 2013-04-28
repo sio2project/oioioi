@@ -1,0 +1,22 @@
+{% extends "simple-centered-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% if is_teacher %}{% trans "Choose registration type" %}{% else %}{% trans "Confirm registration" %}{% endif %}{% endblock %}
+
+{% block help_text %}
+{% if is_teacher %}
+    <p>{% blocktrans %}Your account is a teacher account. Please choose, if you wish to
+    register to the {{ contest }} contest as a teacher or as a pupil.{% endblocktrans %}
+{% else %}
+    <p>{% blocktrans %}You are going to register to the {{ contest }} contest. Please, confirm your registration.{% endblocktrans %}
+{% endif %}
+{% endblock %}
+
+{% block buttons %}
+    {% if is_teacher %}
+        <button type="submit" class="btn btn-primary" name="register_as" value="teacher">{% trans "Register as a teacher" %}</button>
+        <button type="submit" class="btn" name="register_as" value="pupil">{% trans "Register as a pupil" %}</button>
+    {% else %}
+        <button type="submit" class="btn btn-primary btn-block btn-large" name="register_as" value="pupil">{% trans "Register!" %}</button>
+    {% endif %}
+{% endblock %}
