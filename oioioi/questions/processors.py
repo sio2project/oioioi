@@ -3,12 +3,15 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ungettext
 from django.utils.functional import lazy
 from oioioi.base.utils import make_navbar_badge
+from oioioi.contests.utils import can_enter_contest
 from oioioi.questions.views import new_messages, visible_messages
 
 def navbar_tip_processor(request):
     if not getattr(request, 'contest', None):
         return {}
     if not request.user.is_authenticated():
+        return {}
+    if not can_enter_contest(request):
         return {}
     def generator():
         is_admin = request.user.has_perm('contests.contest_admin',
