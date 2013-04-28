@@ -79,6 +79,7 @@ class ProblemInstanceForm(forms.ModelForm):
         super(ProblemInstanceForm, self).__init__(*args, **kwargs)
         if instance:
             self.fields['round'].queryset = instance.contest.round_set
+            self.fields['round'].required = True
 
 class SubmissionForm(forms.Form):
     """Represents base submission form containing task selector.

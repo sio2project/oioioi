@@ -300,6 +300,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem_instance = submission.problem_instance
         problem = problem_instance.problem
         round = problem_instance.round
+        assert round, \
+            "Someone tried to evaluate submission to dangling problem instance."
         contest = round.contest
 
         environ['submission_id'] = submission.id

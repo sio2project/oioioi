@@ -23,7 +23,7 @@ def dangling_problems_processor(request):
             if request.path == link:
                 return ''
         else:
-            link = reverse('oioioiadmin:problems_problem_changelist')
+            link = reverse('oioioiadmin:contests_probleminstance_changelist')
         text = ungettext('%(count)d PROBLEM WITHOUT ROUND',
                 '%(count)d PROBLEMS WITHOUT ROUNDS',
                 count) % {'count': count}
