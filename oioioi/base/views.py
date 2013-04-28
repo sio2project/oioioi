@@ -10,7 +10,7 @@ from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout as auth_logout, login as auth_login
-from oioioi.base.utils import safe_redirect
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
 from oioioi.base.menu import account_menu_registry

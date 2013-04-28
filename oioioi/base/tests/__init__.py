@@ -7,6 +7,7 @@ import tempfile
 import shutil
 from contextlib import contextmanager
 import threading
+import subprocess
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -402,6 +403,20 @@ class TestUtils(unittest.TestCase):
             utils.get_object_by_dotted_name('oioioi.base.tests.Nonexistent')
         with self.assertRaises(ImportError):
             utils.get_object_by_dotted_name('oioioi.base.nonexistent.Foo')
+
+    def test_utils_dont_need_settings(self):
+        subprocess_env = os.environ.copy()
+        subprocess_env.pop('DJANGO_SETTINGS_MODULE', None)
+        subprocess_code = """
+import sys
+import oioioi.base.utils
+if 'oioioi.default_settings' in sys.modules:
+    sys.exit(1)
+else:
+    sys.exit(0)"""
+        ret = subprocess.call([sys.executable, '-c', subprocess_code],
+              env=subprocess_env)
+        self.assertEqual(ret, 0)
 
 class TestAllWithPrefix(unittest.TestCase):
     def test_all_with_prefix(self):
