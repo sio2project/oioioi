@@ -671,21 +671,25 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            for the given submission.
 
            Default implementation supports only kinds
-           ``NORMAL`` and ``IGNORED``.
+           ``NORMAL``, ``IGNORED``, ``SUSPECTED``.
         """
-        valid = ['NORMAL', 'IGNORED']
+        valid = ['NORMAL', 'IGNORED', 'SUSPECTED']
+        if submission.kind != 'SUSPECTED':
+            return [v for v in valid if v != 'SUSPECTED']
         if submission.kind in valid:
             return valid
-        else:
-            return []
+        return []
 
     def change_submission_kind(self, submission, kind):
         """Changes kind of the submission. Also updates user reports for
            problem, round and contest which may contain given submission.
         """
         assert kind in self.valid_kinds_for_submission(submission)
+        old_kind = submission.kind
         submission.kind = kind
         submission.save()
+        if old_kind == 'SUSPECTED' and kind != 'SUSPECTED':
+            self.judge(submission)
         if submission.user:
             self.update_user_results(submission.user,
                     submission.problem_instance)
