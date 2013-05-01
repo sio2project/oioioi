@@ -6,16 +6,12 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import enforce_condition
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-        visible_rounds
+        visible_rounds, contest_exists
 from oioioi.questions.utils import log_addition
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm
 from oioioi.questions.models import Message, MessageView
-
-menu_registry.register('contest_messages', _("Messages"),
-        lambda request: reverse('contest_messages', kwargs={'contest_id':
-            request.contest.id}), order=450)
 
 def visible_messages(request):
     rounds_ids = [round.id for round in visible_rounds(request)]
@@ -56,13 +52,16 @@ def messages_template_context(request, messages):
     to_display.sort(key=key, reverse=True)
     return to_display
 
-@enforce_condition(can_enter_contest)
+@menu_registry.register_decorator(_("Messages"), lambda request:
+        reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
+    order=450)
+@enforce_condition(contest_exists & can_enter_contest)
 def messages_view(request, contest_id):
     messages = messages_template_context(request, visible_messages(request))
     return TemplateResponse(request, 'questions/list.html',
                 {'records': messages})
 
-@enforce_condition(can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, contest_id, message_id):
     message = get_object_or_404(Message, id=message_id)
     vmessages = visible_messages(request)
@@ -84,7 +83,7 @@ def message_view(request, contest_id, message_id):
                 {'message': message, 'replies': replies,
                     'reply_to_id': message.top_reference_id or message.id})
 
-@enforce_condition(can_enter_contest)
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def add_contest_message_view(request, contest_id):
     is_admin = request.user.has_perm('contests.contest_admin', request.contest)
     if request.method == 'POST':
@@ -116,7 +115,7 @@ def quote_for_reply(content):
     lines = content.strip().split('\n')
     return ''.join('> ' + l for l in lines)
 
-@enforce_condition(is_contest_admin)
+@enforce_condition(contest_exists & is_contest_admin)
 def add_reply_view(request, contest_id, message_id):
     question = get_object_or_404(Message, id=message_id,
             contest_id=contest_id, kind='QUESTION')

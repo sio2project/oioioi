@@ -135,7 +135,9 @@ class TestWithNoTestruns(TestCase):
     def test_not_visible(self):
         self.client.login(username='test_user')
         kwargs = {'contest_id': Contest.objects.get().id}
-        check_not_accessible(self, 'testrun_submit', kwargs=kwargs)
+        url = reverse('testrun_submit', kwargs=kwargs)
+        response = self.client.get(url)
+        self.assertIn("for which you could run", response.content)
 
 class TestHandlers(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

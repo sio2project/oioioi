@@ -6,15 +6,20 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
 from oioioi.contests.admin import RoundTimeExtensionAdmin
+from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.participants import ParticipantsController
 from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
 from oioioi.participants.models import Participant
 from oioioi.contests.models import RoundTimeExtension
+from oioioi.participants.utils import contest_has_participants
 
-def has_participants(request):
+
+@make_request_condition
+def has_participants_admin(request):
     rcontroller = request.contest.controller.registration_controller()
     return hasattr(rcontroller, 'participant_admin')
+
 
 class ParticipantAdmin(admin.ModelAdmin):
     list_select_related = True
@@ -155,7 +160,7 @@ class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
 admin.site.register(Participant, ContestDependentParticipantAdmin)
 contest_admin_menu_registry.register('participants', _("Participants"),
     lambda request: reverse('oioioiadmin:participants_participant_changelist'),
-    condition=has_participants, order=30)
+    condition=has_participants_admin, order=30)
 
 class ParticipantInline(admin.TabularInline):
     model = Participant
@@ -182,8 +187,7 @@ admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)
 class ParticipantsRoundTimeExtensionMixin(object):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'user':
-            rcontroller = request.contest.controller.registration_controller()
-            if isinstance(rcontroller, ParticipantsController):
+            if contest_has_participants(request):
                 kwargs['queryset'] = User.objects \
                     .filter(id__in=Participant.objects
                         .filter(contest=request.contest)

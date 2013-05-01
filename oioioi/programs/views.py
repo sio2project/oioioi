@@ -1,15 +1,15 @@
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.template.response import TemplateResponse
 
 from oioioi.programs.models import ProgramSubmission, Test, OutputChecker
 from oioioi.programs.utils import decode_str
-from oioioi.contests.utils import check_submission_access
+from oioioi.contests.utils import contest_exists, can_enter_contest, \
+    get_submission_or_404
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
-from oioioi.contests.utils import can_enter_contest
 
 from pygments import highlight
 from pygments.lexers import guess_lexer_for_filename
@@ -21,12 +21,10 @@ import fnmatch
 import sys
 fnmatch._MAXCACHE = sys.maxint
 
-@enforce_condition(can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest)
 def show_submission_source_view(request, contest_id, submission_id):
-    submission = get_object_or_404(ProgramSubmission, id=submission_id)
-    if contest_id != submission.problem_instance.contest_id:
-        raise Http404
-    check_submission_access(request, submission)
+    submission = get_submission_or_404(request, contest_id, submission_id,
+                                       ProgramSubmission)
     raw_source = submission.source_file.read()
     raw_source, decode_error = decode_str(raw_source)
     filename = submission.source_file.file.name
@@ -56,12 +54,10 @@ def show_submission_source_view(request, contest_id, submission_id):
         'decode_error': decode_error
     })
 
-@enforce_condition(can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest)
 def download_submission_source_view(request, contest_id, submission_id):
-    submission = get_object_or_404(ProgramSubmission, id=submission_id)
-    if contest_id != submission.problem_instance.contest_id:
-        raise Http404
-    check_submission_access(request, submission)
+    submission = get_submission_or_404(request, contest_id, submission_id,
+                                       ProgramSubmission)
     return stream_file(submission.source_file)
 
 def download_input_file_view(request, test_id):

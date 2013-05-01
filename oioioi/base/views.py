@@ -4,27 +4,19 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
-from django.utils.http import is_safe_url
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import logout as auth_logout, login as auth_login
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
 from oioioi.base.menu import account_menu_registry
 import traceback
 
-account_menu_registry.register('edit_profile', _("Edit profile"),
-        lambda request: reverse('edit_profile'), order=99)
-
 account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
-
-account_menu_registry.register('logout', _("Log out"),
-        lambda request: '#',
-        order=200, attrs={'data-post-url': reverse_lazy('logout')})
 
 def index_view(request):
     try:
@@ -58,7 +50,9 @@ def handler403(request):
             context_instance=RequestContext(request))
     return HttpResponseForbidden(message)
 
-@login_required
+@account_menu_registry.register_decorator(_("Edit profile"),
+    lambda request: reverse('edit_profile'), order=99)
+@enforce_condition(not_anonymous)
 def edit_profile_view(request):
     if request.method == 'POST':
         form = UserForm(request.POST, instance=request.user)
@@ -70,6 +64,8 @@ def edit_profile_view(request):
     return TemplateResponse(request, 'registration/registration_form.html',
             {'form': form})
 
+@account_menu_registry.register_decorator(_("Log out"), lambda request: '#',
+    order=200, attrs={'data-post-url': reverse_lazy('logout')})
 @require_POST
 def logout_view(request):
     return auth_logout(request, template_name='registration/logout.html')

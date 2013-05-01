@@ -11,6 +11,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
 import urllib
@@ -129,7 +130,7 @@ class AdminSite(DjangoAdminSite):
 site = AdminSite(name='oioioiadmin')
 
 system_admin_menu_registry = MenuRegistry(_("System Administration"),
-        lambda request: request.user.is_superuser)
+                                          is_superuser)
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 class OioioiUserAdmin(UserAdmin, ObjectWithMixins):

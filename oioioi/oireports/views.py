@@ -20,17 +20,14 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.filetracker.utils import stream_file
 from oioioi.contests.models import ProblemInstance, Round, \
         UserResultForProblem
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_admin, contest_exists
 from oioioi.programs.models import CompilationReport, GroupReport, \
         TestReport, Test
 from oioioi.oi.models import Region
 
-contest_admin_menu_registry.register('report', _("Printing reports"),
-        lambda request: reverse('report_options', kwargs={'contest_id':
-            request.contest.id}),
-        order=440)
-
 CONTEST_REPORT_KEY = 'all'
+
+# FIXME conditions for views expressing oi dependence?
 
 def _rounds(request):
     rounds = [(CONTEST_REPORT_KEY, _("Contest"))]
@@ -96,7 +93,12 @@ def _testgroups_from_POST(request):
             testgroups[problem_instance].append(match.group(2))
     return testgroups
 
-@enforce_condition(is_contest_admin)
+
+@contest_admin_menu_registry.register_decorator(_("Printing reports"),
+    lambda request: reverse('report_options',
+        kwargs={'contest_id': request.contest.id}),
+    order=440)
+@enforce_condition(contest_exists & is_contest_admin)
 def report_options_view(request, contest_id):
     rounds = _rounds(request)
     regions = _regions(request)
@@ -266,7 +268,7 @@ def _report_text(request, render_fn):
         testgroups
     )
 
-@enforce_condition(is_contest_admin)
+@enforce_condition(contest_exists & is_contest_admin)
 def pdfreport_view(request, contest_id):
     report = _report_text(request, _render_pdf_report)
     # Create temporary file and folder
@@ -303,7 +305,7 @@ def pdfreport_view(request, contest_id):
     finally:
         shutil.rmtree(tmp_folder)
 
-@enforce_condition(is_contest_admin)
+@enforce_condition(contest_exists & is_contest_admin)
 def xmlreport_view(request, contest_id):
     report = _report_text(request, _render_xml_report)
     filename = '%s-%s-%s.xml' % (request.contest.id,

@@ -4,37 +4,36 @@ from django.conf import settings
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.decorators import login_required
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition
 from oioioi.contests.models import Submission
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.utils import can_enter_contest, has_any_submittable_problem, \
-        has_any_visible_problem_instance
+        has_any_visible_problem_instance, contest_exists
 from oioioi.dashboard.menu import top_links_registry
-from oioioi.rankings.views import any_ranking_visible
+from oioioi.rankings.views import has_any_ranking_visible
 from oioioi.questions.views import messages_template_context, \
         visible_messages
 
 top_links_registry.register('problems_list', _("Problems"),
         lambda request: reverse('problems_list', kwargs={'contest_id':
-            request.contest.id}), condition=has_any_visible_problem_instance,
+            request.contest.id}),
+        condition=has_any_visible_problem_instance,
         order=100)
 
 top_links_registry.register('submit', _("Submit"),
         lambda request: reverse('submit', kwargs={'contest_id':
-            request.contest.id}), condition=has_any_submittable_problem,
+            request.contest.id}),
+        condition=has_any_submittable_problem,
         order=200)
 
 top_links_registry.register('ranking', _("Ranking"),
         lambda request: reverse('default_ranking', kwargs={'contest_id':
-            request.contest.id}), condition=any_ranking_visible,
+            request.contest.id}),
+        condition=has_any_ranking_visible,
         order=300)
 
-menu_registry.register('dashboard', _("Dashboard"),
-        lambda request: reverse('contest_dashboard', kwargs={'contest_id':
-            request.contest.id}), condition=not_anonymous, order=20)
 
 # http://stackoverflow.com/questions/1624883/alternative-way-to-split-a-list-into-groups-of-n
 def grouper(n, iterable, fillvalue=None):
@@ -42,8 +41,10 @@ def grouper(n, iterable, fillvalue=None):
     args = [iter(iterable)] * n
     return list(itertools.izip_longest(*args, fillvalue=fillvalue))
 
-@login_required
-@enforce_condition(can_enter_contest)
+@menu_registry.register_decorator(_("Dashboard"), lambda request:
+        reverse('contest_dashboard', kwargs={'contest_id': request.contest.id}),
+    order=20)
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_dashboard_view(request, contest_id):
     top_links = grouper(3, top_links_registry.template_context(request))
     submissions = Submission.objects \

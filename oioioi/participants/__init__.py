@@ -3,6 +3,7 @@ from django.template.loader import render_to_string
 
 from oioioi.contestexcl.middleware import ExclusiveContestsMiddleware
 from oioioi.participants.controllers import ParticipantsController
+from oioioi.participants.utils import is_contest_with_participants
 
 
 class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
@@ -25,8 +26,7 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
             return
 
         def _participants_selector(user, contest):
-            if isinstance(contest.controller.registration_controller(),
-                          ParticipantsController):
+            if is_contest_with_participants(contest):
                 if user.is_anonymous():
                     return False
                 rcontroller = contest.controller.registration_controller()

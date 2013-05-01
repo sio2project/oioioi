@@ -1,6 +1,8 @@
 import random
 import sys
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 import os.path
 import re
 import tempfile
@@ -19,13 +21,15 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import RequestFactory
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.template import Context, Template, RequestContext
 from django.template.loader import render_to_string
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import utils
+from oioioi.base.permissions import is_superuser, Condition, make_condition, \
+    make_request_condition, RequestBasedCondition, enforce_condition
 from oioioi.base.utils import RegisteredSubclassesBase, archive
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
@@ -268,8 +272,7 @@ class TestMenu(TestCase):
         side_pane_menus_registry.items = []
         try:
             side_pane_menus_registry.register(menu_registry, order=200)
-            admin_menu_registry = MenuRegistry("Admin Menu",
-                lambda request: request.user.is_superuser)
+            admin_menu_registry = MenuRegistry("Admin Menu", is_superuser)
             side_pane_menus_registry.register(admin_menu_registry, order=100)
 
             menu_registry.register('test', 'Test Menu Item',
@@ -635,3 +638,97 @@ class TestBackendMiddleware(TestCase):
         self.assertEquals('test_user', response.context['user'].username)
         self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
             response.context['user'].backend)
+
+
+class TestCondition(TestCase):
+    fixtures = ['test_users']
+
+    def _fake_request_factory(self):
+        factory = RequestFactory()
+
+        def get_request():
+            request = factory.request()
+            request.user = AnonymousUser()
+            return request
+
+        return get_request
+
+    def setUp(self):
+        self.alwaysTrue = Condition(lambda x: True)
+        self.alwaysFalse = Condition(lambda x: False)
+        self.returnArg = Condition(lambda x: x)
+        self.factory = self._fake_request_factory()
+
+    def test_and_operator(self):
+        true_and_true = self.alwaysTrue & self.alwaysTrue
+        true_and_false = self.alwaysTrue & self.alwaysFalse
+        true_and_arg = self.alwaysTrue & self.returnArg
+
+        self.assertTrue(true_and_true(1))
+        self.assertFalse(true_and_false(1))
+        self.assertTrue(true_and_arg(True))
+        self.assertFalse(true_and_arg(False))
+
+    def test_or_operator(self):
+        true_or_true = self.alwaysTrue | self.alwaysTrue
+        true_or_false = self.alwaysTrue | self.alwaysFalse
+        false_or_arg = self.alwaysFalse | self.returnArg
+
+        self.assertTrue(true_or_true(1))
+        self.assertTrue(true_or_false(1))
+        self.assertTrue(false_or_arg(True))
+        self.assertFalse(false_or_arg(False))
+
+    def test_inverse_operator(self):
+        not_true = ~self.alwaysTrue
+        not_false = ~self.alwaysFalse
+        not_arg = ~self.returnArg
+
+        self.assertFalse(not_true(1))
+        self.assertTrue(not_false(1))
+        self.assertTrue(not_arg(False))
+        self.assertFalse(not_arg(True))
+
+    def test_make_condition(self):
+        @make_condition()
+        def otherReturnArg(arg):
+            return arg
+
+        self.assertTrue(isinstance(otherReturnArg, Condition))
+        self.assertTrue(otherReturnArg(True))
+        self.assertFalse(otherReturnArg(False))
+
+    def test_request_condition(self):
+        @make_request_condition
+        def requestReturnArg(request):
+            return request
+
+        self.assertTrue(isinstance(requestReturnArg, RequestBasedCondition))
+        self.assertTrue(requestReturnArg(True))
+        self.assertFalse(requestReturnArg(False))
+        # Test not throwing exception with too many arguments
+        self.assertTrue(requestReturnArg(True, 1))
+
+    def test_enforce_condition_success(self):
+        @enforce_condition(self.alwaysTrue)
+        def example_view(request):
+            return 314
+
+        self.assertEqual(314, example_view(1))
+
+    def test_enforce_condition_failure_with_template(self):
+        @enforce_condition(self.alwaysFalse, 'base.html')
+        def example_view(request):
+            pass
+
+        res = example_view(1)
+        self.assertTrue(isinstance(res, TemplateResponse))
+
+    def test_enforce_condition_failure_without_template(self):
+        @enforce_condition(self.alwaysFalse)
+        def example_view(request):
+            pass
+
+        request = self.factory()
+        res = example_view(request)
+        self.assertTrue(isinstance(res, HttpResponseRedirect))

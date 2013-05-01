@@ -133,7 +133,7 @@ class TestOIRegistration(TestCase):
 
         self.client.login(username='test_user')
         response = self.client.post(url, {'post': 'yes'})
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
@@ -196,7 +196,7 @@ class TestOIOnsiteRegistration(TestCase):
 
         self.client.login(username='test_user')
         response = self.client.post(url, {'post': 'yes'})
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(403, response.status_code)
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user, status='BANNED')
@@ -349,17 +349,17 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             self.client.logout()
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
             self.client.login(username='test_user2')
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
             p.status = 'ACTIVE'
             p.save()

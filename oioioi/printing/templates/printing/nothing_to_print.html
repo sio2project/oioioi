@@ -1,0 +1,11 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Printing" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Printing" %}</h2>
+<div class="empty-space-filler">
+    {% blocktrans %}Sorry, you cannot print anything right now.{% endblocktrans %}
+</div>
+{% endblock %}

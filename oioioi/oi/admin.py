@@ -2,16 +2,22 @@ from django.contrib.admin import RelatedFieldListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
+from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
 from oioioi.oi.forms import OIRegistrationForm, RegionForm
+from oioioi.participants.utils import is_contest_with_participants
 
+
+@make_request_condition
 def is_onsite_contest(request):
     rcontroller = request.contest.controller.registration_controller()
-    return issubclass(getattr(rcontroller, 'participant_admin', None),
-                      OIOnsiteRegistrationParticipantAdmin)
+    return is_contest_with_participants(request.contest) \
+        and issubclass(rcontroller.participant_admin,
+            OIOnsiteRegistrationParticipantAdmin)
+
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ('short_name', 'name')

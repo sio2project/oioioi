@@ -27,7 +27,7 @@ class TestMakingComplaint(TestCase):
 
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
             self.client.login(username='test_user')
-            response = self.client.post(reverse('complaints',
+            response = self.client.post(reverse('add_complaint',
                 kwargs={'contest_id':contest.id}),
                 {'complaint': "I am innocent! It is your fault!"}, follow=True)
             self.assertEqual(response.status_code, 403)
@@ -38,17 +38,17 @@ class TestMakingComplaint(TestCase):
         cconfig.save()
 
         with fake_time(datetime(2012, 8, 9, tzinfo=utc)):
-            response = self.client.get(reverse('complaints',
+            response = self.client.get(reverse('add_complaint',
                 kwargs={'contest_id':contest.id}))
             self.assertEqual(response.status_code, 403)
 
         with fake_time(datetime(2012, 8, 13, tzinfo=utc)):
-            response = self.client.get(reverse('complaints',
+            response = self.client.get(reverse('add_complaint',
                 kwargs={'contest_id':contest.id}))
             self.assertEqual(response.status_code, 403)
 
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
-            response = self.client.post(reverse('complaints',
+            response = self.client.post(reverse('add_complaint',
                 kwargs={'contest_id':contest.id}),
                 {'complaint': "I am innocent! It is your fault!"}, follow=True)
             self.assertEqual(response.status_code, 200)
