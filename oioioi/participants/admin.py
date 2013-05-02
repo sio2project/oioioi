@@ -5,7 +5,9 @@ from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
+from oioioi.contests.admin import RoundTimeExtensionAdmin
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.participants import ParticipantsController
 from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
 from oioioi.participants.models import Participant
 from oioioi.contests.models import RoundTimeExtension
@@ -175,3 +177,18 @@ class UserWithParticipantsAdminMixin(object):
         super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ParticipantInline]
 admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)
+
+
+class ParticipantsRoundTimeExtensionMixin(object):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'user':
+            rcontroller = request.contest.controller.registration_controller()
+            if isinstance(rcontroller, ParticipantsController):
+                kwargs['queryset'] = User.objects \
+                    .filter(id__in=Participant.objects
+                        .filter(contest=request.contest)
+                        .values_list('user', flat=True)) \
+                    .order_by('username')
+        return super(ParticipantsRoundTimeExtensionMixin, self) \
+            .formfield_for_foreignkey(db_field, request, **kwargs)
+RoundTimeExtensionAdmin.mix_in(ParticipantsRoundTimeExtensionMixin)
