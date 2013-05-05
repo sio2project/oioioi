@@ -49,8 +49,9 @@ def problems_list_view(request, contest_id):
     problem_instances = visible_problem_instances(request)
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     return TemplateResponse(request, 'contests/problems_list.html',
-                {'problem_instances': problem_instances,
-                 'show_rounds': show_rounds})
+        {'problem_instances': problem_instances,
+         'show_rounds': show_rounds,
+         'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100)})
 
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_statement_view(request, contest_id, problem_instance):
@@ -152,8 +153,9 @@ def my_submissions_view(request, contest_id):
     queryset = controller.filter_visible_submissions(request, queryset)
     show_scores = bool(queryset.filter(score__isnull=False))
     return TemplateResponse(request, 'contests/my_submissions.html',
-                {'submissions': [submission_template_context(request, s)
-                    for s in queryset], 'show_scores': show_scores})
+        {'submissions': [submission_template_context(request, s)
+         for s in queryset], 'show_scores': show_scores,
+         'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
 
 @enforce_condition(contest_exists & can_enter_contest)
 def submission_view(request, contest_id, submission_id):
@@ -234,7 +236,8 @@ def contest_files_view(request, contest_id):
             'attachment_id': pf.id}),
         } for pf in problem_files]
     rows.sort(key=itemgetter('name'))
-    return TemplateResponse(request, 'contests/files.html', {'files': rows})
+    return TemplateResponse(request, 'contests/files.html', {'files': rows,
+        'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100)})
 
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_attachment_view(request, contest_id, attachment_id):

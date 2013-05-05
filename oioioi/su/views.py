@@ -58,7 +58,7 @@ def get_suable_users_view(request):
 
     users = User.objects \
         .filter(is_superuser=False, username__icontains=substr) \
-        .values_list('username', flat=True)[:settings.NUM_SUDO_HINTS]
+        .values_list('username', flat=True)[:getattr(settings, 'NUM_HINTS', 10)]
     users = list(users)
     return HttpResponse(json.dumps(users), content_type='application/json')
 

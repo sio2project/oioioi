@@ -7,6 +7,8 @@ contest_patterns = patterns('oioioi.questions.views',
         name='message_reply'),
     url(r'^questions/add/$', 'add_contest_message_view',
         name='add_contest_message'),
+    url(r'^questions/get_messages_authors/', 'get_messages_authors_view',
+        name='get_messages_authors'),
 )
 
 urlpatterns = patterns('oioioi.contests.views',

@@ -1,3 +1,4 @@
+import json
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
@@ -122,3 +123,69 @@ class TestQuestions(TestCase):
         self.assertIn(q_url, response.content)
         self.assertIn('re-new-question', response.content)
         self.assertNotIn('the-new-question', response.content)
+
+    def test_filtering(self):
+        self.client.login(username='test_admin')
+        contest = Contest.objects.get()
+        url = reverse('contest_messages', kwargs={'contest_id': contest.id})
+
+        get_data = {'author': 'test_admin'}
+        response = self.client.get(url, get_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('general-question', response.content)
+        self.assertNotIn('problem-question', response.content)
+        self.assertIn('public-answer', response.content)
+        self.assertIn('private-answer', response.content)
+
+        get_data['author'] = 'test_user'
+        response = self.client.get(url, get_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('general-question', response.content)
+        self.assertIn('problem-question', response.content)
+        self.assertNotIn('public-answer', response.content)
+        self.assertNotIn('private-answer', response.content)
+
+        get_data['category'] = 'r_1'
+        response = self.client.get(url, get_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('general-question', response.content)
+        self.assertNotIn('problem-question', response.content)
+        self.assertNotIn('public-answer', response.content)
+        self.assertNotIn('private-answer', response.content)
+
+        get_data['category'] = 'p_1'
+        response = self.client.get(url, get_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('general-question', response.content)
+        self.assertIn('problem-question', response.content)
+        self.assertNotIn('public-answer', response.content)
+        self.assertNotIn('private-answer', response.content)
+
+        self.client.login(username='test_user')
+        response = self.client.get(url, get_data)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('general-question', response.content)
+        self.assertNotIn('problem-question', response.content)
+        self.assertNotIn('public-answer', response.content)
+        self.assertIn('private-answer', response.content)
+
+    def test_authors_list(self):
+        self.client.login(username='test_admin')
+        contest = Contest.objects.get()
+        url = reverse('get_messages_authors', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, {'substr': ''})
+        self.assertEquals(404, response.status_code)
+        response = self.client.get(url)
+        self.assertEquals(404, response.status_code)
+
+        response = self.client.get(url, {'substr': 't'})
+        response = json.loads(response.content)
+        self.assertListEqual(['test_admin (Test Admin)',
+                              'test_user (Test User)'], response)
+
+        response = self.client.get(url, {'substr': 'test admin'})
+        response = json.loads(response.content)
+        self.assertListEqual(['test_admin (Test Admin)'], response)
+
+        self.client.login(username='test_user')
+        check_not_accessible(self, url)

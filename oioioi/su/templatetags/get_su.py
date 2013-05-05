@@ -1,4 +1,5 @@
 from django import template
+from django.conf import settings
 
 
 register = template.Library()
@@ -12,4 +13,5 @@ def su_dropdown_form(context):
         'ctx': context,
         'form': SuForm(auto_id='su-%s'),
         'is_under_su': is_under_su(context['request']),
+        'num_hints': getattr(settings, 'NUM_HINTS', 10),
     }

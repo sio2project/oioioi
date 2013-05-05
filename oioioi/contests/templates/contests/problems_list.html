@@ -7,7 +7,8 @@
 {% block content %}
 <h2>{% trans "Problems" %}</h2>
 {% if problem_instances %}
-{% autopaginate problem_instances 100 %}
+<div class="paginated-list">
+{% autopaginate problem_instances problems_on_page %}
 {% paginate %}
 <table class="table auto-width row-links">
     <thead>
@@ -29,6 +30,7 @@
     </tbody>
 </table>
 {% paginate %}
+</div>
 {% else %}
 <div class="empty-space-filler">
     {% blocktrans %}No problems are active at the moment.{% endblocktrans %}

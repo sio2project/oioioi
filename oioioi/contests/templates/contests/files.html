@@ -17,7 +17,8 @@
 </div>
 {% endif %}
 {% if files %}
-{% autopaginate files 100 %}
+<div class="paginated-list">
+{% autopaginate files files_on_page %}
 {% paginate %}
 <table class="table auto-width row-links">
     <thead>
@@ -36,6 +37,7 @@
     </tbody>
 </table>
 {% paginate %}
+</div>
 {% else %}
 <div class="empty-space-filler">
     {% blocktrans %}No files are available.{% endblocktrans %}

@@ -1,9 +1,9 @@
-from django.template import Template, Context
 from django.core.urlresolvers import reverse
 from django.utils.translation import ungettext
 from django.utils.functional import lazy
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.utils import can_enter_contest
+from oioioi.questions.utils import unanswered_questions
 from oioioi.questions.views import new_messages, visible_messages
 
 def navbar_tip_processor(request):
@@ -19,8 +19,7 @@ def navbar_tip_processor(request):
         messages = visible_messages(request)
         visible_ids = messages.values_list('id', flat=True)
         if is_admin:
-            messages = messages.filter(message__isnull=True,
-                    top_reference__isnull=True, kind='QUESTION')
+            messages = unanswered_questions(messages)
         else:
             messages = new_messages(request, messages)
         count = messages.count()

@@ -1,7 +1,10 @@
+import json
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db import IntegrityError
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -9,15 +12,24 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
         visible_rounds, contest_exists
-from oioioi.questions.utils import log_addition
-from oioioi.questions.forms import AddContestMessageForm, AddReplyForm
+from oioioi.questions.utils import log_addition, unanswered_questions
+from oioioi.questions.forms import AddContestMessageForm, AddReplyForm,\
+    FilterMessageForm, FilterMessageAdminForm
 from oioioi.questions.models import Message, MessageView, new_question_signal
 
-def visible_messages(request):
+def visible_messages(request, author=None, category=None):
     rounds_ids = [round.id for round in visible_rounds(request)]
-    messages = Message.objects \
-            .filter(round_id__in=rounds_ids) \
-            .order_by('-date')
+    q_expression = Q(round_id__in=rounds_ids)
+    if author:
+        q_expression = q_expression & Q(author=author)
+    if category:
+        category_type, category_id = category
+        if category_type == 'p':
+            q_expression = q_expression & Q(problem_instance__id=category_id)
+        elif category_type == 'r':
+            q_expression = q_expression & Q(round__id=category_id,
+                                            problem_instance=None)
+    messages = Message.objects.filter(q_expression).order_by('-date')
     if not request.user.has_perm('contests.contest_admin', request.contest):
         q_expression = Q(kind='PUBLIC')
         if request.user.is_authenticated():
@@ -33,18 +45,23 @@ def new_messages(request, messages=None):
         return messages.none()
     if messages is None:
         messages = visible_messages(request)
-    return  messages.exclude(messageview__user=request.user) \
+    return messages.exclude(messageview__user=request.user) \
             .exclude(author=request.user)
 
 def messages_template_context(request, messages):
-    is_admin = request.user.has_perm('contests.contest_admin', request.contest)
     replied_ids = frozenset(m.top_reference_id for m in messages)
     new_ids = new_messages(request, messages).values_list('id', flat=True)
+
+    if request.user.has_perm('contests.contest_admin', request.contest):
+        unanswered = unanswered_questions(messages)
+    else:
+        unanswered = []
+
     to_display = [{
             'message': m,
             'link_message': m.top_reference \
                     if m.top_reference in messages else m,
-            'needs_reply': is_admin and m.kind == 'QUESTION',
+            'needs_reply': m in unanswered,
             'read': m.id not in new_ids,
         } for m in messages if m.id not in replied_ids]
     def key(entry):
@@ -57,9 +74,24 @@ def messages_template_context(request, messages):
     order=450)
 @enforce_condition(contest_exists & can_enter_contest)
 def messages_view(request, contest_id):
-    messages = messages_template_context(request, visible_messages(request))
+    if request.user.has_perm('contests.contest_admin', request.contest):
+        form = FilterMessageAdminForm(request, request.GET)
+    else:
+        form = FilterMessageForm(request, request.GET)
+
+    if form.is_valid():
+        category = form.cleaned_data['category']
+        author = form.cleaned_data.get('author')
+        messages = messages_template_context(
+            request, visible_messages(request, author, category))
+    else:
+        messages = messages_template_context(
+            request, visible_messages(request))
+
     return TemplateResponse(request, 'questions/list.html',
-                {'records': messages})
+        {'records': messages, 'form': form,
+         'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
+         'num_hints': getattr(settings, 'NUM_HINTS', 10)})
 
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, contest_id, message_id):
@@ -141,3 +173,28 @@ def add_reply_view(request, contest_id, message_id):
     return TemplateResponse(request, 'questions/add.html',
             {'form': form, 'title': _("Reply"), 'is_reply': True,
              'question': question})
+
+@enforce_condition(contest_exists & is_contest_admin)
+def get_messages_authors_view(request, contest_id):
+    if len(request.REQUEST.get('substr', '')) < 1:
+        raise Http404
+    substr = request.REQUEST['substr'].split()
+
+    if len(substr) > 2:
+        q_expression = Q(author__first_name__icontains=' '.join(substr[:- 1]),
+                         author__last_name__icontains=substr[- 1])
+    elif len(substr) == 2:
+        q_expression = Q(author__first_name__icontains=substr[0],
+                         author__last_name__icontains=substr[1]) | \
+                       Q(author__first_name__icontains=' '.join(substr))
+    else:
+        q_expression = Q(author__username__icontains=substr[0]) | \
+                       Q(author__first_name__icontains=substr[0]) | \
+                       Q(author__last_name__icontains=substr[0])
+
+    users = visible_messages(request).filter(q_expression).order_by('author') \
+        .values('author').distinct().values_list('author__username',
+        'author__first_name', 'author__last_name')[:getattr(settings,
+                                                            'NUM_HINTS', 10)]
+    users = ['%s (%s %s)' % u for u in users]
+    return HttpResponse(json.dumps(users), content_type='application/json')
