@@ -126,7 +126,7 @@ INSTALLED_APPS = (
 #    'oioioi.oi',
 #    'oioioi.oisubmit',
 #    'oioioi.testrun',
-#    'oioioi.spliteval'
+#    'oioioi.spliteval',
 #    'oioioi.printing',
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
