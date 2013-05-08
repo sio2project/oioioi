@@ -124,7 +124,7 @@ LOGIN_URL = '/login'
 LOGIN_REDIRECT_URL = '/'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'oioioi.wsgi.application'
+WSGI_APPLICATION = 'wsgi.application'
 
 COMPRESS_ENABLED = True
 COMPRESS_PARSER = 'compressor.parser.BeautifulSoupParser'
