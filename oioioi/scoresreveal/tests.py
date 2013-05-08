@@ -83,7 +83,8 @@ class TestScoresReveal(TestCase):
             self.reveal_submit(5)
             response = self.reveal_submit(1, success=False)
 
-            self.assertIn('used <strong>2</strong>/2 reveals', response.content)
+            self.assertIn('used <strong>2</strong> out of 2 reveals',
+                          response.content)
 
     def test_compilation_error(self):
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
@@ -110,7 +111,7 @@ class TestScoresReveal(TestCase):
             kwargs = {'contest_id': contest.id, 'submission_id': 4}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
-            self.assertIn('already used <strong>1</strong>/2 reveals.',
+            self.assertIn('already used <strong>1</strong> out of 2 reveals.',
                           response.content)
             self.assertIn('<td>100</td>', response.content)
             self.reveal_submit(5, success=False)
