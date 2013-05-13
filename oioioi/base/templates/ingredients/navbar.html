@@ -17,7 +17,7 @@
                         {% if contest_exclusive %}
                         <li><a href="#">{{ contest.name }}</a></li>
                         {% else %}
-                        <li class="dropdown">
+                        <li class="dropdown {% if not user.is_anonymous and recent_contests and contest != recent_contests.0 %}open{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             {{ contest.name }}
                             <b class="caret"></b>

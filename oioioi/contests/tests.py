@@ -15,7 +15,8 @@ from django.contrib.auth.models import User, AnonymousUser
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
-        RoundTimeExtension, ContestPermission, UserResultForProblem
+        RoundTimeExtension, ContestPermission, UserResultForProblem, \
+        ContestView
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
@@ -175,6 +176,34 @@ class PrivateContestController(ContestController):
 class TestContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
+
+    def test_recent_contests_list(self):
+        contest = Contest.objects.get()
+        invisible_contest = Contest(id='invisible', name='Invisible Contest',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        invisible_contest.save()
+
+        self.client.login(username='test_admin')
+        self.client.get('/c/%s/dashboard/' % contest.id)
+        self.client.get('/c/%s/dashboard/' % invisible_contest.id)
+        response = self.client.get(reverse('select_contest'))
+        self.assertEqual(len(response.context['contests']), 2)
+        self.client.logout()
+
+        self.client.login(username='test_admin')
+        response = self.client.get('/c/%s/dashboard/' % contest.id)
+        self.assertIn('dropdown open', response.content)
+        response = self.client.get('/c/%s/dashboard/' % contest.id)
+        self.assertNotIn('dropdown open', response.content)
+
+        contests = [cv.contest for cv in ContestView.objects.all()]
+        self.assertEqual(contests, [contest, invisible_contest])
+
+        self.client.get('/c/%s/dashboard/' % invisible_contest.id)
+        response = self.client.get(reverse('select_contest'))
+        self.assertEqual(len(response.context['contests']), 2)
+        contests = [cv.contest for cv in ContestView.objects.all()]
+        self.assertEqual(contests, [invisible_contest, contest])
 
     def test_contest_visibility(self):
         invisible_contest = Contest(id='invisible', name='Invisible Contest',

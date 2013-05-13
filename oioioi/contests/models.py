@@ -339,3 +339,18 @@ class ContestPermission(models.Model):
 
     def __unicode__(self):
         return u'%s/%s: %s' % (self.contest, self.permission, self.user)
+
+
+class ContestView(models.Model):
+    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest)
+    timestamp = models.DateTimeField(default=timezone.now,
+                                     verbose_name=_("last view"))
+
+    class Meta:
+        unique_together = ('user', 'contest')
+        get_latest_by = 'timestamp'
+        ordering = ('-timestamp', )
+
+    def __unicode__(self):
+        return u'%s,%s' % (self.user, self.contest)

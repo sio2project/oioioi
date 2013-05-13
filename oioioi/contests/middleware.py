@@ -1,13 +1,13 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, ContestView
 from oioioi.contests.utils import visible_contests
 
-NUM_RECENT_CONTESTS = 5
 
 def activate_contest(request, contest):
     request.contest = contest
+
     if contest and request.session.get('contest_id') != contest.id:
         contest_id = contest.id
         request.session['contest_id'] = contest_id
@@ -17,8 +17,17 @@ def activate_contest(request, contest):
         except ValueError:
             pass
         recent_contests = [contest_id] + recent_contests
-        recent_contests = recent_contests[:NUM_RECENT_CONTESTS]
+        recent_contests = \
+            recent_contests[:getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
         request.session['recent_contests'] = recent_contests
+
+    if not request.real_user.is_anonymous() and contest \
+       and not request.session.get('first_view_after_logging', False):
+            cv, created = ContestView.objects \
+                    .get_or_create(user=request.real_user, contest=contest)
+            cv.timestamp = request.timestamp
+            cv.save()
+
 
 class CurrentContestMiddleware(object):
     """Middleware which saves the most recently visited contest in cookies.
