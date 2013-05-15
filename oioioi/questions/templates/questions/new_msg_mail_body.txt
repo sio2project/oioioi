@@ -1,0 +1,9 @@
+{% load i18n %}
+{% blocktrans with recipient_name=recipient.get_full_name author_name=msg.author.get_full_name contest_name=msg.contest.name %}
+Hello {{ recipient_name }},
+
+{{ author_name }} has just asked a question to the {{ contest_name }} contest.{% endblocktrans %}
+
+    {{ msg.problem_instance|default_if_none:_("General") }}: {{ msg.topic }}
+
+{% blocktrans %}Please visit {{ msg_link }} to answer it.{% endblocktrans %}
