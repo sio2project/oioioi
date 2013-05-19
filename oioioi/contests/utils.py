@@ -1,4 +1,7 @@
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from oioioi.base.permissions import make_request_condition
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, RoundTimeExtension
 from oioioi.base.utils import request_cached
@@ -72,6 +75,11 @@ def rounds_times(request):
                           rtexts[r.id]['extra_time'] if r.id in rtexts else 0))
             for r in rounds)
 
+@make_request_condition
+def contest_exists(request):
+    return hasattr(request, 'contest') and request.contest is not None
+
+@make_request_condition
 @request_cached
 def has_any_active_round(request):
     controller = request.contest.controller
@@ -81,10 +89,12 @@ def has_any_active_round(request):
             return True
     return False
 
+@make_request_condition
 @request_cached
 def has_any_submittable_problem(request):
     return bool(submittable_problem_instances(request))
 
+@make_request_condition
 @request_cached
 def has_any_visible_problem_instance(request):
     return bool(visible_problem_instances(request))
@@ -127,16 +137,19 @@ def visible_contests(request):
             contests.append(contest)
     return contests
 
+@make_request_condition
 @request_cached
 def is_contest_admin(request):
     """Checks if the current user can administer the current contest."""
     return request.user.has_perm('contests.contest_admin', request.contest)
 
+@make_request_condition
 @request_cached
 def is_contest_observer(request):
     """Checks if the current user can observe the current contest."""
     return request.user.has_perm('contests.contest_observer', request.contest)
 
+@make_request_condition
 @request_cached
 def can_enter_contest(request):
     rcontroller = request.contest.controller.registration_controller()
@@ -153,3 +166,12 @@ def check_submission_access(request, submission):
     queryset = Submission.objects.filter(id=submission.id)
     if not controller.filter_visible_submissions(request, queryset):
         raise PermissionDenied
+
+def get_submission_or_404(request, contest_id, submission_id,
+                          submission_class=Submission):
+    """Returns the submission if it exists and user has rights to see it."""
+    submission = get_object_or_404(submission_class, id=submission_id)
+    if contest_id != submission.problem_instance.contest_id:
+        raise Http404
+    check_submission_access(request, submission)
+    return submission

@@ -31,7 +31,7 @@ urlpatterns.extend([
     url(r'^admin/', include(admin.site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
 
-    url(r'^file/(?P<filename>.*)$',
+    url(r'^file/(?P<filename>.*)/$',
         'oioioi.filetracker.views.raw_file_view'),
 ])
 

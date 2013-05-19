@@ -3,12 +3,11 @@ import urllib
 
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.util import unquote
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
 
@@ -326,8 +325,12 @@ class SubmissionAdmin(admin.ModelAdmin):
         for submission in queryset:
             controller.judge(submission)
             counter += 1
-        self.message_user(request, _("Queued %d submissions for rejudge.")
-                % (counter,))
+        self.message_user(
+            request,
+            ungettext_lazy("Queued one submission for rejudge.",
+                           "Queued %(counter)d submissions for rejudge.",
+                           counter)
+            % {'counter': counter})
     rejudge_action.short_description = _("Rejudge selected submissions")
 
     def get_list_select_related(self):
@@ -409,19 +412,8 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
         return qs.filter(round__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        from oioioi.participants.models import Participant
-        from oioioi.participants.controllers import ParticipantsController
-
         if db_field.name == 'round':
             kwargs['queryset'] = Round.objects.filter(contest=request.contest)
-        elif db_field.name == 'user':
-            rcontroller = request.contest.controller.registration_controller()
-            if isinstance(rcontroller, ParticipantsController):
-                kwargs['queryset'] = User.objects \
-                        .filter(id__in=Participant.objects
-                            .filter(contest=request.contest)
-                            .values_list('user', flat=True)) \
-                        .order_by('username')
         return super(RoundTimeExtensionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 

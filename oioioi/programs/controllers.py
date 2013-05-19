@@ -16,7 +16,7 @@ from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
-        CompilationReport, TestReport, GroupReport
+        CompilationReport, TestReport, GroupReport, ModelProgramSubmission
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
@@ -235,7 +235,7 @@ class ProgrammingContestController(ContestController):
         return True
 
     def _map_report_to_submission_status(self, status):
-        mapping = {'OK': 'INI_OK', 'CE': 'CE'}
+        mapping = {'OK': 'INI_OK', 'CE': 'CE', 'SE': 'SE'}
         return mapping.get(status, 'INI_ERR')
 
     def update_submission_score(self, submission):
@@ -309,3 +309,10 @@ class ProgrammingContestController(ContestController):
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
                         'groups': groups}))
+
+    def valid_kinds_for_submission(self, submission):
+        if ModelProgramSubmission.objects.filter(id=submission.id).exists():
+            return [submission.kind]
+
+        return super(ProgrammingContestController, self) \
+                .valid_kinds_for_submission(submission)

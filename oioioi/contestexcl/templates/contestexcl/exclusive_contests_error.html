@@ -1,0 +1,11 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block content %}
+{% blocktrans %}
+Sorry, but you have been <strong>logged out</strong> because you are able to
+participate in more than one contest that excludes others, which results in a conflict.
+The administrators have been informed about it. Please be patient,
+they will try to fix this as soon as possible and notify you somehow, for example by sending an e-mail.
+{% endblocktrans %}
+{% endblock %}

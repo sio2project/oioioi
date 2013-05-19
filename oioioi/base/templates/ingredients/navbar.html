@@ -14,7 +14,7 @@
                 </div>
                 {% else %}
                     <ul class="nav">
-                        {% if only_default_contest %}
+                        {% if contest_exclusive %}
                         <li><a href="#">{{ contest.name }}</a></li>
                         {% else %}
                         <li class="dropdown">

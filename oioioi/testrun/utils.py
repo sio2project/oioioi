@@ -1,3 +1,4 @@
+from oioioi.base.permissions import make_request_condition
 from oioioi.contests.utils import submittable_problem_instances
 from oioioi.testrun.models import TestRunConfig
 from oioioi.problems.models import Problem
@@ -20,6 +21,7 @@ def testrun_problem_instances(request):
     return filter_testrun_problem_instances(
                                         submittable_problem_instances(request))
 
+@make_request_condition
 def has_any_testrun_problem(request):
     return len(testrun_problem_instances(request)) > 0
 

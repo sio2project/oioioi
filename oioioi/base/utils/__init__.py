@@ -1,9 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.forms.util import flatatt
-from django.shortcuts import redirect
 from django.template import Template, Context
 from django.utils.html import conditional_escape
-from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.importlib import import_module
@@ -82,6 +80,11 @@ class RegisteredSubclassesBase(ClassInitBase):
             # This is RegisteredSubclassesBase class.
             return
 
+        if '__unmixed_class__' in cls.__dict__ \
+                and cls.__unmixed_class__ is not cls:
+            # This is an artificial class created by mixins mechanism
+            return
+
         assert 'subclasses' not in cls.__dict__, \
                 '%s defines attribute subclasses, but has ' \
                 'RegisteredSubclassesMeta metaclass' % (cls,)
@@ -95,7 +98,10 @@ class RegisteredSubclassesBase(ClassInitBase):
             if len(superclasses) > 1:
                 raise AssertionError('%s derives from more than one '
                         'RegisteredSubclassesBase' % (cls.__name__,))
-            return superclasses[0]
+            superclass = superclasses[0]
+            if '__unmixed_class__' in superclass.__dict__:
+                superclass = superclass.__unmixed_class__
+            return superclass
 
         # Add the class to all superclasses' 'subclasses' attribute, including
         # self.
@@ -314,8 +320,6 @@ def reset_memoized(memoized_fn):
        :fun:`memoized`."""
     memoized_fn.cache.clear()
 
-# Finding objects by name
-
 def request_cached(fn):
     """Adds per-request caching for functions which operate on sole request."""
     @functools.wraps(fn)
@@ -327,6 +331,8 @@ def request_cached(fn):
         return request._cache[fn]
     return cacher
 
+
+# Finding objects by name
 @memoized
 def get_object_by_dotted_name(name):
     """Returns an object by its dotted name, e.g.
@@ -355,16 +361,6 @@ def make_navbar_badge(link, text):
     template = Template('<li><a href="{{ link }}"><span class="label '
             'label-important">{{ text }}</span></a></li>')
     return template.render(Context({'link': link, 'text': text}))
-
-# Redirects
-
-def safe_redirect(request, url, fallback='index'):
-    if url and is_safe_url(url=url, host=request.get_host()):
-        next_page = url
-    else:
-        next_page = reverse(fallback)
-
-    return redirect(next_page)
 
 # File uploads
 

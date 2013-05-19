@@ -12,7 +12,8 @@ class OiSubmitContestControllerMixin(object):
                 render_submission_footer(request, submission)
 
         if not hasattr(submission, 'oisubmitextradata') or \
-                not is_contest_admin(request):
+               submission.oisubmitextradata is None or \
+               not is_contest_admin(request):
             return super_footer
 
         def _get_extra(s):
@@ -20,7 +21,7 @@ class OiSubmitContestControllerMixin(object):
 
         return render_to_string('oisubmit/submission_footer.html',
             context_instance=RequestContext(request, {
-                'is_suspected': _get_extra('is_suspected'),
+                'received_suspected': _get_extra('received_suspected'),
                 'comments': _get_extra('comments'),
                 'localtime': _get_extra('localtime'),
                 'siotime': _get_extra('siotime'),

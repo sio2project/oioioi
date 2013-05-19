@@ -6,8 +6,7 @@ from smtplib import SMTPException
 from django.core.mail import mail_admins
 from django.db import transaction
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
-        SubmissionReport, FailureReport, UserResultForContest, \
-        UserResultForRound, UserResultForProblem
+        SubmissionReport, FailureReport
 
 logger = logging.getLogger(__name__)
 

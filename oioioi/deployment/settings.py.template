@@ -127,11 +127,12 @@ INSTALLED_APPS = (
 #    'oioioi.oi',
 #    'oioioi.oisubmit',
 #    'oioioi.testrun',
-#    'oioioi.spliteval'
+#    'oioioi.spliteval',
 #    'oioioi.printing',
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.complaints',
+#    'oioioi.contestexcl',
 #    'oioioi.sharingcli',
 ) + INSTALLED_APPS
 
@@ -142,6 +143,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 MIDDLEWARE_CLASSES += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
+#    'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.oi.middleware.OiForceDnsIpAuthMiddleware',
 )
 
@@ -166,3 +168,25 @@ SHARING_SERVERS = (
 # Complaints
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
 #COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
+
+# Validation (Debug only!)
+# Every response passes through some validator binary, result may be seen
+# at /validator/ url. Each response mimetype may be validated using different
+# validator. You must provide valiator yourself, and fill in
+# OUTPUT_VALIDATOR_VALIDATORS dict. You may for example use "HTML Tidy"
+# opensource valiator for html.
+#
+#if DEBUG:
+#    INSTALLED_APPS += ('oioioi.validator', 'output_validator')
+#
+#    MIDDLEWARE_CLASSES += (
+#        'output_validator.middleware.ValidatorMiddleware',
+#    )
+#
+#    OUTPUT_VALIDATOR_IGNORE_PATHS = [
+#        '/validator/',
+#    ]
+#
+#    OUTPUT_VALIDATOR_VALIDATORS = {
+#        'text/html': '__PATH_TO_VALIDATOR_BINARY__',
+#    }

@@ -3,12 +3,10 @@ from datetime import timedelta
 
 from django.http import HttpResponse, HttpResponseServerError
 from django.template.response import TemplateResponse
-from django.utils.encoding import force_unicode
-from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import csrf_exempt
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.models import Submission
-from oioioi.contests.utils import can_enter_contest
+from oioioi.contests.utils import can_enter_contest, contest_exists
 from oioioi.oisubmit.forms import OISubmitSubmissionForm
 from oioioi.oisubmit.models import OISubmitExtraData
 from oioioi.oisubmit.err_dict import INCORRECT_FORM_COMMENTS, SUSPICION_REASONS
@@ -18,11 +16,12 @@ def oisubmit_response(error_occured, comment):
     return HttpResponse(json.dumps(response), content_type='application/json')
 
 @csrf_exempt
-@enforce_condition(can_enter_contest)
+@enforce_condition(contest_exists & can_enter_contest)
 def oisubmit_view(request, contest_id):
     if request.method == 'POST':
         form = OISubmitSubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
+            # Dates are interpreted as local timezone.
             if form.cleaned_data.get('siotime', None) is not None:
                 submission_date = form.cleaned_data['siotime']
             elif form.cleaned_data.get('localtime', None) is not None:
@@ -59,6 +58,10 @@ def oisubmit_view(request, contest_id):
 
             err_msg = ','.join(errors)
 
+            received_suspected = bool(errors)
+            if(received_suspected):
+                form.cleaned_data['kind'] = 'SUSPECTED'
+
             submission = request.contest.controller.create_submission(request,
                     pi, form.cleaned_data, judge_after_create = not(errors))
 
@@ -66,7 +69,7 @@ def oisubmit_view(request, contest_id):
                                 localtime = form.cleaned_data['localtime'],
                                 siotime = form.cleaned_data['siotime'],
                                 servertime = servertime,
-                                is_suspected = bool(errors),
+                                received_suspected = received_suspected,
                                 comments = err_msg)
             extra_data.save()
 

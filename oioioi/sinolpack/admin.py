@@ -17,6 +17,12 @@ class SinolpackConfigInline(admin.StackedInline):
     def has_add_permission(self, request):
         return False
 
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 class SinolpackExtraFilesInline(admin.StackedInline):
     model = ExtraFile
     can_delete = False
@@ -26,6 +32,12 @@ class SinolpackExtraFilesInline(admin.StackedInline):
     inline_classes = ('collapse',)
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
     def file_link(self, instance):

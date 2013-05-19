@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils import safe_redirect
+from oioioi.base.utils.redirect import safe_redirect
 
 from oioioi.contests.models import Round
 from oioioi.status import status_registry

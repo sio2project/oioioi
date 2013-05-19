@@ -1,0 +1,11 @@
+{% load i18n %}{% block header %}{% blocktrans %}Hi,
+
+the user {{ username }} can participate in more than one exclusive contest and therefore
+is unable to enter your site.{% endblocktrans %}{% endblock %}
+
+{% trans "List of relevant exclusive contests:" %}
+{% for contest_name, contest_id in contests %}
+- {{ contest_name }} ({{ contest_id }}){% endfor %}
+
+{% block footer %}{% blocktrans %}Please check whether your configuration is correct.
+{% endblocktrans %}{% endblock %}

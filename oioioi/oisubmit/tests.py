@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
-from django.utils.timezone import utc
+from django.utils.timezone import utc, get_current_timezone
 from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission
@@ -20,10 +20,11 @@ class OISubmitFileMixin(object):
         file = ContentFile('a' * file_size, name=file_name)
 
         if localtime is None:
-            localtime = datetime.now()
+            localtime = datetime.now(utc)
 
         if isinstance(localtime, datetime):
-            localtime_str = localtime.strftime("%Y-%m-%d %H:%M:%S")
+            localtime_str = localtime.astimezone(get_current_timezone()). \
+                            strftime("%Y-%m-%d %H:%M:%S")
         else:
             localtime_str = localtime
 
@@ -33,7 +34,8 @@ class OISubmitFileMixin(object):
         if siotime is None:
             siotime_str = ""
         elif isinstance(siotime, datetime):
-            siotime_str = siotime.strftime("%Y-%m-%d %H:%M:%S")
+            siotime_str = siotime.astimezone(get_current_timezone()). \
+                            strftime("%Y-%m-%d %H:%M:%S")
         else:
             siotime_str = siotime
 
@@ -60,10 +62,20 @@ class OISubmitFileMixin(object):
         self.assertEqual(submission_number,
                          Submission.objects.all().count())
 
-    def _assertSuspected(self, response, submission_number, reason):
+    def _assertSuspected(self, response, submission_number, suspected_number,
+                         reason):
         self._assertSubmitted(response, submission_number)
         self.assertEqual(True, self._json(response)['error_occured'])
         self.assertIn(reason, self._json(response)['comment'])
+        self.assertEqual(suspected_number+1,
+                         Submission.objects.filter(kind = 'SUSPECTED').count())
+
+    def _assertNotSuspected(self, response, submission_number,
+                            suspected_number):
+        self._assertSubmitted(response, submission_number)
+        self.assertEqual(False, self._json(response)['error_occured'])
+        self.assertEqual(suspected_number,
+                         Submission.objects.filter(kind = 'SUSPECTED').count())
 
     def _assertFormError(self, response, submission_number, error):
         self._assertNotSubmitted(response, submission_number)
@@ -79,62 +91,87 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         round = Round.objects.get()
-        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
+        round.start_date = datetime(2012, 7, 30, tzinfo=utc)
         round.end_date = datetime(2012, 8, 10, tzinfo=utc)
         round.save()
 
         dt = datetime(2012, 7, 10, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertSuspected(response, submission_number,
+                                  suspected_number,
                                   unicode(SUSPICION_REASONS['BEFORE_START']))
 
         dt = datetime(2012, 7, 31, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt)
-            self._assertSubmitted(response, submission_number)
+            self._assertNotSuspected(response, submission_number,
+                                     suspected_number)
 
         dt = datetime(2012, 8, 5, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt)
-            self._assertSubmitted(response, submission_number)
+            self._assertNotSuspected(response, submission_number,
+                                     suspected_number)
 
         dt = datetime(2012, 8, 10, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt)
-            self._assertSubmitted(response, submission_number)
+            self._assertNotSuspected(response, submission_number,
+                                     suspected_number)
 
         dt = datetime(2012, 8, 11, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertSuspected(response, submission_number,
+                                  suspected_number,
                                   unicode(SUSPICION_REASONS['AFTER_END']))
 
-        dt = datetime(2012, 8, 10, tzinfo=utc)
+        dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt,
-                                        dt + timedelta(seconds=29))
-            self._assertSubmitted(response, submission_number)
+                                        dt + timedelta(seconds=25))
+            self._assertNotSuspected(response, submission_number,
+                                     suspected_number)
 
-        dt = datetime(2012, 8, 10, tzinfo=utc)
+        dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name, dt,
                                         dt + timedelta(seconds=31))
             self._assertSuspected(response, submission_number,
+                                  suspected_number,
                                   unicode(SUSPICION_REASONS['TIMES_DIFFER']))
-        dt = datetime(2012, 8, 10, tzinfo=utc)
+
+        dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
             response = self.submit_file(contest, pi.short_name,
                                         dt + timedelta(seconds=31))
             self._assertSuspected(response, submission_number,
+                                  suspected_number,
                                   unicode(SUSPICION_REASONS['TIMES_DIFFER']))
 
     def test_huge_submission(self):
@@ -152,16 +189,22 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         self._assertSubmitted(response, submission_number)
 
     def test_submissions_limitation(self):
-        contest = Contest.objects.get()
-        pi = ProblemInstance.objects.get()
-        pi.submissions_limit = 1
-        pi.save()
-        submission_number = Submission.objects.all().count()
-        response = self.submit_file(contest, pi.short_name)
-        self._assertSubmitted(response, submission_number)
-        response = self.submit_file(contest, pi.short_name)
-        self._assertSuspected(response, submission_number+1,
-                              unicode(SUSPICION_REASONS['SLE']))
+        dt = datetime(2012, 8, 9, tzinfo=utc)
+        with fake_time(dt):
+            contest = Contest.objects.get()
+            pi = ProblemInstance.objects.get()
+            pi.submissions_limit = 1
+            pi.save()
+            submission_number = Submission.objects.all().count()
+            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+                               .count()
+            response = self.submit_file(contest, pi.short_name, dt, dt)
+            self._assertNotSuspected(response, submission_number,
+                                     suspected_number)
+            response = self.submit_file(contest, pi.short_name, dt, dt)
+            self._assertSuspected(response, submission_number+1,
+                                  suspected_number,
+                                  unicode(SUSPICION_REASONS['SLE']))
 
     def _assertUnsupportedExtension(self, contest, pi, name, ext):
         submission_number = Submission.objects.all().count()
@@ -176,7 +219,8 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         self._assertUnsupportedExtension(contest, pi, 'xxx', 'e')
         self._assertUnsupportedExtension(contest, pi, 'xxx', 'cppp')
         submission_number = Submission.objects.all().count()
-        response = self.submit_file(contest, pi.short_name, file_name='a.r.cpp')
+        response = self.submit_file(contest, pi.short_name,
+                                    file_name='a.r.cpp')
         self._assertSubmitted(response, submission_number)
 
     def test_submission_form(self):

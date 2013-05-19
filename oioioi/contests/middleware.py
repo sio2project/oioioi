@@ -1,10 +1,8 @@
 from django.conf import settings
-from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import ImproperlyConfigured
+
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import visible_contests
-import datetime
 
 NUM_RECENT_CONTESTS = 5
 
@@ -52,20 +50,6 @@ class CurrentContestMiddleware(object):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         contest = None
-
-        if getattr(settings, 'ONLY_DEFAULT_CONTEST', False):
-            if not hasattr(settings, 'DEFAULT_CONTEST'):
-                raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST set, but no "
-                        "DEFAULT_CONTEST in settings")
-            try:
-                contest = Contest.objects.get(id=settings.DEFAULT_CONTEST)
-            except Contest.DoesNotExist:
-                raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST set, but "
-                        "DEFAULT_CONTEST (%s) does not exist" %
-                        (settings.DEFAULT_CONTEST,))
-
-            if view_kwargs.get('contest_id', contest.id) != contest.id:
-                raise Http404
 
         if not contest and 'contest_id' in view_kwargs:
             contest = get_object_or_404(Contest, id=view_kwargs['contest_id'])

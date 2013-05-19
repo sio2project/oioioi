@@ -33,6 +33,15 @@ class TestInline(admin.TabularInline):
             'all': ('programs/admin.css',),
         }
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def input_file_link(self, instance):
         href = reverse('oioioi.programs.views.download_input_file_view',
                 kwargs={'test_id': str(instance.id)})
@@ -53,6 +62,12 @@ class OutputCheckerInline(admin.TabularInline):
     can_delete = False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
     def checker_link(self, instance):
@@ -148,7 +163,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
         extra_urls = patterns('',
                 url(r'(\d+)/models/$', self.model_solutions_view,
                     name='contests_probleminstance_models'),
-                url(r'(\d+)/models/rejudge$',
+                url(r'(\d+)/models/rejudge/$',
                     self.rejudge_model_solutions_view,
                     name='contests_probleminstance_models_rejudge'),
             )

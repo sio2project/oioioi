@@ -64,7 +64,8 @@ class ModelSolutionsManager(models.Manager):
                 submission = ModelProgramSubmission(
                         model_solution=model_solution,
                         problem_instance=problem_instance,
-                        source_file=model_solution.source_file)
+                        source_file=model_solution.source_file,
+                        kind='IGNORED')
                 submission.save()
             controller.judge(submission)
 

@@ -98,25 +98,21 @@ class TestCurrentContest(TestCase):
 
     @override_settings(DEFAULT_CONTEST='c2')
     def test_current_contest_session(self):
-        self.assertEqual(self.client.get('/c/c1/id').content, 'c1')
-        self.assertEqual(self.client.get('/contest_id').content, 'c1')
-        self.assertEqual(self.client.get('/c/c2/id').content, 'c2')
-        self.assertEqual(self.client.get('/contest_id').content, 'c2')
+        self.assertEqual(self.client.get('/c/c1/id/').content, 'c1')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c1')
+        self.assertEqual(self.client.get('/c/c2/id/').content, 'c2')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
 
     def test_current_contest_most_recent(self):
-        self.assertEqual(self.client.get('/contest_id').content, 'c2')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
 
     @override_settings(DEFAULT_CONTEST='c1')
     def test_current_contest_from_settings(self):
-        self.assertEqual(self.client.get('/contest_id').content, 'c1')
-
-    @override_settings(DEFAULT_CONTEST='c2', ONLY_DEFAULT_CONTEST=True)
-    def test_only_default_contest(self):
-        self.assertEqual(self.client.get('/c/c1/id').status_code, 404)
+        self.assertEqual(self.client.get('/contest_id/').content, 'c1')
 
     def test_current_contest_processor(self):
-        #self.assertEqual(self.client.get('/contest_id').content, 'c2')
-        self.assertEqual(self.client.get('/render_contest_id').content, 'c2')
+        #self.assertEqual(self.client.get('/contest_id/').content, 'c2')
+        self.assertEqual(self.client.get('/render_contest_id/').content, 'c2')
 
 class TestContestController(TestCase):
     fixtures = ['test_contest', 'test_extra_rounds']
@@ -562,7 +558,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
@@ -579,7 +575,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
     def test_huge_submission(self):
         contest = Contest.objects.get()
@@ -657,7 +653,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
             self.client.login(username='test_user2')
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance1)
             self._assertSubmitted(contest, response)
@@ -665,12 +661,12 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 8, 5, 0, 11, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
         with fake_time(datetime(2012, 8, 12, 0, 5, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance2)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
     def test_round_extension_admin(self):
         self.client.login(username='test_admin')

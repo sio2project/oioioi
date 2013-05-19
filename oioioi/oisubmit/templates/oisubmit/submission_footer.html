@@ -3,7 +3,7 @@
 <table class="details_table">
  <thead>
   <th> {% trans "Suspected" %} </th>
-  {% if is_suspected %}
+  {% if received_suspected %}
    <th> {% trans "Reason" %} </th>
   {% endif %}
   <th style="min-width: 150px"> {% trans "Local time" %} </th>
@@ -12,13 +12,13 @@
  </thead>
  <tbody><tr>
   <td>
-  {% if is_suspected %}
+  {% if received_suspected %}
    {% trans "Yes" %}
   {% else %}
    {% trans "No" %}
   {% endif %}
   </td>
-  {% if is_suspected %}
+  {% if received_suspected %}
    <td> {{ comments }} </td>
   {% endif %}
   <td> {{ localtime }} </td>

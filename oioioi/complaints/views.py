@@ -10,14 +10,14 @@ from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.shortcuts import redirect
 
-from oioioi.base.permissions import enforce_condition
-from oioioi.contests.utils import can_enter_contest
+from oioioi.base.permissions import enforce_condition, make_request_condition
+from oioioi.contests.utils import can_enter_contest, contest_exists
 from oioioi.base.menu import menu_registry
 from oioioi.complaints.forms import AddComplaintForm
 from oioioi.complaints.models import ComplaintsConfig
 from oioioi.participants.models import Participant
 
-
+@make_request_condition
 def can_make_complaint(request):
     if not request.user.is_authenticated():
         return False
@@ -30,11 +30,6 @@ def can_make_complaint(request):
     except ComplaintsConfig.DoesNotExist:
         return False
 
-menu_registry.register('complaints', _("Complaints"),
-        lambda request: reverse('complaints', kwargs={'contest_id':
-            request.contest.id}),
-        condition=can_make_complaint,
-        order=400)
 
 def email_template_context(request, message):
     user = request.user
@@ -99,9 +94,11 @@ def complaint_sent(request, contest_id):
     return TemplateResponse(request, 'complaints/complaint_sent.html',
         { 'complaints_email': settings.COMPLAINTS_EMAIL })
 
-@enforce_condition(can_enter_contest)
-@enforce_condition(can_make_complaint)
-def add_complaint(request, contest_id):
+@menu_registry.register_decorator(_("Complaints"), lambda request:
+        reverse('add_complaint', kwargs={'contest_id': request.contest.id}),
+    order=400)
+@enforce_condition(contest_exists & can_enter_contest & can_make_complaint)
+def add_complaint_view(request, contest_id):
     if not hasattr(settings, 'COMPLAINTS_EMAIL') \
             or not hasattr(settings, 'COMPLAINTS_SUBJECT_PREFIX'):
         raise ImproperlyConfigured('The oioioi.complaints module needs '

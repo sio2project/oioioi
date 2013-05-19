@@ -11,14 +11,15 @@ from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition, is_superuser
-from oioioi.base.utils import safe_redirect
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.status import status_registry
 from oioioi.su.forms import SuForm
-from oioioi.su.utils import su_to_user, is_under_su, reset_to_real_user, is_real_superuser
+from oioioi.su.utils import su_to_user, is_under_su, reset_to_real_user, \
+                            is_real_superuser
 
 
-@require_POST
 @enforce_condition(is_superuser)
+@require_POST
 def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
     form = SuForm(request.POST)
     if not form.is_valid():
@@ -38,8 +39,8 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
     return safe_redirect(request, next_page)
 
 
-@require_POST
 @enforce_condition(is_under_su)
+@require_POST
 def su_reset_view(request, next_page=None,
         redirect_field_name=REDIRECT_FIELD_NAME):
     reset_to_real_user(request)

@@ -170,6 +170,7 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
 submission_kinds = EnumRegistry()
 submission_kinds.register('NORMAL', _("Normal"))
 submission_kinds.register('IGNORED', _("Ignored"))
+submission_kinds.register('SUSPECTED', _("Suspected"))
 
 submission_statuses = EnumRegistry()
 submission_statuses.register('?', _("Pending"))

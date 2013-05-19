@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.utils.functional import lazy
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import Contest
@@ -33,6 +32,3 @@ def register_recent_contests(request):
         return recent_contests(request)
     return {'recent_contests': lazy(generator, list)()}
 
-def register_only_default_contest(request):
-    return {'only_default_contest': getattr(settings,'ONLY_DEFAULT_CONTEST',
-        False)}
