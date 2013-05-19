@@ -5,6 +5,10 @@ contest_patterns = patterns('oioioi.programs.views',
         name='show_submission_source'),
     url(r'^s/(?P<submission_id>\d+)/download/$',
         'download_submission_source_view', name='download_submission_source'),
+    url(r'^s/(?P<submission_id>\d+)/diffsave/$',
+        'save_diff_id_view', name='save_diff_id'),
+    url(r'^diff/(?P<submission1_id>\d+)/(?P<submission2_id>\d+)/$',
+        'source_diff_view', name='source_diff'),
 )
 
 urlpatterns = patterns('oioioi.programs.views',

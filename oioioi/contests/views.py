@@ -150,7 +150,7 @@ def my_submissions_view(request, contest_id):
             .order_by('-date') \
             .select_related()
     controller = request.contest.controller
-    queryset = controller.filter_visible_submissions(request, queryset)
+    queryset = controller.filter_my_visible_submissions(request, queryset)
     show_scores = bool(queryset.filter(score__isnull=False))
     return TemplateResponse(request, 'contests/my_submissions.html',
         {'submissions': [submission_template_context(request, s)

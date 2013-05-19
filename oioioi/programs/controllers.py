@@ -16,7 +16,8 @@ from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
-        CompilationReport, TestReport, GroupReport, ModelProgramSubmission
+        CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
+        Submission
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
@@ -282,6 +283,7 @@ class ProgrammingContestController(ContestController):
                 context_instance=RequestContext(request,
                     {'submission': submission_template_context(request,
                         submission.programsubmission),
+                    'saved_diff_id': request.session.get('saved_diff_id'),
                     'supported_extra_args':
                         self.get_supported_extra_args(submission)}))
 
@@ -309,6 +311,32 @@ class ProgrammingContestController(ContestController):
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
                         'groups': groups}))
+
+    def render_submission_footer(self, request, submission):
+        super_footer = super(ProgrammingContestController, self). \
+                render_submission_footer(request, submission)
+        queryset = Submission.objects \
+                .filter(problem_instance__contest=request.contest) \
+                .filter(user=submission.user) \
+                .filter(problem_instance=submission.problem_instance) \
+                .exclude(pk=submission.pk) \
+                .order_by('-date') \
+                .select_related()
+        if not is_contest_admin(request):
+            cc = request.contest.controller
+            queryset = cc.filter_my_visible_submissions(request, queryset)
+        show_scores = bool(queryset.filter(score__isnull=False))
+        if not queryset.exists():
+            return super_footer
+        return super_footer + render_to_string(
+                'programs/other_submissions.html',
+                context_instance=RequestContext(request, {
+                        'submissions': [submission_template_context(request, s)
+                                 for s in queryset],
+                        'show_scores': show_scores,
+                        'main_submission_id': submission.id,
+                        'submissions_on_page': getattr(settings,
+                            'SUBMISSIONS_ON_PAGE', 15)}))
 
     def valid_kinds_for_submission(self, submission):
         if ModelProgramSubmission.objects.filter(id=submission.id).exists():

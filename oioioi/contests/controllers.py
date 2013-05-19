@@ -511,7 +511,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 .get_or_create(user=user, contest=contest)
             self.update_user_result_for_contest(result)
 
-    def filter_visible_submissions(self, request, queryset):
+    def filter_my_visible_submissions(self, request, queryset):
         """Returns the submissions which the user should see in the
            "My submissions" view.
 

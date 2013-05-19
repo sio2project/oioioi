@@ -1,0 +1,9 @@
+{% extends "contests/my_submissions_table.html" %}
+
+{% block more-headers-before %}
+    <th></th>
+{% endblock %}
+{% block more-columns-before %}
+    {% url 'source_diff' contest_id=contest.id submission1_id=main_submission_id submission2_id=record.submission.id as diff_link %}
+    <td><a href="{{ diff_link }}"><i class="icon-resize-small"></i></a></td>
+{% endblock %}

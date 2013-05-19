@@ -50,8 +50,8 @@ def contest_dashboard_view(request, contest_id):
     submissions = Submission.objects \
             .filter(problem_instance__contest=request.contest) \
             .order_by('-date').select_related()
-    controller = request.contest.controller
-    submissions = controller.filter_visible_submissions(request, submissions)
+    cc = request.contest.controller
+    submissions = cc.filter_my_visible_submissions(request, submissions)
     submissions = submissions[:getattr(settings, 'NUM_DASHBOARD_SUBMISSIONS', 8)]
     submissions = [submission_template_context(request, s) for s in submissions]
     show_scores = bool(s for s in submissions if s.score is not None)

@@ -1,0 +1,26 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block content %}
+    <a class="btn" href={{ reverse_diff_url }}><i class="icon-random"></i> Change sides</a>
+    <table class="syntax-highlighttable diff-table"><tbody>
+    <tr>
+        <td colspan=2>
+        {% if decode_error1 %}
+        {% include "programs/file_decoding_error.html" with download_url=download_url1 %}
+        {% endif %}
+        </td>
+        <td class="diff-spacer"></td>
+        <td colspan=2>
+        {% if decode_error2 %}
+        {% include "programs/file_decoding_error.html" with download_url=download_url2 %}
+        {% endif %}
+        </td>
+    <tr>
+    <tr>
+        {% include "programs/source_diff_columns.html" with source=source1 %}
+        <td class="diff-spacer"></td>
+        {% include "programs/source_diff_columns.html" with source=source2 %}
+    </tr>
+    </tbody></table>
+{% endblock %}

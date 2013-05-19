@@ -424,7 +424,7 @@ class TestIgnoringCE(TestCase):
 
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        for i in range(1,3):
+        for i in [1, 3]:
             test_env['submission_id'] = i
             update_user_results(test_env)
 

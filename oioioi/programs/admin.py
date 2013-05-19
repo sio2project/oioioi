@@ -11,7 +11,6 @@ from django.utils.encoding import force_unicode
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.admin import ProblemAdmin
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
         GroupReport, ModelProgramSubmission, OutputChecker
 from collections import defaultdict
@@ -190,8 +189,10 @@ class ModelSubmissionAdminMixin(object):
                     return '(%s)' % (conditional_escape(force_unicode(
                         instance.model_solution.name)),)
         return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
-    user_full_name.short_description = SubmissionAdmin.user_full_name.short_description
-    user_full_name.admin_order_field = SubmissionAdmin.user_full_name.admin_order_field
+    user_full_name.short_description = SubmissionAdmin.user_full_name \
+            .short_description
+    user_full_name.admin_order_field = SubmissionAdmin.user_full_name \
+            .admin_order_field
 
     def get_list_select_related(self):
         return super(ModelSubmissionAdminMixin, self) \
@@ -199,3 +200,22 @@ class ModelSubmissionAdminMixin(object):
                 + ['programsubmission', 'modelprogramsubmission']
 
 SubmissionAdmin.mix_in(ModelSubmissionAdminMixin)
+
+class ProgramSubmissionAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        self.actions += ['submission_diff_action']
+
+    def submission_diff_action(self, request, queryset):
+        if len(queryset) != 2:
+            messages.error(request,
+                    _("You shall select exactly two submissions to diff"))
+            return None
+
+        id1, id2 = queryset[0].id, queryset[1].id
+
+        return redirect('source_diff', contest_id=request.contest.id,
+                        submission1_id=id1, submission2_id=id2)
+    submission_diff_action.short_description = _("Diff submissions")
+
+SubmissionAdmin.mix_in(ProgramSubmissionAdminMixin)

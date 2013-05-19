@@ -164,7 +164,7 @@ def check_submission_access(request, submission):
         return
     controller = request.contest.controller
     queryset = Submission.objects.filter(id=submission.id)
-    if not controller.filter_visible_submissions(request, queryset):
+    if not controller.filter_my_visible_submissions(request, queryset):
         raise PermissionDenied
 
 def get_submission_or_404(request, contest_id, submission_id,
