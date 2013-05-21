@@ -2,6 +2,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.validators import validate_whitespaces
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
 
@@ -54,7 +55,7 @@ class Region(models.Model):
         return '%s' % (self.short_name,)
 
 class School(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, validators=[validate_whitespaces])
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = models.CharField(max_length=6, verbose_name=_("postal code"),
         validators=[RegexValidator(r'^\d{2}-\d{3}$',

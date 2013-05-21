@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.base.fields import EnumRegistry, EnumField
+from oioioi.base.utils.validators import validate_whitespaces
 from oioioi.questions.utils import send_email_about_new_question
-
 
 message_kinds = EnumRegistry()
 message_kinds.register('QUESTION', _("Question"))
@@ -24,8 +24,8 @@ class Message(models.Model):
     top_reference = models.ForeignKey('self', null=True, blank=True)
     author = models.ForeignKey(User)
     kind = EnumField(message_kinds, default='QUESTION')
-    topic = models.CharField(max_length=255,
-            validators=[MaxLengthValidator(255)], verbose_name=_("topic"))
+    topic = models.CharField(max_length=255, verbose_name=_("topic"),
+        validators=[MaxLengthValidator(255), validate_whitespaces])
     content = models.TextField(verbose_name=_('content'))
     date = models.DateTimeField(default=timezone.now, editable=False)
 

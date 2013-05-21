@@ -12,6 +12,7 @@ from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.contests.fields import ScoreField
 from oioioi.filetracker.fields import FileField
+from oioioi.base.utils.validators import validate_whitespaces
 from oioioi.problems.models import Problem
 
 import itertools
@@ -29,7 +30,8 @@ def make_contest_filename(instance, filename):
 class Contest(models.Model):
     id = models.CharField(max_length=32, primary_key=True,
             validators=[validate_slug], verbose_name=_("ID"))
-    name = models.CharField(max_length=255, verbose_name=_("full name"))
+    name = models.CharField(max_length=255, verbose_name=_("full name"),
+                            validators=[validate_whitespaces])
     controller_name = DottedNameField(
             'oioioi.contests.controllers.ContestController',
             verbose_name=_("type"))
@@ -100,7 +102,8 @@ class ContestAttachment(models.Model):
 
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
-    name = models.CharField(max_length=255, verbose_name=_("name"))
+    name = models.CharField(max_length=255, verbose_name=_("name"),
+                            validators=[validate_whitespaces])
     start_date = models.DateTimeField(default=timezone.now,
             verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True,
@@ -136,7 +139,8 @@ class ProblemInstance(models.Model):
     round = models.ForeignKey(Round, verbose_name=_("round"), null=True,
             blank=True)
     problem = models.ForeignKey(Problem, verbose_name=_("problem"))
-    short_name = models.CharField(max_length=30, verbose_name=_("short name"))
+    short_name = models.CharField(max_length=30, verbose_name=_("short name"),
+                                  validators=[validate_whitespaces])
     submissions_limit = models.IntegerField(blank=True,
         default=settings.DEFAULT_SUBMISSIONS_LIMIT)
 
