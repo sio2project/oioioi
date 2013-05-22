@@ -538,6 +538,46 @@ class TestContestAdmin(TestCase):
         self.assertIn("Start date should be before end date.",
                 response.content)
 
+    def test_admin_permissions(self):
+        url = reverse('oioioiadmin:contests_contest_changelist')
+
+        self.client.login(username='test_user')
+        check_not_accessible(self, url)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        # without set request.contest
+        url = reverse('oioioiadmin:contests_probleminstance_changelist')
+        self.client.login(username='test_user')
+        check_not_accessible(self, url)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        c = Contest.objects.create(id='test_contest',
+            controller_name='oioioi.programs.controllers.'
+            'ProgrammingContestController',
+            name='Test contest')
+
+        # with request.contest
+        url = reverse('oioioiadmin:contests_probleminstance_changelist')
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.login(username='test_user')
+        check_not_accessible(self, url)
+
+        user = User.objects.get(username='test_user')
+        ContestPermission(user=user, contest=c,
+                          permission='contests.contest_admin').save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestAttachments(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']

@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
@@ -46,11 +48,18 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:problems_problem_changelist')
         response = self.client.get(url)
-        self.assertIn('Sum', response.content)
+        self.assertContains(response, 'Sum')
 
         self.client.login(username='test_user')
+        check_not_accessible(self, url)
+
+        user = User.objects.get(username='test_user')
+        content_type = ContentType.objects.get_for_model(Problem)
+        permission = Permission.objects.get(content_type=content_type,
+                                            codename='problems_db_admin')
+        user.user_permissions.add(permission)
         response = self.client.get(url)
-        self.assertNotIn('Sum', response.content)
+        self.assertContains(response, 'Sum')
 
     def test_admin_change_view(self):
         self.client.login(username='test_admin')

@@ -77,7 +77,7 @@ class ContestAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         if not obj:
-            return True
+            return request.user.is_superuser
         return request.user.has_perm('contests.contest_admin', obj)
 
     def has_delete_permission(self, request, obj=None):
@@ -147,8 +147,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return not obj or request.user.has_perm('contests.contest_admin',
-                obj.contest)
+        return request.contest is not None and is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
