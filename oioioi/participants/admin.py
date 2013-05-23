@@ -159,7 +159,7 @@ class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
 
     def _find_model_admin(self, request, object_id):
         rcontroller = request.contest.controller.registration_controller()
-        if has_participants(request):
+        if has_participants_admin(request):
             participant_admin = rcontroller.participant_admin(self.model,
                                                               self.admin_site)
         else:
