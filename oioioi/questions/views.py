@@ -11,7 +11,7 @@ from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
         visible_rounds, contest_exists
 from oioioi.questions.utils import log_addition
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm
-from oioioi.questions.models import Message, MessageView
+from oioioi.questions.models import Message, MessageView, new_question_signal
 
 def visible_messages(request):
     rounds_ids = [round.id for round in visible_rounds(request)]
@@ -97,6 +97,9 @@ def add_contest_message_view(request, contest_id):
                 instance.kind = 'QUESTION'
             instance.date = request.timestamp
             instance.save()
+            if instance.kind == 'QUESTION':
+                new_question_signal.send(sender=Message, request=request,
+                                         instance=instance)
             log_addition(request, instance)
             return redirect('contest_messages', contest_id=contest_id)
 
