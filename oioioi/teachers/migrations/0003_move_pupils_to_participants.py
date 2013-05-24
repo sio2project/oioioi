@@ -8,6 +8,7 @@ class Migration(DataMigration):
 
     depends_on = (
         ("participants", "0001_initial"),
+        ("contests", "0003_auto__add_field_contest_default_submissions_limit__add_field_problemin"),
     )
 
     def forwards(self, orm):

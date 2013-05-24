@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import fake_time, check_not_accessible
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
@@ -207,6 +207,59 @@ class TestParticipantsRegistration(TestCase):
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(302, response.status_code)
         self.assertEqual(Participant.objects.count(), 0)
+
+class NoAdminParticipantsRegistrationController(ParticipantsController):
+    @property
+    def participant_admin(self):
+        return None
+
+class NoAdminParticipantsContestController(ProgrammingContestController):
+    def registration_controller(self):
+        return NoAdminParticipantsRegistrationController(self.contest)
+
+class TestParticipantsModelAdmin(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_permissions']
+
+    def test_participants_admin_visibility(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.participants.tests.ParticipantsContestController'
+        contest.save()
+        user = User.objects.get(username='test_user')
+
+        p = Participant(contest=contest, user=user)
+        p.save()
+
+        url = reverse('oioioiadmin:participants_participant_changelist')
+        self.client.login(username='test_user')
+        check_not_accessible(self, url)
+
+        self.client.login(username='test_contest_admin')
+        response = self.client.get(url)
+        self.assertContains(response, 'test_user')
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertContains(response, 'test_user')
+
+    def test_noadmin_admin_visibility(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.participants.tests.NoAdminParticipantsContestController'
+        contest.save()
+        user = User.objects.get(username='test_user')
+
+        p = Participant(contest=contest, user=user)
+        p.save()
+
+        url = reverse('oioioiadmin:participants_participant_changelist')
+        self.client.login(username='test_user')
+        check_not_accessible(self, url)
+
+        self.client.login(username='test_admin')
+        check_not_accessible(self, url)
+        self.client.login(username='test_contest_admin')
+        check_not_accessible(self, url)
 
 
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
