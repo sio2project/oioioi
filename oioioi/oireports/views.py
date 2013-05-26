@@ -1,83 +1,36 @@
+import json
 import os
 import shutil
-import re
 import itertools
 import subprocess
-from collections import defaultdict
 from tempfile import mkdtemp, mkstemp
 from operator import attrgetter
 
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.template import RequestContext
+from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile, File
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+from django.http import Http404, HttpResponse
 
 from oioioi.base.permissions import enforce_condition
+from oioioi.base.utils.user_selection import get_user_q_expression
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.filetracker.utils import stream_file
-from oioioi.contests.models import ProblemInstance, Round, \
-        UserResultForProblem
-from oioioi.contests.utils import is_contest_admin, contest_exists
+from oioioi.contests.models import Round, UserResultForProblem, Submission
+from oioioi.contests.utils import is_contest_admin, contest_exists, \
+        has_any_rounds
+from oioioi.oireports.forms import OIReportForm, CONTEST_REPORT_KEY
 from oioioi.programs.models import CompilationReport, GroupReport, \
-        TestReport, Test
+        TestReport
 from oioioi.oi.models import Region
 
-CONTEST_REPORT_KEY = 'all'
 
 # FIXME conditions for views expressing oi dependence?
-
-
-def _rounds(request):
-    rounds = [(CONTEST_REPORT_KEY, _("Contest"))]
-    for round in request.contest.round_set.all():
-        rounds.append((str(round.id), round.name))
-    if len(rounds) == 1:
-        # No rounds have visible results
-        return []
-    if len(rounds) == 2:
-        # Only a single round => call this "contest report".
-        return rounds[:1]
-    return rounds
-
-
-def _regions(request):
-    res = [(CONTEST_REPORT_KEY, _("All"))]
-    regions = Region.objects.filter(contest=request.contest)
-    for r in regions:
-        res.append((r.short_name, r.name))
-    return res
-
-
-def _problem_instances(request, round):
-    pis = ProblemInstance.objects.filter(round=round)
-    return pis
-
-
-def _testgroups(request):
-    testgroups = []
-    for round in request.contest.round_set.all():
-        pis = list(ProblemInstance.objects.filter(round=round))
-        res = {
-            'id': str(round.id),
-            'name': round.name,
-            'tasks': []
-        }
-        for pi in pis:
-            task = {
-                'name': pi.problem.name,
-                'short_name': pi.short_name,
-                'testgroups': []
-            }
-            for test in list(Test.objects.filter(problem=pi.problem)):
-                if test.group not in task['testgroups']:
-                    task['testgroups'].append(test.group)
-            res['tasks'].append(task)
-        testgroups.append(res)
-    return testgroups
-
 
 def _users_in_contest(request, region=None):
     queryset = User.objects.filter(participant__contest=request.contest,
@@ -88,36 +41,32 @@ def _users_in_contest(request, region=None):
     return queryset
 
 
-def _testgroups_from_POST(request):
-    testgroups = defaultdict(list)
-    regex = re.compile(r'testgroup\[(.*)\]\[(.*)\]$')
-    for key in request.POST:
-        match = regex.match(key)
-        if match:
-            problem_instance = ProblemInstance.objects.get(
-                    short_name=match.group(1), round__contest=request.contest)
-            testgroups[problem_instance].append(match.group(2))
-    return testgroups
-
-
 @contest_admin_menu_registry.register_decorator(_("Printing reports"),
-    lambda request: reverse('report_options',
+    lambda request: reverse('oireports',
         kwargs={'contest_id': request.contest.id}),
     order=440)
 @enforce_condition(contest_exists & is_contest_admin)
-def report_options_view(request, contest_id):
-    rounds = _rounds(request)
-    regions = _regions(request)
-    testgroups = _testgroups(request)
-    if not rounds:
-        return TemplateResponse(request, 'oireports/no_reports.html')
-    return TemplateResponse(request, 'oireports/report_options.html',
-        {
-            'rounds': rounds,
-            'regions': regions,
-            'testgroups': testgroups,
-            'CONTEST_REPORT_KEY': CONTEST_REPORT_KEY,
-        })
+@enforce_condition(has_any_rounds, 'oireports/no_reports.html')
+def oireports_view(request, contest_id):
+    if request.method == 'POST':
+        form = OIReportForm(request, request.POST)
+
+        if form.is_valid():
+            form_type = form.cleaned_data['form_type']
+
+            if form_type == 'pdf_report':
+                return generate_pdfreport(request, form)
+            elif form_type == 'xml_report':
+                return generate_xmlreport(request, form)
+            else:
+                raise SuspiciousOperation
+    else:
+        form = OIReportForm(request)
+    return TemplateResponse(request, 'oireports/report_options.html', {
+            'form': form,
+            'num_hints': getattr(settings, 'NUM_HINTS', 10),
+            'CONTEST_REPORT_KEY': CONTEST_REPORT_KEY
+    })
 
 
 def _render_report(request, template_name, title, users,
@@ -128,18 +77,6 @@ def _render_report(request, template_name, title, users,
                 'rows': rows,
                 'title': title,
             }))
-
-
-def _render_pdf_report(request, title, users, problem_instances,
-        test_groups):
-    return _render_report(request, 'oireports/pdfreport.tex', title,
-            users, problem_instances, test_groups)
-
-
-def _render_xml_report(request, title, users, problem_instances,
-        test_groups):
-    return _render_report(request, 'oireports/xmlreport.xml', title,
-            users, problem_instances, test_groups)
 
 
 def _serialize_report(user, problem_instances, test_groups):
@@ -252,8 +189,8 @@ def _serialize_reports(users, problem_instances, test_groups):
     return data
 
 
-def _report_text(request, render_fn):
-    round_key = request.POST.get('round_key', CONTEST_REPORT_KEY)
+def _report_text(request, template_file, report_form):
+    round_key = report_form.cleaned_data['report_round']
     if round_key == CONTEST_REPORT_KEY:
         round = None
     else:
@@ -264,26 +201,33 @@ def _report_text(request, render_fn):
         title += ' -- ' + round.name
 
     # Region object
-    region_key = request.POST.get('region_key', CONTEST_REPORT_KEY)
+    region_key = report_form.cleaned_data['report_region']
     if region_key == CONTEST_REPORT_KEY:
         region = None
     else:
         region = Region.objects.get(short_name=region_key,
                 contest=request.contest)
 
+    if report_form.cleaned_data['is_single_report']:
+        users = User.objects \
+            .filter(username=report_form.cleaned_data['single_report_user'])
+    else:
+        users = _users_in_contest(request, region)
+
     # Generate report
-    testgroups = _testgroups_from_POST(request)
-    return render_fn(
-        request, title,
-        _users_in_contest(request, region),
+    testgroups = report_form.get_testgroups(request)
+    return _render_report(
+        request,
+        template_file,
+        title,
+        users,
         testgroups.keys(),
         testgroups
     )
 
 
-@enforce_condition(contest_exists & is_contest_admin)
-def pdfreport_view(request, contest_id):
-    report = _report_text(request, _render_pdf_report)
+def generate_pdfreport(request, report_form):
+    report = _report_text(request, 'oireports/pdfreport.tex', report_form)
     # Create temporary file and folder
     tmp_folder = mkdtemp()
     try:
@@ -312,17 +256,30 @@ def pdfreport_view(request, contest_id):
         # Get PDF file contents
         pdf_file = open(tex_filename + '.pdf', 'r')
         filename = '%s-%s-%s.pdf' % (request.contest.id,
-            request.POST.get('round_key', ''),
-            request.POST.get('region_key', 'all'))
+            report_form.cleaned_data['report_round'],
+            report_form.cleaned_data['report_region'])
         return stream_file(File(pdf_file), filename)
     finally:
         shutil.rmtree(tmp_folder)
 
 
-@enforce_condition(contest_exists & is_contest_admin)
-def xmlreport_view(request, contest_id):
-    report = _report_text(request, _render_xml_report)
+def generate_xmlreport(request, report_form):
+    report = _report_text(request, 'oireports/xmlreport.xml', report_form)
     filename = '%s-%s-%s.xml' % (request.contest.id,
-        request.POST.get('round_key', ''),
-        request.POST.get('region_key', 'all'))
+        report_form.cleaned_data['report_round'],
+        report_form.cleaned_data['report_region'])
     return stream_file(ContentFile(report.encode('utf-8')), filename)
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def get_report_users_view(request, contest_id):
+    if len(request.REQUEST.get('substr', '')) < 2:
+        raise Http404
+
+    q_expression = get_user_q_expression(request.REQUEST['substr'], 'user')
+    users = Submission.objects.filter(q_expression).order_by('user') \
+        .values('user').distinct().values_list('user__username',
+            'user__first_name', 'user__last_name')[:getattr(settings,
+            'NUM_HINTS', 10)]
+    users = ['%s (%s %s)' % u for u in users]
+    return HttpResponse(json.dumps(users), content_type='application/json')

@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.utils.user_selection import get_user_q_expression
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
         visible_rounds, contest_exists
 from oioioi.questions.utils import log_addition, unanswered_questions
@@ -188,20 +189,8 @@ def add_reply_view(request, contest_id, message_id):
 def get_messages_authors_view(request, contest_id):
     if len(request.REQUEST.get('substr', '')) < 1:
         raise Http404
-    substr = request.REQUEST['substr'].split()
 
-    if len(substr) > 2:
-        q_expression = Q(author__first_name__icontains=' '.join(substr[:- 1]),
-                         author__last_name__icontains=substr[- 1])
-    elif len(substr) == 2:
-        q_expression = Q(author__first_name__icontains=substr[0],
-                         author__last_name__icontains=substr[1]) | \
-                       Q(author__first_name__icontains=' '.join(substr))
-    else:
-        q_expression = Q(author__username__icontains=substr[0]) | \
-                       Q(author__first_name__icontains=substr[0]) | \
-                       Q(author__last_name__icontains=substr[0])
-
+    q_expression = get_user_q_expression(request.REQUEST['substr'], 'author')
     users = visible_messages(request).filter(q_expression).order_by('author') \
         .values('author').distinct().values_list('author__username',
         'author__first_name', 'author__last_name')[:getattr(settings,
