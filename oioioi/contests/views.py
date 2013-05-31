@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -24,7 +25,7 @@ from oioioi.contests.forms import SubmissionForm
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
-        is_contest_admin, has_any_submittable_problem, \
+        is_contest_admin, has_any_submittable_problem, visible_rounds, \
         visible_problem_instances, contest_exists, get_submission_or_404
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
@@ -229,32 +230,40 @@ def change_submission_kind_view(request, contest_id, submission_id, kind):
     order=200)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_files_view(request, contest_id):
-    contest_files = ContestAttachment.objects.filter(contest=request.contest)
+    contest_files = ContestAttachment.objects.filter(contest=request.contest) \
+        .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request)))
+    round_file_exists = contest_files.filter(round__isnull=False).exists()
     problem_instances = visible_problem_instances(request)
     problem_ids = [pi.problem_id for pi in problem_instances]
     problem_files = \
             ProblemAttachment.objects.filter(problem_id__in=problem_ids)
+    add_category_field = round_file_exists or problem_files.exists()
     rows = [{
+        'category': cf.round if cf.round else '',
         'name': cf.filename,
         'description': cf.description,
         'link': reverse('contest_attachment', kwargs={'contest_id': contest_id,
             'attachment_id': cf.id}),
         } for cf in contest_files]
     rows += [{
+        'category': pf.problem,
         'name': pf.filename,
-        'description': u'%s: %s' % (pf.problem, pf.description),
+        'description': pf.description,
         'link': reverse('problem_attachment', kwargs={'contest_id': contest_id,
             'attachment_id': pf.id}),
         } for pf in problem_files]
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(request, 'contests/files.html', {'files': rows,
-        'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100)})
+        'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100),
+        'add_category_field': add_category_field})
 
 
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_attachment_view(request, contest_id, attachment_id):
     attachment = get_object_or_404(ContestAttachment, contest_id=contest_id,
         id=attachment_id)
+    if attachment.round and attachment.round not in visible_rounds(request):
+        raise PermissionDenied
     return stream_file(attachment.content)
 
 

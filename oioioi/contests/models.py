@@ -20,7 +20,7 @@ import os.path
 
 
 def make_contest_filename(instance, filename):
-    if not isinstance(instance, Problem):
+    if not isinstance(instance, Contest):
         assert hasattr(instance, 'contest'), 'contest_file_generator used ' \
                 'on object %r which does not have \'contest\' attribute' \
                 % (instance,)
@@ -84,17 +84,19 @@ def _call_controller_adjust_contest(sender, instance, raw, **kwargs):
 
 class ContestAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
-       the contest.
+       the contest or to the round.
 
        This may be used for additional materials, like rules, documentation
        etc.
     """
-    contest = models.ForeignKey(Contest, related_name='attachments',
+    contest = models.ForeignKey(Contest, related_name='c_attachments',
             verbose_name=_("contest"))
     description = models.CharField(max_length=255,
             verbose_name=_("description"))
     content = FileField(upload_to=make_contest_filename,
             verbose_name=_("content"))
+    round = models.ForeignKey('Round', related_name='r_attachments',
+            verbose_name='round', blank=True, null=True)
 
     @property
     def filename(self):

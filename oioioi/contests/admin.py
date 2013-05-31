@@ -56,6 +56,12 @@ class AttachmentInline(admin.TabularInline):
                             'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'round':
+            kwargs['queryset'] = Round.objects.filter(contest=request.contest)
+        return super(AttachmentInline, self) \
+            .formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline]

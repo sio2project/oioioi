@@ -553,13 +553,18 @@ class TestAttachments(TestCase, TestStreamingMixin):
                 description='problem-attachment',
                 content=ContentFile('content-of-probatt', name='probatt.txt'))
         pa.save()
+        round = Round.objects.get(pk=1)
+        ra = ContestAttachment(contest=contest, description='round-attachment',
+                content=ContentFile('content-of-roundatt', name='roundatt.txt'),
+                round=round)
+        ra.save()
 
         self.client.login(username='test_user')
         response = self.client.get(reverse('contest_files',
             kwargs={'contest_id': contest.id}))
         self.assertEqual(response.status_code, 200)
         for part in ['contest-attachment', 'conatt.txt', 'problem-attachment',
-                'probatt.txt']:
+                     'probatt.txt', 'round-attachment', 'roundatt.txt']:
             self.assertIn(part, response.content)
         response = self.client.get(reverse('contest_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
@@ -567,6 +572,26 @@ class TestAttachments(TestCase, TestStreamingMixin):
         response = self.client.get(reverse('problem_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
         self.assertStreamingEqual(response, 'content-of-probatt')
+        response = self.client.get(reverse('contest_attachment',
+            kwargs={'contest_id': contest.id, 'attachment_id': ra.id}))
+        self.assertStreamingEqual(response, 'content-of-roundatt')
+
+        with fake_time(datetime(2011, 7, 10, tzinfo=utc)):
+            response = self.client.get(reverse('contest_files',
+                kwargs={'contest_id': contest.id}))
+            self.assertEqual(response.status_code, 200)
+            for part in ['contest-attachment', 'conatt.txt']:
+                self.assertIn(part, response.content)
+            for part in ['problem-attachment', 'probatt.txt',
+                         'round-attachment', 'roundatt.txt']:
+                self.assertNotIn(part, response.content)
+            response = self.client.get(reverse('contest_attachment',
+                kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
+            self.assertStreamingEqual(response, 'content-of-conatt')
+            check_not_accessible(self, 'problem_attachment',
+                 kwargs={'contest_id': contest.id, 'attachment_id': pa.id})
+            check_not_accessible(self, 'contest_attachment',
+                 kwargs={'contest_id': contest.id, 'attachment_id': ra.id})
 
 
 class SubmitFileMixin(object):

@@ -23,6 +23,9 @@
 <table class="table auto-width row-links">
     <thead>
         <tr>
+            {% if add_category_field %}
+            <th style="min-width: 100px">{% trans "Category" %}</th>
+            {% endif %}
             <th style="min-width: 100px">{% trans "File" %}</th>
             <th style="min-width: 300px">{% trans "Description" %}</th>
         </tr>
@@ -30,8 +33,11 @@
     <tbody>
         {% for file in files %}
         <tr>
+            {% if add_category_field %}
+            <td>{{ file.category }}</td>
+            {% endif %}
             <td><a href="{{ file.link }}">{{ file.name }}</a></td>
-            <td>{{ file.description }}</a></td>
+            <td>{{ file.description }}</td>
         </tr>
         {% endfor %}
     </tbody>
