@@ -2,7 +2,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils.validators import validate_whitespaces
+from oioioi.base.utils.validators import validate_whitespaces, \
+        validate_db_string_id
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
 
@@ -45,7 +46,8 @@ CLASS_TYPES = [
 
 
 class Region(models.Model):
-    short_name = models.CharField(max_length=10)
+    short_name = models.CharField(max_length=10,
+        validators=[validate_db_string_id])
     name = models.CharField(max_length=255)
     contest = models.ForeignKey(Contest)
 

@@ -1,3 +1,4 @@
+from django.core.validators import validate_slug
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -27,7 +28,8 @@ class Problem(models.Model):
        see :cls:`oioioi.contests.models.ProblemInstance` for those.
     """
     name = models.CharField(max_length=255, verbose_name=_("full name"))
-    short_name = models.CharField(max_length=30, verbose_name=_("short name"))
+    short_name = models.CharField(max_length=30,
+            validators=[validate_slug], verbose_name=_("short name"))
     controller_name = DottedNameField(
         'oioioi.problems.controllers.ProblemController',
         verbose_name=_("type"))

@@ -94,7 +94,7 @@ class DefaultRankingController(RankingController):
 
         header = [_("No."), _("First name"), _("Last name")]
         for pi in data['problem_instances']:
-            header.append(pi.short_name)
+            header.append(pi.get_short_name_display())
         header.append(_("Sum"))
         writer.writerow(map(force_unicode, header))
 
