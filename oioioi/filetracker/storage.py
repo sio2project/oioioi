@@ -9,6 +9,7 @@ import tempfile
 import datetime
 from oioioi.filetracker.utils import FileInFiletracker
 
+
 class FiletrackerStorage(Storage):
     def __init__(self, prefix='/', client=None):
         if client is None:

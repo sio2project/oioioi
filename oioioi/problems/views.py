@@ -23,11 +23,13 @@ def show_statement_view(request, statement_id):
         raise PermissionDenied
     return stream_file(statement.content)
 
+
 def show_problem_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
     if not request.user.has_perm('problems.problem_admin', attachment.problem):
         raise PermissionDenied
     return stream_file(attachment.content)
+
 
 def add_or_update_problem_view(request, contest_id=None):
     sources = problem_sources(request)

@@ -34,6 +34,7 @@ class RoundInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return True
 
+
 class AttachmentInline(admin.TabularInline):
     model = ContestAttachment
     extra = 0
@@ -53,6 +54,7 @@ class AttachmentInline(admin.TabularInline):
                     kwargs={'contest_id': str(instance.contest),
                             'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
+
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline]
@@ -111,6 +113,7 @@ class ContestAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(request.get_full_path())
         return super(ContestAdmin, self).response_change(request, obj)
 
+
 class BaseContestAdmin(admin.MixinsAdmin):
     default_model_admin = ContestAdmin
 
@@ -125,6 +128,7 @@ admin.site.register(Contest, BaseContestAdmin)
 contest_admin_menu_registry.register('contest_change', _("Settings"),
         lambda request: reverse('oioioiadmin:contests_contest_change',
             args=(request.contest.id,)), order=20)
+
 
 class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm
@@ -215,8 +219,10 @@ contest_admin_menu_registry.register('problems_change',
         reverse('oioioiadmin:contests_probleminstance_changelist'),
         order=30)
 
+
 class ProblemFilter(AllValuesFieldListFilter):
     title = _("problem")
+
 
 class UserListFilter(SimpleListFilter):
     title = _("user")
@@ -241,14 +247,15 @@ class UserListFilter(SimpleListFilter):
         else:
             return queryset
 
+
 class ProblemNameListFilter(SimpleListFilter):
     title = _("full name")
     parameter_name = 'pi'
 
     def lookups(self, request, model_admin):
         # Unique problem names
-        p_names = list(set(ProblemInstance.objects \
-                .filter(contest=request.contest) \
+        p_names = list(set(ProblemInstance.objects
+                .filter(contest=request.contest)
                 .values_list('problem__name', flat=True)))
         return [(x, x) for x in p_names]
 
@@ -257,6 +264,7 @@ class ProblemNameListFilter(SimpleListFilter):
             return queryset.filter(problem_instance__problem__name=self.value())
         else:
             return queryset
+
 
 class SubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_login', 'user_full_name', 'date',
@@ -363,6 +371,7 @@ contest_observer_menu_registry.register('submissions_admin', _("Submissions"),
         lambda request: reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
 
+
 class RoundListFilter(SimpleListFilter):
     title = _("round")
     parameter_name = 'round'
@@ -377,6 +386,7 @@ class RoundListFilter(SimpleListFilter):
             return queryset.filter(round=self.value())
         else:
             return queryset
+
 
 class RoundTimeExtensionAdmin(admin.ModelAdmin):
     list_display = ['user_login', 'user_full_name', 'round', 'extra_time']
@@ -422,6 +432,7 @@ contest_admin_menu_registry.register('roundtimeextension_admin',
         _("Round extensions"), lambda request:
         reverse('oioioiadmin:contests_roundtimeextension_changelist'),
         order=50)
+
 
 class ContestPermissionAdmin(admin.ModelAdmin):
     list_display = ['permission', 'user', 'user_full_name']

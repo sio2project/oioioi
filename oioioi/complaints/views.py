@@ -17,6 +17,7 @@ from oioioi.complaints.forms import AddComplaintForm
 from oioioi.complaints.models import ComplaintsConfig
 from oioioi.participants.models import Participant
 
+
 @make_request_condition
 def can_make_complaint(request):
     if not request.user.is_authenticated():
@@ -60,6 +61,7 @@ def email_template_context(request, message):
             urllib.urlencode({'user__username': request.user.username})),
     }
 
+
 def notify_complainer(request, body, message_id, ref_id):
     context = email_template_context(request, body)
     subject = render_to_string('complaints/email_subject.txt', context)
@@ -76,6 +78,7 @@ def notify_complainer(request, body, message_id, ref_id):
                     'References': '<%s@oioioi>' % ref_id})
     message.send()
 
+
 def notify_jury(request, body, message_id, ref_id):
     context = email_template_context(request, body)
     subject = render_to_string('complaints/email_subject.txt', context)
@@ -90,9 +93,11 @@ def notify_jury(request, body, message_id, ref_id):
                     'References': '<%s@oioioi>' % ref_id})
     message.send()
 
+
 def complaint_sent(request, contest_id):
     return TemplateResponse(request, 'complaints/complaint_sent.html',
-        { 'complaints_email': settings.COMPLAINTS_EMAIL })
+        {'complaints_email': settings.COMPLAINTS_EMAIL})
+
 
 @menu_registry.register_decorator(_("Complaints"), lambda request:
         reverse('add_complaint', kwargs={'contest_id': request.contest.id}),

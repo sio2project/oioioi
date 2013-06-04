@@ -3,12 +3,11 @@ from django.core.exceptions import ValidationError
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.template.context import RequestContext
 
 from oioioi.programs.controllers import ProgrammingContestController, \
     ProgrammingProblemController
-from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport, \
-    TestRunConfig
-from django.template.context import RequestContext
+from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.evalmgr import extend_after_placeholder
@@ -46,6 +45,7 @@ class TestRunProblemControllerMixin(object):
                 .mixins_for_admin() + (TestRunProgrammingProblemAdminMixin,)
 
 ProgrammingProblemController.mix_in(TestRunProblemControllerMixin)
+
 
 class TestRunContestControllerMixin(object):
     def fill_evaluation_environ_post_problem(self, environ, submission):
@@ -95,7 +95,7 @@ class TestRunContestControllerMixin(object):
                     status='ACTIVE', kind='TESTRUN').get()
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.status = score_report.status
-            submission.score = score_report.score  #Should be None
+            submission.score = score_report.score  # Should be None
         except:
             if SubmissionReport.objects.filter(submission=submission,
                     status='ACTIVE', kind='FAILURE'):

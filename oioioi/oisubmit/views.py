@@ -11,9 +11,11 @@ from oioioi.oisubmit.forms import OISubmitSubmissionForm
 from oioioi.oisubmit.models import OISubmitExtraData
 from oioioi.oisubmit.err_dict import INCORRECT_FORM_COMMENTS, SUSPICION_REASONS
 
+
 def oisubmit_response(error_occured, comment):
     response = dict(error_occured=error_occured, comment=comment)
     return HttpResponse(json.dumps(response), content_type='application/json')
+
 
 @csrf_exempt
 @enforce_condition(contest_exists & can_enter_contest)
@@ -63,14 +65,14 @@ def oisubmit_view(request, contest_id):
                 form.cleaned_data['kind'] = 'SUSPECTED'
 
             submission = request.contest.controller.create_submission(request,
-                    pi, form.cleaned_data, judge_after_create = not(errors))
+                    pi, form.cleaned_data, judge_after_create=not(errors))
 
             extra_data = OISubmitExtraData(submission=submission,
-                                localtime = form.cleaned_data['localtime'],
-                                siotime = form.cleaned_data['siotime'],
-                                servertime = servertime,
-                                received_suspected = received_suspected,
-                                comments = err_msg)
+                                localtime=form.cleaned_data['localtime'],
+                                siotime=form.cleaned_data['siotime'],
+                                servertime=servertime,
+                                received_suspected=received_suspected,
+                                comments=err_msg)
             extra_data.save()
 
             if errors:

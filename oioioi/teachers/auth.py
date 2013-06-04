@@ -18,4 +18,3 @@ class TeacherAuthBackend(object):
         if perm == 'contests.contest_admin' and obj is not None:
             return bool(ContestTeacher.objects.filter(teacher__user=user_obj,
                 teacher__is_active=True, contest=obj))
-

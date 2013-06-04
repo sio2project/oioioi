@@ -54,15 +54,16 @@ def get_times_status(request, response):
             current_rounds_times.sort(key=lambda rt: rt.get_end())
 
     if current_rounds_times:
-        response['round_start_date'] = time.mktime((timezone \
+        response['round_start_date'] = time.mktime((timezone
             .localtime(current_rounds_times[0].get_start())).timetuple())
-        response['round_end_date'] = time.mktime((timezone \
+        response['round_end_date'] = time.mktime((timezone
             .localtime(current_rounds_times[0].get_end())).timetuple())
     elif next_rounds_times:
-        response['round_start_date'] = time.mktime((timezone \
+        response['round_start_date'] = time.mktime((timezone
             .localtime(next_rounds_times[0].get_start())).timetuple())
 
     return response
+
 
 def admin_time(request, next_page=None):
     if 'next' in request.REQUEST:

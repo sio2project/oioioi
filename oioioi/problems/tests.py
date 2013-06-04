@@ -7,8 +7,10 @@ from oioioi.problems.controllers import ProblemController
 from oioioi.problems.models import Problem, ProblemStatement, \
         make_problem_filename
 
+
 class TestProblemController(ProblemController):
     pass
+
 
 class TestModels(TestCase):
     def test_problem_controller_property(self):
@@ -23,6 +25,7 @@ class TestModels(TestCase):
         ps = ProblemStatement(pk=22, problem=p12)
         self.assertEqual(make_problem_filename(ps, 'a/hej.txt'),
                 'problems/12/hej.txt')
+
 
 class TestProblemViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']

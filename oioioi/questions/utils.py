@@ -19,6 +19,7 @@ def log_addition(request, object):
         action_flag=ADDITION
     )
 
+
 def send_email_about_new_question(recipient, request, msg_obj):
     context = {'recipient': recipient, 'msg': msg_obj,
                'msg_link': request.build_absolute_uri(
@@ -36,12 +37,14 @@ def send_email_about_new_question(recipient, request, msg_obj):
     email = EmailMessage(subject=subject, body=body, to=[recipient.email])
     email.send(fail_silently=True)
 
+
 def get_categories(request):
     categories = [('p_%d' % (pi.id,), _("Problem %s") % (pi.problem.name,))
                   for pi in visible_problem_instances(request)]
     categories += [('r_%d' % (round.id,), _("General, %s") % (round.name,))
                    for round in visible_rounds(request)]
     return categories
+
 
 def unanswered_questions(messages):
     return messages.filter(message__isnull=True, top_reference__isnull=True,

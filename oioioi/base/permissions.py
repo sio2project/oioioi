@@ -17,8 +17,9 @@ class AccessDenied(object):
     def __nonzero__(self):
         return False
 
+
 class Condition(object):
-    """Class representing a condition (a function which returns a boolean
+    r"""Class representing a condition (a function which returns a boolean
        based on its arguments) intended for use with views and menu items.
 
        Technically, an instance of this class is a callable object wrapping
@@ -56,6 +57,7 @@ class Condition(object):
         condition_inverted = lambda *args, **kwargs: not self(*args, **kwargs)
         return Condition(condition_inverted)
 
+
 class RequestBasedCondition(Condition):
     """Subclass of the :class:`Condition` class.
 
@@ -67,11 +69,13 @@ class RequestBasedCondition(Condition):
     def __call__(self, request, *args, **kwargs):
         return self.condition(request)
 
+
 def make_condition(condition_class=Condition):
     """Decorator which transforms a function into an instance of a given
        ``condition_class`` (subclass of :class:`~Condition`).
     """
     assert issubclass(condition_class, Condition)
+
     def wrap_condition(func):
         condition = condition_class(func)
         for attr in ('__name__', '__module__', '__doc__'):
@@ -81,6 +85,7 @@ def make_condition(condition_class=Condition):
     return wrap_condition
 
 make_request_condition = make_condition(RequestBasedCondition)
+
 
 def enforce_condition(condition, template=None):
     """Decorator for views that checks that the request passes the given
@@ -107,6 +112,7 @@ def enforce_condition(condition, template=None):
     assert isinstance(condition, Condition), 'condition passed to' \
         ' enforce_condition must be an instance of the Condition class or' \
         ' its subclass'
+
     def decorator(view_func):
         @functools.wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
@@ -129,6 +135,7 @@ def enforce_condition(condition, template=None):
         _wrapped_view.condition = new_condition
         return _wrapped_view
     return decorator
+
 
 @make_request_condition
 def not_anonymous(request):

@@ -6,6 +6,7 @@ from oioioi.contests.utils import can_enter_contest
 from oioioi.questions.utils import unanswered_questions
 from oioioi.questions.views import new_messages, visible_messages
 
+
 def navbar_tip_processor(request):
     if not getattr(request, 'contest', None):
         return {}
@@ -13,6 +14,7 @@ def navbar_tip_processor(request):
         return {}
     if not can_enter_contest(request):
         return {}
+
     def generator():
         is_admin = request.user.has_perm('contests.contest_admin',
                 request.contest)
@@ -31,7 +33,7 @@ def navbar_tip_processor(request):
                 m = messages.get()
                 link = reverse('message', kwargs={
                         'contest_id': request.contest.id,
-                        'message_id': m.top_reference_id \
+                        'message_id': m.top_reference_id
                             if m.top_reference_id in visible_ids else m.id
                     })
             else:
@@ -41,4 +43,3 @@ def navbar_tip_processor(request):
         else:
             return ''
     return {'extra_navbar_right_messages': lazy(generator, unicode)()}
-

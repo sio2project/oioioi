@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
 
+
 def raw_file_view(request, filename):
     if not filename or filename.startswith('/'):
         raise Http404

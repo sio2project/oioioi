@@ -1,8 +1,9 @@
 from django import template
-from django.template import defaulttags, Node, TemplateSyntaxError
+from django.template import Node, TemplateSyntaxError
 from django.utils.encoding import force_unicode
 
 register = template.Library()
+
 
 class AllWithPrefixNode(Node):
     def __init__(self, prefix):
@@ -15,6 +16,7 @@ class AllWithPrefixNode(Node):
         to_render = [value for key, value in flattened_context.iteritems()
                      if key.startswith(self.prefix)]
         return ''.join(map(force_unicode, to_render))
+
 
 @register.tag
 def all_with_prefix(parser, token):

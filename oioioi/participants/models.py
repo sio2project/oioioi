@@ -9,6 +9,7 @@ participant_statuses = EnumRegistry()
 participant_statuses.register('ACTIVE', _("Active"))
 participant_statuses.register('BANNED', _("Banned"))
 
+
 class Participant(models.Model):
     contest = models.ForeignKey(Contest)
     user = models.ForeignKey(User)

@@ -44,6 +44,7 @@ class TestModels(TestCase):
         pi.save()
         self.assertEqual(pi.contest, contest)
 
+
 class TestScores(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -89,10 +90,12 @@ class TestScores(TestCase):
 def print_contest_id_view(request, contest_id=None):
     return HttpResponse(str(request.contest.id))
 
+
 def render_contest_id_view(request):
     t = Template('{{ contest.id }}')
     print RequestContext(request)
     return HttpResponse(t.render(RequestContext(request)))
+
 
 class TestCurrentContest(TestCase):
     urls = 'oioioi.contests.test_urls'
@@ -113,8 +116,9 @@ class TestCurrentContest(TestCase):
         self.assertEqual(self.client.get('/contest_id/').content, 'c1')
 
     def test_current_contest_processor(self):
-        #self.assertEqual(self.client.get('/contest_id/').content, 'c2')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
         self.assertEqual(self.client.get('/render_contest_id/').content, 'c2')
+
 
 class TestContestController(TestCase):
     fixtures = ['test_contest', 'test_extra_rounds']
@@ -125,16 +129,16 @@ class TestContestController(TestCase):
         r2 = Round.objects.get(pk=2)
         r3 = Round.objects.get(pk=3)
 
-        r1.start_date = datetime(2012, 1, 1,  8,  0, tzinfo=utc)
-        r1.end_date =   datetime(2012, 1, 1, 10,  0, tzinfo=utc)
+        r1.start_date = datetime(2012, 1, 1, 8, 0, tzinfo=utc)
+        r1.end_date = datetime(2012, 1, 1, 10, 0, tzinfo=utc)
         r1.save()
 
-        r2.start_date = datetime(2012, 1, 1,  9, 59, tzinfo=utc)
-        r2.end_date =   datetime(2012, 1, 1, 11, 00, tzinfo=utc)
+        r2.start_date = datetime(2012, 1, 1, 9, 59, tzinfo=utc)
+        r2.end_date = datetime(2012, 1, 1, 11, 00, tzinfo=utc)
         r2.save()
 
-        r3.start_date = datetime(2012, 1, 2,  8,  0, tzinfo=utc)
-        r3.end_date  =  datetime(2012, 1, 2, 10,  0, tzinfo=utc)
+        r3.start_date = datetime(2012, 1, 2, 8, 0, tzinfo=utc)
+        r3.end_date = datetime(2012, 1, 2, 10, 0, tzinfo=utc)
         r3.save()
 
         rounds = [r1, r2, r3]
@@ -163,15 +167,19 @@ class TestContestController(TestCase):
             self.assertEqual(contest.controller.order_rounds_by_focus(
                 FakeRequest(date, contest), rounds), expected_order)
 
+
 class PrivateRegistrationController(RegistrationController):
     def anonymous_can_enter_contest(self):
         return False
+
     def filter_participants(self, queryset):
         return queryset.none()
+
 
 class PrivateContestController(ContestController):
     def registration_controller(self):
         return PrivateRegistrationController(self.contest)
+
 
 class TestContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -227,6 +235,7 @@ class TestContestViews(TestCase):
         self.client.login(username='test_user')
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
+
         def count_templates(name):
             return len([t for t in response.templates if t.name == name])
         self.assertEqual(count_templates('programs/submission_header.html'), 1)
@@ -265,6 +274,7 @@ class TestContestViews(TestCase):
                 kwargs={'contest_id': contest.id})
         check_not_accessible(self, 'contest_files',
                 kwargs={'contest_id': contest.id})
+
 
 class TestManyRounds(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission',
@@ -357,6 +367,7 @@ class TestManyRounds(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 2)
 
+
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_extra_statements']
@@ -387,6 +398,7 @@ class TestMultilingualStatements(TestCase, TestStreamingMixin):
 def failing_handler(env):
     raise RuntimeError('EXPECTED FAILURE')
 
+
 class BrokenContestController(ProgrammingContestController):
     def fill_evaluation_environ(self, environ, submission):
         super(BrokenContestController, self).fill_evaluation_environ(environ,
@@ -394,6 +406,7 @@ class BrokenContestController(ProgrammingContestController):
         environ['recipe'] = [
                 ('failing_handler', 'oioioi.contests.tests.failing_handler'),
             ]
+
 
 class TestRejudgeAndFailure(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -438,6 +451,7 @@ class TestRejudgeAndFailure(TestCase):
         self.assertNotIn('failure report', response.content)
         self.assertNotIn('EXPECTED FAILURE', response.content)
 
+
 class TestContestAdmin(TestCase):
     fixtures = ['test_users']
 
@@ -455,8 +469,9 @@ class TestContestAdmin(TestCase):
                 'end_date_1': '05:06:07',
                 'results_date_0': '2012-02-05',
                 'results_date_1': '06:07:08',
-                'controller_name': 'oioioi.programs.controllers.ProgrammingContestController'
-            }
+                'controller_name':
+                    'oioioi.programs.controllers.ProgrammingContestController',
+        }
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn('was added successfully', response.content)
@@ -520,6 +535,7 @@ class TestContestAdmin(TestCase):
         self.assertIn("Start date should be before end date.",
                 response.content)
 
+
 class TestAttachments(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
@@ -548,6 +564,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
         response = self.client.get(reverse('problem_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
         self.assertStreamingEqual(response, 'content-of-probatt')
+
 
 class SubmitFileMixin(object):
     def submit_file(self, contest, problem_instance, file_size=1024,
@@ -658,6 +675,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance, file_name='a.c')
         self._assertSubmitted(contest, response)
 
+
 class TestRoundExtension(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_extra_rounds']
@@ -719,7 +737,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         self.assertEqual(rext.user, User.objects.get(pk=1001))
         self.assertEqual(rext.extra_time, 31415926)
 
-        url = reverse('oioioiadmin:contests_roundtimeextension_change', \
+        url = reverse('oioioiadmin:contests_roundtimeextension_change',
                 args=('1',))
         response = self.client.get(url)
         self.assertIn('31415926', response.content)
@@ -817,6 +835,7 @@ class TestPermissions(TestCase):
         response = self.client.get(reverse('problems_list',
             kwargs={'contest_id': self.contest.id}), follow=True)
         self.assertIn('Observer Menu', response.content)
+
 
 class TestSubmissionChangeKind(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

@@ -1,6 +1,7 @@
 from django.utils.functional import lazy
 from django_gravatar.helpers import get_gravatar_url
 
+
 def gravatar(request):
     if request.user.is_authenticated():
         def generator():

@@ -1,10 +1,11 @@
 from django import forms
 from django.conf import settings
 from django.forms import ValidationError
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.contests.forms import SubmissionForm
 from oioioi.contests.models import ProblemInstance
+
 
 class OISubmitSubmissionForm(SubmissionForm):
 

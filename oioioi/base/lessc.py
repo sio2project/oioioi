@@ -7,6 +7,7 @@ import re
 import sys
 import tempfile
 
+
 def find_staticfiles_path(fs_path):
     prefix, path = os.path.split(fs_path)
     new_component = None
@@ -21,10 +22,11 @@ def find_staticfiles_path(fs_path):
                 "static directories" % (fs_path,))
     return longest_good
 
-LESS_IMPORT_RE = re.compile(r'^@import\s*[\'"]([^\'"]*)', re.I|re.M)
+LESS_IMPORT_RE = re.compile(r'^@import\s*[\'"]([^\'"]*)', re.I | re.M)
+
 
 def collect_sources(tmp_dir, staticfiles_path):
-    print >>sys.stderr, "Processing", staticfiles_path
+    print >> sys.stderr, "Processing", staticfiles_path
     staticfiles_dir = os.path.dirname(staticfiles_path)
     dst_path = os.path.join(tmp_dir, staticfiles_path)
     dst_dir = os.path.dirname(dst_path)
@@ -42,6 +44,7 @@ def collect_sources(tmp_dir, staticfiles_path):
             continue
         collect_sources(tmp_dir, os.path.normpath(os.path.join(staticfiles_dir,
             url)))
+
 
 def main():
     infile = os.path.realpath(os.path.abspath(sys.argv[1]))

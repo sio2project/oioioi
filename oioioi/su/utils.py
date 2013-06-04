@@ -3,6 +3,7 @@ from django.contrib import auth
 from oioioi.base.permissions import is_superuser, make_request_condition
 from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY
 
+
 @make_request_condition
 def is_real_superuser(request):
     if hasattr(request, 'real_user'):

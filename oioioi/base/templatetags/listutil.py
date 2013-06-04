@@ -16,6 +16,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def partition(thelist, n):
     """Break a list into ``n`` pieces. The last list may be larger than the
@@ -43,8 +44,12 @@ def partition(thelist, n):
         return [thelist]
     p = len(thelist) / n
     num_longer = len(thelist) - p * n
-    return [thelist[(p+1)*i:(p+1)*(i+1)] for i in range(num_longer)] \
-            + [thelist[p*i+num_longer:p*(i+1)+num_longer] for i in range(num_longer, n)]
+
+    return [thelist[((p + 1) * i):((p + 1) * (i + 1))]
+            for i in range(num_longer)] + \
+            [thelist[(p * i + num_longer):(p * (i + 1) + num_longer)]
+            for i in range(num_longer, n)]
+
 
 @register.filter
 def partition_horizontal(thelist, n):
@@ -65,5 +70,5 @@ def partition_horizontal(thelist, n):
         return [thelist]
     newlists = [list() for i in range(n)]
     for i, val in enumerate(thelist):
-        newlists[i%n].append(val)
+        newlists[i % n].append(val)
     return newlists

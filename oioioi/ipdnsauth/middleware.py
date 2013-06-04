@@ -1,6 +1,7 @@
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 
+
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
 class IpDnsAuthMiddleware(object):
     """Middleware for authentication based on user IP or DNS hostname."""
@@ -26,4 +27,3 @@ class IpDnsAuthMiddleware(object):
         user = auth.authenticate(ip_addr=ip_addr, dns_name=dns_name)
         if user:
             auth.login(request, user)
-

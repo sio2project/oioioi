@@ -8,6 +8,7 @@ from oioioi.contests.utils import has_any_submittable_problem, contest_exists
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.printing.forms import PrintForm
 
+
 @menu_registry.register_decorator(_("Print file"), lambda request:
         reverse('print_view', kwargs={'contest_id': request.contest.id}),
     order=470)

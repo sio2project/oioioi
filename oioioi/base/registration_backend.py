@@ -9,6 +9,7 @@ from oioioi.base.forms import RegistrationFormWithNames
 import registration.backends.default.urls
 import registration.views
 
+
 class RegistrationView(DefaultRegistrationView):
     form_class = RegistrationFormWithNames
 

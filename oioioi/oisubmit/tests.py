@@ -10,7 +10,7 @@ from oioioi.oisubmit.err_dict import SUSPICION_REASONS, INCORRECT_FORM_COMMENTS
 
 from datetime import datetime, timedelta
 import json
-import time
+
 
 class OISubmitFileMixin(object):
     def submit_file(self, contest, pi_short_name, localtime=None,
@@ -54,7 +54,7 @@ class OISubmitFileMixin(object):
 
     def _assertSubmitted(self, response, submission_number):
         self.assertEqual(200, response.status_code)
-        self.assertEqual(submission_number+1,
+        self.assertEqual(submission_number + 1,
                          Submission.objects.all().count())
 
     def _assertNotSubmitted(self, response, submission_number):
@@ -67,19 +67,20 @@ class OISubmitFileMixin(object):
         self._assertSubmitted(response, submission_number)
         self.assertEqual(True, self._json(response)['error_occured'])
         self.assertIn(reason, self._json(response)['comment'])
-        self.assertEqual(suspected_number+1,
-                         Submission.objects.filter(kind = 'SUSPECTED').count())
+        self.assertEqual(suspected_number + 1,
+                         Submission.objects.filter(kind='SUSPECTED').count())
 
     def _assertNotSuspected(self, response, submission_number,
                             suspected_number):
         self._assertSubmitted(response, submission_number)
         self.assertEqual(False, self._json(response)['error_occured'])
         self.assertEqual(suspected_number,
-                         Submission.objects.filter(kind = 'SUSPECTED').count())
+                         Submission.objects.filter(kind='SUSPECTED').count())
 
     def _assertFormError(self, response, submission_number, error):
         self._assertNotSubmitted(response, submission_number)
         self.assertIn(unicode(error), self._json(response)['comment'])
+
 
 class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -98,7 +99,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 7, 10, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertSuspected(response, submission_number,
@@ -108,7 +109,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 7, 31, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertNotSuspected(response, submission_number,
@@ -117,7 +118,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 8, 5, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertNotSuspected(response, submission_number,
@@ -126,7 +127,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 8, 10, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertNotSuspected(response, submission_number,
@@ -135,7 +136,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 8, 11, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertSuspected(response, submission_number,
@@ -145,7 +146,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt,
                                         dt + timedelta(seconds=25))
@@ -155,7 +156,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt,
                                         dt + timedelta(seconds=31))
@@ -166,7 +167,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name,
                                         dt + timedelta(seconds=31))
@@ -196,13 +197,13 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
             pi.submissions_limit = 1
             pi.save()
             submission_number = Submission.objects.all().count()
-            suspected_number = Submission.objects.filter(kind = 'SUSPECTED') \
+            suspected_number = Submission.objects.filter(kind='SUSPECTED') \
                                .count()
             response = self.submit_file(contest, pi.short_name, dt, dt)
             self._assertNotSuspected(response, submission_number,
                                      suspected_number)
             response = self.submit_file(contest, pi.short_name, dt, dt)
-            self._assertSuspected(response, submission_number+1,
+            self._assertSuspected(response, submission_number + 1,
                                   suspected_number,
                                   unicode(SUSPICION_REASONS['SLE']))
 
@@ -239,4 +240,3 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
         response = self.submit_file(contest, "xx")
         self._assertFormError(response, submission_number,
                               INCORRECT_FORM_COMMENTS['problem_shortname'])
-

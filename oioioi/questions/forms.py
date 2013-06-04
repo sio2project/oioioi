@@ -5,6 +5,7 @@ from oioioi.contests.models import Round, ProblemInstance
 from oioioi.questions.models import message_kinds, Message
 from oioioi.questions.utils import get_categories
 
+
 class AddContestMessageForm(forms.ModelForm):
     class Meta:
         model = Message
@@ -40,6 +41,7 @@ class AddContestMessageForm(forms.ModelForm):
             instance.save()
         return instance
 
+
 class AddReplyForm(AddContestMessageForm):
     class Meta(AddContestMessageForm.Meta):
         fields = ['kind', 'topic', 'content']
@@ -49,6 +51,7 @@ class AddReplyForm(AddContestMessageForm):
         del self.fields['category']
         self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] != 'QUESTION']
+
 
 class ChangeContestMessageForm(AddContestMessageForm):
     class Meta:
@@ -65,6 +68,7 @@ class ChangeContestMessageForm(AddContestMessageForm):
             self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] != 'QUESTION']
 
+
 class FilterMessageForm(forms.Form):
     category = forms.ChoiceField([], label=_("Category"), required=False)
 
@@ -78,6 +82,7 @@ class FilterMessageForm(forms.Form):
         category = self.cleaned_data['category']
         type, _, id = category.partition('_')
         return type, id
+
 
 class FilterMessageAdminForm(FilterMessageForm):
     author = forms.CharField(label=_('Author username'), required=False)

@@ -4,14 +4,12 @@ from django.test import TestCase
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from oioioi.filetracker.tests import TestStreamingMixin
-from oioioi.problems.package import backend_for_package
 from oioioi.sinolpack.package import SinolPackageBackend, \
-        DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT
+        DEFAULT_TIME_LIMIT
 from oioioi.contests.models import ProblemInstance, Contest, Round, \
         Submission, UserResultForContest
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment
+from oioioi.problems.models import Problem, ProblemStatement
 from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
         TestReport
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
@@ -22,9 +20,11 @@ from cStringIO import StringIO
 import urllib
 import zipfile
 
+
 @nottest
 def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
+
 
 class TestSinolPackage(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -207,6 +207,7 @@ class TestSinolPackageInContest(TestCase, TestStreamingMixin):
                     args=(problem.id,)))
         self.assertStreamingEqual(response, open(filename, 'rb').read())
 
+
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_full_package']
 
@@ -239,6 +240,7 @@ class TestSinolPackageCreator(TestCase, TestStreamingMixin):
                 'sum/prog/sumb0.c',
                 'sum/prog/sums1.cpp',
             ])
+
 
 class TestJudging(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']

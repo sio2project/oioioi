@@ -1,10 +1,9 @@
-from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from django.utils.importlib import import_module
 from django.forms import ValidationError
 from south.modelsinspector import add_introspection_rules
 from oioioi.base.utils import get_object_by_dotted_name
+
 
 class DottedNameField(models.CharField):
     """A ``CharField`` designed to store dotted names of Python classes.
@@ -96,6 +95,7 @@ class EnumRegistry(object):
                     (self.max_length,))
         if not self.entries or value not in zip(*self.entries)[0]:
             self.entries.append((value, description))
+
 
 class EnumField(models.CharField):
     """A ``CharField`` designed to store a value from an extensible set.

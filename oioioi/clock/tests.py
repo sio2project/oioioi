@@ -8,6 +8,7 @@ import calendar
 import json
 import time
 
+
 class TestClock(TestCase):
     fixtures = ['test_contest', 'test_users']
 

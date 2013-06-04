@@ -26,12 +26,14 @@ from oioioi import evalmgr
 
 logger = logging.getLogger(__name__)
 
+
 def export_entries(registry, values):
     result = []
     for value, description in registry.entries:
         if value in values:
             result.append((value, description))
     return result
+
 
 def submission_template_context(request, submission):
     controller = submission.problem_instance.contest.controller
@@ -50,6 +52,7 @@ def submission_template_context(request, submission):
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment,
             'valid_kinds_for_submission': valid_kinds_for_submission}
+
 
 class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
     def __init__(self, contest):
@@ -114,6 +117,7 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return ()
 
+
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
@@ -125,6 +129,7 @@ class PublicContestRegistrationController(RegistrationController):
 
     def filter_participants(self, queryset):
         return queryset
+
 
 class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     """Contains the contest logic and rules.
@@ -187,6 +192,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if queryset is None:
             queryset = Round.objects.filter(contest=self.contest)
         now = request.timestamp
+
         def sort_key(round):
             rtimes = self.get_round_times(request, round)
             to_event = timedelta(minutes=10)

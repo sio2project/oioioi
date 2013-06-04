@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Submission
 from oioioi.problems.models import Problem
 
+
 class ScoreReveal(models.Model):
     submission = models.OneToOneField(Submission, related_name='revealed',
                                       verbose_name=_("submission"))
@@ -10,6 +11,7 @@ class ScoreReveal(models.Model):
     class Meta:
         verbose_name = _("score reveal")
         verbose_name_plural = _("score reveals")
+
 
 class ScoreRevealConfig(models.Model):
     problem = models.OneToOneField(Problem,

@@ -43,6 +43,7 @@ CLASS_TYPES = [
     ('6SP', "szósta szkoły podstawowej"),
 ]
 
+
 class Region(models.Model):
     short_name = models.CharField(max_length=10)
     name = models.CharField(max_length=255)
@@ -53,6 +54,7 @@ class Region(models.Model):
 
     def __unicode__(self):
         return '%s' % (self.short_name,)
+
 
 class School(models.Model):
     name = models.CharField(max_length=255, validators=[validate_whitespaces])
@@ -72,6 +74,7 @@ class School(models.Model):
     def __unicode__(self):
         return _("%(name)s, %(city)s") % \
                 dict(name=self.name, city=self.city)
+
 
 class OIRegistration(RegistrationModel):
     address = models.CharField(max_length=255, verbose_name=_("address"))
@@ -97,6 +100,7 @@ class OIRegistration(RegistrationModel):
         return _("%(class_type)s of %(school)s") % \
                 dict(class_type=self.get_class_type_display(),
                     school=self.school)
+
 
 class OIOnsiteRegistration(RegistrationModel):
     number = models.IntegerField()

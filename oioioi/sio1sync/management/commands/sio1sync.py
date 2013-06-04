@@ -111,7 +111,7 @@ def get_sio1_submissions_ids(sio1_submission_type=1):
         return []
 
     sql = 'SELECT id FROM submits WHERE in_sio2 = 0 AND task' \
-          ' IN (' + ', '.join(y for (x,y) in sync_env['problems']) + ')' \
+          ' IN (' + ', '.join(y for (x, y) in sync_env['problems']) + ')' \
           ' AND type = %s'
 
     sync_env['sioCursor'].execute(sql, (sio1_submission_type))

@@ -8,6 +8,7 @@ from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIOnsiteRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 
+
 class OIRegistrationController(ParticipantsController):
     @property
     def form_class(self):
@@ -27,6 +28,7 @@ class OIRegistrationController(ParticipantsController):
 
     def can_register(self, request):
         return True
+
 
 class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
@@ -92,6 +94,7 @@ class OIOnsiteRegistrationController(ParticipantsController):
 
     def can_edit_registration(self, request, participant):
         return False
+
 
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")

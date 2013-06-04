@@ -22,9 +22,11 @@ from oioioi.base.permissions import enforce_condition, not_anonymous, \
     is_superuser, make_request_condition
 from oioioi.contests.utils import is_contest_admin, contest_exists
 
+
 @make_request_condition
 def is_teachers_contest(request):
     return isinstance(request.contest.controller, TeacherContestController)
+
 
 @make_request_condition
 def is_not_teacher(request):
@@ -47,6 +49,7 @@ def send_request_email(request, teacher, message):
             headers={'Reply-To': teacher.user.email})
     message.send()
 
+
 def send_acceptance_email(request, teacher):
     context = {
         'teacher': teacher,
@@ -58,6 +61,7 @@ def send_acceptance_email(request, teacher):
     subject = ' '.join(subject.strip().splitlines())
     body = render_to_string('teachers/acceptance_email.txt', context)
     teacher.user.email_user(subject, body)
+
 
 @account_menu_registry.register_decorator(_("Request teacher account"),
     lambda request: reverse(add_teacher_view),
@@ -82,6 +86,7 @@ def add_teacher_view(request):
         form = AddTeacherForm(instance=instance)
     return TemplateResponse(request, 'teachers/request.html', {'form': form})
 
+
 @enforce_condition(is_superuser)
 def accept_teacher_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -100,6 +105,7 @@ def accept_teacher_view(request, user_id):
             messages.success(request, _("Successfully accepted and emailed the "
                 "new teacher."))
     return redirect('oioioiadmin:teachers_teacher_changelist')
+
 
 @contest_admin_menu_registry.register_decorator(_("Pupils"), lambda request:
         reverse(pupils_view, kwargs={'contest_id': request.contest.id}),
@@ -124,6 +130,7 @@ def pupils_view(request, contest_id):
                 'registration_link': registration_link,
                 'other_contests': other_contests,
             })
+
 
 @enforce_condition(not_anonymous & is_teachers_contest)
 def activate_pupil_view(request, contest_id, key):
@@ -153,9 +160,11 @@ def activate_pupil_view(request, contest_id, key):
                 'registration_active': registration_config.is_active,
             })
 
+
 def redirect_to_pupils(request):
     return redirect(reverse(pupils_view, kwargs={'contest_id':
         request.contest.id}))
+
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
@@ -166,6 +175,7 @@ def set_registration_view(request, contest_id, value):
     registration_config.save()
     return redirect_to_pupils(request)
 
+
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
 def regenerate_key_view(request, contest_id):
@@ -175,6 +185,7 @@ def regenerate_key_view(request, contest_id):
     registration_config.save()
     return redirect_to_pupils(request)
 
+
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
 def delete_pupils_view(request, contest_id):
@@ -183,6 +194,7 @@ def delete_pupils_view(request, contest_id):
     Participant.objects.filter(contest=request.contest,
             user_id__in=request.POST.getlist('pupil')).delete()
     return redirect_to_pupils(request)
+
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)

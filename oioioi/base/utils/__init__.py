@@ -13,13 +13,16 @@ import shutil
 import traceback
 import re
 
+
 # Metaclasses
+
 
 class ClassInitMeta(type):
     """Meta class triggering __classinit__ on class intialization."""
     def __init__(cls, class_name, bases, new_attrs):
         super(ClassInitMeta, cls).__init__(class_name, bases, new_attrs)
         cls.__classinit__()
+
 
 class ClassInitBase(object):
     """Abstract base class injecting ClassInitMeta meta class."""
@@ -56,6 +59,7 @@ class ClassInitBase(object):
                         ...
         """
         pass
+
 
 class RegisteredSubclassesBase(ClassInitBase):
     """A base class for classes which should have a list of subclasses
@@ -128,10 +132,12 @@ class RegisteredSubclassesBase(ClassInitBase):
                     continue
         cls._subclasses_loaded = True
 
+
 class _RemoveMixinsFromInitMixin(object):
     def __init__(self, *args, **kwargs):
         kwargs.pop('mixins', None)
         super(_RemoveMixinsFromInitMixin, self).__init__(*args, **kwargs)
+
 
 class ObjectWithMixins(ClassInitBase):
     """Base class for objects which support mixins.
@@ -284,7 +290,9 @@ class ObjectWithMixins(ClassInitBase):
         cls._mx_class = None
         cls._fixup_subclasses()
 
+
 # Memoized-related bits copied from SqlAlchemy.
+
 
 class memoized_property(object):   # Copied from SqlAlchemy
     """A read-only @property that is only evaluated once."""
@@ -299,6 +307,7 @@ class memoized_property(object):   # Copied from SqlAlchemy
         obj.__dict__[self.__name__] = result = self.fget(obj)
         return result
 
+
 def memoized(fn):
     """Simple wrapper that adds result caching for functions with positional
        arguments only.
@@ -307,6 +316,7 @@ def memoized(fn):
        a dict.
     """
     cache = {}
+
     @functools.wraps(fn)
     def memoizer(*args):
         if args not in cache:
@@ -315,10 +325,12 @@ def memoized(fn):
     memoizer.cache = cache
     return memoizer
 
+
 def reset_memoized(memoized_fn):
     """Clear the memoization cache of a function decorated by
        :fun:`memoized`."""
     memoized_fn.cache.clear()
+
 
 def request_cached(fn):
     """Adds per-request caching for functions which operate on sole request."""
@@ -333,6 +345,8 @@ def request_cached(fn):
 
 
 # Finding objects by name
+
+
 @memoized
 def get_object_by_dotted_name(name):
     """Returns an object by its dotted name, e.g.
@@ -345,7 +359,9 @@ def get_object_by_dotted_name(name):
     except AttributeError, e:
         raise ImportError('Requested object %r not found: %s' % (name, e))
 
+
 # Generating HTML
+
 
 def make_html_link(href, name, extra_attrs={}):
     attrs = {'href': href}
@@ -353,16 +369,20 @@ def make_html_link(href, name, extra_attrs={}):
     return mark_safe(u'<a %s>%s</a>' % (flatatt(attrs),
             conditional_escape(force_unicode(name))))
 
+
 def make_html_links(links, extra_attrs={}):
     links = [make_html_link(href, name, extra_attrs) for href, name in links]
     return mark_safe(' | '.join(links))
+
 
 def make_navbar_badge(link, text):
     template = Template('<li><a href="{{ link }}"><span class="label '
             'label-important">{{ text }}</span></a></li>')
     return template.render(Context({'link': link, 'text': text}))
 
+
 # File uploads
+
 
 @contextmanager
 def uploaded_file_name(uploaded_file):
@@ -375,9 +395,10 @@ def uploaded_file_name(uploaded_file):
         yield f.name
         f.close()
 
+
 # Natural sort key
+
 
 def naturalsort_key(key):
     convert = lambda text: int(text) if text.isdigit() else text
-    return [ convert(c) for c in re.split('([0-9]+)', key) ]
-
+    return [convert(c) for c in re.split('([0-9]+)', key)]

@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.oi.models import OIRegistration, PROVINCES, School, Region
 import datetime
 
+
 class RegionForm(forms.ModelForm):
     class Meta:
         model = Region
@@ -20,6 +21,7 @@ class RegionForm(forms.ModelForm):
             raise ValidationError(_("Region with this name already exists."))
         return self.cleaned_data['short_name']
 
+
 def city_options(province):
     cities = School.objects.filter(province=province).order_by('city') \
             .distinct().values_list('city', flat=True)
@@ -27,12 +29,14 @@ def city_options(province):
     cities.insert(0, ('', "-- Wybierz miasto --"))
     return cities
 
+
 def school_options(province, city):
     schools = School.objects.filter(province=province, city=city) \
             .order_by('name').only('name', 'address')
     schools = [(s.id, u'%s (%s)' % (s.name, s.address)) for s in schools]
     schools.insert(0, ('', "-- Wybierz szkołę --"))
     return schools
+
 
 class SchoolSelect(forms.Select):
     def render(self, name, value, attrs=None, choices=()):
@@ -54,10 +58,11 @@ class SchoolSelect(forms.Select):
 
         attr = {'name': name, 'id': 'id_' + name}
         options = [('_province', provinces, province), ('_city', cities, city),
-                   ('',schools, school_id)]
-        selects = {'attr': attr, 'options' : options}
+                   ('', schools, school_id)]
+        selects = {'attr': attr, 'options': options}
 
         return render_to_string('forms/school_select_form.html', selects)
+
 
 class OIRegistrationForm(forms.ModelForm):
     class Meta:
@@ -83,4 +88,3 @@ class OIRegistrationForm(forms.ModelForm):
         if not self.cleaned_data['terms_accepted']:
             raise forms.ValidationError(_("Terms not accepted"))
         return True
-

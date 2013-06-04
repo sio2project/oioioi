@@ -40,6 +40,7 @@ def recent_contests(request):
 def register_recent_contests(request):
     if not hasattr(request, 'contest') or not hasattr(request, 'session'):
         return {}
+
     def generator():
         return recent_contests(request)
     return {'recent_contests': lazy(generator, list)()}

@@ -16,6 +16,7 @@ from oioioi.oi.management.commands import import_onsite_participants, \
 from datetime import datetime
 import os
 
+
 class TestOIAdmin(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -36,6 +37,7 @@ class TestOIAdmin(TestCase):
         manager = import_schools.Command()
         manager.run_from_argv(['manage.py', 'import_schools', filename])
         self.assertEqual(School.objects.count(), 3)
+
 
 class TestOIOnsiteAdmin(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -99,6 +101,7 @@ class TestOIOnsiteAdmin(TestCase):
         self.assertEqual(p.status, 'ACTIVE')
         self.assertEqual(force_unicode(p.registration_model), '1/waw/1')
 
+
 class TestOIRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -152,6 +155,7 @@ class TestOIRegistration(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual(Participant.objects.count(), 0)
 
+
 class TestOIOnsiteRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -167,7 +171,6 @@ class TestOIOnsiteRegistration(TestCase):
 
         self.assertRaises(ObjectDoesNotExist,
             lambda: getattr(p, 'registration_model'))
-
 
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()
@@ -214,6 +217,7 @@ class TestOIOnsiteRegistration(TestCase):
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
+
 class TestOIViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
@@ -255,6 +259,7 @@ class TestOIViews(TestCase):
         self.client.login(username='test_user')
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
+
 
 class TestOIOnsiteViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -326,6 +331,7 @@ class TestOIOnsiteViews(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
+
 class TestOISubmit(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
@@ -368,6 +374,7 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
+
 class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
@@ -408,6 +415,7 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
+
 class TestIgnoringCE(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission',
         'test_submissions_CE']
@@ -437,4 +445,3 @@ class TestIgnoringCE(TestCase):
     def test_all_oi_style_contests(self):
         self._test('oioioi.oi.controllers.OIContestController')
         self._test('oioioi.oi.controllers.OIOnsiteContestController')
-

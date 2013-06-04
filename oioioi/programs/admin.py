@@ -15,6 +15,7 @@ from oioioi.programs.models import Test, ModelSolution, TestReport, \
         GroupReport, ModelProgramSubmission, OutputChecker
 from collections import defaultdict
 
+
 class TestInline(admin.TabularInline):
     model = Test
     max_num = 0
@@ -53,6 +54,7 @@ class TestInline(admin.TabularInline):
         return make_html_link(href, instance.output_file.name.split('/')[-1])
     output_file_link.short_description = _("Output/hint file")
 
+
 class OutputCheckerInline(admin.TabularInline):
     model = OutputChecker
     extra = 0
@@ -78,10 +80,12 @@ class OutputCheckerInline(admin.TabularInline):
         return make_html_link(href, instance.exe_file.name.split('/')[-1])
     checker_link.short_description = _("Checker exe")
 
+
 class ProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [TestInline, OutputCheckerInline]
+
 
 class ProgrammingProblemInstanceAdminMixin(object):
     def _is_partial_score(self, test_report):
@@ -179,6 +183,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
 
 ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
 
+
 class ModelSubmissionAdminMixin(object):
     def user_full_name(self, instance):
         if not instance.user:
@@ -189,10 +194,11 @@ class ModelSubmissionAdminMixin(object):
                     return '(%s)' % (conditional_escape(force_unicode(
                         instance.model_solution.name)),)
         return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
-    user_full_name.short_description = SubmissionAdmin.user_full_name \
-            .short_description
-    user_full_name.admin_order_field = SubmissionAdmin.user_full_name \
-            .admin_order_field
+
+    user_full_name.short_description = \
+            SubmissionAdmin.user_full_name.short_description
+    user_full_name.admin_order_field = \
+            SubmissionAdmin.user_full_name.admin_order_field
 
     def get_list_select_related(self):
         return super(ModelSubmissionAdminMixin, self) \
@@ -200,6 +206,7 @@ class ModelSubmissionAdminMixin(object):
                 + ['programsubmission', 'modelprogramsubmission']
 
 SubmissionAdmin.mix_in(ModelSubmissionAdminMixin)
+
 
 class ProgramSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):

@@ -4,6 +4,7 @@ from django.conf import settings
 
 register = template.Library()
 
+
 @register.inclusion_tag('su/dropdown-form.html', takes_context=True)
 def su_dropdown_form(context):
     from oioioi.su.forms import SuForm

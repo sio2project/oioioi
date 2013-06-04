@@ -17,9 +17,11 @@ from oioioi.test_settings import MIDDLEWARE_CLASSES
 
 from datetime import datetime
 
+
 class ParticipantsContestController(ProgrammingContestController):
     def registration_controller(self):
         return ParticipantsController(self.contest)
+
 
 class OpenRegistrationController(ParticipantsController):
     def anonymous_can_enter_contest(self):
@@ -31,9 +33,11 @@ class OpenRegistrationController(ParticipantsController):
     def can_register(self, request):
         return True
 
+
 class OpenRegistrationContestController(ContestController):
     def registration_controller(self):
         return OpenRegistrationController(self.contest)
+
 
 class TestParticipantsContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -101,6 +105,7 @@ class TestParticipantsContestViews(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
+
 class TestParticipantsSubmit(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
@@ -136,6 +141,7 @@ class TestParticipantsSubmit(TestCase, SubmitFileMixin):
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
+
 
 class TestParticipantsRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -208,14 +214,17 @@ class TestParticipantsRegistration(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual(Participant.objects.count(), 0)
 
+
 class NoAdminParticipantsRegistrationController(ParticipantsController):
     @property
     def participant_admin(self):
         return None
 
+
 class NoAdminParticipantsContestController(ProgrammingContestController):
     def registration_controller(self):
         return NoAdminParticipantsRegistrationController(self.contest)
+
 
 class TestParticipantsModelAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_permissions']

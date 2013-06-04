@@ -17,6 +17,7 @@ from oioioi.sharingcli.models import RemoteProblemURL
 
 logger = logging.getLogger(__name__)
 
+
 class RemoteClient(object):
     def __init__(self, site_url, sharing_url, client_id, client_secret):
         self.site_url = site_url

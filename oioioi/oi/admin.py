@@ -44,6 +44,7 @@ class RegionAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
+
         def form_wrapper(*args, **kwargs):
             form = Form(*args, **kwargs)
             form.request_contest = request.contest
@@ -54,6 +55,7 @@ admin.site.register(Region, RegionAdmin)
 contest_admin_menu_registry.register('regions', _("Regions"),
     lambda request: reverse('oioioiadmin:oi_region_changelist'),
     condition=is_onsite_contest, order=21)
+
 
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ('name', 'address', 'postal_code', 'city', 'province',
@@ -67,12 +69,14 @@ admin.system_admin_menu_registry.register('schools',
     _("Schools"), lambda request:
     reverse('oioioiadmin:oi_school_changelist'), order=20)
 
+
 class OIRegistrationInline(admin.StackedInline):
     model = OIRegistration
     fk_name = 'participant'
     form = OIRegistrationForm
     can_delete = False
     inline_classes = ('collapse open',)
+
 
 class OIRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display \
@@ -84,7 +88,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
                'oi_oiregistration__school__city']
 
     list_filter = ParticipantAdmin.list_filter \
-            + ['oi_oiregistration__school__province' ]
+            + ['oi_oiregistration__school__province']
 
     def get_list_select_related(self):
         return super(OIRegistrationParticipantAdmin, self) \
@@ -117,6 +121,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
             del actions['delete_selected']
         return actions
 
+
 class OIOnsiteRegistrationInline(admin.TabularInline):
     model = OIOnsiteRegistration
     fk_name = 'participant'
@@ -128,6 +133,7 @@ class OIOnsiteRegistrationInline(admin.TabularInline):
     def has_change_permission(self, request, obj=None):
         return request.user.has_perm('contests.contest_admin', request.contest)
 
+
 class RegionFilter(RelatedFieldListFilter):
     def __init__(self, field, request, *args, **kwargs):
         super(RegionFilter, self).__init__(field, request, *args, **kwargs)
@@ -135,15 +141,16 @@ class RegionFilter(RelatedFieldListFilter):
         self.lookup_choices = [(r.id, unicode(r))
                                for r in contest.region_set.all()]
 
+
 class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display \
             + ['number', 'region', 'local_number']
     inlines = ParticipantAdmin.inlines + [OIOnsiteRegistrationInline]
     list_filter = ParticipantAdmin.list_filter \
-            + [('oi_oionsiteregistration__region', RegionFilter) ]
+            + [('oi_oionsiteregistration__region', RegionFilter)]
     ordering = ['oi_oionsiteregistration__number']
     search_fields = ParticipantAdmin.search_fields \
-            + ['oi_oionsiteregistration__number' ]
+            + ['oi_oionsiteregistration__number']
 
     def get_list_select_related(self):
         return super(OIOnsiteRegistrationParticipantAdmin, self) \
@@ -161,4 +168,3 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     def local_number(self, instance):
         return instance.oi_oionsiteregistration.local_number
     local_number.admin_order_field = 'oi_oionsiteregistration__local_number'
-

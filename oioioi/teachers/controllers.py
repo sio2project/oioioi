@@ -4,6 +4,7 @@ from oioioi.participants.controllers import ParticipantsController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController
 
+
 class TeacherRegistrationController(ParticipantsController):
     @property
     def form_class(self):
@@ -22,10 +23,12 @@ class TeacherRegistrationController(ParticipantsController):
     def no_entry_view(self, request):
         return TemplateResponse(request, 'teachers/no_entry.html')
 
+
 class TeacherRankingController(DefaultRankingController):
     def filter_users_for_ranking(self, request, key, queryset):
         return request.contest.controller.registration_controller() \
                 .filter_participants(queryset)
+
 
 class TeacherContestController(ProgrammingContestController):
     description = _("Contest for teachers")

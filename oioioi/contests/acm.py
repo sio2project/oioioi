@@ -12,10 +12,9 @@ class ACMScore(ScoreValue):
 
     symbol = 'ACM'
     problems_solved = 0
-    time_passed = 0 # in seconds
+    time_passed = 0  # in seconds
     penalties_count = 0
-    penalty_time = 20*60 # in seconds
-
+    penalty_time = 20 * 60  # in seconds
 
     def __init__(self, problems_solved=0, time_passed=0, penalties_count=0):
         self.problems_solved = int(problems_solved)
@@ -57,10 +56,9 @@ class ACMScore(ScoreValue):
         else:
             return '*(%d)' % (self.penalties_count,)
 
-
     def total_time_repr(self):
-        return '%d:%02d:%02d' % (self.total_time/3600,
-                                (self.total_time % 3600)/60,
+        return '%d:%02d:%02d' % (self.total_time / 3600,
+                                (self.total_time % 3600) / 60,
                                 self.total_time % 60)
 
     @classmethod
@@ -90,5 +88,3 @@ class ACMScore(ScoreValue):
             return self.time_passed + self.penalties_count * self.penalty_time
         else:
             return 0
-
-

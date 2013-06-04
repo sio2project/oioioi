@@ -18,6 +18,7 @@ import traceback
 account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
 
+
 def index_view(request):
     try:
         return render_to_response("index.html",
@@ -27,8 +28,10 @@ def index_view(request):
             return TemplateResponse(request, "index-no-contests.html")
         return default_contest_view(request, request.contest.id)
 
+
 def force_error_view(request):
     raise StandardError("Visited /force_error")
+
 
 def handler500(request):
     tb = ''
@@ -42,6 +45,7 @@ def handler500(request):
             message += '\n' + tb
         return HttpResponse(message, status=500, content_type='text/plain')
 
+
 def handler403(request):
     if request.is_ajax():
         return HttpResponse('403 Forbidden', status=403,
@@ -49,6 +53,7 @@ def handler403(request):
     message = render_to_string('403.html',
             context_instance=RequestContext(request))
     return HttpResponseForbidden(message)
+
 
 @account_menu_registry.register_decorator(_("Edit profile"),
     lambda request: reverse('edit_profile'), order=99)
@@ -64,11 +69,13 @@ def edit_profile_view(request):
     return TemplateResponse(request, 'registration/registration_form.html',
             {'form': form})
 
+
 @account_menu_registry.register_decorator(_("Log out"), lambda request: '#',
     order=200, attrs={'data-post-url': reverse_lazy('logout')})
 @require_POST
 def logout_view(request):
     return auth_logout(request, template_name='registration/logout.html')
+
 
 def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
     if request.user.is_authenticated():

@@ -18,6 +18,7 @@ from oioioi.problems.models import Problem
 import itertools
 import os.path
 
+
 def make_contest_filename(instance, filename):
     if not isinstance(instance, Problem):
         assert hasattr(instance, 'contest'), 'contest_file_generator used ' \
@@ -26,6 +27,7 @@ def make_contest_filename(instance, filename):
         instance = getattr(instance, 'contest')
     return 'contests/%s/%s' % (instance.id,
             get_valid_filename(os.path.basename(filename)))
+
 
 class Contest(models.Model):
     id = models.CharField(max_length=32, primary_key=True,
@@ -73,10 +75,12 @@ def _generate_contest_id(sender, instance, raw, **kwargs):
                 instance.id = candidate
                 break
 
+
 @receiver(post_save, sender=Contest)
 def _call_controller_adjust_contest(sender, instance, raw, **kwargs):
     if not raw and instance.controller_name:
         instance.controller.adjust_contest()
+
 
 class ContestAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
@@ -99,6 +103,7 @@ class ContestAttachment(models.Model):
     class Meta:
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
+
 
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
@@ -126,6 +131,7 @@ class Round(models.Model):
                 self.start_date > self.end_date:
             raise ValidationError(_("Start date should be before end date."))
 
+
 @receiver(pre_save, sender=Round)
 def _generate_round_id(sender, instance, raw, **kwargs):
     """Automatically generate a round name if not provided."""
@@ -133,6 +139,7 @@ def _generate_round_id(sender, instance, raw, **kwargs):
         num_other_rounds = Round.objects.filter(contest=instance.contest) \
                 .exclude(pk=instance.pk).count()
         instance.name = _("Round %d") % (num_other_rounds + 1,)
+
 
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
@@ -153,6 +160,7 @@ class ProblemInstance(models.Model):
     def __unicode__(self):
         return '%(name)s (%(short_name)s)' % \
                 dict(short_name=self.short_name, name=self.problem.name)
+
 
 @receiver(pre_save, sender=ProblemInstance)
 def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
@@ -180,6 +188,7 @@ submission_statuses = EnumRegistry()
 submission_statuses.register('?', _("Pending"))
 submission_statuses.register('OK', _("OK"))
 submission_statuses.register('ERR', _("Error"))
+
 
 class Submission(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance,
@@ -228,6 +237,7 @@ submission_report_statuses.register('INACTIVE', _("Inactive"))
 submission_report_statuses.register('ACTIVE', _("Active"))
 submission_report_statuses.register('SUPERSEDED', _("Superseded"))
 
+
 class SubmissionReport(models.Model):
     submission = models.ForeignKey(Submission)
     creation_date = models.DateTimeField(auto_now_add=True)
@@ -258,6 +268,7 @@ class ScoreReport(models.Model):
             return ''
         return unicode(self.score)
 
+
 class FailureReport(models.Model):
     """A report generated when evaluation process failed.
 
@@ -267,6 +278,7 @@ class FailureReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     message = models.TextField()
     json_environ = models.TextField()
+
 
 class UserResultForProblem(models.Model):
     """User result (score) for the problem.
@@ -284,6 +296,7 @@ class UserResultForProblem(models.Model):
     class Meta:
         unique_together = ('user', 'problem_instance')
 
+
 class UserResultForRound(models.Model):
     """User result (score) for the round.
 
@@ -295,6 +308,7 @@ class UserResultForRound(models.Model):
 
     class Meta:
         unique_together = ('user', 'round')
+
 
 class UserResultForContest(models.Model):
     """Represents the user result (score) for the contest.
@@ -308,6 +322,7 @@ class UserResultForContest(models.Model):
 
     class Meta:
         unique_together = ('user', 'contest')
+
 
 class RoundTimeExtension(models.Model):
     """Represents the time the round has been extended by for a certain user.
@@ -329,6 +344,7 @@ class RoundTimeExtension(models.Model):
 contest_permissions = EnumRegistry()
 contest_permissions.register('contests.contest_admin', _("Admin"))
 contest_permissions.register('contests.contest_observer', _("Observer"))
+
 
 class ContestPermission(models.Model):
     user = models.ForeignKey(User)

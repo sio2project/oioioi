@@ -15,6 +15,7 @@ import tempfile
 import shutil
 import datetime
 
+
 class TestFileField(TestCase):
     def test_file_field(self):
         f = ContentFile('eloziom', name='foo')
@@ -79,6 +80,7 @@ class TestFileField(TestCase):
         self.assertEqual('/foo/bar', django_to_filetracker_path(
                 filetracker_to_django_file('/foo/bar', storage=storage)))
 
+
 class TestFileStorage(unittest.TestCase):
     def _test_file_storage(self, storage):
         data = 'eloziom'
@@ -115,6 +117,7 @@ class TestFileStorage(unittest.TestCase):
         finally:
             shutil.rmtree(dir)
 
+
 class TestStreamingMixin(object):
     def assertStreamingEqual(self, response, content):
         self.assertEqual(self.streamingContent(response), content)
@@ -122,6 +125,7 @@ class TestStreamingMixin(object):
     def streamingContent(self, response):
         self.assertTrue(response.streaming)
         return ''.join(response.streaming_content)
+
 
 class TestFileStorageViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users']
@@ -143,6 +147,7 @@ class TestFileStorageViews(TestCase, TestStreamingMixin):
             self.assertStreamingEqual(response, content)
         finally:
             default_storage.delete(filename)
+
 
 class TestFileFixtures(TestCase):
     fixtures = ['test_file_field']

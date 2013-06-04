@@ -24,10 +24,12 @@ account_menu_registry.register('participants_edit_registration',
             & can_edit_registration,
         order=80)
 
+
 @enforce_condition(contest_exists & contest_has_participants)
 def registration_view(request, contest_id):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.registration_view(request)
+
 
 @enforce_condition(contest_exists & contest_has_participants
                    & can_edit_registration)

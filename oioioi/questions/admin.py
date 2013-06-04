@@ -5,7 +5,6 @@ from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
-from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.contests.admin import ContestAdmin
 from oioioi.contests.models import ContestPermission
 from oioioi.contests.utils import is_contest_admin

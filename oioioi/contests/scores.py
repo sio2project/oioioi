@@ -15,6 +15,7 @@ from oioioi.base.utils import ClassInitBase
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
+
 class ScoreValue(ClassInitBase):
     """Base class of all classes that represent a score. Subclass
        :class:`ScoreValue` to implement a custom score."""
@@ -138,4 +139,3 @@ class IntegerScore(ScoreValue):
 
     def _to_repr(self):
         return str(self.value)
-

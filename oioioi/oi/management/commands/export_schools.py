@@ -4,6 +4,7 @@ from oioioi.oi.models import School
 from oioioi.oi.management.commands.import_schools import COLUMNS
 import csv
 
+
 class Command(NoArgsCommand):
     help = _("Exports schools list to a CSV file")
 

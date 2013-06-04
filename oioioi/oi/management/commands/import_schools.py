@@ -10,6 +10,7 @@ import urllib2
 COLUMNS = ['id', 'name', 'address', 'postal_code', 'city',
            'province', 'phone', 'email']
 
+
 class Command(BaseCommand):
     columns_str = ', '.join(COLUMNS)
 

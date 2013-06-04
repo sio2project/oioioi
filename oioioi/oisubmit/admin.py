@@ -1,9 +1,8 @@
-from django.utils.timezone import localtime
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.admin import SubmissionAdmin
-from oioioi.oisubmit.models import OISubmitExtraData
-from oioioi.oisubmit.err_dict import INCORRECT_FORM_COMMENTS, SUSPICION_REASONS
+from oioioi.oisubmit.err_dict import SUSPICION_REASONS
+
 
 class OISubmitSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):
@@ -16,7 +15,7 @@ class OISubmitSubmissionAdminMixin(object):
         received_suspected = getattr(instance.oisubmitextradata,
                 'received_suspected', None)
         is_oisubmit = (received_suspected is not None)
-        comments = getattr(instance.oisubmitextradata,'comments', '')
+        comments = getattr(instance.oisubmitextradata, 'comments', '')
         comments = [SUSPICION_REASONS[c] for c in comments.split(',') if c]
         comments = '<br />'.join(map(unicode, comments))
         return render_to_string('received_suspected.html',

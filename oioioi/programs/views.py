@@ -57,6 +57,7 @@ def show_submission_source_view(request, contest_id, submission_id):
         'decode_error': decode_error
     })
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def save_diff_id_view(request, contest_id, submission_id):
     get_submission_or_404(request, contest_id, submission_id,
@@ -143,17 +144,20 @@ def download_submission_source_view(request, contest_id, submission_id):
                                        ProgramSubmission)
     return stream_file(submission.source_file)
 
+
 def download_input_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     if not request.user.has_perm('problems.problem_admin', test.problem):
         raise PermissionDenied
     return stream_file(test.input_file)
 
+
 def download_output_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     if not request.user.has_perm('problems.problem_admin', test.problem):
         raise PermissionDenied
     return stream_file(test.output_file)
+
 
 def download_checker_exe_view(request, checker_id):
     checker = get_object_or_404(OutputChecker, id=checker_id)

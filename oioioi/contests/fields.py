@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from south.modelsinspector import add_introspection_rules
 from oioioi.contests.scores import ScoreValue
 
+
 class ScoreField(models.CharField):
     """Model field for storing :class:`~oioioi.contests.scores.ScoreValue`s
     """

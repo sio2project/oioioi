@@ -22,6 +22,7 @@ class ContestIdViewCheckMixin(object):
         self.assertEqual(response.status_code, 302)
         self.assertIn(where, response['Location'])
 
+
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
     ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',))
 class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):

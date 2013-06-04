@@ -19,6 +19,7 @@ SAMPLE_TEXT = """Lorem ipsum dolor sit amet, consectetur adipiscing
         sagittis facilisis, tortor tortor viverra tortor, vehicula
         pellentesque nulla sem nec leo.""" * 100
 
+
 class TestPDFGenerator(TestCase):
     def test_pdf_generation(self):
         pdf = StringIO(generator(source=SAMPLE_TEXT, header='header'))
@@ -26,6 +27,7 @@ class TestPDFGenerator(TestCase):
         self.assertEqual(9, len(text))
         self.assertIn('Lorem ipsum dolor', text[0])
         self.assertIn('Sed egestas dui tellus', text[4])
+
 
 class TestPrintingView(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -49,7 +51,7 @@ class TestPrintingView(TestCase):
         self.assertIn('File has been printed.', response.content)
         # The assert above should fail if there is no "%PDF-" in generated file
 
-    @override_settings(PRINTING_MAX_FILE_SIZE=2048*100)
+    @override_settings(PRINTING_MAX_FILE_SIZE=2048 * 100)
     def test_page_limit(self):
         response = self.print_file(SAMPLE_TEXT * 2)
         self.assertIn('The page limit exceeded.', response.content)

@@ -7,6 +7,7 @@ def can_add_problems(request):
             or request.user.has_perm('contests.contest_admin',
                     request.contest)
 
+
 def can_change_problem(request, problem):
     if request.user.has_perm('problems.problems_db_admin'):
         return True

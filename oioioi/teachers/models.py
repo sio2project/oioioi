@@ -5,6 +5,7 @@ from oioioi.contests.models import Contest
 import hashlib
 import random
 
+
 class Teacher(models.Model):
     user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"))
     is_active = models.BooleanField(default=False, verbose_name=_("active"))
@@ -18,6 +19,7 @@ class Teacher(models.Model):
     def __unicode__(self):
         return unicode(self.user)
 
+
 class ContestTeacher(models.Model):
     contest = models.ForeignKey(Contest)
     teacher = models.ForeignKey(Teacher)
@@ -27,6 +29,7 @@ class ContestTeacher(models.Model):
 
     def __unicode__(self):
         return u'%s/%s' % (self.contest_id, self.teacher.user)
+
 
 class RegistrationConfig(models.Model):
     contest = models.OneToOneField(Contest, primary_key=True)

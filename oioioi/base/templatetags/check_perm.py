@@ -1,7 +1,8 @@
 from django import template
-from django.template import defaulttags, Node, TemplateSyntaxError, Variable
+from django.template import Node, TemplateSyntaxError, Variable
 
 register = template.Library()
+
 
 class CheckPermNode(Node):
     def __init__(self, perm, obj, var):
@@ -15,6 +16,7 @@ class CheckPermNode(Node):
         user = context['user']
         context[self.var] = user.has_perm(perm, obj)
         return ''
+
 
 @register.tag
 def check_perm(parser, token):

@@ -7,8 +7,8 @@ from django.utils.html import escape
 from django.contrib.admin.util import unquote
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib import admin
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
+from django.contrib.auth.models import User
+from django.contrib.auth.admin import UserAdmin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.permissions import is_superuser
@@ -19,8 +19,10 @@ import urllib
 TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline
 
+
 class ModelAdminMeta(forms.MediaDefiningClass, ClassInitMeta):
     pass
+
 
 class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
     __metaclass__ = ModelAdminMeta
@@ -69,7 +71,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
                 'not exist.') % {'name': force_unicode(opts.verbose_name),
                     'key': escape(object_id)})
 
-        if request.POST: # The user has already confirmed the deletion.
+        if request.POST:  # The user has already confirmed the deletion.
             obj_display = force_unicode(obj)
             self.log_deletion(request, obj, obj_display)
             self.delete_model(request, obj)
@@ -109,6 +111,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
         else:
             return qs
 
+
 class AdminSite(DjangoAdminSite):
     def has_permission(self, request):
         return request.user.is_active
@@ -133,6 +136,7 @@ system_admin_menu_registry = MenuRegistry(_("System Administration"),
                                           is_superuser)
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
+
 class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
     __metaclass__ = ModelAdminMeta
 
@@ -155,6 +159,7 @@ site.register(User, OioioiUserAdmin)
 
 system_admin_menu_registry.register('users', _("Users"),
         lambda request: reverse('oioioiadmin:auth_user_changelist'), order=10)
+
 
 class InstanceDependentAdmin(admin.ModelAdmin):
     default_model_admin = admin.ModelAdmin
@@ -192,6 +197,7 @@ class InstanceDependentAdmin(admin.ModelAdmin):
     def history_view(self, request, object_id, extra_context=None):
         model_admin = self._find_model_admin(request, object_id)
         return model_admin.history_view(request, object_id, extra_context)
+
 
 class MixinsAdmin(InstanceDependentAdmin):
     def __init__(self, *args, **kwargs):

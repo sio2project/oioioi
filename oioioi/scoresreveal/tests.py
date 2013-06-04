@@ -17,7 +17,6 @@ class TestScoresReveal(TestCase):
         contest = Contest.objects.get()
         kwargs = {'contest_id': contest.id, 'submission_id': submission_id}
 
-
         submission_url = reverse('submission', kwargs=kwargs)
         response = self.client.get(submission_url)
         self.assertEqual(response.status_code, 200)

@@ -4,9 +4,11 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.forms import SimpleContestForm
 from oioioi.teachers.models import Teacher
 
+
 class TeacherContestForm(SimpleContestForm):
     class Meta(SimpleContestForm.Meta):
         fields = ['name', 'id']
+
 
 class AddTeacherForm(forms.ModelForm):
     class Meta:
@@ -30,5 +32,3 @@ class AddTeacherForm(forms.ModelForm):
     def clean_school(self):
         data = self.cleaned_data['school']
         return ' '.join(data.splitlines())
-
-

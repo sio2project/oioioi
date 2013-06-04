@@ -7,6 +7,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
 from oioioi.base.utils import request_cached
 from datetime import timedelta
 
+
 class RoundTimes(object):
     def __init__(self, start, end, show_results, extra_time=0):
         self.start = start
@@ -58,6 +59,7 @@ class RoundTimes(object):
         else:
             return self.end
 
+
 @request_cached
 def rounds_times(request):
     if not hasattr(request, 'contest'):
@@ -75,9 +77,11 @@ def rounds_times(request):
                           rtexts[r.id]['extra_time'] if r.id in rtexts else 0))
             for r in rounds)
 
+
 @make_request_condition
 def contest_exists(request):
     return hasattr(request, 'contest') and request.contest is not None
+
 
 @make_request_condition
 @request_cached
@@ -89,15 +93,18 @@ def has_any_active_round(request):
             return True
     return False
 
+
 @make_request_condition
 @request_cached
 def has_any_submittable_problem(request):
     return bool(submittable_problem_instances(request))
 
+
 @make_request_condition
 @request_cached
 def has_any_visible_problem_instance(request):
     return bool(visible_problem_instances(request))
+
 
 @request_cached
 def submittable_problem_instances(request):
@@ -106,6 +113,7 @@ def submittable_problem_instances(request):
             .select_related('problem').prefetch_related('round')
     return [pi for pi in queryset if controller.can_submit(request, pi)]
 
+
 @request_cached
 def visible_problem_instances(request):
     controller = request.contest.controller
@@ -113,11 +121,13 @@ def visible_problem_instances(request):
             .select_related('problem').prefetch_related('round')
     return [pi for pi in queryset if controller.can_see_problem(request, pi)]
 
+
 @request_cached
 def visible_rounds(request):
     controller = request.contest.controller
     queryset = Round.objects.filter(contest=request.contest)
     return [r for r in queryset if controller.can_see_round(request, r)]
+
 
 def aggregate_statuses(statuses):
     """Returns first unsuccessful status or 'OK' if all are successful"""
@@ -128,6 +138,7 @@ def aggregate_statuses(statuses):
     else:
         return 'OK'
 
+
 @request_cached
 def visible_contests(request):
     contests = []
@@ -137,11 +148,13 @@ def visible_contests(request):
             contests.append(contest)
     return contests
 
+
 @make_request_condition
 @request_cached
 def is_contest_admin(request):
     """Checks if the current user can administer the current contest."""
     return request.user.has_perm('contests.contest_admin', request.contest)
+
 
 @make_request_condition
 @request_cached
@@ -149,11 +162,13 @@ def is_contest_observer(request):
     """Checks if the current user can observe the current contest."""
     return request.user.has_perm('contests.contest_observer', request.contest)
 
+
 @make_request_condition
 @request_cached
 def can_enter_contest(request):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.can_enter_contest(request)
+
 
 def check_submission_access(request, submission):
     if submission.problem_instance.contest != request.contest:
@@ -166,6 +181,7 @@ def check_submission_access(request, submission):
     queryset = Submission.objects.filter(id=submission.id)
     if not controller.filter_my_visible_submissions(request, queryset):
         raise PermissionDenied
+
 
 def get_submission_or_404(request, contest_id, submission_id,
                           submission_class=Submission):

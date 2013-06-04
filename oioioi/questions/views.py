@@ -13,9 +13,10 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
         visible_rounds, contest_exists
 from oioioi.questions.utils import log_addition, unanswered_questions
-from oioioi.questions.forms import AddContestMessageForm, AddReplyForm,\
-    FilterMessageForm, FilterMessageAdminForm
+from oioioi.questions.forms import AddContestMessageForm, AddReplyForm, \
+        FilterMessageForm, FilterMessageAdminForm
 from oioioi.questions.models import Message, MessageView, new_question_signal
+
 
 def visible_messages(request, author=None, category=None):
     rounds_ids = [round.id for round in visible_rounds(request)]
@@ -40,6 +41,7 @@ def visible_messages(request, author=None, category=None):
     return messages.select_related('top_reference', 'author',
             'problem_instance', 'problem_instance__problem')
 
+
 def new_messages(request, messages=None):
     if not request.user.is_authenticated():
         return messages.none()
@@ -47,6 +49,7 @@ def new_messages(request, messages=None):
         messages = visible_messages(request)
     return messages.exclude(messageview__user=request.user) \
             .exclude(author=request.user)
+
 
 def messages_template_context(request, messages):
     replied_ids = frozenset(m.top_reference_id for m in messages)
@@ -59,15 +62,17 @@ def messages_template_context(request, messages):
 
     to_display = [{
             'message': m,
-            'link_message': m.top_reference \
+            'link_message': m.top_reference
                     if m.top_reference in messages else m,
             'needs_reply': m in unanswered,
             'read': m.id not in new_ids,
         } for m in messages if m.id not in replied_ids]
+
     def key(entry):
         return entry['needs_reply'], entry['message'].date
     to_display.sort(key=key, reverse=True)
     return to_display
+
 
 @menu_registry.register_decorator(_("Messages"), lambda request:
         reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
@@ -93,6 +98,7 @@ def messages_view(request, contest_id):
          'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
          'num_hints': getattr(settings, 'NUM_HINTS', 10)})
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, contest_id, message_id):
     message = get_object_or_404(Message, id=message_id)
@@ -114,6 +120,7 @@ def message_view(request, contest_id, message_id):
     return TemplateResponse(request, 'questions/message.html',
                 {'message': message, 'replies': replies,
                     'reply_to_id': message.top_reference_id or message.id})
+
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def add_contest_message_view(request, contest_id):
@@ -146,9 +153,11 @@ def add_contest_message_view(request, contest_id):
     return TemplateResponse(request, 'questions/add.html',
             {'form': form, 'title': title, 'is_announcement': is_admin})
 
+
 def quote_for_reply(content):
     lines = content.strip().split('\n')
     return ''.join('> ' + l for l in lines)
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 def add_reply_view(request, contest_id, message_id):
@@ -173,6 +182,7 @@ def add_reply_view(request, contest_id, message_id):
     return TemplateResponse(request, 'questions/add.html',
             {'form': form, 'title': _("Reply"), 'is_reply': True,
              'question': question})
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 def get_messages_authors_view(request, contest_id):

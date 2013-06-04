@@ -1,8 +1,8 @@
 from django.test import TestCase
 from django.utils.html import strip_tags, escape
 from django.core.urlresolvers import reverse
-from oioioi.filetracker.tests import TestStreamingMixin
 
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Submission, ProblemInstance, Contest
@@ -10,6 +10,7 @@ from oioioi.programs.models import Test, ModelSolution
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.contests.scores import IntegerScore
 from oioioi.base.utils import memoized_property
+
 
 # Don't Repeat Yourself.
 # Serves for both TestProgramsViews and TestProgramsXssViews
@@ -23,6 +24,7 @@ def extract_code(show_response):
     show_response.content = strip_tags(
         show_response.content[preStart:preEnd]
     )
+
 
 class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -99,6 +101,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)
         self.assertEqual(response.content.count('>10.00s<'), 5)
 
+
 class TestProgramsXssViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission_xss']
@@ -142,6 +145,7 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
         self.assertTrue(download_response['Content-Disposition'].startswith(
             'attachment'))
 
+
 class TestOtherSubmissions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission', 'test_submissions_CE']
@@ -162,6 +166,7 @@ class TestOtherSubmissions(TestCase):
 
     def test_user(self):
         self._test_get('test_user')
+
 
 class TestNoOtherSubmissions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -227,6 +232,7 @@ class TestDiffView(TestCase):
         self.assertIn('diff-num left', response.content)
         self.assertIn('diff-num right', response.content)
 
+
 class TestSubmissionAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
@@ -242,6 +248,7 @@ class TestSubmissionAdmin(TestCase):
         self.assertIn('test_user', response.content)
         self.assertIn('subm_status subm_OK', response.content)
         self.assertIn('submission_diff_action', response.content)
+
 
 class TestSubmittingAsAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -284,6 +291,7 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
 
+
 class TestSubmittingAsObserver(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_permissions']
@@ -317,6 +325,7 @@ class TestSubmittingAsObserver(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
+
 
 class TestScorers(TestCase):
     t_results_ok = (

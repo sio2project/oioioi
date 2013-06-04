@@ -16,11 +16,13 @@ from oioioi.contests.controllers import ContestController
 
 CONTEST_RANKING_KEY = 'c'
 
+
 class RankingMixinForContestController(object):
     def ranking_controller(self):
         """Return the actual :class:`RankingController` for the contest."""
         return DefaultRankingController(self.contest)
 ContestController.mix_in(RankingMixinForContestController)
+
 
 class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
@@ -45,6 +47,7 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def serialize_ranking(self, request, key):
         raise NotImplementedError
+
 
 class DefaultRankingController(RankingController):
     description = _("Default ranking")

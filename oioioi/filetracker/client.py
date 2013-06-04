@@ -2,13 +2,13 @@ from django.conf import settings
 from django.test.signals import setting_changed
 from django.dispatch import receiver
 from django.core.exceptions import ImproperlyConfigured
-from django.utils.importlib import import_module
+
 from oioioi.base.utils import memoized, get_object_by_dotted_name, \
-        reset_memoized, memoized_property
+        reset_memoized
 
 import filetracker
 import filetracker.dummy
-import os
+
 
 @memoized
 def get_client():
@@ -40,10 +40,12 @@ def get_client():
 
     return client
 
+
 @receiver(setting_changed)
 def _on_setting_changed(sender, setting, **kwargs):
     if setting == 'FILETRACKER_CLIENT_FACTORY':
         reset_memoized(get_client)
+
 
 def media_root_factory():
     """A filetracker factory which sets up local client in

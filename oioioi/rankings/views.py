@@ -13,6 +13,7 @@ def has_any_ranking_visible(request):
     rcontroller = request.contest.controller.ranking_controller()
     return bool(rcontroller.available_rankings(request))
 
+
 @menu_registry.register_decorator(_("Ranking"), lambda request:
         reverse('default_ranking', kwargs={'contest_id': request.contest.id}),
     order=440)
@@ -29,6 +30,7 @@ def ranking_view(request, contest_id, key=None):
     ranking = rcontroller.render_ranking(request, key)
     return TemplateResponse(request, 'rankings/ranking_view.html',
                 {'choices': choices, 'ranking': ranking, 'key': key})
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 def ranking_csv_view(request, contest_id, key):

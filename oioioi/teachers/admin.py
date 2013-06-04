@@ -12,6 +12,7 @@ from oioioi.teachers.models import Teacher, ContestTeacher, \
         RegistrationConfig
 from functools import partial
 
+
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ['user', 'school', 'is_active']
     list_editable = ['is_active']
@@ -39,6 +40,7 @@ admin.site.register(Teacher, TeacherAdmin)
 admin.system_admin_menu_registry.register('teachers', _("Teachers"),
         lambda request: reverse('oioioiadmin:teachers_teacher_changelist'),
         condition=is_superuser, order=20)
+
 
 class ContestAdminMixin(object):
     def has_add_permission(self, request):
@@ -81,6 +83,7 @@ class ContestAdminMixin(object):
         self.message_user(request, _("Contest added successfully."))
         return redirect('oioioi.teachers.views.pupils_view',
                 contest_id=obj.id)
+
     def __init__(self, *args, **kwargs):
         super(ContestAdminMixin, self).__init__(*args, **kwargs)
 

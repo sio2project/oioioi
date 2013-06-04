@@ -35,6 +35,7 @@ def select_contest_view(request):
     return TemplateResponse(request, 'contests/select_contest.html',
             {'contests': contests})
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def default_contest_view(request, contest_id):
     url = request.contest.controller.default_view(request)
@@ -52,6 +53,7 @@ def problems_list_view(request, contest_id):
         {'problem_instances': problem_instances,
          'show_rounds': show_rounds,
          'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100)})
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_statement_view(request, contest_id, problem_instance):
@@ -88,6 +90,7 @@ def problem_statement_view(request, contest_id, problem_instance):
             problem_instance=problem_instance, statement_id=statement.id)
     return stream_file(statement.content)
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_statement_zip_index_view(request, contest_id, problem_instance,
         statement_id):
@@ -95,6 +98,7 @@ def problem_statement_zip_index_view(request, contest_id, problem_instance,
             problem_instance, statement_id, 'index.html')
     return TemplateResponse(request, 'contests/html_statement.html',
             {'content': mark_safe(response.content)})
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_statement_zip_view(request, contest_id, problem_instance,
@@ -123,6 +127,7 @@ def problem_statement_zip_view(request, contest_id, problem_instance,
     response['Content-Length'] = info.file_size
     return response
 
+
 @menu_registry.register_decorator(_("Submit"), lambda request:
         reverse('submit', kwargs={'contest_id': request.contest.id}),
     order=300)
@@ -140,6 +145,7 @@ def submit_view(request, contest_id):
         form = SubmissionForm(request)
     return TemplateResponse(request, 'contests/submit.html', {'form': form})
 
+
 @menu_registry.register_decorator(_("My submissions"), lambda request:
         reverse('my_submissions', kwargs={'contest_id': request.contest.id}),
     order=400)
@@ -156,6 +162,7 @@ def my_submissions_view(request, contest_id):
         {'submissions': [submission_template_context(request, s)
          for s in queryset], 'show_scores': show_scores,
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def submission_view(request, contest_id, submission_id):
@@ -178,6 +185,7 @@ def submission_view(request, contest_id, submission_id):
                 {'submission': submission, 'header': header, 'footer': footer,
                     'reports': reports, 'all_reports': all_reports})
 
+
 @enforce_condition(contest_exists & is_contest_admin)
 def report_view(request, contest_id, submission_id, report_id):
     submission = get_submission_or_404(request, contest_id, submission_id)
@@ -185,6 +193,7 @@ def report_view(request, contest_id, submission_id, report_id):
     queryset = SubmissionReport.objects.filter(submission=submission)
     report = get_object_or_404(queryset, id=report_id)
     return HttpResponse(controller.render_report(request, report))
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
@@ -195,6 +204,7 @@ def rejudge_submission_view(request, contest_id, submission_id):
     messages.info(request, _("Rejudge request received."))
     return redirect('submission', contest_id=contest_id,
             submission_id=submission_id)
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
@@ -212,6 +222,7 @@ def change_submission_kind_view(request, contest_id, submission_id, kind):
             })
     return redirect('submission', contest_id=contest_id,
                     submission_id=submission_id)
+
 
 @menu_registry.register_decorator(_("Files"), lambda request:
         reverse('contest_files', kwargs={'contest_id': request.contest.id}),
@@ -239,11 +250,13 @@ def contest_files_view(request, contest_id):
     return TemplateResponse(request, 'contests/files.html', {'files': rows,
         'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100)})
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_attachment_view(request, contest_id, attachment_id):
     attachment = get_object_or_404(ContestAttachment, contest_id=contest_id,
         id=attachment_id)
     return stream_file(attachment.content)
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_attachment_view(request, contest_id, attachment_id):

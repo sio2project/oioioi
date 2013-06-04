@@ -7,6 +7,7 @@ class IpToUserAdmin(admin.ModelAdmin):
 
 admin.site.register(IpToUser, IpToUserAdmin)
 
+
 class DnsToUserAdmin(admin.ModelAdmin):
     list_display = ('dns_name', 'user')
 

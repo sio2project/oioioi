@@ -5,6 +5,7 @@ from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.questions.models import Message
 
+
 class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_messages']
@@ -14,6 +15,7 @@ class TestQuestions(TestCase):
         all_messages = ['problem-question', 'contest-question',
                 'public-answer', 'private-answer']
         url = reverse('contest_messages', kwargs={'contest_id': contest.id})
+
         def check_visibility(*should_be_visible):
             response = self.client.get(url)
             for m in all_messages:

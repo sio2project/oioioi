@@ -29,6 +29,7 @@ CONTEST_REPORT_KEY = 'all'
 
 # FIXME conditions for views expressing oi dependence?
 
+
 def _rounds(request):
     rounds = [(CONTEST_REPORT_KEY, _("Contest"))]
     for round in request.contest.round_set.all():
@@ -41,6 +42,7 @@ def _rounds(request):
         return rounds[:1]
     return rounds
 
+
 def _regions(request):
     res = [(CONTEST_REPORT_KEY, _("All"))]
     regions = Region.objects.filter(contest=request.contest)
@@ -48,9 +50,11 @@ def _regions(request):
         res.append((r.short_name, r.name))
     return res
 
+
 def _problem_instances(request, round):
     pis = ProblemInstance.objects.filter(round=round)
     return pis
+
 
 def _testgroups(request):
     testgroups = []
@@ -74,6 +78,7 @@ def _testgroups(request):
         testgroups.append(res)
     return testgroups
 
+
 def _users_in_contest(request, region=None):
     queryset = User.objects.filter(participant__contest=request.contest,
         participant__status='ACTIVE')
@@ -81,6 +86,7 @@ def _users_in_contest(request, region=None):
         queryset = queryset.filter(
                 participant__oi_oionsiteregistration__region_id=region)
     return queryset
+
 
 def _testgroups_from_POST(request):
     testgroups = defaultdict(list)
@@ -113,6 +119,7 @@ def report_options_view(request, contest_id):
             'CONTEST_REPORT_KEY': CONTEST_REPORT_KEY,
         })
 
+
 def _render_report(request, template_name, title, users,
         problem_instances, test_groups):
     rows = _serialize_reports(users, problem_instances, test_groups)
@@ -122,15 +129,18 @@ def _render_report(request, template_name, title, users,
                 'title': title,
             }))
 
+
 def _render_pdf_report(request, title, users, problem_instances,
         test_groups):
     return _render_report(request, 'oireports/pdfreport.tex', title,
             users, problem_instances, test_groups)
 
+
 def _render_xml_report(request, title, users, problem_instances,
         test_groups):
     return _render_report(request, 'oireports/xmlreport.xml', title,
             users, problem_instances, test_groups)
+
 
 def _serialize_report(user, problem_instances, test_groups):
     """Generates a dictionary representing a single report.
@@ -226,6 +236,7 @@ def _serialize_report(user, problem_instances, test_groups):
         'sum': total_score,
     }
 
+
 def _serialize_reports(users, problem_instances, test_groups):
     """Runs :meth:`serialize_report` for a number of users.
 
@@ -239,6 +250,7 @@ def _serialize_reports(users, problem_instances, test_groups):
         if user_data['resultsets']:
             data.append(user_data)
     return data
+
 
 def _report_text(request, render_fn):
     round_key = request.POST.get('round_key', CONTEST_REPORT_KEY)
@@ -267,6 +279,7 @@ def _report_text(request, render_fn):
         testgroups.keys(),
         testgroups
     )
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 def pdfreport_view(request, contest_id):
@@ -304,6 +317,7 @@ def pdfreport_view(request, contest_id):
         return stream_file(File(pdf_file), filename)
     finally:
         shutil.rmtree(tmp_folder)
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 def xmlreport_view(request, contest_id):

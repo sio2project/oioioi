@@ -39,6 +39,7 @@ def testrun_submit_view(request, contest_id):
 def get_preview_size_limit():
     return 1024
 
+
 def get_testrun_report_or_404(request, submission, testrun_report_id=None):
     qs = TestRunReport.objects.filter(submission_report__submission=submission)
 
@@ -48,6 +49,7 @@ def get_testrun_report_or_404(request, submission, testrun_report_id=None):
         qs = qs.filter(submission_report__status='ACTIVE')
 
     return get_object_or_404(qs)
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def show_input_file_view(request, contest_id, submission_id):
@@ -67,12 +69,14 @@ def show_input_file_view(request, contest_id, submission_id):
         'download_url': download_url
     })
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def download_input_file_view(request, contest_id, submission_id):
     submission = get_submission_or_404(request, contest_id, submission_id,
                                        TestRunProgramSubmission)
 
     return stream_file(submission.input_file, name='input.in')
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def show_output_file_view(request, contest_id, submission_id,
@@ -93,6 +97,7 @@ def show_output_file_view(request, contest_id, submission_id,
         'decode_error': decode_error,
         'download_url': download_url
     })
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def download_output_file_view(request, contest_id, submission_id,

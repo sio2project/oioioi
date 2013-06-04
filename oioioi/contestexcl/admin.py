@@ -6,6 +6,7 @@ from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.admin import ContestAdmin
 
+
 class ExclusivenessConfigInline(admin.TabularInline):
     model = ExclusivenessConfig
     extra = 0

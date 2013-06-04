@@ -25,6 +25,7 @@ from oioioi.contests.utils import is_contest_admin
 
 logger = logging.getLogger(__name__)
 
+
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
 
@@ -134,6 +135,7 @@ class ProgrammingProblemController(ProblemController):
         from oioioi.programs.admin import ProgrammingProblemAdminMixin
         return (ProgrammingProblemAdminMixin,)
 
+
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
 
@@ -211,7 +213,7 @@ class ProgrammingContestController(ContestController):
                 initial=form.kind, label=_("Kind"))
 
     def create_submission(self, request, problem_instance, form_data,
-                    judge_after_create = True, **kwargs):
+                    judge_after_create=True, **kwargs):
         submission = ProgramSubmission(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,

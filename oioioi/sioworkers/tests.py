@@ -2,6 +2,7 @@ from django.utils import unittest
 
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 
+
 class TestSioworkersBindings(unittest.TestCase):
     def test_sioworkers_bindings(self):
         env = run_sioworkers_job(dict(job_type='ping', ping='e1'))

@@ -8,6 +8,7 @@ from oioioi.filetracker.utils import django_to_filetracker_path, \
     filetracker_to_django_file
 from oioioi.filetracker.client import get_client
 
+
 @_if_compiled
 @transaction.commit_on_success
 def make_test(env, **kwargs):
@@ -39,6 +40,7 @@ def make_test(env, **kwargs):
 
     return env
 
+
 def grade_submission(env, **kwargs):
     """Grades submission: fills fields used by common postprocessors.
 
@@ -59,6 +61,7 @@ def grade_submission(env, **kwargs):
         env['status'] = env['test_results']['test']['result_code']
 
     return env
+
 
 @transaction.commit_on_success
 def make_report(env, **kwargs):
@@ -91,7 +94,8 @@ def make_report(env, **kwargs):
     testrun_report = TestRunReport(submission_report=submission_report)
     testrun_report.status = env['status']
     testrun_report.comment = \
-            slice_str(comment, TestRunReport._meta.get_field('comment').max_length)
+            slice_str(comment, TestRunReport._meta
+                      .get_field('comment').max_length)
     testrun_report.time_used = test_result['time_used']
     testrun_report.test_time_limit = test.get('exec_time_limit')
     testrun_report.output_file = filetracker_to_django_file(
@@ -99,6 +103,7 @@ def make_report(env, **kwargs):
     testrun_report.save()
 
     return env
+
 
 def delete_output(env, **kwargs):
     if 'out_file' in env.get('test_results', {}).get('test', {}):

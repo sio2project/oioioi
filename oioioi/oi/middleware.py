@@ -4,6 +4,7 @@ from django.template.response import TemplateResponse
 from oioioi.oi.controllers import OIOnsiteContestController
 from oioioi.participants.models import Participant
 
+
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
 class OiForceDnsIpAuthMiddleware(object):
     """Middleware which allows only IP/DNS login for participants for

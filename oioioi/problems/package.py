@@ -5,9 +5,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ProblemPackageError(StandardError):
     """A generic exception to be used by or subclassed by backends."""
     pass
+
 
 class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
     """A class which manages problem packages.
@@ -43,8 +45,10 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
         """
         raise NotImplementedError
 
+
 class NoBackend(Exception):
     pass
+
 
 def backend_for_package(filename, original_filename=None):
     """Finds a backend suitable for unpacking the given package."""

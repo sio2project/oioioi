@@ -6,4 +6,3 @@ urlpatterns = patterns('oioioi.status.views',
             name='get_contest_status'),
     url(r'^status/$', 'get_status_view', name='get_status'),
 )
-

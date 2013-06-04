@@ -8,7 +8,6 @@ from oioioi.base import admin
 from oioioi.contests.admin import RoundTimeExtensionAdmin
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.participants import ParticipantsController
 from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
 from oioioi.participants.models import Participant
 from oioioi.contests.models import RoundTimeExtension
@@ -25,7 +24,7 @@ class ParticipantAdmin(admin.ModelAdmin):
     list_select_related = True
     list_display = ['user_login', 'user_full_name', 'status']
     list_filter = ['status', ]
-    fields = [('user', 'status'),]
+    fields = [('user', 'status'), ]
     search_fields = ['user__username', 'user__last_name']
     actions = ['make_active', 'make_banned', 'delete_selected', 'extend_round']
     form = ParticipantForm
@@ -68,6 +67,7 @@ class ParticipantAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         Form = super(ParticipantAdmin, self).get_form(request, obj, **kwargs)
+
         def form_wrapper(*args, **kwargs):
             form = Form(*args, **kwargs)
             form.request_contest = request.contest
@@ -102,12 +102,12 @@ class ParticipantAdmin(admin.ModelAdmin):
                 existing_extensions = RoundTimeExtension.objects \
                         .filter(round=round, user__in=users)
                 for extension in existing_extensions:
-                    extension.extra_time += extra_time;
+                    extension.extra_time += extra_time
                     extension.save()
                 existing_count = existing_extensions.count()
 
                 new_extensions = [RoundTimeExtension(user=user, round=round,
-                        extra_time=extra_time) for user in users \
+                        extra_time=extra_time) for user in users
                         if not existing_extensions.filter(user=user).exists()]
                 RoundTimeExtension.objects.bulk_create(new_extensions)
 
@@ -144,6 +144,7 @@ class ParticipantAdmin(admin.ModelAdmin):
                 {'form': form})
     extend_round.short_description = _("Extend round")
 
+
 class NoParticipantAdmin(ParticipantAdmin):
     def has_add_permission(self, request):
         return False
@@ -153,6 +154,7 @@ class NoParticipantAdmin(ParticipantAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
 
 class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
     default_participant_admin = NoParticipantAdmin
@@ -172,6 +174,7 @@ contest_admin_menu_registry.register('participants', _("Participants"),
     lambda request: reverse('oioioiadmin:participants_participant_changelist'),
     condition=has_participants_admin, order=30)
 
+
 class ParticipantInline(admin.TabularInline):
     model = Participant
     extra = 0
@@ -186,6 +189,7 @@ class ParticipantInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
 
 class UserWithParticipantsAdminMixin(object):
     def __init__(self, *args, **kwargs):

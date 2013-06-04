@@ -20,6 +20,7 @@ class ScoresRevealProblemControllerMixin(object):
 
 ProgrammingProblemController.mix_in(ScoresRevealProblemControllerMixin)
 
+
 class ScoresRevealContestControllerMixin(object):
     def can_see_submission_score(self, request, submission):
         return super(ScoresRevealContestControllerMixin, self) \

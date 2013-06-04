@@ -1,10 +1,8 @@
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
-from oioioi.contests.models import Submission
-from oioioi.oisubmit.models import OISubmitExtraData
 from oioioi.contests.utils import is_contest_admin
-from oioioi.programs.controllers import ProgrammingProblemController, \
-    ProgrammingContestController
+from oioioi.programs.controllers import ProgrammingContestController
+
 
 class OiSubmitContestControllerMixin(object):
     def render_submission_footer(self, request, submission):

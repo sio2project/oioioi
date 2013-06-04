@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils import make_html_link
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 
+
 class SinolpackConfigInline(admin.StackedInline):
     model = ExtraConfig
     can_delete = False
@@ -22,6 +23,7 @@ class SinolpackConfigInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
 
 class SinolpackExtraFilesInline(admin.StackedInline):
     model = ExtraFile
@@ -46,9 +48,9 @@ class SinolpackExtraFilesInline(admin.StackedInline):
         return make_html_link(href, instance.name)
     file_link.short_description = _("Extra file")
 
+
 class SinolpackProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(SinolpackProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + \
                        [SinolpackConfigInline, SinolpackExtraFilesInline]
-

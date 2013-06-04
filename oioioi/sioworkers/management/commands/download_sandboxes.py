@@ -3,12 +3,14 @@ from django.core.management.base import BaseCommand, CommandError
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.filetracker.client import get_client
 from optparse import make_option
-import os, os.path
+import os
+import os.path
 import urllib2
 import urlparse
 
 DEFAULT_SANDBOXES_MANIFEST = getattr(settings, 'SANDBOXES_MANIFEST',
     'http://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest')
+
 
 class Command(BaseCommand):
     option_list = BaseCommand.option_list + (
@@ -30,7 +32,7 @@ class Command(BaseCommand):
     requires_model_validation = False
 
     def display_license(self, license):
-        print >>self.stdout, "\nThe sandboxes are accompanied with a " \
+        print >> self.stdout, "\nThe sandboxes are accompanied with a " \
                 "license:\n"
         self.stdout.write(license)
         msg = "\nDo you accept the license? (yes/no):"
@@ -44,7 +46,7 @@ class Command(BaseCommand):
             break
 
     def handle(self, *args, **options):
-        print >>self.stdout, "--- Downloading Manifest ..."
+        print >> self.stdout, "--- Downloading Manifest ..."
         try:
             manifest_url = options['manifest_url']
             manifest = urllib2.urlopen(manifest_url).read()
@@ -52,7 +54,7 @@ class Command(BaseCommand):
         except Exception, e:
             raise CommandError("Error downloading manifest: %s" % (e,))
 
-        print >>self.stdout, "--- Looking for license ..."
+        print >> self.stdout, "--- Looking for license ..."
         try:
             license_url = urlparse.urljoin(manifest_url, 'LICENSE')
             license = urllib2.urlopen(license_url).read()
@@ -64,7 +66,7 @@ class Command(BaseCommand):
         if not args:
             args = manifest
 
-        print >>self.stdout, "--- Preparing ..."
+        print >> self.stdout, "--- Preparing ..."
         urls = []
         for arg in args:
             if arg not in manifest:
@@ -84,22 +86,22 @@ class Command(BaseCommand):
             raise CommandError("Wget not working. Please specify a working "
                     "Wget binary using --wget option.")
 
-        print >>self.stdout, "--- Downloading sandboxes ..."
+        print >> self.stdout, "--- Downloading sandboxes ..."
         execute([options['wget'], '-N', '-i', '-'], stdin='\n'.join(urls),
                 capture_output=False, cwd=dir)
 
-        print >>self.stdout, "--- Saving sandboxes to the Filetracker ..."
+        print >> self.stdout, "--- Saving sandboxes to the Filetracker ..."
         for arg in args:
             basename = arg + '.tar.gz'
             local_file = os.path.join(dir, basename)
-            print >>self.stdout, " ", basename
+            print >> self.stdout, " ", basename
             filetracker.put_file('/sandboxes/' + basename, local_file)
             os.unlink(local_file)
 
         try:
             os.rmdir(dir)
         except OSError:
-            print >>self.stdout, "--- Done, but couldn't remove the " \
+            print >> self.stdout, "--- Done, but couldn't remove the " \
                     "downloads directory."
         else:
-            print >>self.stdout, "--- Done."
+            print >> self.stdout, "--- Done."

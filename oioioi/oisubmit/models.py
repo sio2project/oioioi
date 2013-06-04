@@ -1,7 +1,7 @@
 from django.db import models
-from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Submission
+
 
 class OISubmitExtraData(models.Model):
     submission = models.OneToOneField(Submission)
