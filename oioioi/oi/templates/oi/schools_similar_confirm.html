@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% blocktrans %}<p>
+    <strong>If you see your school on the list below, please click its name.</strong>
+</p>{% endblocktrans %}
+<dl>
+    {% for s in schools %}
+    <dt><a href="{% url 'choose_school' school_id=s.id %}">{{ s.name }}</a></dt>
+    <dd>{% blocktrans with address=s.address city=s.city%}{{ address }}, {{ city }}{% endblocktrans %}</dd>
+    {% endfor %}
+</dl>
+{% blocktrans %}<p>
+    <strong>Are you sure you are not a student of any school listed above and you still want to add that school?</strong>
+</p>{% endblocktrans %}

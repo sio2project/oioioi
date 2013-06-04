@@ -1,9 +1,15 @@
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.utils import has_any_active_round, is_contest_admin
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
+from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIOnsiteRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
@@ -28,6 +34,34 @@ class OIRegistrationController(ParticipantsController):
 
     def can_register(self, request):
         return True
+
+    def registration_view(self, request):
+        participant = self._get_participant_for_form(request)
+
+        if 'oi_oiregistrationformdata' in request.session:
+            form = self.form_class(request.session['oi_oiregistrationformdata'])
+            del request.session['oi_oiregistrationformdata']
+        else:
+            form = self.get_form(request, participant)
+        if request.method == 'POST':
+            if '_add_school' in request.POST:
+                data = request.POST.copy()
+                data.pop('_add_school', None)
+                data.pop('csrfmiddlewaretoken', None)
+                request.session['oi_oiregistrationformdata'] = data
+                return redirect('add_school')
+            elif form.is_valid():
+                participant, created = Participant.objects \
+                        .get_or_create(contest=self.contest, user=request.user)
+                self.handle_validated_form(request, form, participant)
+                if 'next' in request.GET:
+                    return safe_redirect(request, request.GET['next'])
+                else:
+                    return redirect('default_contest_view',
+                            contest_id=self.contest.id)
+
+        context = {'form': form, 'participant': participant}
+        return TemplateResponse(request, self.registration_template, context)
 
 
 class OIContestController(ProgrammingContestController):

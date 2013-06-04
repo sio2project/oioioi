@@ -13,7 +13,7 @@ class Command(NoArgsCommand):
     def handle_noargs(self, **options):
         writer = csv.writer(self.stdout)
         writer.writerow(COLUMNS)
-        for school in School.objects.order_by('id'):
+        for school in School.objects.order_by('postal_code'):
             row = [unicode(getattr(school, column)).encode('utf-8')
                     for column in COLUMNS]
             writer.writerow(row)

@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from oioioi.base.menu import account_menu_registry
-from oioioi.base.permissions import enforce_condition
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import contest_exists
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import can_register, can_edit_registration, \
@@ -25,13 +25,13 @@ account_menu_registry.register('participants_edit_registration',
         order=80)
 
 
-@enforce_condition(contest_exists & contest_has_participants)
+@enforce_condition(not_anonymous & contest_exists & contest_has_participants)
 def registration_view(request, contest_id):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.registration_view(request)
 
 
-@enforce_condition(contest_exists & contest_has_participants
+@enforce_condition(not_anonymous & contest_exists & contest_has_participants
                    & can_edit_registration)
 def unregistration_view(request, contest_id):
     if request.method == 'POST':

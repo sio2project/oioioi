@@ -1,0 +1,47 @@
+[
+{
+  "pk": 1,
+  "model": "oi.school",
+  "fields": {
+    "province": "mazowieckie",
+    "city": "Warszawa",
+    "name": "XIV LO im. S.Staszica",
+    "is_active": true,
+    "phone": "4004004",
+    "postal_code": "02-010",
+    "address": "Nowowiejska 37a",
+    "email": "a@staszic.waw.pl",
+    "is_approved": true
+  }
+},
+{
+  "pk": 2,
+  "model": "oi.school",
+  "fields": {
+    "province": "mazowieckie",
+    "city": "Warszawa",
+    "name": "Gimnazjum im. S.Staszica",
+    "is_active": true,
+    "phone": "4004004",
+    "postal_code": "02-010",
+    "address": "Nowowiejska 37a",
+    "email": "a@staszic.waw.pl",
+    "is_approved": true
+  }
+},
+{
+  "pk": 3,
+  "model": "oi.school",
+  "fields": {
+    "province": "pomorskie",
+    "city": "Bielsko-Biała Zdrój",
+    "name": "Liceum",
+    "is_active": true,
+    "phone": "4002004",
+    "postal_code": "02-044",
+    "address": "Pcim Dolny",
+    "email": "a@a.pl",
+    "is_approved": true
+  }
+}
+]

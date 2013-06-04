@@ -1,6 +1,7 @@
 from django.contrib.admin import RelatedFieldListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
@@ -60,10 +61,9 @@ contest_admin_menu_registry.register('regions', _("Regions"),
 
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ('name', 'address', 'postal_code', 'city', 'province',
-                    'phone', 'email')
-    list_filter = ('province', 'city')
+                    'phone', 'email', 'is_active', 'is_approved')
+    list_filter = ('province', 'city', 'is_approved', 'is_active')
     search_fields = ('name', 'address', 'postal_code')
-    ordering = ('city', 'name')
 
 admin.site.register(School, SchoolAdmin)
 admin.system_admin_menu_registry.register('schools',
@@ -97,15 +97,21 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
                                               'oi_oiregistration__school']
 
     def school_name(self, instance):
+        if instance.oi_oiregistration.school is None:
+            return _("-- school deleted --")
         return instance.oi_oiregistration.school.name
     school_name.short_description = _("School")
     admin_order_field = 'oi_oiregistration__school__name'
 
     def school_city(self, instance):
+        if instance.oi_oiregistration.school is None:
+            return ''
         return instance.oi_oiregistration.school.city
     school_city.admin_order_field = 'oi_oiregistration__school__city'
 
     def school_province(self, instance):
+        if instance.oi_oiregistration.school is None:
+            return ''
         return instance.oi_oiregistration.school.province
     school_province.admin_order_field = 'oi_oiregistration__school__province'
 

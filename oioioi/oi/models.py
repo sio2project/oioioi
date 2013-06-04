@@ -76,12 +76,19 @@ class School(models.Model):
         verbose_name=_("province"), db_index=True)
     phone = models.CharField(max_length=64, validators=[
         RegexValidator(r'\+?[0-9() -]{6,}', _("Invalid phone number"))],
-        verbose_name=_("phone number"), null=True, blank=True)
-    email = models.EmailField(blank=True, verbose_name=_("email"))
+        verbose_name=_("school phone number"), null=True, blank=True)
+    email = models.EmailField(blank=True, verbose_name=_("school email"))
+
+    is_active = models.BooleanField(default=True, verbose_name=_("active"))
+    is_approved = models.BooleanField(default=True, verbose_name=_("approved"))
+
+    class Meta:
+        unique_together = ('name', 'postal_code')
+        index_together = (('city', 'is_active'), ('province', 'is_active'))
+        ordering = ['province', 'city', 'address', 'name']
 
     def __unicode__(self):
-        return _("%(name)s, %(city)s") % \
-                dict(name=self.name, city=self.city)
+        return _("%(name)s, %(city)s") % {'name': self.name, 'city': self.city}
 
 
 class OIRegistration(RegistrationModel):
@@ -106,8 +113,8 @@ class OIRegistration(RegistrationModel):
 
     def __unicode__(self):
         return _("%(class_type)s of %(school)s") % \
-                dict(class_type=self.get_class_type_display(),
-                    school=self.school)
+                {'class_type': self.get_class_type_display(),
+                 'school': self.school}
 
 
 class OIOnsiteRegistration(RegistrationModel):

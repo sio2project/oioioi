@@ -10,3 +10,6 @@
 </select>
 </p>
 {% endfor %}
+{% if show_add_new %}
+    {% blocktrans %}If you can not find your school on the list, please <input type="submit" class="btn btn-link btn-link-nopadding" name="_add_school" value="add it" />.{% endblocktrans %}
+{% endif %}

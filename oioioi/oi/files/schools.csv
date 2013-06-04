@@ -1,4 +1,4 @@
-id,name,address,postal_code,city,province,phone,email
-1,XIV LO im. S.Staszica,Nowowiejska 37a,02-010,Warszawa,mazowieckie,004004004,a@staszic.waw.pl
-2,Gimnazjum im. S.Staszica,Nowowiejska 37a,02-010,Warszawa,mazowieckie,004004004,a@staszic.waw.pl
-3,Liceum,Pcim Dolny,02-044,Zadupie,pomorskie,004002004,a@a.pl
+name,address,postal_code,city,province,phone,email
+XIV LO im. S.Staszica,Nowowiejska 37a,02-010,Warszawa,mazowieckie,004004004,a@staszic.waw.pl
+Gimnazjum im. S.Staszica,Nowowiejska 37a,02-010,Warszawa,mazowieckie,004004004,a@staszic.waw.pl
+Liceum,Pcim Dolny,02-044,Bielsko-BIAŁA zdrój,pomorskie,004002004,a@a.pl
