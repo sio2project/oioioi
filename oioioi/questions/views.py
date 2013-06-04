@@ -31,7 +31,7 @@ def visible_messages(request, author=None, category=None):
             q_expression = q_expression & Q(round__id=category_id,
                                             problem_instance=None)
     messages = Message.objects.filter(q_expression).order_by('-date')
-    if not request.user.has_perm('contests.contest_admin', request.contest):
+    if not is_contest_admin(request):
         q_expression = Q(kind='PUBLIC')
         if request.user.is_authenticated():
             q_expression = q_expression \
@@ -55,7 +55,7 @@ def messages_template_context(request, messages):
     replied_ids = frozenset(m.top_reference_id for m in messages)
     new_ids = new_messages(request, messages).values_list('id', flat=True)
 
-    if request.user.has_perm('contests.contest_admin', request.contest):
+    if is_contest_admin(request):
         unanswered = unanswered_questions(messages)
     else:
         unanswered = []
@@ -79,7 +79,7 @@ def messages_template_context(request, messages):
     order=450)
 @enforce_condition(contest_exists & can_enter_contest)
 def messages_view(request, contest_id):
-    if request.user.has_perm('contests.contest_admin', request.contest):
+    if is_contest_admin(request):
         form = FilterMessageAdminForm(request, request.GET)
     else:
         form = FilterMessageForm(request, request.GET)
@@ -124,7 +124,7 @@ def message_view(request, contest_id, message_id):
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def add_contest_message_view(request, contest_id):
-    is_admin = request.user.has_perm('contests.contest_admin', request.contest)
+    is_admin = is_contest_admin(request)
     if request.method == 'POST':
         form = AddContestMessageForm(request, request.POST)
         if form.is_valid():

@@ -20,7 +20,8 @@ from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, SubmissionReport, \
         UserResultForContest, submission_kinds
 from oioioi.contests.scores import ScoreValue
-from oioioi.contests.utils import visible_problem_instances, rounds_times
+from oioioi.contests.utils import visible_problem_instances, rounds_times, \
+        is_contest_admin, is_contest_observer
 from oioioi import evalmgr
 
 
@@ -225,7 +226,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            The default implementation checks round dates.
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
         rtimes = self.get_round_times(request, round)
         return not rtimes.is_future(request.timestamp)
@@ -241,7 +242,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if not problem_instance.round:
             return False
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
         return self.can_see_round(request, problem_instance.round)
 
@@ -257,7 +258,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if not problem_instance.round:
             return False
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
 
         if check_round_times:
@@ -272,9 +273,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation returns ``'IGNORED'`` for non-contestants.
            In other cases it returns ``'NORMAL'``.
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return 'IGNORED'
-        if request.user.has_perm('contests.contest_observer', request.contest):
+        if is_contest_admin(request) or is_contest_observer(request):
             return 'IGNORED'
         return 'NORMAL'
 
@@ -548,9 +547,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            ``None``, results are not available. Admins are always shown the
            results.
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return True
-        if request.user.has_perm('contests.contest_observer', request.contest):
+        if is_contest_admin(request) or is_contest_observer(request):
             return True
         round = submission.problem_instance.round
         rtimes = self.get_round_times(request, round)
@@ -571,9 +568,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                               select only given submission's reports
            :returns: updated queryset
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return queryset
-        if request.user.has_perm('contests.contest_observer', request.contest):
+        if is_contest_admin(request) or is_contest_observer(request):
             return queryset
         if self.results_visible(request, submission):
             return queryset.filter(status='ACTIVE', kind='NORMAL')

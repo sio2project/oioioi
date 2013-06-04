@@ -11,7 +11,8 @@ from django.template.response import TemplateResponse
 from django.shortcuts import redirect
 
 from oioioi.base.permissions import enforce_condition, make_request_condition
-from oioioi.contests.utils import can_enter_contest, contest_exists
+from oioioi.contests.utils import can_enter_contest, contest_exists, \
+        is_contest_admin
 from oioioi.base.menu import menu_registry
 from oioioi.complaints.forms import AddComplaintForm
 from oioioi.complaints.models import ComplaintsConfig
@@ -22,7 +23,7 @@ from oioioi.participants.models import Participant
 def can_make_complaint(request):
     if not request.user.is_authenticated():
         return False
-    if request.user.has_perm('contests.contest_admin', request.contest):
+    if is_contest_admin(request):
         return True
     try:
         cconfig = request.contest.complaints_config

@@ -173,9 +173,7 @@ def can_enter_contest(request):
 def check_submission_access(request, submission):
     if submission.problem_instance.contest != request.contest:
         raise PermissionDenied
-    if request.user.has_perm('contests.contest_admin', request.contest):
-        return
-    if request.user.has_perm('contests.contest_observer', request.contest):
+    if is_contest_admin(request) or is_contest_observer(request):
         return
     controller = request.contest.controller
     queryset = Submission.objects.filter(id=submission.id)

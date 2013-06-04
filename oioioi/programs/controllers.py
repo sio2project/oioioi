@@ -273,7 +273,7 @@ class ProgrammingContestController(ContestController):
             return ['INITIAL']
 
     def filter_visible_reports(self, request, submission, queryset):
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return queryset
         else:
             return queryset.filter(status='ACTIVE',

@@ -15,6 +15,7 @@ from oioioi.problems.models import Problem
 from oioioi.problems.utils import can_change_problem
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 
 
 def show_statement_view(request, statement_id):
@@ -60,8 +61,7 @@ def add_or_update_problem_view(request, contest_id=None):
         if not request.user.has_perm('problems.problems_db_admin'):
             if not contest_id:
                 raise PermissionDenied
-            if not request.user.has_perm('contests.contest_admin',
-                    request.contest):
+            if not is_contest_admin(request):
                 raise PermissionDenied
 
     problem_or_content = current_source.view(request, contest,

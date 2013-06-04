@@ -20,7 +20,7 @@ class MessageAdmin(admin.ModelAdmin):
         'problem_instance']
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
         if obj and not obj.contest:

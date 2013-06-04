@@ -65,6 +65,7 @@ def save_diff_id_view(request, contest_id, submission_id):
     request.session['saved_diff_id'] = submission_id
     return HttpResponse()
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def source_diff_view(request, contest_id, submission1_id, submission2_id):
     if request.session.get('saved_diff_id'):
@@ -137,6 +138,7 @@ def source_diff_view(request, contest_id, submission1_id, submission2_id):
                  'contest_id': contest_id,
                  'submission1_id': submission2_id,
                  'submission2_id': submission1_id})})
+
 
 @enforce_condition(contest_exists & can_enter_contest)
 def download_submission_source_view(request, contest_id, submission_id):

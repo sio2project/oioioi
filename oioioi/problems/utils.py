@@ -1,11 +1,11 @@
 from oioioi.base.utils import request_cached
+from oioioi.contests.utils import is_contest_admin
 
 
 @request_cached
 def can_add_problems(request):
     return request.user.has_perm('problems.problems_db_admin') \
-            or request.user.has_perm('contests.contest_admin',
-                    request.contest)
+            or is_contest_admin(request)
 
 
 def can_change_problem(request, problem):

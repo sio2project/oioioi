@@ -12,6 +12,7 @@ from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
 from oioioi.participants.models import Participant
 from oioioi.contests.models import RoundTimeExtension
 from oioioi.participants.utils import contest_has_participants
+from oioioi.contests.utils import is_contest_admin
 
 
 @make_request_condition
@@ -30,10 +31,10 @@ class ParticipantAdmin(admin.ModelAdmin):
     form = ParticipantForm
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)

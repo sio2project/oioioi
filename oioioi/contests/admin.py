@@ -18,6 +18,7 @@ from oioioi.contests.menu import contest_admin_menu_registry, \
         contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension, ContestPermission
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
 class RoundInline(admin.StackedInline):
@@ -138,7 +139,6 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-#        return request.user.has_perm('contests.contest_admin', request.contest)
 
     def has_change_permission(self, request, obj=None):
         return not obj or request.user.has_perm('contests.contest_admin',
@@ -281,9 +281,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj:
             return False
-        return (request.user.has_perm('contests.contest_admin', request.contest)
-                or request.user.has_perm('contests.contest_observer',
-                    request.contest))
+        return is_contest_admin(request) or is_contest_observer(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request)
@@ -395,10 +393,10 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__last_name']
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)

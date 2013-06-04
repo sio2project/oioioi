@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ungettext
 from django.utils.functional import lazy
 from oioioi.base.utils import make_navbar_badge
-from oioioi.contests.utils import can_enter_contest
+from oioioi.contests.utils import can_enter_contest, is_contest_admin
 from oioioi.questions.utils import unanswered_questions
 from oioioi.questions.views import new_messages, visible_messages
 
@@ -16,8 +16,7 @@ def navbar_tip_processor(request):
         return {}
 
     def generator():
-        is_admin = request.user.has_perm('contests.contest_admin',
-                request.contest)
+        is_admin = is_contest_admin(request)
         messages = visible_messages(request)
         visible_ids = messages.values_list('id', flat=True)
         if is_admin:

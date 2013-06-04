@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import ProblemInstance, UserResultForProblem
 from oioioi.contests.controllers import ContestController
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
 CONTEST_RANKING_KEY = 'c'
@@ -53,10 +54,7 @@ class DefaultRankingController(RankingController):
     description = _("Default ranking")
 
     def _rounds_for_ranking(self, request, key=CONTEST_RANKING_KEY):
-        can_see_all = request.user.has_perm('contests.contest_admin',
-                request.contest) or \
-                request.user.has_perm('contests.contest_observer',
-                request.contest)
+        can_see_all = is_contest_admin(request) or is_contest_observer(request)
         ccontroller = self.contest.controller
         queryset = self.contest.round_set.all()
         if key != CONTEST_RANKING_KEY:

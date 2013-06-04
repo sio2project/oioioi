@@ -11,6 +11,7 @@ from django.conf.urls import patterns, url
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.problems.utils import can_add_problems, can_change_problem
@@ -122,7 +123,7 @@ class ProblemAdmin(admin.ModelAdmin):
         combined = queryset.none()
         if request.user.has_perm('problems.problems_db_admin'):
             combined |= queryset.filter(contest__isnull=True)
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             combined |= queryset.filter(contest=request.contest)
         return combined
 

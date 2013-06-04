@@ -4,12 +4,13 @@ from django.utils.functional import lazy
 
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 
 
 def dangling_problems_processor(request):
     if not getattr(request, 'contest', None):
         return {}
-    if not request.user.has_perm('contests.contest_admin', request.contest):
+    if not is_contest_admin(request):
         return {}
 
     def generator():

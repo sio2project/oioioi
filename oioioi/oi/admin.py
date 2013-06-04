@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.utils import is_contest_admin
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
@@ -25,10 +26,10 @@ class RegionAdmin(admin.ModelAdmin):
     form = RegionForm
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
@@ -128,10 +129,10 @@ class OIOnsiteRegistrationInline(admin.TabularInline):
     can_delete = False
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
 
 class RegionFilter(RelatedFieldListFilter):

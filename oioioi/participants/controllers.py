@@ -5,6 +5,7 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from oioioi.contests.controllers import RegistrationController
+from oioioi.contests.utils import is_contest_admin
 from oioioi.participants.models import Participant, RegistrationModel
 import urllib
 
@@ -32,7 +33,7 @@ class ParticipantsController(RegistrationController):
         return False
 
     def can_edit_registration(self, request, participant):
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
         if participant.status == 'BANNED':
             return False
