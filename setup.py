@@ -40,7 +40,7 @@ setup(
 
         "django-debug-toolbar",
         "django-extensions",
-        "django-output-validator",
+        "django-output-validator>=1.5md1",
         "werkzeug",
 
         # Old versions have buggy coverage reports generation, raising
@@ -72,11 +72,12 @@ setup(
     dependency_links=[
         'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
         'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
+        'https://bitbucket.org/mdebski/django-output-validator-1.5/get/django-1.5.zip#egg=django-output-validator-1.5md1',
 
         # Remove the line below when django-registration 0.9 will be in pypi (with get_version bug fixed).
         # For more see:
         # https://bitbucket.org/ubernostrum/django-registration/pull-request/43
-        'http://bitbucket.org/mszamot/django-registration/get/default.zip#egg=django-registration-0.9b1'
+        'http://bitbucket.org/mszamot/django-registration/get/default.zip#egg=django-registration-0.9b1',
     ],
     entry_points = {
         'console_scripts': [
