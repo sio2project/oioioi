@@ -84,6 +84,11 @@ def contest_exists(request):
 
 
 @make_request_condition
+def has_any_rounds(request):
+    return Round.objects.filter(contest=request.contest).exists()
+
+
+@make_request_condition
 @request_cached
 def has_any_active_round(request):
     controller = request.contest.controller

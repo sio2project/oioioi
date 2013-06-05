@@ -29,14 +29,13 @@ class TestReportViews(TestCase, TestStreamingMixin):
 
     def test_pdf_report_view(self):
         contest = Contest.objects.get()
-        url = reverse('pdfreport', kwargs={'contest_id': contest.id})
+        url = reverse('oireports', kwargs={'contest_id': contest.id})
         post_vars = {
-            'round_key': CONTEST_REPORT_KEY,
-            'region_key': CONTEST_REPORT_KEY,
-            'testgroup[zad1][0]': '',
-            'testgroup[zad1][1]': '',
-            'testgroup[zad1][2]': '',
-            'testgroup[zad1][3]': '',
+            'report_round': CONTEST_REPORT_KEY,
+            'report_region': CONTEST_REPORT_KEY,
+            'testgroup[zad1]': ['0', '1', '2', '3'],
+            'form_type': 'pdf_report',
+            'single_report_user': ''
         }
 
         # Let's check if report is not available for regular user.
@@ -57,14 +56,13 @@ class TestReportViews(TestCase, TestStreamingMixin):
 
     def test_xml_view(self):
         contest = Contest.objects.get()
-        url = reverse('xmlreport', kwargs={'contest_id': contest.id})
+        url = reverse('oireports', kwargs={'contest_id': contest.id})
         post_vars = {
-            'round_key': CONTEST_REPORT_KEY,
-            'region_key': CONTEST_REPORT_KEY,
-            'testgroup[zad1][0]': '',
-            'testgroup[zad1][1]': '',
-            'testgroup[zad1][2]': '',
-            'testgroup[zad1][3]': '',
+            'report_round': CONTEST_REPORT_KEY,
+            'report_region': CONTEST_REPORT_KEY,
+            'testgroup[zad1]': ['0', '1', '2', '3'],
+            'form_type': 'xml_report',
+            'single_report_user': ''
         }
 
         # Let's check if report is not available for regular user.
@@ -83,3 +81,22 @@ class TestReportViews(TestCase, TestStreamingMixin):
             self.assertIn("<code>%23include", content)
             self.assertIn("<testcomment>program exited with", content)
             self.assertNotIn("test_user2", content)
+
+    def test_single_report(self):
+        contest = Contest.objects.get()
+        url = reverse('oireports', kwargs={'contest_id': contest.id})
+        post_vars = {
+            'report_round': CONTEST_REPORT_KEY,
+            'report_region': CONTEST_REPORT_KEY,
+            'testgroup[zad1]': ['0', '1', '2', '3'],
+            'form_type': 'xml_report',
+            'is_single_report': 'on',
+            'single_report_user': 'test_user2'
+        }
+
+        self.client.login(username='test_admin')
+        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+            response = self.client.post(url, post_vars)
+            content = self.streamingContent(response)
+            self.assertNotIn('test_user2', content)
+            self.assertIn('Strange, there is no one', content)
