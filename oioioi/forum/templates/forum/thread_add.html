@@ -1,0 +1,31 @@
+{% extends "forum/forum.html" %}
+{% load i18n %}
+{% load check_perm %}
+
+{% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
+
+{% block content %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+<h2>{% trans "Add thread" %}</h2>
+<div class="breadcrumb">
+    <li>
+        <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
+        <span class="divider">|</span>
+    </li>
+    <li>
+        <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
+        <span class="divider">|</span>
+    </li>
+    <li>
+        <span>{% trans "Add thread" %}</span>
+    </li>
+</div>
+
+<form action="" method="post" class="form-horizontal">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>
+{% endblock %}

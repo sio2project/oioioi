@@ -13,6 +13,7 @@
     <form method="post" action="">
         {% csrf_token %}
         {% block buttons %}
+            <input type="hidden" name="confirmation_sent" value="">
             <button type="submit" class="btn btn-primary btn-block btn-large" name="confirmation" value="">
                 {% block proceed_label %}{% trans "Confirm" %}{% endblock %}
             </button>

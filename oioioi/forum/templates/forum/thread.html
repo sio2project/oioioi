@@ -1,0 +1,81 @@
+{% extends "forum/forum.html" %}
+{% load i18n %}
+{% load check_perm %}
+
+{% block title %}{% trans "Thread" %}: {{ thread.name }}{% endblock %}
+
+{% block content %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+<h2>{% trans "Thread" %}: {{ thread.name }}</h2>
+<div class="breadcrumb">
+    <li>
+        <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
+        <span class="divider">|</span>
+    </li>
+    <li>
+        <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
+        <span class="divider">|</span>
+    </li>
+    <li>
+        <span>{{ thread.name }}</span>
+    </li>
+</div>
+{% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
+<ul class="forum list">
+{% with thread.post_set.count as posts_num %}
+    {% for p in thread.post_set.all %}
+        <li class="forum item">
+        {% if p.hidden %}
+            <h6>
+                {% trans "This post was hidden by the contest administrator" %}
+                {% if is_admin %}
+                <a href="#" data-post-url="{% url 'forum_post_show' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "unhide" %}</a>
+                {% endif %}
+            </h6>
+            {% if is_admin %}
+                <p>{{ p.content }}</p>
+            {% endif %}
+        {% else %}
+            <div class="forum_content_row">
+                {{ p.content|linebreaksbr }}
+            </div>
+        {% endif %}
+        <div class="forum_info_row">
+            {{ p.author }} | {% trans "Added" %}: {{ p.add_date }}
+            {% if p.edited %}
+                | {% trans "Last edit" %}: {{ p.last_edit_date }}
+            {% endif %}
+            {% if not is_locked or is_admin %}
+                {% if is_admin or p.author == user %}
+                | <a href="{% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "edit" %}</a>
+                {% endif %}
+                {% if is_admin or p.author == user and forloop.counter == posts_num and p.can_be_removed %}
+                | <a href="{% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-trash"></i></a>
+                {% endif %}
+            {% endif %}
+            {% if not p.hidden %}
+                {% if is_admin %}
+                | <a href="#" data-post-url="{% url 'forum_post_hide' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "hide" %}</a>
+                {% else %}
+                | <a href="#" data-post-url="{% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "report" %}</a>
+                {% endif %}
+                {% if p.reported %}
+                | {% trans "This post was reported" %}
+                {% endif %}
+            {% endif %}
+        </div>
+        </li>
+    {% endfor %}
+{% endwith %}
+</ul>
+{% if form %}
+    <h4>{% trans "New post" %}</h4>
+    <form action="" method="post" class="form-horizontal">
+        {% csrf_token %}
+        {% include "ingredients/form.html" %}
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        </div>
+    </form>
+{% endif %}
+{% endblock %}
