@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_slug
 from django.db import models
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
@@ -12,7 +11,8 @@ from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.contests.fields import ScoreField
 from oioioi.filetracker.fields import FileField
-from oioioi.base.utils.validators import validate_whitespaces
+from oioioi.base.utils.validators import validate_whitespaces, \
+        validate_db_string_id
 from oioioi.problems.models import Problem
 
 import itertools
@@ -31,7 +31,7 @@ def make_contest_filename(instance, filename):
 
 class Contest(models.Model):
     id = models.CharField(max_length=32, primary_key=True,
-            validators=[validate_slug], verbose_name=_("ID"))
+            verbose_name=_("ID"), validators=[validate_db_string_id])
     name = models.CharField(max_length=255, verbose_name=_("full name"),
                             validators=[validate_whitespaces])
     controller_name = DottedNameField(
@@ -147,7 +147,7 @@ class ProblemInstance(models.Model):
             blank=True)
     problem = models.ForeignKey(Problem, verbose_name=_("problem"))
     short_name = models.CharField(max_length=30, verbose_name=_("short name"),
-                                  validators=[validate_whitespaces])
+            validators=[validate_db_string_id])
     submissions_limit = models.IntegerField(blank=True,
         default=settings.DEFAULT_SUBMISSIONS_LIMIT)
 
@@ -157,9 +157,18 @@ class ProblemInstance(models.Model):
         unique_together = ('contest', 'short_name')
         ordering = ('round', 'short_name')
 
+    def get_short_name_display(self):
+        problem_short_name = self.problem.short_name
+        if problem_short_name.lower() == self.short_name:
+            return problem_short_name
+        else:
+            return self.short_name
+
     def __unicode__(self):
-        return '%(name)s (%(short_name)s)' % \
-                dict(short_name=self.short_name, name=self.problem.name)
+        return '%(name)s (%(short_name)s)' % {
+            'short_name': self.get_short_name_display(),
+            'name': self.problem.name,
+        }
 
 
 @receiver(pre_save, sender=ProblemInstance)
@@ -169,7 +178,8 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
     if not raw and not instance.short_name and instance.problem_id:
         short_names = ProblemInstance.objects.filter(contest=instance.contest)\
                 .values_list('short_name', flat=True)
-        problem_short_name = instance.problem.short_name
+        # SlugField and validate_slug accepts uppercase letters, while we don't
+        problem_short_name = instance.problem.short_name.lower()
         if problem_short_name not in short_names:
             instance.short_name = problem_short_name
         else:

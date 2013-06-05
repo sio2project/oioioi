@@ -38,11 +38,12 @@ class TestModels(TestCase):
         round = Round(contest=contest)
         round.save()
         self.assertEqual(round.name, 'Round 2')
-        problem = Problem()
+        problem = Problem(short_name='A')
         problem.save()
         pi = ProblemInstance(round=round, problem=problem)
         pi.save()
         self.assertEqual(pi.contest, contest)
+        self.assertEqual(pi.short_name, 'a')
 
 
 class TestScores(TestCase):
@@ -196,6 +197,8 @@ class TestContestViews(TestCase):
         self.client.get('/c/%s/dashboard/' % invisible_contest.id)
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
+        self.assertContains(response, 'Test contest')
+        self.assertContains(response, 'Invisible Contest')
         self.client.logout()
 
         self.client.login(username='test_admin')

@@ -6,6 +6,7 @@ import tempfile
 import os
 import zipfile
 
+from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from django.core.files import File
 import chardet
@@ -74,6 +75,7 @@ class SinolPackage(object):
         files = map(os.path.normcase, self.archive.filenames())
         files = map(os.path.normpath, files)
         toplevel_folders = set(f.split(os.sep)[0] for f in files)
+        toplevel_folders = filter(slug_re.match, toplevel_folders)
         problem_folders = []
         for folder in toplevel_folders:
             for required_subfolder in ('in', 'out'):
