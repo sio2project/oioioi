@@ -200,13 +200,22 @@ class ProgrammingContestController(ContestController):
                     initial=request.user.username)
 
             def clean_user():
+                username = form.cleaned_data['user']
+                if username == request.user.username:
+                    return request.user
+
+                qs = User.objects.filter(username=username)
                 try:
-                    return self.registration_controller() \
-                        .filter_participants(User.objects
-                            .filter(username=form.cleaned_data['user'])) \
-                        .get()
+                    if request.user.is_superuser:
+                        return qs.get()
+                    else:
+                        return self.registration_controller() \
+                                .filter_participants(qs) \
+                                .get()
                 except User.DoesNotExist:
-                    raise forms.ValidationError(_("User does not exist"))
+                    raise forms.ValidationError(_(
+                            "User does not exist or "
+                            "you do not have enough privileges"))
             form.clean_user = clean_user
             form.fields['kind'] = forms.ChoiceField(choices=[
                 ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],

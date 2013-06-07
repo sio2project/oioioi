@@ -6,7 +6,9 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Submission, ProblemInstance, Contest
+from oioioi.contests.tests import PrivateRegistrationController
 from oioioi.programs.models import Test, ModelSolution
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.contests.scores import IntegerScore
 from oioioi.base.utils import memoized_property
@@ -290,6 +292,71 @@ class TestSubmittingAsAdmin(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
+
+    def test_submitting_as_self(self):
+        self.client.login(username='test_admin')
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('IGNORED', response.content)
+        self.assertIn('NORMAL', response.content)
+
+        data = {
+            'problem_instance_id': pi.id,
+            'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
+            'user': 'test_admin',
+            'kind': 'NORMAL'
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.count(), 1)
+        submission = Submission.objects.get(pk=1)
+        self.assertEqual(submission.user.username, 'test_admin')
+        self.assertEqual(submission.kind, 'NORMAL')
+
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Test Admin', response.content)
+        self.assertIn('no one in this ranking', response.content)
+
+
+class PrivateProgrammingContestController(ProgrammingContestController):
+    def registration_controller(self):
+        return PrivateRegistrationController(self.contest)
+
+
+class TestSubmittingAsContestAdmin(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_permissions']
+
+    def test_missing_permission(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.programs.tests.PrivateProgrammingContestController'
+        contest.save()
+        pi = ProblemInstance.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_contest_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('IGNORED', response.content)
+
+        data = {
+            'problem_instance_id': pi.id,
+            'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
+            'user': 'test_user',
+            'kind': 'NORMAL'
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.count(), 0)
+        self.assertIn('enough privileges', response.content)
 
 
 class TestSubmittingAsObserver(TestCase):
