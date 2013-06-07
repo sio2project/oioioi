@@ -1,12 +1,16 @@
-from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
-from oioioi.base.utils import ObjectWithMixins
+from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.models import ContestPermission
+from oioioi.contests.utils import is_contest_admin
 from oioioi.questions.forms import ChangeContestMessageForm
-from oioioi.questions.models import Message
+from oioioi.questions.models import Message, MessageNotifierConfig
+
 
 class MessageAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'topic', 'author']
@@ -16,7 +20,7 @@ class MessageAdmin(admin.ModelAdmin):
         'problem_instance']
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
         if obj and not obj.contest:
@@ -62,3 +66,48 @@ class MessageAdmin(admin.ModelAdmin):
                                 {'form': form, 'message': message})
 
 admin.site.register(Message, MessageAdmin)
+
+
+class MessageNotifierConfigInline(admin.TabularInline):
+    model = MessageNotifierConfig
+    can_delete = True
+    extra = 0
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        contest_admin_perm = ContestPermission.objects \
+                .filter(contest=request.contest) \
+                .filter(permission='contests.contest_admin') \
+                .select_related('user')
+        admin_ids = [p.user.id for p in contest_admin_perm]
+
+        if request.user.is_superuser:
+            admin_ids += [u.id for u in User.objects.filter(is_superuser=True)]
+        elif is_contest_admin(request):
+            added = MessageNotifierConfig.objects \
+                    .filter(contest=request.contest)
+            admin_ids += [request.user.id] + [conf.user.id for conf in added]
+        else:
+            admin_ids = []
+
+        if db_field.name == 'user':
+            kwargs['queryset'] = User.objects.filter(id__in=admin_ids) \
+                    .order_by('username')
+
+        return super(MessageNotifierConfigInline, self) \
+                .formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class MessageNotifierContestAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(MessageNotifierContestAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [MessageNotifierConfigInline]
+ContestAdmin.mix_in(MessageNotifierContestAdminMixin)

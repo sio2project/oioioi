@@ -6,6 +6,7 @@ from oioioi.base.tests import fake_time, check_not_accessible
 from oioioi.contests.models import Contest
 from datetime import datetime
 
+
 class TestRankingViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission', 'test_extra_rounds', 'test_ranking_data']
@@ -55,7 +56,6 @@ class TestRankingViews(TestCase):
             response = self.client.get(reverse('ranking',
                 kwargs={'contest_id': contest.id, 'key': '1'}))
             self.assertEqual(response.content.count('<td>Test User'), 1)
-
 
     def test_ranking_csv_view(self):
         contest = Contest.objects.get()

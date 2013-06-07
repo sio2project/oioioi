@@ -3,7 +3,7 @@
 {% if ctx.user.is_superuser %}
     <li class="divider"></li>
     <li class="dropdown-form">
-        <form action="{% url su %}" method="post">
+        <form action="{% url 'su' %}" method="post">
             {% csrf_token %}
             <div style="display: none">
                 <input type="hidden" name="next" value="{{ ctx.request.get_full_path }}">
@@ -24,9 +24,9 @@
             $(document).ready(function() {
                 $('#su-username').typeahead({
                     source: function(query, process) {
-                        $.getJSON('{% url get_suable_users %}', {substr: query}, process);
+                        $.getJSON('{% url 'get_suable_users' %}', {substr: query}, process);
                     },
-                    items: 10,
+                    items: {{ num_hints }},
                     minLength: 2
                 });
             });
@@ -36,7 +36,7 @@
 {% elif is_under_su %}
     <li class="divider"></li>
     <li>
-        <a href="#" data-post-url="{% url su_reset %}" data-post-field-next="{{ ctx.request.get_full_path }}">
+        <a href="#" data-post-url="{% url 'su_reset' %}" data-post-field-next="{{ ctx.request.get_full_path }}">
             {% trans "Back to admin" %}
         </a>
     </li>

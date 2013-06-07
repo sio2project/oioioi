@@ -6,10 +6,10 @@ from smtplib import SMTPException
 from django.core.mail import mail_admins
 from django.db import transaction
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
-        SubmissionReport, FailureReport, UserResultForContest, \
-        UserResultForRound, UserResultForProblem
+        SubmissionReport, FailureReport
 
 logger = logging.getLogger(__name__)
+
 
 @transaction.commit_on_success
 def update_report_statuses(env, **kwargs):
@@ -19,12 +19,14 @@ def update_report_statuses(env, **kwargs):
     contest.controller.update_report_statuses(submission, reports)
     return env
 
+
 @transaction.commit_on_success
 def update_submission_score(env, **kwargs):
     contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
     contest.controller.update_submission_score(submission)
     return env
+
 
 def update_user_results(env, **kwargs):
     with transaction.commit_on_success():
@@ -43,12 +45,14 @@ def update_user_results(env, **kwargs):
 
     return env
 
+
 @transaction.commit_on_success
 def call_submission_judged(env, **kwargs):
     contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
     contest.controller.submission_judged(submission)
     return env
+
 
 @transaction.commit_on_success
 def create_error_report(env, exc_info, **kwargs):
@@ -81,6 +85,7 @@ def create_error_report(env, exc_info, **kwargs):
     failure_report.save()
 
     return env
+
 
 def mail_admins_on_error(env, exc_info, **kwargs):
     """Sends email to all admins defined in settings.ADMINS on each

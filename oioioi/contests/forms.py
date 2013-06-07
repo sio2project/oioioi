@@ -3,9 +3,9 @@ from django.contrib.admin import widgets
 from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.utils import submittable_problem_instances
+
 
 class SimpleContestForm(forms.ModelForm):
     class Meta:
@@ -73,6 +73,7 @@ class SimpleContestForm(forms.ModelForm):
 
         return instance
 
+
 class ProblemInstanceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
@@ -80,6 +81,7 @@ class ProblemInstanceForm(forms.ModelForm):
         if instance:
             self.fields['round'].queryset = instance.contest.round_set
             self.fields['round'].required = True
+
 
 class SubmissionForm(forms.Form):
     """Represents base submission form containing task selector.
@@ -135,7 +137,7 @@ class SubmissionForm(forms.Form):
 
         kind = cleaned_data['kind']
         if check_submission_limit and \
-            ccontroller.is_exceeded_submissions_limit(self.request, pi, kind):
+            ccontroller.is_submissions_limit_exceeded(self.request, pi, kind):
             raise ValidationError(_("Submission limit for the problem '%s'"
                                     "exceeded.") % pi.problem.name)
 
@@ -146,4 +148,3 @@ class SubmissionForm(forms.Form):
 
         return ccontroller.validate_submission_form(self.request, pi, self,
                                                     cleaned_data)
-

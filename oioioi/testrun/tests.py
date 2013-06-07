@@ -14,6 +14,7 @@ from oioioi.filetracker.client import get_client
 from oioioi.filetracker.storage import FiletrackerStorage
 from oioioi.base.tests import fake_time
 
+
 class TestTestrunViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_testrun']
@@ -50,8 +51,8 @@ class TestTestrunViews(TestCase):
                 'download_testrun_input', kwargs=kwargs))
 
             self.assertContains(download_response, '9 9\n')
-            self.assertTrue(download_response['Content-Disposition'].startswith(
-                'attachment'))
+            self.assertTrue(download_response['Content-Disposition']
+                            .startswith('attachment'))
             self.assertIn('filename=in',
                 download_response['Content-Disposition'])
 
@@ -73,7 +74,8 @@ class TestTestrunViews(TestCase):
             self.assertContains(download_response, '18\n')
             self.assertTrue(download_response['Content-Disposition'].startswith(
                 'attachment'))
-            self.assertIn('filename=out', download_response['Content-Disposition'])
+            self.assertIn('filename=out',
+                          download_response['Content-Disposition'])
 
         with fake_time(datetime(2014, 8, 5, tzinfo=utc)):
             show_output = self.client.get(reverse('get_testrun_output',
@@ -129,13 +131,17 @@ class TestTestrunViews(TestCase):
         for view in ['get_testrun_output', 'get_testrun_input']:
             check_ajax_not_accessible(self, view, kwargs=kwargs)
 
+
 class TestWithNoTestruns(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_not_visible(self):
         self.client.login(username='test_user')
         kwargs = {'contest_id': Contest.objects.get().id}
-        check_not_accessible(self, 'testrun_submit', kwargs=kwargs)
+        url = reverse('testrun_submit', kwargs=kwargs)
+        response = self.client.get(url)
+        self.assertIn("for which you could run", response.content)
+
 
 class TestHandlers(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

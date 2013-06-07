@@ -1,6 +1,6 @@
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.utils import aggregate_statuses
-from oioioi.programs.controllers import ProgrammingContestController
+
 
 def sum_score_aggregator(group_results):
     if not group_results:
@@ -12,6 +12,7 @@ def sum_score_aggregator(group_results):
     status = aggregate_statuses([result['status']
         for result in group_results.itervalues()])
     return score, status
+
 
 def sum_group_scorer(test_results):
     """Adds results of all tests inside a test group."""
@@ -26,6 +27,7 @@ def sum_group_scorer(test_results):
         for result in test_results.itervalues()])
     return score, status
 
+
 def min_group_scorer(test_results):
     """Gets minimal result of all tests inside a test group."""
 
@@ -36,10 +38,12 @@ def min_group_scorer(test_results):
         for result in test_results.itervalues()])
     return score, status
 
+
 def discrete_test_scorer(test, result):
     status = result['result_code']
     score = (status == 'OK') and test['max_score'] or 0
     return IntegerScore(score), status
+
 
 def threshold_linear_test_scorer(test, result):
     """Full score if took less than half of limit and then decreasing to 0."""
@@ -64,6 +68,7 @@ def threshold_linear_test_scorer(test, result):
 
     return IntegerScore(score), status
 
+
 def decode_str(str):
     try:
         str = str.decode('utf-8')
@@ -73,6 +78,7 @@ def decode_str(str):
         decode_error = True
 
     return (str, decode_error)
+
 
 def slice_str(str, length):
     # After slicing UTF-8 can be invalid.

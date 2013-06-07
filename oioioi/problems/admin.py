@@ -11,12 +11,14 @@ from django.conf.urls import patterns, url
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.problems.utils import can_add_problems, can_change_problem
 
 
 logger = logging.getLogger(__name__)
+
 
 class StatementInline(admin.TabularInline):
     model = ProblemStatement
@@ -38,6 +40,7 @@ class StatementInline(admin.TabularInline):
                 kwargs={'statement_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
 
+
 class AttachmentInline(admin.TabularInline):
     model = ProblemAttachment
     extra = 0
@@ -57,6 +60,7 @@ class AttachmentInline(admin.TabularInline):
                 kwargs={'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
 
+
 class ProblemInstanceInline(admin.StackedInline):
     model = ProblemInstance
     can_delete = False
@@ -71,6 +75,7 @@ class ProblemInstanceInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
 
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [StatementInline, AttachmentInline, ProblemInstanceInline]
@@ -118,7 +123,7 @@ class ProblemAdmin(admin.ModelAdmin):
         combined = queryset.none()
         if request.user.has_perm('problems.problems_db_admin'):
             combined |= queryset.filter(contest__isnull=True)
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             combined |= queryset.filter(contest=request.contest)
         return combined
 
@@ -129,6 +134,7 @@ class ProblemAdmin(admin.ModelAdmin):
         if isinstance(response, HttpResponseRedirect):
             return self.redirect_to_list(request, obj)
         return response
+
 
 class BaseProblemAdmin(admin.MixinsAdmin):
     default_model_admin = ProblemAdmin

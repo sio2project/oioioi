@@ -34,6 +34,9 @@ DATABASES = {
     }
 }
 
+# See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+ALLOWED_HOSTS = []
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
@@ -127,11 +130,12 @@ INSTALLED_APPS = (
 #    'oioioi.oi',
 #    'oioioi.oisubmit',
 #    'oioioi.testrun',
-#    'oioioi.spliteval'
+#    'oioioi.spliteval',
 #    'oioioi.printing',
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.complaints',
+#    'oioioi.contestexcl',
 #    'oioioi.sharingcli',
 ) + INSTALLED_APPS
 
@@ -142,6 +146,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 
 MIDDLEWARE_CLASSES += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
+#    'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.oi.middleware.OiForceDnsIpAuthMiddleware',
 )
 
@@ -153,6 +158,10 @@ AUTHENTICATION_BACKENDS += (
 # Number of concurrently evaluated submissions (default is 1).
 #EVALMGR_CONCURRENCY = 30
 
+# Uncomment the following lines to enable judging prioritisation.
+# Workers serving both high- and low-priority tasks should be started with
+# '-Q sioworkers,sioworkers-lowprio' commandline option.
+#ENABLE_SPLITEVAL = True
 #SPLITEVAL_EVALMGR = True
 
 PROBLEM_SOURCES += (
@@ -166,3 +175,25 @@ SHARING_SERVERS = (
 # Complaints
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
 #COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
+
+# Validation (Debug only!)
+# Every response passes through some validator binary, result may be seen
+# at /validator/ url. Each response mimetype may be validated using different
+# validator. You must provide valiator yourself, and fill in
+# OUTPUT_VALIDATOR_VALIDATORS dict. You may for example use "HTML Tidy"
+# opensource valiator for html.
+#
+#if DEBUG:
+#    INSTALLED_APPS += ('oioioi.validator', 'output_validator')
+#
+#    MIDDLEWARE_CLASSES += (
+#        'output_validator.middleware.ValidatorMiddleware',
+#    )
+#
+#    OUTPUT_VALIDATOR_IGNORE_PATHS = [
+#        '/validator/',
+#    ]
+#
+#    OUTPUT_VALIDATOR_VALIDATORS = {
+#        'text/html': '__PATH_TO_VALIDATOR_BINARY__',
+#    }

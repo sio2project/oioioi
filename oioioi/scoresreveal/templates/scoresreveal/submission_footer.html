@@ -1,7 +1,13 @@
 {% load i18n %}
 <div>
 <h4>{% trans "Score revealing" %}</h4>
-<p>{% blocktrans %}You have already used <strong>{{ scores_reveals }}</strong>/{{ scores_reveals_limit }} reveals.{% endblocktrans %}</p>
+<p>
+    {% blocktrans count counter=scores_reveals_limit %}
+        You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveal.
+    {% plural %}
+        You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveals.
+    {% endblocktrans %}
+</p>
 
 {% if submission.submission.revealed %}
     <table class="table auto-width dense space-columns full-grid">
@@ -11,7 +17,13 @@
 {% else %}
         {% if can_reveal %}
             {% if scores_reveals_disable_time %}
-                <p>{% blocktrans %}Scores reveal will be disabled during the last <strong>{{ scores_reveals_disable_time }}</strong> minutes of the round.{% endblocktrans %}</p>
+                <p>
+                    {% blocktrans count counter=scores_reveals_disable_time %}
+                        Scores reveal will be disabled during the last <strong>minute</strong> of the round.
+                    {% plural %}
+                        Scores reveal will be disabled during the last <strong>{{ counter }}</strong> minutes of the round.
+                    {% endblocktrans %}
+                </p>
             {% endif %}
 
             <p><a href="#reveal_confirmation" class="btn" role="button" data-toggle="modal"><i class="icon-align-left"></i> {% trans "Reveal score" %}</a></p>
@@ -24,7 +36,7 @@
                     <p>{% blocktrans %}You are going to reveal your score. <br>Would you like to proceed?{% endblocktrans %}</p>
                 </div>
                 <div class="modal-footer">
-                    <form action="{% url submission_score_reveal submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
+                    <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
                         {% csrf_token %}
                         <button class="btn" data-dismiss="modal">{% trans "No" %}</button>
                         <input type="submit" value="{% trans "Yes" %}" class="btn btn-primary">

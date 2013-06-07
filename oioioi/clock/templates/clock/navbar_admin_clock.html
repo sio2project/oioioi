@@ -6,7 +6,7 @@
         <b class="caret"></b>
     </a>
     <ul class="dropdown-menu"><li class="dropdown-form">
-        <form  action="{% url admin_time %}" method="post">
+        <form action="{% url 'admin_time' %}" method="post">
             {% csrf_token %}
             <div style="display: none">
                 <input type="hidden" name="next" value="{{ path }}">

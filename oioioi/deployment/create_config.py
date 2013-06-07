@@ -10,9 +10,11 @@ import shutil
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+
 def error(message):
-    print >>sys.stderr, "error:", message
+    print >> sys.stderr, "error:", message
     sys.exit(1)
+
 
 def get_timezone():
     try:
@@ -20,12 +22,14 @@ def get_timezone():
     except IOError:
         return 'GMT'
 
+
 def generate_from_template(dir, filename, context):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + '.template')).read()
     for key, value in context.iteritems():
         template = template.replace(key, value)
     open(dest, 'w').write(template)
+
 
 def generate_all(dir):
     generate_from_template(dir, 'settings.py', {
@@ -81,6 +85,7 @@ def generate_all(dir):
     execute([sys.executable, manage_py, 'collectstatic', '--noinput'],
             capture_output=False)
 
+
 def main():
     usage = "usage: %prog [options] dir"
     parser = OptionParser(usage=usage)
@@ -100,6 +105,6 @@ def main():
         shutil.rmtree(dir)
         raise
 
-    print >>sys.stderr
-    print >>sys.stderr, "Initial configuration created. Please adjust "
-    print >>sys.stderr, "settings.py to your taste."
+    print >> sys.stderr
+    print >> sys.stderr, "Initial configuration created. Please adjust "
+    print >> sys.stderr, "settings.py to your taste."

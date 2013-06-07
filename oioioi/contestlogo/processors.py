@@ -4,9 +4,11 @@ from oioioi.contestlogo.models import ContestLogo
 
 TEMPLATE = '<div id="contestlogo"><img src="{{ url }}"></div>'
 
+
 def logo_processor(request):
     if not getattr(request, 'contest', None):
         return {}
+
     def generator():
         try:
             instance = ContestLogo.objects.get(contest=request.contest)

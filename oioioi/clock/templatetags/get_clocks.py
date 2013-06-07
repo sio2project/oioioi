@@ -6,6 +6,7 @@ import time
 
 register = template.Library()
 
+
 @register.inclusion_tag('clock/navbar_clock.html', takes_context=True)
 def navbar_clock(context):
     timestamp = getattr(context['request'], 'timestamp', None)
@@ -17,11 +18,13 @@ def navbar_clock(context):
     return {'current_time': timezone.localtime(timestamp).strftime('%X'),
         'is_admin_time_set': False}
 
+
 @register.inclusion_tag('clock/navbar_admin_clock.html', takes_context=True)
 def navbar_admin_clock(context):
     result = navbar_clock(context)
     result['path'] = context['request'].get_full_path()
     return result
+
 
 @register.inclusion_tag('clock/navbar_countdown.html', takes_context=True)
 def navbar_countdown(context):
@@ -46,7 +49,7 @@ def navbar_countdown(context):
         elapsed_part = 1 - 1. * remaining_seconds / round_duration
     elif next_rounds_times:
         countdown_destination = _("start of the round.")
-        remaining_seconds = time.mktime((next_rounds_times[0].get_start()) \
+        remaining_seconds = time.mktime((next_rounds_times[0].get_start())
             .timetuple()) - time.mktime(timestamp.timetuple())
         round_duration = 0
     else:
@@ -70,31 +73,31 @@ def navbar_countdown(context):
     if days:
         countdown_days = days_str + hours_str + minutes_str + seconds_str
         countdown_text = \
-            ungettext('%(countdown_days)sleft to the %(countdown_destination)s',
-            '%(countdown_days)sleft to the %(countdown_destination)s', days) % \
-            {'countdown_days': countdown_days,
-            'countdown_destination': countdown_destination}
+            ungettext('%(countdown_days)sleft to the %(countdown_dest)s',
+                      '%(countdown_days)sleft to the %(countdown_dest)s',
+                      days) % {'countdown_days': countdown_days,
+                               'countdown_dest': countdown_destination}
     elif hours:
         countdown_hours = hours_str + minutes_str + seconds_str
         countdown_text = \
-            ungettext('%(countdown_hours)sleft to the %(countdown_destination)s',
-            '%(countdown_hours)sleft to the %(countdown_destination)s',
-            hours) % {'countdown_hours': countdown_hours,
-            'countdown_destination': countdown_destination}
+            ungettext('%(countdown_hours)sleft to the %(countdown_dest)s',
+                      '%(countdown_hours)sleft to the %(countdown_dest)s',
+                      hours) % {'countdown_hours': countdown_hours,
+                                'countdown_dest': countdown_destination}
     elif minutes:
         countdown_minutes = minutes_str + seconds_str
         countdown_text = \
-            ungettext('%(countdown_minutes)sleft to the %(countdown_destination)s',
-            '%(countdown_minutes)sleft to the %(countdown_destination)s',
-            minutes) % {'countdown_minutes': countdown_minutes,
-            'countdown_destination': countdown_destination}
+            ungettext('%(countdown_minutes)sleft to the %(countdown_dest)s',
+                      '%(countdown_minutes)sleft to the %(countdown_dest)s',
+                      minutes) % {'countdown_minutes': countdown_minutes,
+                                  'countdown_dest': countdown_destination}
     elif seconds:
         countdown_seconds = seconds_str
         countdown_text = \
-            ungettext('%(countdown_seconds)sleft to the %(countdown_destination)s',
-            '%(countdown_seconds)sleft to the %(countdown_destination)s',
-            seconds) % {'countdown_seconds': countdown_seconds,
-            'countdown_destination': countdown_destination}
+            ungettext('%(countdown_seconds)sleft to the %(countdown_dest)s',
+                      '%(countdown_seconds)sleft to the %(countdown_dest)s',
+                      seconds) % {'countdown_seconds': countdown_seconds,
+                                  'countdown_dest': countdown_destination}
     else:
         if round_duration:
             countdown_text = _("The round is over!")

@@ -11,6 +11,7 @@ import os
 import csv
 import urllib2
 
+
 class Command(BaseCommand):
     COLUMNS = ['number', 'username', 'region_short_name', 'local_number']
     columns_str = ', '.join(COLUMNS)
@@ -81,7 +82,7 @@ class Command(BaseCommand):
                     reg.save()
                 except User.DoesNotExist:
                     self.stdout.write(_("Error for user=%(user)s: user does"
-                        " not exist\n") % {'user':row[1]})
+                        " not exist\n") % {'user': row[1]})
                     ok = False
                 except Region.DoesNotExist:
                     self.stdout.write(_(
@@ -113,4 +114,3 @@ class Command(BaseCommand):
             else:
                 raise CommandError(_("There were some errors. Database not "
                     "changed.\n"))
-

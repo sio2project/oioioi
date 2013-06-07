@@ -16,6 +16,7 @@ TEMPLATE = '''
 </script>
 '''
 
+
 def analytics_processor(request):
     tracking_id = getattr(settings, 'GOOGLE_ANALYTICS_TRACKING_ID', None)
     if tracking_id:

@@ -22,15 +22,17 @@
 # THE SOFTWARE.
 
 import os
-import sys
 import tarfile
 import zipfile
+
 
 class ArchiveException(Exception):
     """Base exception class for all archive errors."""
 
+
 class UnrecognizedArchiveFormat(ArchiveException):
     """Error raised when passed file is not a recognized archive format."""
+
 
 class UnsafeArchive(ArchiveException):
     """
@@ -38,12 +40,14 @@ class UnsafeArchive(ArchiveException):
     outside of the target directory.
     """
 
+
 def extract(path, to_path='', ext='', **kwargs):
     """
     Unpack the tar or zip file at the specified path to the directory
     specified by to_path.
     """
     Archive(path, ext=ext).extract(to_path, **kwargs)
+
 
 class Archive(object):
     """
@@ -93,6 +97,7 @@ class Archive(object):
     def filenames(self):
         return self._archive.filenames()
 
+
 class BaseArchive(object):
     """
     Base Archive class.  Implementations should inherit this class.
@@ -141,6 +146,7 @@ class BaseArchive(object):
                     "Archive member destination is outside the target"
                     " directory.  member: %s" % filename)
 
+
 class TarArchive(BaseArchive):
     def __init__(self, file):
         # tarfile's open uses different parameters for file path vs. file obj.
@@ -160,6 +166,7 @@ class TarArchive(BaseArchive):
                 raise UnsafeArchive("Archive contains symlink: " + finfo.name)
             if finfo.islnk():
                 raise UnsafeArchive("Archive contains hardlink: " + finfo.name)
+
 
 class ZipArchive(BaseArchive):
     def __init__(self, file):

@@ -19,4 +19,3 @@ SU_BACKEND_SESSION_KEY = 'su_effective_backend'
 # Modify django default backend to meet our needs
 ModelBackend.supports_authentication = True
 ModelBackend.description = _("Password authentication")
-

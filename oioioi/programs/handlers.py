@@ -24,6 +24,7 @@ DEFAULT_GROUP_SCORER = \
 DEFAULT_SCORE_AGGREGATOR = \
         'oioioi.programs.utils.sum_score_aggregator'
 
+
 def _make_filename(env, base_name):
     """Create a filename in the filetracker for storing outputs
        from filetracker jobs.
@@ -42,6 +43,7 @@ def _make_filename(env, base_name):
         env['eval_dir'] = eval_dir
     return '%s/%s-%s' % (env['eval_dir'], env['job_id'], base_name)
 
+
 def _if_compiled(fn):
     """A decorator which skips the decorated function if the
        compilation fails.
@@ -55,6 +57,7 @@ def _if_compiled(fn):
             return env
         return fn(env, **kwargs)
     return decorated
+
 
 def compile(env, **kwargs):
     """Compiles source file on the remote machine and returns name of
@@ -88,6 +91,7 @@ def compile(env, **kwargs):
     env['compilation_message'] = new_env.get('compiler_output', '')
     env['compilation_result'] = new_env.get('result_code', 'CE')
     return env
+
 
 @_if_compiled
 @transaction.commit_on_success
@@ -123,6 +127,7 @@ def collect_tests(env, **kwargs):
         env['tests'][test.name] = test_env
 
     return env
+
 
 @_if_compiled
 def run_tests(env, kind=None, **kwargs):
@@ -191,6 +196,7 @@ def run_tests(env, kind=None, **kwargs):
         env['test_results'].setdefault(test_name, {}).update(result)
     return env
 
+
 @_if_compiled
 def grade_tests(env, **kwargs):
     """Grades tests using a scoring function.
@@ -221,6 +227,7 @@ def grade_tests(env, **kwargs):
         test_result['score'] = score and score.serialize()
         test_result['status'] = status
     return env
+
 
 @_if_compiled
 def grade_groups(env, **kwargs):
@@ -269,6 +276,7 @@ def grade_groups(env, **kwargs):
 
     return env
 
+
 def grade_submission(env, kind='NORMAL', **kwargs):
     """Grades submission with specified kind of tests on a `Job` layer.
 
@@ -310,6 +318,7 @@ def grade_submission(env, kind='NORMAL', **kwargs):
     env['status'] = status
     return env
 
+
 def _make_base_report(env, kind):
     """Helper function making: SubmissionReport, ScoreReport, CompilationReport.
 
@@ -347,6 +356,7 @@ def _make_base_report(env, kind):
     compilation_report.save()
 
     return submission, submission_report
+
 
 @transaction.commit_on_success
 def make_report(env, kind='NORMAL', **kwargs):
@@ -405,6 +415,7 @@ def make_report(env, kind='NORMAL', **kwargs):
         group_result['result_id'] = group_report.id
 
     return env
+
 
 def delete_executable(env, **kwargs):
     if 'compiled_file' in env:

@@ -8,8 +8,10 @@ import pprint
 
 logger = logging.getLogger(__name__)
 
+
 def _placeholder(environ, **kwargs):
     return environ
+
 
 def _find_placeholder(recipe, name):
     for i, entry in enumerate(recipe):
@@ -18,28 +20,34 @@ def _find_placeholder(recipe, name):
     else:
         raise IndexError("Placeholder '%s' not found in recipe" % (name,))
 
+
 def recipe_placeholder(name):
     return (name, 'oioioi.evalmgr._placeholder')
+
 
 def add_after_placeholder(environ, name, entry):
     recipe = environ['recipe']
     index = _find_placeholder(recipe, name)
     recipe.insert(index + 1, entry)
 
+
 def add_before_placeholder(environ, name, entry):
     recipe = environ['recipe']
     index = _find_placeholder(recipe, name)
     recipe.insert(index, entry)
+
 
 def extend_after_placeholder(environ, name, entries):
     recipe = environ['recipe']
     index = _find_placeholder(recipe, name)
     recipe[index + 1:index + 1] = entries
 
+
 def extend_before_placeholder(environ, name, entries):
     recipe = environ['recipe']
     index = _find_placeholder(recipe, name)
     recipe[index:index] = entries
+
 
 def replace_recipe_entry(environ, name, new_entry):
     recipe = environ['recipe']
@@ -50,6 +58,7 @@ def replace_recipe_entry(environ, name, new_entry):
     else:
         raise IndexError("Entry '%s' not found" % (name,))
     recipe[index] = new_entry
+
 
 def _run_phase(env, phase, extra_kwargs={}):
     phaseName = phase[0]
@@ -71,6 +80,7 @@ def _run_phase(env, phase, extra_kwargs={}):
             handlerName))
     return env
 
+
 def _run_error_handlers(env, exc_info):
     logger.debug("Handling exception '%s' in job:\n%s",
             exc_info[0], pprint.pformat(env, indent=4))
@@ -86,6 +96,7 @@ def _run_error_handlers(env, exc_info):
                 pprint.pformat(env, indent=4), exc_info=exc_info)
         raise exc_info[0], exc_info[1], exc_info[2]
     return env
+
 
 @task
 def evalmgr_job(env):

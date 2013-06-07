@@ -10,7 +10,7 @@ class ContestPermissionsAuthBackend(object):
         return None
 
     def has_perm(self, user_obj, perm, obj=None):
-        if not user_obj.is_authenticated():
+        if not user_obj.is_authenticated() or not user_obj.is_active:
             return False
         if obj is None or not isinstance(obj, Contest):
             return False

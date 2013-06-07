@@ -3,12 +3,16 @@ from django.contrib.sites.models import RequestSite
 from django.contrib.auth.models import User
 from registration import signals
 from registration.models import RegistrationProfile
-from registration.backends.default import DefaultBackend
+from registration.backends.default.views import \
+    RegistrationView as DefaultRegistrationView
 from oioioi.base.forms import RegistrationFormWithNames
 import registration.backends.default.urls
 import registration.views
 
-class Backend(DefaultBackend):
+
+class RegistrationView(DefaultRegistrationView):
+    form_class = RegistrationFormWithNames
+
     def register(self, request, username, password1, email, first_name,
             last_name, **kwargs):
         user = User.objects.create_user(username, email, password1)
@@ -24,17 +28,9 @@ class Backend(DefaultBackend):
                 request=request)
         return user
 
-    def get_form_class(self, request):
-        return RegistrationFormWithNames
-
-urlpatterns = patterns(
-    url(r'^activate/(?P<activation_key>\w+)/$',
-        registration.views.activate,
-        {'backend': 'oioioi.base.registration_backend.Backend'},
-        name='registration_activate'),
+urlpatterns = patterns('',
     url(r'^register/$',
-        registration.views.register,
-        {'backend': 'oioioi.base.registration_backend.Backend'},
+        RegistrationView.as_view(),
         name='registration_register'),
 )
 urlpatterns += registration.backends.default.urls.urlpatterns

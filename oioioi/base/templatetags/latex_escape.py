@@ -9,9 +9,9 @@ r""" Escape string for generating LaTeX report.
 """
 
 from django import template
-from django.utils.encoding import smart_str
 
 register = template.Library()
+
 
 @register.filter
 def latex_escape(x):
@@ -37,5 +37,5 @@ def latex_escape(x):
     ]
 
     for key, value in repls:
-        res = res.replace(key, value+'\\q{}')
+        res = res.replace(key, value + '\\q{}')
     return res

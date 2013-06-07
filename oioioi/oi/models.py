@@ -2,6 +2,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.validators import validate_whitespaces, \
+        validate_db_string_id
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
 
@@ -42,8 +44,10 @@ CLASS_TYPES = [
     ('6SP', "szósta szkoły podstawowej"),
 ]
 
+
 class Region(models.Model):
-    short_name = models.CharField(max_length=10)
+    short_name = models.CharField(max_length=10,
+        validators=[validate_db_string_id])
     name = models.CharField(max_length=255)
     contest = models.ForeignKey(Contest)
 
@@ -53,8 +57,9 @@ class Region(models.Model):
     def __unicode__(self):
         return '%s' % (self.short_name,)
 
+
 class School(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, validators=[validate_whitespaces])
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = models.CharField(max_length=6, verbose_name=_("postal code"),
         validators=[RegexValidator(r'^\d{2}-\d{3}$',
@@ -71,6 +76,7 @@ class School(models.Model):
     def __unicode__(self):
         return _("%(name)s, %(city)s") % \
                 dict(name=self.name, city=self.city)
+
 
 class OIRegistration(RegistrationModel):
     address = models.CharField(max_length=255, verbose_name=_("address"))
@@ -96,6 +102,7 @@ class OIRegistration(RegistrationModel):
         return _("%(class_type)s of %(school)s") % \
                 dict(class_type=self.get_class_type_display(),
                     school=self.school)
+
 
 class OIOnsiteRegistration(RegistrationModel):
     number = models.IntegerField()

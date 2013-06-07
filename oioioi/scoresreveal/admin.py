@@ -5,6 +5,7 @@ from oioioi.contests.admin import SubmissionAdmin
 from oioioi.scoresreveal.utils import is_revealed
 from oioioi.scoresreveal.models import ScoreRevealConfig
 
+
 class RevealedFilter(SimpleListFilter):
     title = _("revealed")
     parameter_name = 'revealed'
@@ -22,16 +23,19 @@ class RevealedFilter(SimpleListFilter):
         else:
             return queryset
 
+
 class ScoresRevealConfigInline(admin.TabularInline):
     model = ScoreRevealConfig
     can_delete = True
     extra = 0
+
 
 class ScoresRevealProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ScoresRevealProgrammingProblemAdminMixin, self) \
             .__init__(*args, **kwargs)
         self.inlines = self.inlines + [ScoresRevealConfigInline]
+
 
 class ScoresRevealSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):

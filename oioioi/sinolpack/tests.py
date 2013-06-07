@@ -3,14 +3,13 @@
 from django.test import TestCase
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
-from oioioi.problems.package import backend_for_package
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.sinolpack.package import SinolPackageBackend, \
-        DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT
+        DEFAULT_TIME_LIMIT
 from oioioi.contests.models import ProblemInstance, Contest, Round, \
         Submission, UserResultForContest
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment
+from oioioi.problems.models import Problem, ProblemStatement
 from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
         TestReport
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
@@ -21,9 +20,11 @@ from cStringIO import StringIO
 import urllib
 import zipfile
 
+
 @nottest
 def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
+
 
 class TestSinolPackage(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -158,7 +159,7 @@ class TestSinolPackage(TestCase):
 Test._meta.get_all_related_objects()
 
 
-class TestSinolPackageInContest(TestCase):
+class TestSinolPackageInContest(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest']
 
     def test_upload_and_download_package(self):
@@ -204,9 +205,10 @@ class TestSinolPackageInContest(TestCase):
         response = self.client.get(
                 reverse('oioioiadmin:problems_problem_download',
                     args=(problem.id,)))
-        self.assertEqual(response.content, open(filename, 'rb').read())
+        self.assertStreamingEqual(response, open(filename, 'rb').read())
 
-class TestSinolPackageCreator(TestCase):
+
+class TestSinolPackageCreator(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_full_package']
 
     def test_sinol_package_creator(self):
@@ -217,7 +219,7 @@ class TestSinolPackageCreator(TestCase):
                     args=(problem.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/zip')
-        stream = StringIO(response.content)
+        stream = StringIO(self.streamingContent(response))
         zip = zipfile.ZipFile(stream, 'r')
         self.assertEqual(sorted(zip.namelist()), [
                 'sum/doc/sumzad.pdf',
@@ -238,6 +240,7 @@ class TestSinolPackageCreator(TestCase):
                 'sum/prog/sumb0.c',
                 'sum/prog/sums1.cpp',
             ])
+
 
 class TestJudging(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']

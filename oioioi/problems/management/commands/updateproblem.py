@@ -4,6 +4,7 @@ from oioioi.problems.models import Problem
 from oioioi.problems.package import backend_for_package
 import os.path
 
+
 class Command(BaseCommand):
     args = _("<problem_id> <filename>")
     help = _("Updates an existing problem using the given package file.")

@@ -10,6 +10,7 @@ from oioioi.problems.models import Problem
 submission_kinds.register('TESTRUN', _("Test run"))
 submission_report_kinds.register('TESTRUN', _("Test run report"))
 
+
 class TestRunConfig(models.Model):
     """Represents a test run config for problem.
 
@@ -28,14 +29,17 @@ class TestRunConfig(models.Model):
         verbose_name = _("test run config")
         verbose_name_plural = _("test run configs")
 
+
 def make_custom_input_filename(instance, filename):
     if not instance.id:
         instance.save()
     return 'testruns/%s/%d/in' % (instance.problem_instance.contest.id,
             instance.id)
 
+
 class TestRunProgramSubmission(ProgramSubmission):
     input_file = FileField(upload_to=make_custom_input_filename)
+
 
 def make_custom_output_filename(instance, filename):
     # This code is dead (it's result is ignored) with current implementation
@@ -43,6 +47,7 @@ def make_custom_output_filename(instance, filename):
     submission = instance.submission_report.submission
     return 'testruns/%s/%d/%d-out' % (submission.problem_instance.contest.id,
             submission.id, instance.submission_report.id)
+
 
 class TestRunReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)

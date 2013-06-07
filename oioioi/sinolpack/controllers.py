@@ -4,6 +4,7 @@ from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from oioioi.programs.controllers import ProgrammingProblemController
 from oioioi.filetracker.utils import django_to_filetracker_path
 
+
 class SinolProblemController(ProgrammingProblemController):
     description = _("Sinol package problem")
 

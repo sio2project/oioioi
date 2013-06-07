@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.utils.html import strip_tags, escape
 from django.core.urlresolvers import reverse
 
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Submission, ProblemInstance, Contest
@@ -9,6 +10,7 @@ from oioioi.programs.models import Test, ModelSolution
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.contests.scores import IntegerScore
 from oioioi.base.utils import memoized_property
+
 
 # Don't Repeat Yourself.
 # Serves for both TestProgramsViews and TestProgramsXssViews
@@ -23,7 +25,8 @@ def extract_code(show_response):
         show_response.content[preStart:preEnd]
     )
 
-class TestProgramsViews(TestCase):
+
+class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
 
@@ -42,10 +45,12 @@ class TestProgramsViews(TestCase):
         # Extract code from <pre>'s
         extract_code(show_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
-        download_response.content = escape(download_response.content)
+        download_response_content = \
+            escape(self.streamingContent(download_response))
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
-        self.assertEqual(show_response.content, download_response.content)
+        self.assertTrue(download_response.streaming)
+        self.assertEqual(show_response.content, download_response_content)
         self.assertIn('main()', show_response.content)
         self.assertTrue(show_response.content.strip().endswith('}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
@@ -57,10 +62,10 @@ class TestProgramsViews(TestCase):
         kwargs = {'test_id': test.id}
         response = self.client.get(reverse('download_input_file',
             kwargs=kwargs))
-        self.assertEqual(response.content.strip(), '1 2')
+        self.assertStreamingEqual(response, '1 2\n')
         response = self.client.get(reverse('download_output_file',
             kwargs=kwargs))
-        self.assertEqual(response.content.strip(), '3')
+        self.assertStreamingEqual(response, '3\n')
 
     def test_submissions_permissions(self):
         submission = Submission.objects.get(pk=1)
@@ -69,6 +74,10 @@ class TestProgramsViews(TestCase):
             check_not_accessible(self, view, kwargs={
                 'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id})
+        check_not_accessible(self, 'source_diff', kwargs={
+            'contest_id': submission.problem_instance.contest.id,
+            'submission1_id': submission.id,
+            'submission2_id': submission.id})
         for view in ['download_input_file', 'download_output_file']:
             check_not_accessible(self, view, kwargs={'test_id': test.id})
         self.client.login(user='test_user')
@@ -92,7 +101,8 @@ class TestProgramsViews(TestCase):
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)
         self.assertEqual(response.content.count('>10.00s<'), 5)
 
-class TestProgramsXssViews(TestCase):
+
+class TestProgramsXssViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission_xss']
 
@@ -104,23 +114,124 @@ class TestProgramsXssViews(TestCase):
         # Download shown response.
         show_response = self.client.get(reverse('show_submission_source',
             kwargs=kwargs))
-        self.assertEqual(show_response.status_code, 200)
         # Download plain text response.
         download_response = self.client.get(reverse(
             'download_submission_source', kwargs=kwargs))
+        # Get code from diff view
+        diff_response = self.client.get(reverse('source_diff',
+            kwargs={'contest_id': submission.problem_instance.contest.id,
+                    'submission1_id': submission.id,
+                    'submission2_id': submission.id}))
+        # Response status before extract_code
+        self.assertEqual(show_response.status_code, 200)
+        self.assertEqual(diff_response.status_code, 200)
         # Extract code from <pre>'s
         extract_code(show_response)
+        extract_code(diff_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
-        download_response.content = escape(download_response.content)
+        download_response_content = \
+            escape(self.streamingContent(download_response))
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
-        self.assertEqual(show_response.content, download_response.content)
+        self.assertTrue(download_response.streaming)
+        self.assertEqual(show_response.content, download_response_content)
         self.assertEqual(show_response.content.find('<script>'), -1)
-        self.assertEqual(download_response.content.find('<script>'), -1)
+        self.assertEqual(diff_response.content.find('<script>'), -1)
+        self.assertEqual(download_response_content.find('<script>'), -1)
         self.assertIn('main()', show_response.content)
+        self.assertIn('main()', diff_response.content)
         self.assertTrue(show_response.content.strip().endswith('}'))
+        self.assertTrue(diff_response.content.strip().endswith('}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
             'attachment'))
+
+
+class TestOtherSubmissions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission', 'test_submissions_CE']
+
+    def _test_get(self, username):
+        self.client.login(username=username)
+        submission = Submission.objects.get(pk=1)
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('other-submissions', response.content)
+        self.assertIn('subm_status subm_OK', response.content)
+        self.assertIn('subm_status subm_CE', response.content)
+
+    def test_admin(self):
+        self._test_get('test_admin')
+
+    def test_user(self):
+        self._test_get('test_user')
+
+
+class TestNoOtherSubmissions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission']
+
+    def _test_get(self, username):
+        self.client.login(username=username)
+        submission = Submission.objects.get(pk=1)
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('other-submissions', response.content)
+        self.assertIn('subm_status subm_OK', response.content)
+
+    def test_admin(self):
+        self._test_get('test_admin')
+
+    def test_user(self):
+        self._test_get('test_user')
+
+
+class TestDiffView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission', 'test_another_submission']
+
+    def test_saving_button(self):
+        self.client.login(username='test_admin')
+        submission = Submission.objects.get(pk=1)
+        submission2 = Submission.objects.get(pk=2)
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                  'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertContains(response, 'id="diff-button-save"')
+        response = self.client.get(reverse('save_diff_id', kwargs=kwargs))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertContains(response, 'id="diff-button-do"')
+        kwargs2 = {'contest_id': submission.problem_instance.contest.id,
+                   'submission1_id': submission.id,
+                   'submission2_id': submission2.id}
+        self.assertIn(reverse('source_diff', kwargs=kwargs2),
+                response.content)
+        response = self.client.get(reverse('source_diff', kwargs=kwargs2))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertContains(response, 'id="diff-button-save"')
+
+    def test_diff_view(self):
+        self.client.login(username='test_admin')
+        submission1 = Submission.objects.get(pk=1)
+        submission2 = Submission.objects.get(pk=2)
+        kwargs = {'contest_id': submission1.problem_instance.contest.id,
+                  'submission1_id': submission1.id,
+                  'submission2_id': submission2.id}
+        kwargsrev = {'contest_id': submission1.problem_instance.contest.id,
+                     'submission1_id': submission2.id,
+                     'submission2_id': submission1.id}
+        response = self.client.get(reverse('source_diff', kwargs=kwargs))
+        self.assertContains(response, reverse('source_diff', kwargs=kwargsrev))
+        self.assertIn('diff-line left', response.content)
+        self.assertIn('diff-line right', response.content)
+        self.assertIn('diff-num left', response.content)
+        self.assertIn('diff-num right', response.content)
+
 
 class TestSubmissionAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -136,6 +247,8 @@ class TestSubmissionAdmin(TestCase):
         self.assertIn('(sum.c)', response.content)
         self.assertIn('test_user', response.content)
         self.assertIn('subm_status subm_OK', response.content)
+        self.assertIn('submission_diff_action', response.content)
+
 
 class TestSubmittingAsAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -178,6 +291,7 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
 
+
 class TestSubmittingAsObserver(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_permissions']
@@ -211,6 +325,7 @@ class TestSubmittingAsObserver(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
+
 
 class TestScorers(TestCase):
     t_results_ok = (

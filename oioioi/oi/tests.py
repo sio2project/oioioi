@@ -16,6 +16,7 @@ from oioioi.oi.management.commands import import_onsite_participants, \
 from datetime import datetime
 import os
 
+
 class TestOIAdmin(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -25,7 +26,8 @@ class TestOIAdmin(TestCase):
         contest.save()
 
         self.client.login(username='test_admin')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
         self.assertIn('Schools', response.content)
         self.assertNotIn('Regions', response.content)
 
@@ -35,6 +37,7 @@ class TestOIAdmin(TestCase):
         manager = import_schools.Command()
         manager.run_from_argv(['manage.py', 'import_schools', filename])
         self.assertEqual(School.objects.count(), 3)
+
 
 class TestOIOnsiteAdmin(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -46,7 +49,8 @@ class TestOIOnsiteAdmin(TestCase):
         contest.save()
 
         self.client.login(username='test_admin')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
         self.assertIn('Schools', response.content)
         self.assertIn('Regions', response.content)
 
@@ -97,6 +101,7 @@ class TestOIOnsiteAdmin(TestCase):
         self.assertEqual(p.status, 'ACTIVE')
         self.assertEqual(force_unicode(p.registration_model), '1/waw/1')
 
+
 class TestOIRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -105,8 +110,10 @@ class TestOIRegistration(TestCase):
         contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
 
@@ -115,7 +122,7 @@ class TestOIRegistration(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertIn('Edit contest registration', response.content)
 
@@ -124,9 +131,11 @@ class TestOIRegistration(TestCase):
         contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
+        url = reverse('participants_unregister',
+                      kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         user = User.objects.get(username='test_user')
@@ -135,18 +144,17 @@ class TestOIRegistration(TestCase):
         self.assertEqual(Participant.objects.count(), 1)
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(302, response.status_code)
         self.assertEqual(Participant.objects.count(), 0)
+
 
 class TestOIOnsiteRegistration(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -164,7 +172,6 @@ class TestOIOnsiteRegistration(TestCase):
         self.assertRaises(ObjectDoesNotExist,
             lambda: getattr(p, 'registration_model'))
 
-
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()
         contest.controller_name = \
@@ -176,7 +183,8 @@ class TestOIOnsiteRegistration(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
 
@@ -186,9 +194,11 @@ class TestOIOnsiteRegistration(TestCase):
                 'oioioi.oi.controllers.OIOnsiteContestController'
         contest.save()
 
+        url = reverse('participants_unregister',
+                      kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         user = User.objects.get(username='test_user')
@@ -197,17 +207,16 @@ class TestOIOnsiteRegistration(TestCase):
         self.assertEqual(Participant.objects.count(), 1)
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.post('/c/%s/unregister' % (contest.id,),
-                                    {'post': 'yes'})
+        response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
+
 
 class TestOIViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -234,20 +243,23 @@ class TestOIViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user2')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
+
 
 class TestOIOnsiteViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -294,8 +306,10 @@ class TestOIOnsiteViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
         self.client.login(username='test_user2')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
         self.assertNotIn('My submissions', response.content)
@@ -303,7 +317,7 @@ class TestOIOnsiteViews(TestCase):
         self.assertIn('Log out', response.content)
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
         self.assertNotIn('My submissions', response.content)
@@ -314,8 +328,9 @@ class TestOIOnsiteViews(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        response = self.client.get('/c/%s/' % (contest.id,), follow=True)
+        response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
+
 
 class TestOISubmit(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -340,17 +355,17 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             self.client.logout()
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
             self.client.login(username='test_user2')
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
             p.status = 'ACTIVE'
             p.save()
@@ -358,6 +373,7 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
+
 
 class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
@@ -399,6 +415,7 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
+
 class TestIgnoringCE(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission',
         'test_submissions_CE']
@@ -415,7 +432,7 @@ class TestIgnoringCE(TestCase):
 
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        for i in range(1,3):
+        for i in [1, 3]:
             test_env['submission_id'] = i
             update_user_results(test_env)
 
@@ -428,4 +445,3 @@ class TestIgnoringCE(TestCase):
     def test_all_oi_style_contests(self):
         self._test('oioioi.oi.controllers.OIContestController')
         self._test('oioioi.oi.controllers.OIOnsiteContestController')
-

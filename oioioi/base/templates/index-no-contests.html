@@ -11,9 +11,9 @@
 {% endblock %}
 
 {% block content %}
-{% url oioioiadmin:contests_contest_add as new_contest_link %}
-{% url auth_login as login_link %}
-{% url registration_register as reg_link %}
+{% url 'oioioiadmin:contests_contest_add' as new_contest_link %}
+{% url 'auth_login' as login_link %}
+{% url 'registration_register' as reg_link %}
 <div class="empty-space-filler">
     {% if user.is_superuser %}
     {% blocktrans %}

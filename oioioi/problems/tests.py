@@ -2,12 +2,15 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.models import Problem, ProblemStatement, \
         make_problem_filename
 
+
 class TestProblemController(ProblemController):
     pass
+
 
 class TestModels(TestCase):
     def test_problem_controller_property(self):
@@ -23,7 +26,8 @@ class TestModels(TestCase):
         self.assertEqual(make_problem_filename(ps, 'a/hej.txt'),
                 'problems/12/hej.txt')
 
-class TestProblemViews(TestCase):
+
+class TestProblemViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_problem_statement_view(self):
@@ -31,7 +35,8 @@ class TestProblemViews(TestCase):
         statement = ProblemStatement.objects.get()
         url = reverse('show_statement', kwargs={'statement_id': statement.id})
         response = self.client.get(url)
-        self.assertTrue(response.content.startswith('%PDF'))
+        content = self.streamingContent(response)
+        self.assertTrue(content.startswith('%PDF'))
 
         self.client.login(username='test_user')
         response = self.client.get(url)

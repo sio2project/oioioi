@@ -1,0 +1,12 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Test run" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Test run" %}</h2>
+<div class="empty-space-filler">
+    {% blocktrans %}Sorry, there are no problems for which you could run your
+    own test...{% endblocktrans %}
+</div>
+{% endblock %}

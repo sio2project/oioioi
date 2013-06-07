@@ -11,10 +11,10 @@ from django.utils.encoding import force_unicode
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.admin import ProblemAdmin
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
         GroupReport, ModelProgramSubmission, OutputChecker
 from collections import defaultdict
+
 
 class TestInline(admin.TabularInline):
     model = Test
@@ -33,6 +33,15 @@ class TestInline(admin.TabularInline):
             'all': ('programs/admin.css',),
         }
 
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
     def input_file_link(self, instance):
         href = reverse('oioioi.programs.views.download_input_file_view',
                 kwargs={'test_id': str(instance.id)})
@@ -45,6 +54,7 @@ class TestInline(admin.TabularInline):
         return make_html_link(href, instance.output_file.name.split('/')[-1])
     output_file_link.short_description = _("Output/hint file")
 
+
 class OutputCheckerInline(admin.TabularInline):
     model = OutputChecker
     extra = 0
@@ -53,6 +63,12 @@ class OutputCheckerInline(admin.TabularInline):
     can_delete = False
 
     def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
     def checker_link(self, instance):
@@ -64,10 +80,12 @@ class OutputCheckerInline(admin.TabularInline):
         return make_html_link(href, instance.exe_file.name.split('/')[-1])
     checker_link.short_description = _("Checker exe")
 
+
 class ProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [TestInline, OutputCheckerInline]
+
 
 class ProgrammingProblemInstanceAdminMixin(object):
     def _is_partial_score(self, test_report):
@@ -148,7 +166,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
         extra_urls = patterns('',
                 url(r'(\d+)/models/$', self.model_solutions_view,
                     name='contests_probleminstance_models'),
-                url(r'(\d+)/models/rejudge$',
+                url(r'(\d+)/models/rejudge/$',
                     self.rejudge_model_solutions_view,
                     name='contests_probleminstance_models_rejudge'),
             )
@@ -165,6 +183,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
 
 ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
 
+
 class ModelSubmissionAdminMixin(object):
     def user_full_name(self, instance):
         if not instance.user:
@@ -175,8 +194,11 @@ class ModelSubmissionAdminMixin(object):
                     return '(%s)' % (conditional_escape(force_unicode(
                         instance.model_solution.name)),)
         return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
-    user_full_name.short_description = SubmissionAdmin.user_full_name.short_description
-    user_full_name.admin_order_field = SubmissionAdmin.user_full_name.admin_order_field
+
+    user_full_name.short_description = \
+            SubmissionAdmin.user_full_name.short_description
+    user_full_name.admin_order_field = \
+            SubmissionAdmin.user_full_name.admin_order_field
 
     def get_list_select_related(self):
         return super(ModelSubmissionAdminMixin, self) \
@@ -184,3 +206,23 @@ class ModelSubmissionAdminMixin(object):
                 + ['programsubmission', 'modelprogramsubmission']
 
 SubmissionAdmin.mix_in(ModelSubmissionAdminMixin)
+
+
+class ProgramSubmissionAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        self.actions += ['submission_diff_action']
+
+    def submission_diff_action(self, request, queryset):
+        if len(queryset) != 2:
+            messages.error(request,
+                    _("You shall select exactly two submissions to diff"))
+            return None
+
+        id1, id2 = queryset[0].id, queryset[1].id
+
+        return redirect('source_diff', contest_id=request.contest.id,
+                        submission1_id=id1, submission2_id=id2)
+    submission_diff_action.short_description = _("Diff submissions")
+
+SubmissionAdmin.mix_in(ProgramSubmissionAdminMixin)

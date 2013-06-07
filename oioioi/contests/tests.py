@@ -15,12 +15,14 @@ from django.contrib.auth.models import User, AnonymousUser
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
-        RoundTimeExtension, ContestPermission, UserResultForProblem
+        RoundTimeExtension, ContestPermission, UserResultForProblem, \
+        ContestView
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest
+from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -36,11 +38,13 @@ class TestModels(TestCase):
         round = Round(contest=contest)
         round.save()
         self.assertEqual(round.name, 'Round 2')
-        problem = Problem()
+        problem = Problem(short_name='A')
         problem.save()
         pi = ProblemInstance(round=round, problem=problem)
         pi.save()
         self.assertEqual(pi.contest, contest)
+        self.assertEqual(pi.short_name, 'a')
+
 
 class TestScores(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -87,10 +91,12 @@ class TestScores(TestCase):
 def print_contest_id_view(request, contest_id=None):
     return HttpResponse(str(request.contest.id))
 
+
 def render_contest_id_view(request):
     t = Template('{{ contest.id }}')
     print RequestContext(request)
     return HttpResponse(t.render(RequestContext(request)))
+
 
 class TestCurrentContest(TestCase):
     urls = 'oioioi.contests.test_urls'
@@ -98,25 +104,22 @@ class TestCurrentContest(TestCase):
 
     @override_settings(DEFAULT_CONTEST='c2')
     def test_current_contest_session(self):
-        self.assertEqual(self.client.get('/c/c1/id').content, 'c1')
-        self.assertEqual(self.client.get('/contest_id').content, 'c1')
-        self.assertEqual(self.client.get('/c/c2/id').content, 'c2')
-        self.assertEqual(self.client.get('/contest_id').content, 'c2')
+        self.assertEqual(self.client.get('/c/c1/id/').content, 'c1')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c1')
+        self.assertEqual(self.client.get('/c/c2/id/').content, 'c2')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
 
     def test_current_contest_most_recent(self):
-        self.assertEqual(self.client.get('/contest_id').content, 'c2')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
 
     @override_settings(DEFAULT_CONTEST='c1')
     def test_current_contest_from_settings(self):
-        self.assertEqual(self.client.get('/contest_id').content, 'c1')
-
-    @override_settings(DEFAULT_CONTEST='c2', ONLY_DEFAULT_CONTEST=True)
-    def test_only_default_contest(self):
-        self.assertEqual(self.client.get('/c/c1/id').status_code, 404)
+        self.assertEqual(self.client.get('/contest_id/').content, 'c1')
 
     def test_current_contest_processor(self):
-        #self.assertEqual(self.client.get('/contest_id').content, 'c2')
-        self.assertEqual(self.client.get('/render_contest_id').content, 'c2')
+        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
+        self.assertEqual(self.client.get('/render_contest_id/').content, 'c2')
+
 
 class TestContestController(TestCase):
     fixtures = ['test_contest', 'test_extra_rounds']
@@ -127,16 +130,16 @@ class TestContestController(TestCase):
         r2 = Round.objects.get(pk=2)
         r3 = Round.objects.get(pk=3)
 
-        r1.start_date = datetime(2012, 1, 1,  8,  0, tzinfo=utc)
-        r1.end_date =   datetime(2012, 1, 1, 10,  0, tzinfo=utc)
+        r1.start_date = datetime(2012, 1, 1, 8, 0, tzinfo=utc)
+        r1.end_date = datetime(2012, 1, 1, 10, 0, tzinfo=utc)
         r1.save()
 
-        r2.start_date = datetime(2012, 1, 1,  9, 59, tzinfo=utc)
-        r2.end_date =   datetime(2012, 1, 1, 11, 00, tzinfo=utc)
+        r2.start_date = datetime(2012, 1, 1, 9, 59, tzinfo=utc)
+        r2.end_date = datetime(2012, 1, 1, 11, 00, tzinfo=utc)
         r2.save()
 
-        r3.start_date = datetime(2012, 1, 2,  8,  0, tzinfo=utc)
-        r3.end_date  =  datetime(2012, 1, 2, 10,  0, tzinfo=utc)
+        r3.start_date = datetime(2012, 1, 2, 8, 0, tzinfo=utc)
+        r3.end_date = datetime(2012, 1, 2, 10, 0, tzinfo=utc)
         r3.save()
 
         rounds = [r1, r2, r3]
@@ -165,19 +168,53 @@ class TestContestController(TestCase):
             self.assertEqual(contest.controller.order_rounds_by_focus(
                 FakeRequest(date, contest), rounds), expected_order)
 
+
 class PrivateRegistrationController(RegistrationController):
     def anonymous_can_enter_contest(self):
         return False
+
     def filter_participants(self, queryset):
         return queryset.none()
+
 
 class PrivateContestController(ContestController):
     def registration_controller(self):
         return PrivateRegistrationController(self.contest)
 
+
 class TestContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_submission']
+
+    def test_recent_contests_list(self):
+        contest = Contest.objects.get()
+        invisible_contest = Contest(id='invisible', name='Invisible Contest',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        invisible_contest.save()
+
+        self.client.login(username='test_admin')
+        self.client.get('/c/%s/dashboard/' % contest.id)
+        self.client.get('/c/%s/dashboard/' % invisible_contest.id)
+        response = self.client.get(reverse('select_contest'))
+        self.assertEqual(len(response.context['contests']), 2)
+        self.assertContains(response, 'Test contest')
+        self.assertContains(response, 'Invisible Contest')
+        self.client.logout()
+
+        self.client.login(username='test_admin')
+        response = self.client.get('/c/%s/dashboard/' % contest.id)
+        self.assertIn('dropdown open', response.content)
+        response = self.client.get('/c/%s/dashboard/' % contest.id)
+        self.assertNotIn('dropdown open', response.content)
+
+        contests = [cv.contest for cv in ContestView.objects.all()]
+        self.assertEqual(contests, [contest, invisible_contest])
+
+        self.client.get('/c/%s/dashboard/' % invisible_contest.id)
+        response = self.client.get(reverse('select_contest'))
+        self.assertEqual(len(response.context['contests']), 2)
+        contests = [cv.contest for cv in ContestView.objects.all()]
+        self.assertEqual(contests, [invisible_contest, contest])
 
     def test_contest_visibility(self):
         invisible_contest = Contest(id='invisible', name='Invisible Contest',
@@ -201,6 +238,7 @@ class TestContestViews(TestCase):
         self.client.login(username='test_user')
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
+
         def count_templates(name):
             return len([t for t in response.templates if t.name == name])
         self.assertEqual(count_templates('programs/submission_header.html'), 1)
@@ -239,6 +277,7 @@ class TestContestViews(TestCase):
                 kwargs={'contest_id': contest.id})
         check_not_accessible(self, 'contest_files',
                 kwargs={'contest_id': contest.id})
+
 
 class TestManyRounds(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission',
@@ -331,7 +370,8 @@ class TestManyRounds(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 2)
 
-class TestMultilingualStatements(TestCase):
+
+class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_extra_statements']
 
@@ -341,23 +381,26 @@ class TestMultilingualStatements(TestCase):
             'contest_id': pi.contest.id,
             'problem_instance': pi.short_name})
         response = self.client.get(url)
-        self.assertEqual('en-txt', response.content)
+        self.assertStreamingEqual(response, 'en-txt')
         self.client.cookies['lang'] = 'en'
         response = self.client.get(url)
-        self.assertEqual('en-txt', response.content)
+        self.assertStreamingEqual(response, 'en-txt')
         self.client.cookies['lang'] = 'pl'
         response = self.client.get(url)
-        self.assertEqual('pl-pdf', response.content)
+        self.assertStreamingEqual(response, 'pl-pdf')
         ProblemStatement.objects.filter(language='pl').delete()
         response = self.client.get(url)
-        self.assertIn('%PDF', response.content)
+        self.assertTrue(response.streaming)
+        content = self.streamingContent(response)
+        self.assertIn('%PDF', content)
         ProblemStatement.objects.get(language__isnull=True).delete()
         response = self.client.get(url)
-        self.assertEqual('en-txt', response.content)
+        self.assertStreamingEqual(response, 'en-txt')
 
 
 def failing_handler(env):
     raise RuntimeError('EXPECTED FAILURE')
+
 
 class BrokenContestController(ProgrammingContestController):
     def fill_evaluation_environ(self, environ, submission):
@@ -366,6 +409,7 @@ class BrokenContestController(ProgrammingContestController):
         environ['recipe'] = [
                 ('failing_handler', 'oioioi.contests.tests.failing_handler'),
             ]
+
 
 class TestRejudgeAndFailure(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -410,6 +454,7 @@ class TestRejudgeAndFailure(TestCase):
         self.assertNotIn('failure report', response.content)
         self.assertNotIn('EXPECTED FAILURE', response.content)
 
+
 class TestContestAdmin(TestCase):
     fixtures = ['test_users']
 
@@ -427,8 +472,9 @@ class TestContestAdmin(TestCase):
                 'end_date_1': '05:06:07',
                 'results_date_0': '2012-02-05',
                 'results_date_1': '06:07:08',
-                'controller_name': 'oioioi.programs.controllers.ProgrammingContestController'
-            }
+                'controller_name':
+                    'oioioi.programs.controllers.ProgrammingContestController',
+        }
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn('was added successfully', response.content)
@@ -492,7 +538,8 @@ class TestContestAdmin(TestCase):
         self.assertIn("Start date should be before end date.",
                 response.content)
 
-class TestAttachments(TestCase):
+
+class TestAttachments(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
     def test_attachments(self):
@@ -506,20 +553,46 @@ class TestAttachments(TestCase):
                 description='problem-attachment',
                 content=ContentFile('content-of-probatt', name='probatt.txt'))
         pa.save()
+        round = Round.objects.get(pk=1)
+        ra = ContestAttachment(contest=contest, description='round-attachment',
+                content=ContentFile('content-of-roundatt', name='roundatt.txt'),
+                round=round)
+        ra.save()
 
         self.client.login(username='test_user')
         response = self.client.get(reverse('contest_files',
             kwargs={'contest_id': contest.id}))
         self.assertEqual(response.status_code, 200)
         for part in ['contest-attachment', 'conatt.txt', 'problem-attachment',
-                'probatt.txt']:
+                     'probatt.txt', 'round-attachment', 'roundatt.txt']:
             self.assertIn(part, response.content)
         response = self.client.get(reverse('contest_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
-        self.assertEqual(response.content, 'content-of-conatt')
+        self.assertStreamingEqual(response, 'content-of-conatt')
         response = self.client.get(reverse('problem_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
-        self.assertEqual(response.content, 'content-of-probatt')
+        self.assertStreamingEqual(response, 'content-of-probatt')
+        response = self.client.get(reverse('contest_attachment',
+            kwargs={'contest_id': contest.id, 'attachment_id': ra.id}))
+        self.assertStreamingEqual(response, 'content-of-roundatt')
+
+        with fake_time(datetime(2011, 7, 10, tzinfo=utc)):
+            response = self.client.get(reverse('contest_files',
+                kwargs={'contest_id': contest.id}))
+            self.assertEqual(response.status_code, 200)
+            for part in ['contest-attachment', 'conatt.txt']:
+                self.assertIn(part, response.content)
+            for part in ['problem-attachment', 'probatt.txt',
+                         'round-attachment', 'roundatt.txt']:
+                self.assertNotIn(part, response.content)
+            response = self.client.get(reverse('contest_attachment',
+                kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
+            self.assertStreamingEqual(response, 'content-of-conatt')
+            check_not_accessible(self, 'problem_attachment',
+                 kwargs={'contest_id': contest.id, 'attachment_id': pa.id})
+            check_not_accessible(self, 'contest_attachment',
+                 kwargs={'contest_id': contest.id, 'attachment_id': ra.id})
+
 
 class SubmitFileMixin(object):
     def submit_file(self, contest, problem_instance, file_size=1024,
@@ -562,7 +635,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
@@ -579,7 +652,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
     def test_huge_submission(self):
         contest = Contest.objects.get()
@@ -630,6 +703,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance, file_name='a.c')
         self._assertSubmitted(contest, response)
 
+
 class TestRoundExtension(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_extra_rounds']
@@ -657,7 +731,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
             self.client.login(username='test_user2')
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
             self.client.login(username='test_user')
             response = self.submit_file(contest, problem_instance1)
             self._assertSubmitted(contest, response)
@@ -665,12 +739,12 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 8, 5, 0, 11, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
         with fake_time(datetime(2012, 8, 12, 0, 5, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance2)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Select a valid choice.', response.content)
+            self.assertIn('Sorry, there are no problems', response.content)
 
     def test_round_extension_admin(self):
         self.client.login(username='test_admin')
@@ -691,7 +765,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         self.assertEqual(rext.user, User.objects.get(pk=1001))
         self.assertEqual(rext.extra_time, 31415926)
 
-        url = reverse('oioioiadmin:contests_roundtimeextension_change', \
+        url = reverse('oioioiadmin:contests_roundtimeextension_change',
                 args=('1',))
         response = self.client.get(url)
         self.assertIn('31415926', response.content)
@@ -789,6 +863,7 @@ class TestPermissions(TestCase):
         response = self.client.get(reverse('problems_list',
             kwargs={'contest_id': self.contest.id}), follow=True)
         self.assertIn('Observer Menu', response.content)
+
 
 class TestSubmissionChangeKind(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

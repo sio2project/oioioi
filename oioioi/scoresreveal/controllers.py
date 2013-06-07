@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from oioioi.contests.models import Submission
 from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.controllers import ProgrammingProblemController, \
@@ -19,6 +19,7 @@ class ScoresRevealProblemControllerMixin(object):
             .mixins_for_admin() + (ScoresRevealProgrammingProblemAdminMixin,)
 
 ProgrammingProblemController.mix_in(ScoresRevealProblemControllerMixin)
+
 
 class ScoresRevealContestControllerMixin(object):
     def can_see_submission_score(self, request, submission):
@@ -63,13 +64,17 @@ class ScoresRevealContestControllerMixin(object):
         if self.is_scores_reveals_limit_reached(request.user, pi):
             return False, _("You have already reached the reveals limit.")
         if self.is_scores_reveals_disabled(request, pi):
+            minutes_disabled = self.get_scores_reveals_disable_time(
+                submission.problem_instance)
             return False, \
-                mark_safe(_("Scores revealing is disabled during the last "
-                            "<strong>%(scores_reveals_disable_time)d</strong> "
-                            "minutes of the round.") % \
-                            {'scores_reveals_disable_time':
-                                 self.get_scores_reveals_disable_time(
-                                     submission.problem_instance) })
+                mark_safe(ungettext_lazy(
+                    "Scores revealing is disabled during the last "
+                    "<strong>minute</strong> of the round.",
+                    "Scores revealing is disabled during the last "
+                    "<strong>%(scores_reveals_disable_time)d</strong> "
+                    "minutes of the round.",
+                    minutes_disabled) %
+                    {'scores_reveals_disable_time': minutes_disabled})
         if submission.status == 'CE':
             return False, _("You cannot reveal the score of the submission "
                 "with status \"Compilation Error\".")

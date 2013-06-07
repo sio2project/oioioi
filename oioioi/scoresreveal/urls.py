@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 contest_patterns = patterns('oioioi.scoresreveal.views',
-    url(r'^s/(?P<submission_id>\d+)/reveal$', 'score_reveal_view',
+    url(r'^s/(?P<submission_id>\d+)/reveal/$', 'score_reveal_view',
         name='submission_score_reveal'),
 )
 

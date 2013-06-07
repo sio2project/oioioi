@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, include, url
 
 printing_patterns = patterns('oioioi.printing.views',
-    url(r'^printing$', 'print_view', name='print_view'),
+    url(r'^printing/$', 'print_view', name='print_view'),
 )
 
 urlpatterns = patterns('oioioi.contests.views',

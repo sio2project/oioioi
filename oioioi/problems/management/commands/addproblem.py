@@ -3,6 +3,7 @@ from django.utils.translation import ugettext as _
 from oioioi.problems.package import backend_for_package
 import os.path
 
+
 class Command(BaseCommand):
     args = _("<filename>")
     help = _("Adds the problem from the given package to the database.")

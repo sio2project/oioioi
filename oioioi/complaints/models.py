@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Contest
 
+
 class ComplaintsConfig(models.Model):
     contest = models.OneToOneField(Contest,
                         related_name='complaints_config')

@@ -1,6 +1,8 @@
 import random
 import sys
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 import os.path
 import re
 import tempfile
@@ -8,6 +10,7 @@ import shutil
 from contextlib import contextmanager
 import threading
 import urllib
+import subprocess
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -19,13 +22,14 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import RequestFactory
-from django.contrib.auth.models import User
-from django.template import Context, Template, RequestContext
-from django.template.loader import render_to_string
+from django.contrib.auth.models import User, AnonymousUser
+from django.template import Context, Template
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import utils
+from oioioi.base.permissions import is_superuser, Condition, make_condition, \
+    make_request_condition, RequestBasedCondition, enforce_condition
 from oioioi.base.utils import RegisteredSubclassesBase, archive
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
@@ -35,15 +39,16 @@ from oioioi.contests.utils import is_contest_admin
 
 
 if not getattr(settings, 'TESTS', False):
-    print >>sys.stderr, 'The tests are not using the required test ' \
+    print >> sys.stderr, 'The tests are not using the required test ' \
             'settings from test_settings.py.'
-    print >>sys.stderr, 'Make sure the tests are run ' \
+    print >> sys.stderr, 'Make sure the tests are run ' \
             'using \'python setup.py test\' or ' \
             '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python ' \
             'manage.py test\'.'
     sys.exit(1)
 
 basedir = os.path.dirname(__file__)
+
 
 def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     data = kwargs.pop('data', {})
@@ -60,6 +65,7 @@ def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     if response.status_code == 200:
         testcase.assertIn('/login/', repr(response.redirect_chain))
 
+
 def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     data = kwargs.pop('data', {})
     if url_or_viewname.startswith('/'):
@@ -71,6 +77,7 @@ def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     response = testcase.client.get(url, data=data,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
     testcase.assertIn(response.status_code, (403, 404))
+
 
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
@@ -99,8 +106,10 @@ class IgnorePasswordAuthBackend(object):
         except User.DoesNotExist:
             return None
 
+
 class FakeTimeMiddleware(object):
     _fake_timestamp = threading.local()
+
     def process_request(self, request):
         if not hasattr(request, 'timestamp'):
             raise ImproperlyConfigured("FakeTimeMiddleware must go after "
@@ -109,6 +118,7 @@ class FakeTimeMiddleware(object):
         if fake_timestamp:
             request.timestamp = fake_timestamp
 
+
 @contextmanager
 def fake_time(timestamp):
     """A context manager which causes all requests having the specified
@@ -116,6 +126,7 @@ def fake_time(timestamp):
     FakeTimeMiddleware._fake_timestamp.value = timestamp
     yield
     del FakeTimeMiddleware._fake_timestamp.value
+
 
 class TestPermsTemplateTags(TestCase):
     fixtures = ('test_users',)
@@ -129,6 +140,7 @@ class TestPermsTemplateTags(TestCase):
                 '{% if p %}yes{% endif %}')
         self.assertEqual(template.render(Context(dict(user=admin))), 'yes')
         self.assertEqual(template.render(Context(dict(user=user))), '')
+
 
 class TestIndex(TestCase):
     fixtures = ('test_users', 'test_contest')
@@ -181,6 +193,7 @@ class TestIndex(TestCase):
         response = self.client.get('/', follow=True)
         self.assertIn('Change password', response.content)
 
+
 class TestIndexNoContest(TestCase):
     fixtures = ('test_users',)
 
@@ -214,6 +227,7 @@ class TestOrderedRegistry(TestCase):
         reg.unregister(3)
         self.assertListEqual([2, 1, 4], list(reg))
         self.assertEqual(len(reg), 3)
+
 
 class TestMenu(TestCase):
     fixtures = ['test_users', 'test_contest']
@@ -270,8 +284,7 @@ class TestMenu(TestCase):
         side_pane_menus_registry.items = []
         try:
             side_pane_menus_registry.register(menu_registry, order=200)
-            admin_menu_registry = MenuRegistry("Admin Menu",
-                lambda request: request.user.is_superuser)
+            admin_menu_registry = MenuRegistry("Admin Menu", is_superuser)
             side_pane_menus_registry.register(admin_menu_registry, order=100)
 
             menu_registry.register('test', 'Test Menu Item',
@@ -304,6 +317,7 @@ class TestUtils(unittest.TestCase):
                 def __classinit__(cls):
                     TestUtils.classinit_called_counter += 1
             self.assertEqual(TestUtils.classinit_called_counter, 1)
+
             class D(C):
                 pass
             self.assertEqual(TestUtils.classinit_called_counter, 2)
@@ -314,9 +328,11 @@ class TestUtils(unittest.TestCase):
         class C(utils.RegisteredSubclassesBase):
             abstract = True
         self.assertEqual(C.subclasses, [])
+
         class C1(C):
             pass
         self.assertIn(C1, C.subclasses)
+
         class C2(C1):
             pass
         self.assertIn(C2, C.subclasses)
@@ -331,23 +347,30 @@ class TestUtils(unittest.TestCase):
         class Mixin1(object):
             name = 'mixin1'
             has_mixin1 = True
+
         class Mixin2(object):
             name = 'mixin2'
+
         class Mixin3(object):
             name = 'mixin3'
+
         class Base(utils.ObjectWithMixins):
             mixins = [Mixin1]
+
         class Derived1(Base):
             mixins = [Mixin2]
+
         class Derived2(Base):
             mixins = [Mixin2]
             allow_too_late_mixins = True
             name = 'derived2'
+
         class Derived3(Base):
             def __init__(self, foo):
                 self.name = 'derived3'
                 self.foo = foo
         Derived3.mix_in(Mixin2)
+
         class Derived4(Base):
             name = 'derived4'
         self.assertEqual(Base().name, 'mixin1')
@@ -360,6 +383,30 @@ class TestUtils(unittest.TestCase):
         Derived2.mix_in(Mixin3)
         with self.assertRaises(AssertionError):
             Derived1.mix_in(Mixin3)
+
+    def test_registered_with_mixing(self):
+        class Base(utils.ObjectWithMixins, utils.RegisteredSubclassesBase):
+            spam = 'spam'
+
+        class Derived(Base):
+            derived = 'spam'
+
+        class BaseMixin(object):
+            basemixin = 'spam'
+
+        class DerivedMixin(object):
+            derivedmixin = 'spam'
+
+        Derived.mix_in(DerivedMixin)
+        Base.mix_in(BaseMixin)
+
+        self.assertEquals(Derived().derivedmixin, 'spam')
+        self.assertEquals(Derived().basemixin, 'spam')
+        with self.assertRaises(AttributeError):
+            Base().derivedmixin == 'spam'
+
+        self.assertListEqual(Base.subclasses, [Base, Derived])
+        self.assertListEqual(Derived.subclasses, [Derived])
 
     def test_memoized(self):
         memoized_random = utils.memoized(random.random)
@@ -384,6 +431,21 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(ImportError):
             utils.get_object_by_dotted_name('oioioi.base.nonexistent.Foo')
 
+    def test_utils_dont_need_settings(self):
+        subprocess_env = os.environ.copy()
+        subprocess_env.pop('DJANGO_SETTINGS_MODULE', None)
+        subprocess_code = """
+import sys
+import oioioi.base.utils
+if 'oioioi.default_settings' in sys.modules:
+    sys.exit(1)
+else:
+    sys.exit(0)"""
+        ret = subprocess.call([sys.executable, '-c', subprocess_code],
+              env=subprocess_env)
+        self.assertEqual(ret, 0)
+
+
 class TestAllWithPrefix(unittest.TestCase):
     def test_all_with_prefix(self):
         t = Template('{% load all_with_prefix %}{% all_with_prefix a_ %}')
@@ -393,12 +455,15 @@ class TestAllWithPrefix(unittest.TestCase):
         self.assertIn('bar', rendered)
         self.assertNotIn('baz', rendered)
 
+
 class TestDottedFieldClass(RegisteredSubclassesBase):
     modules_with_subclasses = ['tests.test_dotted_field_classes']
     abstract = True
 
+
 class TestDottedFieldSubclass(TestDottedFieldClass):
     description = 'Description'
+
 
 class TestFields(unittest.TestCase):
     def test_dotted_name_field(self):
@@ -432,6 +497,7 @@ class TestFields(unittest.TestCase):
         with self.assertRaises(ValidationError):
             field.validate('FOO', None)
 
+
 class TestExecute(unittest.TestCase):
     def test_echo(self):
         self.assertEqual("foo\n", execute("echo foo"))
@@ -452,8 +518,8 @@ class TestExecute(unittest.TestCase):
         execute('exit 12', ignore_errors=True)
 
     def test_ignored_error_list(self):
-        execute('exit 12', errors_to_ignore=(12,15,16))
-        execute('exit 15', errors_to_ignore=(12,15,16))
+        execute('exit 12', errors_to_ignore=(12, 15, 16))
+        execute('exit 15', errors_to_ignore=(12, 15, 16))
         with self.assertRaises(ExecuteError):
             execute('return 14')
 
@@ -462,11 +528,12 @@ class TestExecute(unittest.TestCase):
                              execute('echo "foo\nlol"', split_lines=True))
 
     def test_env(self):
-        self.assertEqual('bar\n', execute('echo $foo', env = {'foo': 'bar'}))
+        self.assertEqual('bar\n', execute('echo $foo', env={'foo': 'bar'}))
 
     def test_cwd(self):
         self.assertEqual(execute(['cat', os.path.basename(__file__)],
                 cwd=os.path.dirname(__file__)), open(__file__, 'rb').read())
+
 
 class TestMisc(unittest.TestCase):
     def test_reload_settings_for_coverage(self):
@@ -494,6 +561,7 @@ class TestMisc(unittest.TestCase):
         self.assertIn('name1', links)
         self.assertIn('url2', links)
         self.assertIn('name2', links)
+
 
 class TestRegistration(TestCase):
     def test_registration_form_fields(self):
@@ -524,6 +592,7 @@ class TestRegistration(TestCase):
         self.assertEqual(user.first_name, 'Foo')
         self.assertEqual(user.last_name, 'Bar')
 
+
 class TestArchive(unittest.TestCase):
     def test_archive(self):
         tmpdir = tempfile.mkdtemp()
@@ -544,6 +613,7 @@ class TestArchive(unittest.TestCase):
         finally:
             shutil.rmtree(tmpdir)
 
+
 class TestAdmin(TestCase):
     fixtures = ['test_users']
 
@@ -558,6 +628,7 @@ class TestAdmin(TestCase):
         response = self.client.post(url, {'post': 'yes'}, follow=True)
         self.assertIn('was deleted successfully', response.content)
         self.assertEqual(User.objects.filter(username='test_user').count(), 0)
+
 
 class TestBaseViews(TestCase):
     fixtures = ['test_users']
@@ -601,3 +672,97 @@ class TestBackendMiddleware(TestCase):
         self.assertEquals('test_user', response.context['user'].username)
         self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
             response.context['user'].backend)
+
+
+class TestCondition(TestCase):
+    fixtures = ['test_users']
+
+    def _fake_request_factory(self):
+        factory = RequestFactory()
+
+        def get_request():
+            request = factory.request()
+            request.user = AnonymousUser()
+            return request
+
+        return get_request
+
+    def setUp(self):
+        self.alwaysTrue = Condition(lambda x: True)
+        self.alwaysFalse = Condition(lambda x: False)
+        self.returnArg = Condition(lambda x: x)
+        self.factory = self._fake_request_factory()
+
+    def test_and_operator(self):
+        true_and_true = self.alwaysTrue & self.alwaysTrue
+        true_and_false = self.alwaysTrue & self.alwaysFalse
+        true_and_arg = self.alwaysTrue & self.returnArg
+
+        self.assertTrue(true_and_true(1))
+        self.assertFalse(true_and_false(1))
+        self.assertTrue(true_and_arg(True))
+        self.assertFalse(true_and_arg(False))
+
+    def test_or_operator(self):
+        true_or_true = self.alwaysTrue | self.alwaysTrue
+        true_or_false = self.alwaysTrue | self.alwaysFalse
+        false_or_arg = self.alwaysFalse | self.returnArg
+
+        self.assertTrue(true_or_true(1))
+        self.assertTrue(true_or_false(1))
+        self.assertTrue(false_or_arg(True))
+        self.assertFalse(false_or_arg(False))
+
+    def test_inverse_operator(self):
+        not_true = ~self.alwaysTrue
+        not_false = ~self.alwaysFalse
+        not_arg = ~self.returnArg
+
+        self.assertFalse(not_true(1))
+        self.assertTrue(not_false(1))
+        self.assertTrue(not_arg(False))
+        self.assertFalse(not_arg(True))
+
+    def test_make_condition(self):
+        @make_condition()
+        def otherReturnArg(arg):
+            return arg
+
+        self.assertTrue(isinstance(otherReturnArg, Condition))
+        self.assertTrue(otherReturnArg(True))
+        self.assertFalse(otherReturnArg(False))
+
+    def test_request_condition(self):
+        @make_request_condition
+        def requestReturnArg(request):
+            return request
+
+        self.assertTrue(isinstance(requestReturnArg, RequestBasedCondition))
+        self.assertTrue(requestReturnArg(True))
+        self.assertFalse(requestReturnArg(False))
+        # Test not throwing exception with too many arguments
+        self.assertTrue(requestReturnArg(True, 1))
+
+    def test_enforce_condition_success(self):
+        @enforce_condition(self.alwaysTrue)
+        def example_view(request):
+            return 314
+
+        self.assertEqual(314, example_view(1))
+
+    def test_enforce_condition_failure_with_template(self):
+        @enforce_condition(self.alwaysFalse, 'base.html')
+        def example_view(request):
+            pass
+
+        res = example_view(1)
+        self.assertTrue(isinstance(res, TemplateResponse))
+
+    def test_enforce_condition_failure_without_template(self):
+        @enforce_condition(self.alwaysFalse)
+        def example_view(request):
+            pass
+
+        request = self.factory()
+        res = example_view(request)
+        self.assertTrue(isinstance(res, HttpResponseRedirect))

@@ -25,6 +25,7 @@ INSTALLED_APPS = (
     'oioioi.oireports',
     'oioioi.oisubmit',
     'oioioi.complaints',
+    'oioioi.contestexcl',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (

@@ -2,16 +2,23 @@ from django.contrib.admin import RelatedFieldListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
+from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.utils import is_contest_admin
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
 from oioioi.oi.forms import OIRegistrationForm, RegionForm
+from oioioi.participants.utils import is_contest_with_participants
 
+
+@make_request_condition
 def is_onsite_contest(request):
     rcontroller = request.contest.controller.registration_controller()
-    return issubclass(getattr(rcontroller, 'participant_admin', None),
-                      OIOnsiteRegistrationParticipantAdmin)
+    return is_contest_with_participants(request.contest) \
+        and issubclass(rcontroller.participant_admin,
+            OIOnsiteRegistrationParticipantAdmin)
+
 
 class RegionAdmin(admin.ModelAdmin):
     list_display = ('short_name', 'name')
@@ -19,10 +26,10 @@ class RegionAdmin(admin.ModelAdmin):
     form = RegionForm
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
@@ -38,6 +45,7 @@ class RegionAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
+
         def form_wrapper(*args, **kwargs):
             form = Form(*args, **kwargs)
             form.request_contest = request.contest
@@ -48,6 +56,7 @@ admin.site.register(Region, RegionAdmin)
 contest_admin_menu_registry.register('regions', _("Regions"),
     lambda request: reverse('oioioiadmin:oi_region_changelist'),
     condition=is_onsite_contest, order=21)
+
 
 class SchoolAdmin(admin.ModelAdmin):
     list_display = ('name', 'address', 'postal_code', 'city', 'province',
@@ -61,12 +70,14 @@ admin.system_admin_menu_registry.register('schools',
     _("Schools"), lambda request:
     reverse('oioioiadmin:oi_school_changelist'), order=20)
 
+
 class OIRegistrationInline(admin.StackedInline):
     model = OIRegistration
     fk_name = 'participant'
     form = OIRegistrationForm
     can_delete = False
     inline_classes = ('collapse open',)
+
 
 class OIRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display \
@@ -78,7 +89,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
                'oi_oiregistration__school__city']
 
     list_filter = ParticipantAdmin.list_filter \
-            + ['oi_oiregistration__school__province' ]
+            + ['oi_oiregistration__school__province']
 
     def get_list_select_related(self):
         return super(OIRegistrationParticipantAdmin, self) \
@@ -111,16 +122,18 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
             del actions['delete_selected']
         return actions
 
+
 class OIOnsiteRegistrationInline(admin.TabularInline):
     model = OIOnsiteRegistration
     fk_name = 'participant'
     can_delete = False
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
+
 
 class RegionFilter(RelatedFieldListFilter):
     def __init__(self, field, request, *args, **kwargs):
@@ -129,15 +142,16 @@ class RegionFilter(RelatedFieldListFilter):
         self.lookup_choices = [(r.id, unicode(r))
                                for r in contest.region_set.all()]
 
+
 class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     list_display = ParticipantAdmin.list_display \
             + ['number', 'region', 'local_number']
     inlines = ParticipantAdmin.inlines + [OIOnsiteRegistrationInline]
     list_filter = ParticipantAdmin.list_filter \
-            + [('oi_oionsiteregistration__region', RegionFilter) ]
+            + [('oi_oionsiteregistration__region', RegionFilter)]
     ordering = ['oi_oionsiteregistration__number']
     search_fields = ParticipantAdmin.search_fields \
-            + ['oi_oionsiteregistration__number' ]
+            + ['oi_oionsiteregistration__number']
 
     def get_list_select_related(self):
         return super(OIOnsiteRegistrationParticipantAdmin, self) \
@@ -155,4 +169,3 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     def local_number(self, instance):
         return instance.oi_oionsiteregistration.local_number
     local_number.admin_order_field = 'oi_oionsiteregistration__local_number'
-

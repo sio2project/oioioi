@@ -4,12 +4,14 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.forms.models import modelform_factory
 from oioioi.base import admin
+from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
 from oioioi.teachers.forms import TeacherContestForm
 from oioioi.teachers.menu import teacher_menu_registry
 from oioioi.teachers.models import Teacher, ContestTeacher, \
         RegistrationConfig
 from functools import partial
+
 
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ['user', 'school', 'is_active']
@@ -37,8 +39,8 @@ admin.site.register(Teacher, TeacherAdmin)
 
 admin.system_admin_menu_registry.register('teachers', _("Teachers"),
         lambda request: reverse('oioioiadmin:teachers_teacher_changelist'),
-        condition=(lambda request: request.user.is_superuser),
-        order=20)
+        condition=is_superuser, order=20)
+
 
 class ContestAdminMixin(object):
     def has_add_permission(self, request):
@@ -81,6 +83,7 @@ class ContestAdminMixin(object):
         self.message_user(request, _("Contest added successfully."))
         return redirect('oioioi.teachers.views.pupils_view',
                 contest_id=obj.id)
+
     def __init__(self, *args, **kwargs):
         super(ContestAdminMixin, self).__init__(*args, **kwargs)
 

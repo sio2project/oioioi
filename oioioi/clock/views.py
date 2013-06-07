@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils import safe_redirect
+from oioioi.base.utils.redirect import safe_redirect
 
 from oioioi.contests.models import Round
 from oioioi.status import status_registry
@@ -54,15 +54,16 @@ def get_times_status(request, response):
             current_rounds_times.sort(key=lambda rt: rt.get_end())
 
     if current_rounds_times:
-        response['round_start_date'] = time.mktime((timezone \
+        response['round_start_date'] = time.mktime((timezone
             .localtime(current_rounds_times[0].get_start())).timetuple())
-        response['round_end_date'] = time.mktime((timezone \
+        response['round_end_date'] = time.mktime((timezone
             .localtime(current_rounds_times[0].get_end())).timetuple())
     elif next_rounds_times:
-        response['round_start_date'] = time.mktime((timezone \
+        response['round_start_date'] = time.mktime((timezone
             .localtime(next_rounds_times[0].get_start())).timetuple())
 
     return response
+
 
 def admin_time(request, next_page=None):
     if 'next' in request.REQUEST:

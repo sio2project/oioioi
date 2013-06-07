@@ -11,6 +11,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @memoized
 def problem_sources(request):
     sources = []
@@ -23,6 +24,7 @@ def problem_sources(request):
                 sources.append(item)
     sources = filter(lambda s: s.is_available(request), sources)
     return sources
+
 
 class ProblemSource(object):
     #: A simple indetifier, which may appear in the URL.
@@ -58,8 +60,10 @@ class ProblemSource(object):
            request."""
         return True
 
+
 class PackageUploadForm(forms.Form):
     package_file = forms.FileField(label=_("Package file"))
+
 
 class PackageSource(ProblemSource):
     key = 'upload'
@@ -97,7 +101,7 @@ class PackageSource(ProblemSource):
             if form.is_valid():
                 try:
                     with transaction.commit_on_success():
-                        return self.process_valid_form(request,  contest, form,
+                        return self.process_valid_form(request, contest, form,
                             existing_problem)
                 except Exception, e:
                     logger.error("Error processing package", exc_info=True)

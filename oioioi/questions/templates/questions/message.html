@@ -13,10 +13,10 @@
 {% if is_admin %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url oioioiadmin:auth_user_change message.author_id %}">
+        <li><a class="btn btn-small" href="{% url 'oioioiadmin:auth_user_change' message.author_id %}">
             <i class="icon-user"></i> {% trans "Display user" %}</a></li>
         {% if message.can_have_replies %}
-        <li><a class="btn btn-small" href="{% url message_reply contest_id=contest.id message_id=reply_to_id %}">
+        <li><a class="btn btn-small" href="{% url 'message_reply' contest_id=contest.id message_id=reply_to_id %}">
             <i class="icon-pencil"></i> {% trans "Reply" %}</a></li>
         {% endif %}
     </ul>
@@ -25,8 +25,8 @@
 <div class="message {% if is_admin %}admin{% endif %} {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if replies %}message_has_replies{% endif %}">
     {% if is_admin %}
     <div class="message_actions">
-        <a class="action" href="{% url oioioiadmin:questions_message_change message.id %}"><i class="icon-edit"></i></a>
-        <a class="action" href="{% url oioioiadmin:questions_message_delete message.id %}"><i class="icon-remove"></i></a>
+        <a class="action" href="{% url 'oioioiadmin:questions_message_change' message.id %}"><i class="icon-edit"></i></a>
+        <a class="action" href="{% url 'oioioiadmin:questions_message_delete' message.id %}"><i class="icon-remove"></i></a>
     </div>
     {% endif %}
     <div class="message_container">
@@ -42,8 +42,8 @@
 <div class="message message_reply {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if is_admin %}admin{% endif %}">
     {% if is_admin %}
     <div class="message_actions">
-        <a class="action" href="{% url oioioiadmin:questions_message_change message.id %}"><i class="icon-edit"></i></a>
-        <a class="action" href="{% url oioioiadmin:questions_message_delete message.id %}"><i class="icon-remove"></i></a>
+        <a class="action" href="{% url 'oioioiadmin:questions_message_change' message.id %}"><i class="icon-edit"></i></a>
+        <a class="action" href="{% url 'oioioiadmin:questions_message_delete' message.id %}"><i class="icon-remove"></i></a>
     </div>
     {% endif %}
     <div class="message_container">

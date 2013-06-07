@@ -1,9 +1,9 @@
 from django.core.files.storage import default_storage
-from django.http import Http404, HttpResponse
-from django.utils.translation import ugettext_lazy as _
+from django.http import Http404, StreamingHttpResponse
 from django.core.exceptions import PermissionDenied
 from django.core.servers.basehttp import FileWrapper
 import mimetypes
+
 
 def raw_file_view(request, filename):
     if not filename or filename.startswith('/'):
@@ -16,6 +16,7 @@ def raw_file_view(request, filename):
     file = default_storage.open(filename, 'rb')
     content_type = mimetypes.guess_type(filename)[0] or \
         'application/octet-stream'
-    response = HttpResponse(FileWrapper(file), content_type=content_type)
+    response = StreamingHttpResponse(FileWrapper(file),
+                                     content_type=content_type)
     response['Content-Length'] = default_storage.size(filename)
     return response

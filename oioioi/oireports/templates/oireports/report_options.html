@@ -5,107 +5,84 @@
 
 {% block content %}
 <h2>{% trans "Report" %}</h2>
-<div class="btn-toolbar">
-    <div class="btn-group">
-        <button class="btn dropdown-toggle" data-toggle="dropdown">
-            {% trans "Ranking type" %}
-            <span id="report_type_display">&ndash; PDF</span>
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            <li>
-                <a href="#" onclick="
-                    $('#report_form').attr('action', '{% url pdfreport contest_id=contest.id %}');
-                    $('#report_type_display').text('&ndash; PDF');
-                ">PDF</a>
-            </li>
-            <li>
-                <a href="#" onclick="
-                    $('#report_form').attr('action', '{% url xmlreport contest_id=contest.id %}');
-                    $('#report_type_display').text('&ndash; XML');
-                ">XML</a>
-            </li>
-        </ul>
-    </div>
-    {% if rounds|length > 1 %}
-    <div class="btn-group">
-        <button class="btn dropdown-toggle" data-toggle="dropdown">
-            {% trans "Rounds" %}
-            <span id="report_round_key_display">&ndash; {% for round in rounds %}{% if forloop.first %}{{ round.1 }}{% endif %}{% endfor %}</span>
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            {% for round in rounds %}
-            <li>
-                <a href="#" onclick="
-                    $('#report_round_key').val('{{ round.0 }}');
-                    $('#report_round_key_display').text('&ndash; {{ round.1 }}');
-                    {% if forloop.first %}
-                        $('.report_round_boxes').show();
-                    {% else %}
-                        $('.report_round_boxes').hide();
-                        $('#report_round_boxes_{{ round.0 }}').show();
-                    {% endif %}
-                ">
-                    {{ round.1 }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-    {% if regions|length > 1 %}
-    <div class="btn-group">
-        <button class="btn dropdown-toggle" data-toggle="dropdown">
-            {% trans "Regions" %}
-            <span id="report_region_key_display">&ndash; {% for region in regions %}{% if forloop.first %}{{ region.1 }}{% endif %}{% endfor %}</span>
-            <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-            {% for region in regions %}
-            <li>
-                <a href="#" onclick="
-                    $('#report_region_key').val('{{ region.0 }}');
-                    $('#report_region_key_display').text('&ndash; {{ region.1 }}');
-                ">
-                    {{ region.1 }}
-                </a>
-            </li>
-            {% endfor %}
-        </ul>
-    </div>
-    {% endif %}
-</div>
-
-<div>
-    <form id="report_form"
-            action="{% url pdfreport contest_id=contest.id %}"
-            method="POST">
-        {% csrf_token %}
-        <input type="hidden" name="round_key"
-            id="report_round_key" value="{{ CONTEST_REPORT_KEY }}" />
-        <input type="hidden" name="region_key"
-            id="report_region_key" value="{{ CONTEST_REPORT_KEY }}" />
-        {% for round in testgroups %}
-            <div class="report_round_boxes"
-                id="report_round_boxes_{{ round.id }}">
-            {% for task in round.tasks %}
-                <div class="well well-small">
-                    <h4>{{ task.name }}</h4>
-                    {% for testgroup in task.testgroups %}
-                        <label class="checkbox">
-                        <input type="checkbox"
-                            name="testgroup[{{ task.short_name }}][{{ testgroup }}]"
-                            value="yes" />{{ testgroup }}
-                        </label>
-                    {% endfor %}
-                </div>
-            {% endfor %}
+<form class="form-horizontal" id="report_form" method="post">
+    {% csrf_token %}
+    {% for field in form.control_fields %}
+        <div class="control-group">
+            <label for="{{ field.auto_id }}" class="control-label">
+                {{ field.label }}
+            </label>
+            <div class="controls">
+                {{ field }}
             </div>
-        {% endfor %}
-        <input type="submit" class="btn btn-primary"
-        value="{% trans "Generate report" %}" />
-    </form>
-</div>
-
+        </div>
+    {% endfor %}
+    <div id="single_report_controller" class="control-group {% if form.single_report_user.errors %}error{% endif %}">
+        <label class="control-label">
+            {% trans "Single user" %}
+            {{ form.is_single_report }}
+        </label>
+        <div id="report_user" class="controls">
+            {{ form.single_report_user }}
+            {% for error in form.single_report_user.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% for field in form.testgroup_fields %}
+        <div class="well well-small round_{{ field.field.round }}">
+            <label class="checkbox">
+                <b>
+                    {{ field.label }}
+                    <input type="checkbox" class="control_checkbox" data-selector="{{ field.html_name }}"/>
+                </b>
+            </label>
+            {{ field }}
+        </div>
+    {% endfor %}
+    <input type="submit" class="btn btn-primary" value="{% trans "Generate report" %}" />
+</form>
+<script>
+    $(document).ready(function() {
+        $('#report_user').toggle($('input[name="is_single_report"]').is(':checked'));
+        $('#report_user input').typeahead({
+            source: function(query, process) {
+                $.getJSON('{% url 'get_report_users' contest_id=request.contest.id %}', {substr: query}, process);
+            },
+            items: {{ num_hints }},
+            minLength: 2
+        });
+        $('input[name="is_single_report"]').click(function() {
+            if (this.checked) {
+                $('#report_user').show();
+            } else {
+                $('#report_user').hide();
+                $('#report_user input').val('');
+                $('#single_report_controller').attr('class', 'control-group');
+                $('#report_user span').hide();
+            }
+        });
+        $('.control_checkbox').click(function() {
+            var task_selector = $(this).data('selector');
+            task_selector = 'input[id*="' + task_selector + '"]'
+            $(task_selector).prop('checked', $(this).is(':checked'));
+        });
+        $('select[name="report_round"]').change(function() {
+            var round = $('select[name="report_round"] option:selected').val();
+            if (round == '{{ CONTEST_REPORT_KEY }}') {
+                $('div[class*="round_"]').show();
+            } else {
+                $('div[class*="round_"]').each(function() {
+                    if ($(this).hasClass('round_' + round)) {
+                        $(this).show();
+                    } else {
+                        $(this).find('input[type="checkbox"]:checked').removeAttr('checked');
+                        $(this).hide();
+                    }
+                });
+            }
+        });
+        $('select[name="report_round"]').change();
+    });
+</script>
 {% endblock %}

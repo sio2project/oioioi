@@ -1,8 +1,9 @@
 from django.core.servers.basehttp import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File
-from django.http import HttpResponse
+from django.http import StreamingHttpResponse
 import mimetypes
+
 
 class FileInFiletracker(File):
     """A stub :class:`django.core.files.File` subclass for assigning existing
@@ -26,6 +27,7 @@ class FileInFiletracker(File):
     def close(self):
         pass
 
+
 def django_to_filetracker_path(django_file):
     """Returns the filetracker path of a :class:`django.core.files.File`."""
     storage = getattr(django_file, 'storage', None)
@@ -36,6 +38,7 @@ def django_to_filetracker_path(django_file):
         return storage._make_filetracker_path(django_file.name)
     except AttributeError:
         raise ValueError('File is stored in %r, not Filetracker' % (storage,))
+
 
 def filetracker_to_django_file(filetracker_path, storage=None):
     """Returns a :class:`~django.core.files.File` representing an existing
@@ -52,6 +55,7 @@ def filetracker_to_django_file(filetracker_path, storage=None):
     return FileInFiletracker(storage,
             filetracker_path[prefix_len + 1:])
 
+
 def stream_file(django_file, name=None, showable=None):
     """Returns a :class:`HttpResponse` representing a file download.
 
@@ -67,7 +71,7 @@ def stream_file(django_file, name=None, showable=None):
         name = unicode(django_file.name.rsplit('/', 1)[-1])
     content_type = mimetypes.guess_type(name)[0] or \
         'application/octet-stream'
-    response = HttpResponse(FileWrapper(django_file),
+    response = StreamingHttpResponse(FileWrapper(django_file),
         content_type=content_type)
     response['Content-Length'] = django_file.size
     showable_exts = ['pdf', 'ps', 'txt']

@@ -56,7 +56,7 @@
                 <td>{{ report.score_report.get_score_display }}</td>
             </tr>
             <tr>
-                <td colspan="6" style="display: none"><div id="hidden_report_{{ report.id }}" data-loadurl="{% url report contest_id=contest.id submission_id=submission.id report_id=report.id %}" class="collapse"></div></td>
+                <td colspan="6" style="display: none"><div id="hidden_report_{{ report.id }}" data-loadurl="{% url 'report' contest_id=contest.id submission_id=submission.id report_id=report.id %}" class="collapse"></div></td>
             </tr>
         {% endfor %}
         </tbody>

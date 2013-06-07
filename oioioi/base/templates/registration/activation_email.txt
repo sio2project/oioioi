@@ -1,7 +1,7 @@
 Welcome to OIOIOI,
 
 to finish the registration, please click on the link below:
-http://{{site}}{% url registration_activate activation_key %}
+http://{{site}}{% url 'registration_activate' activation_key %}
 
 Best wishes,
 The SIO2 Team

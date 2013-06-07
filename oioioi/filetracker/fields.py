@@ -3,6 +3,7 @@ from django.db.models.fields import files
 from south.modelsinspector import add_introspection_rules
 import base64
 
+
 class _FileDescriptor(files.FileDescriptor):
     def __get__(self, instance=None, owner=None):
         if instance is None:
@@ -27,6 +28,7 @@ class _FileDescriptor(files.FileDescriptor):
             name = self.field.storage.save(name, ContentFile(content))
             instance.__dict__[self.field.name] = name
         return files.FileDescriptor.__get__(self, instance, owner)
+
 
 class FileField(files.FileField):
     """A :class:`~django.db.models.FileField` with fixtures support.

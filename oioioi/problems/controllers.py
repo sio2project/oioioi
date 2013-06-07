@@ -1,5 +1,6 @@
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 
+
 class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
     modules_with_subclasses = ['controllers']

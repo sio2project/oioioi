@@ -3,6 +3,7 @@ from django.utils.functional import lazy
 from django.template import RequestContext
 from django.template.loader import render_to_string
 
+
 def jotform(request):
     if settings.JOTFORM_ID:
         def generator():

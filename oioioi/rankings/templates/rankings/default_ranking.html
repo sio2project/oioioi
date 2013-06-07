@@ -7,7 +7,7 @@
             <th style="min-width: 50px">#</th>
             <th style="min-width: 120px">{% trans "User" %}</th>
             {% for pi in problem_instances %}
-            <th style="min-width: 40px" {% if pi.round.is_trial %} class="trial-round" {% endif %} >{{ pi.short_name }}</th>
+            <th style="min-width: 40px" {% if pi.round.is_trial %} class="trial-round" {% endif %} >{{ pi.get_short_name_display }}</th>
             {% endfor %}
             <th style="min-width: 50px">{% trans "Sum" %}</th>
         </tr>

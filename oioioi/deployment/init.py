@@ -1,6 +1,7 @@
 import os
 import sys
 
+
 def init_env(settings_dir):
     sys.path.insert(0, settings_dir)
     if os.environ.get('PYTHONPATH'):

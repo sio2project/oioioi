@@ -1,0 +1,4 @@
+{% extends 'contestexcl/exclusive_contests_error_email.txt' %}
+{% load i18n %}
+
+{% block footer %}{% blocktrans %}Please check whether your configuration is correct and remove this user's participant registrations if necessary.{% endblocktrans %}{% endblock %}

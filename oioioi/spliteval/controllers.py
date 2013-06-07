@@ -1,9 +1,15 @@
+from django.conf import settings
+
 from oioioi.evalmgr import add_before_placeholder
+
 
 class SplitEvalContestControllerMixin(object):
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         super(SplitEvalContestControllerMixin,
                 self).fill_evaluation_environ(environ, submission, **kwargs)
+        if not settings.ENABLE_SPLITEVAL:
+            return
+
         environ.setdefault('sioworkers_extra_args', {}) \
             .setdefault('NORMAL', {})['queue'] = 'sioworkers-lowprio'
         try:

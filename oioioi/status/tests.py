@@ -59,7 +59,7 @@ class TestContestStatus(TestCase):
         self.assertContains(response, 'initialStatus')
 
 
-class TestNoContestStatus(TestCase) :
+class TestNoContestStatus(TestCase):
     fixtures = ['test_users']
 
     def setUp(self):

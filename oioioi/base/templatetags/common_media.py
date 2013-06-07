@@ -2,11 +2,13 @@ from django.conf import settings
 from django import template
 from django.contrib.staticfiles import finders
 
+
 def find_common_media():
     for finder in finders.get_finders():
         for path, storage in finder.list([]):
             if path.startswith(settings.COMMON_MEDIA_PREFIX):
                 yield path
+
 
 def generate_styles():
     lines = []
@@ -18,6 +20,7 @@ def generate_styles():
             lines.append('<link charset="utf-8" rel="stylesheet" '
                     'type="text/less" href="{{ STATIC_URL }}%s">' % (path,))
     return '\n'.join(lines)
+
 
 def generate_scripts():
     lines = []
@@ -31,6 +34,7 @@ register = template.Library()
 
 _cache = {}
 
+
 def common_media_tag(template_generator, context):
     t = template.Template(template_generator())
     if template_generator in _cache:
@@ -40,8 +44,10 @@ def common_media_tag(template_generator, context):
         _cache[template_generator] = value
     return value
 
+
 def common_styles_tag(context):
     return common_media_tag(generate_styles, context)
+
 
 def common_scripts_tag(context):
     return common_media_tag(generate_scripts, context)

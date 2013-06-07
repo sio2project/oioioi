@@ -1,8 +1,11 @@
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 from django.template.response import TemplateResponse
+
+from oioioi.contests.utils import is_contest_admin
 from oioioi.oi.controllers import OIOnsiteContestController
 from oioioi.participants.models import Participant
+
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
 class OiForceDnsIpAuthMiddleware(object):
@@ -33,7 +36,7 @@ class OiForceDnsIpAuthMiddleware(object):
             return
         if not request.user.is_authenticated():
             return
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return
         if not Participant.objects.filter(user=request.user,
                 contest=request.contest, status='ACTIVE'):

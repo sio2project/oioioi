@@ -12,15 +12,18 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import ProblemInstance, UserResultForProblem
 from oioioi.contests.controllers import ContestController
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
 CONTEST_RANKING_KEY = 'c'
+
 
 class RankingMixinForContestController(object):
     def ranking_controller(self):
         """Return the actual :class:`RankingController` for the contest."""
         return DefaultRankingController(self.contest)
 ContestController.mix_in(RankingMixinForContestController)
+
 
 class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
@@ -46,14 +49,12 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
     def serialize_ranking(self, request, key):
         raise NotImplementedError
 
+
 class DefaultRankingController(RankingController):
     description = _("Default ranking")
 
     def _rounds_for_ranking(self, request, key=CONTEST_RANKING_KEY):
-        can_see_all = request.user.has_perm('contests.contest_admin',
-                request.contest) or \
-                request.user.has_perm('contests.contest_observer',
-                request.contest)
+        can_see_all = is_contest_admin(request) or is_contest_observer(request)
         ccontroller = self.contest.controller
         queryset = self.contest.round_set.all()
         if key != CONTEST_RANKING_KEY:
@@ -91,7 +92,7 @@ class DefaultRankingController(RankingController):
 
         header = [_("No."), _("First name"), _("Last name")]
         for pi in data['problem_instances']:
-            header.append(pi.short_name)
+            header.append(pi.get_short_name_display())
         header.append(_("Sum"))
         writer.writerow(map(force_unicode, header))
 

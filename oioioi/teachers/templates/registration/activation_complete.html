@@ -7,8 +7,8 @@
 <div class="empty-space-filler">
     <p>{% trans "Your account is now active. You may go ahead and log in now." %}</p>
     <p>
-        <a href="{% url auth_login %}" class="btn btn-primary">{% trans "Log in" %}</a>
-        <a href="{% url add_teacher %}" class="btn">{% trans "Request teacher account" %}</a>
+        <a href="{% url 'auth_login' %}" class="btn btn-primary">{% trans "Log in" %}</a>
+        <a href="{% url 'add_teacher' %}" class="btn">{% trans "Request teacher account" %}</a>
     </p>
 </div>
 {% endblock %}

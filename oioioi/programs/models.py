@@ -15,6 +15,7 @@ test_kinds = EnumRegistry()
 test_kinds.register('NORMAL', _("Normal test"))
 test_kinds.register('EXAMPLE', _("Example test"))
 
+
 class Test(models.Model):
     problem = models.ForeignKey(Problem)
     name = models.CharField(max_length=30, verbose_name=_("name"))
@@ -35,10 +36,12 @@ class Test(models.Model):
     class Meta:
         ordering = ['order']
 
+
 class OutputChecker(models.Model):
     problem = models.OneToOneField(Problem)
     exe_file = FileField(upload_to=make_problem_filename,
             null=True, blank=True)
+
 
 @receiver(post_save, sender=Problem)
 def _add_output_checker_to_problem(sender, instance, created, **kwargs):
@@ -49,6 +52,7 @@ model_solution_kinds = EnumRegistry()
 model_solution_kinds.register('NORMAL', _("Model solution"))
 model_solution_kinds.register('SLOW', _("Slow solution"))
 model_solution_kinds.register('INCORRECT', _("Incorrect solution"))
+
 
 class ModelSolutionsManager(models.Manager):
     def recreate_model_submissions(self, problem_instance):
@@ -64,9 +68,11 @@ class ModelSolutionsManager(models.Manager):
                 submission = ModelProgramSubmission(
                         model_solution=model_solution,
                         problem_instance=problem_instance,
-                        source_file=model_solution.source_file)
+                        source_file=model_solution.source_file,
+                        kind='IGNORED')
                 submission.save()
             controller.judge(submission)
+
 
 class ModelSolution(models.Model):
     objects = ModelSolutionsManager()
@@ -81,11 +87,13 @@ class ModelSolution(models.Model):
     def short_name(self):
         return self.name.rsplit('.', 1)[0]
 
+
 @receiver(post_save, sender=ProblemInstance)
 def _autocreate_model_submissions_for_problem_instance(sender, instance,
         created, raw, **kwargs):
     if not raw:
         ModelSolution.objects.recreate_model_submissions(instance)
+
 
 @receiver(post_save, sender=ModelSolution)
 def _autocreate_model_submissions_for_model_solutions(sender, instance,
@@ -95,14 +103,17 @@ def _autocreate_model_submissions_for_model_solutions(sender, instance,
         for pi in pis:
             ModelSolution.objects.recreate_model_submissions(pi)
 
+
 def make_submission_filename(instance, filename):
     if not instance.id:
         instance.save()
     return 'submissions/%s/%d%s' % (instance.problem_instance.contest.id,
             instance.id, os.path.splitext(filename)[1])
 
+
 class ProgramSubmission(Submission):
     source_file = FileField(upload_to=make_submission_filename)
+
 
 class ModelProgramSubmission(ProgramSubmission):
     model_solution = models.ForeignKey(ModelSolution)
@@ -123,10 +134,12 @@ submission_report_kinds.register('INITIAL', _("Initial report"))
 submission_report_kinds.register('NORMAL', _("Normal report"))
 submission_report_kinds.register('HIDDEN', _("Hidden report (for admins only)"))
 
+
 class CompilationReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)
     compiler_output = models.TextField()
+
 
 class TestReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
@@ -141,6 +154,7 @@ class TestReport(models.Model):
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
     test_max_score = models.IntegerField(null=True, blank=True)
+
 
 class GroupReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)

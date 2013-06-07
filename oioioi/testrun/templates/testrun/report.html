@@ -26,16 +26,16 @@
             <td class="subm_margin subm_{{ testrun_report.status }}"></td>
             <td>
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-up"></i></button>
-                <a class="btn" href="{% url download_testrun_input contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
+                <a class="btn" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
             </td>
             <td class="subm_status subm_{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
             <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
             <td>
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}"><i class="icon-chevron-down"></i></button>
                 {% if is_admin %}
-                    <a class="btn" href="{% url download_specific_testrun_output contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}"><i class="icon-download-alt"></i></a>
+                    <a class="btn" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}"><i class="icon-download-alt"></i></a>
                 {% else %}
-                    <a class="btn" href="{% url download_testrun_output contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
+                    <a class="btn" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
                 {% endif %}
             </td>
         </tr>
@@ -53,10 +53,10 @@
 {% endif %}
 
 {% if is_admin %}
-    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url get_specific_testrun_output contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id %}">
+    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id %}">
     </div>
 {% else %}
-    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url get_testrun_output contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
     </div>
 {% endif %}
 

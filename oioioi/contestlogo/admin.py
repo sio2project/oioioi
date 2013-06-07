@@ -2,8 +2,10 @@ from oioioi.base import admin
 from oioioi.contestlogo.models import ContestLogo
 from oioioi.contests.admin import ContestAdmin
 
+
 class ContestLogoInline(admin.TabularInline):
     model = ContestLogo
+
 
 class ContestLogoAdminMixin(object):
     def __init__(self, *args, **kwargs):

@@ -6,6 +6,7 @@ import tempfile
 import os
 import zipfile
 
+from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from django.core.files import File
 import chardet
@@ -26,8 +27,10 @@ logger = logging.getLogger(__name__)
 DEFAULT_TIME_LIMIT = 10000
 DEFAULT_MEMORY_LIMIT = 66000
 
+
 def _stringify_keys(dictionary):
     return dict((str(k), v) for k, v in dictionary.iteritems())
+
 
 def _determine_encoding(title, file):
     r = re.search(r'\\documentclass\[(.+)\]{sinol}', file)
@@ -42,9 +45,11 @@ def _determine_encoding(title, file):
 
     return encoding
 
+
 def _decode(title, file):
     encoding = _determine_encoding(title, file)
     return title.decode(encoding)
+
 
 class SinolPackage(object):
     def __init__(self, path, original_filename=None):
@@ -70,6 +75,7 @@ class SinolPackage(object):
         files = map(os.path.normcase, self.archive.filenames())
         files = map(os.path.normpath, files)
         toplevel_folders = set(f.split(os.sep)[0] for f in files)
+        toplevel_folders = filter(slug_re.match, toplevel_folders)
         problem_folders = []
         for folder in toplevel_folders:
             for required_subfolder in ('in', 'out'):
@@ -322,7 +328,7 @@ class SinolPackage(object):
             if match:
                 instance = ModelSolution(problem=self.problem, name=name)
                 instance.kind = {
-                        '':  'NORMAL',
+                        '': 'NORMAL',
                         's': 'SLOW',
                         'b': 'INCORRECT',
                     }[match.group(1)]
@@ -374,6 +380,7 @@ class SinolPackage(object):
             return self.problem
         finally:
             shutil.rmtree(tmpdir)
+
 
 class SinolPackageCreator(object):
     def __init__(self, problem):
@@ -440,6 +447,7 @@ class SinolPackageCreator(object):
                     name=zip_filename))
             finally:
                 os.unlink(tmp_filename)
+
 
 class SinolPackageBackend(ProblemPackageBackend):
     description = _('Sinol Package')

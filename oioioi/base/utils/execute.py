@@ -1,13 +1,13 @@
 import os
 import string
 import subprocess
-import sys
 
 # Reliable quoting, taken as-is from `pipes` standard module.
 # There is a slight chance it may work on non-Unix platforms, but
 # I wouldn't count on it. Either way tests will show.
 
 _safechars = frozenset(string.ascii_letters + string.digits + '@%_-+=:,./')
+
 
 def quote(file):
     """Return a shell-escaped version of the file string."""
@@ -22,8 +22,10 @@ def quote(file):
     # the string $'b is then quoted as '$'"'"'b'
     return "'" + file.replace("'", "'\"'\"'") + "'"
 
+
 class ExecuteError(RuntimeError):
     pass
+
 
 def execute(command, env=None, split_lines=False, ignore_errors=False,
             errors_to_ignore=(), stdin='', cwd=None, capture_output=True):
@@ -83,8 +85,7 @@ def execute(command, env=None, split_lines=False, ignore_errors=False,
     if split_lines:
         stdout = stdout.splitlines()
     if rc and not ignore_errors and rc not in errors_to_ignore:
-        raise ExecuteError('Failed to execute command: %s\n%s' % \
+        raise ExecuteError('Failed to execute command: %s\n%s' %
             (command, stdout))
 
     return stdout
-

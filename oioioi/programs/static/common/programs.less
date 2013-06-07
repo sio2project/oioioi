@@ -53,3 +53,24 @@ table.model-solutions {
     }
 }
 
+/*------------------------ Diff ---------------------------*/
+
+table.diff-table {
+    margin-top: 10px;
+}
+
+td.diff-spacer {
+    min-width: 10px;
+}
+
+div.diff-highlight {
+    span.diff-line {
+        &.left { background: @errorBackground; }
+        &.right { background: @successBackground; }
+    }
+    span.diff-num {
+        &.left { color: @errorText; }
+        &.right { color: @successText; }
+        &.left, &.right { font-weight: bold; }
+    }
+}

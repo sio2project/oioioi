@@ -20,11 +20,13 @@ from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, SubmissionReport, \
         UserResultForContest, submission_kinds
 from oioioi.contests.scores import ScoreValue
-from oioioi.contests.utils import visible_problem_instances, rounds_times
+from oioioi.contests.utils import visible_problem_instances, rounds_times, \
+        is_contest_admin, is_contest_observer
 from oioioi import evalmgr
 
 
 logger = logging.getLogger(__name__)
+
 
 def export_entries(registry, values):
     result = []
@@ -32,6 +34,7 @@ def export_entries(registry, values):
         if value in values:
             result.append((value, description))
     return result
+
 
 def submission_template_context(request, submission):
     controller = submission.problem_instance.contest.controller
@@ -50,6 +53,7 @@ def submission_template_context(request, submission):
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment,
             'valid_kinds_for_submission': valid_kinds_for_submission}
+
 
 class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
     def __init__(self, contest):
@@ -114,6 +118,7 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return ()
 
+
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
@@ -125,6 +130,7 @@ class PublicContestRegistrationController(RegistrationController):
 
     def filter_participants(self, queryset):
         return queryset
+
 
 class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     """Contains the contest logic and rules.
@@ -187,6 +193,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if queryset is None:
             queryset = Round.objects.filter(contest=self.contest)
         now = request.timestamp
+
         def sort_key(round):
             rtimes = self.get_round_times(request, round)
             to_event = timedelta(minutes=10)
@@ -219,7 +226,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            The default implementation checks round dates.
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
         rtimes = self.get_round_times(request, round)
         return not rtimes.is_future(request.timestamp)
@@ -235,7 +242,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if not problem_instance.round:
             return False
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
         return self.can_see_round(request, problem_instance.round)
 
@@ -251,7 +258,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if not problem_instance.round:
             return False
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
 
         if check_round_times:
@@ -261,14 +268,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return True
 
     def get_default_submission_kind(self, request):
-        """Returns default kind of newly created submission by the current used.
+        """Returns default kind of newly created submission by the current user.
 
            The default implementation returns ``'IGNORED'`` for non-contestants.
            In other cases it returns ``'NORMAL'``.
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return 'IGNORED'
-        if request.user.has_perm('contests.contest_observer', request.contest):
+        if is_contest_admin(request) or is_contest_observer(request):
             return 'IGNORED'
         return 'NORMAL'
 
@@ -277,7 +282,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return None
         return problem_instance.submissions_limit
 
-    def is_exceeded_submissions_limit(self, request, problem_instance, kind):
+    def is_submissions_limit_exceeded(self, request, problem_instance, kind):
         submissions_number = Submission.objects.filter(user=request.user,
             problem_instance__id=problem_instance.id, kind=kind).count()
         submissions_limit = self.get_submissions_limit(request,
@@ -511,7 +516,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 .get_or_create(user=user, contest=contest)
             self.update_user_result_for_contest(result)
 
-    def filter_visible_submissions(self, request, queryset):
+    def filter_my_visible_submissions(self, request, queryset):
         """Returns the submissions which the user should see in the
            "My submissions" view.
 
@@ -542,9 +547,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            ``None``, results are not available. Admins are always shown the
            results.
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return True
-        if request.user.has_perm('contests.contest_observer', request.contest):
+        if is_contest_admin(request) or is_contest_observer(request):
             return True
         round = submission.problem_instance.round
         rtimes = self.get_round_times(request, round)
@@ -565,9 +568,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                               select only given submission's reports
            :returns: updated queryset
         """
-        if request.user.has_perm('contests.contest_admin', request.contest):
-            return queryset
-        if request.user.has_perm('contests.contest_observer', request.contest):
+        if is_contest_admin(request) or is_contest_observer(request):
             return queryset
         if self.results_visible(request, submission):
             return queryset.filter(status='ACTIVE', kind='NORMAL')
@@ -670,7 +671,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             raise NotImplementedError
 
     def adjust_contest(self):
-        """Called whan a (usually new) contest has just got the controller
+        """Called when a (usually new) contest has just got the controller
            attached or after the contest has been modified."""
         pass
 
@@ -679,22 +680,28 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            for the given submission.
 
            Default implementation supports only kinds
-           ``NORMAL`` and ``IGNORED``.
+           ``NORMAL``, ``IGNORED``, ``SUSPECTED``.
         """
-        valid = ['NORMAL', 'IGNORED']
+        valid = ['NORMAL', 'IGNORED', 'SUSPECTED']
+        if submission.kind != 'SUSPECTED':
+            return [v for v in valid if v != 'SUSPECTED']
         if submission.kind in valid:
             return valid
-        else:
-            return []
+        return []
 
     def change_submission_kind(self, submission, kind):
         """Changes kind of the submission. Also updates user reports for
            problem, round and contest which may contain given submission.
         """
         assert kind in self.valid_kinds_for_submission(submission)
+        old_kind = submission.kind
         submission.kind = kind
         submission.save()
-        self.update_user_results(submission.user, submission.problem_instance)
+        if old_kind == 'SUSPECTED' and kind != 'SUSPECTED':
+            self.judge(submission)
+        if submission.user:
+            self.update_user_results(submission.user,
+                    submission.problem_instance)
 
     def mixins_for_admin(self):
         """Returns an iterable of mixins to add to the default

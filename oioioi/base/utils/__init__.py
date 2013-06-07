@@ -1,9 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.forms.util import flatatt
-from django.shortcuts import redirect
 from django.template import Template, Context
 from django.utils.html import conditional_escape
-from django.utils.http import is_safe_url
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.importlib import import_module
@@ -15,13 +13,16 @@ import shutil
 import traceback
 import re
 
+
 # Metaclasses
+
 
 class ClassInitMeta(type):
     """Meta class triggering __classinit__ on class intialization."""
     def __init__(cls, class_name, bases, new_attrs):
         super(ClassInitMeta, cls).__init__(class_name, bases, new_attrs)
         cls.__classinit__()
+
 
 class ClassInitBase(object):
     """Abstract base class injecting ClassInitMeta meta class."""
@@ -59,6 +60,7 @@ class ClassInitBase(object):
         """
         pass
 
+
 class RegisteredSubclassesBase(ClassInitBase):
     """A base class for classes which should have a list of subclasses
        available.
@@ -82,6 +84,11 @@ class RegisteredSubclassesBase(ClassInitBase):
             # This is RegisteredSubclassesBase class.
             return
 
+        if '__unmixed_class__' in cls.__dict__ \
+                and cls.__unmixed_class__ is not cls:
+            # This is an artificial class created by mixins mechanism
+            return
+
         assert 'subclasses' not in cls.__dict__, \
                 '%s defines attribute subclasses, but has ' \
                 'RegisteredSubclassesMeta metaclass' % (cls,)
@@ -95,7 +102,10 @@ class RegisteredSubclassesBase(ClassInitBase):
             if len(superclasses) > 1:
                 raise AssertionError('%s derives from more than one '
                         'RegisteredSubclassesBase' % (cls.__name__,))
-            return superclasses[0]
+            superclass = superclasses[0]
+            if '__unmixed_class__' in superclass.__dict__:
+                superclass = superclass.__unmixed_class__
+            return superclass
 
         # Add the class to all superclasses' 'subclasses' attribute, including
         # self.
@@ -122,10 +132,12 @@ class RegisteredSubclassesBase(ClassInitBase):
                     continue
         cls._subclasses_loaded = True
 
+
 class _RemoveMixinsFromInitMixin(object):
     def __init__(self, *args, **kwargs):
         kwargs.pop('mixins', None)
         super(_RemoveMixinsFromInitMixin, self).__init__(*args, **kwargs)
+
 
 class ObjectWithMixins(ClassInitBase):
     """Base class for objects which support mixins.
@@ -278,7 +290,9 @@ class ObjectWithMixins(ClassInitBase):
         cls._mx_class = None
         cls._fixup_subclasses()
 
+
 # Memoized-related bits copied from SqlAlchemy.
+
 
 class memoized_property(object):   # Copied from SqlAlchemy
     """A read-only @property that is only evaluated once."""
@@ -293,6 +307,7 @@ class memoized_property(object):   # Copied from SqlAlchemy
         obj.__dict__[self.__name__] = result = self.fget(obj)
         return result
 
+
 def memoized(fn):
     """Simple wrapper that adds result caching for functions with positional
        arguments only.
@@ -301,6 +316,7 @@ def memoized(fn):
        a dict.
     """
     cache = {}
+
     @functools.wraps(fn)
     def memoizer(*args):
         if args not in cache:
@@ -309,12 +325,12 @@ def memoized(fn):
     memoizer.cache = cache
     return memoizer
 
+
 def reset_memoized(memoized_fn):
     """Clear the memoization cache of a function decorated by
        :fun:`memoized`."""
     memoized_fn.cache.clear()
 
-# Finding objects by name
 
 def request_cached(fn):
     """Adds per-request caching for functions which operate on sole request."""
@@ -326,6 +342,10 @@ def request_cached(fn):
             request._cache[fn] = fn(request)
         return request._cache[fn]
     return cacher
+
+
+# Finding objects by name
+
 
 @memoized
 def get_object_by_dotted_name(name):
@@ -339,7 +359,9 @@ def get_object_by_dotted_name(name):
     except AttributeError, e:
         raise ImportError('Requested object %r not found: %s' % (name, e))
 
+
 # Generating HTML
+
 
 def make_html_link(href, name, extra_attrs={}):
     attrs = {'href': href}
@@ -347,26 +369,20 @@ def make_html_link(href, name, extra_attrs={}):
     return mark_safe(u'<a %s>%s</a>' % (flatatt(attrs),
             conditional_escape(force_unicode(name))))
 
+
 def make_html_links(links, extra_attrs={}):
     links = [make_html_link(href, name, extra_attrs) for href, name in links]
     return mark_safe(' | '.join(links))
+
 
 def make_navbar_badge(link, text):
     template = Template('<li><a href="{{ link }}"><span class="label '
             'label-important">{{ text }}</span></a></li>')
     return template.render(Context({'link': link, 'text': text}))
 
-# Redirects
-
-def safe_redirect(request, url, fallback='index'):
-    if url and is_safe_url(url=url, host=request.get_host()):
-        next_page = url
-    else:
-        next_page = reverse(fallback)
-
-    return redirect(next_page)
 
 # File uploads
+
 
 @contextmanager
 def uploaded_file_name(uploaded_file):
@@ -379,9 +395,10 @@ def uploaded_file_name(uploaded_file):
         yield f.name
         f.close()
 
+
 # Natural sort key
+
 
 def naturalsort_key(key):
     convert = lambda text: int(text) if text.isdigit() else text
-    return [ convert(c) for c in re.split('([0-9]+)', key) ]
-
+    return [convert(c) for c in re.split('([0-9]+)', key)]

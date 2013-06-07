@@ -8,16 +8,16 @@
             {% if contest %}
                 {% if single_contest_mode %}
                 <div class="contest nav">
-                    <a href="{% url index %}" class="">
+                    <a href="{% url 'index' %}" class="">
                         {{ contest.name }}
                     </a>
                 </div>
                 {% else %}
                     <ul class="nav">
-                        {% if only_default_contest %}
+                        {% if contest_exclusive %}
                         <li><a href="#">{{ contest.name }}</a></li>
                         {% else %}
-                        <li class="dropdown">
+                        <li class="dropdown {% if not user.is_anonymous and recent_contests and contest != recent_contests.0 %}open{% endif %}">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             {{ contest.name }}
                             <b class="caret"></b>
@@ -25,16 +25,16 @@
                         <ul class="dropdown-menu">
                             {% if recent_contests %}
                                 {% for contest in recent_contests %}
-                                <li><a href="{% url default_contest_view contest_id=contest.id %}">{{ contest.name }}</a></li>
+                                <li><a href="{% url 'default_contest_view' contest_id=contest.id %}">{{ contest.name }}</a></li>
                                 {% endfor %}
-                                <li><a href="{% url select_contest %}">{% trans "Other..." %}</a></li>
+                                <li><a href="{% url 'select_contest' %}">{% trans "Other..." %}</a></li>
                             {% else %}
-                            <li><a href="{% url select_contest %}">{% trans "Switch contest" %}</a></li>
+                            <li><a href="{% url 'select_contest' %}">{% trans "Switch contest" %}</a></li>
                             {% endif %}
 
                             {% if user.is_superuser %}
                             {% if recent_contests %}<li class="divider"></li>{% endif %}
-                            <li><a href="{% url oioioiadmin:contests_contest_add %}">{% trans "Create a new contest" %}</a></li>
+                            <li><a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create a new contest" %}</a></li>
                             {% endif %}
                         </ul>
                         </li>
@@ -62,12 +62,12 @@
                 {% block navbar_user_panel %}
                 {% if user.is_anonymous %}
                 <li>
-                    <a href="{% url auth_login %}" id="login_link" data-keyboard="true" data-backdrop="true" data-controls-modal="login_form">
+                    <a href="{% url 'auth_login' %}" id="login_link" data-keyboard="true" data-backdrop="true" data-controls-modal="login_form">
                         <strong>{% trans "Log in" %}</strong>
                     </a>
                 </li>
                 <li>
-                    <a href="{% url registration_register %}">{% trans "Register" %}</a>
+                    <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>
                 </li>
                 {% else %}
                 <li class="dropdown">

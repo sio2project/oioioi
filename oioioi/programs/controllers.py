@@ -16,13 +16,15 @@ from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
-        CompilationReport, TestReport, GroupReport
+        CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
+        Submission
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
 from oioioi.contests.utils import is_contest_admin
 
 logger = logging.getLogger(__name__)
+
 
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
@@ -133,6 +135,7 @@ class ProgrammingProblemController(ProblemController):
         from oioioi.programs.admin import ProgrammingProblemAdminMixin
         return (ProgrammingProblemAdminMixin,)
 
+
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
 
@@ -210,7 +213,7 @@ class ProgrammingContestController(ContestController):
                 initial=form.kind, label=_("Kind"))
 
     def create_submission(self, request, problem_instance, form_data,
-                    judge_after_create = True, **kwargs):
+                    judge_after_create=True, **kwargs):
         submission = ProgramSubmission(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,
@@ -235,7 +238,7 @@ class ProgrammingContestController(ContestController):
         return True
 
     def _map_report_to_submission_status(self, status):
-        mapping = {'OK': 'INI_OK', 'CE': 'CE'}
+        mapping = {'OK': 'INI_OK', 'CE': 'CE', 'SE': 'SE'}
         return mapping.get(status, 'INI_ERR')
 
     def update_submission_score(self, submission):
@@ -270,7 +273,7 @@ class ProgrammingContestController(ContestController):
             return ['INITIAL']
 
     def filter_visible_reports(self, request, submission, queryset):
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return queryset
         else:
             return queryset.filter(status='ACTIVE',
@@ -282,6 +285,7 @@ class ProgrammingContestController(ContestController):
                 context_instance=RequestContext(request,
                     {'submission': submission_template_context(request,
                         submission.programsubmission),
+                    'saved_diff_id': request.session.get('saved_diff_id'),
                     'supported_extra_args':
                         self.get_supported_extra_args(submission)}))
 
@@ -309,3 +313,36 @@ class ProgrammingContestController(ContestController):
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
                         'groups': groups}))
+
+    def render_submission_footer(self, request, submission):
+        super_footer = super(ProgrammingContestController, self). \
+                render_submission_footer(request, submission)
+        queryset = Submission.objects \
+                .filter(problem_instance__contest=request.contest) \
+                .filter(user=submission.user) \
+                .filter(problem_instance=submission.problem_instance) \
+                .exclude(pk=submission.pk) \
+                .order_by('-date') \
+                .select_related()
+        if not is_contest_admin(request):
+            cc = request.contest.controller
+            queryset = cc.filter_my_visible_submissions(request, queryset)
+        show_scores = bool(queryset.filter(score__isnull=False))
+        if not queryset.exists():
+            return super_footer
+        return super_footer + render_to_string(
+                'programs/other_submissions.html',
+                context_instance=RequestContext(request, {
+                        'submissions': [submission_template_context(request, s)
+                                 for s in queryset],
+                        'show_scores': show_scores,
+                        'main_submission_id': submission.id,
+                        'submissions_on_page': getattr(settings,
+                            'SUBMISSIONS_ON_PAGE', 15)}))
+
+    def valid_kinds_for_submission(self, submission):
+        if ModelProgramSubmission.objects.filter(id=submission.id).exists():
+            return [submission.kind]
+
+        return super(ProgrammingContestController, self) \
+                .valid_kinds_for_submission(submission)

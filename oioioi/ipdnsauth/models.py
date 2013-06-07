@@ -16,6 +16,7 @@ class IpToUser(models.Model):
     def __unicode__(self):
         return self.ip_addr
 
+
 class DnsToUser(models.Model):
     """Represents mapping for automatic authorization based on DNS hostname."""
     dns_name = models.CharField(unique=True, max_length=255,

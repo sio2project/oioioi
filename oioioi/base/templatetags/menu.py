@@ -5,6 +5,7 @@ from oioioi.base.menu import MenuRegistry, menu_registry
 
 register = template.Library()
 
+
 class GenerateMenuNode(Node):
     def __init__(self, registry):
         self.registry = registry
@@ -21,6 +22,7 @@ class GenerateMenuNode(Node):
                     "argument which is not a MenuRegistry: %r" % (registry,))
         context['menu'] = registry.template_context(request)
         return ''
+
 
 @register.tag
 def generate_menu(parser, token):

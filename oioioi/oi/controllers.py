@@ -1,12 +1,13 @@
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.models import Submission, SubmissionReport
-from oioioi.contests.utils import has_any_active_round
+from oioioi.contests.utils import has_any_active_round, is_contest_admin
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIOnsiteRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
+
 
 class OIRegistrationController(ParticipantsController):
     @property
@@ -27,6 +28,7 @@ class OIRegistrationController(ParticipantsController):
 
     def can_register(self, request):
         return True
+
 
 class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
@@ -93,6 +95,7 @@ class OIOnsiteRegistrationController(ParticipantsController):
     def can_edit_registration(self, request, participant):
         return False
 
+
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
 
@@ -100,7 +103,7 @@ class OIOnsiteContestController(OIContestController):
         return OIOnsiteRegistrationController(self.contest)
 
     def can_see_round(self, request, round):
-        if request.user.has_perm('contests.contest_admin', request.contest):
+        if is_contest_admin(request):
             return True
         rtimes = self.get_round_times(request, round)
         if has_any_active_round(request):

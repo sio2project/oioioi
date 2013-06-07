@@ -11,17 +11,21 @@
 {% if is_admin %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url oioioiadmin:contests_contest_change contest.id %}">
+        <li><a class="btn btn-small" href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
             <i class="icon-upload"></i> {% trans "Add file" %}</a></li>
     </ul>
 </div>
 {% endif %}
 {% if files %}
-{% autopaginate files 100 %}
+<div class="paginated-list">
+{% autopaginate files files_on_page %}
 {% paginate %}
 <table class="table auto-width row-links">
     <thead>
         <tr>
+            {% if add_category_field %}
+            <th style="min-width: 100px">{% trans "Category" %}</th>
+            {% endif %}
             <th style="min-width: 100px">{% trans "File" %}</th>
             <th style="min-width: 300px">{% trans "Description" %}</th>
         </tr>
@@ -29,13 +33,17 @@
     <tbody>
         {% for file in files %}
         <tr>
+            {% if add_category_field %}
+            <td>{{ file.category }}</td>
+            {% endif %}
             <td><a href="{{ file.link }}">{{ file.name }}</a></td>
-            <td>{{ file.description }}</a></td>
+            <td>{{ file.description }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
 {% paginate %}
+</div>
 {% else %}
 <div class="empty-space-filler">
     {% blocktrans %}No files are available.{% endblocktrans %}

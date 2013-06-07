@@ -1,3 +1,4 @@
+from django.core.validators import validate_slug
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -9,6 +10,7 @@ from oioioi.filetracker.fields import FileField
 
 import os.path
 
+
 def make_problem_filename(instance, filename):
     if not isinstance(instance, Problem):
         assert hasattr(instance, 'problem'), 'problem_file_generator used ' \
@@ -18,6 +20,7 @@ def make_problem_filename(instance, filename):
     return 'problems/%d/%s' % (instance.id,
             get_valid_filename(os.path.basename(filename)))
 
+
 class Problem(models.Model):
     """Represents a problem in the problems database.
 
@@ -25,7 +28,8 @@ class Problem(models.Model):
        see :cls:`oioioi.contests.models.ProblemInstance` for those.
     """
     name = models.CharField(max_length=255, verbose_name=_("full name"))
-    short_name = models.CharField(max_length=30, verbose_name=_("short name"))
+    short_name = models.CharField(max_length=30,
+            validators=[validate_slug], verbose_name=_("short name"))
     controller_name = DottedNameField(
         'oioioi.problems.controllers.ProblemController',
         verbose_name=_("type"))
@@ -60,6 +64,7 @@ class Problem(models.Model):
 def _call_controller_adjust_problem(sender, instance, raw, **kwargs):
     if not raw and instance.controller_name:
         instance.controller.adjust_problem()
+
 
 class ProblemStatement(models.Model):
     """Represents a file containing problem statement.

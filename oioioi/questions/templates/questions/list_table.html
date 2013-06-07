@@ -15,7 +15,7 @@
     <tbody>
         {% for record in records %}
         {% with record.message as msg %}
-        {% url message contest_id=contest.id message_id=record.link_message.id as link %}
+        {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
         <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
             {% if is_admin %}<td>{{ msg.author.get_full_name }}</td>{% endif %}
             <td><a href="{{ link }}">{{ msg.date }}</a></td>

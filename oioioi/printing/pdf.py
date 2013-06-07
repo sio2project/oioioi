@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from fpdf import FPDF
-from fpdf.php import UTF8ToUTF16BE
 
 import os
 
@@ -11,8 +10,10 @@ FONT = getattr(settings, 'PRINTING_FONT',
 FONT_SIZE = getattr(settings, 'PRINTING_FONT_SIZE', 8)
 MM_IN_POINT = 0.35
 
+
 class PageLimitExceeded(Exception):
     pass
+
 
 class PrintPDF(FPDF):
     """FPDF object with two column layout, header and footer"""

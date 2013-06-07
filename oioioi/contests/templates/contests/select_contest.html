@@ -15,7 +15,7 @@
         {% for contest in contests %}
         <tr>
             <td>{{ contest.id }}</td>
-            <td><a href="{% url default_contest_view contest_id=contest.id %}">{{ contest.name }}</a></td>
+            <td><a href="{% url 'default_contest_view' contest_id=contest.id %}">{{ contest.name }}</a></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -3,12 +3,11 @@ import urllib
 
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.util import unquote
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
 
@@ -19,6 +18,7 @@ from oioioi.contests.menu import contest_admin_menu_registry, \
         contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension, ContestPermission
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
 class RoundInline(admin.StackedInline):
@@ -34,6 +34,7 @@ class RoundInline(admin.StackedInline):
 
     def has_delete_permission(self, request, obj=None):
         return True
+
 
 class AttachmentInline(admin.TabularInline):
     model = ContestAttachment
@@ -54,6 +55,13 @@ class AttachmentInline(admin.TabularInline):
                     kwargs={'contest_id': str(instance.contest),
                             'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'round':
+            kwargs['queryset'] = Round.objects.filter(contest=request.contest)
+        return super(AttachmentInline, self) \
+            .formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline]
@@ -112,6 +120,7 @@ class ContestAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(request.get_full_path())
         return super(ContestAdmin, self).response_change(request, obj)
 
+
 class BaseContestAdmin(admin.MixinsAdmin):
     default_model_admin = ContestAdmin
 
@@ -127,6 +136,7 @@ contest_admin_menu_registry.register('contest_change', _("Settings"),
         lambda request: reverse('oioioiadmin:contests_contest_change',
             args=(request.contest.id,)), order=20)
 
+
 class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm
     fields = ('contest', 'round', 'problem', 'short_name')
@@ -135,7 +145,6 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-#        return request.user.has_perm('contests.contest_admin', request.contest)
 
     def has_change_permission(self, request, obj=None):
         return not obj or request.user.has_perm('contests.contest_admin',
@@ -216,8 +225,10 @@ contest_admin_menu_registry.register('problems_change',
         reverse('oioioiadmin:contests_probleminstance_changelist'),
         order=30)
 
+
 class ProblemFilter(AllValuesFieldListFilter):
     title = _("problem")
+
 
 class UserListFilter(SimpleListFilter):
     title = _("user")
@@ -242,14 +253,15 @@ class UserListFilter(SimpleListFilter):
         else:
             return queryset
 
+
 class ProblemNameListFilter(SimpleListFilter):
     title = _("full name")
     parameter_name = 'pi'
 
     def lookups(self, request, model_admin):
         # Unique problem names
-        p_names = list(set(ProblemInstance.objects \
-                .filter(contest=request.contest) \
+        p_names = list(set(ProblemInstance.objects
+                .filter(contest=request.contest)
                 .values_list('problem__name', flat=True)))
         return [(x, x) for x in p_names]
 
@@ -258,6 +270,7 @@ class ProblemNameListFilter(SimpleListFilter):
             return queryset.filter(problem_instance__problem__name=self.value())
         else:
             return queryset
+
 
 class SubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_login', 'user_full_name', 'date',
@@ -274,9 +287,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj:
             return False
-        return (request.user.has_perm('contests.contest_admin', request.contest)
-                or request.user.has_perm('contests.contest_observer',
-                    request.contest))
+        return is_contest_admin(request) or is_contest_observer(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request)
@@ -326,8 +337,12 @@ class SubmissionAdmin(admin.ModelAdmin):
         for submission in queryset:
             controller.judge(submission)
             counter += 1
-        self.message_user(request, _("Queued %d submissions for rejudge.")
-                % (counter,))
+        self.message_user(
+            request,
+            ungettext_lazy("Queued one submission for rejudge.",
+                           "Queued %(counter)d submissions for rejudge.",
+                           counter)
+            % {'counter': counter})
     rejudge_action.short_description = _("Rejudge selected submissions")
 
     def get_list_select_related(self):
@@ -360,6 +375,7 @@ contest_observer_menu_registry.register('submissions_admin', _("Submissions"),
         lambda request: reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
 
+
 class RoundListFilter(SimpleListFilter):
     title = _("round")
     parameter_name = 'round'
@@ -375,6 +391,7 @@ class RoundListFilter(SimpleListFilter):
         else:
             return queryset
 
+
 class RoundTimeExtensionAdmin(admin.ModelAdmin):
     list_display = ['user_login', 'user_full_name', 'round', 'extra_time']
     list_display_links = ['extra_time']
@@ -382,10 +399,10 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     search_fields = ['user__username', 'user__last_name']
 
     def has_add_permission(self, request):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
-        return request.user.has_perm('contests.contest_admin', request.contest)
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
@@ -409,19 +426,8 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
         return qs.filter(round__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        from oioioi.participants.models import Participant
-        from oioioi.participants.controllers import ParticipantsController
-
         if db_field.name == 'round':
             kwargs['queryset'] = Round.objects.filter(contest=request.contest)
-        elif db_field.name == 'user':
-            rcontroller = request.contest.controller.registration_controller()
-            if isinstance(rcontroller, ParticipantsController):
-                kwargs['queryset'] = User.objects \
-                        .filter(id__in=Participant.objects
-                            .filter(contest=request.contest)
-                            .values_list('user', flat=True)) \
-                        .order_by('username')
         return super(RoundTimeExtensionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -430,6 +436,7 @@ contest_admin_menu_registry.register('roundtimeextension_admin',
         _("Round extensions"), lambda request:
         reverse('oioioiadmin:contests_roundtimeextension_changelist'),
         order=50)
+
 
 class ContestPermissionAdmin(admin.ModelAdmin):
     list_display = ['permission', 'user', 'user_full_name']

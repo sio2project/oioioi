@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+
 class RemoteProblemForm(forms.Form):
     url = forms.CharField(
         label=_("Task URL"),

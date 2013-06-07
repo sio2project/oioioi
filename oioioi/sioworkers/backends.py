@@ -8,6 +8,7 @@ import sio.celery.job
 from threading import Lock
 _local_backend_lock = Lock()
 
+
 class LocalBackend(object):
     """A simple sioworkers backend which executes the work in the calling
        process.
@@ -24,6 +25,7 @@ class LocalBackend(object):
         for key, value in dict_of_jobs.iteritems():
             results[key] = self.run_job(value, **kwargs)
         return results
+
 
 class CeleryBackend(object):
     """A backend which uses Celery for sioworkers jobs."""
