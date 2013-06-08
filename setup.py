@@ -34,7 +34,8 @@ setup(
         "django-celery",
         "django-supervisor",
         "linaro-django-pagination",
-        "django-grappelli>=2.4.4",
+        # Workaround for SIO-1266
+        "django-grappelli==2.4.4",
         "django-compressor",
         "pygments",
 
