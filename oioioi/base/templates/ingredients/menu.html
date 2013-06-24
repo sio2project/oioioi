@@ -7,17 +7,13 @@
             <li class="nav-header">{{ registry.text }}</li>
             {% for item in menu %}
                 <li {% if item.url == request.path %}class="active"{% endif %}>
-                    <a href="{{ item.url }}" {{ item.attrs }}>
-                        {% if item.icon %}<i class="icon-{{ item.icon }}"></i>{% endif %}
-                        {{ item.text }}</a>
+                    <a href="{{ item.url }}" {{ item.attrs }}>{% if item.icon %}<i class="icon-{{ item.icon }}"></i>{% endif %}{{ item.text }}</a>
                 </li>
             {% endfor %}
     {%  endfor %}
     <li class="divider" id="nav-dropdown-divider" style="display: none;"></li>
     <li class="dropdown nav-dropdown-submenu" style="display: none;">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            {% trans 'More' %}
-        </a>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'More' %}</a>
         <ul class="dropdown-menu"></ul>
     </li>
 </ul>
@@ -27,17 +23,12 @@
     {% generate_menu side_menus|first %}
     {% for item in menu %}
         <li id="{{ item.name }}" {% if item.url == request.path %}class="active"{% endif %}>
-        <a href="{{ item.url }}" {{ item.attrs }}>
-            <img src="{{ STATIC_URL }}images/menu/menu-icon-{% cycle '1' '2' '3' %}.png"/>
-            {{ item.text }}
-        </a>
+            <a href="{{ item.url }}" {{ item.attrs }}><img src="{{ STATIC_URL }}images/menu/menu-icon-{% cycle '1' '2' '3' %}.png"/>{{ item.text }}</a>
         </li>
     {% endfor %}
     <li class="divider" id="nav-dropdown-divider" style="display: none;"></li>
     <li class="dropdown nav-dropdown-submenu" style="display: none;">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            {% trans 'More' %}
-        </a>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{% trans 'More' %}</a>
         <ul class="dropdown-menu"></ul>
     </li>
 </ul>

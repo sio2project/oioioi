@@ -13,15 +13,15 @@ class Forum(models.Model):
 
     contest = models.OneToOneField(Contest)
     visible = models.BooleanField(default=True,
-                                  verbose_name=_("Forum is visible after lock"))
+                                  verbose_name=_("forum is visible after lock"))
     lock_date = models.DateTimeField(blank=True, null=True,
-                                     verbose_name=_("Set autolock date"))
+                                     verbose_name=_("set autolock date"))
     unlock_date = models.DateTimeField(blank=True, null=True,
-                                       verbose_name=_("Set autounlock date"))
+                                       verbose_name=_("set autounlock date"))
 
     class Meta:
-        verbose_name = _("Forum")
-        verbose_name_plural = _("Forums")
+        verbose_name = _("forum")
+        verbose_name_plural = _("forums")
 
     def __unicode__(self):
         return '%(name)s' % dict(name=self.contest.name)
@@ -46,30 +46,33 @@ class Forum(models.Model):
 class Category(models.Model):
     """Category model """
 
-    forum = models.ForeignKey(Forum, verbose_name=_("Forum"))
-    name = models.CharField(max_length=255, verbose_name=_("Category"))
+    forum = models.ForeignKey(Forum, verbose_name=_("forum"))
+    name = models.CharField(max_length=255, verbose_name=_("category"))
 
     class Meta:
-        verbose_name = _("Category")
-        verbose_name_plural = _("Categories")
+        verbose_name = _("category")
+        verbose_name_plural = _("categories")
 
     def __unicode__(self):
         return '%(name)s' % dict(name=self.name)
 
     def count_threads(self):
         return self.thread_set.count()
+    count_threads.short_description = _("Threads count")
 
     def count_posts(self):
         ret = 0
         for t in self.thread_set.all():
             ret += t.count_posts()
         return ret
+    count_posts.short_description = _("Posts count")
 
     def count_reported(self):
         ret = 0
         for t in self.thread_set.all():
             ret += t.count_reported()
         return ret
+    count_reported.short_description = _("Reported posts count")
 
     def get_admin_url(self):
         return reverse('oioioiadmin:forum_category_change', args=(self.id, ))
@@ -78,22 +81,24 @@ class Category(models.Model):
 class Thread(models.Model):
     """Thread model - topic in a category"""
 
-    category = models.ForeignKey(Category, verbose_name=_("Category"))
-    name = models.CharField(max_length=255, verbose_name=_("Thread"))
+    category = models.ForeignKey(Category, verbose_name=_("category"))
+    name = models.CharField(max_length=255, verbose_name=_("thread"))
 
     class Meta:
-        verbose_name = _("Thread")
-        verbose_name_plural = _("Threads")
+        verbose_name = _("thread")
+        verbose_name_plural = _("threads")
 
     def __unicode__(self):
         return '%(name)s' % dict(name=self.name)
 
     def count_posts(self):
         return self.post_set.count()
+    count_posts.short_description = _("Posts count")
 
     def count_reported(self):
         p = self.post_set.filter(reported=True)
         return p.count()
+    count_reported.short_description = _("Reported posts count")
 
     def get_admin_url(self):
         return reverse('oioioiadmin:forum_thread_change', args=(self.id, ))
@@ -102,23 +107,23 @@ class Thread(models.Model):
 class Post(models.Model):
     """Post - the basic part of the forum """
 
-    thread = models.ForeignKey(Thread, verbose_name=_("Thread"))
-    content = models.TextField(verbose_name=_("Post"))
-    add_date = models.DateTimeField(verbose_name=_("Add date"),
+    thread = models.ForeignKey(Thread, verbose_name=_("thread"))
+    content = models.TextField(verbose_name=_("post"))
+    add_date = models.DateTimeField(verbose_name=_("add date"),
                                     default=timezone.now, blank=True)
-    last_edit_date = models.DateTimeField(verbose_name=_("Last edit"),
+    last_edit_date = models.DateTimeField(verbose_name=_("last edit"),
                                           blank=True, null=True)
-    author = models.ForeignKey(User)
-    reported = models.BooleanField(default=False)
-    hidden = models.BooleanField(default=False)
+    author = models.ForeignKey(User, verbose_name=_("author"))
+    reported = models.BooleanField(verbose_name=_("reported"), default=False)
+    hidden = models.BooleanField(verbose_name=_("hidden"), default=False)
 
     @property
     def edited(self):
         return bool(self.last_edit_date)
 
     class Meta:
-        verbose_name = _("Post")
-        verbose_name_plural = _("Posts")
+        verbose_name = _("post")
+        verbose_name_plural = _("posts")
 
     def __unicode__(self):
         return '%(content)s in %(thread)s' % dict(content=self.content,

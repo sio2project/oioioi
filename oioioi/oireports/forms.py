@@ -70,21 +70,25 @@ class OIReportCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
 
 class OIReportForm(forms.Form):
-    is_single_report = forms.BooleanField(required=False)
+    is_single_report = forms.BooleanField(required=False,
+        label=_("Single report"))
     single_report_user = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'placeholder': _("User"),
-                                      'autocomplete': 'off'})
+                                      'autocomplete': 'off'}),
+        label=_("Username")
     )
-    form_type = forms.ChoiceField(choices=report_types)
+    form_type = forms.ChoiceField(choices=report_types, label=_("Report type"))
 
     def __init__(self, request, *args, **kwargs):
         super(OIReportForm, self).__init__(*args, **kwargs)
         rounds = _rounds(request)
         regions = _regions(request)
         testgroups = _testgroups(request)
-        self.fields['report_round'] = forms.ChoiceField(choices=rounds)
-        self.fields['report_region'] = forms.ChoiceField(choices=regions)
+        self.fields['report_round'] = forms.ChoiceField(choices=rounds,
+                label=_("Round"))
+        self.fields['report_region'] = forms.ChoiceField(choices=regions,
+                label=_("Region"))
 
         for round in testgroups:
             for task in round['tasks']:

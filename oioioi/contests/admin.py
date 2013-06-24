@@ -55,6 +55,7 @@ class AttachmentInline(admin.TabularInline):
                     kwargs={'contest_id': str(instance.contest),
                             'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
+    content_link.short_description = _("Content file")
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'round':

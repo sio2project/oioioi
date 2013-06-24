@@ -23,11 +23,12 @@ class Message(models.Model):
             blank=True)
     top_reference = models.ForeignKey('self', null=True, blank=True)
     author = models.ForeignKey(User)
-    kind = EnumField(message_kinds, default='QUESTION')
+    kind = EnumField(message_kinds, default='QUESTION', verbose_name=_("kind"))
     topic = models.CharField(max_length=255, verbose_name=_("topic"),
-        validators=[MaxLengthValidator(255), validate_whitespaces])
-    content = models.TextField(verbose_name=_('content'))
-    date = models.DateTimeField(default=timezone.now, editable=False)
+            validators=[MaxLengthValidator(255), validate_whitespaces])
+    content = models.TextField(verbose_name=_("content"))
+    date = models.DateTimeField(default=timezone.now, editable=False,
+            verbose_name=_("date"))
 
     def save(self, *args, **kwargs):
         if self.top_reference:
@@ -54,7 +55,7 @@ class MessageView(models.Model):
 
 class MessageNotifierConfig(models.Model):
     contest = models.ForeignKey(Contest)
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, verbose_name=_("username"))
 
     class Meta:
         unique_together = ('contest', 'user')

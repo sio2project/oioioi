@@ -59,7 +59,8 @@ class Region(models.Model):
 
 
 class School(models.Model):
-    name = models.CharField(max_length=255, validators=[validate_whitespaces])
+    name = models.CharField(max_length=255, validators=[validate_whitespaces],
+        verbose_name=_("name"))
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = models.CharField(max_length=6, verbose_name=_("postal code"),
         validators=[RegexValidator(r'^\d{2}-\d{3}$',
@@ -71,7 +72,7 @@ class School(models.Model):
     phone = models.CharField(max_length=64, validators=[
         RegexValidator(r'\+?[0-9() -]{6,}', _("Invalid phone number"))],
         verbose_name=_("phone number"), null=True, blank=True)
-    email = models.EmailField(blank=True)
+    email = models.EmailField(blank=True, verbose_name=_("email"))
 
     def __unicode__(self):
         return _("%(name)s, %(city)s") % \
@@ -105,9 +106,10 @@ class OIRegistration(RegistrationModel):
 
 
 class OIOnsiteRegistration(RegistrationModel):
-    number = models.IntegerField()
-    region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL)
-    local_number = models.IntegerField()
+    number = models.IntegerField(verbose_name=_("number"))
+    region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL,
+        verbose_name=_("region"))
+    local_number = models.IntegerField(verbose_name=_("local number"))
 
     class Meta:
         unique_together = ('region', 'local_number')

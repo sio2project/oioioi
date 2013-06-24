@@ -36,10 +36,12 @@ class ForumAdmin(admin.ModelAdmin):
             ret = '<li>' + _("Empty forum") + '</li>'
         return '<ul>%s</ul>' % ret
     categories.allow_tags = True
+    categories.short_description = _("Categories")
 
     def add_category(self, obj):
         return make_html_link(reverse('oioioiadmin:forum_category_add',), '+')
     add_category.allow_tags = True
+    add_category.short_description = _("Add category")
 
     def has_add_permission(self, request):
         return False
@@ -76,6 +78,7 @@ class CategoryAdmin(admin.ModelAdmin):
             ret = '<li>' + _("Empty category") + '</li>'
         return '<ul>%s</ul>' % ret
     threads.allow_tags = True
+    threads.short_description = _("Threads")
 
     def save_model(self, request, obj, form, change):
         obj.forum = request.contest.forum
@@ -137,6 +140,7 @@ class ThreadAdmin(admin.ModelAdmin):
             ret = '<li>' + _("Empty thread") + '</li>'
         return '<ul>%s</ul>' % ret
     posts.allow_tags = True
+    posts.short_description = _("Posts")
 
     def has_add_permission(self, request):
         return False

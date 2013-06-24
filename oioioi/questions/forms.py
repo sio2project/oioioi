@@ -85,7 +85,7 @@ class FilterMessageForm(forms.Form):
 
 
 class FilterMessageAdminForm(FilterMessageForm):
-    author = forms.CharField(label=_('Author username'), required=False)
+    author = forms.CharField(label=_("Author username"), required=False)
 
     def clean_author(self):
         username = self.cleaned_data['author'].split()

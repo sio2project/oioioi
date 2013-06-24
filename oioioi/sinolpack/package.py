@@ -450,7 +450,7 @@ class SinolPackageCreator(object):
 
 
 class SinolPackageBackend(ProblemPackageBackend):
-    description = _('Sinol Package')
+    description = _("Sinol Package")
 
     def identify(self, path, original_filename=None):
         print original_filename

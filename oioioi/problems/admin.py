@@ -39,6 +39,7 @@ class StatementInline(admin.TabularInline):
         href = reverse('oioioi.problems.views.show_statement_view',
                 kwargs={'statement_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
+    content_link.short_description = _("Content file")
 
 
 class AttachmentInline(admin.TabularInline):
@@ -59,6 +60,7 @@ class AttachmentInline(admin.TabularInline):
         href = reverse('oioioi.problems.views.show_problem_attachment_view',
                 kwargs={'attachment_id': str(instance.id)})
         return make_html_link(href, instance.content.name)
+    content_link.short_description = _("Content file")
 
 
 class ProblemInstanceInline(admin.StackedInline):
