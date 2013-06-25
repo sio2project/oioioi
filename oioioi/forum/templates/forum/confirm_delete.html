@@ -1,0 +1,9 @@
+{% extends "simple-centered-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirmation" %}{% endblock %}
+
+{% block help_text %}
+    {% blocktrans with el=elem %}Are you sure, that you want to delete {{ elem }}?{% endblocktrans %}
+{% endblock %}
+

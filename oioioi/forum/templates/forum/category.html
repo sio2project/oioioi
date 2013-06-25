@@ -1,0 +1,66 @@
+{% extends "forum/forum.html" %}
+{% load i18n %}
+{% load check_perm %}
+
+{% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
+
+{% block content %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+<h2>{% trans "Category" %}: {{ category.name }}</h2>
+{% if user.is_authenticated  and not is_locked  or is_admin %}
+<div class="corner-icons">
+    <ul>
+        <li>
+        <a href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}" class="btn btn-small">{% trans "Add new thread" %}</a>
+        </li>
+    </ul>
+</div>
+{% endif %}
+
+<div class="breadcrumb">
+    <li>
+        <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
+        <span class="divider">|</span>
+    </li>
+    <li>
+        <span>{{ category.name }}</span>
+    </li>
+</div>
+{% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
+{% if category.thread_set.exists %}
+<table class="table auto-width row-links">
+    <thead>
+        <tr>
+            <th style="min-width: 300px">{% trans "Threads" %}</th>
+            <th style="min-width: 60px">{% trans "Posts" %}</th>
+            {% if is_admin %}
+                <th style="min-width: 60px">{% trans "Options" %}</th>
+                <th style="min-width: 60px">{% trans "Reported posts" %}</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in category.thread_set.all %}
+        <tr>
+            <td>
+                <a href="{% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=t.id %}">
+                    {{ t.name }}
+                </a>
+            </td>
+            <td>{{ t.count_posts }}</td>
+            {% if is_admin %}
+                <td>
+                    <a href="#" data-post-url="{% url 'forum_thread_delete' contest_id=contest.id category_id=category.id thread_id=t.id %}"><i class="icon-trash"></i></a>
+                </td>
+                <td {% if t.count_reported > 0 %}class="reported_counter"{% endif %}>
+                    {{ t.count_reported }}
+                </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <h5>{% trans "There is no thread in this category, sorry." %}</h5>
+{% endif %}
+{% endblock %}
