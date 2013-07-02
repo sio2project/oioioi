@@ -35,12 +35,18 @@ class Test(models.Model):
 
     class Meta:
         ordering = ['order']
+        verbose_name = _("test")
+        verbose_name_plural = _("tests")
 
 
 class OutputChecker(models.Model):
     problem = models.OneToOneField(Problem)
     exe_file = FileField(upload_to=make_problem_filename,
-            null=True, blank=True)
+            null=True, blank=True, verbose_name=_("checker executable file"))
+
+    class Meta:
+        verbose_name = _("output checker")
+        verbose_name_plural = _("output checkers")
 
 
 @receiver(post_save, sender=Problem)

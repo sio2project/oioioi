@@ -12,7 +12,7 @@ def confirmation_view(request,
     if context is None:
         context = {}
 
-    if request.method == 'POST':
+    if request.method == 'POST' and 'confirmation_sent' in request.POST:
         if 'confirmation' in request.POST:
             return True
         else:

@@ -96,7 +96,7 @@ class ContestAttachment(models.Model):
     content = FileField(upload_to=make_contest_filename,
             verbose_name=_("content"))
     round = models.ForeignKey('Round', related_name='r_attachments',
-            verbose_name='round', blank=True, null=True)
+            blank=True, null=True, verbose_name=_("round"))
 
     @property
     def filename(self):
@@ -151,7 +151,8 @@ class ProblemInstance(models.Model):
     short_name = models.CharField(max_length=30, verbose_name=_("short name"),
             validators=[validate_db_string_id])
     submissions_limit = models.IntegerField(blank=True,
-        default=settings.DEFAULT_SUBMISSIONS_LIMIT)
+        default=settings.DEFAULT_SUBMISSIONS_LIMIT,
+        verbose_name=_("submissions limit"))
 
     class Meta:
         verbose_name = _("problem instance")

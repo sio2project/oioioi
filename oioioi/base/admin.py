@@ -67,16 +67,16 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             raise PermissionDenied
 
         if obj is None:
-            raise Http404(_('%(name)s object with primary key %(key)r does '
-                'not exist.') % {'name': force_unicode(opts.verbose_name),
+            raise Http404(_("%(name)s object with primary key %(key)r does "
+                "not exist.") % {'name': force_unicode(opts.verbose_name),
                     'key': escape(object_id)})
 
         if request.POST:  # The user has already confirmed the deletion.
             obj_display = force_unicode(obj)
             self.log_deletion(request, obj, obj_display)
             self.delete_model(request, obj)
-            self.message_user(request, _('The %(name)s "%(obj)s" was deleted '
-                'successfully.') % {'name': force_unicode(opts.verbose_name),
+            self.message_user(request, _("The %(name)s \"%(obj)s\" was deleted "
+                "successfully.") % {'name': force_unicode(opts.verbose_name),
                     'obj': force_unicode(obj_display)})
             return self.response_delete(request)
 
@@ -145,10 +145,10 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
-        (_('Permissions'), {'fields': ('is_active', 'is_superuser',
+        (_("Personal info"), {'fields': ('first_name', 'last_name', 'email')}),
+        (_("Permissions"), {'fields': ('is_active', 'is_superuser',
                                        'groups')}),
-        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+        (_("Important dates"), {'fields': ('last_login', 'date_joined')}),
     )
     list_filter = ['is_superuser', 'is_active']
     list_display = ['username', 'email', 'first_name', 'last_name',

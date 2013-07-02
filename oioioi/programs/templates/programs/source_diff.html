@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-    <a class="btn" href={{ reverse_diff_url }}><i class="icon-random"></i> Change sides</a>
+<a class="btn" href={{ reverse_diff_url }}><i class="icon-random"></i> {% trans "Swap sides" %}</a>
     <table class="syntax-highlighttable diff-table"><tbody>
     <tr>
         <td colspan=2>

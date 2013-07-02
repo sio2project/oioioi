@@ -32,6 +32,7 @@ class OIRegistrationController(ParticipantsController):
 
 class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
+    create_forum = True
 
     def fill_evaluation_environ(self, environ, submission):
         environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
@@ -98,6 +99,7 @@ class OIOnsiteRegistrationController(ParticipantsController):
 
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
+    create_forum = False
 
     def registration_controller(self):
         return OIOnsiteRegistrationController(self.contest)

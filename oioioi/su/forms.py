@@ -12,8 +12,8 @@ def authentication_backends():
 
 
 class SuForm(forms.Form):
-    user = forms.CharField(label=_('Username'))
-    backend = forms.ChoiceField(label=_('Authentication backend'),
+    user = forms.CharField(label=_("Username"))
+    backend = forms.ChoiceField(label=_("Authentication backend"),
         required=False, choices=authentication_backends())
 
     def clean_user(self):

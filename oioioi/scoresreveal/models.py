@@ -17,7 +17,7 @@ class ScoreRevealConfig(models.Model):
     problem = models.OneToOneField(Problem,
                                    verbose_name=_("problem"),
                                    related_name='scores_reveal_config')
-    reveal_limit = models.IntegerField(verbose_name=_("Reveal limit"))
+    reveal_limit = models.IntegerField(verbose_name=_("reveal limit"))
     disable_time = models.IntegerField(blank=True, null=True,
         verbose_name=_("disable for last minutes of the round"))
 
