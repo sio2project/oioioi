@@ -1,13 +1,16 @@
+import urllib
+
 from django import forms
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
+
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import RegistrationController
 from oioioi.contests.utils import is_contest_admin
 from oioioi.participants.models import Participant, RegistrationModel
-import urllib
 
 
 class ParticipantsController(RegistrationController):
@@ -99,9 +102,9 @@ class ParticipantsController(RegistrationController):
                         contest=self.contest, user=request.user)
                 self.handle_validated_form(request, form, participant)
                 if 'next' in request.GET:
-                    return HttpResponseRedirect(request.GET['next'])
+                    return safe_redirect(request, request.GET['next'])
                 else:
                     return redirect('default_contest_view',
-                            contest_id=self.contest)
+                            contest_id=self.contest.id)
         context = {'form': form, 'participant': participant}
         return TemplateResponse(request, self.registration_template, context)

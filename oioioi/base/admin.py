@@ -1,3 +1,5 @@
+import urllib
+
 from django.template.response import TemplateResponse
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -11,10 +13,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django import forms
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
-import urllib
 
 TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline
@@ -36,7 +39,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
         if 'came_from' in request.GET and '_continue' not in request.POST \
                 and '_saveasnew' not in request.POST \
                 and '_addanother' not in request.POST:
-            return HttpResponseRedirect(request.GET['came_from'])
+            return safe_redirect(request, request.GET['came_from'])
         return super(ModelAdmin, self).response_change(request, obj)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -51,7 +54,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
     def response_delete(self, request):
         opts = self.model._meta
         if 'came_from' in request.GET:
-            return HttpResponseRedirect(request.GET['came_from'])
+            return  safe_redirect(request, request.GET['came_from'])
         if not self.has_change_permission(request):
             return HttpResponseRedirect(reverse('admin:index',
                                             current_app=self.admin_site.name))
