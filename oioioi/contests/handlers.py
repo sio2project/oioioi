@@ -95,6 +95,14 @@ def mail_admins_on_error(env, exc_info, **kwargs):
            * `env['submission_id']`
     """
 
+    # We don't want to spam admins when the evaluation of a deleted
+    # submission fails. See also SIO-1254.
+    try:
+        if 'submission_id' in env:
+            Submission.objects.get(id=env['submission_id'])
+    except Submission.DoesNotExist:
+        return env
+
     try:
         mail_admins("System Error evaluating submission #%s" %
                     env.get('submission_id', '???'),
