@@ -26,6 +26,9 @@ class Participant(models.Model):
         rcontroller = self.contest.controller.registration_controller()
         model_class = rcontroller.get_model_class()
 
+        if model_class is None:
+            raise ObjectDoesNotExist
+
         try:
             return model_class.objects.get(participant=self)
         except model_class.DoesNotExist:

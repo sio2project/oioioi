@@ -27,22 +27,6 @@ class ParticipantsContestController(ProgrammingContestController):
         return ParticipantsController(self.contest)
 
 
-class OpenRegistrationController(ParticipantsController):
-    def anonymous_can_enter_contest(self):
-        return True
-
-    def can_enter_contest(self, request):
-        return True
-
-    def can_register(self, request):
-        return True
-
-
-class OpenRegistrationContestController(ContestController):
-    def registration_controller(self):
-        return OpenRegistrationController(self.contest)
-
-
 class TestParticipantsContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
 
@@ -164,34 +148,31 @@ class TestParticipantsRegistration(TestCase):
         url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
-        self.assertIn('Edit contest registration', response.content)
+        self.assertNotIn('Edit contest registration', response.content)
 
-    def test_participants_with_open_registration(self):
+    def test_participants_registration(self):
         contest = Contest.objects.get()
         contest.controller_name = \
-                'oioioi.participants.tests.OpenRegistrationContestController'
+                'oioioi.participants.tests.ParticipantsContestController'
         contest.save()
 
         url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user')
         response = self.client.get(url, follow=True)
-        self.assertIn('Register to the contest', response.content)
-        self.assertNotIn('Edit contest registration', response.content)
 
-        user = User.objects.get(username='test_user')
-        p = Participant(contest=contest, user=user)
-        p.save()
-
-        self.client.login(username='test_user')
-        response = self.client.get(url, follow=True)
-        self.assertNotIn('Register to the contest', response.content)
-        self.assertIn('Edit contest registration', response.content)
+        register_url = reverse('participants_register',
+                kwargs={'contest_id': contest.id})
+        response = self.client.get(register_url)
+        self.assertEquals(403, response.status_code)
+        response = self.client.post(register_url)
+        self.assertEquals(403, response.status_code)
+        self.assertEqual(Participant.objects.count(), 0)
 
     def test_participants_unregister(self):
         contest = Contest.objects.get()
         contest.controller_name = \
-                'oioioi.participants.tests.OpenRegistrationContestController'
+                'oioioi.participants.tests.ParticipantsContestController'
         contest.save()
 
         url = reverse('participants_unregister',
@@ -206,17 +187,9 @@ class TestParticipantsRegistration(TestCase):
         p.save()
         self.assertEqual(Participant.objects.count(), 1)
 
-        self.client.login(username='test_user')
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
-
-        p.status = 'ACTIVE'
-        p.save()
-
-        self.client.login(username='test_user')
-        response = self.client.post(url, {'post': 'yes'})
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(Participant.objects.count(), 0)
+        self.assertEqual(Participant.objects.count(), 1)
 
 
 class NoAdminParticipantsRegistrationController(ParticipantsController):
