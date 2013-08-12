@@ -14,10 +14,12 @@ ADMINS = (
 )
 
 # Sender email address for messages sent by OIOIOI to users.
-DEFAULT_FROM_ADDRESS = 'webmaster@localhost'
+DEFAULT_FROM_EMAIL = 'webmaster@localhost'
+DEFAULT_FROM_ADDRESS = DEFAULT_FROM_EMAIL
 
 # Sender email address for error messages sent to admins.
-SERVER_EMAIL = DEFAULT_FROM_ADDRESS
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+
 
 # Email addresses to send communication from users (for example requests for
 # teacher accounts).
