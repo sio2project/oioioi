@@ -27,10 +27,10 @@ def problem_sources(request):
 
 
 class ProblemSource(object):
-    #: A simple indetifier, which may appear in the URL.
+    #: A simple identifier, which may appear in the URL.
     key = '__override_in_a_subclass__'
 
-    #: A human-readable, desctiprion which will be displayed in a tab.
+    #: A human-readable description, which will be displayed in a tab.
     short_description = '__override_in_a_subclass__'
 
     def view(self, request, round, existing_problem=None):
