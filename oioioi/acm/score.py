@@ -1,3 +1,50 @@
+from oioioi.contests.scores import ScoreValue
+from django.utils.translation import ugettext as _
+
+
+def format_time(seconds):
+    minutes = seconds / 60
+    return '%d:%02d' % (minutes / 60, minutes % 60)
+
+
+class BinaryScore(ScoreValue):
+    """Score representing binary grading: accepted or rejected.
+
+       Sum of binary scores is accepted only when every single score were
+       accepted.
+    """
+
+    symbol = 'bool'
+    accepted = False
+
+    def __init__(self, solved=False):
+        self.accepted = solved
+
+    def __add__(self, other):
+        return BinaryScore(self.accepted and other.accepted)
+
+    def __cmp__(self, other):
+        if other is None:
+            return 1
+        return cmp(self.accepted, other.accepted)
+
+    def __hash__(self):
+        return self.accepted
+
+    @classmethod
+    def _from_repr(cls, value):
+        return BinaryScore(value == 'accepted')
+
+    def _to_repr(self):
+        return 'accepted' if self.accepted else 'rejected'
+
+    def __unicode__(self):
+        if self.accepted:
+            return _("Accepted")
+        else:
+            return _("Rejected")
+
+
 class ACMScore(ScoreValue):
     """ACM style score consisting of number of solved problems, total time
        needed for solving problems and time penalty for each
@@ -35,20 +82,22 @@ class ACMScore(ScoreValue):
         return sum
 
     def __cmp__(self, other):
+        if other is None:
+            return 1
         return cmp((self.problems_solved, -self.total_time),
             (other.problems_solved, -other.total_time))
 
     def __hash__(self):
         return self.total_time
 
-    def __str__(self):
+    def __unicode__(self):
         penalty_string = self.penalty_repr()
         time_string = ''
         if self.problems_solved > 0:
-            time_string = self.total_time_repr()
+            time_string = self.time_passed_repr()
             if penalty_string != '':
                 time_string += ' '
-        return time_string + penalty_string
+        return unicode(time_string + penalty_string)
 
     def penalty_repr(self):
         if self.penalties_count <= 3:
@@ -61,12 +110,15 @@ class ACMScore(ScoreValue):
                                 (self.total_time % 3600) / 60,
                                 self.total_time % 60)
 
+    def time_passed_repr(self):
+        return format_time(self.time_passed)
+
     @classmethod
     def _from_repr(cls, value):
-        problems_solved, total_time, penalties_count = map(int,
-                                                           value.split(':'))
+        _ordering, problems_solved, time_passed, penalties_count = map(
+                int, value.split(':'))
         return ACMScore(problems_solved,
-                        total_time - cls.penalty_time * penalties_count,
+                        time_passed,
                         penalties_count)
 
     def _to_repr(self):
@@ -79,8 +131,9 @@ class ACMScore(ScoreValue):
 
            ``penalties_count`` is number of unsuccessful submissions.
         """
-        return '%d:%d:%d' % (self.problems_solved, self.total_time,
-                self.penalties_count)
+        ordering = 10**10 * (self.problems_solved + 1) - self.total_time
+        return '%020d:%010d:%010d:%010d' % (ordering,
+                self.problems_solved, self.time_passed, self.penalties_count)
 
     @property
     def total_time(self):

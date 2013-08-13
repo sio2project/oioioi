@@ -1,0 +1,47 @@
+{% load i18n check_perm %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+
+{% if rows %}
+{% if frozen %}
+    <div class="alert alert-info">{% trans "The ranking is frozen." %}</div>
+{% endif %}
+<table class="{% block table-classes %}acm-ranking table auto-width dense{% endblock %}">
+    <thead>
+        <tr>
+            <th style="min-width: 30px">#</th>
+            <th class="acm_user" style="min-width: 120px">{% trans "User" %}</th>
+            <th class="acm_count" style="min-width: 40px">{% trans "Score" %}</th>
+            <th class="acm_total_time" style="min-width: 40px">{% trans "Time" %}</th>
+            {% for pi in problem_instances %}
+            <th class="acm_result" style="min-width: 40px" {% if pi.round.is_trial %} class="trial-round" {% endif %} >{{ pi.get_short_name_display }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td>{{ row.place }}</td>
+            <td class="acm_user">{{ row.user.get_full_name }}</td>
+            <td class="acm_count">{{ row.sum.problems_solved }}</td>
+            <td class="acm_total_time">{{ row.sum.total_time_repr }} </td>
+
+            {% for result in row.results %}
+                <td class="acm_result{% if result.problem_instance.round.is_trial %} trial-round{% endif %}">
+                {% if result and result.score.problems_solved %}
+                    <div class="acm_tries subm_status subm_OK"> {{ result.score.penalties_count|add:"1" }} </div>
+                    <div class="acm_time">({{ result.score.time_passed_repr }})</div>
+                {% elif is_admin and result %}
+                    <div class="acm_tries subm_status subm_IGN"> {{ result.score.penalties_count }} </div>
+                {% else %}
+                    <div class="acm_no_score"> &#8211 </div>
+                {% endif %} </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
+</div>
+{% endif %}

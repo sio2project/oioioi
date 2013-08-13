@@ -81,6 +81,13 @@ class DefaultRankingController(RankingController):
         return render_to_string('rankings/default_ranking.html',
                 context_instance=RequestContext(request, data))
 
+    def _render_ranking_csv_line(self, row):
+        line = [row['place'], row['user'].first_name, row['user'].last_name]
+        line += [r.score if r and r.score is not None else ''
+                 for r in row['results']]
+        line.append(row['sum'])
+        return line
+
     def render_ranking_to_csv(self, request, key):
         data = self.serialize_ranking(request, key)
 
@@ -96,17 +103,8 @@ class DefaultRankingController(RankingController):
         header.append(_("Sum"))
         writer.writerow(map(force_unicode, header))
 
-        def default_if_none(value, arg):
-            if value is None:
-                return arg
-            return value
-
         for row in data['rows']:
-            line = [row['place'], row['user'].first_name,
-                    row['user'].last_name]
-            line += [default_if_none(getattr(r, 'score', None), '')
-                for r in row['results']]
-            line.append(row['sum'])
+            line = self._render_ranking_csv_line(row)
             writer.writerow(map(force_unicode, line))
 
         return response
@@ -114,28 +112,21 @@ class DefaultRankingController(RankingController):
     def filter_users_for_ranking(self, request, key, queryset):
         return queryset.filter(is_superuser=False)
 
-    def serialize_ranking(self, request, key):
-        rounds = list(self._rounds_for_ranking(request, key))
-        pis = list(ProblemInstance.objects.filter(round__in=rounds))
-        users = self.filter_users_for_ranking(request, key, User.objects.all())
-        results = UserResultForProblem.objects.filter(problem_instance__in=pis,
-                user__in=users)
+    def _get_users_results(self, pis, results, rounds, users):
         by_user = defaultdict(dict)
         for r in results:
             by_user[r.user_id][r.problem_instance_id] = r
         users = users.filter(id__in=by_user.keys())
-
         data = []
         all_rounds_trial = all(r.is_trial for r in rounds)
-
         for user in users.order_by('last_name', 'first_name', 'username'):
             by_user_row = by_user[user.id]
             user_results = []
             user_data = {
-                    'user': user,
-                    'results': user_results,
-                    'sum': None
-                }
+                'user': user,
+                'results': user_results,
+                'sum': None
+            }
 
             for pi in pis:
                 result = by_user_row.get(pi.id)
@@ -152,13 +143,33 @@ class DefaultRankingController(RankingController):
                 # problems do not support scoring, or all the evaluations
                 # failed with System Errors).
                 data.append(user_data)
-        data.sort(key=itemgetter('sum'), reverse=True)
+        return data
+
+    def _assign_places(self, data, extractor):
+        """Assigns places to the serialized ranking ``data``.
+
+           Extractor should return values by which users should be ordered in
+           the ranking. Users with the same place should have same value
+           returned.
+        """
+        data.sort(key=extractor, reverse=True)
         prev_sum = None
         place = None
-        for i, row in enumerate(data):
-            if row['sum'] != prev_sum:
-                place = i + 1
-                prev_sum = row['sum']
+        for i, row in enumerate(data, 1):
+            if extractor(row) != prev_sum:
+                place = i
+                prev_sum = extractor(row)
             row['place'] = place
 
+    def serialize_ranking(self, request, key):
+        rounds = list(self._rounds_for_ranking(request, key))
+        pis = list(ProblemInstance.objects.filter(round__in=rounds)
+                .select_related('problem').prefetch_related('round'))
+        users = self.filter_users_for_ranking(request, key, User.objects.all())
+        results = UserResultForProblem.objects \
+                .filter(problem_instance__in=pis, user__in=users) \
+                .prefetch_related('problem_instance__round')
+
+        data = self._get_users_results(pis, results, rounds, users)
+        self._assign_places(data, itemgetter('sum'))
         return {'rows': data, 'problem_instances': pis}

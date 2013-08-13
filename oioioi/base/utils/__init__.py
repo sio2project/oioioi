@@ -1,6 +1,5 @@
 # pylint: disable=E1003
 # Bad first argument %s given to super()
-from django.core.urlresolvers import reverse
 from django.forms.util import flatatt
 from django.template import Template, Context
 from django.utils.html import conditional_escape
@@ -9,11 +8,9 @@ from django.utils.encoding import force_unicode
 from django.utils.importlib import import_module
 from django.utils.translation import ugettext_lazy as _
 import functools
-import itertools
 from contextlib import contextmanager
 import tempfile
 import shutil
-import traceback
 import re
 import sys
 

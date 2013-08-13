@@ -1,0 +1,3856 @@
+[
+{
+  "pk": 1, 
+  "model": "forum.forum", 
+  "fields": {
+    "visible": true, 
+    "unlock_date": null, 
+    "lock_date": null, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": "acm", 
+  "model": "contests.contest", 
+  "fields": {
+    "creation_date": "2013-12-14T20:41:55.483Z", 
+    "default_submissions_limit": 10, 
+    "name": "Test ACM", 
+    "controller_name": "oioioi.acm.controllers.ACMContestController"
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.round", 
+  "fields": {
+    "name": "Runda 1", 
+    "end_date": "2013-12-15T01:40:00Z", 
+    "contest": "acm", 
+    "is_trial": false, 
+    "results_date": "2013-12-15T09:00:00Z", 
+    "start_date": "2013-12-14T20:40:00Z"
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.probleminstance", 
+  "fields": {
+    "problem": 1, 
+    "submissions_limit": 10, 
+    "round": 1, 
+    "short_name": "test", 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.probleminstance", 
+  "fields": {
+    "problem": 2, 
+    "submissions_limit": 10, 
+    "round": 1, 
+    "short_name": "sum", 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.probleminstance", 
+  "fields": {
+    "problem": 3, 
+    "submissions_limit": 10, 
+    "round": 1, 
+    "short_name": "a", 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 1, 
+    "creation_date": "2013-12-14T20:42:57.634Z"
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 2, 
+    "creation_date": "2013-12-14T20:43:35.968Z"
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 3, 
+    "creation_date": "2013-12-14T20:43:37.194Z"
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 5, 
+    "creation_date": "2013-12-14T20:43:40.258Z"
+  }
+},
+{
+  "pk": 5, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 4, 
+    "creation_date": "2013-12-14T20:43:41.238Z"
+  }
+},
+{
+  "pk": 6, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 6, 
+    "creation_date": "2013-12-14T20:46:00.599Z"
+  }
+},
+{
+  "pk": 7, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 7, 
+    "creation_date": "2013-12-14T20:46:26.143Z"
+  }
+},
+{
+  "pk": 8, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 8, 
+    "creation_date": "2013-12-14T20:46:51.705Z"
+  }
+},
+{
+  "pk": 9, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 9, 
+    "creation_date": "2013-12-14T20:47:42.547Z"
+  }
+},
+{
+  "pk": 10, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 10, 
+    "creation_date": "2013-12-14T20:48:05.848Z"
+  }
+},
+{
+  "pk": 11, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 11, 
+    "creation_date": "2013-12-14T20:49:34.814Z"
+  }
+},
+{
+  "pk": 12, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 12, 
+    "creation_date": "2013-12-14T20:50:18.402Z"
+  }
+},
+{
+  "pk": 13, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 13, 
+    "creation_date": "2013-12-14T20:51:28.956Z"
+  }
+},
+{
+  "pk": 14, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 14, 
+    "creation_date": "2013-12-14T20:52:40.583Z"
+  }
+},
+{
+  "pk": 15, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 15, 
+    "creation_date": "2013-12-14T20:53:43.539Z"
+  }
+},
+{
+  "pk": 16, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 16, 
+    "creation_date": "2013-12-14T20:54:01.462Z"
+  }
+},
+{
+  "pk": 17, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 17, 
+    "creation_date": "2013-12-14T20:59:33.405Z"
+  }
+},
+{
+  "pk": 18, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 18, 
+    "creation_date": "2013-12-14T21:00:07.686Z"
+  }
+},
+{
+  "pk": 19, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 19, 
+    "creation_date": "2013-12-14T21:01:29.686Z"
+  }
+},
+{
+  "pk": 20, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 20, 
+    "creation_date": "2013-12-14T21:02:13.641Z"
+  }
+},
+{
+  "pk": 21, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 21, 
+    "creation_date": "2013-12-14T21:13:10.584Z"
+  }
+},
+{
+  "pk": 22, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 22, 
+    "creation_date": "2013-12-14T21:14:58.090Z"
+  }
+},
+{
+  "pk": 23, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 23, 
+    "creation_date": "2013-12-14T21:16:16.737Z"
+  }
+},
+{
+  "pk": 24, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 24, 
+    "creation_date": "2013-12-14T21:42:37.381Z"
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "CE", 
+    "comment": null, 
+    "score": null, 
+    "submission_report": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 5, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "CE", 
+    "comment": null, 
+    "score": null, 
+    "submission_report": 5
+  }
+},
+{
+  "pk": 6, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 6
+  }
+},
+{
+  "pk": 7, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 8, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 9, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 9
+  }
+},
+{
+  "pk": 10, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 11, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 11
+  }
+},
+{
+  "pk": 12, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 12
+  }
+},
+{
+  "pk": 13, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "MLE", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 13
+  }
+},
+{
+  "pk": 14, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 14
+  }
+},
+{
+  "pk": 15, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 15
+  }
+},
+{
+  "pk": 16, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 16
+  }
+},
+{
+  "pk": 17, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 17
+  }
+},
+{
+  "pk": 18, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 18
+  }
+},
+{
+  "pk": 19, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 19
+  }
+},
+{
+  "pk": 20, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 20
+  }
+},
+{
+  "pk": 21, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 22, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 22
+  }
+},
+{
+  "pk": 23, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 23
+  }
+},
+{
+  "pk": 24, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "CE", 
+    "comment": null, 
+    "score": null, 
+    "submission_report": 24
+  }
+},
+{
+  "pk": 1, 
+  "model": "problems.problem", 
+  "fields": {
+    "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
+    "contest": "acm", 
+    "name": "test", 
+    "short_name": "test", 
+    "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+  }
+},
+{
+  "pk": 2, 
+  "model": "problems.problem", 
+  "fields": {
+    "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
+    "contest": "acm", 
+    "name": "Sum\u017cyce", 
+    "short_name": "sum", 
+    "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+  }
+},
+{
+  "pk": 3, 
+  "model": "problems.problem", 
+  "fields": {
+    "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
+    "contest": "acm", 
+    "name": "Apples", 
+    "short_name": "A", 
+    "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "EXAMPLE", 
+    "group": "0", 
+    "name": "0", 
+    "input_file": "data:problems/1/test0_1.in:MCAwCg==", 
+    "output_file": "data:problems/1/test0_1.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 1, 
+    "max_score": 0, 
+    "order": 0
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1a", 
+    "input_file": "data:problems/1/test1a_1.in:MCAwCg==", 
+    "output_file": "data:problems/1/test1a_1.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 1, 
+    "max_score": 100, 
+    "order": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1b", 
+    "input_file": "data:problems/1/test1b_1.in:MCAwCg==", 
+    "output_file": "data:problems/1/test1b_1.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 1, 
+    "max_score": 100, 
+    "order": 2
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "EXAMPLE", 
+    "group": "0", 
+    "name": "0", 
+    "input_file": "data:problems/2/sum0_1.in:MSAyCg==", 
+    "output_file": "data:problems/2/sum0_1.out:Mwo=", 
+    "memory_limit": 133000, 
+    "problem": 2, 
+    "max_score": 0, 
+    "order": 1
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1a", 
+    "input_file": "data:problems/2/sum1a_1.in:MiAzCg==", 
+    "output_file": "data:problems/2/sum1a_1.out:NQo=", 
+    "memory_limit": 133000, 
+    "problem": 2, 
+    "max_score": 33, 
+    "order": 2
+  }
+},
+{
+  "pk": 6, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 100, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1b", 
+    "input_file": "data:problems/2/sum1b_1.in:MTAwIDM0Mgo=", 
+    "output_file": "data:problems/2/sum1b_1.out:NDQyCg==", 
+    "memory_limit": 133000, 
+    "problem": 2, 
+    "max_score": 33, 
+    "order": 3
+  }
+},
+{
+  "pk": 7, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "EXAMPLE", 
+    "group": "1ocen", 
+    "name": "1ocen", 
+    "input_file": "data:problems/2/sum1ocen_1.in:MjgzNyA0NTcwCg==", 
+    "output_file": "data:problems/2/sum1ocen_1.out:NzQwNwo=", 
+    "memory_limit": 133000, 
+    "problem": 2, 
+    "max_score": 0, 
+    "order": 4
+  }
+},
+{
+  "pk": 8, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "2", 
+    "name": "2", 
+    "input_file": "data:problems/2/sum2_1.in:NDk3MiA5NDU5Cg==", 
+    "output_file": "data:problems/2/sum2_1.out:MTQ0MzEK", 
+    "memory_limit": 133000, 
+    "problem": 2, 
+    "max_score": 33, 
+    "order": 5
+  }
+},
+{
+  "pk": 9, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "3", 
+    "name": "3", 
+    "input_file": "data:problems/2/sum3_1.in:NTYxNyA0NzU5Cg==", 
+    "output_file": "data:problems/2/sum3_1.out:MTAzNzYK", 
+    "memory_limit": 133000, 
+    "problem": 2, 
+    "max_score": 34, 
+    "order": 6
+  }
+},
+{
+  "pk": 10, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "EXAMPLE", 
+    "group": "0", 
+    "name": "0", 
+    "input_file": "data:problems/3/A0.in:MCAwCg==", 
+    "output_file": "data:problems/3/A0.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 3, 
+    "max_score": 0, 
+    "order": 0
+  }
+},
+{
+  "pk": 11, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1a", 
+    "input_file": "data:problems/3/A1a.in:MCAwCg==", 
+    "output_file": "data:problems/3/A1a.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 3, 
+    "max_score": 100, 
+    "order": 1
+  }
+},
+{
+  "pk": 12, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1b", 
+    "input_file": "data:problems/3/A1b.in:MCAwCg==", 
+    "output_file": "data:problems/3/A1b.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 3, 
+    "max_score": 100, 
+    "order": 2
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.outputchecker", 
+  "fields": {
+    "exe_file": "none", 
+    "problem": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.outputchecker", 
+  "fields": {
+    "exe_file": "none",
+    "problem": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.outputchecker", 
+  "fields": {
+    "exe_file": "none", 
+    "problem": 3
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 1, 
+    "source_file": "data:problems/1/test_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "name": "test.c", 
+    "kind": "NORMAL", 
+    "order_key": 0
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 2, 
+    "source_file": "data:problems/2/sum_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlICJtYWtyYS5oIgoKI2lmbmRlZiBFTE9aSU9NCiNlcnJvciBFTE9aSU9NIG5vdCBkZWZpbmVkLCBidXQgbWFuZGF0ZWQgaW4gY29uZmlnLnltbAojZW5kaWYKCmludCBtYWluKGludCBhcmdjLCBjaGFyKiogYXJndikgewogICAgSU5UKGEpOyBJTlQoYik7CiAgICBwcmludGYoIiVkXG4iLCBhK2IpOwogICAgcmV0dXJuIDA7Cn0K", 
+    "name": "sum.c", 
+    "kind": "NORMAL", 
+    "order_key": 0
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 2, 
+    "source_file": "data:problems/2/sum1_1.pas:dmFyDQogIGEsIGI6IGludGVnZXI7DQoNCmJlZ2luDQogIGEgOj0gcmVhZDsNCiAgYiA6PSByZWFkOw0KICB3cml0ZWxuKGErYisxKTsNCmVuZC4NCg==", 
+    "name": "sum1.pas", 
+    "kind": "NORMAL", 
+    "order_key": 1
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 2, 
+    "source_file": "data:problems/2/sums1_1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKaW50IG1haW4oKSB7CiAgICBpbnQgYSwgYjsKICAgIGxvbmcgbG9uZyBzID0gMDsKICAgIGNpbiA+PiBhID4+IGI7CiAgICB3aGlsZSAoYSkgewogICAgICAgIGZvciAoaW50IGkgPSAwOyBpIDwgMTAwMDA7IGkrKykgewogICAgICAgICAgICBzKys7CiAgICAgICAgfQogICAgICAgIGEtLTsKICAgIH0KICAgIHdoaWxlIChiKSB7CiAgICAgICAgZm9yIChpbnQgaSA9IDA7IGkgPCAxMDAwMDsgaSsrKSB7CiAgICAgICAgICAgIHMrKzsKICAgICAgICB9CiAgICAgICAgYi0tOwogICAgfQogICAgY291dCA8PCBzIC8gMTAwMDAgPDwgZW5kbDsKICAgIHJldHVybiAwOwp9Cg==", 
+    "name": "sums1.cpp", 
+    "kind": "SLOW", 
+    "order_key": 2
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 2, 
+    "source_file": "data:problems/2/sumb0_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CgppbnQgbWFpbihpbnQgYXJnYywgY2hhcioqIGFyZ3YpIHsKICAgIHByaW50ZigiM1xuIik7CiAgICByZXR1cm4gMDsKfQo=", 
+    "name": "sumb0.c", 
+    "kind": "INCORRECT", 
+    "order_key": 3
+  }
+},
+{
+  "pk": 6, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 3, 
+    "source_file": "data:problems/3/A.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "name": "A.c", 
+    "kind": "NORMAL", 
+    "order_key": 0
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:9:5: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\na.c:9:13: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "CE", 
+    "compiler_output": "Error: Illegal parameter: -DELOZIOM\nError: /usr/bin/ppc386 returned an error exitcode (normal if you did not specify a source file to be compiled)\n", 
+    "submission_report": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "CE", 
+    "compiler_output": "a.cpp: In function 'int main()':\na.cpp:6:5: error: 'cin' was not declared in this scope\na.cpp:6:5: note: suggested alternative:\n/home/matrach/.sio-sandboxes/compiler-gcc.4_6_3/usr/bin/../lib/gcc/../../include/c++/4.6/iostream:61:18: note:   'std::cin'\na.cpp:19:5: error: 'cout' was not declared in this scope\na.cpp:19:5: note: suggested alternative:\n/home/matrach/.sio-sandboxes/compiler-gcc.4_6_3/usr/bin/../lib/gcc/../../include/c++/4.6/iostream:62:18: note:   'std::cout'\na.cpp:19:26: error: 'endl' was not declared in this scope\na.cpp:19:26: note: suggested alternative:\n/home/matrach/.sio-sandboxes/compiler-gcc.4_6_3/usr/bin/../lib/gcc/../../include/c++/4.6/ostream:543:5: note:   'std::endl'\n", 
+    "submission_report": 5
+  }
+},
+{
+  "pk": 6, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 6
+  }
+},
+{
+  "pk": 7, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 8, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 9, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 9
+  }
+},
+{
+  "pk": 10, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 11, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 11
+  }
+},
+{
+  "pk": 12, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 12
+  }
+},
+{
+  "pk": 13, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 13
+  }
+},
+{
+  "pk": 14, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 14
+  }
+},
+{
+  "pk": 15, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 15
+  }
+},
+{
+  "pk": 16, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 16
+  }
+},
+{
+  "pk": 17, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 17
+  }
+},
+{
+  "pk": 18, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 18
+  }
+},
+{
+  "pk": 19, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 19
+  }
+},
+{
+  "pk": 20, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 20
+  }
+},
+{
+  "pk": 21, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function 'main':\na.c:2:29: warning: ignoring return value of 'scanf', declared with attribute warn_unused_result [-Wunused-result]\n", 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 22, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 22
+  }
+},
+{
+  "pk": 23, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "", 
+    "submission_report": 23
+  }
+},
+{
+  "pk": 24, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "CE", 
+    "compiler_output": "a.cpp:3:2: error: #error \"Version: \" __VERSION__ \". Pointer: \" #__SIZEOF_POINTER__ \". C++0x: \" #__GXX_EXPERIMENTAL_CXX0X__\n", 
+    "submission_report": 24
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 1, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 1, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 1, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 2, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "1ocen", 
+    "score": null, 
+    "test_name": "1ocen", 
+    "test": 7
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 2, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 5
+  }
+},
+{
+  "pk": 6, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 2, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 4
+  }
+},
+{
+  "pk": 7, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 2, 
+    "time_used": 0, 
+    "test_max_score": 34, 
+    "test_group": "3", 
+    "score": null, 
+    "test_name": "3", 
+    "test": 9
+  }
+},
+{
+  "pk": 8, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 2, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "2", 
+    "score": null, 
+    "test_name": "2", 
+    "test": 8
+  }
+},
+{
+  "pk": 9, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 100, 
+    "submission_report": 2, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 6
+  }
+},
+{
+  "pk": 10, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 7407 +/- 1, got 3", 
+    "test_time_limit": 10000, 
+    "submission_report": 4, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "1ocen", 
+    "score": null, 
+    "test_name": "1ocen", 
+    "test": 7
+  }
+},
+{
+  "pk": 11, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 5 +/- 1, got 3", 
+    "test_time_limit": 10000, 
+    "submission_report": 4, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 5
+  }
+},
+{
+  "pk": 12, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 4, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 4
+  }
+},
+{
+  "pk": 13, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 10376 +/- 1, got 3", 
+    "test_time_limit": 10000, 
+    "submission_report": 4, 
+    "time_used": 0, 
+    "test_max_score": 34, 
+    "test_group": "3", 
+    "score": null, 
+    "test_name": "3", 
+    "test": 9
+  }
+},
+{
+  "pk": 14, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 14431 +/- 1, got 3", 
+    "test_time_limit": 10000, 
+    "submission_report": 4, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "2", 
+    "score": null, 
+    "test_name": "2", 
+    "test": 8
+  }
+},
+{
+  "pk": 15, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 442 +/- 1, got 3", 
+    "test_time_limit": 100, 
+    "submission_report": 4, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 6
+  }
+},
+{
+  "pk": 16, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 6, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 17, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 6, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 18, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 6, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 19, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 7407 +/- 1, got 42", 
+    "test_time_limit": 10000, 
+    "submission_report": 7, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "1ocen", 
+    "score": null, 
+    "test_name": "1ocen", 
+    "test": 7
+  }
+},
+{
+  "pk": 20, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 5 +/- 1, got 42", 
+    "test_time_limit": 10000, 
+    "submission_report": 7, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 5
+  }
+},
+{
+  "pk": 21, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 3 +/- 1, got 42", 
+    "test_time_limit": 10000, 
+    "submission_report": 7, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 4
+  }
+},
+{
+  "pk": 22, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 10376 +/- 1, got 42", 
+    "test_time_limit": 10000, 
+    "submission_report": 7, 
+    "time_used": 0, 
+    "test_max_score": 34, 
+    "test_group": "3", 
+    "score": null, 
+    "test_name": "3", 
+    "test": 9
+  }
+},
+{
+  "pk": 23, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 14431 +/- 1, got 42", 
+    "test_time_limit": 10000, 
+    "submission_report": 7, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "2", 
+    "score": null, 
+    "test_name": "2", 
+    "test": 8
+  }
+},
+{
+  "pk": 24, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "expected 442 +/- 1, got 42", 
+    "test_time_limit": 100, 
+    "submission_report": 7, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 6
+  }
+},
+{
+  "pk": 25, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 8, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "1ocen", 
+    "score": null, 
+    "test_name": "1ocen", 
+    "test": 7
+  }
+},
+{
+  "pk": 26, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 8, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 5
+  }
+},
+{
+  "pk": 27, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 8, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 4
+  }
+},
+{
+  "pk": 28, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 8, 
+    "time_used": 0, 
+    "test_max_score": 34, 
+    "test_group": "3", 
+    "score": null, 
+    "test_name": "3", 
+    "test": 9
+  }
+},
+{
+  "pk": 29, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 8, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "2", 
+    "score": null, 
+    "test_name": "2", 
+    "test": 8
+  }
+},
+{
+  "pk": 30, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 100, 
+    "submission_report": 8, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 6
+  }
+},
+{
+  "pk": 31, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 9, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 11
+  }
+},
+{
+  "pk": 32, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 9, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 10
+  }
+},
+{
+  "pk": 33, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 9, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 12
+  }
+},
+{
+  "pk": 34, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 10, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "1ocen", 
+    "score": null, 
+    "test_name": "1ocen", 
+    "test": 7
+  }
+},
+{
+  "pk": 35, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 10, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 5
+  }
+},
+{
+  "pk": 36, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 10, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 4
+  }
+},
+{
+  "pk": 37, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 10, 
+    "time_used": 0, 
+    "test_max_score": 34, 
+    "test_group": "3", 
+    "score": null, 
+    "test_name": "3", 
+    "test": 9
+  }
+},
+{
+  "pk": 38, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 10, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "2", 
+    "score": null, 
+    "test_name": "2", 
+    "test": 8
+  }
+},
+{
+  "pk": 39, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 100, 
+    "submission_report": 10, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 6
+  }
+},
+{
+  "pk": 40, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 11, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 41, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 11, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 42, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 11, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 43, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 12, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 44, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 12, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 45, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 12, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 46, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "MLE", 
+    "comment": "memory limit exceeded", 
+    "test_time_limit": 10000, 
+    "submission_report": 13, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 47, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "MLE", 
+    "comment": "memory limit exceeded", 
+    "test_time_limit": 10000, 
+    "submission_report": 13, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 48, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "MLE", 
+    "comment": "memory limit exceeded", 
+    "test_time_limit": 10000, 
+    "submission_report": 13, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 49, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 14, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 50, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 14, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 51, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 14, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 52, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 15, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 53, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 15, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 54, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 15, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 55, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 16, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 56, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 16, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 57, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 16, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 58, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 17, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 59, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 17, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 60, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 17, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 61, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 18, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 2
+  }
+},
+{
+  "pk": 62, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 18, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 1
+  }
+},
+{
+  "pk": 63, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 18, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 3
+  }
+},
+{
+  "pk": 64, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 19, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 11
+  }
+},
+{
+  "pk": 65, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 19, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 10
+  }
+},
+{
+  "pk": 66, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 19, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 12
+  }
+},
+{
+  "pk": 67, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 20, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 11
+  }
+},
+{
+  "pk": 68, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 20, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 10
+  }
+},
+{
+  "pk": 69, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 20, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 12
+  }
+},
+{
+  "pk": 70, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 21, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "1ocen", 
+    "score": null, 
+    "test_name": "1ocen", 
+    "test": 7
+  }
+},
+{
+  "pk": 71, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 21, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 5
+  }
+},
+{
+  "pk": 72, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 21, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 4
+  }
+},
+{
+  "pk": 73, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 21, 
+    "time_used": 0, 
+    "test_max_score": 34, 
+    "test_group": "3", 
+    "score": null, 
+    "test_name": "3", 
+    "test": 9
+  }
+},
+{
+  "pk": 74, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 21, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "2", 
+    "score": null, 
+    "test_name": "2", 
+    "test": 8
+  }
+},
+{
+  "pk": 75, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 100, 
+    "submission_report": 21, 
+    "time_used": 0, 
+    "test_max_score": 33, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 6
+  }
+},
+{
+  "pk": 76, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 22, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 11
+  }
+},
+{
+  "pk": 77, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 22, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 10
+  }
+},
+{
+  "pk": 78, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '42', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 22, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 12
+  }
+},
+{
+  "pk": 79, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '60', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 23, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 11
+  }
+},
+{
+  "pk": 80, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '60', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 23, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 10
+  }
+},
+{
+  "pk": 81, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "wiersz 1: wczytano '60', a oczekiwano '0'", 
+    "test_time_limit": 10000, 
+    "submission_report": 23, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 12
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "3", 
+    "score": null, 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 6, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1ocen", 
+    "score": null, 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 7, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "2", 
+    "score": null, 
+    "submission_report": 2
+  }
+},
+{
+  "pk": 8, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 9, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 10, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "3", 
+    "score": null, 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 11, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1ocen", 
+    "score": null, 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 12, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "2", 
+    "score": null, 
+    "submission_report": 4
+  }
+},
+{
+  "pk": 13, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 6
+  }
+},
+{
+  "pk": 14, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 6
+  }
+},
+{
+  "pk": 15, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 16, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 17, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "3", 
+    "score": null, 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 18, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1ocen", 
+    "score": null, 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 19, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "2", 
+    "score": null, 
+    "submission_report": 7
+  }
+},
+{
+  "pk": 20, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 21, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 22, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "3", 
+    "score": null, 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 23, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1ocen", 
+    "score": null, 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 24, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "2", 
+    "score": null, 
+    "submission_report": 8
+  }
+},
+{
+  "pk": 25, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 9
+  }
+},
+{
+  "pk": 26, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 9
+  }
+},
+{
+  "pk": 27, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 28, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 29, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "3", 
+    "score": null, 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 30, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1ocen", 
+    "score": null, 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 31, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "2", 
+    "score": null, 
+    "submission_report": 10
+  }
+},
+{
+  "pk": 32, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 11
+  }
+},
+{
+  "pk": 33, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 11
+  }
+},
+{
+  "pk": 34, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 12
+  }
+},
+{
+  "pk": 35, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 12
+  }
+},
+{
+  "pk": 36, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "MLE", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 13
+  }
+},
+{
+  "pk": 37, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "MLE", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 13
+  }
+},
+{
+  "pk": 38, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 14
+  }
+},
+{
+  "pk": 39, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 14
+  }
+},
+{
+  "pk": 40, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 15
+  }
+},
+{
+  "pk": 41, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 15
+  }
+},
+{
+  "pk": 42, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 16
+  }
+},
+{
+  "pk": 43, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 16
+  }
+},
+{
+  "pk": 44, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 17
+  }
+},
+{
+  "pk": 45, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 17
+  }
+},
+{
+  "pk": 46, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 18
+  }
+},
+{
+  "pk": 47, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 18
+  }
+},
+{
+  "pk": 48, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 19
+  }
+},
+{
+  "pk": 49, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 19
+  }
+},
+{
+  "pk": 50, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 20
+  }
+},
+{
+  "pk": 51, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 20
+  }
+},
+{
+  "pk": 52, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 53, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 54, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "3", 
+    "score": null, 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 55, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1ocen", 
+    "score": null, 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 56, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "2", 
+    "score": null, 
+    "submission_report": 21
+  }
+},
+{
+  "pk": 57, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 22
+  }
+},
+{
+  "pk": 58, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 22
+  }
+},
+{
+  "pk": 59, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 23
+  }
+},
+{
+  "pk": 60, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 23
+  }
+},
+{
+  "pk": 1, 
+  "model": "sinolpack.extraconfig", 
+  "fields": {
+    "problem": 1, 
+    "config": ""
+  }
+},
+{
+  "pk": 2, 
+  "model": "sinolpack.extraconfig", 
+  "fields": {
+    "problem": 2, 
+    "config": "extra_compilation_args:\n    c: -DELOZIOM\n    cpp: -DELOZIOM\n    pas: -DELOZIOM\nextra_compilation_files:\n    - makra.h\ntime_limits:\n    1b: 100\nmemory_limit: 133000\n"
+  }
+},
+{
+  "pk": 3, 
+  "model": "sinolpack.extraconfig", 
+  "fields": {
+    "problem": 3, 
+    "config": "title: Apples\n"
+  }
+},
+{
+  "pk": 1, 
+  "model": "sinolpack.extrafile", 
+  "fields": {
+    "problem": 2, 
+    "name": "makra.h", 
+    "file": "data:problems/2/makra_1.h:I2RlZmluZSBSRVAoaSxuKSBmb3IoaW50IGk9MDsgaTwobik7ICsraSkKI2RlZmluZSBSRVBEKGksbikgZm9yKGludCBpPShuKS0xOyBpPj0wOyAtLWkpCiNkZWZpbmUgRk9SKGksYSxiKSBmb3IoaW50IGk9KGEpOyBpPD0oYik7ICsraSkKI2RlZmluZSBGT1JEKGksYSxiKSBmb3IoaW50IGk9KGEpOyBpPj0oYik7IC0taSkKI2RlZmluZSBWQVIodixuKSBfX3R5cGVvZihuKSB2ID0gbgojZGVmaW5lIEZPUkUoaSx2KSBmb3IoVkFSKGksICh2KS5iZWdpbigpKTsgaSE9KHYpLmVuZCgpOyArK2kpCiNkZWZpbmUgQUxMKHYpICh2KS5iZWdpbigpLCAodikuZW5kKCkKI2RlZmluZSBQQiBwdXNoX2JhY2sKI2RlZmluZSBNUChhLGIpIG1ha2VfcGFpcihhLGIpCiNkZWZpbmUgX0lOVChhKSBzY2FuZigiJWQiLCAmYSkKI2RlZmluZSBJTlQoYSkgaW50IGE7IF9JTlQoYSkKI2RlZmluZSBfVklOVCh2LG4pIGRvIHsgKHYpLnJlc2l6ZSgobikpOyBSRVAoaSwobikpIHsgSU5UKGopOyAodilbaV09ajsgfSB9IHdoaWxlKDApCiNkZWZpbmUgVklOVCh2LG4pIHZlY3RvcjxpbnQ+IHY7IF9WSU5UKHYsbikKI2RlZmluZSBDSEFSKGEpIGNoYXIgZm9vXyMjYVsyXTsgc2NhbmYoIiVzIiwgZm9vXyMjYSk7IGNoYXIgYSA9IGZvb18jI2FbMF0K"
+  }
+},
+{
+  "pk": 1, 
+  "model": "sinolpack.originalpackage", 
+  "fields": {
+    "problem": 1, 
+    "package_file": "none"
+  }
+},
+{
+  "pk": 2, 
+  "model": "sinolpack.originalpackage", 
+  "fields": {
+    "problem": 2, 
+    "package_file": "none"
+  }
+},
+{
+  "pk": 3, 
+  "model": "sinolpack.originalpackage", 
+  "fields": {
+    "problem": 3, 
+    "package_file": "data:problems/3/A.tgz:H4sIAA9dq1EAA+1a7W/aOBzma/1X+CidiFog70jtOF2Ochs6aKPC7u7DJBSS0EYNSRQnp/Wq/u9nJw6ElA5RLWkn/EidEz+uf37JY/txp3VqpYPH6PI8SYWuspFmqAmioIiqokpdocYLAq/INaiU37RaLUaREUJYWxpRaJh3L5bbxf+k0Dp+HJX8Dewx/7LUVcj8q6rC5r8KpPOvCUYbpyXFIBOsfnf+xfX8K0T/Es9j/fMltWcDBz7/PHjrFjC8JTL9z9+b/hWm/yrA9H/YoPrnS5T/K/QvqrLI9F8FmP4PG1rH8s136P9Eifm/KpDOv/afYbWjbyXtALvXf6V4/hMltv5XgpHv/sK2gMOF1nG8sq+AX7H+yyq7/60EyfyT6z/HKy3G7vVfLp7/ZXb/Vw14yBzAISPVP1+m/F+jf5H5/2rA9H/YoPv//N3t/+z+vxIw/R82tE4Q+rflOsB9/J/Md4n+eVFg/q8K0PnX2mZ5MXat/4L87O8/Ejv/VYNjxzPd2LLhRxRZjt+++xU4XgSXhuM1OfgIycvDGYwvIDINb9Gsn1gnVv0MfsCZH2LuAgYhLpLkf/Vw/sMpyQztKA49yF/AJ7a7vGtQ/Y+Ne3vhuHYpMXboX5AEoXj/Lyvs/FcJMvm326tvAFsBAPp/jLRPk17rWoQtPEKRY8LWUsIv7hL0df07rK5Ncuw/E/wTAWC4LjyHJvLdOHJ8D0EzCNYvgYFWLwDkSp3DRtOwLBQvFs43OOufNZoonqMI1s/wY39yPfoyHV5fTTiOA+Bk1se/cNI2wdGtaeLfTDvBwZYPG7/BxkdcdT5qsXJdL1Sv688C6HoaIghwkNNTmJR6Fibfn2IYPD6bYXDGRpgTUiSJgqsBR4uAdCUbVRIlDXIULmFrgam5gWzPWNo4k2v7uI+ubXjwHBwt8YRCy0FRkgPA6pGQCz+EDl7e4YsjegEtH34FR1mgxqPzNOtfkCzL9+wXq9gYte2V6PrOajZHZWs1uMi6mrcW0k8KrWP63sK5bT8s3bJi7PT/glr4//8SL0ts/a8CkRO59jnUgsC1ERPRwUHLb/slxdil/6747PwnCF2m/yowvOyhwAb9z4P+n4ObHh4MzzJCa2b6y8AIbXAzmExvhv3pbIofJr06bDwOL5/4NBEMms5patLUSlOR8iLlRcqLlJcoL1FeorxEeZnyMuVlysuUVyivUF6hvEJ5lfIq5VXKq1YdrE86vXod5A8tWSeFNJlnqUhTiaZymqb/IqEO8kcWUulYG17NspxeUowcfcDwSv8ynX0aXPXwCdFFnVvbm0U2ilAb3WHyLzwPKeF4/9ohyZwOx4PRcDyc9kR4jMB4ME7f8JH7eOz8DnBdZH56PNh3CdfKtX4Jdvk/VSrqX1QEtv9XgsnnwWgEz3uwM3e8DrYSdwBknnDDECYGjnqKyED39JHcHtBH88427+0QAEKvyrb60LKR2Sm84vM+HnjXxaXJl0+KN5orYXCwjh3A35dcnbQGiyDjsTbyHDZZ+UDJVQZMaqWNybNJVp6e+XEUxNGqzLa+7OOTUtGS/swy94fFu2pu2jzqgIhxTNdcDj9mgibPK61zr7Va+7QD+9kf0ZIX3NoeLSGed6+WFHzu6sNKzW7hmyhk0k9hmy/erGztngsVbiFopTkm7X7yslrg153fGMDNfZbj2FGcgYGBgYGBgYGBgYGBgYGBgeFH4H8XdK7mAFAAAA=="
+  }
+},
+{
+  "pk": 1, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "test_admin", 
+    "first_name": "TestAmin", 
+    "last_name": "AdminAdmin", 
+    "is_active": true, 
+    "is_superuser": true, 
+    "is_staff": true, 
+    "last_login": "2013-12-14T21:41:16.271Z", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$10000$jmLsWJ3oQacs$nxwimIOA8CbrlYYpAwJkIy4rGq22nNu6m6vjMIzsvKs=", 
+    "email": "test_admin@example.com", 
+    "date_joined": "2013-12-14T20:38:10Z"
+  }
+},
+{
+  "pk": 2, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "test_user", 
+    "first_name": "Test1", 
+    "last_name": "User1", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2013-12-14T20:44:41Z", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$10000$4eCMnNqAC052$PZBg0bhvs20boSEW9sZHHcmTvPgnpqfURp217axFios=", 
+    "email": "", 
+    "date_joined": "2013-12-14T20:44:41Z"
+  }
+},
+{
+  "pk": 3, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "test_user2", 
+    "first_name": "Test2", 
+    "last_name": "User2", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2013-12-14T20:44:53Z", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$10000$T01MORQ6E621$GbsZF9xBVCs1oYuwg1/QEuEh6zvH+/1c2QtAY8R4dhk=", 
+    "email": "", 
+    "date_joined": "2013-12-14T20:44:53Z"
+  }
+},
+{
+  "pk": 4, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "test_user3", 
+    "first_name": "Test3", 
+    "last_name": "User3", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2013-12-14T20:45:05Z", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$10000$5b50gIqyPvil$bynhgi9p8FkhedkPkTSYIk7pjDr206v60hsym89Soxg=", 
+    "email": "", 
+    "date_joined": "2013-12-14T20:45:05Z"
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 4
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 5
+  }
+},
+{
+  "pk": 9, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 6
+  }
+},
+{
+  "pk": 1, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/1/test_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 2, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/2/sum_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CiNpbmNsdWRlICJtYWtyYS5oIgoKI2lmbmRlZiBFTE9aSU9NCiNlcnJvciBFTE9aSU9NIG5vdCBkZWZpbmVkLCBidXQgbWFuZGF0ZWQgaW4gY29uZmlnLnltbAojZW5kaWYKCmludCBtYWluKGludCBhcmdjLCBjaGFyKiogYXJndikgewogICAgSU5UKGEpOyBJTlQoYik7CiAgICBwcmludGYoIiVkXG4iLCBhK2IpOwogICAgcmV0dXJuIDA7Cn0K", 
+    "source_length": 213
+  }
+},
+{
+  "pk": 3, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/2/sum1_1.pas:dmFyDQogIGEsIGI6IGludGVnZXI7DQoNCmJlZ2luDQogIGEgOj0gcmVhZDsNCiAgYiA6PSByZWFkOw0KICB3cml0ZWxuKGErYisxKTsNCmVuZC4NCg==", 
+    "source_length": 85
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/2/sums1_1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKaW50IG1haW4oKSB7CiAgICBpbnQgYSwgYjsKICAgIGxvbmcgbG9uZyBzID0gMDsKICAgIGNpbiA+PiBhID4+IGI7CiAgICB3aGlsZSAoYSkgewogICAgICAgIGZvciAoaW50IGkgPSAwOyBpIDwgMTAwMDA7IGkrKykgewogICAgICAgICAgICBzKys7CiAgICAgICAgfQogICAgICAgIGEtLTsKICAgIH0KICAgIHdoaWxlIChiKSB7CiAgICAgICAgZm9yIChpbnQgaSA9IDA7IGkgPCAxMDAwMDsgaSsrKSB7CiAgICAgICAgICAgIHMrKzsKICAgICAgICB9CiAgICAgICAgYi0tOwogICAgfQogICAgY291dCA8PCBzIC8gMTAwMDAgPDwgZW5kbDsKICAgIHJldHVybiAwOwp9Cg==", 
+    "source_length": 343
+  }
+},
+{
+  "pk": 5, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/2/sumb0_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CgppbnQgbWFpbihpbnQgYXJnYywgY2hhcioqIGFyZ3YpIHsKICAgIHByaW50ZigiM1xuIik7CiAgICByZXR1cm4gMDsKfQo=", 
+    "source_length": 89
+  }
+},
+{
+  "pk": 6, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/6.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 7, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/7.cpp:I2luY2x1ZGUgPGNzdGRpbz4KaW50IG1haW4oKSB7CiAgICBwdXRzKCI0MiIpOwp9Cg==", 
+    "source_length": 49
+  }
+},
+{
+  "pk": 8, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/8_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 9, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/3/A.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 10, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/10.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 11, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/11_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 12, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/12.cpp:I2luY2x1ZGUgPGNzdGRpbz4KaW50IG1haW4oKSB7CiAgICBwdXRzKCI0MiIpOwp9Cg==", 
+    "source_length": 49
+  }
+},
+{
+  "pk": 13, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/13.cpp:LyoKICogQ29uc3VtZXMgYXQgbGVhc3QgMjAwTWlCIG9mIHN0YWNrIGR1cmluZyBydW50aW1lLgogKi8KCiNpbmNsdWRlIDxjc3RkaW8+CmNvbnN0IGludCBNQVhOID0gMjAwICogMTAyNCAqIDEwMjQ7CgoKaW50IGZ1bihpbnQgaSkgewogICAgY2hhciBBUlJBWVtNQVhOXTsKICAgIEFSUkFZWzFdID0gOTk7CiAgICBBUlJBWVtpXSA9IGk7CiAgICBBUlJBWVtpXjIqaV0gPSBpKjMzKmk7CiAgICByZXR1cm4gQVJSQVlbKChpPj4xKTw8MSleaV07Cn0KCgppbnQgbWFpbigpIHsKICAgIHByaW50ZigiJWRcbiIsIGZ1bigxNSkpOwogICAgcmV0dXJuIDA7Cn0KCg==", 
+    "source_length": 316
+  }
+},
+{
+  "pk": 14, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/14.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 15, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/15.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 16, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/16.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 17, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/17_1.cpp:I2luY2x1ZGUgPGNzdGRpbz4KaW50IG1haW4oKSB7CiAgICBwdXRzKCI0MiIpOwp9Cg==", 
+    "source_length": 49
+  }
+},
+{
+  "pk": 18, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/18.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 19, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/19.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 20, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/20_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 21, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/21_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 22, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/22_1.cpp:I2luY2x1ZGUgPGNzdGRpbz4KaW50IG1haW4oKSB7CiAgICBwdXRzKCI0MiIpOwp9Cg==", 
+    "source_length": 49
+  }
+},
+{
+  "pk": 23, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/23.cpp:I2luY2x1ZGUgPGNzdGRpbz4KaW50IG1haW4oKSB7CiAgICBwdXRzKCI2MCIpOwp9Cg==", 
+    "source_length": 49
+  }
+},
+{
+  "pk": 24, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/24.cpp:I2luY2x1ZGUgPHN0ZGlvLmg+CgojZXJyb3IgIlZlcnNpb246ICIgX19WRVJTSU9OX18gIi4gUG9pbnRlcjogIiAjX19TSVpFT0ZfUE9JTlRFUl9fICIuIEMrKzB4OiAiICAjX19HWFhfRVhQRVJJTUVOVEFMX0NYWDBYX18KCmludCBtYWluKCkgewogICAgcHJpbnRmKCJWOiVzfCIsIF9fVkVSU0lPTl9fKTsKLy8gICAgcHJpbnRmKCJpcyBpMzg2PyAlZFxuIiwgX19JMzg2X18pOwovLyAgICBwcmludGYoImZvcnRpZnk6ICVkXG4iLCBfX0ZPUlRJRllfU09VUkNFKTsKICAgIHByaW50ZigiX3A6JWR8IiwgX19TSVpFT0ZfUE9JTlRFUl9fKTsKICAgIHJldHVybiAwOwp9Cg==", 
+    "source_length": 322
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.contestview", 
+  "fields": {
+    "timestamp": "2013-12-14T21:43:24.248Z", 
+    "user": 1, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.userresultforcontest", 
+  "fields": {
+    "score": null, 
+    "user": 1, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.userresultforcontest", 
+  "fields": {
+    "score": "ACM:00000000029999993922:0000000002:0000004878:0000000001", 
+    "user": 2, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.userresultforcontest", 
+  "fields": {
+    "score": "ACM:00000000039999978337:0000000003:0000019263:0000000002", 
+    "user": 3, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.userresultforcontest", 
+  "fields": {
+    "score": "ACM:00000000029999966460:0000000002:0000033540:0000000000", 
+    "user": 4, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.userresultforround", 
+  "fields": {
+    "score": null, 
+    "user": 1, 
+    "round": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.userresultforround", 
+  "fields": {
+    "score": "ACM:00000000029999993922:0000000002:0000004878:0000000001", 
+    "user": 2, 
+    "round": 1
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.userresultforround", 
+  "fields": {
+    "score": "ACM:00000000039999978337:0000000003:0000019263:0000000002", 
+    "user": 3, 
+    "round": 1
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.userresultforround", 
+  "fields": {
+    "score": "ACM:00000000029999966460:0000000002:0000033540:0000000000", 
+    "user": 4, 
+    "round": 1
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": null, 
+    "problem_instance": 1, 
+    "score": null, 
+    "submission_report": null, 
+    "user": 1
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "score": "ACM:00000000019999998317:0000000001:0000000483:0000000001", 
+    "submission_report": 10, 
+    "user": 2
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "score": "ACM:00000000019999999592:0000000001:0000000408:0000000000", 
+    "submission_report": 8, 
+    "user": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "score": "ACM:00000000019999993205:0000000001:0000004395:0000000002", 
+    "submission_report": 15, 
+    "user": 3
+  }
+},
+{
+  "pk": 5, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "score": "ACM:00000000019999995605:0000000001:0000004395:0000000000", 
+    "submission_report": 16, 
+    "user": 2
+  }
+},
+{
+  "pk": 6, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 3, 
+    "score": "ACM:00000000019999985540:0000000001:0000014460:0000000000", 
+    "submission_report": 19, 
+    "user": 3
+  }
+},
+{
+  "pk": 7, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 3, 
+    "score": "ACM:00000000019999982060:0000000001:0000017940:0000000000", 
+    "submission_report": 20, 
+    "user": 4
+  }
+},
+{
+  "pk": 8, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "score": "ACM:00000000019999984400:0000000001:0000015600:0000000000", 
+    "submission_report": 21, 
+    "user": 4
+  }
+},
+{
+  "pk": 9, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 3, 
+    "score": "ACM:00000000010000000000:0000000000:0000006900:0000000002", 
+    "submission_report": 23, 
+    "user": 2
+  }
+},
+{
+  "pk": 1, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": null, 
+    "date": "2013-12-14T20:42:55.655Z"
+  }
+},
+{
+  "pk": 2, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": null, 
+    "date": "2013-12-14T20:43:32.859Z"
+  }
+},
+{
+  "pk": 3, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "CE", 
+    "problem_instance": 2, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": null, 
+    "user": null, 
+    "date": "2013-12-14T20:43:33.149Z"
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "CE", 
+    "problem_instance": 2, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": null, 
+    "user": null, 
+    "date": "2013-12-14T20:43:33.854Z"
+  }
+},
+{
+  "pk": 5, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 2, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": null, 
+    "date": "2013-12-14T20:43:34.660Z"
+  }
+},
+{
+  "pk": 6, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 1, 
+    "date": "2013-12-14T20:45:58.960Z"
+  }
+},
+{
+  "pk": 7, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 2, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": 2, 
+    "date": "2013-12-14T20:46:24.117Z"
+  }
+},
+{
+  "pk": 8, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 3, 
+    "date": "2013-12-14T20:46:48.105Z"
+  }
+},
+{
+  "pk": 9, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 3, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": null, 
+    "date": "2013-12-14T20:47:40.190Z"
+  }
+},
+{
+  "pk": 10, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 2, 
+    "date": "2013-12-14T20:48:03.301Z"
+  }
+},
+{
+  "pk": 11, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 3, 
+    "date": "2013-12-14T20:49:32.752Z"
+  }
+},
+{
+  "pk": 12, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 1, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": 3, 
+    "date": "2013-12-14T20:50:16.719Z"
+  }
+},
+{
+  "pk": 13, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "MLE", 
+    "problem_instance": 1, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": 3, 
+    "date": "2013-12-14T20:51:27.246Z"
+  }
+},
+{
+  "pk": 14, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 3, 
+    "date": "2013-12-14T20:52:38.993Z"
+  }
+},
+{
+  "pk": 15, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 3, 
+    "date": "2013-12-14T21:53:15Z"
+  }
+},
+{
+  "pk": 16, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 1, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 2, 
+    "date": "2013-12-14T21:53:15.001Z"
+  }
+},
+{
+  "pk": 17, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "IGN", 
+    "problem_instance": 1, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": null, 
+    "user": 2, 
+    "date": "2013-12-14T23:39:55Z"
+  }
+},
+{
+  "pk": 18, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "IGN", 
+    "problem_instance": 1, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": null, 
+    "user": 2, 
+    "date": "2013-12-14T23:49:55Z"
+  }
+},
+{
+  "pk": 19, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 3, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 3, 
+    "date": "2013-12-15T00:41:00Z"
+  }
+},
+{
+  "pk": 20, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 3, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 4, 
+    "date": "2013-12-15T01:39:00Z"
+  }
+},
+{
+  "pk": 21, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 2, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 4, 
+    "date": "2013-12-15T01:00:00Z"
+  }
+},
+{
+  "pk": 22, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 3, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": 2, 
+    "date": "2013-12-14T22:33:00Z"
+  }
+},
+{
+  "pk": 23, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 3, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": 2, 
+    "date": "2013-12-14T22:35:00Z"
+  }
+},
+{
+  "pk": 24, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "CE", 
+    "problem_instance": 3, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": null, 
+    "user": 3, 
+    "date": "2013-12-14T21:42:36.515Z"
+  }
+},
+{
+  "pk": 1, 
+  "model": "participants.participant", 
+  "fields": {
+    "status": "ACTIVE", 
+    "user": 2, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 2, 
+  "model": "participants.participant", 
+  "fields": {
+    "status": "ACTIVE", 
+    "user": 3, 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 3, 
+  "model": "participants.participant", 
+  "fields": {
+    "status": "ACTIVE", 
+    "user": 4, 
+    "contest": "acm"
+  }
+}
+]

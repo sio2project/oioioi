@@ -19,7 +19,9 @@ class _FileDescriptor(files.FileDescriptor):
                 "The '%s' attribute can only be accessed from %s instances."
                 % (self.field.name, owner.__name__))
         file = instance.__dict__[self.field.name]
-        if isinstance(file, basestring) and file.startswith('data:'):
+        if isinstance(file, basestring) and file == 'none':
+            instance.__dict__[self.field.name] = None
+        elif isinstance(file, basestring) and file.startswith('data:'):
             name, content = file.split(':', 2)[1:]
             if content.startswith('raw:'):
                 content = str(content[4:])
@@ -69,6 +71,8 @@ class FileField(files.FileField):
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
+        if not value:
+            return 'none'
         return 'data:' + value.name + ':' + base64.b64encode(value.read())
 
 add_introspection_rules([], [r'^oioioi\.filetracker\.fields\.FileField'])

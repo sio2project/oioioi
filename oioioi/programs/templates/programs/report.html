@@ -7,6 +7,8 @@
 <h4>{% trans "Final testing report" %}</h4>
 {% elif report.kind == 'HIDDEN' %}
 <h4>{% trans "Hidden testing report" %}</h4>
+{% elif report.kind == 'FULL' %}
+<h4>{% trans "Full testing report" %}</h4>
 {% else %}
 <h4>{% trans "Report:" %} {{ report.kind }}</h4>
 {% endif %}
@@ -24,7 +26,9 @@
             <th class="subm_margin" style="min-width: 80px">{% trans "Test" %}</th>
             <th style="min-width: 200px">{% trans "Result" %}</th>
             <th style="min-width: 110px">{% trans "Time" %}</th>
+            {% if show_scores %}
             <th style="min-width: 60px">{% trans "Score" %}</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -35,7 +39,7 @@
                 <td>{{ test.test_name }}</td>
                 <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
                 <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
-                {% if forloop.first %}
+                {% if show_scores and forloop.first %}
                     <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ test.test_max_score }}{% endif %}</td>
                 {% endif %}
             </tr>

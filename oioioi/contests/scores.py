@@ -50,6 +50,9 @@ class ScoreValue(ClassInitBase):
         """Converts the instance of any subclass to string."""
         return '%s:%s' % (self.symbol, self._to_repr())
 
+    def __repr__(self):
+        return self.serialize()
+
     @staticmethod
     def deserialize(serialized):
         """Invert the operation of :meth:`serialize`."""

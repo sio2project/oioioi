@@ -618,8 +618,8 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
 
 
 class TestIgnoringCE(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-        'test_submissions_CE']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission', 'test_submissions_CE']
 
     def _test(self, controller_name):
         contest = Contest.objects.get()
@@ -633,7 +633,7 @@ class TestIgnoringCE(TestCase):
 
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        for i in [1, 3]:
+        for i in [1, 3, 4]:
             test_env['submission_id'] = i
             update_user_results(test_env)
 

@@ -143,10 +143,10 @@ class TestRunContestControllerMixin(object):
                 'supported_extra_args':
                     self.get_supported_extra_args(submission)}))
 
-    def render_report(self, request, report):
+    def render_report(self, request, report, *args, **kwargs):
         if report.kind != 'TESTRUN':
             return super(TestRunContestControllerMixin, self) \
-                .render_report(request, report)
+                .render_report(request, report, *args, **kwargs)
 
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = \

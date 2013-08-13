@@ -76,7 +76,7 @@ class ProgrammingProblemController(ProblemController):
                     ]
             )
 
-        if 'NORMAL' in kinds or 'HIDDEN' in kinds:
+        if 'NORMAL' in kinds or 'HIDDEN' in kinds or 'FULL' in kinds:
             recipe_body.append(recipe_placeholder('before_final_tests'))
 
         if 'NORMAL' in kinds:
@@ -112,6 +112,24 @@ class ProgrammingProblemController(ProblemController):
                         'oioioi.programs.handlers.make_report',
                         dict(kind='HIDDEN')),
                     recipe_placeholder('after_all_tests'),
+                ])
+
+        if 'FULL' in kinds:
+            recipe_body.extend(
+                [
+                    ('full_run_tests',
+                        'oioioi.programs.handlers.run_tests'),
+                    ('full_grade_tests',
+                        'oioioi.programs.handlers.grade_tests'),
+                    ('full_grade_groups',
+                        'oioioi.programs.handlers.grade_groups'),
+                    ('full_grade_submission',
+                        'oioioi.programs.handlers.grade_submission',
+                        dict(kind=None)),
+                    ('full_make_report',
+                        'oioioi.programs.handlers.make_report',
+                        dict(kind='FULL')),
+                    recipe_placeholder('after_full_tests'),
                 ])
         return recipe_body
 
@@ -310,6 +328,7 @@ class ProgrammingContestController(ContestController):
         test_reports = TestReport.objects.filter(submission_report=report) \
                 .order_by('test__order', 'test_group', 'test_name')
         group_reports = GroupReport.objects.filter(submission_report=report)
+        show_scores = any(gr.score is not None for gr in group_reports)
         group_reports = dict((g.group, g) for g in group_reports)
 
         groups = []
@@ -318,11 +337,12 @@ class ProgrammingContestController(ContestController):
             groups.append({'tests': list(tests),
                 'report': group_reports[group_name]})
 
+
         return render_to_string('programs/report.html',
                 context_instance=RequestContext(request,
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
-                        'groups': groups}))
+                        'groups': groups, 'show_scores': show_scores}))
 
     def render_submission_footer(self, request, submission):
         super_footer = super(ProgrammingContestController, self). \

@@ -31,7 +31,8 @@ INSTALLED_APPS = (
     'oioioi.contestexcl',
     'oioioi.forum',
     'oioioi.confirmations',
-    'oioioi.ctimes'
+    'oioioi.ctimes',
+    'oioioi.acm',
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (

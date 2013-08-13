@@ -146,6 +146,7 @@ submission_statuses.register('INI_ERR', _("Initial tests: failed"))
 
 submission_report_kinds.register('INITIAL', _("Initial report"))
 submission_report_kinds.register('NORMAL', _("Normal report"))
+submission_report_kinds.register('FULL', _("Full report"))
 submission_report_kinds.register('HIDDEN',
                                  _("Hidden report (for admins only)"))
 
@@ -160,7 +161,7 @@ class TestReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
-    score = ScoreField(blank=True)
+    score = ScoreField(null=True, blank=True)
     time_used = models.IntegerField(blank=True)
 
     test = models.ForeignKey(Test, blank=True, null=True,
@@ -174,5 +175,5 @@ class TestReport(models.Model):
 class GroupReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     group = models.CharField(max_length=30)
-    score = ScoreField()
+    score = ScoreField(null=True, blank=True)
     status = EnumField(submission_statuses)
