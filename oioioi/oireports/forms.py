@@ -12,7 +12,7 @@ CONTEST_REPORT_KEY = 'all'
 
 
 def _rounds(request):
-    rounds = [(CONTEST_REPORT_KEY, _("Contest"))]
+    rounds = [(CONTEST_REPORT_KEY, _("All"))]
     rounds += [(str(r.id), r.name) for r in request.contest.round_set.all()]
     if len(rounds) == 1:
         # No rounds have visible results
@@ -97,7 +97,7 @@ class OIReportForm(forms.Form):
                 self.fields[field_name] = forms.MultipleChoiceField(
                     choices=field_choices,
                     widget=OIReportCheckboxSelectMultiple(),
-                    label=task['name'],
+                    label=task['short_name'],
                     required=False
                 )
                 self.fields[field_name].round = round['id']

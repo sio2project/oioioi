@@ -30,7 +30,7 @@
         </div>
     </div>
     {% for field in form.testgroup_fields %}
-        <div class="well well-small round_{{ field.field.round }}">
+        <div class="report_testgroup well well-small round_{{ field.field.round }}">
             <label class="checkbox">
                 <b>
                     {{ field.label }}
@@ -40,6 +40,7 @@
             {{ field }}
         </div>
     {% endfor %}
+    <br clear="both">
     <input type="submit" class="btn btn-primary" value="{% trans "Generate report" %}" />
 </form>
 <script>
@@ -55,6 +56,7 @@
         $('input[name="is_single_report"]').click(function() {
             if (this.checked) {
                 $('#report_user').show();
+                $('#report_user input').focus();
             } else {
                 $('#report_user').hide();
                 $('#report_user input').val('');
