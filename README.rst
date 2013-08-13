@@ -91,7 +91,7 @@ you can do it now::
 If you see a locale error, you may want to circumvent it by providing
 another locale to the command::
 
-  LC_ALL=en_US.UTF-8 ./manage.py createsuperuser
+  LC_ALL=C ./manage.py createsuperuser
 
 Now you're ready to access the site at *http://localhost:8000*.
 
@@ -125,7 +125,8 @@ Production configuration
    strongly recommended. Comment out the *RUN_LOCAL_WORKERS = True* setting.
 
 #. (optionally) Enable Filetracker server by uncommenting corresponding lines
-   in *settings.py* and restart the daemons.
+   in *settings.py* and restart the daemons. This is required for dedicated
+   judging machines.
 
 #. Configure Apache with mod_wsgi. An example configuration is automatically
    created as *apache-site.conf*. Have a look there. Once this is done, you
@@ -136,6 +137,9 @@ Production configuration
 
 #. Set admin email in settings. Error reports and teacher account requests will
    be sent there.
+   
+#. Set SMTP server in settings. Otherwise new user registration (among others)
+   will not work.
 
 #. You probably want to run *manage.py supervisor* automatically when the
    system starts. We do not have a ready-made solution for this yet. Sorry!
