@@ -493,9 +493,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         round = problem_instance.round
         contest = round.contest
 
-        # We do this in three separate transaction, because in some database
+        # We do this in three separate transactions, because in some database
         # engines (namely MySQL in REPEATABLE READ transaction isolation level)
-        # data changed by a transaction is not visible in subsequent selects
+        # data changed by a transaction is not visible in subsequent SELECTs
         # even in the same transaction.
 
         # First: UserResultForProblem
