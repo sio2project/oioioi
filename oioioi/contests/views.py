@@ -5,6 +5,7 @@ import mimetypes
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
@@ -20,13 +21,15 @@ from django.core.exceptions import SuspiciousOperation
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionForm
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         is_contest_admin, has_any_submittable_problem, visible_rounds, \
-        visible_problem_instances, contest_exists, get_submission_or_error
+        visible_problem_instances, contest_exists, get_submission_or_error, \
+        is_contest_observer
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 
@@ -279,3 +282,10 @@ def problem_attachment_view(request, contest_id, attachment_id):
     if attachment.problem_id not in problem_ids:
         raise PermissionDenied
     return stream_file(attachment.content)
+
+
+@enforce_condition(contest_exists & (is_contest_admin | is_contest_observer))
+def contest_user_hints_view(request, contest_id):
+    rcontroller = request.contest.controller.registration_controller()
+    queryset = rcontroller.filter_participants(User.objects.all())
+    return get_user_hints_view(request, 'substr', queryset)

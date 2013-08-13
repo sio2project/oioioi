@@ -46,13 +46,6 @@
 <script>
     $(document).ready(function() {
         $('#report_user').toggle($('input[name="is_single_report"]').is(':checked'));
-        $('#report_user input').typeahead({
-            source: function(query, process) {
-                $.getJSON('{% url 'get_report_users' contest_id=request.contest.id %}', {substr: query}, process);
-            },
-            items: {{ num_hints }},
-            minLength: 2
-        });
         $('input[name="is_single_report"]').click(function() {
             if (this.checked) {
                 $('#report_user').show();
