@@ -564,7 +564,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            :param request: Django request
            :param submission: instance of
                               :class:`~oioioi.contests.models.Submission`
-           :param quereset: a queryset, initially filtered at least to
+           :param queryset: a queryset, initially filtered at least to
                               select only given submission's reports
            :returns: updated queryset
         """
