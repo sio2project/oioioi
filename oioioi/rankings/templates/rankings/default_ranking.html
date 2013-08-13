@@ -1,26 +1,26 @@
 {% load i18n %}
 
 {% if rows %}
-<table class="{% block table-classes %}table auto-width dense{% endblock %}">
+<table class="{% block table-classes %}ranking table auto-width dense{% endblock %}">
     <thead>
         <tr>
-            <th style="min-width: 50px">#</th>
+            <th style="min-width: 50px" class="text-right">#</th>
             <th style="min-width: 120px">{% trans "User" %}</th>
             {% for pi in problem_instances %}
-            <th style="min-width: 40px" {% if pi.round.is_trial %} class="trial-round" {% endif %} >{{ pi.get_short_name_display }}</th>
+            <th style="min-width: 40px" class="text-right{% if pi.round.is_trial %} trial-round{% endif %}" >{{ pi.get_short_name_display }}</th>
             {% endfor %}
-            <th style="min-width: 50px">{% trans "Sum" %}</th>
+            <th style="min-width: 50px" class="text-right">{% trans "Sum" %}</th>
         </tr>
     </thead>
     <tbody>
         {% for row in rows %}
         <tr>
-            <td>{{ row.place }}</td>
+            <td class="text-right">{{ row.place }}</td>
             <td>{{ row.user.get_full_name }}</td>
             {% for result in row.results %}
-            <td {% if result.problem_instance.round.is_trial %} class="trial-round" {% endif %} >{{ result.score|default_if_none:'' }}</td>
+            <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >{{ result.score|default_if_none:'' }}</td>
             {% endfor %}
-            <td>{{ row.sum }}</td>
+            <td class="text-right">{{ row.sum }}</td>
         </tr>
         {% endfor %}
     </tbody>
