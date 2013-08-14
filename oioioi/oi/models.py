@@ -2,10 +2,15 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
+
+
+check_django_app_dependencies(__name__, ['oioioi.participants'])
+
 
 T_SHIRT_SIZES = [(s, s) for s in ('S', 'M', 'L', 'XL', 'XXL')]
 
