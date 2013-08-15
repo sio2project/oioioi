@@ -133,7 +133,8 @@ class ProgrammingProblemController(ProblemController):
 
     def mixins_for_admin(self):
         from oioioi.programs.admin import ProgrammingProblemAdminMixin
-        return (ProgrammingProblemAdminMixin,)
+        return super(ProgrammingProblemController, self).mixins_for_admin() \
+                + (ProgrammingProblemAdminMixin,)
 
 
 class ProgrammingContestController(ContestController):

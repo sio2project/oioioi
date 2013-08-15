@@ -1,0 +1,4 @@
+<div id="user">{{ balloons_user.get_full_name }}</div>
+{% for balloon in balloons %}
+        <object data="{% url 'balloon_svg' color=balloon.color %}" type="image/svg+xml" style="left: {{ balloon.left }}%"></object>
+{% endfor %}
