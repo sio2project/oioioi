@@ -1,0 +1,3 @@
+username,password,first_name,last_name,email
+test_user3,eggs,Test,User 3,test_user3@example.com
+test_user4,spam,Test,User 4,test_user4@example.com

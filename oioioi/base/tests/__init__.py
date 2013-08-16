@@ -1,8 +1,5 @@
 import random
 import sys
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.http import HttpResponseRedirect
-from django.template.response import TemplateResponse
 import os.path
 import re
 import tempfile
@@ -12,6 +9,9 @@ import threading
 import urllib
 import subprocess
 
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate
+from django.http import HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core import mail
@@ -35,6 +35,7 @@ from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, OrderedRegistry, \
     side_pane_menus_registry, MenuRegistry
+from oioioi.base.management.commands import import_users
 from oioioi.contests.utils import is_contest_admin
 
 
@@ -628,6 +629,19 @@ class TestAdmin(TestCase):
         response = self.client.post(url, {'post': 'yes'}, follow=True)
         self.assertIn('was deleted successfully', response.content)
         self.assertEqual(User.objects.filter(username='test_user').count(), 0)
+
+    def test_import_users(self):
+        filename = os.path.join(basedir, 'files', 'users.csv')
+        manager = import_users.Command()
+        manager.run_from_argv(['manage.py', 'import_users', filename])
+
+        self.assertEqual(User.objects.count(), 5)
+        user4 = authenticate(username='test_user4', password='spam')
+        self.assertEqual(user4.first_name, "Test")
+        self.assertEqual(user4.last_name, "User 4")
+        self.assertEqual(user4.email, "test_user4@example.com")
+
+        self.assertFalse(User.objects.filter(username='username').exists())
 
 
 class TestBaseViews(TestCase):
