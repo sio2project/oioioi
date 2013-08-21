@@ -1,6 +1,7 @@
 [supervisord]
 logfile={{ PROJECT_DIR }}/logs/supervisor.log
 pidfile={{ PROJECT_DIR }}/pidfiles/supervisor.pid
+childlogdir={{ PROJECT_DIR }}/logs
 user=__USER__
 directory={{ PROJECT_DIR }}
 identifier=oioioi-supervisor
@@ -8,26 +9,36 @@ identifier=oioioi-supervisor
 [program:celerycam]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
 startretries=0
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
 
 [program:evalmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
 
 [program:evalmgr-lowprio]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-lowprio -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-lowprio.log
 {% if not settings.SPLITEVAL_EVALMGR %}exclude=true{% endif %}
 
 [program:sioworkers]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q sioworkers -c 1
 startretries=0
 stopwaitsecs=15
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/sioworkers.log
 {% if not settings.RUN_LOCAL_WORKERS %}exclude=true{% endif %}
 
 [program:filetracker-server]
 command=filetracker-server -L {{ PROJECT_DIR }}/logs/filetracker.log -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/filetracker-supervisord.log
 {% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
 
 [program:autoreload]
