@@ -25,7 +25,7 @@ setup(
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
         "Django>=1.5",
-        "pytz",
+        "pytz>=2013b",
         "South",
         "BeautifulSoup",
         "PyYAML",
@@ -59,7 +59,7 @@ setup(
         "sioworkers>=0.92",
 
         "fpdf",
-        "pdfminer",
+        "pdfminer>=20110515",
         "slate",
         "unicodecsv",
 
