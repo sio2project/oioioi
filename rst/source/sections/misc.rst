@@ -29,8 +29,8 @@ Checking for instance-level permissions in templates
 ----------------------------------------------------
 
 To check for model-level permissions, one may use the `standard Django
-mechanism <https://docs.djangoproject.com/en/1.4/topics/auth/#id9>`_. To check
-for instance-level permissions, use ``{% check_perm %}`` template tag.
+mechanism <https://docs.djangoproject.com/en/1.5/topics/auth/default/#topic-authorization>`_.
+To check for instance-level permissions, use ``{% check_perm %}`` template tag.
 
 .. autofunction:: oioioi.base.templatetags.check_perm.check_perm
 
