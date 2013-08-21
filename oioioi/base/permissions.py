@@ -84,6 +84,9 @@ def make_condition(condition_class=Condition):
         return condition
     return wrap_condition
 
+
+#: Shortcut for ``make_condition(RequestBasedCondition)``.
+#: See example usage below.
 make_request_condition = make_condition(RequestBasedCondition)
 
 

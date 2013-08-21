@@ -1,8 +1,8 @@
 """The SU app is used to change the current logged in user on-the-fly.
 
-   In other to achieve that goal, the module introduces concept of *effective*
+   In order to achieve this goal, the module introduces concept of *effective*
    and *real* user privileges known from Unix-like systems. The *effective*
-   user is stored in ``request.user`` object, while the *real* in
+   user is stored in ``request.user`` field, while the *real* in
    ``request.real_user``.
 
    On-the-fly means that current session variables are preserved while changing
