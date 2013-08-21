@@ -256,7 +256,7 @@ class UserListFilter(SimpleListFilter):
 
 
 class ProblemNameListFilter(SimpleListFilter):
-    title = _("full name")
+    title = _("problem")
     parameter_name = 'pi'
 
     def lookups(self, request, model_admin):
