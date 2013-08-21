@@ -143,6 +143,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     fields = ('contest', 'round', 'problem', 'short_name')
     list_display = ('name_link', 'short_name_link', 'round', 'actions_field')
     readonly_fields = ('contest', 'problem')
+    ordering = ('-round__start_date', 'short_name')
 
     def has_add_permission(self, request):
         return False
