@@ -73,7 +73,7 @@ setup(
     dependency_links=[
         'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
         'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
-        'https://bitbucket.org/mdebski/django-output-validator-1.5/get/django-1.5.zip#egg=django-output-validator-1.5md1',
+        'http://bitbucket.org/mdebski/django-output-validator-1.5/get/django-1.5.zip#egg=django-output-validator-1.5md1',
     ],
     entry_points = {
         'console_scripts': [
