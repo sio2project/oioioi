@@ -1,16 +1,16 @@
-The following user requests a teacher account:
+{% load i18n %}{% trans "The following user requests a teacher account:" %}
 
   {{ teacher.user.get_full_name }} ({{ teacher.user }})
   {{ teacher.school }}
 
-Visit the following link to accept the invitation:
+{% trans "Visit the following link to accept the invitation:" %}
 
   {{ accept_link }}
 
-or reply to this email to contact the requester.
+{% trans "or reply to this email to contact the requester." %}
 {% if message %}
 
-Message from the requester:
+{% trans "Message from the requester:" %}
 
 ---
 {{ message|safe|wordwrap:80 }}

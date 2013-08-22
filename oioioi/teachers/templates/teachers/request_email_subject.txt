@@ -1,1 +1,1 @@
-Teacher account request: {{ teacher.user.get_full_name }} ({{ teacher.user }})
+{% load i18n %}{% blocktrans with fullname=teacher.user.get_full_name username=teacher.user %}Teacher account request: {{ fullname }} ({{ username }}){% endblocktrans %}
