@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.admin.util import quote
 
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
@@ -491,8 +492,8 @@ class TestContestAdmin(TestCase):
         self.assertEqual(round.results_date,
                 datetime(2012, 2, 5, 6, 7, 8, tzinfo=LocalTimezone()))
 
-        url = reverse('oioioiadmin:contests_contest_change', args=('cid',)) \
-                + '?simple=true'
+        url = reverse('oioioiadmin:contests_contest_change',
+                args=(quote('cid'),)) + '?simple=true'
         response = self.client.get(url)
         self.assertIn('2012-02-05', response.content)
         self.assertIn('06:07:08', response.content)
@@ -521,8 +522,8 @@ class TestContestAdmin(TestCase):
         self.assertEqual(round.results_date,
                 datetime(2013, 2, 5, 16, 7, 8, tzinfo=LocalTimezone()))
 
-        url = reverse('oioioiadmin:contests_contest_change', args=('cid',)) \
-                + '?simple=true'
+        url = reverse('oioioiadmin:contests_contest_change',
+                args=(quote('cid'),)) + '?simple=true'
         response = self.client.get(url)
         post_data = {
                 'name': 'cname1',

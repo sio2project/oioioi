@@ -2,7 +2,7 @@ from functools import partial
 import urllib
 
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
-from django.contrib.admin.util import unquote
+from django.contrib.admin.util import unquote, quote
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
@@ -135,7 +135,7 @@ admin.site.register(Contest, BaseContestAdmin)
 
 contest_admin_menu_registry.register('contest_change', _("Settings"),
         lambda request: reverse('oioioiadmin:contests_contest_change',
-            args=(request.contest.id,)), order=20)
+            args=(quote(request.contest.id),)), order=20)
 
 
 class ProblemInstanceAdmin(admin.ModelAdmin):
