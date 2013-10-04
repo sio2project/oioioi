@@ -116,10 +116,28 @@ class SinolPackage(object):
         source = os.path.join(self.rootdir, 'doc', self.short_name + 'zad.tex')
         if os.path.isfile(source):
             text = open(source, 'r').read()
-            r = re.search(r'\\title{(.+)}', text)
+            r = re.search(r'^[^%]*\\title{(.+)}', text, re.MULTILINE)
             if r is not None:
                 self.problem.name = _decode(r.group(1), text)
                 self.problem.save()
+
+    def _detect_statement_memory_limit(self):
+        """Returns the memory limit in the problem statement, converted to
+           KiB or ``None``.
+        """
+        source = os.path.join(self.rootdir, 'doc', self.short_name + 'zad.tex')
+        if os.path.isfile(source):
+            text = open(source, 'r').read()
+            r = re.search(r'^[^%]*\\RAM{(\d+)}', text, re.MULTILINE)
+            if r is not None:
+                try:
+                    value = int(r.group(1))
+                    # In SIO1's tradition 66000 was used instead of 65536 etc.
+                    # We're trying to cope with this legacy here.
+                    return (value + (value + 31) / 32) * 1000
+                except ValueError:
+                    pass
+        return None
 
     def _compile_docs(self, docdir):
         # fancyheadings.sty looks like a rarely available LaTeX package...
@@ -209,6 +227,7 @@ class SinolPackage(object):
 
         time_limits = _stringify_keys(self.config.get('time_limits', {}))
         memory_limits = _stringify_keys(self.config.get('memory_limits', {}))
+        statement_memory_limit = self._detect_statement_memory_limit()
 
         # Find tests and create objects
         for order, test in enumerate(sorted(os.listdir(indir),
@@ -242,11 +261,21 @@ class SinolPackage(object):
 
             if created:
                 instance.time_limit = time_limits.get(name, DEFAULT_TIME_LIMIT)
-                if 'memory_limit' in self.config:
-                    instance.memory_limit = self.config['memory_limit']
-                else:
-                    instance.memory_limit = memory_limits.get(name,
-                            DEFAULT_MEMORY_LIMIT)
+
+            # If we find the memory limit specified anywhere in the package:
+            # either in the config.yml or in the problem statement, then we
+            # overwrite potential manual changes. (In the future we should
+            # disallow editing memory limits if they were taken from the
+            # package).
+            if name in memory_limits:
+                instance.memory_limit = memory_limits[name]
+            elif 'memory_limit' in self.config:
+                instance.memory_limit = self.config['memory_limit']
+            elif statement_memory_limit is not None:
+                instance.memory_limit = statement_memory_limit
+            elif created:
+                instance.memory_limit = DEFAULT_MEMORY_LIMIT
+
             instance.order = order
             instance.save()
             test_names.append(name)

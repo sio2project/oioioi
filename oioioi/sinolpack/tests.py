@@ -141,6 +141,13 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self.assertEqual(problem.name, 'Testowe')
 
+    def test_title_from_doc(self):
+        filename = get_test_filename('test_simple_package_no_config.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertNotEqual(problem.name, 'Not this one')
+        self.assertEqual(problem.name, 'Testowe')
+
     def test_latin2_title(self):
         filename = get_test_filename('test_simple_package_latin2.zip')
         call_command('addproblem', filename)
@@ -152,6 +159,12 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         problem = Problem.objects.get()
         self.assertEqual(problem.name, u'Łąka')
+
+    def test_memory_limit_from_doc(self):
+        filename = get_test_filename('test_simple_package_no_config.zip')
+        call_command('addproblem', filename)
+        test = Test.objects.filter(memory_limit=132000)
+        self.assertEqual(test.count(), 5)
 
 
 # Fixes error "no such table: nose_c" as described in
