@@ -1,9 +1,15 @@
-from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.fields import EnumRegistry, EnumField
+from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest
+
+
+check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
+
 
 participant_statuses = EnumRegistry()
 participant_statuses.register('ACTIVE', _("Active"))
