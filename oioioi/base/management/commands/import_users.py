@@ -70,8 +70,8 @@ class Command(BaseCommand):
                         for message in v:
                             if k == '__all__':
                                 self.stdout.write(_(
-                                    "Error for user=%s: %s\n")
-                                        % (row[0], message))
+                                    "Error for user=%(user)s: %(message)s\n")
+                                        % {'user': row[0], 'message': message})
                             else:
                                 self.stdout.write(
                                         _("Error for user=%(user)s, "
