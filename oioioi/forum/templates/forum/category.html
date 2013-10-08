@@ -42,9 +42,11 @@
     </thead>
     <tbody>
         {% for t in threads %}
+        {% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=t.id as thread_link %}
+
         <tr>
             <td>
-                <a href="{% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=t.id %}">
+                <a href="{{ thread_link }}">
                     {{ t.name }}
                 </a>
             </td>
@@ -57,7 +59,11 @@
                     {{ t.count_reported }}
                 </td>
             {% endif %}
-            <td>{% blocktrans with date=t.last_post.add_date author=t.last_post.author.get_full_name %}{{ date }}, by {{ author }}{% endblocktrans %}</td>
+            <td class="forum-last-post">
+                {% blocktrans with date=t.last_post.add_date author=t.last_post.author.get_full_name last_id=t.last_post.id %}
+                    <a href="{{ thread_link }}#forum-post-{{ last_id }}">{{ date }}</a>, by {{ author }}
+                {% endblocktrans %}
+            </td>
         </tr>
         {% endfor %}
     </tbody>

@@ -140,6 +140,15 @@ class Post(models.Model):
     def get_admin_url(self):
         return reverse('oioioiadmin:forum_post_change', args=(self.id, ))
 
+    def get_in_thread_url(self):
+        thread = self.thread
+        thread_url = reverse('forum_thread',
+                kwargs={'contest_id': thread.category.forum.contest_id,
+                        'category_id':thread.category_id,
+                        'thread_id': thread.id})
+        post_url = '%s#forum-post-%d' % (thread_url, self.id)
+        return post_url
+
     def can_be_removed(self):
         return bool((timezone.now() - self.add_date)
                     < datetime.timedelta(minutes=15))

@@ -38,7 +38,8 @@ def forum_view(request, contest_id):
 def category_view(request, contest_id, category_id):
     category = get_object_or_404(Category, id=category_id)
     msgs = get_msgs(request)
-    threads = category.thread_set.select_related('last_post').all()
+    threads = category.thread_set.select_related(
+        'last_post', 'last_post__author').all()
     return TemplateResponse(request, 'forum/category.html',
         {'forum': request.contest.forum, 'category': category,
          'threads': threads, 'msgs': msgs,

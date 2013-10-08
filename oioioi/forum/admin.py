@@ -193,12 +193,18 @@ class ThreadAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'thread', 'content', 'reported', 'hidden']
+    list_display = ['id', 'author', 'thread_link', 'content', 'reported',
+            'hidden']
     list_display_links = ['id', 'reported', 'hidden']
     list_filter = ['reported', 'hidden', 'thread']
     actions = ['hide_action', 'unreport_action']
     fields = ['content', 'thread', 'author', 'reported', 'hidden']
     readonly_fields = ['author']
+
+    def thread_link(self, obj):
+        return make_html_link(obj.get_in_thread_url(), obj.thread.name)
+    thread_link.allow_tags = True
+    thread_link.short_description = _("Thread")
 
     def has_add_permission(self, request):
         return False

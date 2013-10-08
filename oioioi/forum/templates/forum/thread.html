@@ -24,48 +24,50 @@
 <ul class="forum-list">
     {% for p in thread.post_set.all %}
         <li class="forum-item {% if p.hidden %} forum-hidden-post{% endif %}" id="forum-post-{{ p.id }}">
-        {% if p.hidden %}
-            <p class="forum-hidden-notice">
-                {% trans "This post was hidden by the contest administrator" %}
-                {% if is_admin %}
-                <a href="#" data-post-url="{% url 'forum_post_show' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-ok"></i> {% trans "unhide" %}</a>
-                |
-                <a href="#" data-toggle="collapse" data-target="#forum-post-{{ p.id }} > .forum-content-row"><i class="icon-resize-full"></i> {% trans "expand" %}</a>
+            <div class="forum-container">
+                {% if p.hidden %}
+                    <p class="forum-hidden-notice">
+                        {% trans "This post was hidden by the contest administrator" %}
+                        {% if is_admin %}
+                        <a href="#" data-post-url="{% url 'forum_post_show' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-ok"></i> {% trans "unhide" %}</a>
+                        |
+                        <a href="#" data-toggle="collapse" data-target="#forum-post-{{ p.id }} > .forum-content-row"><i class="icon-resize-full"></i> {% trans "expand" %}</a>
+                        {% endif %}
+                    </p>
                 {% endif %}
-            </p>
-        {% endif %}
-        {% if is_admin or not p.hidden %}
-            <div class="forum-content-row{% if p.hidden %} collapse {% endif %}">
-                {{ p.content|urlize|linebreaksbr }}
-            </div>
-        {% endif %}
-        <div class="forum-info-row">
-            {{ p.author.get_full_name }} | {% trans "Added" %}: {{ p.add_date }}
-            {% if p.edited %}
-                | {% trans "Last edit" %}: {{ p.last_edit_date }}
-            {% endif %}
-            {% if not is_locked or is_admin %}
-                {% if is_admin or p.author == user %}
-                | <a href="{% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "edit" %}</a>
+                {% if is_admin or not p.hidden %}
+                    <div class="forum-content-row{% if p.hidden %} collapse {% endif %}">
+                        {{ p.content|urlize|linebreaksbr }}
+                    </div>
                 {% endif %}
-                {% if is_admin or p.author == user and forloop.last and p.can_be_removed %}
-                | <a href="{% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-trash"></i></a>
-                {% endif %}
-            {% endif %}
-            {% if not p.hidden %}
-                {% if is_admin %}
-                | <a href="#" data-post-url="{% url 'forum_post_hide' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "hide" %}</a>
-                    {% if p.reported %}
-                |    <a href="#" data-post-url="{% url 'forum_post_unreport' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "unreport" %}</a>
+                <div class="forum-info-row">
+                    <a href="#forum-post-{{ p.id }}">#{{ p.id }}</a> | {{ p.author.get_full_name }} | {% trans "Added" %}: {{ p.add_date }}
+                    {% if p.edited %}
+                        | {% trans "Last edit" %}: {{ p.last_edit_date }}
                     {% endif %}
-                {% elif not user.is_anonymous and not p.reported %}
-                | <a href="#" data-post-url="{% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "report" %}</a>
-                {% endif %}
-                {% if p.reported %}
-                | {% trans "This post was reported" %}
-                {% endif %}
-            {% endif %}
-        </div>
+                    {% if not is_locked or is_admin %}
+                        {% if is_admin or p.author == user %}
+                        | <a href="{% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "edit" %}</a>
+                        {% endif %}
+                        {% if is_admin or p.author == user and forloop.last and p.can_be_removed %}
+                        | <a href="{% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-trash"></i></a>
+                        {% endif %}
+                    {% endif %}
+                    {% if not p.hidden %}
+                        {% if is_admin %}
+                        | <a href="#" data-post-url="{% url 'forum_post_hide' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "hide" %}</a>
+                            {% if p.reported %}
+                        |    <a href="#" data-post-url="{% url 'forum_post_unreport' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "unreport" %}</a>
+                            {% endif %}
+                        {% elif not user.is_anonymous and not p.reported %}
+                        | <a href="#" data-post-url="{% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "report" %}</a>
+                        {% endif %}
+                        {% if p.reported %}
+                        | {% trans "This post was reported" %}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
         </li>
     {% endfor %}
 </ul>
