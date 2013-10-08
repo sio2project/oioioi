@@ -45,6 +45,16 @@ def can_edit_registration(request):
 
 @make_request_condition
 @request_cached
+def can_unregister(request):
+    participant = get_participant(request)
+    if participant is None:
+        return False
+    rcontroller = request.contest.controller.registration_controller()
+    return rcontroller.can_unregister(request, participant)
+
+
+@make_request_condition
+@request_cached
 def is_participant(request):
     rcontroller = request.contest.controller.registration_controller()
     qs = User.objects.filter(id=request.user.id)

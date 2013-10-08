@@ -7,7 +7,7 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import contest_exists
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import can_register, can_edit_registration, \
-    contest_has_participants
+    contest_has_participants, can_unregister
 
 account_menu_registry.register('participants_registration',
         _("Register to the contest"),
@@ -32,7 +32,7 @@ def registration_view(request, contest_id):
 
 
 @enforce_condition(not_anonymous & contest_exists & contest_has_participants
-                   & can_edit_registration)
+                   & can_unregister)
 def unregistration_view(request, contest_id):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, contest=request.contest,

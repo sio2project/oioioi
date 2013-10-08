@@ -35,6 +35,9 @@ class OIRegistrationController(ParticipantsController):
     def can_register(self, request):
         return True
 
+    def can_unregister(self, request, participant):
+        return False
+
     def registration_view(self, request):
         participant = self._get_participant_for_form(request)
 

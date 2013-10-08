@@ -44,6 +44,9 @@ class ParticipantsController(RegistrationController):
             return False
         return bool(request.user == participant.user)
 
+    def can_unregister(self, request, participant):
+        return self.can_edit_registration(request, participant)
+
     def no_entry_view(self, request):
         if self.can_register(request):
             url = reverse('participants_register',
@@ -118,5 +121,12 @@ class ParticipantsController(RegistrationController):
                 else:
                     return redirect('default_contest_view',
                             contest_id=self.contest.id)
-        context = {'form': form, 'participant': participant}
+        can_unregister = False
+        if participant:
+            can_unregister = self.can_unregister(request, participant)
+        context = {
+            'form': form,
+            'participant': participant,
+            'can_unregister': can_unregister,
+        }
         return TemplateResponse(request, self.registration_template, context)

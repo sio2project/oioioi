@@ -132,7 +132,7 @@ class TestOIRegistration(TestCase):
         self.assertNotIn('Register to the contest', response.content)
         self.assertIn('Edit contest registration', response.content)
 
-    def test_participants_unregister(self):
+    def test_participants_unregister_forbidden(self):
         contest = Contest.objects.get()
 
         url = reverse('participants_unregister',
@@ -156,8 +156,8 @@ class TestOIRegistration(TestCase):
 
         self.client.login(username='test_user')
         response = self.client.post(url, {'post': 'yes'})
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(Participant.objects.count(), 0)
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(Participant.objects.count(), 1)
 
     def test_participants_registration(self):
         contest = Contest.objects.get()
@@ -276,7 +276,7 @@ class TestOIOnsiteRegistration(TestCase):
         self.assertNotIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
 
-    def test_participants_unregister(self):
+    def test_participants_unregister_forbidden(self):
         contest = Contest.objects.get()
 
         url = reverse('participants_unregister',

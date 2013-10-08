@@ -116,10 +116,10 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
     school_province.admin_order_field = 'oi_oiregistration__school__province'
 
     def has_add_permission(self, request):
-        return False
+        return request.user.is_superuser
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return request.user.is_superuser
 
     def get_actions(self, request):
         actions = super(OIRegistrationParticipantAdmin, self) \

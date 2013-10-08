@@ -27,7 +27,7 @@
     </fieldset>
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}" />
-        {% if participant %}
+        {% if can_unregister %}
             <a class="btn btn-danger pull-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
                 {% trans "Unregister" %}
             </a>
