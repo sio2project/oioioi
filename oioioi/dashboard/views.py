@@ -56,7 +56,7 @@ def contest_dashboard_view(request, contest_id):
     submissions = \
             submissions[:getattr(settings, 'NUM_DASHBOARD_SUBMISSIONS', 8)]
     submissions = [submission_template_context(request, s) for s in submissions]
-    show_scores = bool(s for s in submissions if s.score is not None)
+    show_scores = any(s['can_see_score'] for s in submissions)
     messages = messages_template_context(request, visible_messages(request))
     messages = messages[:getattr(settings, 'NUM_DASHBOARD_MESSAGES', 8)]
     context = {

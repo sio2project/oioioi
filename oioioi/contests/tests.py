@@ -332,6 +332,11 @@ class TestManyRounds(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 4)
 
+        with fake_time(datetime(2012, 7, 31, 20, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertNotIn('<td>34</td>', response.content)
+            self.assertNotIn('Score', response.content)
+
         with fake_time(datetime(2012, 7, 31, 21, tzinfo=utc)):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 1)
