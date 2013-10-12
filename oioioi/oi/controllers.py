@@ -89,6 +89,9 @@ class OIContestController(ProgrammingContestController):
         return super(OIContestController, self)\
                 .can_submit(request, problem_instance, check_round_times)
 
+    def should_confirm_submission_receipt(self, request, submission):
+        return submission.kind == 'NORMAL' and request.user == submission.user
+
     def update_user_result_for_problem(self, result):
         try:
             latest_submission = Submission.objects \
@@ -146,3 +149,6 @@ class OIOnsiteContestController(OIContestController):
             return rtimes.is_active(request.timestamp)
         return super(OIOnsiteContestController, self) \
                 .can_see_round(request, round)
+
+    def should_confirm_submission_receipt(self, request, submission):
+        return False

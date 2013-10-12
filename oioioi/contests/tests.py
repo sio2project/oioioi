@@ -642,13 +642,18 @@ class TestAttachments(TestCase, TestStreamingMixin):
 
 class SubmitFileMixin(object):
     def submit_file(self, contest, problem_instance, file_size=1024,
-            file_name='submission.cpp'):
+            file_name='submission.cpp', kind='NORMAL', user=None):
         url = reverse('submit', kwargs={'contest_id': contest.id})
         file = ContentFile('a' * file_size, name=file_name)
         post_data = {
             'problem_instance_id': problem_instance.id,
-            'file': file
+            'file': file,
         }
+        if user:
+            post_data.update({
+                'kind': kind,
+                'user': user,
+            })
         return self.client.post(url, post_data)
 
     def _assertSubmitted(self, contest, response):
