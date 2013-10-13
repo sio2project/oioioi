@@ -17,7 +17,8 @@ from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm
 from oioioi.contests.menu import contest_admin_menu_registry, \
         contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        Submission, ContestAttachment, RoundTimeExtension, ContestPermission
+        Submission, ContestAttachment, RoundTimeExtension, ContestPermission, \
+        submission_kinds
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
@@ -273,11 +274,26 @@ class ProblemNameListFilter(SimpleListFilter):
             return queryset
 
 
+class SubmissionKindListFilter(SimpleListFilter):
+    title = _("kind")
+    parameter_name = 'kind'
+
+    def lookups(self, request, model_admin):
+        return submission_kinds
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(kind=self.value())
+        else:
+            return queryset
+
+
 class SubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_login', 'user_full_name', 'date',
             'problem_instance_display', 'status_display', 'score_display']
     list_display_links = ['id', 'date']
-    list_filter = [UserListFilter, ProblemNameListFilter, 'status']
+    list_filter = [UserListFilter, ProblemNameListFilter,
+            SubmissionKindListFilter, 'status']
     date_hierarchy = 'date'
     actions = ['rejudge_action']
     search_fields = ['user__username', 'user__last_name']
