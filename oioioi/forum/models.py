@@ -86,6 +86,7 @@ class Thread(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("thread"))
 
     class Meta(object):
+        ordering = ('-id',)
         verbose_name = _("thread")
         verbose_name_plural = _("threads")
 
@@ -123,6 +124,8 @@ class Post(models.Model):
         return bool(self.last_edit_date)
 
     class Meta(object):
+        index_together = (('thread', 'add_date'),)
+        ordering = ('add_date', )
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 
