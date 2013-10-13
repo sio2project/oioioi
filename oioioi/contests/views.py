@@ -158,10 +158,10 @@ def my_submissions_view(request, contest_id):
             .select_related()
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
-    show_scores = bool(queryset.filter(score__isnull=False))
+    submissions = [submission_template_context(request, s) for s in queryset]
+    show_scores = any(s['can_see_score'] for s in submissions)
     return TemplateResponse(request, 'contests/my_submissions.html',
-        {'submissions': [submission_template_context(request, s)
-         for s in queryset], 'show_scores': show_scores,
+        {'submissions': submissions, 'show_scores': show_scores,
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
 
 
