@@ -36,6 +36,8 @@ class ParticipantsController(RegistrationController):
         return False
 
     def can_edit_registration(self, request, participant):
+        if self.form_class is None:
+            return False
         if is_contest_admin(request):
             return True
         if participant.status == 'BANNED':
@@ -55,9 +57,11 @@ class ParticipantsController(RegistrationController):
            controller.
 
            The default implementation infers it from form_class form metadata.
+           If there is no form_class, the default implementation returns
+           ``None``.
         """
-        assert self.form_class, 'ParticipantsController.form_class must ' \
-            'be overridden in subclasses'
+        if self.form_class is None:
+            return None
         assert issubclass(self.form_class, forms.ModelForm), \
             'ParticipantsController.form_class must be a ModelForm'
         model_class = self.form_class._meta.model
@@ -67,6 +71,8 @@ class ParticipantsController(RegistrationController):
         return model_class
 
     def get_form(self, request, participant=None):
+        if self.form_class is None:
+            return None
         instance = None
         if participant:
             try:
@@ -96,6 +102,9 @@ class ParticipantsController(RegistrationController):
             raise PermissionDenied
 
         form = self.get_form(request, participant)
+        assert form is not None, "can_register or can_edit_registration " \
+            "returned True, but controller returns no registration form"
+
         if request.method == 'POST':
             if form.is_valid():
                 participant, created = Participant.objects.get_or_create(
