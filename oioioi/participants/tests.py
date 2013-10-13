@@ -1,3 +1,5 @@
+import os
+from datetime import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
@@ -12,10 +14,12 @@ from oioioi.contests.controllers import ContestController
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
+from oioioi.participants.management.commands import import_participants
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.test_settings import MIDDLEWARE_CLASSES
 
-from datetime import datetime
+
+basedir = os.path.dirname(__file__)
 
 
 class ParticipantsContestController(ProgrammingContestController):
@@ -269,6 +273,24 @@ class TestParticipantsModelAdmin(TestCase):
         check_not_accessible(self, url)
         self.client.login(username='test_contest_admin')
         check_not_accessible(self, url)
+
+    def test_participants_import(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.participants.tests.ParticipantsContestController'
+        contest.save()
+
+        filename = os.path.join(basedir, 'files', 'participants.csv')
+        manager = import_participants.Command()
+        manager.run_from_argv(['manage.py', 'import_participants',
+                               str(contest.id), filename])
+
+        self.assertEqual(Participant.objects.count(), 2)
+
+        p = Participant.objects.get(pk=1)
+        self.assertEqual(p.status, 'ACTIVE')
+        self.assertEqual(p.user.username, 'test_user')
+        self.assertEqual(p.contest, contest)
 
 
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
