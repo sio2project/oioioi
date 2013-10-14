@@ -31,6 +31,12 @@ class OrderedRegistry(object):
     def __len__(self):
         return len(self.items)
 
+    def register_decorator(self, order=sys.maxint):
+        def decorator(func):
+            self.register(func, order)
+            return func
+        return decorator
+
 
 class _MenuItem(object):
     def __init__(self, name, text, url_generator, condition, attrs):
