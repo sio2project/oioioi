@@ -14,7 +14,7 @@ from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.conf import settings
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core import mail
 from django.core.files.uploadedfile import TemporaryUploadedFile, \
         SimpleUploadedFile
@@ -937,6 +937,23 @@ class TestCondition(TestCase):
         request = self.factory()
         res = example_view(request)
         self.assertTrue(isinstance(res, HttpResponseRedirect))
+
+    def test_enforce_failing_condition_without_require_login(self):
+        @enforce_condition(self.alwaysFalse, login_redirect=False)
+        def example_view(request):
+            pass
+
+        request = self.factory()
+        with self.assertRaises(PermissionDenied):
+            example_view(request)
+
+    def test_enforce_passing_condition_without_require_login(self):
+        @enforce_condition(self.alwaysTrue, login_redirect=False)
+        def example_view(request):
+            return 314
+
+        request = self.factory()
+        self.assertEqual(314, example_view(request))
 
 
 class TestLoginChange(TestCase):

@@ -1,9 +1,34 @@
+from datetime import timedelta
+
+from django.conf import settings
+from django.contrib.admin.util import quote
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
 from django.http import Http404
-from oioioi.contests.models import UserResultForProblem
-from oioioi.contests.utils import can_enter_contest
-from oioioi.balloons.models import BalloonsDisplay
+from django.views.decorators.http import require_POST
+
+from oioioi.base.permissions import enforce_condition, make_request_condition
+from oioioi.base.utils import jsonify
+from oioioi.contests.models import UserResultForProblem, Contest
+from oioioi.contests.utils import can_enter_contest, contest_exists, \
+    is_contest_admin
+from oioioi.balloons.models import BalloonsDisplay, BalloonDelivery, \
+    BalloonsDeliveryAccessData, ProblemBalloonsConfig
+
+
+@make_request_condition
+def has_balloons_cookie(request):
+    try:
+        key = request.COOKIES['balloons_access_%s' % request.contest.id]
+        access_data = BalloonsDeliveryAccessData.objects.get(
+            contest__id=request.contest.id, access_key=key)
+    except (KeyError, BalloonsDeliveryAccessData.DoesNotExist):
+        return False
+    if access_data.valid_until < request.timestamp:
+        return False
+    return True
 
 
 def balloons_context(user, list_of_colors):
@@ -56,3 +81,91 @@ def balloons_body_view(request):
     args = context_args(request)
     return TemplateResponse(request, 'balloons/balloons-body.html',
         balloons_context(*args))
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+@require_POST
+def balloons_regenerate_delivery_key_view(request, contest_id):
+    contest = get_object_or_404(Contest, id=request.contest.id)
+    access_data = BalloonsDeliveryAccessData.objects \
+        .get_or_create(contest=contest)[0]
+    access_data.valid_until = None
+    access_data.generate_key()
+    access_data.save()
+
+    return redirect('oioioiadmin:contests_contest_change',
+                    quote(request.contest.id))
+
+
+def balloons_access_cookie_view(request, contest_id, access_key):
+    access_data = get_object_or_404(
+        BalloonsDeliveryAccessData,
+        contest_id=request.contest.id,
+        access_key=access_key
+    )
+    if access_data.valid_until is not None:
+        raise PermissionDenied
+    expires = settings.BALLOON_ACCESS_COOKIE_EXPIRES_DAYS
+    validity_date = request.timestamp + timedelta(days=expires)
+    access_data.valid_until = validity_date
+    access_data.save()
+    response = redirect('balloons_delivery_panel',
+                        contest_id=request.contest.id)
+    response.set_cookie(key='balloons_access_%s' % request.contest.id,
+                        value=access_key, expires=validity_date)
+    return response
+
+
+@enforce_condition(has_balloons_cookie, login_redirect=False)
+def balloons_delivery_panel_view(request, contest_id):
+    return TemplateResponse(request, 'balloons/balloons-delivery-panel.html')
+
+
+@jsonify
+@enforce_condition(has_balloons_cookie, login_redirect=False)
+def get_new_balloon_requests_view(request, contest_id):
+    try:
+        last_id = int(request.GET['last_id'])
+    except KeyError:
+        raise Http404
+    new_requests = BalloonDelivery.objects.filter(
+        id__gt=last_id,
+        problem_instance__contest_id=request.contest.id,
+        delivered=False
+    ).select_related('user', 'problem_instance__balloons_config')[:10]
+    response = {'new_last_id': last_id, 'new_requests': []}
+    if not new_requests:
+        return response
+    response['new_last_id'] = max(r.id for r in new_requests)
+    for delivery in new_requests:
+        try:
+            balloon_config = delivery.problem_instance.balloons_config
+            color = balloon_config.color
+        except ProblemBalloonsConfig.DoesNotExist:
+            color = None
+        response['new_requests'].append({
+            'id': delivery.id,
+            'team': delivery.user.get_full_name(),
+            'color': color,
+            'problem_name': delivery.problem_instance.short_name,
+            'first_accepted': delivery.first_accepted_solution
+        })
+    return response
+
+
+@jsonify
+@enforce_condition(has_balloons_cookie, login_redirect=False)
+@require_POST
+def set_balloon_delivered_view(request, contest_id):
+    try:
+        new_delivered = request.POST['new_delivered'] == 'True'
+        old_delivered = not new_delivered
+        delivery = BalloonDelivery.objects.get(
+            id=int(request.POST['id']),
+            delivered=old_delivered
+        )
+    except (KeyError, BalloonDelivery.DoesNotExist):
+        raise Http404
+    delivery.delivered = new_delivered
+    delivery.save()
+    return {'result': 'ok'}

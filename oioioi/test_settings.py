@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'oioioi.timeline',
     'oioioi.statistics',
     'oioioi.amppz',
+    'oioioi.balloons',
     'oioioi.publicsolutions',
     'oioioi.testspackages',
     'oioioi.teams',
@@ -85,6 +86,8 @@ COMPLAINTS_EMAIL = 'dummy@example.com'
 COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
+
+BALLOON_ACCESS_COOKIE_EXPIRES_DAYS = 7
 
 PROBLEM_SOURCES += (
     'oioioi.zeus.problem_sources.ZeusProblemSource',

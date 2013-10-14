@@ -1,10 +1,13 @@
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.balloons.models import ProblemBalloonsConfig, \
-    BalloonsDisplay
+        BalloonsDisplay, BalloonsDeliveryAccessData
 from oioioi.base.admin import system_admin_menu_registry
+from oioioi.base.utils import make_html_link
+from oioioi.contests.admin import ContestAdmin
 from oioioi.contests.models import ProblemInstance, Contest
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
@@ -96,3 +99,48 @@ system_admin_menu_registry.register('balloonsdisplay_admin',
         _("Balloons displays"), lambda request:
         reverse('oioioiadmin:balloons_balloonsdisplay_changelist'),
         order=60)
+
+
+class BalloonsDeliveryAccessDataInline(admin.TabularInline):
+    model = BalloonsDeliveryAccessData
+    fields = ('access_link', 'valid_until', 'regeneration_link')
+    readonly_fields = ('access_link', 'valid_until', 'regeneration_link')
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
+    def access_link(self, instance):
+        if instance.access_key:
+            url = reverse('balloons_access_set_cookie', kwargs={
+                'contest_id': instance.contest.id,
+                'access_key': instance.access_key
+            })
+            return make_html_link(url, url)
+        else:
+            return _("Not yet generated")
+    access_link.allow_tags = True
+    access_link.short_description = _("Access link")
+
+    def regeneration_link(self, instance):
+        return make_html_link(
+            reverse('balloons_access_regenerate',
+                    kwargs={'contest_id': instance.contest.id}),
+            _("Regenerate key"),
+            'POST'
+        )
+    regeneration_link.allow_tags = True
+    regeneration_link.short_description = _("Regeneration link")
+
+
+class BalloonsDeliveryAccessDataAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(BalloonsDeliveryAccessDataAdminMixin, self) \
+            .__init__(*args, **kwargs)
+        self.inlines = self.inlines + [BalloonsDeliveryAccessDataInline]
+ContestAdmin.mix_in(BalloonsDeliveryAccessDataAdminMixin)

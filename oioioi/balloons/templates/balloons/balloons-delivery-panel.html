@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block styles %}
+    {{ block.super }}
+    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}balloons/style.css">
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}balloons/delivery_panel.js"></script>
+{% endblock %}
+{% block container-class %}container-fluid{% endblock %}
+
+{% block body %}
+    <div class="row-fluid top-row">
+        <div class="alert alert-error hidden">
+            {% trans "AJAX Request failed" %}
+            <span></span>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span6">
+            <h4>{% trans "Delivery requests" %}</h4>
+            <table class="table" id="not-delivered">
+                <thead>
+                    <tr>
+                        <th>{% trans "Color" %}</th>
+                        <th>{% trans "Team" %}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <div class="span6">
+            <h4>{% trans "Recently delivered" %}</h4>
+            <table class="table" id="delivered">
+                <thead>
+                    <tr>
+                        <th>{% trans "Color" %}</th>
+                        <th>{% trans "Team" %}</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $(window).trigger('setBalloonUrls', {
+                setDeliveredUrl: '{% filter escapejs %}{% url 'balloons_set_delivered' contest_id=request.contest.id %}{% endfilter %}',
+                fetchUrl: '{% filter escapejs %}{% url 'balloons_delivery_new' contest_id=request.contest.id %}{% endfilter %}'
+            });
+        });
+    </script>
+{% endblock %}

@@ -90,7 +90,7 @@ def make_condition(condition_class=Condition):
 make_request_condition = make_condition(RequestBasedCondition)
 
 
-def enforce_condition(condition, template=None):
+def enforce_condition(condition, template=None, login_redirect=True):
     """Decorator for views that checks that the request passes the given
        ``condition``.
 
@@ -99,9 +99,9 @@ def enforce_condition(condition, template=None):
        If the condition returns ``False`` and ``template`` is not ``None``,
        a suitable :class:`TemplateResponse` is returned.
 
-       If ``template`` is ``None`` and the user is not authenticated, a
-       redirect to the login page is issued, otherwise :exc:`PermissionDenied`
-       is raised.
+       If ``template`` is ``None`` and the user is not authenticated and the
+       ``login_redirect`` flag is set to ``True``, a redirect to the login
+       page is issued, otherwise :exc:`PermissionDenied` is raised.
 
        If the condition returns an instance of :class:`AccessDenied` with a
        specific response to use, this response is used instead of calling the
@@ -126,7 +126,8 @@ def enforce_condition(condition, template=None):
                 return view_func(request, *args, **kwargs)
             if template is not None:
                 return TemplateResponse(request, template)
-            elif not request.user.is_authenticated() and not request.is_ajax():
+            elif not request.user.is_authenticated() \
+                    and not request.is_ajax() and login_redirect:
                 return redirect_to_login(request.path)
             else:
                 raise PermissionDenied

@@ -170,6 +170,7 @@ INSTALLED_APPS = (
 #    'oioioi.submitsqueue',
 #    'oioioi.timeline',
 #    'oioioi.amppz',
+#    'oioioi.balloons',
 #    'oioioi.statistics',
 #    'oioioi.publicsolutions',
 #    'oioioi.testspackages',
