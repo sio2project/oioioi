@@ -73,6 +73,7 @@ def choose_school_view(request, school_id):
 @enforce_condition(not_anonymous)
 def schools_similar_view(request):
     schools = School.objects.filter(is_active=True)
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
 
     if 'postal_code' in request.POST and request.POST['postal_code']:
         schools = schools.filter(postal_code=request.POST['postal_code'])
@@ -86,9 +87,11 @@ def schools_similar_view(request):
         qobj = Q(address=address)
         for w in address.split():
             qobj |= Q(address__contains=w)
-        schools = schools.filter(qobj)
+        # priority for schools with a matching part of the address
+        schools = list(schools.filter(qobj)[:num_hints]) + \
+                list(schools.filter(~qobj)[:num_hints])
 
-    schools = schools[:getattr(settings, 'NUM_HINTS', 10)]
+    schools = schools[:num_hints]
 
     if schools:
         return SimpleTemplateResponse('oi/schools_similar_confirm.html',

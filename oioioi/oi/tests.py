@@ -436,9 +436,6 @@ class TestSchoolAdding(TestCase):
         self.assertContains(response, 'Gimnazjum')
         self.assertContains(response, 'click its name')
 
-        response = self.client.post(url, {'address': 'The Castle'})
-        self.assertEquals(response.content, '')
-
 
 class TestOISubmit(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package']
