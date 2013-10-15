@@ -39,9 +39,25 @@
     "is_active": true,
     "phone": "4002004",
     "postal_code": "02-044",
-    "address": "Pcim Dolny",
+    "address": "Pcim Dolny 10",
     "email": "a@a.pl",
     "is_approved": true
   }
+},
+{
+  "pk": 4,
+  "model": "oi.school",
+  "fields": {
+    "province": "pomorskie",
+    "city": "Bielsko-Biała-zdroj",
+    "name": "Zespół szkół",
+    "is_active": true,
+    "phone": "",
+    "postal_code": "02-044",
+    "address": "ul. Pcin Dolny 10",
+    "email": "",
+    "is_approved": true
+  }
 }
+
 ]

@@ -1,8 +1,12 @@
+import urllib
+
+from django.contrib import messages
 from django.contrib.admin import RelatedFieldListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
+from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
@@ -60,10 +64,74 @@ contest_admin_menu_registry.register('regions', _("Regions"),
 
 
 class SchoolAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address', 'postal_code', 'city', 'province',
-                    'phone', 'email', 'is_active', 'is_approved')
+    list_display = ('name', 'participants_link',
+                    'address', 'postal_code_link', 'city', 'province',
+                    'phone', 'email', 'is_active', 'is_approved',
+                    'similar_schools')
     list_filter = ('province', 'city', 'is_approved', 'is_active')
     search_fields = ('name', 'address', 'postal_code')
+    actions = ['make_active', 'make_inactive', 'approve', 'disapprove',
+               'merge_action', 'delete_selected']
+
+    def participants_link(self, instance):
+        return make_html_link(instance.get_participants_url(),
+                              _("Participants"))
+    participants_link.allow_tags = True
+    participants_link.short_description = _("Participants")
+
+    def postal_code_link(self, instance):
+        url = reverse('oioioiadmin:oi_school_changelist') + '?' + \
+                urllib.urlencode({'q': instance.postal_code})
+        return make_html_link(url, instance.postal_code)
+    postal_code_link.allow_tags = True
+    postal_code_link.short_description = _("Postal code")
+    postal_code_link.admin_order_field = 'postal_code'
+
+    def similar_schools(self, instance):
+        schools = School.objects.filter(postal_code=instance.postal_code)
+        return len([s for s in schools if instance.is_similar(s)]) - 1
+    similar_schools.short_description = _("Similar schools")
+
+    def make_active(self, request, queryset):
+        queryset.update(is_active=True)
+    make_active.short_description = _("Mark selected schools as active")
+
+    def make_inactive(self, request, queryset):
+        queryset.update(is_active=False)
+    make_inactive.short_description = _("Mark selected schools as inactive")
+
+    def approve(self, request, queryset):
+        queryset.update(is_approved=True)
+    approve.short_description = _("Mark selected schools as approved")
+
+    def disapprove(self, request, queryset):
+        queryset.update(is_approved=False)
+    disapprove.short_description = _("Mark selected schools as disapproved")
+
+    def merge_action(self, request, queryset):
+        approved = queryset.filter(is_approved=True)
+        toMerge = queryset.filter(is_approved=False)
+        if len(approved) != 1 or not toMerge:
+            messages.error(request, _("You shall select exactly one approved"
+                     " school and at least one not approved."))
+            return None
+        approved = approved[0]
+
+        # http://stackoverflow.com/questions/3393378/django-merging-objects
+        related = approved._meta.get_all_related_objects()
+
+        valnames = dict()
+        for r in related:
+            valnames.setdefault(r.model, []).append(r.field.name)
+
+        for s in toMerge:
+            for model, field_names in valnames.iteritems():
+                for field_name in field_names:
+                    model.objects.filter(**{field_name: s}) \
+                            .update(**{field_name: approved})
+            s.delete()
+    merge_action.short_description = _("Merge all selected, not approved"
+                                       " schools into approved one")
 
 admin.site.register(School, SchoolAdmin)
 admin.system_admin_menu_registry.register('schools',
@@ -86,7 +154,8 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
     readonly_fields = ['user']
     search_fields = ParticipantAdmin.search_fields \
             + ['oi_oiregistration__school__name',
-               'oi_oiregistration__school__city']
+               'oi_oiregistration__school__city',
+               'oi_oiregistration__school__postal_code']
 
     list_filter = ParticipantAdmin.list_filter \
             + ['oi_oiregistration__school__province']
@@ -101,7 +170,7 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
             return _("-- school deleted --")
         return instance.oi_oiregistration.school.name
     school_name.short_description = _("School")
-    admin_order_field = 'oi_oiregistration__school__name'
+    school_name.admin_order_field = 'oi_oiregistration__school__name'
 
     def school_city(self, instance):
         if instance.oi_oiregistration.school is None:

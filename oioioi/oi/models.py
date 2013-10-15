@@ -1,7 +1,12 @@
 # coding: utf-8
+import urllib
+import difflib
+
 from django.db import models
+from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
@@ -10,7 +15,6 @@ from oioioi.contests.models import Contest
 
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
-
 
 T_SHIRT_SIZES = [(s, s) for s in ('S', 'M', 'L', 'XL', 'XXL')]
 
@@ -68,7 +72,7 @@ class School(models.Model):
         verbose_name=_("name"))
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = models.CharField(max_length=6, verbose_name=_("postal code"),
-        validators=[RegexValidator(r'^\d{2}-\d{3}$',
+        db_index=True, validators=[RegexValidator(r'^\d{2}-\d{3}$',
             _("Enter a postal code in the format XX-XXX"))])
     city = models.CharField(max_length=100,
         verbose_name=_("city"), db_index=True)
@@ -76,8 +80,8 @@ class School(models.Model):
         verbose_name=_("province"), db_index=True)
     phone = models.CharField(max_length=64, validators=[
         RegexValidator(r'\+?[0-9() -]{6,}', _("Invalid phone number"))],
-        verbose_name=_("school phone number"), null=True, blank=True)
-    email = models.EmailField(blank=True, verbose_name=_("school email"))
+        verbose_name=_("phone number"), null=True, blank=True)
+    email = models.EmailField(blank=True, verbose_name=_("email"))
 
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
     is_approved = models.BooleanField(default=True, verbose_name=_("approved"))
@@ -89,6 +93,16 @@ class School(models.Model):
 
     def __unicode__(self):
         return _("%(name)s, %(city)s") % {'name': self.name, 'city': self.city}
+
+    def get_participants_url(self):
+        url = reverse('oioioiadmin:participants_participant_changelist')
+        query = (self.postal_code + ' ' + self.name).encode('utf8')
+        return url + '?' + urllib.urlencode({'q': query})
+
+    def is_similar(self, instance):
+        ratio = difflib.SequenceMatcher(None, self.address.lower(),
+                    instance.address.lower()).ratio()
+        return ratio > 0.75
 
 
 class OIRegistration(RegistrationModel):

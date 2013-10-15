@@ -234,7 +234,7 @@ class TestOIRegistration(TestCase):
 
         response = self.client.post(add_school_url, school_data, follow=True)
         self.assertRedirects(response, url)
-        school = School.objects.get(pk=4)
+        school = School.objects.get(pk=5)
         self.assertEquals(school.name, school_data['name'])
         self.assertTrue(school.is_active)
         self.assertFalse(school.is_approved)
@@ -418,6 +418,7 @@ class TestOIOnsiteViews(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
+
 class TestSchoolAdding(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_schools']
 
@@ -435,6 +436,87 @@ class TestSchoolAdding(TestCase):
         self.assertContains(response, 'LO')
         self.assertContains(response, 'Gimnazjum')
         self.assertContains(response, 'click its name')
+
+
+class TestSchoolAdmin(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_schools']
+
+    def test_schools_similar_finding(self):
+        s = School.objects.all()
+        self.assertTrue(s[0].is_similar(s[1]))
+        self.assertTrue(s[2].is_similar(s[3]))
+        self.assertTrue(s[3].is_similar(s[2]))
+        self.assertFalse(s[1].is_similar(s[2]))
+
+class TestSchoolMerging(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_schools']
+
+    def _call_admin_merge_action(self, schools_pk_list):
+        url = reverse('oioioiadmin:oi_school_changelist')
+        data = {'_selected_action': schools_pk_list, 'action': 'merge_action'}
+        return self.client.post(url, data, follow=True)
+
+    def test_schools_merging_unsuccessfull(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.oi.controllers.OIContestController'
+        contest.save()
+
+        user = User.objects.get(username='test_user')
+        url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+
+        user.first_name = 'Sir Lancelot'
+        user.last_name = 'du Lac'
+        user.save()
+        reg_data = {
+            'address': 'The Castle',
+            'postal_code': '31-337',
+            'city': 'Camelot',
+            'phone': '000-000-000',
+            'birthday_month': '5',
+            'birthday_day': '25',
+            'birthday_year': '1975',
+            'birthplace': 'Lac',
+            't_shirt_size': 'L',
+            'school': '2',
+            'class_type': '1LO',
+            'terms_accepted': 'y',
+        }
+
+        response = self.client.post(url, reg_data)
+        self.assertEquals(302, response.status_code)
+
+        s1 = School.objects.get(pk=1)
+        s2 = School.objects.get(pk=2)
+        s2.is_approved = False
+        s2.save()
+
+        self.client.login(username='test_admin')
+
+        response = self._call_admin_merge_action((1))
+        self.assertContains(response, 'exactly one')
+
+        response = self._call_admin_merge_action((2))
+        self.assertContains(response, 'exactly one')
+
+        response = self._call_admin_merge_action((1, 3))
+        self.assertContains(response, 'exactly one')
+
+        response = self._call_admin_merge_action((1, 2, 3))
+        self.assertContains(response, 'exactly one')
+
+        s2reg = OIRegistration.objects.get(participant__user=user)
+        self.assertFalse(s2reg.school == s1)
+        self.assertTrue(s2reg.school == s2)
+        response = self._call_admin_merge_action((1, 2))
+        self.assertNotContains(response, 'exactly one')
+        s2reg = OIRegistration.objects.get(participant__user=user)
+        self.assertTrue(s2reg.school == s1)
+        self.assertFalse(s2reg.school == s2)
+        self.assertTrue(s2 not in School.objects.all())
 
 
 class TestOISubmit(TestCase, SubmitFileMixin):
