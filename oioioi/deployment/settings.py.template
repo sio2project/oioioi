@@ -137,6 +137,7 @@ INSTALLED_APPS = (
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
 #    'oioioi.complaints',
+#    'oioioi.confirmations',
 #    'oioioi.contestexcl',
 #    'oioioi.sharingcli',
 ) + INSTALLED_APPS
