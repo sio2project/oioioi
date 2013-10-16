@@ -41,7 +41,13 @@ Django settings and other deployment configuration::
 
 The created *deployment* directory looks like a new Django project, but already
 configured to serve the OIOIOI portal. You need to at least set the `database
-configuration`_ in *settings.py* and initialize it::
+configuration`_ in *settings.py*.
+
+In case of using PostgreSQL, install Psycopg2::
+
+  pip install psycopg2
+
+Finally initialize the database::
 
   ./manage.py syncdb
   ./manage.py migrate
@@ -97,7 +103,7 @@ Now you're ready to access the site at *http://localhost:8000*.
 
 .. _LESS: http://lesscss.org/
 .. _many nice features: https://github.com/rfk/django-supervisor#usage
-.. _be installed inside virtualenv: http://stackoverflow.com/questions/8986709/how-to-install-lessc-and-nodejs-in-a-python-virtualenv
+.. _be installed inside virtualenv: http://pastebin.com/u8nSj0yS
 
 Production configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
