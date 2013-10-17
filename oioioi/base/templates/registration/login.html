@@ -4,7 +4,7 @@
 
 {% block body %}
 <div class="row top-row">
-    <div class="well span6 offset3 central-well">
+    <div class="well span8 offset2 central-well">
         <form action="" method="post" class="form-horizontal">
             {% csrf_token %}
             <fieldset>
@@ -13,17 +13,27 @@
                         <h2>{% trans "Log in" %}</h2>
                     </div>
                 </div>
-                {% include "ingredients/form.html" %}
+
+                <div class="control-group">
+                    <label for="id_username" class="control-label">{% trans "Username" %}</label>
+                    <div class="controls">
+                        <input id="id_username" maxlength="254" name="username" type="text">
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="id_password" class="control-label">{% trans "Password" %}</label>
+                    <div class="controls">
+                        <input id="id_password" maxlength="4096" name="password" type="password">
+                        <input id="id_submit" type="submit" class="btn btn-primary" style="margin-left: 20px; width: 100px;" value="{% trans "Log in" %}">
+                    </div>
+                </div>
 
                 <div class="control-group">
                     <div class="controls">
                         <p><a href="{% url 'auth_password_reset' %}">{% trans "Forgot password?" %}</a></p>
+                        <p><a href="{% url 'registration_register' %}">{% trans "Want to create an account?" %}</a></p>
                     </div>
-                </div>
-
-                <div class="form-actions">
-                    <input type="submit" class="btn btn-primary"
-                        value="{% trans "Log in" %}">
                 </div>
             </fieldset>
         </form>
