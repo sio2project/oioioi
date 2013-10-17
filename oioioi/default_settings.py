@@ -408,3 +408,8 @@ NOTIFICATIONS_SERVER_PORT = 7887
 
 # Balloons
 BALLOON_ACCESS_COOKIE_EXPIRES_DAYS = 7
+
+# Cache timeout (in seconds) for livedata stream (used in some onsite
+# competitions to show results online). Does not influence the data for
+# admins or observers.
+LIVEDATA_CACHE_TIMEOUT = 30
