@@ -26,9 +26,10 @@ class PrintForm(forms.Form):
 
     def clean_file(self):
         cleaned_data = self.cleaned_data
+        orig = cleaned_data['file'].file.read()
         try:
             cleaned_data['file'] = generator(
-                source=cleaned_data['file'].file.read(),
+                source=orig.expandtabs(4),
                 header=unicode(self.user))
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))
