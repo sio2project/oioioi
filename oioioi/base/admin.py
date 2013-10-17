@@ -157,6 +157,11 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
     list_display = ['username', 'email', 'first_name', 'last_name',
             'is_active']
     filter_horizontal = ()
+    actions = ['activate_user']
+
+    def activate_user(self, request, qs):
+        qs.update(is_active=True)
+    activate_user.short_description = _("Mark users as active")
 
 site.register(User, OioioiUserAdmin)
 
