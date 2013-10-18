@@ -4,7 +4,7 @@ $(function() {
     var is_admin_time_set;
     var were_admin_time_set;
     var were_time;
-    var delay_in_ms = null;
+    var delay_in_ms = 0;
     var countdown_date;
     var ms_from_epoch;
 
@@ -100,13 +100,11 @@ $(function() {
     function startClock() {
         clearInterval(update_interval);
         update_interval = setInterval(function() {
-            if (delay_in_ms != null) {
-                if (is_admin_time_set) {
-                    clearInterval(update_interval);
-                    update_interval = null;
-                } else {
-                    updateClock();
-                }
+            if (is_admin_time_set) {
+                clearInterval(update_interval);
+                update_interval = null;
+            } else {
+                updateClock();
             }
         }, 1000);
     }
@@ -179,14 +177,13 @@ $(function() {
         }
     }
 
-    startClock();
-
     $(window).one('initialStatus', function(ev, data){
         were_admin_time_set = data.is_admin_time_set;
         were_time = data.time;
         is_time_admin = data.is_time_admin;
         synchronizeTimeWithServer(data);
         updateClock();
+        startClock();
         if (is_time_admin) {
             synchronizeAdminTime(data);
         }
