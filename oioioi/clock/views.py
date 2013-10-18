@@ -31,9 +31,6 @@ def get_times_status(request, response):
     response.update(dict(time=0, round_start_date=0, round_end_date=0,
         is_time_admin=False, is_admin_time_set=False))
 
-    if 'admin_time' in request.session:
-        response['is_admin_time_set'] = True
-
     if getattr(request, 'real_user', None) and is_real_superuser(request):
         response['is_time_admin'] = True
         response['sync_time'] = min(10000, response.get('sync_time', 10000))
@@ -41,17 +38,14 @@ def get_times_status(request, response):
     next_rounds_times = None
     current_rounds_times = None
 
-    if timestamp:
-        response['time'] = time.mktime((timezone
-             .localtime(timestamp)).timetuple())
-        if contest:
-            rtimes = [contest.controller.get_round_times(request, round)
-                      for round in Round.objects.filter(contest=contest)]
-            next_rounds_times = [rt for rt in rtimes if rt.is_future(timestamp)]
-            next_rounds_times.sort(key=lambda rt: rt.get_start())
-            current_rounds_times = [rt for rt in rtimes
-                                    if rt.is_active(timestamp) and rt.get_end()]
-            current_rounds_times.sort(key=lambda rt: rt.get_end())
+    if timestamp and contest:
+        rtimes = [contest.controller.get_round_times(request, round)
+                    for round in Round.objects.filter(contest=contest)]
+        next_rounds_times = [rt for rt in rtimes if rt.is_future(timestamp)]
+        next_rounds_times.sort(key=lambda rt: rt.get_start())
+        current_rounds_times = [rt for rt in rtimes
+                                if rt.is_active(timestamp) and rt.get_end()]
+        current_rounds_times.sort(key=lambda rt: rt.get_end())
 
     if current_rounds_times:
         response['round_start_date'] = time.mktime((timezone
@@ -61,6 +55,14 @@ def get_times_status(request, response):
     elif next_rounds_times:
         response['round_start_date'] = time.mktime((timezone
             .localtime(next_rounds_times[0].get_start())).timetuple())
+
+    if 'admin_time' in request.session:
+        response['is_admin_time_set'] = True
+        clock_time = timestamp
+    else:
+        clock_time = timezone.now()
+
+    response['time'] = time.mktime(timezone.localtime(clock_time).timetuple())
 
     return response
 
