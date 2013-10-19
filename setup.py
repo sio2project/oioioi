@@ -26,7 +26,7 @@ setup(
     install_requires=[
         "Django>=1.5",
         "pytz>=2013b",
-        "South",
+        "South>=0.8,<2.0",
         "BeautifulSoup",
         "PyYAML",
         "django-nose",
