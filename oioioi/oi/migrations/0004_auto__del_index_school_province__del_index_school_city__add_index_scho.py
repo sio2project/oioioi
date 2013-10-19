@@ -8,6 +8,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Removing index on 'School', fields ['province']
+        db.delete_index(u'oi_school', ['province'])
+
+        # Removing index on 'School', fields ['city']
+        db.delete_index(u'oi_school', ['city'])
+
         # Adding index on 'School', fields ['city', 'is_active']
         db.create_index(u'oi_school', ['city', 'is_active'])
 
@@ -21,6 +27,12 @@ class Migration(SchemaMigration):
 
         # Removing index on 'School', fields ['city', 'is_active']
         db.delete_index(u'oi_school', ['city', 'is_active'])
+
+        # Adding index on 'School', fields ['city']
+        db.create_index(u'oi_school', ['city'])
+
+        # Adding index on 'School', fields ['province']
+        db.create_index(u'oi_school', ['province'])
 
 
     models = {
