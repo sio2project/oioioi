@@ -1,0 +1,4 @@
+#!/bin/sh
+cd "__DIR__"
+[ -n "__VIRTUAL_ENV__" ] && . "__VIRTUAL_ENV__/bin/activate"
+./manage.py supervisor -d

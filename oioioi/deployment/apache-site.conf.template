@@ -2,20 +2,18 @@
     ServerName oioioi.example.com
     ServerAdmin youremail@example.com
 
-    <Directory __DIR__>
-        Options Indexes FollowSymLinks MultiViews
-        AllowOverride None
-        Order allow,deny
-        allow from all
-    </Directory>
+    <Location />
+        SetHandler uwsgi-handler
+        uWSGISocket __DIR__/uwsgi.sock
+    </Location>
 
-    WSGIDaemonProcess __USER__ user=__USER__ group=__GROUP__ processes=2 threads=10 inactivity-timeout=600 maximum-requests=1000
-    WSGIProcessGroup __USER__
+    <Location __STATIC_URL__>
+        SetHandler none
+    </Location>
 
-    WSGIScriptAlias / __DIR__/wsgi.py
     Alias __STATIC_URL__ __STATIC_ROOT__/
 
-    ErrorLog __DIR__/logs/error.log
+    ErrorLog __DIR__/logs/apache-error.log
     LogLevel warn
-    CustomLog __DIR__/logs/access.log combined
+    CustomLog __DIR__/logs/apache-access.log combined
 </VirtualHost>

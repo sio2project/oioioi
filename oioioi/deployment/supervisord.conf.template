@@ -6,6 +6,14 @@ user=__USER__
 directory={{ PROJECT_DIR }}
 identifier=oioioi-supervisor
 
+[program:uwsgi]
+command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+stopsignal=INT
+startretries=0
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
+{% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
+
 [program:celerycam]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
 startretries=0

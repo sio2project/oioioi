@@ -23,12 +23,14 @@ def get_timezone():
         return 'GMT'
 
 
-def generate_from_template(dir, filename, context):
+def generate_from_template(dir, filename, context, mode=None):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + '.template')).read()
     for key, value in context.iteritems():
         template = template.replace(key, value)
     open(dest, 'w').write(template)
+    if mode is not None:
+        os.chmod(dest, mode)
 
 
 def generate_all(dir):
@@ -59,8 +61,7 @@ def generate_all(dir):
             '__DIR__': dir,
             '__PYTHON_EXECUTABLE__': sys.executable,
             '__VIRTUAL_ENV__': virtual_env,
-        })
-    os.chmod(manage_py, 0755)
+        }, mode=0755)
 
     generate_from_template(dir, 'supervisord.conf', {
             '__USER__': user,
@@ -71,12 +72,21 @@ def generate_all(dir):
             '__VIRTUAL_ENV__': virtual_env,
         })
 
+    generate_from_template(dir, 'start_supervisor.sh', {
+            '__DIR__': dir,
+            '__VIRTUAL_ENV__': virtual_env,
+        }, mode=0755)
+
     generate_from_template(dir, 'apache-site.conf', {
             '__DIR__': dir,
             '__STATIC_URL__': settings['STATIC_URL'],
             '__STATIC_ROOT__': settings['STATIC_ROOT'],
-            '__USER__': user,
-            '__GROUP__': group,
+        })
+
+    generate_from_template(dir, 'nginx-site.conf', {
+            '__DIR__': dir,
+            '__STATIC_URL__': settings['STATIC_URL'],
+            '__STATIC_ROOT__': settings['STATIC_ROOT'],
         })
 
     # Having DJANGO_SETTINGS_MODULE here would probably cause collectstatic to

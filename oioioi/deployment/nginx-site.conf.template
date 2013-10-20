@@ -1,0 +1,25 @@
+upstream oioioi {
+    server unix://__DIR__/uwsgi.sock;
+}
+
+server {
+    listen 80;
+    server_name oioioi.example.com;
+    charset utf-8;
+
+    access_log __DIR__/logs/nginx-access.log;
+    error_log __DIR__/logs/nginx-error.log;
+
+    client_max_body_size 300M;
+
+    location __STATIC_URL__ {
+        alias __STATIC_ROOT__/;
+        expires 1d;
+    }
+
+    location / {
+        uwsgi_pass oioioi;
+        include uwsgi_params;
+        uwsgi_read_timeout 1800;
+    }
+}

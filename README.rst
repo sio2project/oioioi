@@ -70,13 +70,11 @@ Ensure that required dependencies are installed:
 
 * gcc/g++ (Ubuntu package: *build-essential*)
 * fpc (Ubuntu package: *fp-compiler*)
-* latex with support for Polish (Ubuntu packages: *texlive-latex*,
+* latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
   *texlive-lang-polish*)
 * lessc (`LESS`_ compiler, **minimum version 1.3.3**; on Ubuntu install *npm*
   and then run ``sudo npm install --global less``; can also `be installed inside
   virtualenv`_)
-* lighttpd binary (required for production-grade deployment only; Ubuntu
-  package: *lighttpd*)
 
 and in one terminal run the Django web server::
 
@@ -110,6 +108,11 @@ Production configuration
 
 #. Begin with the simple configuration described above.
 
+#. Ensure that production-grade dependencies are installed:
+
+   * lighttpd binary (Ubuntu package: *lighttpd*, shall not be run as service.)
+   * uwsgi (Ubuntu package: *uwsgi*, shall not be run as service.)
+
 #. Make sure you are in the *deployment* folder and the virtualenv is activated.
 
 #. Install `RabbitMQ`_. We tested version 2.8.6 from `RabbitMQ Debian/Ubuntu
@@ -134,9 +137,20 @@ Production configuration
    in *settings.py* and restart the daemons. This is required for dedicated
    judging machines.
 
-#. Configure Apache with mod_wsgi. An example configuration is automatically
-   created as *apache-site.conf*. Have a look there. Once this is done, you
-   do not need to run *manage.py runserver*.
+#. Install and configure web server. We recommend using nginx with uwsgi plugin
+   (included in *nginx-full* Ubuntu package). An example configuration is
+   automatically created as *nginx-site.conf*. Have a look there. What you
+   probably want to do is (as root)::
+
+     cp nginx-site.conf /etc/nginx/sites-available/oioioi
+     ln -s ../sites-available/oioioi /etc/nginx/sites-enabled/
+     service nginx reload
+
+   Once this is done, you no more need to run *manage.py runserver*.
+
+   If you prefer deploying with Apache, an example configuration is created
+   as *apache-site.conf*. You would need to install *apache2* and
+   *libapache2-mod-uwsgi* packages.
 
 #. Comment out *DEBUG = True* in *settings.py*. This is crucial for security
    and efficiency.
@@ -147,8 +161,11 @@ Production configuration
 #. Set SMTP server in settings. Otherwise new user registration (among others)
    will not work.
 
-#. You probably want to run *manage.py supervisor* automatically when the
-   system starts. We do not have a ready-made solution for this yet. Sorry!
+#. You probably want to run *manage.py supervisor -d* automatically when the
+   system starts. One way is to add the following line to the OIOIOI user's
+   crontab (``crontab -e``)::
+
+     @reboot <deployment_folder>/start_supervisor.sh
 
 .. _judging-machines:
 
@@ -190,7 +207,9 @@ requests when running celery with its default AMQP binding library::
   pip install librabbitmq
 
 Celery will pick up the new library automatically, once you restart the
-daemons.
+daemons using::
+
+  ./manage.py supervisor restart all
 
 .. _RabbitMQ: http://www.rabbitmq.com/
 .. _RabbitMQ Debian/Ubuntu Repos: http://www.rabbitmq.com/install-debian.html
@@ -218,4 +237,4 @@ Then run::
   ./manage.py collectstatic
   ./manage.py supervisor restart all
 
-and restart Apache and the judging machines.
+and restart the judging machines.

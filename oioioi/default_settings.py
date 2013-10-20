@@ -14,6 +14,10 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',)
 
+# Run uwsgi daemon. Shall be True, False or 'auto'.
+# 'auto' means daemon will be run iff DEBUG is disabled.
+UWSGI_ENABLED = 'auto'
+
 LANGUAGES = (
     ('en', 'English'),
     ('pl', 'Polish'),
