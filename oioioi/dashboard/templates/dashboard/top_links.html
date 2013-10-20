@@ -1,0 +1,11 @@
+<div id="dashboard-buttons">
+    {% for row in top_links %}
+    <div class="row">
+        {% for item in row %}
+        {% if item %}
+        <a class=" span3 {% if forloop.first %}offset1{% endif %} btn btn-large" href="{{ item.url }}">{{ item.text }}</a>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
