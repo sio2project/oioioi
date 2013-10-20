@@ -22,7 +22,7 @@ def problem_sources(request):
         else:
             for item in obj:
                 sources.append(item)
-    sources = filter(lambda s: s.is_available(request), sources)
+    sources = [s for s in sources if s.is_available(request)]
     return sources
 
 

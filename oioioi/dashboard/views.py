@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.base.permissions import enforce_condition
 from oioioi.contests.models import Submission
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.utils import can_enter_contest, contest_exists, \

@@ -363,14 +363,18 @@ def get_object_by_dotted_name(name):
 # Generating HTML
 
 
-def make_html_link(href, name, extra_attrs={}):
+def make_html_link(href, name, extra_attrs=None):
     attrs = {'href': href}
+    if not extra_attrs:
+        extra_attrs = {}
     attrs.update(extra_attrs)
     return mark_safe(u'<a %s>%s</a>' % (flatatt(attrs),
             conditional_escape(force_unicode(name))))
 
 
-def make_html_links(links, extra_attrs={}):
+def make_html_links(links, extra_attrs=None):
+    if not extra_attrs:
+        extra_attrs = {}
     links = [make_html_link(href, name, extra_attrs) for href, name in links]
     return mark_safe(' | '.join(links))
 

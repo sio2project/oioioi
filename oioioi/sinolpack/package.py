@@ -109,9 +109,9 @@ class SinolPackage(object):
            \title{A problem}
         """
         if 'title' in self.config:
-           self.problem.name = self.config['title']
-           self.problem.save()
-           return
+            self.problem.name = self.config['title']
+            self.problem.save()
+            return
 
         source = os.path.join(self.rootdir, 'doc', self.short_name + 'zad.tex')
         if os.path.isfile(source):
@@ -192,7 +192,7 @@ class SinolPackage(object):
 
         makefile_in = os.path.join(self.rootdir, 'makefile.in')
         if not os.path.exists(makefile_in):
-           with open(makefile_in, 'w') as f:
+            with open(makefile_in, 'w') as f:
                 f.write('MODE=wer\n')
                 f.write('ID=%s\n' % (self.short_name,))
                 f.write('SIG=xxxx000\n')

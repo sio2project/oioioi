@@ -100,15 +100,15 @@ def run(env, **kwargs):
 
 class SioworkersBackend(object):
     def run_job(self, env):
-       env = copy.deepcopy(env)
-       if env['job_type'] == 'compile':
-           return env
-       elif env['job_type'] == 'unsafe-exec':
-           if 'wrong' in env['source_file']:
-               env['result_code'] = 'WA'
-           else:
-               env['result_code'] = 'OK'
-           return env
+        env = copy.deepcopy(env)
+        if env['job_type'] == 'compile':
+            return env
+        elif env['job_type'] == 'unsafe-exec':
+            if 'wrong' in env['source_file']:
+                env['result_code'] = 'WA'
+            else:
+                env['result_code'] = 'OK'
+            return env
 
 
 class TestRemoteJobs(SimpleTestCase):

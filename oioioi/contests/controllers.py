@@ -15,7 +15,6 @@ from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
-from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, SubmissionReport, \
         UserResultForContest, submission_kinds
@@ -328,9 +327,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return {'hidden_judge': _("Visible only for admins")}
 
-    def judge(self, submission, extra_args={}):
+    def judge(self, submission, extra_args=None):
         environ = {}
-        environ['extra_args'] = extra_args
+        environ['extra_args'] = extra_args or {}
         self.fill_evaluation_environ(environ, submission)
 
         extra_steps = [

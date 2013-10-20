@@ -25,10 +25,12 @@ class RemoteClient(object):
         self.client_id = client_id
         self.client_secret = client_secret
 
-    def make_request(self, relative_url, extra_data={}, **kwargs):
+    def make_request(self, relative_url, extra_data=None, **kwargs):
         url = self.sharing_url + '/' + relative_url
         post_data = {'client_id': self.client_id,
                 'client_secret': self.client_secret}
+        if not extra_data:
+            extra_data = {}
         post_data.update(extra_data)
         return urllib2.urlopen(url, urllib.urlencode(post_data), **kwargs)
 
@@ -74,17 +76,3 @@ class RemoteSource(PackageSource):
                     initial=initial)
         else:
             return RemoteProblemForm(self.clients, initial=initial)
-
-    def view(self, request, contest, existing_problem=None):
-        form = self.make_form(request, contest, existing_problem)
-        if request.method == 'POST':
-            if form.is_valid():
-                try:
-                    with transaction.commit_on_success():
-                        return self.process_valid_form(request, contest, form,
-                                existing_problem)
-                except Exception, e:
-                    logger.error("Error processing package", exc_info=True)
-                    form._errors['__all__'] = form.error_class([unicode(e)])
-        return TemplateResponse(request, 'problems/package_source.html',
-                {'form': form})

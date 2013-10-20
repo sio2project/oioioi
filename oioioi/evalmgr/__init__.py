@@ -60,7 +60,7 @@ def replace_recipe_entry(environ, name, new_entry):
     recipe[index] = new_entry
 
 
-def _run_phase(env, phase, extra_kwargs={}):
+def _run_phase(env, phase, extra_kwargs=None):
     phaseName = phase[0]
     handlerName = phase[1]
     if len(phase) not in [2, 3]:

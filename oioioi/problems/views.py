@@ -72,7 +72,7 @@ def add_or_update_problem_view(request, contest_id=None):
         if not problem.package_backend_name:
             raise AssertionError("Problem package source (%r) did not "
                     "set Problem.package_backend_name. This is a bug in "
-                    "the problem package backend." % (s,))
+                    "the problem package backend." % (current_source,))
         if contest:
             if not existing_problem:
                 problem.contest = contest

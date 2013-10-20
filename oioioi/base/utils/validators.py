@@ -6,8 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 def validate_whitespaces(value):
-        if not value.strip():
-            raise ValidationError(
+    if not value.strip():
+        raise ValidationError(
                 _("This field must contain a non-whitespace character."))
 
 db_string_id_re = re.compile(r'^[a-z0-9_-]+$')

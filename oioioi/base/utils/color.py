@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django import forms
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 from south.modelsinspector import add_introspection_rules
 import re
 

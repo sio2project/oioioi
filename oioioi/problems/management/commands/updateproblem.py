@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 from oioioi.problems.models import Problem
-from oioioi.problems.package import backend_for_package
+from oioioi.problems.package import backend_for_package, NoBackend
 import os.path
 
 

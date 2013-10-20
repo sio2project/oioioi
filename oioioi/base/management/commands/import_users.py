@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.db import transaction, DatabaseError
-from oioioi.contests.models import Contest
 import os
 import csv
 import urllib2

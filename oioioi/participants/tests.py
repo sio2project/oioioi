@@ -10,7 +10,6 @@ from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
     ContestPermission
-from oioioi.contests.controllers import ContestController
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
