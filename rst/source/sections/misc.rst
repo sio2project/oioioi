@@ -10,6 +10,18 @@ Dynamic mixins
 .. autoclass:: oioioi.base.utils.ObjectWithMixins
    :members:
 
+Getting current time
+--------------------
+
+The main source of the current time in the request processing should be
+the ``request.timestamp`` variable. This variable contains the time when
+the request was initiated and, when used consistently, allows the admins
+to time travel.
+
+Usage of ``timezone.now()`` is highly discouraged.
+
+.. autoclass:: oioioi.base.middleware.TimestampingMiddleware
+
 Remembering the current contest
 -------------------------------
 
@@ -45,6 +57,8 @@ Conditions
 
 .. autofunction:: make_condition(condition_class=Condition)
 
+.. autofunction:: make_request_condition
+
 To assign a condition to a view use the ``enforce_condition`` decorator:
 
 .. autofunction:: enforce_condition
@@ -52,6 +66,16 @@ To assign a condition to a view use the ``enforce_condition`` decorator:
 Additionally, the ``enforce_condition`` decorator adds a ``condition`` attribute
 to the view, which can be later used by
 :meth:`oioioi.base.menu.MenuRegistry.register_decorator`.
+
+Mixing it all together in a simple example::
+
+    @make_request_condition
+    def is_superuser(request):
+        return request.user.is_superuser
+
+    @enforce_condition(is_superuser & ~is_superuser)
+    def not_accessible_view(request):
+        pass
 
 Menu
 ----
@@ -65,13 +89,15 @@ Menu items are stored in registries like
 menu is to use the :meth:`~oioioi.base.menu.MenuRegistry.register_decorator`,
 for example::
 
+    from oioioi.base.permissions import not_anonymous
     from oioioi.base.menu import menu_registry
-    @menu_registry.register_decorator(_("Problems"),
+    @menu_registry.register_decorator(_("Example"),
             lambda request: reverse('example', kwargs={'contest_id':
-                request.contest.id},
+                request.contest.id}),
             order=100)
+    @enforce_condition(not_anonymous)
     def example_view(request, contest_id):
-        ...
+        pass
 
 The menu item will only be displayed when all the view's conditions are fulfilled.
 Therefore you should place all :func:`~oioioi.base.permissions.enforce_condition`
