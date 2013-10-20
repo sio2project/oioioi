@@ -1,0 +1,8 @@
+{% load i18n %}
+<div class="alert alert-info">
+    {% url 'participants_register' contest_id=contest.id as reg_url %}
+    {% blocktrans %}
+        <strong>Heads up!</strong> In order to be able to send solutions
+         <a href="{{ reg_url }}">fill the contest registration form</a>.
+    {% endblocktrans %}
+</div>

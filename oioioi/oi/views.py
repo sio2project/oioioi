@@ -4,12 +4,31 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse, SimpleTemplateResponse
+from django.template.loader import render_to_string
+from django.template import RequestContext
 from django.views.decorators.http import require_POST
 
 from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.contests.utils import is_contest_admin
 from oioioi.oi.forms import SchoolSelect, city_options, school_options, \
         AddSchoolForm
 from oioioi.oi.models import School
+from oioioi.oi.controllers import OIRegistrationController
+from oioioi.dashboard.registry import dashboard_headers_registry
+from oioioi.participants.utils import is_participant
+
+
+@dashboard_headers_registry.register_decorator(order=10)
+def registration_notice_fragment(request):
+    rc = request.contest.controller.registration_controller()
+    if isinstance(rc, OIRegistrationController) \
+            and request.user.is_authenticated() \
+            and not is_contest_admin(request) \
+            and not is_participant(request):
+        return render_to_string('oi/registration_notice.html',
+            context_instance=RequestContext(request))
+    else:
+        return None
 
 
 @enforce_condition(not_anonymous)
