@@ -68,7 +68,9 @@ class TestRunContestControllerMixin(object):
                 raise ValidationError(_("Input file size limit exceeded."))
 
         form.fields['input'] = forms.FileField(allow_empty_file=True,
-                validators=[validate_file_size], label=_("Input"))
+                validators=[validate_file_size], label=_("Input"),
+                help_text=_("Keep in mind that this feature does not provide"
+                            " any validation of your input or output."))
 
         if 'kind' in form.fields:
             form.fields['kind'].choices = [('TESTRUN', _("Test run")), ]
