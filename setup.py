@@ -74,7 +74,7 @@ setup(
         'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
         'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
         'http://bitbucket.org/mdebski/django-output-validator-1.5/get/django-1.5.zip#egg=django-output-validator-1.5md1',
-        'http://bitbucket.org/accek/south/get/1869a1c4024e.zip#egg=South-0.8.2.1accek',
+        'http://bitbucket.org/accek/south/get/accek-alternate-version-string.tar.gz#egg=South-0.8.2.1accek',
     ],
     entry_points = {
         'console_scripts': [
