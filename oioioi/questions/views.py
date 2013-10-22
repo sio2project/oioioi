@@ -75,7 +75,7 @@ def messages_template_context(request, messages):
     return to_display
 
 
-@menu_registry.register_decorator(_("Messages"), lambda request:
+@menu_registry.register_decorator(_("Questions and news"), lambda request:
         reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
     order=450)
 @enforce_condition(contest_exists & can_enter_contest)
