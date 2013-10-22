@@ -23,9 +23,9 @@
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}"><i class="pull-left icon-eye-open"></i>{% trans "Normal rejudge" %}</a></li>
+                    <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-eye-open"></i>{% trans "Normal rejudge" %}</a></li>
                     {% for link, name in supported_extra_args.items %}
-                        <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}"><i class="pull-left icon-eye-close"></i>{{ name }}</a></li>
+                        <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}"><i class="icon-eye-close"></i>{{ name }}</a></li>
                     {% endfor %}
                 </ul>
             </div>
