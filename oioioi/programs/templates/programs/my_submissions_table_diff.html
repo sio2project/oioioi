@@ -1,9 +1,10 @@
 {% extends "contests/my_submissions_table.html" %}
+{% load i18n %}
 
-{% block more-headers-before %}
-    <th></th>
+{% block more-headers-after %}
+    <th>{% trans "Actions" %}</th>
 {% endblock %}
-{% block more-columns-before %}
+{% block more-columns-after %}
     {% url 'source_diff' contest_id=contest.id submission1_id=main_submission_id submission2_id=record.submission.id as diff_link %}
-    <td><a href="{{ diff_link }}"><i class="icon-resize-small"></i></a></td>
+    <td><a href="{{ diff_link }}">{% trans "Diff submissions" %}</a></td>
 {% endblock %}
