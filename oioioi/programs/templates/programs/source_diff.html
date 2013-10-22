@@ -1,6 +1,8 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
+{% block title %}{% blocktrans %}Source diff between submissions {{ submission1_id }} and {{ submission2_id }}{% endblocktrans %}{% endblock %}
+
 {% block content %}
 <a class="btn" href={{ reverse_diff_url }}><i class="icon-random"></i> {% trans "Swap sides" %}</a>
     <table class="syntax-highlighttable diff-table"><tbody>

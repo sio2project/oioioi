@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load check_perm %}
 
-{% block title %}{% trans "Forum" %}: {{ forum }}{% endblock %}
+{% block title %}{{ forum }} - {% trans "Forum" %}{% endblock %}
 
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}

@@ -54,7 +54,8 @@ def show_submission_source_view(request, contest_id, submission_id):
         'css': formatted_source_css,
         'is_source_safe': is_source_safe,
         'download_url': download_url,
-        'decode_error': decode_error
+        'decode_error': decode_error,
+        'submission_id': submission_id
     })
 
 
@@ -134,6 +135,8 @@ def source_diff_view(request, contest_id, submission1_id, submission2_id):
              'download_url1': download_url1,
              'source2': diff2, 'decode_error2': decode_error2,
              'download_url2': download_url2,
+             'submission1_id': submission1_id,
+             'submission2_id': submission2_id,
              'reverse_diff_url': reverse('source_diff', kwargs={
                  'contest_id': contest_id,
                  'submission1_id': submission2_id,

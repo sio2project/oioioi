@@ -2,12 +2,12 @@
 {% load i18n %}
 {% load check_perm %}
 
-{% block title %}{% trans "Questions and announcements" %}{% endblock %}
+{% block title %}{{ message.topic }} - {% trans "Questions and announcements" %}{% endblock %}
 
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 <h3 class="message_topic">
-    {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}: 
+    {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
     {{ message.topic }}
 </h3>
 {% if is_admin %}

@@ -14,6 +14,9 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',)
 
+# Site name displayed in the title
+SITE_NAME = 'OIOIOI'
+
 # Run uwsgi daemon. Shall be True, False or 'auto'.
 # 'auto' means daemon will be run iff DEBUG is disabled.
 UWSGI_ENABLED = 'auto'
@@ -88,6 +91,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.su.processors.real_user',
     'oioioi.base.processors.base_url',
     'oioioi.base.processors.side_menus',
+    'oioioi.base.processors.site_name',
     'oioioi.jotform.processors.jotform',
     'oioioi.contests.processors.register_current_contest',
     'oioioi.contests.processors.register_recent_contests',

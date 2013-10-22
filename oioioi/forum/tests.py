@@ -188,13 +188,13 @@ class TestThread(TestCase):
         # user can remove p2 (last post, added by user)
         response = self.try_to_remove_post(p2)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Confirmation', response.content)
+        self.assertIn('Delete confirmation', response.content)
         p2.delete()
 
         # user tries to remove post p1 (and he can!)
         response = self.try_to_remove_post(p1)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Confirmation', response.content)
+        self.assertIn('Delete confirmation', response.content)
         p1.delete()
 
         # user tries to remove post p0 but cannot (added earlier than 15min ago)

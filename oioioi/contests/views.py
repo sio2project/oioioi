@@ -97,8 +97,12 @@ def problem_statement_zip_index_view(request, contest_id, problem_instance,
         statement_id):
     response = problem_statement_zip_view(request, contest_id,
             problem_instance, statement_id, 'index.html')
+
+    problem_statement = get_object_or_404(ProblemStatement, id=statement_id)
+
     return TemplateResponse(request, 'contests/html_statement.html',
-            {'content': mark_safe(response.content)})
+            {'content': mark_safe(response.content),
+             'problem_name' : problem_statement.problem.name})
 
 
 @enforce_condition(contest_exists & can_enter_contest)

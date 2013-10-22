@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load check_perm %}
 
-{% block title %}{% trans "Submission" %} {{ submission.id }}{% endblock %}
+{% block title %}{% blocktrans with submission.id as id %}Submission {{ id }}{% endblocktrans %}{% endblock %}
 
 {% block scripts %}
     {{ block.super }}

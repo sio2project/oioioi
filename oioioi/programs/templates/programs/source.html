@@ -8,6 +8,8 @@
 </style>
 {% endblock %}
 
+{% block title %}{% blocktrans %}Source code for submission {{ submission_id }}{% endblocktrans %}{% endblock %}
+
 {% block content %}
     {% if decode_error %}
         {% include "programs/file_decoding_error.html" %}
