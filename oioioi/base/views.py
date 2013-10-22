@@ -1,5 +1,5 @@
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, render
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
@@ -37,8 +37,7 @@ def handler500(request):
     tb = ''
     try:
         tb = traceback.format_exc()
-        return render_to_response('500.html', status=500,
-                context_instance=RequestContext(request, {'traceback': tb}))
+        return render(request, '500.html', {'traceback': tb}, status=500)
     except Exception:
         message = '500 Internal Server Error'
         if hasattr(request, 'user') and request.user.is_superuser:
