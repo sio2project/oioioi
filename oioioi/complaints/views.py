@@ -24,7 +24,7 @@ def can_make_complaint(request):
     if not request.user.is_authenticated():
         return False
     if is_contest_admin(request):
-        return True
+        return False
     try:
         cconfig = request.contest.complaints_config
         return cconfig.enabled and request.timestamp >= cconfig.start_date \
