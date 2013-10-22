@@ -44,7 +44,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/sioworkers.log
 {% if not settings.RUN_LOCAL_WORKERS %}exclude=true{% endif %}
 
 [program:filetracker-server]
-command=filetracker-server -L {{ PROJECT_DIR }}/logs/filetracker.log -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
+command=filetracker-server -L stderr -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/filetracker-supervisord.log
 {% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
