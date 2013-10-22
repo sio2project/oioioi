@@ -421,6 +421,18 @@ class TestScorers(TestCase):
             {'result_code': 'OK', 'time_used': 75, 'result_percentage': 0}),
         )
 
+    t_results_unequal_max_scores = (
+        ({'exec_time_limit': 100, 'max_score': 10},
+            {'result_code': 'OK', 'time_used': 10}),
+        ({'exec_time_limit': 1000, 'max_score': 20},
+            {'result_code': 'WA', 'time_used': 50}),
+        )
+
+    t_expected_unequal_max_scores = [
+        (IntegerScore(10), IntegerScore(10), 'OK'),
+        (IntegerScore(0), IntegerScore(20), 'WA'),
+        ]
+
     t_results_wrong = [
         ({'exec_time_limit': 100, 'max_score': 100},
             {'result_code': 'WA', 'time_used': 75}),
@@ -429,14 +441,15 @@ class TestScorers(TestCase):
         ]
 
     t_expected_wrong = [
-        (IntegerScore(0), 'WA'),
-        (IntegerScore(0), 'RV'),
+        (IntegerScore(0), IntegerScore(100), 'WA'),
+        (IntegerScore(0), IntegerScore(100), 'RV'),
         ]
 
     def test_discrete_test_scorer(self):
         exp_scores = [100] * len(self.t_results_ok)
+        exp_max_scores = [100] * len(self.t_results_ok)
         exp_statuses = ['OK'] * len(self.t_results_ok)
-        expected = zip(exp_scores, exp_statuses)
+        expected = zip(exp_scores, exp_max_scores, exp_statuses)
 
         results = map(utils.discrete_test_scorer, *zip(*self.t_results_ok))
         self.assertEquals(expected, results)
@@ -444,18 +457,24 @@ class TestScorers(TestCase):
         results = map(utils.discrete_test_scorer, *zip(*self.t_results_wrong))
         self.assertEquals(self.t_expected_wrong, results)
 
+        results = map(utils.discrete_test_scorer,
+                *zip(*self.t_results_unequal_max_scores))
+        self.assertEquals(self.t_expected_unequal_max_scores, results)
+
     def test_threshold_linear_test_scorer(self):
         exp_scores = [100, 100, 99, 50, 0, 100, 100]
+        exp_max_scores = [100] * len(self.t_results_ok)
         exp_statuses = ['OK'] * len(self.t_results_ok)
-        expected = zip(exp_scores, exp_statuses)
+        expected = zip(exp_scores, exp_max_scores, exp_statuses)
 
         results = map(utils.threshold_linear_test_scorer,
                         *zip(*self.t_results_ok))
         self.assertEquals(expected, results)
 
         exp_scores = [99, 25, 0]
+        exp_max_scores = [100] * len(self.t_results_ok_perc)
         exp_statuses = ['OK'] * len(self.t_results_ok_perc)
-        expected = zip(exp_scores, exp_statuses)
+        expected = zip(exp_scores, exp_max_scores, exp_statuses)
 
         results = map(utils.threshold_linear_test_scorer,
                         *zip(*self.t_results_ok_perc))
@@ -464,18 +483,23 @@ class TestScorers(TestCase):
         malformed = ({'exec_time_limit': 100, 'max_score': 100},
                         {'result_code': 'OK', 'time_used': 101})
         self.assertEqual(utils.threshold_linear_test_scorer(*malformed),
-                        (0, 'TLE'))
+                        (0, 100, 'TLE'))
 
         results = map(utils.threshold_linear_test_scorer,
                         *zip(*self.t_results_wrong))
         self.assertEquals(self.t_expected_wrong, results)
+
+        results = map(utils.threshold_linear_test_scorer,
+                        *zip(*self.t_results_unequal_max_scores))
+        self.assertEquals(self.t_expected_unequal_max_scores, results)
 
     @memoized_property
     def g_results_ok(self):
         # Tested elsewhere
         results = map(utils.threshold_linear_test_scorer,
                         *zip(*self.t_results_ok[:4]))
-        dicts = [dict(score=sc.serialize(), status=st) for sc, st in results]
+        dicts = [dict(score=sc.serialize(), max_score=msc.serialize(),
+                status=st) for sc, msc, st in results]
         return dict(zip(xrange(len(dicts)), dicts))
 
     @memoized_property
@@ -483,21 +507,39 @@ class TestScorers(TestCase):
         results = map(utils.threshold_linear_test_scorer,
                         *zip(*self.t_results_wrong))
         dicts = self.g_results_ok.values()
-        dicts += [dict(score=sc.serialize(), status=st) for sc, st in results]
+        dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
+                status=st) for sc, msc, st in results]
+        return dict(zip(xrange(len(dicts)), dicts))
+
+    @memoized_property
+    def g_results_unequal_max_scores(self):
+        results = map(utils.threshold_linear_test_scorer,
+                        *zip(*self.t_results_unequal_max_scores))
+        dicts = self.g_results_wrong.values()
+        dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
+                status=st) for sc, msc, st in results]
         return dict(zip(xrange(len(dicts)), dicts))
 
     def test_min_group_scorer(self):
-        self.assertEqual((50, 'OK'), utils.min_group_scorer(self.g_results_ok))
-        self.assertEqual((0, 'WA'),
+        self.assertEqual((50, 100, 'OK'),
+                utils.min_group_scorer(self.g_results_ok))
+        self.assertEqual((0, 100, 'WA'),
                 utils.min_group_scorer(self.g_results_wrong))
+        with self.assertRaises(utils.UnequalMaxScores):
+            utils.min_group_scorer(self.g_results_unequal_max_scores)
 
     def test_sum_group_scorer(self):
-        self.assertEqual((349, 'OK'), utils.sum_group_scorer(self.g_results_ok))
-        self.assertEqual((349, 'WA'),
+        self.assertEqual((349, 400, 'OK'),
+                utils.sum_group_scorer(self.g_results_ok))
+        self.assertEqual((349, 600, 'WA'),
                 utils.sum_group_scorer(self.g_results_wrong))
+        self.assertEqual((359, 630, 'WA'),
+                utils.sum_group_scorer(self.g_results_unequal_max_scores))
 
     def test_sum_score_aggregator(self):
-        self.assertEqual((349, 'OK'),
+        self.assertEqual((349, 400, 'OK'),
                 utils.sum_score_aggregator(self.g_results_ok))
-        self.assertEqual((349, 'WA'),
+        self.assertEqual((349, 600, 'WA'),
                 utils.sum_score_aggregator(self.g_results_wrong))
+        self.assertEqual((359, 630, 'WA'),
+                utils.sum_score_aggregator(self.g_results_unequal_max_scores))

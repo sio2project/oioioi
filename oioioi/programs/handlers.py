@@ -214,7 +214,7 @@ def grade_tests(env, **kwargs):
          * ``test_scorer``
 
        Produced ``environ`` keys:
-         * `score` and `status` keys in ``env['test_result']``
+         * `score`, `max_score` and `status` keys in ``env['test_result']``
     """
 
     fun = get_object_by_dotted_name(env.get('test_scorer')
@@ -222,9 +222,11 @@ def grade_tests(env, **kwargs):
     tests = env['tests']
 
     for test_name, test_result in env['test_results'].iteritems():
-        score, status = fun(tests[test_name], test_result)
+        score, max_score, status = fun(tests[test_name], test_result)
         assert isinstance(score, (types.NoneType, ScoreValue))
+        assert isinstance(max_score, (types.NoneType, ScoreValue))
         test_result['score'] = score and score.serialize()
+        test_result['max_score'] = max_score and max_score.serialize()
         test_result['status'] = status
     return env
 
@@ -244,8 +246,7 @@ def grade_groups(env, **kwargs):
          * ``group_scorer``
 
        Produced ``environ`` keys:
-         * keys containg a status and a score for groups in
-           ``env['group_results']``
+         * `score`, `max_score` and `status` keys in ``env['group_results']``
     """
 
     test_results = defaultdict(dict)
@@ -259,12 +260,16 @@ def grade_groups(env, **kwargs):
             continue
         fun = get_object_by_dotted_name(env.get('group_scorer',
                     DEFAULT_GROUP_SCORER))
-        score, status = fun(results)
+        score, max_score, status = fun(results)
         if not isinstance(score, (types.NoneType, ScoreValue)):
-            raise TypeError("Group scorer returned %r, not None or ScoreValue"
-                    % (type(score),))
+            raise TypeError("Group scorer returned %r as score, "
+                    "not None or ScoreValue" % (type(score),))
+        if not isinstance(max_score, (types.NoneType, ScoreValue)):
+            raise TypeError("Group scorer returned %r as max_score, "
+                    "not None or ScoreValue" % (type(max_score),))
         group_result = {}
         group_result['score'] = score and score.serialize()
+        group_result['max_score'] = max_score and max_score.serialize()
         group_result['status'] = status
         one_of_tests = env['tests'][results.iterkeys().next()]
         if not all(env['tests'][key]['kind'] == one_of_tests['kind']
@@ -293,12 +298,14 @@ def grade_submission(env, kind='NORMAL', **kwargs):
        Produced ``environ`` keys:
            * ``status``
            * ``score``
+           * ``max_score``
     """
 
     # TODO: let score_aggregator handle compilation errors
 
     if env.get('compilation_result', 'OK') != 'OK':
         env['score'] = None
+        env['max_score'] = None
         env['status'] = 'CE'
         return env
 
@@ -312,9 +319,11 @@ def grade_submission(env, kind='NORMAL', **kwargs):
                              in env['group_results'].iteritems()
                              if res['kind'] == kind)
 
-    score, status = fun(group_results)
+    score, max_score, status = fun(group_results)
     assert isinstance(score, (types.NoneType, ScoreValue))
+    assert isinstance(max_score, (types.NoneType, ScoreValue))
     env['score'] = score and score.serialize()
+    env['max_score'] = max_score and max_score.serialize()
     env['status'] = status
     return env
 
