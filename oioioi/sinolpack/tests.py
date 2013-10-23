@@ -37,6 +37,51 @@ class TestSinolPackage(TestCase):
         filename = get_test_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
 
+    def _check_no_ingen_package(self, problem, doc=True): #TODO
+        self.assertEqual(problem.short_name, 'test')
+
+        tests = Test.objects.filter(problem=problem)
+        t0 = tests.get(name='0')
+        self.assertEqual(t0.input_file.read(), '0 0\n')
+        self.assertEqual(t0.output_file.read(), '0\n')
+        self.assertEqual(t0.kind, 'EXAMPLE')
+        self.assertEqual(t0.group, '0')
+        self.assertEqual(t0.max_score, 0)
+        self.assertEqual(t0.time_limit, 10000)
+        self.assertEqual(t0.memory_limit, 66000)
+        t1a = tests.get(name='1a')
+        self.assertEqual(t1a.input_file.read(), '0 0\n')
+        self.assertEqual(t1a.output_file.read(), '0\n')
+        self.assertEqual(t1a.kind, 'NORMAL')
+        self.assertEqual(t1a.group, '1')
+        self.assertEqual(t1a.max_score, 100)
+        self.assertEqual(t1a.time_limit, 10000)
+        self.assertEqual(t1a.memory_limit, 66000)
+        t1b = tests.get(name='1b')
+        self.assertEqual(t1b.input_file.read(), '0 0\n')
+        self.assertEqual(t1b.output_file.read(), '0\n')
+        self.assertEqual(t1b.kind, 'NORMAL')
+        self.assertEqual(t1b.group, '1')
+        self.assertEqual(t1b.max_score, 100)
+        self.assertEqual(t1b.time_limit, 10000)
+        self.assertEqual(t1b.memory_limit, 66000)
+
+        model_solutions = ModelSolution.objects.filter(problem=problem)
+        sol = model_solutions.get(name='test.c')
+        self.assertEqual(sol.kind, 'NORMAL')
+        self.assertEqual(model_solutions.count(), 1)
+
+    def test_no_ingen_package(self):
+        filename = get_test_filename('test_no_ingen_package.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self._check_no_ingen_package(problem)
+
+        # Rudimentary test of package updating
+        call_command('updateproblem', str(problem.id), filename)
+        problem = Problem.objects.get()
+        self._check_no_ingen_package(problem)
+
     def _check_full_package(self, problem, doc=True):
         self.assertEqual(problem.short_name, 'sum')
 

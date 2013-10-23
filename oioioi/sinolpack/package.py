@@ -198,8 +198,12 @@ class SinolPackage(object):
                 f.write('SIG=xxxx000\n')
 
     def _generate_tests(self):
-        logger.info('%s: ingen', self.filename)
-        execute('make ingen', cwd=self.rootdir)
+        if glob.glob(os.path.join(self.rootdir, 'prog',
+                '%singen.*' % (self.short_name,))):
+            logger.info('%s: ingen', self.filename)
+            execute('make ingen', cwd=self.rootdir)
+        else:
+            logger.info('%s: no ingen in package', self.filename)
 
         if glob.glob(os.path.join(self.rootdir, 'prog',
                 '%sinwer.*' % (self.short_name,))):
