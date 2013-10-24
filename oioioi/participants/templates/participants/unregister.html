@@ -1,6 +1,8 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
+{% block title %}{% trans "Confirm unregistration" %}{% endblock %}
+
 {% block content %}
 <div class="well span10 offset1 central-well">
     <form action="" method="post" class="form-horizontal">{% csrf_token %}

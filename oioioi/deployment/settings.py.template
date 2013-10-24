@@ -8,6 +8,9 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
+# Site name displayed in the title
+SITE_NAME = 'OIOIOI'
+
 # Email addresses to send error message reports.
 ADMINS = (
     ('Your Name', 'youremail@example.com'),

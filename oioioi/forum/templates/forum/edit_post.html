@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load check_perm %}
 
-{% block title %}{% trans "Thread" %}: {{ thread.name }} - {% trans "Edit post" %}{% endblock %}
+{% block title %}{% trans "Edit post" %} - {% trans "Thread" %}: {{ thread.name }}{% endblock %}
 
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}

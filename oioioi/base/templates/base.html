@@ -7,7 +7,7 @@
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
     {% block head %}
-        <title>{% block title %}OIOIOI{% endblock %}</title>
+        <title>{% block title %}{% trans "Main page" %}{% endblock %} - {{ site_name }}</title>
         {% block styles %}
         {% compress css %}
         <link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}less/style.less">

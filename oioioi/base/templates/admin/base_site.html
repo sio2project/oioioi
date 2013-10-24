@@ -36,10 +36,10 @@
 {% all_with_prefix extra_head_ %}
 {% endblock %}
 
-{% block title %}{{ title }} | {% trans 'OIOIOI Admin' %}{% endblock %}
+{% block title %}{{ title }} - {% blocktrans %}{{ site_name }} Admin{% endblocktrans %}{% endblock %}
 
 {% block branding %}
-    <h1 id="site-name">{% trans 'OIOIOI Admin' %}</h1>
+    <h1 id="site-name">{% blocktrans %}{{ site_name }} Admin{% endblocktrans %}</h1>
 {% endblock %}
 
 {% block footer %}
