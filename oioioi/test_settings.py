@@ -1,6 +1,8 @@
 # pylint: disable-msg=W0401
 from oioioi.default_settings import *
 
+TIME_ZONE = 'UTC'
+
 ADMINS = (
     ('Test admin', 'admin@example.com'),
 )
@@ -29,6 +31,7 @@ INSTALLED_APPS = (
     'oioioi.contestexcl',
     'oioioi.forum',
     'oioioi.confirmations',
+    'oioioi.ctimes'
 ) + INSTALLED_APPS
 
 AUTHENTICATION_BACKENDS += (

@@ -149,6 +149,7 @@ INSTALLED_APPS = (
 #    'oioioi.confirmations',
 #    'oioioi.contestexcl',
 #    'oioioi.sharingcli',
+#    'oioioi.ctimes',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
