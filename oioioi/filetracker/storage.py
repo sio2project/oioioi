@@ -2,12 +2,13 @@ from django.core.files.storage import Storage
 from django.core.files import File
 from django.core.urlresolvers import reverse
 from oioioi.filetracker.client import get_client
+from oioioi.filetracker.utils import FileInFiletracker
+from oioioi.filetracker.filename import FiletrackerFilename
 
 import os
 import os.path
 import tempfile
 import datetime
-from oioioi.filetracker.utils import FileInFiletracker
 
 
 class FiletrackerStorage(Storage):
@@ -20,11 +21,21 @@ class FiletrackerStorage(Storage):
         self.prefix = prefix
 
     def _make_filetracker_path(self, name):
+        if isinstance(name, FiletrackerFilename):
+            name = name.versioned_name
         name = os.path.normcase(os.path.normpath(name))
         if os.path.isabs(name):
             raise ValueError('FiletrackerStorage does not support absolute '
                     'paths')
         return os.path.join(self.prefix, name).replace(os.sep, '/')
+
+    def _cut_prefix(self, path):
+        assert path.startswith(self.prefix), \
+                'Path passed to _cut_prefix does not start with prefix'
+        path = path[len(self.prefix):]
+        if path.startswith('/'):
+            path = path[1:]
+        return path
 
     def _open(self, name, mode):
         if 'w' in mode or '+' in mode or 'a' in mode:
@@ -32,7 +43,7 @@ class FiletrackerStorage(Storage):
                     'writing. Use FiletrackerStorage.save.')
         path = self._make_filetracker_path(name)
         reader, _version = self.client.get_stream(path)
-        return File(reader, name)
+        return File(reader, FiletrackerFilename(name))
 
     def _save(self, name, content):
         path = self._make_filetracker_path(name)
@@ -57,9 +68,21 @@ class FiletrackerStorage(Storage):
                 f.write(chunk)
             f.flush()
             filename = f.name
-        self.client.put_file(path, filename)
+        name = self._cut_prefix(self.client.put_file(path, filename))
+        name = FiletrackerFilename(name)
         content.close()
         return name
+
+    def save(self, name, content):
+        # Well, the default Django implementation of save coerces the returned
+        # value to unicode using force_text. This is not what we want, as we
+        # have to preserve FiletrackerFilename.
+        if name is None:
+            name = content.name
+        if not hasattr(content, 'chunks'):
+            content = File(content)
+        name = self.get_available_name(name)
+        return self._save(name, content)
 
     def delete(self, name):
         path = self._make_filetracker_path(name)
@@ -88,6 +111,8 @@ class FiletrackerStorage(Storage):
         return self.modified_time(name)
 
     def url(self, name):
+        if isinstance(name, FiletrackerFilename):
+            name = name.versioned_name
         return reverse('oioioi.filetracker.views.raw_file_view',
                 kwargs={'file_name': name})
 

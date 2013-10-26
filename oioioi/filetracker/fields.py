@@ -1,7 +1,15 @@
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
 from south.modelsinspector import add_introspection_rules
+from oioioi.filetracker.filename import FiletrackerFilename
 import base64
+
+
+class FieldFile(files.FieldFile):
+    def __init__(self, instance, field, name):
+        if name is not None:
+            name = FiletrackerFilename(name)
+        super(FieldFile, self).__init__(instance, field, name)
 
 
 class _FileDescriptor(files.FileDescriptor):
@@ -45,6 +53,19 @@ class FileField(files.FileField):
     """
 
     descriptor_class = _FileDescriptor
+    attr_class = FieldFile
+
+    def get_prep_lookup(self, lookup_type, value):
+        if hasattr(value, 'name') \
+                and isinstance(value.name, FiletrackerFilename):
+            value = value.name.versioned_name
+        return super(FileField, self).get_prep_lookup(lookup_type, value)
+
+    def get_prep_value(self, value):
+        if hasattr(value, 'name') \
+                and isinstance(value.name, FiletrackerFilename):
+            value = value.name.versioned_name
+        return super(FileField, self).get_prep_value(value)
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)

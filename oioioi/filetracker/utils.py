@@ -4,6 +4,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File
 from django.http import StreamingHttpResponse
+from oioioi.filetracker.filename import FiletrackerFilename
 import mimetypes
 
 
@@ -36,8 +37,11 @@ def django_to_filetracker_path(django_file):
     if not storage:
         raise ValueError('File of type %r is not stored in Filetracker' %
                 (type(django_file),))
+    name = django_file.name
+    if hasattr(name, 'versioned_name'):
+        name = name.versioned_name
     try:
-        return storage._make_filetracker_path(django_file.name)
+        return storage._make_filetracker_path(name)
     except AttributeError:
         raise ValueError('File is stored in %r, not Filetracker' % (storage,))
 
@@ -55,7 +59,7 @@ def filetracker_to_django_file(filetracker_path, storage=None):
         raise ValueError('Path %s is outside of storage prefix %s' %
                 (filetracker_path, storage.prefix))
     return FileInFiletracker(storage,
-            filetracker_path[prefix_len + 1:])
+            FiletrackerFilename(filetracker_path[prefix_len + 1:]))
 
 
 def stream_file(django_file, name=None, showable=None):
