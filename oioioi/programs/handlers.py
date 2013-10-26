@@ -87,7 +87,7 @@ def compile(env, **kwargs):
 
     new_env = run_sioworkers_job(compilation_job)
 
-    env['compiled_file'] = compilation_job['out_file']
+    env['compiled_file'] = new_env.get('out_file')
     env['compilation_message'] = new_env.get('compiler_output', '')
     env['compilation_result'] = new_env.get('result_code', 'CE')
     return env
