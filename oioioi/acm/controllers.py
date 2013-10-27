@@ -191,6 +191,8 @@ class ACMRankingController(DefaultRankingController):
     def _rounds_for_ranking(self, request, key=CONTEST_RANKING_KEY):
         can_see_all = is_contest_admin(request) or is_contest_observer(request)
         ccontroller = self.contest.controller
+        if not ccontroller.can_see_ranking(request):
+            return
         queryset = self.contest.round_set.all()
         if key != CONTEST_RANKING_KEY:
             queryset = queryset.filter(id=key)

@@ -1,6 +1,6 @@
 # ~*~ coding: utf-8 ~*~
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
@@ -308,7 +308,8 @@ class TestOIOnsiteRegistration(TestCase):
 
 
 class TestOIViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission']
 
     def test_contest_visibility(self):
         contest = Contest(id='visible', name='Visible Contest')
@@ -351,6 +352,25 @@ class TestOIViews(TestCase):
         self.client.login(username='test_user')
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
+
+    def test_ranking_access(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.oi.controllers.OIContestController'
+        contest.save()
+        round = contest.round_set.get()
+        user = User.objects.get(username='test_user')
+        p = Participant(contest=contest, user=user)
+        p.save()
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+
+        with fake_time(round.results_date + timedelta(days=1)):
+            self.client.login(username='test_user')
+            response = self.client.get(url)
+            self.assertContains(response, "No rankings available.")
+            self.client.login(username='test_admin')
+            response = self.client.get(url)
+            self.assertContains(response, '<td>Test User')
 
 
 class TestOIOnsiteViews(TestCase):

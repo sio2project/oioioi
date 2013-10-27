@@ -57,6 +57,8 @@ class DefaultRankingController(RankingController):
         can_see_all = is_contest_admin(request) or is_contest_observer(request)
         ccontroller = self.contest.controller
         queryset = self.contest.round_set.all()
+        if not ccontroller.can_see_ranking(request):
+            return
         if key != CONTEST_RANKING_KEY:
             queryset = queryset.filter(id=key)
         for round in queryset:

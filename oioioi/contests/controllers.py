@@ -231,6 +231,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         rtimes = self.get_round_times(request, round)
         return not rtimes.is_future(request.timestamp)
 
+    def can_see_ranking(self, request):
+        """Determines if the current user is allowed to see the ranking.
+
+           The default implementation allows it to everyone.
+         """
+        return True
+
     def can_see_problem(self, request, problem_instance):
         """Determines if the current user is allowed to see the given problem.
 
