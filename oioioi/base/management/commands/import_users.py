@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     kwargs[column] = value
 
                 try:
-                    user = User.objects.create_user(**kwargs)
+                    User.objects.create_user(**kwargs)
                 except DatabaseError, e:
                     self.stdout.write(_(
                         "DB Error for user=%(user)s: %(message)s\n")

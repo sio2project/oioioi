@@ -601,7 +601,8 @@ class TestAttachments(TestCase, TestStreamingMixin):
         pa.save()
         round = Round.objects.get(pk=1)
         ra = ContestAttachment(contest=contest, description='round-attachment',
-                content=ContentFile('content-of-roundatt', name='roundatt.txt'),
+                content=ContentFile('content-of-roundatt',
+                    name='roundatt.txt'),
                 round=round)
         ra.save()
 
@@ -708,13 +709,15 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def test_huge_submission(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
-        response = self.submit_file(contest, problem_instance, file_size=102405)
+        response = self.submit_file(contest, problem_instance,
+                                    file_size=102405)
         self.assertIn('File size limit exceeded.', response.content)
 
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
-        response = self.submit_file(contest, problem_instance, file_size=102400)
+        response = self.submit_file(contest, problem_instance,
+                                    file_size=102400)
         self._assertSubmitted(contest, response)
 
     def test_submissions_limitation(self):
@@ -728,7 +731,8 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertEqual(200, response.status_code)
         self.assertIn('Submission limit for the problem', response.content)
 
-    def _assertUnsupportedExtension(self, contest, problem_instance, name, ext):
+    def _assertUnsupportedExtension(self, contest, problem_instance, name,
+                                    ext):
         response = self.submit_file(contest, problem_instance,
                 file_name='%s.%s' % (name, ext))
         self.assertIn('Unknown or not supported file extension.',
@@ -868,7 +872,8 @@ class TestPermissions(TestCase):
     def test_utils(self):
         ofactory = partial(self.factory, self.observer)
         cfactory = partial(self.factory, self.cadmin)
-        ufactory = partial(self.factory, User.objects.get(username='test_user'))
+        ufactory = partial(self.factory,
+                           User.objects.get(username='test_user'))
         self.assertFalse(can_enter_contest(ufactory(self.during)))
         self.assertTrue(is_contest_admin(cfactory(self.during)))
         self.assertTrue(can_enter_contest(cfactory(self.during)))

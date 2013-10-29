@@ -40,7 +40,8 @@ class OIRegistrationController(ParticipantsController):
         participant = self._get_participant_for_form(request)
 
         if 'oi_oiregistrationformdata' in request.session:
-            form = self.form_class(request.session['oi_oiregistrationformdata'])
+            form = self.form_class(request.session[
+                                   'oi_oiregistrationformdata'])
             del request.session['oi_oiregistrationformdata']
         else:
             form = self.get_form(request, participant)

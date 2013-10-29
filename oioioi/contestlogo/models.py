@@ -7,6 +7,6 @@ class ContestLogo(models.Model):
     contest = models.OneToOneField(Contest, primary_key=True)
     logo_url = models.CharField(max_length=255, verbose_name=_("URL"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("contest logo")
         verbose_name_plural = _("contest logo")

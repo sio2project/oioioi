@@ -269,7 +269,8 @@ class ProblemNameListFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(problem_instance__problem__name=self.value())
+            return queryset.filter(
+                    problem_instance__problem__name=self.value())
         else:
             return queryset
 

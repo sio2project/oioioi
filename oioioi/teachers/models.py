@@ -15,7 +15,7 @@ class Teacher(models.Model):
     is_active = models.BooleanField(default=False, verbose_name=_("active"))
     school = models.CharField(max_length=255, verbose_name=_("school"))
 
-    class Meta:
+    class Meta(object):
         permissions = (
             ('teacher', _("Is a teacher")),
         )
@@ -28,7 +28,7 @@ class ContestTeacher(models.Model):
     contest = models.ForeignKey(Contest)
     teacher = models.ForeignKey(Teacher)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('contest', 'teacher')
 
     def __unicode__(self):

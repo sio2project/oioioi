@@ -97,7 +97,7 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
         with fake_time(datetime(2012, 1, 1, 13, tzinfo=utc)):
             response = self.client.get('/c/c1/id/')
             self.assertContains(response,
-                                'participate in more than one contest that exc')
+                    'participate in more than one contest that exc')
             self.assertEqual(len(mail.outbox), 1)
             message = mail.outbox[0]
             self.assertEqual(list(message.to), ['admin@example.com'])

@@ -78,8 +78,9 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             obj_display = force_unicode(obj)
             self.log_deletion(request, obj, obj_display)
             self.delete_model(request, obj)
-            self.message_user(request, _("The %(name)s \"%(obj)s\" was deleted "
-                "successfully.") % {'name': force_unicode(opts.verbose_name),
+            self.message_user(request, _("The %(name)s \"%(obj)s\" was "
+                "deleted successfully.") % {
+                    'name': force_unicode(opts.verbose_name),
                     'obj': force_unicode(obj_display)})
             return self.response_delete(request)
 
@@ -101,8 +102,8 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
 
     def get_list_select_related(self):
         """Returns a list of fields passed to queryset.select_related
-           By default - empty list. Override this method (instead of queryset())
-           to pass another field to the select_related
+           By default - empty list. Override this method (instead of
+           queryset()) to pass another field to the select_related.
         """
         return []
 

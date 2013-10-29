@@ -16,7 +16,7 @@ class ColorWidget(forms.TextInput):
        Hex value can also be edited manually.
        Only supports Hex values.  Alpha channel not supported.
     """
-    class Media:
+    class Media(object):
         js = ('js/jquery.colorPicker.js',)
 
     def render(self, name, value, attrs=None):

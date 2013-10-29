@@ -93,7 +93,8 @@ class OIReportForm(forms.Form):
         for round in testgroups:
             for task in round['tasks']:
                 field_name = 'testgroup[%s]' % (task['short_name'])
-                field_choices = [(group, group) for group in task['testgroups']]
+                field_choices = [(group, group) for group in \
+                                 task['testgroups']]
                 self.fields[field_name] = forms.MultipleChoiceField(
                     choices=field_choices,
                     widget=OIReportCheckboxSelectMultiple(),
@@ -133,8 +134,8 @@ class OIReportForm(forms.Form):
                 try:
                     User.objects.get(username=report_user)
                 except User.DoesNotExist:
-                    error_msg = _("There is no user with given username: %s.") \
-                                % report_user
+                    error_msg = _("There is no user with given username:" \
+                                  "%s.") % report_user
 
                 cleaned_data['single_report_user'] = report_user
             else:

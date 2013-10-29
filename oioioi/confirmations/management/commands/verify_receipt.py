@@ -26,8 +26,9 @@ class Command(BaseCommand):
             raise CommandError(_("File not found: ") + filename)
         source = open(filename, 'r').read()
 
-        match = re.search(r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
-            sys.stdin.read(), re.DOTALL)
+        match = re.search(
+                r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
+                sys.stdin.read(), re.DOTALL)
         if not match:
             raise CommandError(_("Proof not found in the pasted text."))
         proof = match.group(1)

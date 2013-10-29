@@ -389,7 +389,8 @@ class SinolPackage(object):
             self.problem = Problem(
                     name=self.short_name,
                     short_name=self.short_name,
-                    controller_name='oioioi.sinolpack.controllers.SinolProblemController')
+                    controller_name='oioioi.sinolpack.controllers.'
+                                    'SinolProblemController')
 
         self.problem.package_backend_name = \
                 'oioioi.sinolpack.package.SinolPackageBackend'

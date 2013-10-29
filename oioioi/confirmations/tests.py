@@ -18,7 +18,7 @@ class TestMetadataProving(TestCase):
 
     def test_valid_proof(self):
         submission = ProgramSubmission.objects.get(pk=1)
-        proof_data_orig, proof = submission_receipt_proof(submission)
+        _proof_data_orig, proof = submission_receipt_proof(submission)
         proof_data = verify_submission_receipt_proof(proof,
                 submission.source_file.read())
 
@@ -27,13 +27,13 @@ class TestMetadataProving(TestCase):
 
     def test_invalid_proof(self):
         submission = ProgramSubmission.objects.get(pk=1)
-        proof_data_orig, proof = submission_receipt_proof(submission)
+        _proof_data_orig, proof = submission_receipt_proof(submission)
 
         with self.assertRaises(ProofCorrupted):
             verify_submission_receipt_proof(proof, 'spam')
 
         submission2 = ProgramSubmission.objects.get(pk=2)
-        proof_data_orig2, proof2 = submission_receipt_proof(submission2)
+        _proof_data_orig2, proof2 = submission_receipt_proof(submission2)
 
         proof_tokens = proof.split(':')
         proof2_tokens = proof2.split(':')
@@ -66,7 +66,8 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
         del mail.outbox[0]
         self.assertIn("Submissions to this task: 2", email)
         self.assertIn("1337 bytes", email)
-        proof = re.search(r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
+        proof = re.search(
+                r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
                 email, re.DOTALL)
         self.assertTrue(proof)
         verify_submission_receipt_proof(proof.group(1), 'a'*1337)
@@ -82,7 +83,8 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
         problem_instance = ProblemInstance.objects.get()
         self.client.login(username='test_admin')
 
-        response = self.submit_file(contest, problem_instance, user='test_user')
+        response = self.submit_file(contest, problem_instance,
+                                    user='test_user')
         self._assertSubmitted(contest, response)
         self.assertEquals(len(mail.outbox), 0)
 

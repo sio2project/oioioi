@@ -16,7 +16,7 @@ class ProblemBalloonsConfig(models.Model):
                                    primary_key=True)
     color = ColorField(verbose_name=_("color"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("balloons colors")
         verbose_name_plural = _("balloons colors")
 
@@ -31,7 +31,7 @@ class BalloonsDisplay(models.Model):
     user = models.ForeignKey(User, verbose_name=_("user"))
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("balloons display")
         verbose_name_plural = _("balloons displays")
 

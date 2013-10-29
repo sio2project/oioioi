@@ -11,7 +11,7 @@ class TeacherContestForm(SimpleContestForm):
 
 
 class AddTeacherForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Teacher
         fields = ['school']
 

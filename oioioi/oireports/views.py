@@ -119,7 +119,8 @@ def _serialize_report(user, problem_instances, test_groups):
             test_reports = TestReport.objects \
                     .filter(submission_report__submission=submission) \
                     .filter(submission_report__status='ACTIVE') \
-                    .filter(submission_report__kind__in=['INITIAL', 'NORMAL']) \
+                    .filter(submission_report__kind__in=['INITIAL',
+                                                         'NORMAL']) \
                     .filter(test_group__in=groups) \
                     .order_by('test__kind', 'test__order', 'test_name')
         except TestReport.DoesNotExist:
@@ -240,7 +241,7 @@ def generate_pdfreport(request, report_form):
 
         # Compile the TeX file with PDFLaTeX
         # \write18 is disabled by default, so no LaTeX injection should happen
-        for i in xrange(3):
+        for _i in xrange(3):
             p = subprocess.Popen([
                     'pdflatex',
                     '-output-directory=' + tmp_folder,
@@ -249,7 +250,7 @@ def generate_pdfreport(request, report_form):
                 stdin=open('/dev/null'),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT)
-            stdout, stderr = p.communicate()
+            stdout, _stderr = p.communicate()
             if p.returncode:
                 raise RuntimeError('pdflatex failed: ' + stdout)
 

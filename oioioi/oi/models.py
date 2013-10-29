@@ -60,7 +60,7 @@ class Region(models.Model):
     name = models.CharField(max_length=255)
     contest = models.ForeignKey(Contest)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('contest', 'short_name')
 
     def __unicode__(self):
@@ -86,7 +86,7 @@ class School(models.Model):
     is_active = models.BooleanField(default=True, verbose_name=_("active"))
     is_approved = models.BooleanField(default=True, verbose_name=_("approved"))
 
-    class Meta:
+    class Meta(object):
         unique_together = ('name', 'postal_code')
         index_together = (('city', 'is_active'), ('province', 'is_active'))
         ordering = ['province', 'city', 'address', 'name']
@@ -137,7 +137,7 @@ class OIOnsiteRegistration(RegistrationModel):
         verbose_name=_("region"))
     local_number = models.IntegerField(verbose_name=_("local number"))
 
-    class Meta:
+    class Meta(object):
         unique_together = ('region', 'local_number')
 
     def __unicode__(self):

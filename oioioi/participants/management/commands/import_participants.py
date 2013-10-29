@@ -56,7 +56,7 @@ class Command(BaseCommand):
 
                 try:
                     user = User.objects.get(username=login)
-                    participant, created = Participant.objects \
+                    _participant, created = Participant.objects \
                             .get_or_create(contest=contest, user=user)
                 except User.DoesNotExist:
                     self.stdout.write(_("Error for user=%(user)s: user does"

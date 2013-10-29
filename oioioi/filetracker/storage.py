@@ -31,7 +31,7 @@ class FiletrackerStorage(Storage):
             raise ValueError('FiletrackerStorage.open does not support '
                     'writing. Use FiletrackerStorage.save.')
         path = self._make_filetracker_path(name)
-        reader, version = self.client.get_stream(path)
+        reader, _version = self.client.get_stream(path)
         return File(reader, name)
 
     def _save(self, name, content):
@@ -48,7 +48,8 @@ class FiletrackerStorage(Storage):
             # isn't implemented
             return content.file.name
         elif isinstance(content, FileInFiletracker):
-            # This happens when file_field.save(path, file) is called explicitly
+            # This happens when file_field.save(path, file) is called
+            # explicitly
             raise NotImplementedError("Filename cannot be changed")
         else:
             f = tempfile.NamedTemporaryFile()

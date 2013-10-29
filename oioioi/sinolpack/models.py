@@ -18,7 +18,7 @@ class ExtraConfig(models.Model):
             return {}
         return yaml.load(self.config)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("sinolpack's configuration")
         verbose_name_plural = _("sinolpack's configurations")
 
@@ -30,7 +30,7 @@ class ExtraFile(models.Model):
     name = models.CharField(max_length=255, verbose_name=_("name"))
     file = FileField(upload_to=make_problem_filename)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("sinolpack's extra file")
         verbose_name_plural = _("sinolpack's extra files")
 
@@ -40,6 +40,6 @@ class OriginalPackage(models.Model):
     package_file = FileField(upload_to=make_problem_filename,
             verbose_name=_("package"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("original sinolpack package")
         verbose_name_plural = _("original sinolpack packages")

@@ -10,7 +10,7 @@ from oioioi.oi.models import OIRegistration, PROVINCES, School, Region
 
 
 class RegionForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Region
 
     def clean_short_name(self):
@@ -23,7 +23,7 @@ class RegionForm(forms.ModelForm):
 
 
 class AddSchoolForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = School
         exclude = ['is_active', 'is_approved']
 
@@ -76,11 +76,11 @@ class SchoolSelect(forms.Select):
 
 
 class OIRegistrationForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = OIRegistration
         exclude = ['participant']
 
-    class Media:
+    class Media(object):
         css = {'all': ('oi/reg.css',)}
         js = ('oi/reg.js',)
 

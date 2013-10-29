@@ -71,7 +71,8 @@ class TestParticipantsContestViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user2')
         response = self.client.get(url, follow=True)
@@ -144,7 +145,8 @@ class TestParticipantsRegistration(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
@@ -155,7 +157,8 @@ class TestParticipantsRegistration(TestCase):
                 'oioioi.participants.tests.ParticipantsContestController'
         contest.save()
 
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user')
         response = self.client.get(url, follow=True)
@@ -230,7 +233,8 @@ class TestParticipantsModelAdmin(TestCase):
     def test_noadmin_admin_visibility(self):
         contest = Contest.objects.get()
         contest.controller_name = \
-                'oioioi.participants.tests.NoAdminParticipantsContestController'
+                'oioioi.participants.tests.' \
+                'NoAdminParticipantsContestController'
         contest.save()
         user = User.objects.get(username='test_user')
 
@@ -268,7 +272,8 @@ class TestParticipantsModelAdmin(TestCase):
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
     ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',))
 class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
-                                                       ContestIdViewCheckMixin):
+                                                       ContestIdViewCheckMixin
+                                                       ):
     urls = 'oioioi.contests.test_urls'
     fixtures = ['test_users', 'test_two_empty_contests']
 

@@ -13,13 +13,14 @@ class Forum(models.Model):
 
     contest = models.OneToOneField(Contest)
     visible = models.BooleanField(default=True,
-                                  verbose_name=_("forum is visible after lock"))
+                                  verbose_name=
+                                  _("forum is visible after lock"))
     lock_date = models.DateTimeField(blank=True, null=True,
                                      verbose_name=_("set autolock date"))
     unlock_date = models.DateTimeField(blank=True, null=True,
                                        verbose_name=_("set autounlock date"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("forum")
         verbose_name_plural = _("forums")
 
@@ -49,7 +50,7 @@ class Category(models.Model):
     forum = models.ForeignKey(Forum, verbose_name=_("forum"))
     name = models.CharField(max_length=255, verbose_name=_("category"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("category")
         verbose_name_plural = _("categories")
 
@@ -84,7 +85,7 @@ class Thread(models.Model):
     category = models.ForeignKey(Category, verbose_name=_("category"))
     name = models.CharField(max_length=255, verbose_name=_("thread"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("thread")
         verbose_name_plural = _("threads")
 
@@ -121,7 +122,7 @@ class Post(models.Model):
     def edited(self):
         return bool(self.last_edit_date)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 

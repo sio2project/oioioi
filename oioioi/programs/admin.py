@@ -28,7 +28,7 @@ class TestInline(admin.TabularInline):
             'output_file_link')
     ordering = ('kind', 'order', 'name')
 
-    class Media:
+    class Media(object):
         css = {
             'all': ('programs/admin.css',),
         }
@@ -176,7 +176,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
         actions = super(ProgrammingProblemInstanceAdminMixin, self) \
                 .inline_actions(instance)
         if ModelSolution.objects.filter(problem_id=instance.problem_id):
-            models_view = reverse('oioioiadmin:contests_probleminstance_models',
+            models_view = reverse(
+                    'oioioiadmin:contests_probleminstance_models',
                     args=(instance.id,))
             actions.append((models_view, _("Model solutions")))
         return actions

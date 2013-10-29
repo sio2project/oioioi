@@ -1,7 +1,7 @@
 # Taken from
 # https://github.com/django-extensions/django-extensions/blob/master/django_extensions/management/commands/shell_plus.py
-
 # django_extensions/management/commands/shell_plus.py
+# pylint: skip-file
 
 import os
 import time

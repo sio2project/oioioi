@@ -9,7 +9,7 @@ class IpToUser(models.Model):
                                            verbose_name=_("IP address"))
     user = models.ForeignKey(User)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("IP autoauth mapping")
         verbose_name_plural = _("IP autoauth mappings")
 
@@ -23,7 +23,7 @@ class DnsToUser(models.Model):
                                  verbose_name=_("DNS hostname"))
     user = models.ForeignKey(User)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("DNS autoauth mapping")
         verbose_name_plural = _("DNS autoauth mappings")
 

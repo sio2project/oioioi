@@ -7,7 +7,7 @@ from oioioi.questions.utils import get_categories
 
 
 class AddContestMessageForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Message
         fields = ['category', 'topic', 'content']
 
@@ -16,7 +16,8 @@ class AddContestMessageForm(forms.ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(AddContestMessageForm, self).__init__(*args, **kwargs)
         self.fields['topic'].widget.attrs['class'] = 'input-xxlarge'
-        self.fields['content'].widget.attrs['class'] = 'input-xxlarge monospace'
+        self.fields['content'].widget.attrs['class'] = \
+                'input-xxlarge monospace'
 
         self.request = request
 
@@ -28,7 +29,7 @@ class AddContestMessageForm(forms.ModelForm):
         instance.contest = self.request.contest
         if 'category' in self.cleaned_data:
             category = self.cleaned_data['category']
-            type, sep, id = category.partition('_')
+            type, _sep, id = category.partition('_')
             if type == 'r':
                 instance.round = \
                     Round.objects.get(contest=self.request.contest, id=id)
@@ -54,7 +55,7 @@ class AddReplyForm(AddContestMessageForm):
 
 
 class ChangeContestMessageForm(AddContestMessageForm):
-    class Meta:
+    class Meta(object):
         model = Message
         fields = ['kind', 'topic', 'content']
 
@@ -93,7 +94,8 @@ class FilterMessageAdminForm(FilterMessageForm):
             # We allow fill 'author' form area only by username typed directly
             # or by full name chosen from typeahead.
             if len(username) == 1 or (len(username) and
-                    username[1].startswith('(') and username[-1].endswith(')')):
+                    username[1].startswith('(') and
+                    username[-1].endswith(')')):
                 username = username[0]
 
                 try:

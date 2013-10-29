@@ -96,7 +96,8 @@ class RegisteredSubclassesBase(ClassInitBase):
         cls.abstract = cls.__dict__.get('abstract', False)
 
         def find_superclass(cls):
-            superclasses = [c for c in cls.__bases__ if issubclass(c, this_cls)]
+            superclasses = [c for c in cls.__bases__
+                            if issubclass(c, this_cls)]
             if not superclasses:
                 return None
             if len(superclasses) > 1:
@@ -159,7 +160,8 @@ class ObjectWithMixins(ClassInitBase):
            # some_external_module.py
            class UserControllerBeautifier(object):
                def render_user_info(self, user):
-                   super_info = super(UserControllerBeautifier, self).render_user_info(user)
+                   super_info = super(UserControllerBeautifier, self) \
+                                .render_user_info(user)
                    return '<font color="red">' + super_info + '</font>'
            UserController.mix_in(UserControllerBeautifier)
 

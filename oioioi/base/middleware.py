@@ -32,11 +32,13 @@ class HttpResponseNotAllowedMiddleware(object):
 
 
 class AnnotateUserBackendMiddleware(object):
-    """Middleware annotating user object with path of authentication backend."""
+    """Middleware annotating user object with path of authentication
+       backend.
+    """
 
     def process_request(self, request):
-        # Newly authenticated user objects are annotated with succeeded backend,
-        # but it's not restored in AuthenticationMiddleware.
+        # Newly authenticated user objects are annotated with succeeded
+        # backend, but it's not restored in AuthenticationMiddleware.
         if not hasattr(request, 'user'):
             raise ImproperlyConfigured(
                 "The annotating user with backend middleware requires the"

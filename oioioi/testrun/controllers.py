@@ -153,7 +153,8 @@ class TestRunContestControllerMixin(object):
                 CompilationReport.objects.get(submission_report=report)
         # It may not exists when compilation error occurs
         try:
-            testrun_report = TestRunReport.objects.get(submission_report=report)
+            testrun_report = TestRunReport.objects.get(
+                    submission_report=report)
         except:
             testrun_report = None
 

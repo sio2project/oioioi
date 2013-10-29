@@ -33,7 +33,7 @@ class Test(models.Model):
             default=10)
     order = models.IntegerField(default=0)
 
-    class Meta:
+    class Meta(object):
         ordering = ['order']
         verbose_name = _("test")
         verbose_name_plural = _("tests")
@@ -44,7 +44,7 @@ class OutputChecker(models.Model):
     exe_file = FileField(upload_to=make_problem_filename,
             null=True, blank=True, verbose_name=_("checker executable file"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("output checker")
         verbose_name_plural = _("output checkers")
 
@@ -138,7 +138,8 @@ submission_statuses.register('INI_ERR', _("Initial tests: failed"))
 
 submission_report_kinds.register('INITIAL', _("Initial report"))
 submission_report_kinds.register('NORMAL', _("Normal report"))
-submission_report_kinds.register('HIDDEN', _("Hidden report (for admins only)"))
+submission_report_kinds.register('HIDDEN',
+                                 _("Hidden report (for admins only)"))
 
 
 class CompilationReport(models.Model):

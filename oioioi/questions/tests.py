@@ -174,7 +174,8 @@ class TestQuestions(TestCase):
     def test_authors_list(self):
         self.client.login(username='test_admin')
         contest = Contest.objects.get()
-        url = reverse('get_messages_authors', kwargs={'contest_id': contest.id})
+        url = reverse('get_messages_authors',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, {'substr': ''})
         self.assertEquals(404, response.status_code)
         response = self.client.get(url)

@@ -69,7 +69,8 @@ def submissions_fragment(request):
             submissions[:getattr(settings, 'NUM_DASHBOARD_SUBMISSIONS', 8)]
     if not submissions:
         return None
-    submissions = [submission_template_context(request, s) for s in submissions]
+    submissions = [submission_template_context(request, s)
+                   for s in submissions]
     show_scores = any(s['can_see_score'] for s in submissions)
     context = {
         'submissions': submissions,
@@ -93,7 +94,8 @@ def messages_fragment(request):
 
 
 @menu_registry.register_decorator(_("Dashboard"), lambda request:
-        reverse('contest_dashboard', kwargs={'contest_id': request.contest.id}),
+        reverse('contest_dashboard',
+                kwargs={'contest_id': request.contest.id}),
     order=20)
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_dashboard_view(request, contest_id):

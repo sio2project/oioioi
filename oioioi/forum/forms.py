@@ -4,17 +4,18 @@ from oioioi.forum.models import Post, Thread
 
 
 class PostForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Post
         fields = ['content']
 
     def __init__(self, request, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
-        self.fields['content'].widget.attrs['class'] = 'input-xxlarge monospace'
+        self.fields['content'].widget.attrs['class'] = \
+                'input-xxlarge monospace'
 
 
 class NewThreadForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Thread
         fields = ['name']
 
@@ -24,4 +25,5 @@ class NewThreadForm(forms.ModelForm):
         super(NewThreadForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = _("Topic")
         self.fields['name'].widget.attrs['class'] = 'input-xxlarge monospace'
-        self.fields['content'].widget.attrs['class'] = 'input-xxlarge monospace'
+        self.fields['content'].widget.attrs['class'] = \
+                'input-xxlarge monospace'

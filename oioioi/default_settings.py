@@ -1,3 +1,5 @@
+# pylint: disable=W0401
+# Wildcard import
 import sys
 if sys.version_info < (2, 6):
     raise RuntimeError("OIOIOI needs at least Python 2.6")

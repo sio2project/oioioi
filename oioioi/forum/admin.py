@@ -18,7 +18,7 @@ def make_list_elem(elem, text=None):
 def get_permission(self, request):
     # if forum exists returns std_perm - is_contest_admin, otherwise - False
     try:
-        f = request.contest.forum
+        _f = request.contest.forum
         return is_contest_admin(request)
     except Forum.DoesNotExist:
         return False

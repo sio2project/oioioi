@@ -1,3 +1,5 @@
+# pylint: disable=W0612
+# Unused variable
 import random
 import sys
 import os.path
