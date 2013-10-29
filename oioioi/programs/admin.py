@@ -220,10 +220,10 @@ class ProgramSubmissionAdminMixin(object):
                     _("You shall select exactly two submissions to diff"))
             return None
 
-        id1, id2 = queryset[0].id, queryset[1].id
+        id_older, id_newer = [sub.id for sub in queryset.order_by('date')]
 
         return redirect('source_diff', contest_id=request.contest.id,
-                        submission1_id=id1, submission2_id=id2)
+                        submission1_id=id_older, submission2_id=id_newer)
     submission_diff_action.short_description = _("Diff submissions")
 
 SubmissionAdmin.mix_in(ProgramSubmissionAdminMixin)

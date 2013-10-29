@@ -208,8 +208,8 @@ class TestDiffView(TestCase):
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertContains(response, 'id="diff-button-do"')
         kwargs2 = {'contest_id': submission.problem_instance.contest.id,
-                   'submission1_id': submission.id,
-                   'submission2_id': submission2.id}
+                   'submission1_id': submission2.id,
+                   'submission2_id': submission.id}
         self.assertIn(reverse('source_diff', kwargs=kwargs2),
                 response.content)
         response = self.client.get(reverse('source_diff', kwargs=kwargs2))

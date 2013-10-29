@@ -30,7 +30,7 @@
                 </ul>
             </div>
             {% if saved_diff_id %}
-                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' contest_id=contest.id submission1_id=saved_diff_id submission2_id=submission.submission.id %}">
+                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' contest_id=contest.id submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
                     <i class="icon-resize-small"></i> {% trans "Diff with saved" %}</a>
             {% else %}
                 <button class="btn btn-small diff-button" id="diff-button-save">
