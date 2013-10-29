@@ -26,7 +26,7 @@ import tarfile
 import zipfile
 
 
-class ArchiveException(Exception):
+class ArchiveException(RuntimeError):
     """Base exception class for all archive errors."""
 
 

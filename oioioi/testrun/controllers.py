@@ -1,5 +1,5 @@
 from django.template.loader import render_to_string
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -98,7 +98,7 @@ class TestRunContestControllerMixin(object):
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.status = score_report.status
             submission.score = score_report.score  # Should be None
-        except:
+        except ObjectDoesNotExist:
             if SubmissionReport.objects.filter(submission=submission,
                     status='ACTIVE', kind='FAILURE'):
                 submission.status = 'SE'
@@ -155,7 +155,7 @@ class TestRunContestControllerMixin(object):
         try:
             testrun_report = TestRunReport.objects.get(
                     submission_report=report)
-        except:
+        except TestRunReport.DoesNotExist:
             testrun_report = None
 
         output_container_id_prefix = \

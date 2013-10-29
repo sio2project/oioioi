@@ -18,7 +18,7 @@ hunting = [('Prepare guns',
                 'oioioi.evalmgr.tests.rest_handler')]
 
 
-class HuntingException(Exception):
+class HuntingException(StandardError):
     pass
 
 
@@ -111,21 +111,23 @@ class SioworkersBackend(object):
             return env
 
 
+def _uuid():
+    return uuid.uuid4().hex
+
+
 class TestRemoteJobs(SimpleTestCase):
-    def uuid():
-        return uuid.uuid4().hex
 
     base_dir = os.path.dirname(__file__)
     local_source_file = os.path.join(base_dir, 'files/solution.c')
-    remote_source_file = '/test_worker_manager/' + uuid() + 'add_solution.c'
+    remote_source_file = '/test_worker_manager/' + _uuid() + 'add_solution.c'
     local_wrong_source_file = os.path.join(base_dir, 'files/wrong_solution.c')
-    remote_wrong_source_file = '/test_worker_manager/' + uuid() + \
+    remote_wrong_source_file = '/test_worker_manager/' + _uuid() + \
             'wrong_add_solution.c'
-    binary_file = '/test_worker_manager/' + uuid() + 'add_solution'
+    binary_file = '/test_worker_manager/' + _uuid() + 'add_solution'
     local_in_file = os.path.join(base_dir, 'files/in')
-    remote_in_file = '/test_worker_manager/' + uuid() + 'in'
+    remote_in_file = '/test_worker_manager/' + _uuid() + 'in'
     local_out_file = os.path.join(base_dir, 'files/out')
-    remote_out_file = '/test_worker_manager/' + uuid() + 'out'
+    remote_out_file = '/test_worker_manager/' + _uuid() + 'out'
     evaluation_recipe = [
         ('upload source',
         'oioioi.evalmgr.tests.upload_source'),
@@ -187,7 +189,7 @@ class TestRemoteJobs(SimpleTestCase):
 police_files = {}
 
 
-class SuspectNotFoundException(Exception):
+class SuspectNotFoundException(StandardError):
     pass
 
 

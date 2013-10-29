@@ -38,7 +38,7 @@ def sum_group_scorer(test_results):
     return score, max_score, status
 
 
-class UnequalMaxScores(StandardError):
+class UnequalMaxScores(ValueError):
     pass
 
 

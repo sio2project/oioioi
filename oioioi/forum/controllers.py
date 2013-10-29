@@ -12,10 +12,6 @@ class ContestControllerWithForum(object):
 
     def adjust_contest(self):
         super(ContestControllerWithForum, self).adjust_contest()
-        try:
-            forum = self.contest.forum
-        except:
-            forum = Forum(contest=self.contest)
-            forum.save()
+        Forum.objects.get_or_create(contest=self.contest)
 
 ContestController.mix_in(ContestControllerWithForum)

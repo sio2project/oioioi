@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.sinolpack.package import SinolPackageBackend, \
         DEFAULT_TIME_LIMIT
-from oioioi.contests.models import ProblemInstance, Contest, Round, \
+from oioioi.contests.models import ProblemInstance, Contest, \
         Submission, UserResultForContest
 from oioioi.contests.scores import IntegerScore
 from oioioi.problems.models import Problem, ProblemStatement
@@ -224,7 +224,6 @@ class TestSinolPackageInContest(TestCase, TestStreamingMixin):
         ProblemInstance.objects.all().delete()
 
         contest = Contest.objects.get()
-        round = Round.objects.get()
         filename = get_test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:problems_problem_add')

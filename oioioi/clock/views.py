@@ -77,18 +77,18 @@ def admin_time(request, next_page=None):
                 del request.session['admin_time']
             return safe_redirect(request, next_page)
         elif is_real_superuser(request):
-            admin_time = re.findall(r'\d+', request.POST['admin-time'])
-            admin_time = map(int, admin_time)
+            current_admin_time = re.findall(r'\d+', request.POST['admin-time'])
+            current_admin_time = map(int, current_admin_time)
             try:
-                admin_time = datetime(*admin_time)
+                current_admin_time = datetime(*current_admin_time)
             except (ValueError, TypeError, OverflowError):
                 messages.error(request,
                     _("Invalid date. Admin-time was not set."))
                 return safe_redirect(request, next_page)
-            if admin_time.year >= 1900:
+            if current_admin_time.year >= 1900:
                 request.session['admin_time'] = \
                     timezone.localtime(timezone.now()). \
-                    tzinfo.localize(admin_time).astimezone(pytz.utc)
+                    tzinfo.localize(current_admin_time).astimezone(pytz.utc)
             else:
                 messages.error(request, _("Date has to be after 1900."
                     " Admin-time was not set."))

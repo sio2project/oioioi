@@ -126,7 +126,7 @@ class ContestAdmin(admin.ModelAdmin):
 class BaseContestAdmin(admin.MixinsAdmin):
     default_model_admin = ContestAdmin
 
-    def _mixins_for_instance(self, request, instance):
+    def _mixins_for_instance(self, request, instance=None):
         if instance:
             controller = instance.controller
             return controller.mixins_for_admin() + \

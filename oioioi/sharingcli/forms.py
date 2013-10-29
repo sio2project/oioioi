@@ -1,3 +1,5 @@
+# pylint: disable=W0631
+# Using possibly undefined loop variable
 import json
 import urllib2
 

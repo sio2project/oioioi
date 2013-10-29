@@ -11,7 +11,7 @@ FONT_SIZE = getattr(settings, 'PRINTING_FONT_SIZE', 8)
 MM_IN_POINT = 0.35
 
 
-class PageLimitExceeded(Exception):
+class PageLimitExceeded(StandardError):
     pass
 
 

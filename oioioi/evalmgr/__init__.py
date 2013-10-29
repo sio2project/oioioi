@@ -17,8 +17,7 @@ def _find_placeholder(recipe, name):
     for i, entry in enumerate(recipe):
         if entry[0] == name and entry[1] == 'oioioi.evalmgr._placeholder':
             return i
-    else:
-        raise IndexError("Placeholder '%s' not found in recipe" % (name,))
+    raise IndexError("Placeholder '%s' not found in recipe" % (name,))
 
 
 def recipe_placeholder(name):

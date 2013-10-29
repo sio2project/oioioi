@@ -1,3 +1,5 @@
+# pylint: disable=E1102
+# self.form_class is not callable
 import urllib
 
 from django import forms

@@ -40,11 +40,11 @@ def activate_contest(request, contest):
         request.session['recent_contests'] = recent_contests
 
     if not request.real_user.is_anonymous() and contest \
-       and not request.session.get('first_view_after_logging', False):
-            cv, created = ContestView.objects \
-                    .get_or_create(user=request.real_user, contest=contest)
-            cv.timestamp = request.timestamp
-            cv.save()
+            and not request.session.get('first_view_after_logging', False):
+        cv, created = ContestView.objects \
+                .get_or_create(user=request.real_user, contest=contest)
+        cv.timestamp = request.timestamp
+        cv.save()
 
 
 class CurrentContestMiddleware(object):

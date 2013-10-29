@@ -11,7 +11,8 @@ from oioioi.problems.models import Problem, ProblemStatement, \
 
 
 class TestProblemController(ProblemController):
-    pass
+    def fill_evaluation_environ(self, environ, **kwargs):
+        raise NotImplementedError
 
 
 class TestModels(TestCase):

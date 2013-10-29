@@ -46,7 +46,7 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
         raise NotImplementedError
 
 
-class NoBackend(Exception):
+class NoBackend(NotImplementedError):
     pass
 
 
@@ -60,5 +60,4 @@ def backend_for_package(filename, original_filename=None):
         except Exception:
             logger.warning('Backend %s probe failed', backend_name,
                     exc_info=True)
-    else:
-        raise NoBackend('Problem pack format not recognized')
+    raise NoBackend('Problem pack format not recognized')

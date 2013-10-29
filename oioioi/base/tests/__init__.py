@@ -1,5 +1,7 @@
-# pylint: disable=W0612
+# pylint: disable=W0612,E1111,E1121
 # Unused variable
+# Assigning to function call which doesn't return
+# Too many positional arguments for function call
 import random
 import sys
 import os.path
@@ -175,7 +177,7 @@ class TestIndex(TestCase):
 
     def test_language_flags(self):
         response = self.client.get('/', follow=True)
-        for lang_code, lang_name in settings.LANGUAGES:
+        for lang_code, _lang_name in settings.LANGUAGES:
             self.assertIn(lang_code + '.png', response.content)
 
     def test_index(self):
@@ -406,7 +408,7 @@ class TestUtils(unittest.TestCase):
         self.assertEquals(Derived().derivedmixin, 'spam')
         self.assertEquals(Derived().basemixin, 'spam')
         with self.assertRaises(AttributeError):
-            Base().derivedmixin == 'spam'
+            _none = Base().derivedmixin
 
         self.assertListEqual(Base.subclasses, [Base, Derived])
         self.assertListEqual(Derived.subclasses, [Derived])
@@ -601,9 +603,9 @@ class TestArchive(unittest.TestCase):
         tmpdir = tempfile.mkdtemp()
         a = os.path.join(tmpdir, 'a')
         try:
-            basedir = os.path.join(os.path.dirname(__file__), 'files')
+            base_dir = os.path.join(os.path.dirname(__file__), 'files')
             for good_file in ['archive.tgz', 'archive.zip']:
-                filename = os.path.join(basedir, good_file)
+                filename = os.path.join(base_dir, good_file)
                 archive.extract(filename, tmpdir)
                 self.assertTrue(os.path.exists(a))
                 self.assertEqual(open(a, 'rb').read().strip(), 'foo')
@@ -612,7 +614,7 @@ class TestArchive(unittest.TestCase):
             for bad_file in ['archive-with-symlink.tgz',
                     'archive-with-hardlink.tgz']:
                 with self.assertRaises(archive.UnsafeArchive):
-                    archive.extract(os.path.join(basedir, bad_file), tmpdir)
+                    archive.extract(os.path.join(base_dir, bad_file), tmpdir)
         finally:
             shutil.rmtree(tmpdir)
 

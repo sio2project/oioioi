@@ -38,7 +38,8 @@ class TestForum(TestCase):
         contest = get_contest_with_no_forum()
 
         self.client.login(username='test_user')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertNotIn('Forum', response.content)
 
@@ -46,7 +47,8 @@ class TestForum(TestCase):
         contest = get_contest_with_forum()
 
         self.client.login(username='test_user')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertIn('Forum', response.content)
 
@@ -54,7 +56,8 @@ class TestForum(TestCase):
         contest = get_contest_with_forum()
         forum = contest.forum
         self.client.login(username='test_user')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         with fake_time(self.now):
             # locked, no unlock date set
             forum.lock_date = self.past
@@ -84,7 +87,8 @@ class TestForum(TestCase):
         forum.unlock_date = self.future
         forum.save()
         self.client.login(username='test_user')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         with fake_time(self.now):
             response = self.client.get(url, follow=True)
             self.assertNotIn('Forum', response.content)
@@ -94,7 +98,8 @@ class TestForum(TestCase):
         # not visible but not locked either, so it should be visible..
         contest = get_contest_with_forum()
         forum = contest.forum
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         self.client.login(username='test_user')
         with fake_time(self.now):
             forum.visible = False
@@ -142,8 +147,9 @@ class TestCategory(TestCase):
             forum.lock_date = self.past
             forum.save()
             self.assertEqual(True, forum.is_locked(self.now))
-            url = reverse('forum_category', kwargs={'contest_id': contest.id,
-                                                    'category_id': category.id})
+            url = reverse('forum_category',
+                          kwargs={'contest_id': contest.id,
+                                  'category_id': category.id})
             response = self.client.get(url, follow=True)
             # locked, adding new thread not possible
             self.assertEqual(200, response.status_code)
@@ -197,6 +203,6 @@ class TestThread(TestCase):
         self.assertIn('Delete confirmation', response.content)
         p1.delete()
 
-        # user tries to remove post p0 but cannot (added earlier than 15min ago)
+        # user tries to remove post p0 but can't (added earlier than 15min ago)
         response = self.try_to_remove_post(p0)
         self.assertEqual(403, response.status_code)

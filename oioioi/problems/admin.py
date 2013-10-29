@@ -141,7 +141,7 @@ class ProblemAdmin(admin.ModelAdmin):
 class BaseProblemAdmin(admin.MixinsAdmin):
     default_model_admin = ProblemAdmin
 
-    def _mixins_for_instance(self, request, instance):
+    def _mixins_for_instance(self, request, instance=None):
         if instance:
             return instance.controller.mixins_for_admin()
 

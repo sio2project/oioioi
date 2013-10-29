@@ -1,3 +1,5 @@
+# pylint: disable=E1003
+# Bad first argument %s given to super()
 from django.core.urlresolvers import reverse
 from django.forms.util import flatatt
 from django.template import Template, Context

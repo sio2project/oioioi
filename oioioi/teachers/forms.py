@@ -27,7 +27,8 @@ class AddTeacherForm(forms.ModelForm):
             help_text=_("Optional. If provided, this message will be sent "
                 "to the managers."),
             required=False,
-            widget=forms.Textarea(attrs={'class': 'input-xxlarge', 'rows': 10}))
+            widget=forms.Textarea(attrs={'class': 'input-xxlarge',
+                                         'rows': 10}))
 
     def clean_school(self):
         data = self.cleaned_data['school']

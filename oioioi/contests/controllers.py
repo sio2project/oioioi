@@ -158,8 +158,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def get_round_times(self, request, round):
         """Determines the times of the round for the user doing the request.
 
-           The default implementation returns an instance of :class:`RoundTimes`
-           cached by round_times() method.
+           The default implementation returns an instance of
+           :class:`RoundTimes` cached by round_times() method.
 
            Round must belong to request.contest.
 
@@ -267,10 +267,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return True
 
     def get_default_submission_kind(self, request):
-        """Returns default kind of newly created submission by the current user.
+        """Returns default kind of newly created submission by the current
+           user.
 
-           The default implementation returns ``'IGNORED'`` for non-contestants.
-           In other cases it returns ``'NORMAL'``.
+           The default implementation returns ``'IGNORED'`` for
+           non-contestants.  In other cases it returns ``'NORMAL'``.
         """
         if is_contest_admin(request) or is_contest_observer(request):
             return 'IGNORED'
@@ -297,7 +298,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             cleaned_data):
         return cleaned_data
 
-    def create_submission(self, request, problem_instance, form_data, **kwargs):
+    def create_submission(self, request, problem_instance, form_data,
+                          **kwargs):
         raise NotImplementedError
 
     def fill_evaluation_environ(self, environ, submission):
@@ -305,7 +307,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = problem_instance.problem
         round = problem_instance.round
         assert round, \
-            "Someone tried to evaluate submission to dangling problem instance."
+            "Someone tried to evaluate submission to dangling problem " \
+            "instance."
         contest = round.contest
 
         environ['submission_id'] = submission.id
@@ -362,7 +365,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
-        async_result = evalmgr.evalmgr_job.delay(environ)
+        evalmgr.evalmgr_job.delay(environ)
 
     def submission_judged(self, submission):
         pass
@@ -499,7 +502,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         # First: UserResultForProblem
         with transaction.commit_on_success():
-            result, created = UserResultForProblem.objects.select_for_update() \
+            result, created = UserResultForProblem.objects \
+                .select_for_update() \
                 .get_or_create(user=user, problem_instance=problem_instance)
             self.update_user_result_for_problem(result)
 
@@ -511,8 +515,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         # Third: UserResultForContest
         with transaction.commit_on_success():
-            result, created = UserResultForContest.objects.select_for_update() \
-                .get_or_create(user=user, contest=contest)
+            result, created = UserResultForContest.objects \
+                    .select_for_update() \
+                    .get_or_create(user=user, contest=contest)
             self.update_user_result_for_contest(result)
 
     def filter_my_visible_submissions(self, request, queryset):

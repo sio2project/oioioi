@@ -182,6 +182,16 @@ class PrivateContestController(ContestController):
     def registration_controller(self):
         return PrivateRegistrationController(self.contest)
 
+    def update_submission_score(self, submission):
+        raise NotImplementedError
+
+    def render_submission(self, request, submission):
+        raise NotImplementedError
+
+    def create_submission(self, request, problem_instance, form_data,
+                          **kwargs):
+        raise NotImplementedError
+
 
 class TestContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

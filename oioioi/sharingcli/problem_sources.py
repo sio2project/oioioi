@@ -5,8 +5,6 @@ import tempfile
 import shutil
 
 from django.conf import settings
-from django.db import transaction
-from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.problems.models import Problem

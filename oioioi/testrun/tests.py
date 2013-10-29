@@ -194,5 +194,5 @@ class TestHandlers(TestCase):
             self.assertEqual('o', report.output_file.read())
 
             handlers.delete_output(environ)
-        except:
+        except Exception:
             get_client().delete_file('/output')

@@ -5,7 +5,6 @@ import os.path
 import sys
 import uuid
 import pwd
-import grp
 import shutil
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -54,7 +53,6 @@ def generate_all(dir):
 
     virtual_env = os.environ.get('VIRTUAL_ENV', '')
     user = pwd.getpwuid(os.getuid())[0]
-    group = grp.getgrgid(os.getgid())[0]
 
     manage_py = os.path.join(dir, 'manage.py')
     generate_from_template(dir, 'manage.py', {
@@ -99,7 +97,7 @@ def generate_all(dir):
 def main():
     usage = "usage: %prog [options] dir"
     parser = OptionParser(usage=usage)
-    options, args = parser.parse_args()
+    _options, args = parser.parse_args()
     if len(args) != 1:
         parser.error("expected a single argument: deployment folder to create")
     dir = os.path.abspath(args[0])

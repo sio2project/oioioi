@@ -11,7 +11,7 @@ from oioioi.programs.models import ProgramSubmission
 
 
 SUBMISSION_RECEIVED_SALT = 'submission_reveived'
-class ProofCorrupted(Exception):
+class ProofCorrupted(ValueError):
     pass
 
 
