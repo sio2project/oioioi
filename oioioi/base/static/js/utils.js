@@ -1,7 +1,7 @@
 if (!String.prototype.fmt) {
     String.prototype.fmt = function(dict) {
         return interpolate(this, dict, true);
-    }
+    };
 }
 
 if (!String.prototype.startsWith) {
