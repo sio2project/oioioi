@@ -1,6 +1,7 @@
 /build/
 /dist/
 /test_report.html
+/test_report/
 /.coverage
 /cover/
 *.egg

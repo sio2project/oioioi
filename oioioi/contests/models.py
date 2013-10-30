@@ -49,7 +49,7 @@ class Contest(models.Model):
             return None
         return get_object_by_dotted_name(self.controller_name)(self)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("contest")
         verbose_name_plural = _("contests")
         get_latest_by = 'creation_date'
@@ -102,7 +102,7 @@ class ContestAttachment(models.Model):
     def filename(self):
         return os.path.split(self.content.name)[1]
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
 
@@ -119,7 +119,7 @@ class Round(models.Model):
             verbose_name=_("results date"))
     is_trial = models.BooleanField(default=False, verbose_name=_("is trial"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("round")
         verbose_name_plural = _("rounds")
         unique_together = ('contest', 'name')
@@ -154,7 +154,7 @@ class ProblemInstance(models.Model):
         default=settings.DEFAULT_SUBMISSIONS_LIMIT,
         verbose_name=_("submissions limit"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("problem instance")
         verbose_name_plural = _("problem instances")
         unique_together = ('contest', 'short_name')
@@ -223,7 +223,7 @@ class Submission(models.Model):
     def problem(self):
         return self.problem_instance.problem
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("submission")
         verbose_name_plural = _("submissions")
         get_latest_by = 'date'
@@ -264,7 +264,7 @@ class SubmissionReport(models.Model):
         except (ScoreReport.DoesNotExist, IndexError):
             return None
 
-    class Meta:
+    class Meta(object):
         get_latest_by = 'creation_date'
         ordering = ('-creation_date',)
         index_together = (('submission', 'creation_date'),)
@@ -306,7 +306,7 @@ class UserResultForProblem(models.Model):
     submission_report = models.ForeignKey(SubmissionReport, blank=True,
             null=True)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'problem_instance')
 
 
@@ -319,7 +319,7 @@ class UserResultForRound(models.Model):
     round = models.ForeignKey(Round)
     score = ScoreField(blank=True, null=True)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'round')
 
 
@@ -333,7 +333,7 @@ class UserResultForContest(models.Model):
     contest = models.ForeignKey(Contest)
     score = ScoreField(blank=True, null=True)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'contest')
 
 
@@ -346,7 +346,7 @@ class RoundTimeExtension(models.Model):
     round = models.ForeignKey(Round)
     extra_time = models.PositiveIntegerField(_("Extra time (in minutes)"))
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'round')
         verbose_name = _("round time extension")
         verbose_name_plural = _("round time extensions")
@@ -365,7 +365,7 @@ class ContestPermission(models.Model):
     permission = EnumField(contest_permissions,
             default='contests.contest_admin', verbose_name=_("permission"))
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'contest', 'permission')
         verbose_name = _("contest permission")
         verbose_name_plural = _("contest permissions")
@@ -380,7 +380,7 @@ class ContestView(models.Model):
     timestamp = models.DateTimeField(default=timezone.now,
                                      verbose_name=_("last view"))
 
-    class Meta:
+    class Meta(object):
         unique_together = ('user', 'contest')
         get_latest_by = 'timestamp'
         ordering = ('-timestamp', )

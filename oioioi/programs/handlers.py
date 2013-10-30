@@ -149,7 +149,8 @@ def run_tests(env, kind=None, **kwargs):
          * ``save_outputs``: set to ``True`` if and only if each of
            test results should have its output file attached.
          * ``sioworkers_extra_args``: dict mappting kinds to additional
-           arguments passed to :fun:`oioioi.sioworkers.jobs.run_sioworkers_jobs`
+           arguments passed to
+           :fun:`oioioi.sioworkers.jobs.run_sioworkers_jobs`
            (kwargs).
 
        Produced ``environ`` keys:
@@ -329,7 +330,8 @@ def grade_submission(env, kind='NORMAL', **kwargs):
 
 
 def _make_base_report(env, kind):
-    """Helper function making: SubmissionReport, ScoreReport, CompilationReport.
+    """Helper function making: SubmissionReport, ScoreReport,
+       CompilationReport.
 
        Used ``environ`` keys:
            * ``status``
@@ -384,7 +386,7 @@ def make_report(env, kind='NORMAL', **kwargs):
            * ``report_id``: id of the produced
              :class:`~oioioi.contests.models.SubmissionReport`
     """
-    submission, submission_report = _make_base_report(env, kind)
+    _submission, submission_report = _make_base_report(env, kind)
 
     if env['compilation_result'] != 'OK':
         return env
@@ -407,8 +409,8 @@ def make_report(env, kind='NORMAL', **kwargs):
         comment = result.get('result_string', '')
         if comment.lower() == 'ok':  # Annoying
             comment = ''
-        test_report.comment = \
-            slice_str(comment, TestReport._meta.get_field('comment').max_length)
+        test_report.comment = slice_str(comment, TestReport. \
+                _meta.get_field('comment').max_length)
         test_report.save()
         result['report_id'] = test_report.id
 

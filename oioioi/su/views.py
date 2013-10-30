@@ -56,9 +56,10 @@ def get_suable_users_view(request):
         raise Http404
     substr = request.REQUEST['substr']
 
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
     users = User.objects \
         .filter(is_superuser=False, username__icontains=substr) \
-        .values_list('username', flat=True)[:getattr(settings, 'NUM_HINTS', 10)]
+        .values_list('username', flat=True)[:num_hints]
     users = list(users)
     return HttpResponse(json.dumps(users), content_type='application/json')
 

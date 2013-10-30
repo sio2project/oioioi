@@ -135,7 +135,7 @@ def edit_post_view(request, contest_id, category_id, thread_id, post_id):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
 def delete_post_view(request, contest_id, category_id, thread_id, post_id):
-    (forum, cat, thread, post) = get_forum_objects(request,
+    (_forum, cat, thread, post) = get_forum_objects(request,
                                                    category_id, thread_id,
                                                    post_id)
     is_admin = is_contest_admin(request)
@@ -166,7 +166,7 @@ def delete_post_view(request, contest_id, category_id, thread_id, post_id):
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
 def report_post_view(request, contest_id, category_id, thread_id, post_id):
-    (forum, category, thread, post) = get_forum_objects(request,
+    (_forum, category, thread, post) = get_forum_objects(request,
                                                         category_id, thread_id,
                                                         post_id)
     post.reported = True
@@ -179,7 +179,7 @@ def report_post_view(request, contest_id, category_id, thread_id, post_id):
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
 def hide_post_view(request, contest_id, category_id, thread_id, post_id):
-    (forum, category, thread, post) = get_forum_objects(request,
+    (_forum, category, thread, post) = get_forum_objects(request,
                                                         category_id, thread_id,
                                                         post_id)
     post.hidden = True
@@ -194,7 +194,7 @@ def hide_post_view(request, contest_id, category_id, thread_id, post_id):
 @require_POST
 def show_post_view(request, contest_id, category_id, thread_id, post_id):
     # Admin shows reported/hidden post again
-    (forum, category, thread, post) = get_forum_objects(request,
+    (_forum, category, thread, post) = get_forum_objects(request,
                                                         category_id, thread_id,
                                                         post_id)
     post.hidden = False
@@ -207,7 +207,7 @@ def show_post_view(request, contest_id, category_id, thread_id, post_id):
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
 @require_POST
 def delete_thread_view(request, contest_id, category_id, thread_id):
-    (forum, category, thread) = get_forum_objects(request,
+    (_forum, category, thread) = get_forum_objects(request,
                                                   category_id, thread_id)
     choice = confirmation_view(request, 'forum/confirm_delete.html',
                                {'elem': thread})
@@ -223,7 +223,7 @@ def delete_thread_view(request, contest_id, category_id, thread_id):
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
 @require_POST
 def delete_category_view(request, contest_id, category_id):
-    (forum, category,) = get_forum_objects(request, category_id)
+    (_forum, category,) = get_forum_objects(request, category_id)
     choice = confirmation_view(request, 'forum/confirm_delete.html',
                                {'elem': category})
     if not isinstance(choice, bool):

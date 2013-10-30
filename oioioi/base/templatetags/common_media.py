@@ -5,7 +5,7 @@ from django.contrib.staticfiles import finders
 
 def find_common_media():
     for finder in finders.get_finders():
-        for path, storage in finder.list([]):
+        for path, _storage in finder.list([]):
             if path.startswith(settings.COMMON_MEDIA_PREFIX):
                 yield path
 

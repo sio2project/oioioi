@@ -16,6 +16,6 @@ class ComplaintsConfig(models.Model):
     end_date = models.DateTimeField(blank=True, null=True,
             verbose_name=_("end date"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("complaints configuration")
         verbose_name_plural = _("complaints configurations")

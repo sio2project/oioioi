@@ -25,14 +25,15 @@ from oioioi.testrun.utils import has_any_testrun_problem, \
 def testrun_submit_view(request, contest_id):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES,
-                kind='TESTRUN', problem_filter=filter_testrun_problem_instances)
+                kind='TESTRUN',
+                problem_filter=filter_testrun_problem_instances)
         if form.is_valid():
             request.contest.controller.create_testrun(request,
                     form.cleaned_data['problem_instance'], form.cleaned_data)
             return redirect('my_submissions', contest_id=contest_id)
     else:
         form = SubmissionForm(request, kind='TESTRUN',
-                                problem_filter=filter_testrun_problem_instances)
+                              problem_filter=filter_testrun_problem_instances)
     return TemplateResponse(request, 'testrun/submit.html', {'form': form})
 
 

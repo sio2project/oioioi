@@ -102,7 +102,8 @@ class DefaultRankingController(RankingController):
             return value
 
         for row in data['rows']:
-            line = [row['place'], row['user'].first_name, row['user'].last_name]
+            line = [row['place'], row['user'].first_name,
+                    row['user'].last_name]
             line += [default_if_none(getattr(r, 'score', None), '')
                 for r in row['results']]
             line.append(row['sum'])

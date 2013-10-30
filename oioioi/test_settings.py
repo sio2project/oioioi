@@ -1,3 +1,4 @@
+# pylint: disable-msg=W0401
 from oioioi.default_settings import *
 
 ADMINS = (

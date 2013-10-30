@@ -28,7 +28,8 @@ class ExclusivenessConfig(models.Model):
     """Represents an exclusiveness config for a contest.
 
        If it is enabled it becomes active on the date specified by
-       ``start_date`` and stays active until the date specified by ``end_date``.
+       ``start_date`` and stays active until the date specified by
+       ``end_date``.
     """
     contest = models.OneToOneField(Contest)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
@@ -39,13 +40,14 @@ class ExclusivenessConfig(models.Model):
 
     objects = ExclusivenessConfigManager()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("exclusiveness config")
         verbose_name_plural = _("exclusiveness configs")
 
     def __unicode__(self):
         return u'%s (%s): %s - %s' % (self.contest,
-                                      'enabled' if self.enabled else 'disabled',
+                                      'enabled' if self.enabled \
+                                              else 'disabled',
                                       self.start_date, self.end_date)
 
     def clean(self):

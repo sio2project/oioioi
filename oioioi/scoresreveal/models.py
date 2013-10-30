@@ -8,7 +8,7 @@ class ScoreReveal(models.Model):
     submission = models.OneToOneField(Submission, related_name='revealed',
                                       verbose_name=_("submission"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("score reveal")
         verbose_name_plural = _("score reveals")
 
@@ -21,6 +21,6 @@ class ScoreRevealConfig(models.Model):
     disable_time = models.IntegerField(blank=True, null=True,
         verbose_name=_("disable for last minutes of the round"))
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("score reveal config")
         verbose_name_plural = _("score reveal configs")

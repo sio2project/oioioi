@@ -7,7 +7,8 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.contrib.auth.views import logout as auth_logout, login as auth_login
+from django.contrib.auth.views import logout as auth_logout, \
+                                      login as auth_login
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.views import default_contest_view

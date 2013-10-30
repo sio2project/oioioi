@@ -29,7 +29,8 @@ class TestOIAdmin(TestCase):
         contest.save()
 
         self.client.login(username='test_admin')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertIn('Schools', response.content)
         self.assertNotIn('Regions', response.content)
@@ -57,7 +58,8 @@ class TestOIOnsiteAdmin(TestCase):
         contest = Contest.objects.get()
 
         self.client.login(username='test_admin')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertIn('Schools', response.content)
         self.assertIn('Regions', response.content)
@@ -116,7 +118,8 @@ class TestOIRegistration(TestCase):
     def test_participants_accounts_menu(self):
         contest = Contest.objects.get()
 
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user')
         response = self.client.get(url, follow=True)
@@ -271,7 +274,8 @@ class TestOIOnsiteRegistration(TestCase):
         p.save()
 
         self.client.login(username='test_user')
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
@@ -330,7 +334,8 @@ class TestOIViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user2')
         response = self.client.get(url, follow=True)
@@ -393,7 +398,8 @@ class TestOIOnsiteViews(TestCase):
         p = Participant(contest=contest, user=user, status='BANNED')
         p.save()
 
-        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user2')
         response = self.client.get(url, follow=True)

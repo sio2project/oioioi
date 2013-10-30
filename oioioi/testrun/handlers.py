@@ -79,7 +79,7 @@ def make_report(env, **kwargs):
            * ``report_id``: id of the produced
              :class:`~oioioi.contests.models.SubmissionReport`
     """
-    submission, submission_report = _make_base_report(env, 'TESTRUN')
+    _submission, submission_report = _make_base_report(env, 'TESTRUN')
 
     if env['compilation_result'] != 'OK':
         return env

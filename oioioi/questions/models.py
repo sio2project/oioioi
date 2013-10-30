@@ -49,7 +49,7 @@ class MessageView(models.Model):
     user = models.ForeignKey(User)
     date = models.DateTimeField(default=timezone.now, editable=False)
 
-    class Meta:
+    class Meta(object):
         unique_together = ('message', 'user')
 
 
@@ -57,7 +57,7 @@ class MessageNotifierConfig(models.Model):
     contest = models.ForeignKey(Contest)
     user = models.ForeignKey(User, verbose_name=_("username"))
 
-    class Meta:
+    class Meta(object):
         unique_together = ('contest', 'user')
         verbose_name = _("notified about new questions")
         verbose_name_plural = _("notified about new questions")

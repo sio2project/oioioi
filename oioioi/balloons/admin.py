@@ -29,8 +29,8 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def color_display(self, instance):
-        return '<span class="balloons_admin" style="background: %s">%s</span>' \
-                % (instance.color, instance.color)
+        return '<span class="balloons_admin" style="background: %s">%s' \
+               '</span>' % (instance.color, instance.color)
     color_display.allow_tags = True
     color_display.short_description = _("Color")
 

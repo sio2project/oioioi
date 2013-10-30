@@ -94,16 +94,16 @@ def accept_teacher_view(request, user_id):
     if teacher.is_active:
         messages.info(request, _("User already accepted."))
     else:
-        choice = confirmation_view(request, 'teachers/confirm_add_teacher.html',
-                {'teacher': teacher})
+        choice = confirmation_view(request,
+                'teachers/confirm_add_teacher.html', {'teacher': teacher})
         if not isinstance(choice, bool):
             return choice
         if choice:
             teacher.is_active = True
             teacher.save()
             send_acceptance_email(request, teacher)
-            messages.success(request, _("Successfully accepted and emailed the "
-                "new teacher."))
+            messages.success(request, _("Successfully accepted and emailed the"
+                " new teacher."))
     return redirect('oioioiadmin:teachers_teacher_changelist')
 
 

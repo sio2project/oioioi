@@ -8,7 +8,7 @@ from oioioi.contests.utils import submittable_problem_instances
 
 
 class SimpleContestForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Contest
         fields = ['name', 'id', 'controller_name']
 

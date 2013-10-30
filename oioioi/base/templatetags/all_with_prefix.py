@@ -23,7 +23,7 @@ def all_with_prefix(parser, token):
     """Concatenates all values from the context which start with the
        prefix given as the only parameter."""
     try:
-        tag_name, prefix = token.split_contents()
+        _tag_name, prefix = token.split_contents()
     except ValueError:
         msg = '%r tag requires a single argument' % token.split_contents()[0]
         raise TemplateSyntaxError(msg)

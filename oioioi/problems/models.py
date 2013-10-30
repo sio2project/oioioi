@@ -47,7 +47,7 @@ class Problem(models.Model):
     def package_backend(self):
         return get_object_by_dotted_name(self.package_backend_name)()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("problem")
         verbose_name_plural = _("problems")
         permissions = (
@@ -87,7 +87,7 @@ class ProblemStatement(models.Model):
     def extension(self):
         return os.path.splitext(self.content.name)[1].lower()
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("problem statement")
         verbose_name_plural = _("problem statements")
 
@@ -112,7 +112,7 @@ class ProblemAttachment(models.Model):
     def filename(self):
         return os.path.split(self.content.name)[1]
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
 

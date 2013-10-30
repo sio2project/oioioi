@@ -141,8 +141,9 @@ class ParticipantAdmin(admin.ModelAdmin):
             form = ExtendRoundForm(request.contest,
                     initial={'_selected_action': [p.id for p in queryset]})
 
-        return TemplateResponse(request, 'admin/participants/extend_round.html',
-                {'form': form})
+        return TemplateResponse(request,
+                                'admin/participants/extend_round.html',
+                                {'form': form})
     extend_round.short_description = _("Extend round")
 
 

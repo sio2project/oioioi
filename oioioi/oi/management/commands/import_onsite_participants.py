@@ -64,7 +64,7 @@ class Command(BaseCommand):
             for row in reader:
                 all_count += 1
 
-                for i, column in enumerate(self.COLUMNS):
+                for i, _column in enumerate(self.COLUMNS):
                     row[i] = row[i].decode('utf8')
 
                 try:

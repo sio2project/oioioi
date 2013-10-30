@@ -25,7 +25,7 @@ class TestRunConfig(models.Model):
     memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"),
             null=True, blank=True)
 
-    class Meta:
+    class Meta(object):
         verbose_name = _("test run config")
         verbose_name_plural = _("test run configs")
 

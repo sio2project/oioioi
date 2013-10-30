@@ -33,7 +33,7 @@ class Participant(models.Model):
         except model_class.DoesNotExist:
             raise ObjectDoesNotExist
 
-    class Meta:
+    class Meta(object):
         unique_together = ('contest', 'user')
 
     def __unicode__(self):
@@ -44,5 +44,5 @@ class RegistrationModel(models.Model):
     participant = models.OneToOneField(Participant,
             related_name='%(app_label)s_%(class)s')
 
-    class Meta:
+    class Meta(object):
         abstract = True

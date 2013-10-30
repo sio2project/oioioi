@@ -8,7 +8,7 @@ def authentication_backends():
     for backend in get_backends():
         if getattr(backend, 'supports_authentication', True):
             yield ("%s.%s" % (backend.__module__, backend.__class__.__name__),
-                    getattr(backend, 'description', backend.__class__.__name__))
+                   getattr(backend, 'description', backend.__class__.__name__))
 
 
 class SuForm(forms.Form):

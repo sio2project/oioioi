@@ -13,7 +13,8 @@ class SinolProblemController(ProgrammingProblemController):
                 environ, **kwargs)
 
         try:
-            config = ExtraConfig.objects.get(problem=self.problem).parsed_config
+            config = ExtraConfig.objects.get(problem=self.problem) \
+                     .parsed_config
         except ExtraConfig.DoesNotExist:
             config = {}
 

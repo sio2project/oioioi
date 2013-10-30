@@ -62,7 +62,8 @@ def format_proof(proof):
 
 
 def verify_submission_receipt_proof(proof, source):
-    """Verifies a signed proof of user's submission and returns proven metadata.
+    """Verifies a signed proof of user's submission and returns proven
+       metadata.
 
        :raises :class:`ProofCorrupted` upon failure of any reason.
     """

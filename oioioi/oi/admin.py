@@ -230,8 +230,8 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
 
     def get_list_select_related(self):
         return super(OIOnsiteRegistrationParticipantAdmin, self) \
-                .get_list_select_related() + ['oi_oionsiteregistration',
-                                              'oi_oionsiteregistration__region']
+                .get_list_select_related() + \
+                ['oi_oionsiteregistration', 'oi_oionsiteregistration__region']
 
     def number(self, instance):
         return instance.oi_oionsiteregistration.number

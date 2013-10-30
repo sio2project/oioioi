@@ -60,10 +60,9 @@ class TestMakingComplaint(TestCase):
         del mail.outbox
 
         # Header class doesn't offer 'in' operator
-        self.assertEqual("[oioioi-complaints] Complaint: Test User (test_user)",
-                jurym['Subject'])
-        self.assertEqual("[oioioi-complaints] Complaint: Test User (test_user)",
-                userm['Subject'])
+        expected = "[oioioi-complaints] Complaint: Test User (test_user)"
+        self.assertEqual(expected, jurym['Subject'])
+        self.assertEqual(expected, userm['Subject'])
 
         self.assertEquals("dummy@example.com", jurym['To'])
         self.assertEquals("test_user@example.com", userm['To'])

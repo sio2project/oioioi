@@ -29,8 +29,8 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
           If it is present, the contest list is filtered with a logical
           conjunction of the default selector and the selector passed
           as an argument (it may be useful with mixins).
-       #. If there is only one contest left, the ``request.contest`` variable is
-          set to this contest or a redirect is made if necessary.
+       #. If there is only one contest left, the ``request.contest`` variable
+          is set to this contest or a redirect is made if necessary.
        #. If there is more than one contest left, the user is logged out,
           an error message is displayed and an e-mail describing the situation
           is sent to the administrators.
@@ -61,7 +61,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             activate_contest(request, None)
             auth.logout(request)
             return TemplateResponse(request,
-                                    'contestexcl/exclusive_contests_error.html')
+                    'contestexcl/exclusive_contests_error.html')
         elif len(qs) == 1:
             contest = qs[0]
             activate_contest(request, contest)
@@ -85,21 +85,24 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             raise ImproperlyConfigured(
                 "oioioi.base.middleware.TimestampingMiddleware is required."
                 " If you have it installed check if it comes before"
-                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES setting"
+                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES"
+                "setting"
             )
 
         if not hasattr(request, 'contest'):
             raise ImproperlyConfigured(
                 "oioioi.contests.middleware.CurrentContestMiddleware is"
                 " required. If you have it installed check if it comes before "
-                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES setting"
+                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES"
+                "setting"
             )
 
         if not hasattr(request, 'user'):
             raise ImproperlyConfigured(
                 "django.contrib.auth.middleware.AuthenticationMiddleware is"
                 "required. If you have it installed check if it comes before "
-                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES setting"
+                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES"
+                "setting"
             )
 
         return request.contest
@@ -107,8 +110,8 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
     def _send_error_email(self, request, contests):
         context = self._error_email_context(request, contests)
         message = self._error_email_message(context)
-        subject = \
-            render_to_string('contestexcl/exclusive_contests_error_subject.txt')
+        subject = render_to_string(
+                'contestexcl/exclusive_contests_error_subject.txt')
         subject = ' '.join(subject.strip().splitlines())
         mail_admins(subject, message)
 
