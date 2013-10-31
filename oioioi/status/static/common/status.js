@@ -5,9 +5,9 @@ $(function(){
 
     var fetchUpdates = function() {
         $.getJSON(status_url, function(data) {
-           $(window).trigger('updateStatus', data);
+            $(window).trigger('updateStatus', data);
         });
-   };
+    };
 
     $(window).one('initialStatus', function(ev, data) {
         if (data.sync_time) {

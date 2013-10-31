@@ -10,12 +10,12 @@ $(document).ready(function() {
         school = $('#id_oi_oiregistration-0-school');
     }
 
-    if(province.val() == "") {
+    if(province.val() === "") {
         city.prop('disabled', true);
         school.prop('disabled', true);
     }
 
-    if(city.val() == "") {
+    if(city.val() === "") {
         school.prop('disabled', true);
     }
 

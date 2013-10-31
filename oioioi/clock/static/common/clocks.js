@@ -17,10 +17,11 @@ $(function() {
 
         if (remaining_seconds >= 0) {
             var countdown = remaining_seconds;
+            var countdown_destination;
             if (round_duration_in_s) {
-                var countdown_destination = gettext("end of the round.");
+                countdown_destination = gettext("end of the round.");
             } else {
-                var countdown_destination = gettext("start of the round.");
+                countdown_destination = gettext("start of the round.");
             }
 
             var seconds = countdown % 60;
@@ -39,57 +40,67 @@ $(function() {
             var days_str = ngettext("%(days)s day ", "%(days)s days ",
                 days).fmt({days: days});
 
+            var countdown_text;
             if (days) {
                 var countdown_days = days_str + hours_str + minutes_str +
                     seconds_str;
-                var countdown_text =
-                    ngettext("%(countdown_days)sleft to the %(countdown_destination)s",
+                countdown_text = ngettext(
+                    "%(countdown_days)sleft to the %(countdown_destination)s",
                     "%(countdown_days)sleft to the %(countdown_destination)s",
                     days).fmt({countdown_days: countdown_days,
                     countdown_destination: countdown_destination});
             } else if (hours) {
                 var countdown_hours = hours_str + minutes_str + seconds_str;
-                var countdown_text =
-                    ngettext("%(countdown_hours)sleft to the %(countdown_destination)s",
-                    "%(countdown_hours)sleft to the %(countdown_destination)s",
+                countdown_text = ngettext(
+                    "%(countdown_hours)sleft to the" +
+                    " %(countdown_destination)s",
+                    "%(countdown_hours)sleft to the" +
+                    " %(countdown_destination)s",
                     hours).fmt({countdown_hours: countdown_hours,
                     countdown_destination: countdown_destination});
             } else if (minutes) {
                 var countdown_minutes = minutes_str + seconds_str;
-                var countdown_text =
-                    ngettext("%(countdown_minutes)sleft to the %(countdown_destination)s",
-                    "%(countdown_minutes)sleft to the %(countdown_destination)s",
+                countdown_text = ngettext(
+                    "%(countdown_minutes)sleft to the" +
+                    " %(countdown_destination)s",
+                    "%(countdown_minutes)sleft to the" +
+                    " %(countdown_destination)s",
                     minutes).fmt({countdown_minutes: countdown_minutes,
                     countdown_destination: countdown_destination});
             } else if (seconds) {
                 var countdown_seconds = seconds_str;
-                var countdown_text =
-                    ngettext("%(countdown_seconds)sleft to the %(countdown_destination)s",
-                    "%(countdown_seconds)sleft to the %(countdown_destination)s",
+                countdown_text = ngettext(
+                    "%(countdown_seconds)sleft to the" +
+                    " %(countdown_destination)s",
+                    "%(countdown_seconds)sleft to the" +
+                    " %(countdown_destination)s",
                     seconds).fmt({countdown_seconds: countdown_seconds,
                     countdown_destination: countdown_destination});
             } else {
                 if (round_duration_in_s) {
-                    var countdown_text = gettext("The round is over!");
+                    countdown_text = gettext("The round is over!");
                 } else {
-                    var countdown_text = gettext("The round has started!");
+                    countdown_text = gettext("The round has started!");
                 }
             }
 
             if (round_duration_in_s) {
                 var elapsed_part = 1 - remaining_seconds / round_duration_in_s;
+                var red;
+                var green;
                 if (elapsed_part < 0.5) {
-                    var red = Math.floor(510 * elapsed_part);
-                    var green = 255;
+                    red = Math.floor(510 * elapsed_part);
+                    green = 255;
                 } else {
-                    var red = 255;
-                    var green = Math.floor(510 * (1 - elapsed_part));
+                    red = 255;
+                    green = Math.floor(510 * (1 - elapsed_part));
                 }
                 var blue = 0;
                 var bar_color = 'rgb(' + red + ',' + green +',' + blue + ')';
                 $('#navbar-progressbar').css({
                     "background": bar_color,
-                    "width": Math.floor(elapsed_part * 100) + "%"});
+                    "width": Math.floor(elapsed_part * 100) + "%"
+                });
             }
 
             $('#countdown').text(countdown_text);
@@ -165,7 +176,7 @@ $(function() {
 
         if (is_admin_time_set != were_admin_time_set ||
                 (is_admin_time_set && were_time != data.time)) {
-            if ($('#admin-time-reason').length == 0) {
+            if ($('#admin-time-reason').length === 0) {
                 $('<p id="admin-time-reason"></p>').text(
                         gettext("Reason: Admin-time status has changed.")
                     ).appendTo('#modal-outdated .modal-body');

@@ -1,3 +1,4 @@
+/* jshint unused:false */
 function startRefreshingBalloons(body_url) {
     var prev_body;
     setInterval(function() {

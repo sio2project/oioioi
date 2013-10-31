@@ -8,7 +8,7 @@ $(function() {
 
         if (!before && is_under_su) {
             $('#main-navbar').addClass('under-su');
-            $('#su-label').show()
+            $('#su-label').show();
         } else if (before && !is_under_su) {
             $('#main-navbar').removeClass('under-su');
             $('#su-label').hide();
@@ -17,7 +17,7 @@ $(function() {
         $('#username').text(data.user);
 
         if (data.user != were_user) {
-            if ($('#su-user-reason').length == 0) {
+            if ($('#su-user-reason').length === 0) {
                 $('<p id="su-user-reason"></p>').text(gettext(
                     "Reason: User assoctiated with this session has changed."
                 )).appendTo('#modal-outdated .modal-body');
