@@ -111,7 +111,7 @@ class OIContestController(ProgrammingContestController):
             return True
         if not is_participant(request):
             return False
-        return super(OIContestController, self)\
+        return super(OIContestController, self) \
                 .can_submit(request, problem_instance, check_round_times)
 
     def can_see_stats(self, request):

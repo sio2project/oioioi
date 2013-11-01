@@ -182,6 +182,7 @@ INSTALLED_APPS = (
 #    'oioioi.pa',
 #    'oioioi.notifications',
 #    'oioioi.prizes'
+#    'oioioi.mailsubmit',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

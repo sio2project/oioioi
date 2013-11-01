@@ -37,5 +37,5 @@ def latex_escape(x):
     ]
 
     for key, value in repls:
-        res = res.replace(key, value + '\\q{}')
+        res = res.replace(key, value)
     return res

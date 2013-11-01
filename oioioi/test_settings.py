@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'oioioi.pa',
     'oioioi.notifications',
     'oioioi.prizes',
+    'oioioi.mailsubmit',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -97,7 +98,7 @@ ZEUS_INSTANCES = {
     'zeus_incorrect': ('__use_object__',
                        'oioioi.zeus.tests.ZeusIncorrectServer', ''),
     'dummy': ('__use_object__',
-                   'oioioi.zeus.tests.ZeusDummyServer', ''),
+              'oioioi.zeus.tests.ZeusDummyServer', ''),
 }
 
 CACHES = {

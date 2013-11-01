@@ -1,0 +1,37 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Upload solution for postal submission" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Postal submission" %}</h2>
+<div class="reading-width">
+    {% blocktrans %}
+    <p>You do not like fiddling with pendrives and CD-ROMs in the mail, do you?
+    We don't, too.</p>
+    <p>This is why you can use this simplified procedure: upload your solution using
+    the form below. You will get back a PDF document, which you send to us in a regular
+    postal mail. It will take us a second to scan the code embedded in the document
+    and your submissions will be judged.</p>
+    <p>You can generate many such documents, but do not send more than one per task.
+    If we receive from you multiple documents for a single task, we will pick up one
+    randomly.</p>
+    <p>If for some reason you would like to use the standard procedure, with CD-ROMs
+    or pendrives, you still can.</p>
+    {% endblocktrans %}
+    <script>
+    $(handle_prog_lang_updates);
+    </script>
+    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+        {% csrf_token %}
+        <div class="control-group">
+            <div class="controls">
+            </div>
+        </div>
+        {% include "ingredients/form.html" %}
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        </div>
+    </form>
+</div>
+{% endblock %}

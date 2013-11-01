@@ -413,3 +413,6 @@ BALLOON_ACCESS_COOKIE_EXPIRES_DAYS = 7
 # competitions to show results online). Does not influence the data for
 # admins or observers.
 LIVEDATA_CACHE_TIMEOUT = 30
+
+# Submissions by (snail) mail
+MAILSUBMIT_CONFIRMATION_HASH_LENGTH = 5

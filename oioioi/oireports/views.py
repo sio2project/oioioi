@@ -1,8 +1,4 @@
-import os
-import shutil
 import itertools
-import subprocess
-from tempfile import mkdtemp, mkstemp
 from operator import attrgetter
 
 from django.template.loader import render_to_string
@@ -10,11 +6,12 @@ from django.template.response import TemplateResponse
 from django.template import RequestContext
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
-from django.core.files.base import ContentFile, File
+from django.core.files.base import ContentFile
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
 from oioioi.base.permissions import enforce_condition
+from oioioi.base.utils.pdf import generate_pdf
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.filetracker.utils import stream_file
@@ -217,39 +214,11 @@ def _report_text(request, template_file, report_form):
 
 def generate_pdfreport(request, report_form):
     report = _report_text(request, 'oireports/pdfreport.tex', report_form)
-    # Create temporary file and folder
-    tmp_folder = mkdtemp()
-    try:
-        tex_file, tex_filename = mkstemp(dir=tmp_folder)
-
-        # Pass the TeX template through Django templating engine
-        # and into the temp file
-        os.write(tex_file, report.encode('utf-8'))
-        os.close(tex_file)
-
-        # Compile the TeX file with PDFLaTeX
-        # \write18 is disabled by default, so no LaTeX injection should happen
-        for _i in xrange(3):
-            p = subprocess.Popen([
-                    'pdflatex',
-                    '-output-directory=' + tmp_folder,
-                    tex_filename
-                ],
-                stdin=open('/dev/null'),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
-            stdout, _stderr = p.communicate()
-            if p.returncode:
-                raise RuntimeError('pdflatex failed: ' + stdout)
-
-        # Get PDF file contents
-        pdf_file = open(tex_filename + '.pdf', 'r')
-        filename = '%s-%s-%s.pdf' % (request.contest.id,
+    filename = '%s-%s-%s.pdf' % (request.contest.id,
             report_form.cleaned_data['report_round'],
             report_form.cleaned_data['report_region'])
-        return stream_file(File(pdf_file), filename)
-    finally:
-        shutil.rmtree(tmp_folder)
+
+    return generate_pdf(report, filename)
 
 
 def generate_xmlreport(request, report_form):

@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load latex_escape %}
+
+\documentclass[a4paper,12pt]{article}
+\usepackage[polish]{babel}
+\usepackage[OT4]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{tgpagella}
+\usepackage{fancyhdr}
+\usepackage{url}
+\usepackage{pslatex}
+\usepackage{pst-barcode}
+\usepackage{auto-pst-pdf}
+\usepackage{a4wide}
+
+\renewcommand\rmdefault{qpl}
+\renewcommand\sfdefault{qag}
+\renewcommand\ttdefault{qcr}
+
+\urlstyle{rm}
+
+\pagestyle{fancy}
+\fancyhead[L]{\small {{ submission.user.get_full_name|latex_escape }} ({{ submission.user.username|latex_escape }}) }
+\fancyhead[R]{\small {% trans "ID" %}: {{ submission.id }}}
+\fancyfoot[C]{\small {% trans "SHA-256 of the uploaded file" %}:\\{{ source_hash|latex_escape }}\\
+{% blocktrans %}You can check the SHA-256 of any file at \url{http://hash.online-convert.com/sha256-generator}.{% endblocktrans %}}
+
+\begin{document}
+\begin{center}
+    \section*{ {{ contest.name|latex_escape }} }
+    \subsection*{ {% trans "Postal submission" %} }
+            {% trans "Task" %}: {{ submission.problem_instance.problem.name|latex_escape }}
+\end{center}
+
+\subsection*{}
+{{ config.printout_text|safe }}
+\vspace{20pt}
+\begin{center}
+    \subsection*{ {{ submission.id }}/{{ submission_hash|latex_escape }} }
+    \vspace{10pt}
+    \begin{pspicture}(3in,3in)
+        \psbarcode{ {{ qrcode_content|latex_escape }} }{eclevel=L width=3 height=3}{qrcode}
+    \end{pspicture}
+\end{center}
+
+\end{document}
