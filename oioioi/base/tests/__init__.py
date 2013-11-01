@@ -639,7 +639,7 @@ class TestAdmin(TestCase):
         manager = import_users.Command()
         manager.run_from_argv(['manage.py', 'import_users', filename])
 
-        self.assertEqual(User.objects.count(), 5)
+        self.assertEqual(User.objects.count(), 6)
         user4 = authenticate(username='test_user4', password='spam')
         self.assertEqual(user4.first_name, "Test")
         self.assertEqual(user4.last_name, "User 4")

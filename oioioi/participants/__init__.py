@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 
 from oioioi.contestexcl.middleware import ExclusiveContestsMiddleware
-from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.utils import is_contest_with_participants
 
 

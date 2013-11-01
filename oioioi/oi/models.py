@@ -119,8 +119,7 @@ class OIRegistration(RegistrationModel):
     birthplace = models.CharField(max_length=255, verbose_name=_("birthplace"))
     t_shirt_size = models.CharField(max_length=7, choices=T_SHIRT_SIZES,
         verbose_name=_("t-shirt size"))
-    school = models.ForeignKey(School, null=True, on_delete=models.SET_NULL,
-        verbose_name=_("school"))
+    school = models.ForeignKey(School, null=True, verbose_name=_("school"))
     class_type = models.CharField(max_length=7, choices=CLASS_TYPES,
         verbose_name=_("class"))
     terms_accepted = models.BooleanField(_("terms accepted"))
