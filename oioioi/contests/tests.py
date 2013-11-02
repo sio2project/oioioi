@@ -1251,6 +1251,21 @@ class TestSubmissionChangeKind(TestCase):
         self.assertEqual(urp.score, 100)
         self.assertEqual(urc.score, 100)
 
+        self.change_kind(s2, 'NORMAL')
+
+        urp = UserResultForProblem.objects.get(user__username='test_user',
+                problem_instance=pi)
+        self.assertEqual(urp.score, 90)
+
+        self.change_kind(s2, 'IGNORED_HIDDEN')
+        urp = UserResultForProblem.objects.get(user__username='test_user',
+                                               problem_instance=pi)
+        urc = UserResultForContest.objects.get(user__username='test_user',
+                                               contest=contest)
+        self.assertEqual(urp.score, 100)
+        self.assertEqual(urc.score, 100)
+
+
 
 class TestSubmitSelectOneProblem(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

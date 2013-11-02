@@ -265,8 +265,12 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
 
 submission_kinds = EnumRegistry()
 submission_kinds.register('NORMAL', _("Normal"))
+#: Like NORMAL, but score has no effect on anything
 submission_kinds.register('IGNORED', _("Ignored"))
+#: Won't be graded unless approved by admin
 submission_kinds.register('SUSPECTED', _("Suspected"))
+#: Like IGNORED, but user shall not see it anymore
+submission_kinds.register('IGNORED_HIDDEN', _("Ignored-Hidden"))
 
 submission_statuses = EnumRegistry()
 submission_statuses.register('?', _("Pending"))

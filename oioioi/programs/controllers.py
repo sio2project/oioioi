@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController, \
@@ -27,7 +28,6 @@ from oioioi.programs.utils import has_report_actions_config
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
-from oioioi.base.utils.user_selection import UserSelectionField
 
 logger = logging.getLogger(__name__)
 
@@ -516,20 +516,29 @@ class ProgrammingContestController(ContestController):
                     SubmissionReport.objects.filter(id=submission_report.id))
                     .exists())
 
-    def can_see_source(self, request, submission):
-        """Determines if the current user is allowed to see source
-           of ``submission``.
+    def filter_visible_sources(self, request, queryset):
+        """Determines which sources the user could see.
 
            This usually involves cross-user privileges, like publicizing
-           sources.
-           Default implementations delegates to
+           sources. Default implementations delegates to
            :meth:`~ContestController.filter_my_visible_submissions`, except for
            admins and observers, which get full access.
+
+           Queryset's model should be oioioi.contest.Submission
         """
         if is_contest_admin(request) or is_contest_observer(request):
-            return True
-        queryset = Submission.objects.filter(id=submission.id)
-        return self.filter_my_visible_submissions(request, queryset).exists()
+            return queryset
+        return self.filter_my_visible_submissions(request, queryset)
+
+    def can_see_source(self, request, submission):
+        """Check if submission's source should be visible.
+           :type submission: oioioi.contest.Submission
+
+           Consider using filter_visible_sources instead, especially for batch
+           queries.
+        """
+        qs = Submission.objects.filter(id=submission.id)
+        return self.filter_visible_sources(request, qs).exists()
 
     def render_submission(self, request, submission):
         if submission.kind == 'USER_OUTS':

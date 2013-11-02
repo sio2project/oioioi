@@ -76,7 +76,6 @@ def show_input_file_view(request, contest_id, submission_id):
 def download_input_file_view(request, contest_id, submission_id):
     submission = get_submission_or_error(request, contest_id, submission_id,
                                          TestRunProgramSubmission)
-
     return stream_file(submission.input_file, name='input.in')
 
 

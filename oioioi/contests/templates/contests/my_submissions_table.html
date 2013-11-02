@@ -1,5 +1,5 @@
 {% load i18n %}
-<table class="{% block table-classes %}table auto-width dense space-columns{% endblock %}">
+<table class="{% block table-classes %}table auto-width dense space-columns submissions_list{% endblock %}">
     <thead>
         <tr>
             <th></th>
@@ -15,7 +15,7 @@
     <tbody>
         {% for record in submissions %}
         {% url 'submission' contest_id=contest.id submission_id=record.submission.id as link %}
-        <tr>
+        <tr class="subm_kind_{{ record.submission.kind }}">
             <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"></td>
             <td><a href="{{ link }}">{{ record.submission.get_date_display }}</a></td>
             <td>{{ record.submission.problem_instance }}{% if record.submission.kind != 'NORMAL' %} ({{ record.submission.get_kind_display }}){% endif %}</td>

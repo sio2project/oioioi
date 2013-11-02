@@ -146,7 +146,7 @@ def points_to_source_length_problem(request, problem):
                   'contest_id': contest.id}
         if visible_submissions.filter(id=s.id).exists():
             record['url'] = reverse('submission', kwargs=kwargs)
-        elif controller.can_see_source(request, s):
+        elif controller.can_see_source(request, s.submission_ptr):
             record['url'] = reverse('show_submission_source', kwargs=kwargs)
 
         data.append(record)

@@ -67,3 +67,17 @@ td.subm_margin {
     }
 }
 
+.submissions_list tr {
+    &.subm_kind_TESTRUN, &.subm_kind_IGNORED {
+        color: @grayLight;
+    }
+
+    &.subm_kind_SUSPECTED {
+        background-color: @errorBackground;
+    }
+
+    &.subm_kind_IGNORED_HIDDEN {
+        background-color: @warningBackground;
+        color: @grayLight;
+    }
+}

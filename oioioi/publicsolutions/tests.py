@@ -152,7 +152,7 @@ class TestPublicSolutions(TestCase):
             self.client.logout()
 
         # 'test_user' doesn't see submissions from rounds that start in future,
-        # this way works controller.can_see_source
+        # that's the way controller.filter_visible_sources works.
         with fake_time(self._no_public_rounds()):
             check_sources_access([], [1], 'test_user')
 

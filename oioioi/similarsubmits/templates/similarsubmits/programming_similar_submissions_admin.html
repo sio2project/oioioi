@@ -1,0 +1,71 @@
+{% load i18n %}
+{% load dictutils %}
+
+<div class="disqualification-reason">
+    <h5>{% trans "Cooperation" %}</h5>
+    {% blocktrans count similarities|length as counter%}
+        This submission was found to be suspiciously similar to the submissions from following group:
+    {% plural %}
+        This submission was found to be suspiciously similar to the submissions from following groups:
+    {% endblocktrans %}
+
+    {% for group in similarities %}
+    {% url 'oioioiadmin:similarsubmits_submissionssimilaritygroup_change' group.id as admin_link %}
+
+    <h6>{% trans "Group" %} <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-toggle="tooltip" title="{% trans "Edit" %}"><i class="icon-edit"></i></a></h6>
+    <div class="similarity-group">
+    <blockquote><p>{{ group.comment|linebreaks }}</p></blockquote>
+    <table class="{% block table-classes %}table auto-width dense space-columns submissions_list{% endblock %}">
+        <thead>
+        <tr>
+            <th style="min-width: 50px">{% trans "ID" %}</th>
+            <th style="min-width: 150px">{% trans "Submission time" %}</th>
+            <th style="min-width: 120px">{% trans "Contestant" %}</th>
+            <th style="min-width: 50px">{% trans "Guilty" %}</th>
+            <th style="min-width: 100px" colspan="2">{% trans "Actions" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for entry in group.submissions.all %}
+            {% with entry.submission as similar_to %}
+            {% url 'submission' contest_id=contest.id submission_id=similar_to.id as link %}
+            {% url 'mark_guilty' contest_id=contest.id entry_id=entry.id as guilty_link %}
+            {% url 'mark_not_guilty' contest_id=contest.id entry_id=entry.id as not_guilty_link %}
+            {% url 'show_submission_source' contest_id=contest.id submission_id=similar_to.id as source_link %}
+            {% url 'download_submission_source' contest_id=contest.id submission_id=similar_to.id as download_link %}
+            {% url 'source_diff' contest_id=contest.id submission1_id=main_submission_id submission2_id=similar_to.id as diff_link %}
+            <tr>
+                <td><a href="{{ link }}">{{ similar_to.id }}</a></td>
+                <td><a href="{{ link }}">{{ similar_to.get_date_display }}</a>{% if similar_to.kind != 'NORMAL' %} ({{ similar_to.get_kind_display }}){% endif %}</td>
+                <td>{{ similar_to.user.get_full_name }}</td>
+                <td>
+                    <i class="icon-{% if entry.guilty %}warning-sign{% else %}minus{% endif %}"></i>
+                </td>
+                <td>
+                    {% if similar_to.kind != 'IGNORED_HIDDEN' %}
+                        {% if entry.guilty %}
+                        <a href="#" data-post-url="{{ not_guilty_link }}" data-toggle="tooltip" title="{% trans "Mark not guilty" %}"><i class="icon-thumbs-up"></i></a>
+                        {% else %}
+                        <a href="#" data-post-url="{{ guilty_link }}" data-toggle="tooltip" title="{% trans "Mark guilty" %}"><i class="icon-thumbs-down"></i></a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% with submission_contexts|lookup:similar_to as context %}
+                    {% for value, description in context.valid_kinds_for_submission %}
+                        <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=similar_to.id kind=value %}" data-toggle="tooltip" title="{% trans "Change kind:" %} {{ description }} {% trans "(and mark not guilty)" %}"><i class="icon-tag"></i></a>
+                    {% endfor %}
+                    {% endwith %}
+                </td>
+                <td>
+                    <a href="{{ diff_link }}" data-toggle="tooltip" title="{% trans "Show diff" %}"><i class="icon-resize-small"></i></a>
+                    <a href="{{ source_link }}" data-toggle="tooltip" title="{% trans "Show code" %}"><i class="icon-eye-open"></i></a>
+                    <a href="{{ download_link }}" data-toggle="tooltip" title="{% trans "Download" %}"><i class="icon-download-alt"></i></a>
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    {% endfor %}
+</div>

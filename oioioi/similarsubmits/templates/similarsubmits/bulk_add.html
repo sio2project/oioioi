@@ -1,0 +1,19 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Bulk add similar submits" %}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Bulk add similar submits" %}</h2>
+    <div class="corner-icons">
+            <a class="btn btn-small" href="{% url 'oioioiadmin:similarsubmits_submissionssimilaritygroup_add' %}"><i class="icon-plus"></i> {% trans "Add by selecting" %}</a>
+    </div>
+    <form method="post" action="" class="form-horizontal">
+        {% csrf_token %}
+        {% include "ingredients/form.html" %}
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        </div>
+    </form>
+{% endblock %}
+

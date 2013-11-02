@@ -34,9 +34,10 @@ class PublicSolutionsContestControllerMixin(object):
         """
         return qs.none()
 
-    def can_see_source(self, request, submission):
-        return super(PublicSolutionsContestControllerMixin, self) \
-                    .can_see_source(request, submission) or \
-               get_public_solutions(request).filter(pk=submission.pk).exists()
+    def filter_visible_sources(self, request, queryset):
+        subs = get_public_solutions(request)
+        prev = super(PublicSolutionsContestControllerMixin, self) \
+                    .filter_visible_sources(request, queryset)
+        return (prev | (subs & queryset)).distinct()
 
 ProgrammingContestController.mix_in(PublicSolutionsContestControllerMixin)

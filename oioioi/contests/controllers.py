@@ -337,7 +337,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            If not, everything connected with this round will be hidden.
 
-           The default implementation checks round dates.
+           The default implementation checks if the round is not in the future.
         """
         if is_contest_admin(request):
             return True
@@ -716,18 +716,20 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            "My submissions" view.
 
            The default implementation returns all submissions belonging to
-           the user for the problems that are visible.
+           the user for the problems that are visible, except for admins, which
+           get all their submissions.
 
            Should return the updated queryset.
         """
         if not request.user.is_authenticated():
             return queryset.none()
-        qs = queryset.filter(user=request.user) \
-            .filter(problem_instance__in=visible_problem_instances(request))
+        qs = queryset.filter(user=request.user)
         if is_contest_admin(request):
             return qs
         else:
-            return qs.filter(date__lte=request.timestamp)
+            return qs.filter(date__lte=request.timestamp) \
+            .filter(problem_instance__in=visible_problem_instances(request)) \
+            .exclude(kind='IGNORED_HIDDEN')
 
     def results_visible(self, request, submission):
         """Determines whether it is a good time to show the submission's
@@ -882,9 +884,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            for the given submission.
 
            Default implementation supports only kinds
-           ``NORMAL``, ``IGNORED``, ``SUSPECTED``.
+           ``NORMAL``, ``IGNORED``, ``SUSPECTED``, 'IGNORED_HIDDEN'.
         """
-        valid = ['NORMAL', 'IGNORED', 'SUSPECTED']
+        valid = ['NORMAL', 'IGNORED', 'SUSPECTED', 'IGNORED_HIDDEN']
         if submission.kind != 'SUSPECTED':
             return [v for v in valid if v != 'SUSPECTED']
         if submission.kind in valid:

@@ -1,0 +1,46 @@
+{% load i18n %}
+
+<div class="disqualification-reason">
+<h5>{% trans "Cooperation" %}</h5>
+{% blocktrans count similarities|length as counter%}
+    This submission was found to be suspiciously similar to the solutions provided by other contestants, thus we believe you were not working on your own,
+    and probably cooperated in the following group:
+{% plural %}
+    This submission was found to be suspiciously similar to the solutions provided by other contestants, thus we believe you were not working on your own,
+    and probably cooperated in the following groups:
+{% endblocktrans %}
+
+    {% for group in similarities %}
+    <div class="similarity-group">
+        <table class="{% block table-classes %}table auto-width dense space-columns submissions_list{% endblock %}">
+            <thead>
+            <tr>
+                <th style="min-width: 150px">{% trans "Submission time" %}</th>
+                <th style="min-width: 120px">{% trans "Contestant" %}</th>
+                <th style="min-width: 200px"></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for entry in group.submissions.all %}
+            {% with entry.submission as similar_to %}
+            {% if similar_to.id != main_submission_id %}
+                {% url 'show_submission_source' contest_id=contest.id submission_id=similar_to.id as source_link %}
+                {% url 'download_submission_source' contest_id=contest.id submission_id=similar_to.id as download_link %}
+                {% url 'source_diff' contest_id=contest.id submission1_id=main_submission_id submission2_id=similar_to.id as diff_link %}
+                <tr>
+                    <td><a href="{{ source_link }}">{{ similar_to.get_date_display }}</a></td>
+                    <td>{{ similar_to.user.get_full_name }}</td>
+                    <td>
+                        <a href="{{ diff_link }}" class="btn btn-mini"><i class="icon-resize-small"></i> {% trans "Show diff" %}</a>
+                        <a href="{{ source_link }}" class="btn btn-mini"><i class="icon-eye-open"></i> {% trans "Show code" %}</a>
+                        <a href="{{ download_link }}" class="btn btn-mini"><i class="icon-download-alt"></i> {% trans "Download" %}</a>
+                    </td>
+                </tr>
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endfor %}
+</div>

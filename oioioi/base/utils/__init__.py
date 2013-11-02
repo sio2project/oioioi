@@ -528,3 +528,35 @@ def get_user_display_name(user):
        the username otherwise.
     """
     return user.get_full_name() or user.username
+
+
+# Miscellaneous
+
+
+def find_closure(groups):
+    """Finds closure of sets.
+
+       If any two elements were within same input set,they will be in
+       one unique set in the output.
+
+       >>> find_closure([[1, 2], [2, 3], [4]])
+       [[1, 2, 3], [4],]
+    """
+    parent = {}
+
+    def find(elem):
+        if parent[elem] != elem:
+            parent[elem] = find(parent[elem])
+        return parent[elem]
+
+    def union(elem1, elem2):
+        parent[find(elem1)] = find(elem2)
+
+    for group in groups:
+        for elem in group:
+            parent.setdefault(elem, elem)
+            union(elem, group[0])
+    new_groups = {}
+    for elem in parent.keys():
+        new_groups.setdefault(find(elem), []).append(elem)
+    return new_groups.values()
