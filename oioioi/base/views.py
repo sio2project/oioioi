@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.shortcuts import render_to_response, redirect, render
 from django.http import HttpResponse, HttpResponseForbidden

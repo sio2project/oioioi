@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from django.core.management.base import BaseCommand, CommandError
 from oioioi.ipdnsauth.models import IpToUser, DnsToUser
 from django.contrib.auth.models import User

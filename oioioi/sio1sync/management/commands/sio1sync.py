@@ -1,3 +1,5 @@
+# pylint: disable=W0601
+# Global variable '%s' undefined at the module level
 import logging
 import logging.config
 import time

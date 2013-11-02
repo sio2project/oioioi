@@ -1,3 +1,5 @@
+# pylint: disable=E1103
+# Instance of 'OIRegistrationForm' has no 'is_valid' member
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _

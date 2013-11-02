@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from oioioi.base.utils import get_object_by_dotted_name
 
 from celery.task import task

@@ -90,3 +90,10 @@ class FiletrackerStorage(Storage):
     def url(self, name):
         return reverse('oioioi.filetracker.views.raw_file_view',
                 kwargs={'file_name': name})
+
+    def path(self, name):
+        raise NotImplementedError("File is in Filetracker, cannot get its" \
+                                  " local path")
+
+    def listdir(self, path):
+        raise NotImplementedError("Filetracker doesn't provide path listing")

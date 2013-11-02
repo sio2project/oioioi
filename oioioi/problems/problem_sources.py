@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from django.conf import settings
 from django import forms
 from django.db import transaction

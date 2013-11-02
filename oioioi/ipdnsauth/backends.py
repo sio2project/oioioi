@@ -36,7 +36,7 @@ class IpDnsBackend(ModelBackend):
         if ip:
             try:
                 return socket.gethostbyaddr(ip)[0]
-            except Exception:
+            except socket.herror:
                 pass
 
         return None

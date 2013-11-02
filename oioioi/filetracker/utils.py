@@ -1,3 +1,5 @@
+# pylint: disable=W0201
+# Attribute '_size' defined outside __init__
 from django.core.servers.basehttp import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File

@@ -1,3 +1,5 @@
+# pylint: disable=E0611
+# No name 'HtmlFormatter' in module 'pygments.formatters'
 import difflib
 
 from django.core.exceptions import PermissionDenied

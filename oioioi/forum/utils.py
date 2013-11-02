@@ -57,29 +57,25 @@ def is_not_locked(request):
     return (not request.contest.forum.is_locked(request.timestamp)) or \
             is_contest_admin(request)
 
-
-def get_forum_objects(request, cat_id=None, thread_id=None, post_id=None,
-                      lock_required=False):
-    ret = []
-    forum = request.contest.forum
-    ret.append(forum)
-    if cat_id:
-        cat = get_object_or_404(Category, id=cat_id)
-        ret.append(cat)
-    if thread_id:
-        thread = get_object_or_404(Thread, id=thread_id)
-        ret.append(thread)
-    if post_id:
-        post = get_object_or_404(Post, id=post_id)
-        ret.append(post)
-    if lock_required:
-        is_locked = request.contest.forum.is_locked(request.timestamp)
-        ret.append(is_locked)
-    return ret
+@make_request_condition
+def forum_is_locked(request):
+    return request.contest.forum.is_locked(request.timestamp)
 
 
-def get_msgs(forum, request):
+def get_forum_ct(category_id, thread_id):
+    to_get = [(Category, category_id), (Thread, thread_id)]
+    return tuple([get_object_or_404(t, id=i) for (t, i) in to_get])
+
+
+def get_forum_ctp(category_id, thread_id, post_id):
+    to_get = [(Category, category_id), (Thread, thread_id), (Post, post_id)]
+    return tuple([get_object_or_404(t, id=i) for (t, i) in to_get])
+
+
+def get_msgs(request, forum=None):
     now = timezone.now()
+    if forum is None:
+        forum = request.contest.forum
     if forum.is_locked(request.timestamp):
         return _("This forum is locked, it is not possible to add "
                  "or edit posts right now")

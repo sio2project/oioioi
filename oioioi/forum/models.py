@@ -40,7 +40,7 @@ class Forum(models.Model):
         return bool(self.unlock_date and now >= self.unlock_date)
 
     def is_locked(self, now=None):
-        """Returns true if forum is locked and not unlocked.."""
+        """Returns true if forum is locked and not unlocked"""
         return bool(self.is_autolocked(now) and not self.is_autounlocked(now))
 
 

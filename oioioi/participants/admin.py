@@ -171,6 +171,9 @@ class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
                                                                self.admin_site)
         return participant_admin
 
+    def _model_admin_for_instance(self, request, instance=None):
+        raise NotImplementedError
+
 admin.site.register(Participant, ContestDependentParticipantAdmin)
 contest_admin_menu_registry.register('participants', _("Participants"),
     lambda request: reverse('oioioiadmin:participants_participant_changelist'),

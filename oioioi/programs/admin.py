@@ -102,14 +102,22 @@ class ProgrammingProblemInstanceAdminMixin(object):
         if not request.user.has_perm('contests.contest_admin', contest):
             raise PermissionDenied
 
-        test_reports = TestReport.objects \
-                .filter(submission_report__submission__problem_instance=problem_instance) \
-                .filter(submission_report__submission__programsubmission__modelprogramsubmission__isnull=False) \
-                .filter(test__isnull=False) \
+        filter_kwargs = {
+            'test__isnull': False,
+            'submission_report__submission__problem_instance':
+                problem_instance,
+            'submission_report__submission__programsubmission' \
+                    '__modelprogramsubmission__isnull': False
+        }
+        test_reports = TestReport.objects.filter(**filter_kwargs) \
                 .select_related()
-        group_reports = GroupReport.objects \
-                .filter(submission_report__submission__problem_instance=problem_instance) \
-                .filter(submission_report__submission__programsubmission__modelprogramsubmission__isnull=False) \
+        filter_kwargs = {
+            'submission_report__submission__problem_instance':
+                problem_instance,
+            'submission_report__submission__programsubmission' \
+                    '__modelprogramsubmission__isnull': False
+        }
+        group_reports = GroupReport.objects.filter(**filter_kwargs) \
                 .select_related()
         submissions = ModelProgramSubmission.objects \
                 .filter(problem_instance=problem_instance) \

@@ -1,3 +1,5 @@
+# pylint: disable=E1103
+# Instance of 'Problem' has no 'statements' member
 import glob
 import logging
 import re
