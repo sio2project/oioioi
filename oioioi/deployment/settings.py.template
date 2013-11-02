@@ -169,6 +169,7 @@ INSTALLED_APPS = (
 #    'oioioi.confirmations',
 #    'oioioi.acm',
 #    'oioioi.forum',
+#    'oioioi.disqualification',
 #    'oioioi.sharingcli',
 #    'oioioi.ctimes',
 #    'oioioi.suspendjudge',

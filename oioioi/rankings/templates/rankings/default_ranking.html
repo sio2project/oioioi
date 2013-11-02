@@ -22,7 +22,7 @@
     </thead>
     <tbody>
         {% for row in rows %}
-        <tr id="ranking_row_{{ row.user.id }}">
+        <tr id="ranking_row_{{ row.user.id }}" class="{% block row-classes %}{% endblock %}">
             <td class="text-right">{{ row.place }}</td>
             <td>{% public_name row.user %}</td>
             {% for result in row.results %}

@@ -1,0 +1,14 @@
+[
+{
+  "pk": 1,
+  "model": "disqualification.disqualification",
+  "fields": {
+    "submission": 1,
+    "title": "Saying Ni in code",
+    "contest": "c",
+    "guilty": true,
+    "content": "Ni! Niiiiii! nininininininnininininini!",
+    "user": 1001
+  }
+}
+]

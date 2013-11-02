@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load check_perm %}
+
+<div class="alert alert-error alert-block disqualification-box">
+    <h3>{% trans "Disqualification" %}</h3>
+    {% if submissions %}
+    {% blocktrans %}
+        <p>
+            We have found that at least one of your submission is not being compliant with terms of the contest:
+        </p>
+    {% endblocktrans %}
+    {% for offending in submissions %}
+        <div class="disqualification-submission-reason">
+            {% url 'submission' contest_id=contest.id submission_id=offending.submission.id as link %}
+            <h4>{% trans "Offending submission:" %} <a href="{{ link }}">{{ offending.submission.get_date_display }}</a></h4>
+            {{ offending.reason }}
+        </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if contestwide %}
+        {% blocktrans %}
+            <p>
+                We have we are going to disqualify you by the following reason:
+            </p>
+            {{ contestwide }}
+        {% endblocktrans %}
+    {% endif %}
+
+    {% blocktrans %}
+        <p>
+            By the power of the contest rules you are going to be disqualified.
+            If you are willing to plea, please use Complaints form.
+        </p>
+    {% endblocktrans %}
+</div>

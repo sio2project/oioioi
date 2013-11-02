@@ -518,6 +518,30 @@ class TestUtils(unittest.TestCase):
         with self.assertRaises(AssertionError):
             Derived1.mix_in(Mixin3)
 
+    def test_mixins_mro(self):
+        class Base(utils.ObjectWithMixins):
+            name = 'base'
+
+            def foo(self):
+                return 'bar'
+
+        class Mixin1(object):
+            name = 'mixin1'
+
+            def foo(self):
+                return 'eggs'
+        Base.mix_in(Mixin1)
+
+        class Mixin2(object):
+            name = 'mixin2'
+
+            def foo(self):
+                return 'spam'
+        Base.mix_in(Mixin2)
+
+        self.assertEqual(Base().name, 'mixin1')
+        self.assertEqual(Base().foo(), 'eggs')
+
     def test_registered_with_mixing(self):
         class Base(utils.ObjectWithMixins, utils.RegisteredSubclassesBase):
             spam = 'spam'

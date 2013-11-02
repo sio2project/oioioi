@@ -43,7 +43,6 @@ ContestController.mix_in(RankingMixinForContestController)
 
 
 class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
-
     modules_with_subclasses = ['controllers']
     abstract = True
 
@@ -197,9 +196,15 @@ class DefaultRankingController(RankingController):
         return render_to_string('rankings/default_ranking.html',
                 context_instance=RequestContext(request, data))
 
-    def _render_ranking_csv_line(self, row):
-        line = [row['place'], row['user'].username, row['user'].first_name,
-                row['user'].last_name]
+    def _get_csv_header(self, request, data):
+        header = [_("No."), _("First name"), _("Last name")]
+        for pi, _statement_visible in data['problem_instances']:
+            header.append(pi.get_short_name_display())
+        header.append(_("Sum"))
+        return header
+
+    def _get_csv_row(self, request, row):
+        line = [row['place'], row['user'].first_name, row['user'].last_name]
         line += [r.score if r and r.score is not None else ''
                  for r in row['results']]
         line.append(row['sum'])
@@ -214,15 +219,11 @@ class DefaultRankingController(RankingController):
                     u'%s-%s-%s.csv' % (_("ranking"), request.contest.id, key))
         writer = unicodecsv.writer(response)
 
-        header = [_("#"), _("Username"), _("First name"), _("Last name")]
-        for pi, dummy_statement_visible in data['problem_instances']:
-            header.append(pi.get_short_name_display())
-        header.append(_("Sum"))
-        writer.writerow(map(force_unicode, header))
-
+        writer.writerow(map(force_unicode,
+                        self._get_csv_header(request, data)))
         for row in data['rows']:
-            line = self._render_ranking_csv_line(row)
-            writer.writerow(map(force_unicode, line))
+            writer.writerow(map(force_unicode,
+                            self._get_csv_row(request, row)))
 
         return response
 

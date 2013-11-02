@@ -212,10 +212,20 @@ class ACMRankingController(DefaultRankingController):
         return render_to_string('acm/acm_ranking.html',
                 context_instance=RequestContext(request, data))
 
-    def _render_ranking_csv_line(self, row):
-        line = [row['place'], row['user'].first_name, row['user'].last_name]
-        line += [unicode(r.score if r and r.score is not None else '')
-            for r in row['results']]
+    def _get_csv_header(self, request, data):
+        header = [_("#"), _("Username"), _("First name"), _("Last name"),
+                  _("Solved")]
+        for pi in data['problem_instances']:
+            header.append(pi.get_short_name_display())
+        header.append(_("Sum"))
+        return header
+
+    def _get_csv_row(self, request, row):
+        line = [row['place'], row['user'].username, row['user'].first_name,
+                row['user'].last_name]
+        line.append(row['sum'].problems_solved)
+        line += [r.score.csv_repr() if r and r.score is not None else ''
+                 for r in row['results']]
         line.append(row['sum'].total_time_repr())
         return line
 

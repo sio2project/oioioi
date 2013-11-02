@@ -1,0 +1,17 @@
+{% load i18n %}
+{% load check_perm %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+
+<div class="alert alert-danger alert-block disqualification-box">
+    <h4>{% trans "Disqualification" %}</h4>
+    {% blocktrans %}
+    <p>
+        We have found your submission not being compliant with terms of the contest by breaking following rules:
+    </p>
+    {{ reason }}
+    <p>
+        By the power of the contest rules you are going to be disqualified.
+        If you are willing to plea, please use Complaints form.
+    </p>
+    {% endblocktrans %}
+</div>

@@ -864,6 +864,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         else:
             raise NotImplementedError
 
+    def render_my_submissions_header(self, request, submissions):
+        """Renders header on "My submissions" view.
+
+           Default implementation returns empty string.
+        """
+        return mark_safe("")
+
     def adjust_contest(self):
         """Called when a (usually new) contest has just got the controller
            attached or after the contest has been modified."""

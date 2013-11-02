@@ -116,7 +116,7 @@ class TestRankingViews(TestCase):
             response = self.client.get(get_url_for_user(user.username))
             # Checking if user wasn't redirected (is on page 1)
             # User with the highest score should be visible
-            self.assertIn('<tr id="ranking_row_%s">' % users[-1].id,
+            self.assertIn('<tr id="ranking_row_%s"' % users[-1].id,
                           response.content)
 
     def test_ranking_view(self):

@@ -1,0 +1,15 @@
+{% load i18n check_perm %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+
+{% for reason in reasons %}
+<div class="disqualification-reason{% if not reason.guilty %} muted{% endif %} ">
+    {% url 'oioioiadmin:disqualification_disqualification_change' reason.id as admin_link %}
+    <h5>{{ reason.title }}
+        {% if is_admin %}
+            {% if not reason.guilty %} {% trans "(not guilty)" %}{% endif %}
+            <a href="{{ admin_link }}?came_from={{ request.get_full_path|urlencode }}" data-toggle="tooltip" title="{% trans "Edit" %}"><i class="icon-edit"></i></a>
+        {% endif %}
+    </h5>
+    {{ reason.content }}
+</div>
+{% endfor %}

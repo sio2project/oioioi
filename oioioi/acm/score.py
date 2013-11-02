@@ -102,6 +102,11 @@ class ACMScore(ScoreValue):
                 time_string += ' '
         return unicode(time_string + penalty_string)
 
+    def csv_repr(self):
+        if self.problems_solved == 0:
+            return ''
+        return unicode(self.penalties_count)
+
     def penalty_repr(self):
         if self.penalties_count <= 3:
             return '*' * self.penalties_count

@@ -30,6 +30,7 @@ INSTALLED_APPS = (
     'oioioi.complaints',
     'oioioi.contestexcl',
     'oioioi.forum',
+    'oioioi.disqualification',
     'oioioi.confirmations',
     'oioioi.ctimes',
     'oioioi.acm',

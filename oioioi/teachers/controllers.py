@@ -26,6 +26,8 @@ class TeacherRegistrationController(ParticipantsController):
 
 class TeacherRankingController(DefaultRankingController):
     def filter_users_for_ranking(self, request, key, queryset):
+        queryset = super(TeacherRankingController, self) \
+                .filter_users_for_ranking(request, key, queryset)
         return request.contest.controller.registration_controller() \
                 .filter_participants(queryset)
 
