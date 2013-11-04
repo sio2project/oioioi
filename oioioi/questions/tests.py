@@ -55,7 +55,7 @@ class TestQuestions(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('form', response.context)
         form = response.context['form']
-        self.assertEqual(len(form.fields['category'].choices), 2)
+        self.assertEqual(len(form.fields['category'].choices) - 1, 2)
 
         post_data = {
                 'category': 'p_%d' % (pi.id,),
