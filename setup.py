@@ -40,7 +40,7 @@ setup(
         "pygments",
 
         "django-debug-toolbar",
-        "django-extensions",
+        "django-extensions>=1.0.0",
         "django-output-validator>=1.5md1",
         "werkzeug",
 
