@@ -23,7 +23,7 @@
 {% if records %} <div class="paginated-list"> {% endif %}
     <div class="message-filter">
         <form enctype="multipart/form-data" action="" class="form-horizontal">
-            {% include "ingredients/form.html" %}
+            {% include "ingredients/form.html" with focus=False %}
         </form>
         <script>
             $(function() {
