@@ -23,8 +23,14 @@
     </div>
 {% endfor %}
 
-<script>
-    $(function(){
-        if ($(":focus").length == 0) $(":input:visible:first").focus();
-    })
-</script>
+{% if focus != False %}
+    <script>
+        $(function(){
+            {% if focus %}
+                $("{{ focus }}").focus();
+            {% else %}
+                if ($(":focus").length == 0) $(":input:visible:first").focus();
+            {% endif %}
+        })
+    </script>
+{% endif %}
