@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver, Signal
 from django.core.validators import MaxLengthValidator
 from django.utils import timezone
@@ -31,18 +32,37 @@ class Message(models.Model):
             verbose_name=_("date"))
 
     def save(self, *args, **kwargs):
-        if self.top_reference:
-            self.contest = self.top_reference.contest
-            self.round = self.top_reference.round
+        # Assert integrity in this Message
+        if not self.has_category():
+            assert self.top_reference and self.top_reference.has_category()
             self.problem_instance = self.top_reference.problem_instance
-        if self.problem_instance:
+            self.round = self.top_reference.round
+        elif self.problem_instance:
             self.round = self.problem_instance.round
         self.contest = self.round.contest
+
+        # Propagate to all related Messages
+        if self.top_reference:
+            related = Message.objects.filter(Q(id=self.top_reference_id) | \
+                      Q(top_reference_id=self.top_reference_id))
+        else:
+            related = self.message_set.all()
+        if self.id:
+            related.exclude(id=self.id)
+        related.update(round=self.round, contest=self.contest,
+                       problem_instance=self.problem_instance)
+
         super(Message, self).save(*args, **kwargs)
 
     def can_have_replies(self):
         return self.kind == 'QUESTION'
 
+    def has_category(self):
+        return self.round is not None or self.problem_instance is not None
+
+    def __unicode__(self):
+        return u'%s - %s' % (message_kinds.get(self.kind, self.kind),
+                             self.topic)
 
 class MessageView(models.Model):
     message = models.ForeignKey(Message)

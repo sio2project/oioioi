@@ -19,18 +19,8 @@
             <div class="controls">
                 <label id="message_contest">{{ message.contest.name }}</label>
             </div>
-            <label for="message_category" class="control-label">{% trans "Category" %}</label>
-            <div class="controls">
-                <label id="message_category">
-                    {% if message.problem_instance %}
-                        {% trans "Problem " %}{{ message.problem_instance.problem.name }}
-                    {% else %}
-                        {% trans "General, " %}{{ message.round }}
-                    {% endif %}
-                </label>
-            </div>
         </div>
-        {% include "ingredients/form.html" %}
+        {% include "ingredients/form.html" with focus="textarea#id_content" %}
         <div class="form-actions">
             <div class="right-side">
                 <a class="btn btn-primary" href="history/">{% trans "History" %}</a>
