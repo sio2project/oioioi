@@ -5,22 +5,30 @@
 
 {% block content %}
 <h2>{{ title }}</h2>
+{% if is_reply %}
+<div style="margin-bottom: 20px">
+    {% include "questions/single_message.html" with message=question is_reply=False has_replies=False %}
+</div>
+{% endif %}
 <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
     {% csrf_token %}
     {% if is_reply %}
-        <div class="control-group">
-            <label for="id_enquirer" class="control-label">{% trans "Enquirer" %}</label>
-            <div class="controls">
-                <label id="id_enquirer">{{ question.author.username }}{% if question.author.get_full_name %} ({{ question.author.get_full_name }}){% endif %}</label>
-            </div>
-        </div>
+        {% include "ingredients/form.html" with focus="textarea#id_content" %}
+    {% else %}
+        {% include "ingredients/form.html" %}
     {% endif %}
-    {% include "ingredients/form.html" %}
     {% if is_announcement %}
     <div class="control-group">
         <div class="controls">
             {% blocktrans %}The announcement will be visible immediately.{% endblocktrans %}
         </div>
+    </div>
+    {% endif %}
+    {% if is_reply %}
+    <div class="control-group">
+        <a tabindex="1000" id="respond_inline" class="controls" href="javascript:add_question_content();">
+            {% blocktrans %}Respond inline{% endblocktrans %}
+        </a>
     </div>
     {% endif %}
     <div class="form-actions">
@@ -29,12 +37,7 @@
 </form>
 {% if is_reply %}
 <script type="text/javascript">
-    $(function() {
-        var elem = $('textarea#id_content');
-        var content = elem.val() + '\n\n';
-        /* This moves the cursor to the end. */
-        elem.focus().val('').val(content);
-    });
+    $(function() {scroll_to('textarea#id_content');});
 </script>
 {% endif %}
 {% endblock %}

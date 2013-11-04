@@ -15,3 +15,7 @@ if (!String.prototype.startsWith) {
         }
     });
 }
+
+function scroll_to(selector) {
+    $('html, body').scrollTop($(selector).offset().top);
+}
