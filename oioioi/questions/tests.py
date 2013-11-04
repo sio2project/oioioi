@@ -235,3 +235,10 @@ class TestQuestions(TestCase):
         self.assertEqual(a1.round, pi.round)
         self.assertEqual(a2.round, pi.round)
         self.assertEqual(q.round, pi.round)
+
+    def test_change_denied(self):
+        self.client.login(username='test_user')
+        msg = Message.objects.filter(author__username='test_admin')[0]
+        url = reverse('oioioiadmin:questions_message_change',
+                      args=(msg.id,))
+        check_not_accessible(self, url)
