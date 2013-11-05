@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Round, ProblemInstance
 from oioioi.questions.models import message_kinds, Message
-from oioioi.questions.utils import get_categories
+from oioioi.questions.utils import get_categories, get_category
 
 
 class AddContestMessageForm(forms.ModelForm):
@@ -22,6 +22,8 @@ class AddContestMessageForm(forms.ModelForm):
         self.request = request
 
         self.fields['category'].choices = get_categories(request)
+        if 'instance' in kwargs:
+            self.fields['category'].initial = get_category(kwargs['instance'])
 
     def save(self, commit=True, *args, **kwargs):
         instance = super(AddContestMessageForm, self) \
@@ -33,6 +35,7 @@ class AddContestMessageForm(forms.ModelForm):
             if type == 'r':
                 instance.round = \
                     Round.objects.get(contest=self.request.contest, id=id)
+                instance.problem_instance = None
             elif type == 'p':
                 instance.problem_instance = ProblemInstance.objects \
                     .get(contest=self.request.contest, id=id)
@@ -57,11 +60,10 @@ class AddReplyForm(AddContestMessageForm):
 class ChangeContestMessageForm(AddContestMessageForm):
     class Meta(object):
         model = Message
-        fields = ['kind', 'topic', 'content']
+        fields = ['category', 'kind', 'topic', 'content']
 
     def __init__(self, kind, *args, **kwargs):
         super(ChangeContestMessageForm, self).__init__(*args, **kwargs)
-        del self.fields['category']
         if kind == 'QUESTION':
             self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] == 'QUESTION']

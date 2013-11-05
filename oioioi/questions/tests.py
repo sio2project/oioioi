@@ -192,3 +192,46 @@ class TestQuestions(TestCase):
 
         self.client.login(username='test_user')
         check_not_accessible(self, url)
+
+    def test_change_category(self):
+        pi = ProblemInstance.objects.get()
+        r = pi.round
+        q = Message.objects.get(topic="problem-question")
+        a1, a2 = Message.objects.filter(top_reference=q)
+
+        def change_category(msg, cat):
+            url = reverse('oioioiadmin:questions_message_change',
+                          args=(msg.id,))
+            self.client.login(username='test_admin')
+            response = self.client.get(url)
+            self.assertIn('form', response.context)
+
+            post_data = {
+                'kind': msg.kind,
+                'category': cat,
+                'topic': msg.topic,
+                'content': msg.content,
+            }
+            response = self.client.post(url, post_data)
+            self.assertEqual(response.status_code, 302)
+
+        # Change a1 to round question
+        change_category(a1, 'r_%d' % r.id)
+        q = Message.objects.get(topic="problem-question")
+        a1, a2 = Message.objects.filter(top_reference=q)
+        self.assertEqual(a1.round, r)
+        self.assertEqual(a2.round, r)
+        self.assertEqual(q.round, r)
+        self.assertTrue(a1.problem_instance is None)
+        self.assertTrue(a2.problem_instance is None)
+        self.assertTrue(q.problem_instance is None)
+        # Change q to problem question
+        change_category(q, 'p_%d' % pi.id)
+        q = Message.objects.get(topic="problem-question")
+        a1, a2 = Message.objects.filter(top_reference=q)
+        self.assertEqual(a1.problem_instance, pi)
+        self.assertEqual(a2.problem_instance, pi)
+        self.assertEqual(q.problem_instance, pi)
+        self.assertEqual(a1.round, pi.round)
+        self.assertEqual(a2.round, pi.round)
+        self.assertEqual(q.round, pi.round)

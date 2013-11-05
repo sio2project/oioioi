@@ -46,6 +46,14 @@ def get_categories(request):
     return categories
 
 
+def get_category(message):
+    if message.problem_instance:
+        return 'p_%d' % message.problem_instance.id
+    if message.round:
+        return 'r_%d' % message.round.id
+    return None
+
+
 def unanswered_questions(messages):
     return messages.filter(message__isnull=True, top_reference__isnull=True,
                            kind='QUESTION')

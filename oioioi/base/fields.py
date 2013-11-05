@@ -99,6 +99,14 @@ class EnumRegistry(object):
         if not self.entries or value not in zip(*self.entries)[0]:
             self.entries.append((value, description))
 
+    def get(self, value, fallback):
+        """Return description for a given value, or fallback if value not in
+           registry"""
+        for (val, desc) in self:
+            if val == value:
+                return desc
+        return fallback
+
 
 class EnumField(models.CharField):
     """A ``CharField`` designed to store a value from an extensible set.
