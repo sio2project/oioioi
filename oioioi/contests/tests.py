@@ -976,3 +976,33 @@ class TestSubmissionChangeKind(TestCase):
                                                contest=contest)
         self.assertEqual(urp.score, 100)
         self.assertEqual(urc.score, 100)
+
+
+class TestSubmitSelectOneProblem(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def test_problems_list(self):
+        self.client.login(username='test_user2')
+        contest = Contest.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        form = response.context['form']
+        self.assertEqual(len(form.fields['problem_instance_id'].choices), 1)
+
+
+class TestSubmitSelectManyProblems(TestCase):
+    fixtures = ['test_users', 'test_extra_problem', 'test_contest',
+             'test_full_package']
+
+    def test_problems_list(self):
+        self.client.login(username='test_user2')
+        contest = Contest.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('form', response.context)
+        form = response.context['form']
+        # +1 because of blank field
+        self.assertEqual(len(form.fields['problem_instance_id'].choices), 3)
