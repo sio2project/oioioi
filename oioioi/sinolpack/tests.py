@@ -37,7 +37,7 @@ class TestSinolPackage(TestCase):
         filename = get_test_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
 
-    def _check_no_ingen_package(self, problem, doc=True): #TODO
+    def _check_no_ingen_package(self, problem, doc=True):
         self.assertEqual(problem.short_name, 'test')
 
         tests = Test.objects.filter(problem=problem)
