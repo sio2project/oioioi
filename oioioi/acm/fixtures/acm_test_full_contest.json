@@ -32,6 +32,18 @@
   }
 },
 {
+  "pk": 2, 
+  "model": "contests.round", 
+  "fields": {
+    "name": "Runda pr\u00f3bna", 
+    "end_date": "2013-12-13T16:00:00Z", 
+    "contest": "acm", 
+    "is_trial": true, 
+    "results_date": "2013-12-13T19:00:00Z", 
+    "start_date": "2013-12-13T11:00:00Z"
+  }
+},
+{
   "pk": 1, 
   "model": "contests.probleminstance", 
   "fields": {
@@ -61,6 +73,17 @@
     "submissions_limit": 10, 
     "round": 1, 
     "short_name": "a", 
+    "contest": "acm"
+  }
+},
+{
+  "pk": 4, 
+  "model": "contests.probleminstance", 
+  "fields": {
+    "problem": 4, 
+    "submissions_limit": 10, 
+    "round": 2, 
+    "short_name": "trial", 
     "contest": "acm"
   }
 },
@@ -305,6 +328,36 @@
   }
 },
 {
+  "pk": 25, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 25, 
+    "creation_date": "2014-01-03T12:32:14.764Z"
+  }
+},
+{
+  "pk": 26, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 26, 
+    "creation_date": "2014-01-03T13:13:08.532Z"
+  }
+},
+{
+  "pk": 27, 
+  "model": "contests.submissionreport", 
+  "fields": {
+    "status": "ACTIVE", 
+    "kind": "FULL", 
+    "submission": 27, 
+    "creation_date": "2014-01-03T13:13:22.825Z"
+  }
+},
+{
   "pk": 1, 
   "model": "contests.scorereport", 
   "fields": {
@@ -545,6 +598,36 @@
   }
 },
 {
+  "pk": 25, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 25
+  }
+},
+{
+  "pk": 26, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "WA", 
+    "comment": null, 
+    "score": "bool:rejected", 
+    "submission_report": 26
+  }
+},
+{
+  "pk": 27, 
+  "model": "contests.scorereport", 
+  "fields": {
+    "status": "OK", 
+    "comment": null, 
+    "score": "bool:accepted", 
+    "submission_report": 27
+  }
+},
+{
   "pk": 1, 
   "model": "problems.problem", 
   "fields": {
@@ -574,6 +657,17 @@
     "contest": "acm", 
     "name": "Apples", 
     "short_name": "A", 
+    "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+  }
+},
+{
+  "pk": 4, 
+  "model": "problems.problem", 
+  "fields": {
+    "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
+    "contest": "acm", 
+    "name": "test", 
+    "short_name": "test", 
     "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
   }
 },
@@ -770,6 +864,54 @@
   }
 },
 {
+  "pk": 13, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "EXAMPLE", 
+    "group": "0", 
+    "name": "0", 
+    "input_file": "data:problems/4/test0_1.in:MCAwCg==", 
+    "output_file": "data:problems/4/test0_1.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 4, 
+    "max_score": 0, 
+    "order": 0
+  }
+},
+{
+  "pk": 14, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1a", 
+    "input_file": "data:problems/4/test1a_1.in:MCAwCg==", 
+    "output_file": "data:problems/4/test1a_1.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 4, 
+    "max_score": 100, 
+    "order": 1
+  }
+},
+{
+  "pk": 15, 
+  "model": "programs.test", 
+  "fields": {
+    "time_limit": 10000, 
+    "kind": "NORMAL", 
+    "group": "1", 
+    "name": "1b", 
+    "input_file": "data:problems/4/test1b_1.in:MCAwCg==", 
+    "output_file": "data:problems/4/test1b_1.out:MAo=", 
+    "memory_limit": 66000, 
+    "problem": 4, 
+    "max_score": 100, 
+    "order": 2
+  }
+},
+{
   "pk": 1, 
   "model": "programs.outputchecker", 
   "fields": {
@@ -781,7 +923,7 @@
   "pk": 2, 
   "model": "programs.outputchecker", 
   "fields": {
-    "exe_file": "none",
+    "exe_file": "none", 
     "problem": 2
   }
 },
@@ -791,6 +933,14 @@
   "fields": {
     "exe_file": "none", 
     "problem": 3
+  }
+},
+{
+  "pk": 4, 
+  "model": "programs.outputchecker", 
+  "fields": {
+    "exe_file": "none", 
+    "problem": 4
   }
 },
 {
@@ -855,6 +1005,17 @@
     "problem": 3, 
     "source_file": "data:problems/3/A.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
     "name": "A.c", 
+    "kind": "NORMAL", 
+    "order_key": 0
+  }
+},
+{
+  "pk": 7, 
+  "model": "programs.modelsolution", 
+  "fields": {
+    "problem": 4, 
+    "source_file": "data:problems/4/test_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "name": "test.c", 
     "kind": "NORMAL", 
     "order_key": 0
   }
@@ -1073,6 +1234,33 @@
     "status": "CE", 
     "compiler_output": "a.cpp:3:2: error: #error \"Version: \" __VERSION__ \". Pointer: \" #__SIZEOF_POINTER__ \". C++0x: \" #__GXX_EXPERIMENTAL_CXX0X__\n", 
     "submission_report": 24
+  }
+},
+{
+  "pk": 25, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.c: In function \u2018main\u2019:\na.c:2:29: warning: ignoring return value of \u2018scanf\u2019, declared with attribute warn_unused_result [-Wunused-result]\n int main() { int y, u; scanf(\"%d%d\", &y, &u); printf(\"%d\\n\", y+u); return 0; }\n                             ^\n", 
+    "submission_report": 25
+  }
+},
+{
+  "pk": 26, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.cpp: In function \u2018int main()\u2019:\na.cpp:8:17: warning: ignoring return value of \u2018int scanf(const char*, ...)\u2019, declared with attribute warn_unused_result [-Wunused-result]\n  scanf(\"%d\", &n);\n                 ^\na.cpp:10:21: warning: ignoring return value of \u2018int scanf(const char*, ...)\u2019, declared with attribute warn_unused_result [-Wunused-result]\n   scanf(\"%d\", &a[i]);\n                     ^\n", 
+    "submission_report": 26
+  }
+},
+{
+  "pk": 27, 
+  "model": "programs.compilationreport", 
+  "fields": {
+    "status": "OK", 
+    "compiler_output": "a.cpp: In function \u2018int main()\u2019:\na.cpp:6:24: warning: ignoring return value of \u2018int scanf(const char*, ...)\u2019, declared with attribute warn_unused_result [-Wunused-result]\n  scanf(\"%d %d\", &a, &b);\n                        ^\n", 
+    "submission_report": 27
   }
 },
 {
@@ -2372,6 +2560,150 @@
   }
 },
 {
+  "pk": 82, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 25, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 14
+  }
+},
+{
+  "pk": 83, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 25, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 13
+  }
+},
+{
+  "pk": 84, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 25, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 15
+  }
+},
+{
+  "pk": 85, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 26, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 14
+  }
+},
+{
+  "pk": 86, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 26, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 13
+  }
+},
+{
+  "pk": 87, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "WA", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 26, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 15
+  }
+},
+{
+  "pk": 88, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 27, 
+    "time_used": 0, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1a", 
+    "test": 14
+  }
+},
+{
+  "pk": 89, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 27, 
+    "time_used": 0, 
+    "test_max_score": 0, 
+    "test_group": "0", 
+    "score": null, 
+    "test_name": "0", 
+    "test": 13
+  }
+},
+{
+  "pk": 90, 
+  "model": "programs.testreport", 
+  "fields": {
+    "status": "OK", 
+    "comment": "", 
+    "test_time_limit": 10000, 
+    "submission_report": 27, 
+    "time_used": 2, 
+    "test_max_score": 100, 
+    "test_group": "1", 
+    "score": null, 
+    "test_name": "1b", 
+    "test": 15
+  }
+},
+{
   "pk": 1, 
   "model": "programs.groupreport", 
   "fields": {
@@ -2972,6 +3304,66 @@
   }
 },
 {
+  "pk": 61, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 25
+  }
+},
+{
+  "pk": 62, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 25
+  }
+},
+{
+  "pk": 63, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 26
+  }
+},
+{
+  "pk": 64, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "WA", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 26
+  }
+},
+{
+  "pk": 65, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "1", 
+    "score": null, 
+    "submission_report": 27
+  }
+},
+{
+  "pk": 66, 
+  "model": "programs.groupreport", 
+  "fields": {
+    "status": "OK", 
+    "group": "0", 
+    "score": null, 
+    "submission_report": 27
+  }
+},
+{
   "pk": 1, 
   "model": "sinolpack.extraconfig", 
   "fields": {
@@ -2993,6 +3385,14 @@
   "fields": {
     "problem": 3, 
     "config": "title: Apples\n"
+  }
+},
+{
+  "pk": 4, 
+  "model": "sinolpack.extraconfig", 
+  "fields": {
+    "problem": 4, 
+    "config": ""
   }
 },
 {
@@ -3029,6 +3429,14 @@
   }
 },
 {
+  "pk": 4, 
+  "model": "sinolpack.originalpackage", 
+  "fields": {
+    "problem": 4, 
+    "package_file": "none"
+  }
+},
+{
   "pk": 1, 
   "model": "auth.user", 
   "fields": {
@@ -3038,7 +3446,7 @@
     "is_active": true, 
     "is_superuser": true, 
     "is_staff": true, 
-    "last_login": "2013-12-14T21:41:16.271Z", 
+    "last_login": "2014-01-03T13:35:07.797Z", 
     "groups": [], 
     "user_permissions": [], 
     "password": "pbkdf2_sha256$10000$jmLsWJ3oQacs$nxwimIOA8CbrlYYpAwJkIy4rGq22nNu6m6vjMIzsvKs=", 
@@ -3140,6 +3548,13 @@
   "model": "programs.modelprogramsubmission", 
   "fields": {
     "model_solution": 6
+  }
+},
+{
+  "pk": 25, 
+  "model": "programs.modelprogramsubmission", 
+  "fields": {
+    "model_solution": 7
   }
 },
 {
@@ -3335,10 +3750,34 @@
   }
 },
 {
+  "pk": 25, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:problems/4/test_1.c:I2luY2x1ZGUgPHN0ZGlvLmg+CmludCBtYWluKCkgeyBpbnQgeSwgdTsgc2NhbmYoIiVkJWQiLCAmeSwgJnUpOyBwcmludGYoIiVkXG4iLCB5K3UpOyByZXR1cm4gMDsgfQo=", 
+    "source_length": 98
+  }
+},
+{
+  "pk": 26, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/26.cpp:I2luY2x1ZGUgPGNzdGRpbz4KI2luY2x1ZGUgPGFsZ29yaXRobT4KdXNpbmcgbmFtZXNwYWNlIHN0ZDsKaW50IGFbMTAwNV07CmludCBtYWluKCkKewoJaW50IG47CglzY2FuZigiJWQiLCAmbik7Cglmb3IgKGludCBpID0gMDsgaSA8IG47IGkrKykKCQlzY2FuZigiJWQiLCAmYVtpXSk7CgoJZm9yIChpbnQgaSA9IDA7IGkgPCBuLTE7IGkrKykKCXsKCQlmb3IgKGludCBqID0gMDsgaiA8IG4tMTsgaisrKQoJCXsKCQkJaW50IHgxID0gbWluKGFbaV0sIGFbaSsxXSk7CgkJCWludCB4MiA9IG1heChhW2ldLCBhW2krMV0pOwoJCQlpbnQgeDMgPSBtaW4oYVtqXSwgYVtqKzFdKTsKCQkJaW50IHg0ID0gbWF4KGFbal0sIGFbaisxXSk7CQkJCgkJCWlmICh4MSA8IHgzICYmIHgzIDwgeDIgJiYgeDIgPCB4NCkKCQkJewoJCQkJcHV0cygieWVzIik7CgkJCQlyZXR1cm4gMDsKCQkJfQoJCX0KCX0KCXB1dHMoIm5vIik7CglyZXR1cm4gMDsKfQo=", 
+    "source_length": 473
+  }
+},
+{
+  "pk": 27, 
+  "model": "programs.programsubmission", 
+  "fields": {
+    "source_file": "data:submissions/acm/27.cpp:I2luY2x1ZGUgPGNzdGRpbz4KCmludCBtYWluKCkKewoJaW50IGEsYjsKCXNjYW5mKCIlZCAlZCIsICZhLCAmYik7CglwcmludGYoIiVkXG4iLCBhK2IpOwoJcmV0dXJuIDA7Cn0K", 
+    "source_length": 102
+  }
+},
+{
   "pk": 1, 
   "model": "contests.contestview", 
   "fields": {
-    "timestamp": "2013-12-14T21:43:24.248Z", 
+    "timestamp": "2014-01-05T16:54:05.773Z", 
     "user": 1, 
     "contest": "acm"
   }
@@ -3413,6 +3852,15 @@
     "score": "ACM:00000000029999966460:0000000002:0000033540:0000000000", 
     "user": 4, 
     "round": 1
+  }
+},
+{
+  "pk": 5, 
+  "model": "contests.userresultforround", 
+  "fields": {
+    "score": "ACM:00000000019999993400:0000000001:0000005400:0000000001", 
+    "user": 2, 
+    "round": 2
   }
 },
 {
@@ -3511,6 +3959,17 @@
     "problem_instance": 3, 
     "score": "ACM:00000000010000000000:0000000000:0000006900:0000000002", 
     "submission_report": 23, 
+    "user": 2
+  }
+},
+{
+  "pk": 10, 
+  "model": "contests.userresultforproblem", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 4, 
+    "score": "ACM:00000000019999993400:0000000001:0000005400:0000000001", 
+    "submission_report": 27, 
     "user": 2
   }
 },
@@ -3824,6 +4283,45 @@
     "score": null, 
     "user": 3, 
     "date": "2013-12-14T21:42:36.515Z"
+  }
+},
+{
+  "pk": 25, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 4, 
+    "kind": "IGNORED", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": null, 
+    "date": "2014-01-03T12:31:56.415Z"
+  }
+},
+{
+  "pk": 26, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "WA", 
+    "problem_instance": 4, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:rejected", 
+    "user": 2, 
+    "date": "2013-12-13T12:30:00Z"
+  }
+},
+{
+  "pk": 27, 
+  "model": "contests.submission", 
+  "fields": {
+    "status": "OK", 
+    "problem_instance": 4, 
+    "kind": "NORMAL", 
+    "comment": "", 
+    "score": "bool:accepted", 
+    "user": 2, 
+    "date": "2013-12-13T12:30:00Z"
   }
 },
 {

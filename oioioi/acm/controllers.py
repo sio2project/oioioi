@@ -16,7 +16,8 @@ from oioioi.rankings.controllers import DefaultRankingController, \
 from oioioi.contests.models import SubmissionReport, Submission, \
         ProblemInstance, UserResultForProblem
 from oioioi.acm.score import BinaryScore, format_time, ACMScore
-from oioioi.contests.utils import is_contest_admin, rounds_times
+from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
+        rounds_times
 from oioioi.participants.controllers import ParticipantsController
 
 
@@ -188,10 +189,19 @@ class ACMRankingController(DefaultRankingController):
     description = _("ACM style ranking")
 
     def _rounds_for_ranking(self, request, key=CONTEST_RANKING_KEY):
+        can_see_all = is_contest_admin(request) or is_contest_observer(request)
+        ccontroller = self.contest.controller
         queryset = self.contest.round_set.all()
         if key != CONTEST_RANKING_KEY:
             queryset = queryset.filter(id=key)
-        return queryset
+        if can_see_all:
+            for round in queryset:
+                yield round
+        else:
+            for round in queryset:
+                rtimes = ccontroller.get_round_times(request, round)
+                if not rtimes.is_future(request.timestamp):
+                    yield round
 
     def render_ranking(self, request, key):
         data = self.serialize_ranking(request, key)
@@ -231,6 +241,13 @@ class ACMRankingController(DefaultRankingController):
     def serialize_ranking(self, request, key):
         controller = request.contest.controller
         rounds = list(self._rounds_for_ranking(request, key))
+        # If at least one visible round is not trial we don't want to show
+        # trial rounds in default ranking.
+        if key == CONTEST_RANKING_KEY:
+            not_trial = [r for r in rounds if not r.is_trial]
+            if not_trial:
+                rounds = not_trial
+
         freeze_times = [controller.get_round_freeze_time(round)
                         for round in rounds]
 
