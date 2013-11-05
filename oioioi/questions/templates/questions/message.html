@@ -39,7 +39,7 @@
         | <span class="message_timestamp">{{ message.date }}</span>
         <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.get_kind_display }}</span>
         </p>
-        <p class="message_body">{{ message.content }}</p>
+        <p class="message_body">{{ message.content|urlize }}</p>
     </div>
 </div>
 {% for message in replies %}
@@ -60,7 +60,7 @@
         | <span class="message_timestamp">{{ message.date }}</span>
         <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.get_kind_display }}</span>
         </p>
-        <p class="message_body">{{ message.content }}</p>
+        <p class="message_body">{{ message.content|urlize }}</p>
     </div>
 </div>
 {% endfor %}

@@ -37,7 +37,7 @@
             {% endif %}
         {% else %}
             <div class="forum_content_row">
-                {{ p.content|linebreaksbr }}
+            {{ p.content|urlize|linebreaksbr }}
             </div>
         {% endif %}
         <div class="forum_info_row">
