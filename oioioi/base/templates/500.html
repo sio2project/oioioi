@@ -1,4 +1,4 @@
-{% extends "simple-centered.html" %}
+{% extends "simple-centered-wide.html" %}
 
 {% load i18n %}
 
@@ -6,7 +6,7 @@
 <div class="empty-space-filler">
     <p>{% trans "500 &mdash; Holy guacamole, internal server error!" %}</p>
     {% if user.is_superuser %}
-    <pre>{{ traceback }}</pre>
+    <pre id="traceback500" class="scroll-x">{{ traceback }}</pre>
     {% endif %}
     <p><small>{% trans "A report has been emailed to the admins. They will love it." %}</small></p>
 </div>
