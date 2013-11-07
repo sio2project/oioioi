@@ -69,7 +69,7 @@
       "problem_instance": 2,
       "kind": "NORMAL",
       "comment": "",
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "date": "2015-08-03T22:07:07.516Z"
     }
@@ -110,7 +110,7 @@
     "fields": {
       "status": "RE",
       "comment": null,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "submission_report": 4
     }
   },
@@ -120,7 +120,7 @@
     "fields": {
       "status": "OK",
       "problem_instance": 2,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "submission_report": 4
     }
@@ -129,7 +129,7 @@
     "pk": 2,
     "model": "contests.userresultforround",
     "fields": {
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "round": 2
     }
@@ -149,7 +149,7 @@
       "problem_instance": 3,
       "kind": "NORMAL",
       "comment": "",
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "date": "2012-07-31T21:07:07.516Z"
     }
@@ -190,7 +190,7 @@
     "fields": {
       "status": "RE",
       "comment": null,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "submission_report": 6
     }
   },
@@ -200,7 +200,7 @@
     "fields": {
       "status": "OK",
       "problem_instance": 3,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "submission_report": 6
     }
@@ -209,7 +209,7 @@
     "pk": 3,
     "model": "contests.userresultforround",
     "fields": {
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "round": 3
     }
@@ -229,7 +229,7 @@
       "problem_instance": 4,
       "kind": "NORMAL",
       "comment": "",
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "date": "2012-07-31T21:07:58.768Z"
     }
@@ -270,7 +270,7 @@
     "fields": {
       "status": "RE",
       "comment": null,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "submission_report": 8
     }
   },
@@ -280,7 +280,7 @@
     "fields": {
       "status": "OK",
       "problem_instance": 4,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "submission_report": 8
     }
@@ -289,7 +289,7 @@
     "pk": 4,
     "model": "contests.userresultforround",
     "fields": {
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "round": 4
     }

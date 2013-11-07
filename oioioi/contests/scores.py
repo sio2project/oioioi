@@ -97,6 +97,10 @@ class ScoreValue(ClassInitBase):
            symbol.
 
            Must be overridden in all subclasses.
+
+           Lexicographical order of serialized data has to correspond to
+           the given by :meth:`__cmp__`, it will be used for sorting at db
+           level.
         """
         raise NotImplementedError
 
@@ -113,6 +117,8 @@ class IntegerScore(ScoreValue):
     """Score consisting of integer number.
 
        Database format: ``"int:<value>"``
+
+       Value is padded with zeros to 19 characters.
     """
 
     symbol = 'int'
@@ -140,4 +146,4 @@ class IntegerScore(ScoreValue):
         return cls(int(value))
 
     def _to_repr(self):
-        return str(self.value)
+        return '%019d' % self.value

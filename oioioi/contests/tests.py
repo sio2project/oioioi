@@ -48,7 +48,8 @@ class TestModels(TestCase):
 
 
 class TestScores(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_submission']
 
     def test_integer_score(self):
         s1 = IntegerScore(1)
@@ -62,18 +63,18 @@ class TestScores(TestCase):
 
     def test_score_field(self):
         contest = Contest.objects.get()
-        user = User.objects.get(username='test_user')
+        user = User.objects.get(username='test_admin')
 
         instance = UserResultForContest(user=user, contest=contest,
                 score=IntegerScore(42))
         instance.save()
         del instance
 
-        instance = UserResultForContest.objects.get()
+        instance = UserResultForContest.objects.get(user=user)
         self.assertTrue(isinstance(instance.score, IntegerScore))
         self.assertEqual(instance.score.value, 42)
 
-        instance.score = "int:12"
+        instance.score = 'int:0000000000000000012'
         self.assertEqual(instance.score.value, 12)
 
         with self.assertRaises(ValidationError):
@@ -85,8 +86,15 @@ class TestScores(TestCase):
         instance.save()
         del instance
 
-        instance = UserResultForContest.objects.get()
+        instance = UserResultForContest.objects.get(user=user)
         self.assertIsNone(instance.score)
+
+    def test_db_order(self):
+        # Importing module-wide seems to break sinolpack tests.
+        from oioioi.programs.models import TestReport
+        scores = [tr.score for tr in
+                  TestReport.objects.order_by('score').all()]
+        self.assertEqual(scores, sorted(scores))
 
 
 def print_contest_id_view(request, contest_id=None):

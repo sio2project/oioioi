@@ -7,7 +7,7 @@
       "problem_instance": 1,
       "kind": "NORMAL",
       "comment": "",
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "date": "2012-06-03T22:07:07.516Z"
     }
@@ -48,7 +48,7 @@
     "fields": {
       "status": "RE",
       "comment": null,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "submission_report": 2
     }
   },
@@ -58,7 +58,7 @@
     "fields": {
       "status": "OK",
       "problem_instance": 1,
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "submission_report": 2
     }
@@ -67,7 +67,7 @@
     "pk": 1,
     "model": "contests.userresultforround",
     "fields": {
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "round": 1
     }
@@ -76,7 +76,7 @@
     "pk": 1,
     "model": "contests.userresultforcontest",
     "fields": {
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "user": 1001,
       "contest": "c"
     }
@@ -117,7 +117,7 @@
       "time_used": 1,
       "test_max_score": 0,
       "test_group": "0",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "test_name": "0",
       "test": 1
     }
@@ -133,7 +133,7 @@
       "time_used": 1,
       "test_max_score": 0,
       "test_group": "1ocen",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "test_name": "1ocen",
       "test": 4
     }
@@ -149,7 +149,7 @@
       "time_used": 1,
       "test_max_score": 33,
       "test_group": "1",
-      "score": "int:33",
+      "score": "int:0000000000000000033",
       "test_name": "1a",
       "test": 2
     }
@@ -165,7 +165,7 @@
       "time_used": 1,
       "test_max_score": 34,
       "test_group": "3",
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "test_name": "3",
       "test": 6
     }
@@ -181,7 +181,7 @@
       "time_used": 0,
       "test_max_score": 33,
       "test_group": "2",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "test_name": "2",
       "test": 5
     }
@@ -197,7 +197,7 @@
       "time_used": 0,
       "test_max_score": 33,
       "test_group": "1",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "test_name": "1b",
       "test": 3
     }
@@ -208,7 +208,7 @@
     "fields": {
       "status": "OK",
       "group": "0",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "submission_report": 1
     }
   },
@@ -218,7 +218,7 @@
     "fields": {
       "status": "OK",
       "group": "1ocen",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "submission_report": 1
     }
   },
@@ -228,7 +228,7 @@
     "fields": {
       "status": "RE",
       "group": "1",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "submission_report": 2
     }
   },
@@ -238,7 +238,7 @@
     "fields": {
       "status": "OK",
       "group": "0",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "submission_report": 2
     }
   },
@@ -248,7 +248,7 @@
     "fields": {
       "status": "OK",
       "group": "3",
-      "score": "int:34",
+      "score": "int:0000000000000000034",
       "submission_report": 2
     }
   },
@@ -258,7 +258,7 @@
     "fields": {
       "status": "OK",
       "group": "1ocen",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "submission_report": 2
     }
   },
@@ -268,7 +268,7 @@
     "fields": {
       "status": "WA",
       "group": "2",
-      "score": "int:0",
+      "score": "int:0000000000000000000",
       "submission_report": 2
     }
   }

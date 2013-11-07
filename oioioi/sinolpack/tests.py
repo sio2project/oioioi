@@ -26,6 +26,13 @@ def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
 
 
+# Fixes error "no such table: nose_c" as described in
+# https://github.com/jbalogh/django-nose/issues/15#issuecomment-1033686
+Test._meta.get_all_related_objects()
+TestReport._meta.get_all_related_objects()
+ModelSolution._meta.get_all_related_objects()
+
+
 class TestSinolPackage(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -210,11 +217,6 @@ class TestSinolPackage(TestCase):
         call_command('addproblem', filename)
         test = Test.objects.filter(memory_limit=132000)
         self.assertEqual(test.count(), 5)
-
-
-# Fixes error "no such table: nose_c" as described in
-# https://github.com/jbalogh/django-nose/issues/15#issuecomment-1033686
-Test._meta.get_all_related_objects()
 
 
 class TestSinolPackageInContest(TestCase, TestStreamingMixin):

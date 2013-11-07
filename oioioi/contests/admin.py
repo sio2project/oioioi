@@ -344,6 +344,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     def score_display(self, instance):
         return instance.get_score_display() or ''
     score_display.short_description = _("Score")
+    score_display.admin_order_field = 'score'
 
     def rejudge_action(self, request, queryset):
         # Otherwise the submissions are rejudged in their default display
