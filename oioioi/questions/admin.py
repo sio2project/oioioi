@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.text import get_text_list
@@ -44,6 +45,9 @@ class MessageAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         message = get_object_or_404(Message, id=object_id)
+
+        if not self.has_change_permission(request, message):
+            raise PermissionDenied
 
         if request.method == 'POST':
             form = ChangeContestMessageForm(message.kind, request,
