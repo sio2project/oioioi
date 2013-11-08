@@ -7,6 +7,7 @@ from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.importlib import import_module
+from django.utils.translation import ugettext_lazy as _
 import functools
 import itertools
 from contextlib import contextmanager
@@ -14,6 +15,7 @@ import tempfile
 import shutil
 import traceback
 import re
+import sys
 
 
 # Metaclasses
@@ -389,7 +391,7 @@ def make_navbar_badge(link, text):
     return template.render(Context({'link': link, 'text': text}))
 
 
-# File uploads
+# Other utils
 
 
 @contextmanager
@@ -404,9 +406,47 @@ def uploaded_file_name(uploaded_file):
         f.close()
 
 
-# Natural sort key
-
-
 def naturalsort_key(key):
     convert = lambda text: int(text) if text.isdigit() else text
     return [convert(c) for c in re.split('([0-9]+)', key)]
+
+
+class ProgressBar(object):
+    """Displays simple textual progress bar."""
+
+    def __init__(self, max_value, length=20):
+        self.max_value = max_value
+        self.value = 0
+        self.to_clear = 0
+        self.length = length
+
+    def _show(self, preserve=False):
+        done_p = 100 * self.value / self.max_value
+        done_l = self.length * self.value / self.max_value
+        s = '|' + '=' * done_l + \
+            ' ' * (self.length - done_l) + \
+            '|  %d%%' % done_p
+        self.to_clear = 0 if preserve else len(s)
+        sys.stdout.write(s + ('\n' if preserve else ''))
+        sys.stdout.flush()
+
+    def _clear(self):
+        if self.to_clear:
+            sys.stdout.write('\b' * self.to_clear)
+            sys.stdout.flush()
+
+    def update(self, value=None, preserve=False):
+        """Set new value (if given) and redraw the bar.
+
+           :param preserve: controls if bar will end with a new line and
+                            stay after next update.
+        """
+        if value:
+            if value > self.max_value:
+                raise ValueError(_("Too large value for progress bar"))
+            self.value = value
+        if sys.stdout.isatty():
+            self._clear()
+            self._show(preserve)
+        elif preserve:
+            self._show(preserve)
