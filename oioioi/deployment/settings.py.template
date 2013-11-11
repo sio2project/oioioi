@@ -156,6 +156,7 @@ INSTALLED_APPS = (
 
 TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.logo_processor',
+#    'oioioi.contestlogo.processors.icon_processor',
 #    'oioioi.avatar.processors.gravatar',
 )
 

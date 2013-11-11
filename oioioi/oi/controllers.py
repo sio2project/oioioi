@@ -3,6 +3,7 @@
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import Submission, SubmissionReport
@@ -119,6 +120,10 @@ class OIContestController(ProgrammingContestController):
             result.status = None
             result.submission_report = None
         result.save()
+
+    def default_contesticons_urls(self):
+        return ['%(url)simages/menu/menu-icon-%(i)d.png' % \
+                {'url': settings.STATIC_URL, 'i': i} for i in range(1, 4)]
 OIContestController.mix_in(SplitEvalContestControllerMixin)
 
 

@@ -1,0 +1,9 @@
+[
+  {
+    "pk": "c",
+    "model": "contestlogo.contestlogo",
+    "fields": {
+      "updated_at": "1999-07-31T20:27:58.768Z"
+    }
+  }
+]
