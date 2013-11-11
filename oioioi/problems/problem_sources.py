@@ -6,6 +6,7 @@ from django.db import transaction
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.utils.encoding import smart_str
 from oioioi.base.utils import uploaded_file_name, get_object_by_dotted_name, \
         memoized
 from oioioi.problems.package import backend_for_package
@@ -107,6 +108,6 @@ class PackageSource(ProblemSource):
                             existing_problem)
                 except Exception, e:
                     logger.error("Error processing package", exc_info=True)
-                    form._errors['__all__'] = form.error_class([unicode(e)])
+                    form._errors['__all__'] = form.error_class([smart_str(e)])
         return TemplateResponse(request, self.template_name,
                 {'form': form})
