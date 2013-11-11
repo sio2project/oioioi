@@ -10,7 +10,7 @@
         {% include "ingredients/menu.html" %}
         {% endblock %}
     </div>
-    <div class="span9 span-fixed-sidebar main-content">
+    <div class="{% block main_content_style %}span9{% endblock %} span-fixed-sidebar main-content">
         {% include "ingredients/flash.html" %}
         {% block content %}
         {% endblock %}
