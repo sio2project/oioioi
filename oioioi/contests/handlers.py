@@ -2,6 +2,7 @@ import json
 import logging
 import traceback
 import pprint
+import socket
 from smtplib import SMTPException
 from django.core.mail import mail_admins
 from django.db import transaction
@@ -107,7 +108,7 @@ def mail_admins_on_error(env, exc_info, **kwargs):
         mail_admins("System Error evaluating submission #%s" %
                     env.get('submission_id', '???'),
                     traceback.format_exc(exc_info))
-    except SMTPException, e:
+    except (socket.error, SMTPException), e:
         logger.error("An error occurred while sending email: %s",
                      e.message)
 
