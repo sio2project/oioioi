@@ -157,7 +157,7 @@ Production configuration
 
 #. Set admin email in settings. Error reports and teacher account requests will
    be sent there.
-   
+
 #. Set SMTP server in settings. Otherwise new user registration (among others)
    will not work.
 
@@ -238,3 +238,22 @@ Then run::
   ./manage.py supervisor restart all
 
 and restart the judging machines.
+
+Usage
+-----
+
+Well, we don't have a full-fledged User's Guide, but feel free to propose
+what should be add here.
+
+Creating task packages
+~~~~~~~~~~~~~~~~~~~~~~
+
+To run a contest, you obviously need some tasks. To add a task to a contest in
+OIOIOI, you need to create an archive, called task package. Here are some
+pointers, how it should look like:
+
+* `example task packages`_ used by our tests,
+* `a rudimentary task package format specification`_.
+
+.. _example task packages: https://github.com/sio2project/oioioi/tree/master/oioioi/sinolpack/files
+.. _a rudimentary task package format specification: http://sio2project.mimuw.edu.pl/display/DOC/Preparing+Task+Packages
