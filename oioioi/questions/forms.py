@@ -21,9 +21,12 @@ class AddContestMessageForm(forms.ModelForm):
 
         self.request = request
 
-        self.fields['category'].choices = get_categories(request)
         if 'instance' in kwargs:
+            self.fields['category'].choices = get_categories(request)
             self.fields['category'].initial = get_category(kwargs['instance'])
+        else:
+            self.fields['category'].choices = \
+                    [('', '')] + get_categories(request)
 
     def save(self, commit=True, *args, **kwargs):
         instance = super(AddContestMessageForm, self) \
