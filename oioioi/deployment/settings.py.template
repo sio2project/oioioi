@@ -110,6 +110,12 @@ USE_LOCAL_COMPILERS = True
 # Uncomment this line to limit availability of programming languages.
 #SUBMITTABLE_EXTENSIONS = ['c', 'cpp', 'pas']
 
+# Controls if uwsgi in default configuration shall use gevent loop.
+# To use it, you have to install gevent - please consult
+# https://github.com/surfly/gevent
+# This is recommended for heavy load, but you may still need to tune uwsgi
+# options in deployment/supervisord.conf
+UWSGI_USE_GEVENT = False
 
 # EXTRA MODULES
 #

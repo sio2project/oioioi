@@ -23,6 +23,8 @@ SITE_NAME = 'OIOIOI'
 # 'auto' means daemon will be run iff DEBUG is disabled.
 UWSGI_ENABLED = 'auto'
 
+UWSGI_USE_GEVENT = False
+
 LANGUAGES = (
     ('en', 'English'),
     ('pl', 'Polish'),

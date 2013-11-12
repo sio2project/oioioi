@@ -111,7 +111,7 @@ Production configuration
 #. Ensure that production-grade dependencies are installed:
 
    * lighttpd binary (Ubuntu package: *lighttpd*, shall not be run as service.)
-   * uwsgi (Ubuntu package: *uwsgi*, shall not be run as service.)
+   * uwsgi (*pip install uwsgi*)
 
 #. Make sure you are in the *deployment* folder and the virtualenv is activated.
 
@@ -167,7 +167,12 @@ Production configuration
 
      @reboot <deployment_folder>/start_supervisor.sh
 
+#. (optionally) If you have efficiency problems or expect heavy load, you may
+   consider using gevent as uwsgi event loop. To do so, `install gevent`_ and
+   set UWSGI_USE_GEVENT flag in *settings.py*.
+
 .. _judging-machines:
+.. _install gevent: https://github.com/surfly/gevent#installing-from-github
 
 Setting up judging machines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
