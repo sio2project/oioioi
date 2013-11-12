@@ -1,3 +1,5 @@
+import os
+
 from django.test import TestCase
 from django.utils.html import strip_tags, escape
 from django.core.urlresolvers import reverse
@@ -7,7 +9,7 @@ from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Submission, ProblemInstance, Contest
 from oioioi.contests.tests import PrivateRegistrationController
-from oioioi.programs.models import Test, ModelSolution
+from oioioi.programs.models import Test, ModelSolution, ProgramSubmission
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.contests.scores import IntegerScore
@@ -305,9 +307,10 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertIn('IGNORED', response.content)
         self.assertIn('NORMAL', response.content)
 
+        f = open(get_test_filename('sum-various-results.cpp'), 'rb')
         data = {
             'problem_instance_id': pi.id,
-            'file': open(get_test_filename('sum-various-results.cpp'), 'rb'),
+            'file': f,
             'user': 'test_admin',
             'kind': 'NORMAL'
         }
@@ -317,6 +320,10 @@ class TestSubmittingAsAdmin(TestCase):
         submission = Submission.objects.get(pk=1)
         self.assertEqual(submission.user.username, 'test_admin')
         self.assertEqual(submission.kind, 'NORMAL')
+
+        ps = ProgramSubmission.objects.get(pk=1)
+        f.seek(0, os.SEEK_END)
+        self.assertEqual(ps.source_length, f.tell())
 
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         response = self.client.get(url)

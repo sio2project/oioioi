@@ -119,6 +119,13 @@ def make_submission_filename(instance, filename):
 
 class ProgramSubmission(Submission):
     source_file = FileField(upload_to=make_submission_filename)
+    source_length = models.IntegerField(verbose_name=_("Source code length"),
+                                        blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if self.source_file:
+            self.source_length = self.source_file.size
+        super(ProgramSubmission, self).save(*args, **kwargs)
 
 
 class ModelProgramSubmission(ProgramSubmission):
