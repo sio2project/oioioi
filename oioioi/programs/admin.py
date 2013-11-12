@@ -121,7 +121,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
                 .select_related()
         submissions = ModelProgramSubmission.objects \
                 .filter(problem_instance=problem_instance) \
-                .order_by('model_solution__name') \
+                .order_by('model_solution__order_key') \
                 .select_related('model_solution') \
                 .all()
         tests = problem_instance.problem.test_set \

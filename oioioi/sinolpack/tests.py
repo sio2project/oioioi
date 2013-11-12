@@ -142,7 +142,8 @@ class TestSinolPackage(TestCase):
         self.assertEqual(extra_files.count(), 1)
         self.assertEqual(extra_files.get().name, 'makra.h')
 
-        model_solutions = ModelSolution.objects.filter(problem=problem)
+        model_solutions = \
+            ModelSolution.objects.filter(problem=problem).order_by('order_key')
         sol = model_solutions.get(name='sum.c')
         self.assertEqual(sol.kind, 'NORMAL')
         sol1 = model_solutions.get(name='sum1.pas')
@@ -152,6 +153,7 @@ class TestSinolPackage(TestCase):
         solb0 = model_solutions.get(name='sumb0.c')
         self.assertEqual(solb0.kind, 'INCORRECT')
         self.assertEqual(model_solutions.count(), 4)
+        self.assertEqual(list(model_solutions), [sol, sol1, sols1, solb0])
 
         tests = Test.objects.filter(problem=problem)
 

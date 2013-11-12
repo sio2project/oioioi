@@ -8,6 +8,7 @@ import tempfile
 import os
 import zipfile
 
+from django.conf import settings
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from django.core.files import File
@@ -353,23 +354,36 @@ class SinolPackage(object):
     def _process_model_solutions(self):
         ModelSolution.objects.filter(problem=self.problem).delete()
 
-        names_re = re.compile(r'^%s[0-9]*([bs]?)[0-9]*\.(c|cc|cpp|pas|java)'
-                % (re.escape(self.short_name),))
+        regex = r'^%s[0-9]*([bs]?)[0-9]*\.(' + \
+                '|'.join(settings.SUBMITTABLE_EXTENSIONS) + ')'
+        names_re = re.compile(regex % (re.escape(self.short_name),))
         progdir = os.path.join(self.rootdir, 'prog')
-        for name in os.listdir(progdir):
-            path = os.path.join(progdir, name)
-            if not os.path.isfile(path):
-                continue
-            match = names_re.match(name)
-            if match:
-                instance = ModelSolution(problem=self.problem, name=name)
-                instance.kind = {
-                        '': 'NORMAL',
-                        's': 'SLOW',
-                        'b': 'INCORRECT',
-                    }[match.group(1)]
-                instance.source_file.save(name, File(open(path, 'rb')))
-                logger.info('%s: model solution: %s', self.filename, name)
+
+        progs = [(x[0].group(1), x[1], x[2]) for x in
+                    ((names_re.match(name), name, os.path.join(progdir, name))
+                    for name in os.listdir(progdir))
+                if x[0] and os.path.isfile(x[2])]
+
+        # Dictionary -- kind_shortcut -> (order, full_kind_name)
+        kinds = {
+                '': (0, 'NORMAL'),
+                's': (1, 'SLOW'),
+                'b': (2, 'INCORRECT'),
+        }
+
+        def modelsolutionssort_key(key):
+            short_kind, name, _path = key
+            return (kinds[short_kind][0],
+                    naturalsort_key(name[:name.index(".")]))
+
+        for order, (short_kind, name, path) in \
+            enumerate(sorted(progs, key=modelsolutionssort_key)):
+            instance = ModelSolution(problem=self.problem, name=name,
+                                     order_key=order,
+                                     kind=kinds[short_kind][1])
+
+            instance.source_file.save(name, File(open(path, 'rb')))
+            logger.info('%s: model solution: %s', self.filename, name)
 
     def _save_original_package(self):
         original_package, created = \

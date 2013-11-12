@@ -88,6 +88,7 @@ class ModelSolution(models.Model):
     source_file = FileField(upload_to=make_problem_filename,
             verbose_name=_("source"))
     kind = EnumField(model_solution_kinds, verbose_name=_("kind"))
+    order_key = models.IntegerField(default=0)
 
     @property
     def short_name(self):
