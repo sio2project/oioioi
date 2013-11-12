@@ -3,7 +3,13 @@
 
 {% block title %}{% trans "Change message" %}{% endblock %}
 {% block content %}
-    <h2>{% trans "Change message" %}</h2>
+    <h2 style="margin-bottom: 20px">{% trans "Change message" %}</h2>
+    {% if message.top_reference %}
+    <div style="margin-top: 20px; margin-bottom: 20px">
+        <small>{% trans "This message is a reply to the following:" %}</small>
+        {% include "questions/single_message.html" with message=message.top_reference %}
+    </div>
+    {% endif %}
     <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
         {% csrf_token %}
         <div class="control-group">
@@ -21,12 +27,24 @@
             </div>
         </div>
         {% include "ingredients/form.html" with focus="textarea#id_content" %}
+        {% if message.top_reference %}
+            <div class="control-group">
+                <a tabindex="1000" id="respond_inline" class="controls" href="javascript:add_question_content();">
+                    {% blocktrans %}Add question content{% endblocktrans %}
+                </a>
+            </div>
+        {% endif %}
         <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="{% trans "Save" %}">
             <div class="right-side">
                 <a class="btn btn-primary" href="history/">{% trans "History" %}</a>
                 <a class="btn btn-danger" href="delete/">{% trans "Delete" %}</a>
             </div>
-            <input type="submit" class="btn btn-primary" value="{% trans "Save" %}">
         </div>
     </form>
+{% if message.top_reference %}
+<script type="text/javascript">
+    $(function() {scroll_to('textarea#id_content');});
+</script>
+{% endif %}
 {% endblock %}

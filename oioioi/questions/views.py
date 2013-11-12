@@ -107,7 +107,8 @@ def message_view(request, contest_id, message_id):
     if not vmessages.filter(id=message_id):
         raise PermissionDenied
     if message.top_reference_id is None:
-        replies = list(vmessages.filter(top_reference=message).all())
+        replies = list(vmessages.filter(top_reference=message) \
+                       .order_by('date'))
     else:
         replies = []
     if request.user.is_authenticated():
@@ -115,7 +116,7 @@ def message_view(request, contest_id, message_id):
             try:
                 MessageView.objects.get_or_create(message=m, user=request.user)
             except IntegrityError:
-                # get_or_greate does not guarantee race-free execution, so we
+                # get_or_create does not guarantee race-free execution, so we
                 # silently ignore the IntegrityError from the unique index
                 pass
     return TemplateResponse(request, 'questions/message.html',
@@ -155,11 +156,6 @@ def add_contest_message_view(request, contest_id):
             {'form': form, 'title': title, 'is_announcement': is_admin})
 
 
-def quote_for_reply(content):
-    lines = content.strip().split('\n')
-    return ''.join('> ' + l for l in lines)
-
-
 @enforce_condition(contest_exists & is_contest_admin)
 def add_reply_view(request, contest_id, message_id):
     question = get_object_or_404(Message, id=message_id,
@@ -177,7 +173,6 @@ def add_reply_view(request, contest_id, message_id):
     else:
         form = AddReplyForm(request, initial={
                 'topic': _("Re: ") + question.topic,
-                'content': quote_for_reply(question.content),
             })
 
     return TemplateResponse(request, 'questions/add.html',

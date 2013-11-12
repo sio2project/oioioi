@@ -1,6 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n %}
-{% load check_perm %}
+{% load i18n check_perm %}
 
 {% block title %}{{ message.topic }} - {% trans "Questions and announcements" %}{% endblock %}
 
@@ -22,46 +21,8 @@
     </ul>
 </div>
 {% endif %}
-<div class="message {% if is_admin %}admin{% endif %} {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if replies %}message_has_replies{% endif %}">
-    {% if is_admin %}
-    <div class="message_actions">
-        <a class="action" href="{% url 'oioioiadmin:questions_message_change' message.id %}"><i class="icon-edit"></i></a>
-        <a class="action" href="{% url 'oioioiadmin:questions_message_delete' message.id %}"><i class="icon-remove"></i></a>
-    </div>
-    {% endif %}
-    <div class="message_container">
-        <p class="message_info">
-        {% if is_admin %}
-            {{ message.author.username }} ({{ message.author.get_full_name }})
-        {% else %}
-            {{ message.author.get_full_name }}
-        {% endif %}
-        | <span class="message_timestamp">{{ message.date }}</span>
-        <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.get_kind_display }}</span>
-        </p>
-        <p class="message_body">{{ message.content|urlize }}</p>
-    </div>
-</div>
+{% include "questions/single_message.html" with message=message is_reply=False has_replies=replies %}
 {% for message in replies %}
-<div class="message message_reply {% if message.kind == 'PUBLIC' %}message_reply_public{% endif %} {% if is_admin %}admin{% endif %}">
-    {% if is_admin %}
-    <div class="message_actions">
-        <a class="action" href="{% url 'oioioiadmin:questions_message_change' message.id %}"><i class="icon-edit"></i></a>
-        <a class="action" href="{% url 'oioioiadmin:questions_message_delete' message.id %}"><i class="icon-remove"></i></a>
-    </div>
-    {% endif %}
-    <div class="message_container">
-        <p class="message_info">
-        {% if is_admin %}
-            {{ message.author.username }} ({{ message.author.get_full_name }})
-        {% else %}
-            {{ message.author.get_full_name }}
-        {% endif %}
-        | <span class="message_timestamp">{{ message.date }}</span>
-        <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.get_kind_display }}</span>
-        </p>
-        <p class="message_body">{{ message.content|urlize }}</p>
-    </div>
-</div>
+{% include "questions/single_message.html" with message=message is_reply=True has_replies=False %}
 {% endfor %}
 {% endblock %}

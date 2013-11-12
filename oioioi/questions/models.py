@@ -33,8 +33,8 @@ class Message(models.Model):
 
     def save(self, *args, **kwargs):
         # Assert integrity in this Message
-        if not self.has_category():
-            assert self.top_reference and self.top_reference.has_category()
+        if not self._has_category():
+            assert self.top_reference and self.top_reference._has_category()
             self.problem_instance = self.top_reference.problem_instance
             self.round = self.top_reference.round
         elif self.problem_instance:
@@ -57,12 +57,16 @@ class Message(models.Model):
     def can_have_replies(self):
         return self.kind == 'QUESTION'
 
-    def has_category(self):
+    def _has_category(self):
         return self.round is not None or self.problem_instance is not None
 
     def __unicode__(self):
         return u'%s - %s' % (message_kinds.get(self.kind, self.kind),
                              self.topic)
+    @property
+    def to_quote(self):
+        lines = self.content.strip().split('\n')
+        return ''.join('> ' + l for l in lines)
 
 class MessageView(models.Model):
     message = models.ForeignKey(Message)
