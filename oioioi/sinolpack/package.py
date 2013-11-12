@@ -313,6 +313,7 @@ class SinolPackage(object):
 
         source_candidates = [
                 checker_prefix + '.cpp',
+                checker_prefix + '.cc',
                 checker_prefix + '.c',
                 checker_prefix + '.pas',
             ]
@@ -352,7 +353,7 @@ class SinolPackage(object):
     def _process_model_solutions(self):
         ModelSolution.objects.filter(problem=self.problem).delete()
 
-        names_re = re.compile(r'^%s[0-9]*([bs]?)[0-9]*\.(c|cpp|pas|java)'
+        names_re = re.compile(r'^%s[0-9]*([bs]?)[0-9]*\.(c|cc|cpp|pas|java)'
                 % (re.escape(self.short_name),))
         progdir = os.path.join(self.rootdir, 'prog')
         for name in os.listdir(progdir):
