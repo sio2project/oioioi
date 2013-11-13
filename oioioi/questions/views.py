@@ -16,7 +16,8 @@ from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
 from oioioi.questions.utils import log_addition, unanswered_questions
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm, \
         FilterMessageForm, FilterMessageAdminForm
-from oioioi.questions.models import Message, MessageView, new_question_signal
+from oioioi.questions.models import Message, MessageView, ReplyTemplate, \
+        new_question_signal
 
 
 def visible_messages(request, author=None, category=None):
@@ -186,3 +187,26 @@ def get_messages_authors_view(request, contest_id):
                                                             'NUM_HINTS', 10)]
     users = ['%s (%s %s)' % u for u in users]
     return HttpResponse(json.dumps(users), content_type='application/json')
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def get_reply_templates_view(request, contest_id):
+    templates = ReplyTemplate.objects \
+                .filter(Q(contest=contest_id) | Q(contest__isnull=True)) \
+                .order_by('-usage_count')
+    templates = [{'id': t.id, 'name': t.visible_name, 'content': t.content}
+                 for t in templates]
+    return HttpResponse(json.dumps(templates), content_type='application/json')
+
+@enforce_condition(contest_exists & is_contest_admin)
+def increment_template_usage_view(request, contest_id, template_id=None):
+    try:
+        template = ReplyTemplate.objects.filter(id=template_id) \
+                                        .filter(Q(contest=contest_id) | \
+                                                Q(contest__isnull=True)).get()
+    except ReplyTemplate.DoesNotExist:
+        raise Http404
+
+    template.usage_count += 1
+    template.save()
+    return HttpResponse('OK', content_type='text/plain')

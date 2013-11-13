@@ -1,0 +1,42 @@
+[
+{
+  "pk": 1,
+  "model": "questions.replytemplate",
+  "fields": {
+    "content": "YES",
+    "usage_count": 1,
+    "name": "",
+    "contest": null
+  }
+},
+{
+  "pk": 2,
+  "model": "questions.replytemplate",
+  "fields": {
+    "content": "NO",
+    "usage_count": 3,
+    "name": "",
+    "contest": null
+  }
+},
+{
+  "pk": 3,
+  "model": "questions.replytemplate",
+  "fields": {
+    "content": "No answer.",
+    "usage_count": 10,
+    "name": "N/A",
+    "contest": null
+  }
+},
+{
+  "pk": 4,
+  "model": "questions.replytemplate",
+  "fields": {
+    "content": "This is contest 'c'.",
+    "usage_count": 0,
+    "name": "What contest is this?",
+    "contest": "c"
+  }
+}
+]

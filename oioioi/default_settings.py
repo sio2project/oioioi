@@ -221,6 +221,8 @@ NUM_DASHBOARD_MESSAGES = 8
 NUM_HINTS = 10
 NUM_RECENT_CONTESTS = 5
 
+REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
+
 PROBLEM_SOURCES = (
     'oioioi.problems.problem_sources.PackageSource',
 )

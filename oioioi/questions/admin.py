@@ -6,11 +6,13 @@ from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
+from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
-from oioioi.contests.models import ContestPermission
+from oioioi.contests.models import Contest, ContestPermission
 from oioioi.contests.utils import is_contest_admin
 from oioioi.questions.forms import ChangeContestMessageForm
-from oioioi.questions.models import Message, MessageNotifierConfig
+from oioioi.questions.models import Message, MessageNotifierConfig, \
+                                    ReplyTemplate
 
 
 class MessageAdmin(admin.ModelAdmin):
@@ -115,3 +117,55 @@ class MessageNotifierContestAdminMixin(object):
         super(MessageNotifierContestAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [MessageNotifierConfigInline]
 ContestAdmin.mix_in(MessageNotifierContestAdminMixin)
+
+
+class ReplyTemplateAdmin(admin.ModelAdmin):
+
+    def get_list_display(self, request):
+        if is_superuser(request):
+            return ['visible_name', 'content', 'contest', 'usage_count']
+        return ['visible_name', 'content', 'usage_count']
+
+    def get_list_filter(self, request):
+        if is_superuser(request):
+            return ['contest']
+        return []
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = []
+        if obj is None:
+            fields.append('usage_count')
+        return fields
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(ReplyTemplateAdmin, self).get_form(request, obj, **kwargs)
+        if 'contest' in form.base_fields:
+            if not is_superuser(request):
+                qs = Contest.objects.filter(pk=request.contest.pk)
+                form.base_fields['contest']._set_queryset(qs)
+                form.base_fields['contest'].required = True
+                form.base_fields['contest'].empty_label = None
+            form.base_fields['contest'].initial = request.contest
+        return form
+
+    def has_add_permission(self, request):
+        # Correct object contest ensured by form.
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        if obj:
+            return is_superuser(request) or \
+                   (is_contest_admin(request) and \
+                    obj.contest == request.contest)
+        return self.has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
+    def queryset(self, request):
+        queryset = super(ReplyTemplateAdmin, self).queryset(request)
+        if not is_superuser(request):
+            queryset = queryset.filter(contest=request.contest)
+        return queryset
+
+admin.site.register(ReplyTemplate, ReplyTemplateAdmin)
