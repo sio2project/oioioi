@@ -31,7 +31,7 @@ setup(
         "PyYAML",
         "django-nose",
         "django-registration>=1.0",
-        "django-celery",
+        "django-celery<3.1",
         "django-supervisor",
         "linaro-django-pagination",
         # Workaround for SIO-1266
