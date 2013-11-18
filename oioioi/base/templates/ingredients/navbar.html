@@ -46,7 +46,6 @@
             <ul class="nav pull-left">
                 {% all_with_prefix extra_navbar_left_ %}
                 {% block navbar-left-extras %}{% endblock %}
-                {% navbar_countdown %}
             </ul>
 
             {% include "ingredients/language_picker_pro.html" %}
@@ -92,6 +91,10 @@
                 {% endif %}
                 {% endblock %}
 
+            </ul>
+
+            <ul class="centered">
+                {% navbar_countdown %}
             </ul>
         </div>
     </div>
