@@ -41,7 +41,6 @@ def navbar_countdown(context):
 
     if current_rounds_times:
         countdown_destination = _("end of the round.")
-        countdown_dest_short = _("to the end")
         remaining_seconds = time.mktime((current_rounds_times[0].get_end())
                 .timetuple()) - time.mktime(timestamp.timetuple())
         round_duration = time.mktime(current_rounds_times[0].get_end()
@@ -50,7 +49,6 @@ def navbar_countdown(context):
         elapsed_part = 1 - 1. * remaining_seconds / round_duration
     elif next_rounds_times:
         countdown_destination = _("start of the round.")
-        countdown_dest_short = _("to the start")
         remaining_seconds = time.mktime((next_rounds_times[0].get_start())
             .timetuple()) - time.mktime(timestamp.timetuple())
         round_duration = 0
@@ -60,30 +58,20 @@ def navbar_countdown(context):
     seconds = remaining_seconds % 60
     seconds_str = ungettext('%(seconds)d second ',
         '%(seconds)d seconds ', seconds) % {'seconds': seconds}
-    seconds_short = _('%(seconds)ds ') % {'seconds': seconds}
-
     remaining_seconds /= 60
     minutes = int(remaining_seconds % 60)
     minutes_str = ungettext('%(minutes)d minute ',
         '%(minutes)d minutes ', minutes) % {'minutes': minutes}
-    minutes_short = _('%(minutes)dm ') % {'minutes': minutes}
-
     remaining_seconds /= 60
     hours = int(remaining_seconds % 24)
     hours_str = ungettext('%(hours)d hour ',
         '%(hours)d hours ', hours) % {'hours': hours}
-    hours_short = _('%(hours)dh ') % {'hours': hours}
-
     remaining_seconds /= 24
     days = int(remaining_seconds)
     days_str = ungettext('%(days)d day ',
         '%(days)d days ', days) % {'days': days}
-    days_short = _('%(days)dd ') % {'days': days}
-
     if days:
         countdown_days = days_str + hours_str + minutes_str + seconds_str
-        countdown_short = days_short + hours_short + minutes_short + \
-            seconds_short + countdown_dest_short
         countdown_text = \
             ungettext('%(countdown_days)sleft to the %(countdown_dest)s',
                       '%(countdown_days)sleft to the %(countdown_dest)s',
@@ -91,8 +79,6 @@ def navbar_countdown(context):
                                'countdown_dest': countdown_destination}
     elif hours:
         countdown_hours = hours_str + minutes_str + seconds_str
-        countdown_short = hours_short + minutes_short + seconds_short + \
-            countdown_dest_short
         countdown_text = \
             ungettext('%(countdown_hours)sleft to the %(countdown_dest)s',
                       '%(countdown_hours)sleft to the %(countdown_dest)s',
@@ -100,7 +86,6 @@ def navbar_countdown(context):
                                 'countdown_dest': countdown_destination}
     elif minutes:
         countdown_minutes = minutes_str + seconds_str
-        countdown_short = minutes_short + seconds_short + countdown_dest_short
         countdown_text = \
             ungettext('%(countdown_minutes)sleft to the %(countdown_dest)s',
                       '%(countdown_minutes)sleft to the %(countdown_dest)s',
@@ -108,7 +93,6 @@ def navbar_countdown(context):
                                   'countdown_dest': countdown_destination}
     elif seconds:
         countdown_seconds = seconds_str
-        countdown_short = seconds_short + countdown_dest_short
         countdown_text = \
             ungettext('%(countdown_seconds)sleft to the %(countdown_dest)s',
                       '%(countdown_seconds)sleft to the %(countdown_dest)s',
@@ -119,7 +103,6 @@ def navbar_countdown(context):
             countdown_text = _("The round is over!")
         else:
             countdown_text = _("The round has started!")
-        countdown_short = countdown_text
 
     if round_duration:
         if elapsed_part < 0.5:
@@ -135,6 +118,5 @@ def navbar_countdown(context):
         bar_color = ''
         elapsed_part = ''
 
-    return {'countdown_text': countdown_text,
-        'countdown_short': countdown_short,
-        'bar_color': bar_color, 'elapsed_part': elapsed_part}
+    return {'countdown_text': countdown_text, 'bar_color': bar_color,
+        'elapsed_part': elapsed_part}
