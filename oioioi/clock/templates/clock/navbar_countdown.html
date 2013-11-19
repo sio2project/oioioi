@@ -1,18 +1,10 @@
 <li class="progressbar">
 {% if elapsed_part %}
-    <div class="progress" id="navbar-progress">
+    <div class="progress">
         <div class="bar" id="navbar-progressbar" style="width: {{ elapsed_part }}; background: {{ bar_color }};"></div>
-        <!-- "countdown" and "countdonw_short" differ only when jQuery is
-        not supported by a browser. Otherwise the text type is chosen by
-        the jQuery script cloks.js according to the width of navbar-progress.
-        -->
         <span id="countdown">{{ countdown_text }}</span>
-        <span id="countdown_short">{{ countdown_short }}</span>
     </div>
-    {% elif countdown_text %}
-    <div class="progress" id="navbar-progress">
-        <span id="countdown">{{ countdown_text }}</span>
-        <span id="countdown_short">{{ countdown_short }}</span>
-    </div>
+{% elif countdown_text %}
+    <div id="countdown">{{ countdown_text }}</div>
 {% endif %}
 </li>

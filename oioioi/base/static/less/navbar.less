@@ -72,43 +72,13 @@
         }
     }
 
-    .centered {
-        list-style: none;
-        margin: 0;
-    }
-
     .progressbar {
         padding: 10px 0;
 
-        > div {
-            position: relative;
-        }
-
         * {
             text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+            width: 550px;
             position: absolute;
-            margin: 0;
-            max-width: 550px;
-
-            /* get_clocks.py generates two countdown
-            messages - a short one "countdown_short" and a
-            longer one "countdown".
-            However, when jQuery is supported by a browser,
-            clocks.js sets both "countdown_short" and
-            "countdown" to the same text value, according
-            to the width of the countdown bar. */
-
-            @media all and (min-width : 1350px) {
-                #countdown_short {
-                    visibility: hidden;
-                }
-            }
-
-            @media all and (max-width : 1349px) {
-                #countdown {
-                    visibility: hidden;
-                }
-            }
 
             span {
                 color: @grayDark;

@@ -1,6 +1,4 @@
 $(function() {
-    const full_text_width = 550;
-    const short_text_width = 250;
     var round_duration_in_s;
     var is_time_admin;
     var is_admin_time_set;
@@ -20,47 +18,32 @@ $(function() {
         if (remaining_seconds >= 0) {
             var countdown = remaining_seconds;
             var countdown_destination;
-            var countdown_dest_short;
             if (round_duration_in_s) {
                 countdown_destination = gettext("end of the round.");
-                countdown_dest_short = gettext("to the end");
             } else {
                 countdown_destination = gettext("start of the round.");
-                countdown_dest_short = gettext("to the start");
             }
 
             var seconds = countdown % 60;
             var seconds_str = ngettext("%(seconds)s second ",
                 "%(seconds)s seconds ", seconds).fmt({seconds: seconds});
-            var seconds_short =
-                gettext("%(seconds)ss ").fmt({seconds: seconds});
-
             countdown = Math.floor(countdown / 60);
             var minutes = countdown % 60;
             var minutes_str = ngettext("%(minutes)s minute ",
                 "%(minutes)s minutes ", minutes).fmt({minutes: minutes});
-            var minutes_short =
-                gettext("%(minutes)sm ").fmt({minutes: minutes});
-
             countdown = Math.floor(countdown / 60);
             var hours = countdown % 24;
             var hours_str = ngettext("%(hours)s hour ", "%(hours)s hours ",
                 hours).fmt({hours: hours});
-            var hours_short = gettext("%(hours)sh ").fmt({hours: hours});
-
             countdown = Math.floor(countdown / 24);
             var days = countdown;
             var days_str = ngettext("%(days)s day ", "%(days)s days ",
                 days).fmt({days: days});
-            var days_short = gettext("%(days)sd ").fmt({days: days});
 
             var countdown_text;
-            var countdown_short;
             if (days) {
                 var countdown_days = days_str + hours_str + minutes_str +
                     seconds_str;
-                countdown_short = days_short + hours_short + minutes_short +
-                    seconds_short + countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_days)sleft to the %(countdown_destination)s",
                     "%(countdown_days)sleft to the %(countdown_destination)s",
@@ -68,8 +51,6 @@ $(function() {
                     countdown_destination: countdown_destination});
             } else if (hours) {
                 var countdown_hours = hours_str + minutes_str + seconds_str;
-                countdown_short = hours_short + minutes_short + seconds_short +
-                    countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_hours)sleft to the" +
                     " %(countdown_destination)s",
@@ -79,8 +60,6 @@ $(function() {
                     countdown_destination: countdown_destination});
             } else if (minutes) {
                 var countdown_minutes = minutes_str + seconds_str;
-                countdown_short = minutes_short + seconds_short +
-                    countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_minutes)sleft to the" +
                     " %(countdown_destination)s",
@@ -90,7 +69,6 @@ $(function() {
                     countdown_destination: countdown_destination});
             } else if (seconds) {
                 var countdown_seconds = seconds_str;
-                countdown_short = seconds_short + countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_seconds)sleft to the" +
                     " %(countdown_destination)s",
@@ -104,7 +82,6 @@ $(function() {
                 } else {
                     countdown_text = gettext("The round has started!");
                 }
-                countdown_short = countdown_text;
             }
 
             if (round_duration_in_s) {
@@ -125,21 +102,8 @@ $(function() {
                     "width": Math.floor(elapsed_part * 100) + "%"
                 });
             }
-            var bar_width = $('#navbar-progress').width();
-            if (bar_width < short_text_width) {
-                $('#navbar-progress').css('visibility', 'hidden');
-            } else {
-                $('#navbar-progress').css('visibility', 'visible');
-                // When jQuery is supported, we override the countdown
-                // type chosen by CSS.
-                if (bar_width < full_text_width) {
-                    $('#countdown').text(countdown_short);
-                    $('#countdown_short').text(countdown_short);
-                } else {
-                    $('#countdown').text(countdown_text);
-                    $('#countdown_short').text(countdown_text);
-                }
-            }
+
+            $('#countdown').text(countdown_text);
         }
     }
 
