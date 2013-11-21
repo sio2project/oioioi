@@ -106,7 +106,12 @@ class SubmissionForm(forms.Form):
 
         pi_choices = [(pi.id, unicode(pi)) for pi in pis]
         pi_field = self.fields['problem_instance_id']
-        pi_field.choices = pi_choices
+
+        if len(pi_choices) > 1:
+            pi_field.choices = [('', '')] + pi_choices
+        else:
+            pi_field.choices = pi_choices
+
         pi_field.widget.attrs['class'] = 'input-xlarge'
 
         request.contest.controller.adjust_submission_form(request, self)
