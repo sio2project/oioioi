@@ -108,7 +108,7 @@ USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
 
 # Uncomment this line to limit availability of programming languages.
-#SUBMITTABLE_EXTENSIONS = ['c', 'cpp', 'pas']
+#SUBMITTABLE_EXTENSIONS = ['c', 'cc', 'cpp', 'pas']
 
 # Controls if uwsgi in default configuration shall use gevent loop.
 # To use it, you have to install gevent - please consult
