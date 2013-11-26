@@ -1,0 +1,40 @@
+/* http://engineering.hoteltonight.com/using-css-media-queries-for-multi-platform/ */
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+    /* High-DPI Smartphones
+     *
+     * Our site is quite easily adapted if we don't mind having small text.
+     * We just let the device zoom out the page, and we only make navbar and
+     * sidebar absolute-positioned, so that they do not obscure the view when
+     * the page is zoomed in.
+     */
+    only screen and (max-device-width: 480px)
+    /* Medium- and Low-DPI Smartphones
+     *
+     * Well, it's a lot of zooming, but still can be used by less nervous
+     * people. :)
+     */
+{
+    #main-navbar {
+        position: absolute;
+        width: 1000px;
+    }
+
+    header#grp-header {
+        position: absolute;
+    }
+
+    #menu_div {
+        position: absolute;
+        min-height: 1000px;
+    }
+
+    footer.grp-fixed-footer {
+        position: absolute;
+        width: 600px;
+    }
+
+    footer.grp-fixed-footer > ul {
+        margin-left: 0 !important;
+    }
+}
