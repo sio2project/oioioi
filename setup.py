@@ -59,7 +59,7 @@ setup(
         "sioworkers>=0.92",
 
         "fpdf",
-        "pdfminer>=20110515",
+        "pdfminer>=20110515,<20131113",
         "slate",
         "unicodecsv",
 
