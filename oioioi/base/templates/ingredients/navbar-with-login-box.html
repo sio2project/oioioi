@@ -14,10 +14,10 @@
     <script>
         $(document).ready(function(){
             function init_login() {
-                $(".navbar-login .default").focus().select();
-
+                var jloginform = $('.navbar-login');
+                jloginform.focus().select();
                 if (!$.Storage.get('login-popover-shown')) {
-                    $('.navbar-login .default').popover({
+                    jloginform.popover({
                             placement: 'bottom',
                             offset: 9,
                             trigger: 'manual',
@@ -28,11 +28,10 @@
                         }).each(function(index, elem) {
                             var popover = $(elem).data('popover');
                             popover.show();
-                            popover.$tip.css({ position: 'fixed' });
                             $(document).click(function() {
                                 popover.hide();
                                 $.Storage.set('login-popover-shown', 'yes');
-                                $('.navbar-login .default').focus();
+                                jloginform.focus();
                                 return true;
                             });
                         });
