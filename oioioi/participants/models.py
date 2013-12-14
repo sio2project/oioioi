@@ -2,9 +2,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.fields import EnumRegistry, EnumField
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest
+from oioioi.participants.fields import \
+        OneToOneBothHandsCascadingParticipantField
 
 
 check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
@@ -41,8 +44,13 @@ class Participant(models.Model):
 
 
 class RegistrationModel(models.Model):
-    participant = models.OneToOneField(Participant,
+    participant = OneToOneBothHandsCascadingParticipantField(Participant,
             related_name='%(app_label)s_%(class)s')
 
     class Meta(object):
         abstract = True
+
+
+class TestRegistration(RegistrationModel):
+    """Used only for testing"""
+    name = models.CharField(max_length=255)

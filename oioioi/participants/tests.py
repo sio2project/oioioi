@@ -12,7 +12,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
     ContestPermission
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.participants.controllers import ParticipantsController
-from oioioi.participants.models import Participant
+from oioioi.participants.models import Participant, TestRegistration
 from oioioi.participants.management.commands import import_participants
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.test_settings import MIDDLEWARE_CLASSES
@@ -331,3 +331,36 @@ class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
         with fake_time(datetime(2012, 1, 1, 10, tzinfo=utc)):
             self._assertContestVisible('c2')
             self._assertContestRedirects('c1', '/c/c2')
+
+
+class TestRegistrationModel(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def test_both_hands_cascading_on_registration_delete(self):
+        def _assert_equals_len(expectedLen=None):
+            self.assertEquals(Participant.objects.count(),
+                              TestRegistration.objects.count())
+            if expectedLen:
+                self.assertEquals(Participant.objects.count(), expectedLen)
+
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.participants.tests.ParticipantsContestController'
+        contest.save()
+
+        reg = []
+
+        for user in User.objects.all():
+            p = Participant(contest=contest, user=user)
+            p.save()
+            r = TestRegistration(participant=p, name='trolololo')
+            r.save()
+            reg.append(r)
+
+        _assert_equals_len(len(reg))
+        reg[0].delete()
+        _assert_equals_len(len(reg) - 1)
+        reg[1].participant.delete()
+        _assert_equals_len(len(reg) - 2)
+        reg = TestRegistration.objects.filter(name='trolololo').delete()
+        _assert_equals_len(0)

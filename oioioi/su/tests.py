@@ -115,7 +115,8 @@ class TestSwitchingUsers(TestCase):
         response = self.client.get(reverse('get_suable_users'),
                 {'substr': 'te'})
         response = json.loads(response.content)
-        self.assertListEqual(['test_user', 'test_user2'], response)
+        self.assertListEqual(['test_user', 'test_user2', 'test_user3'],
+                             response)
 
         response = self.client.post(reverse('su'), {'user': 'test_user'})
         self.assertEquals(302, response.status_code)
