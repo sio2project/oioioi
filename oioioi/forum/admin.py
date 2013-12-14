@@ -1,7 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
@@ -26,8 +27,8 @@ def get_permission(self, request):
 
 class ForumAdmin(admin.ModelAdmin):
     fields = ('visible', 'lock_date', 'unlock_date', 'categories',
-              'add_category')
-    readonly_fields = ('categories', 'add_category')
+              'add_category', 'posts_admin')
+    readonly_fields = ('categories', 'add_category', 'posts_admin')
 
     def categories(self, obj):
         slist = [make_list_elem(c) for c in obj.category_set.all()]
@@ -42,6 +43,12 @@ class ForumAdmin(admin.ModelAdmin):
         return make_html_link(reverse('oioioiadmin:forum_category_add',), '+')
     add_category.allow_tags = True
     add_category.short_description = _("Add category")
+
+    def posts_admin(self, obj):
+        return make_html_link(reverse('oioioiadmin:forum_post_changelist',),
+                _("Posts admin view"))
+    posts_admin.allow_tags = True
+    posts_admin.short_description = _("Posts")
 
     def has_add_permission(self, request):
         return False
@@ -186,6 +193,10 @@ class ThreadAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
+    list_display = ['id', 'author', 'thread', 'content', 'reported', 'hidden']
+    list_display_links = ['id', 'reported', 'hidden']
+    list_filter = ['reported', 'hidden', 'thread']
+    actions = ['hide_action', 'unreport_action']
     fields = ['content', 'thread', 'author', 'reported', 'hidden']
     readonly_fields = ['author']
 
@@ -217,6 +228,30 @@ class PostAdmin(admin.ModelAdmin):
                 category__forum=request.contest.forum)
         return super(PostAdmin, self) \
             .formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def hide_action(self, request, queryset):
+        queryset.update(hidden=True)
+
+        counter = queryset.count()
+        self.message_user(
+            request,
+            ungettext_lazy("Hid one post.",
+                           "Hid %(counter)d posts.",
+                           counter)
+                % {'counter': counter})
+    hide_action.short_description = _("Hide selected posts")
+
+    def unreport_action(self, request, queryset):
+        queryset.update(reported=False)
+
+        counter = queryset.count()
+        self.message_user(
+            request,
+            ungettext_lazy("Unreported one post.",
+                           "Unreported %(counter)d posts.",
+                           counter)
+                % {'counter': counter})
+    unreport_action.short_description = _("Unreport selected posts")
 
     def queryset(self, request):
         qs = super(PostAdmin, self).queryset(request)

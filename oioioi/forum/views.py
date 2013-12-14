@@ -170,6 +170,16 @@ def report_post_view(request, contest_id, category_id, thread_id, post_id):
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
+def unreport_post_view(request, contest_id, category_id, thread_id, post_id):
+    (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
+    post.reported = False
+    post.save()
+    return redirect('forum_thread', contest_id=contest_id,
+                    category_id=category.id, thread_id=thread.id)
+
+@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(forum_exists_and_visible & is_proper_forum)
+@require_POST
 def hide_post_view(request, contest_id, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.hidden = True
