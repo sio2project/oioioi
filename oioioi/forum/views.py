@@ -38,8 +38,10 @@ def forum_view(request, contest_id):
 def category_view(request, contest_id, category_id):
     category = get_object_or_404(Category, id=category_id)
     msgs = get_msgs(request)
+    threads = category.thread_set.select_related('last_post').all()
     return TemplateResponse(request, 'forum/category.html',
-        {'forum': request.contest.forum, 'category': category, 'msgs': msgs,
+        {'forum': request.contest.forum, 'category': category,
+         'threads': threads, 'msgs': msgs,
          'is_locked': forum_is_locked(request)})
 
 
@@ -148,6 +150,7 @@ def delete_post_view(request, contest_id, category_id, thread_id, post_id):
             return choice
         if choice:
             post.delete()
+
             if not thread.post_set.exists():
                 thread.delete()
                 return redirect('forum_category', contest_id=contest_id,

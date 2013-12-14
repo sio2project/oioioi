@@ -1,7 +1,9 @@
 import datetime
 from django.db import models
+from django.db.models.signals import post_save, post_delete
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
@@ -84,9 +86,11 @@ class Thread(models.Model):
 
     category = models.ForeignKey(Category, verbose_name=_("category"))
     name = models.CharField(max_length=255, verbose_name=_("thread"))
+    last_post = models.ForeignKey('Post', null=True, on_delete=models.SET_NULL,
+            verbose_name=_("last post"), related_name='last_post_of')
 
     class Meta(object):
-        ordering = ('-id',)
+        ordering = ('-last_post__id',)
         verbose_name = _("thread")
         verbose_name_plural = _("threads")
 
@@ -139,3 +143,23 @@ class Post(models.Model):
     def can_be_removed(self):
         return bool((timezone.now() - self.add_date)
                     < datetime.timedelta(minutes=15))
+
+@receiver(post_save, sender=Post)
+def _set_as_new_last_post(sender, instance, created, **kwargs):
+    if created:
+        thread = instance.thread
+        thread.last_post = instance
+        thread.save()
+
+@receiver(post_delete, sender=Post)
+def _update_last_post(sender, instance, **kwargs):
+    try:
+        thread = instance.thread
+    except Thread.DoesNotExist:
+        # This may happen during cascade model deleting
+        return
+    try:
+        thread.last_post = thread.post_set.latest('id')
+    except Post.DoesNotExist:
+        thread.last_post = None
+    thread.save()

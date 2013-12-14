@@ -27,7 +27,7 @@
     </li>
 </div>
 {% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
-{% if category.thread_set.exists %}
+{% if threads %}
 <table class="table auto-width row-links">
     <thead>
         <tr>
@@ -37,10 +37,11 @@
                 <th style="min-width: 60px">{% trans "Options" %}</th>
                 <th style="min-width: 60px">{% trans "Reported posts" %}</th>
             {% endif %}
+            <th style="min-width: 100px">{% trans "Last post" %}</th>
         </tr>
     </thead>
     <tbody>
-        {% for t in category.thread_set.all %}
+        {% for t in threads %}
         <tr>
             <td>
                 <a href="{% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=t.id %}">
@@ -56,6 +57,7 @@
                     {{ t.count_reported }}
                 </td>
             {% endif %}
+            <td>{% blocktrans with date=t.last_post.add_date author=t.last_post.author.get_full_name %}{{ date }}, by {{ author }}{% endblocktrans %}</td>
         </tr>
         {% endfor %}
     </tbody>
