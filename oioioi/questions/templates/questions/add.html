@@ -5,18 +5,9 @@
 
 {% block content %}
 <h2>{{ title }}</h2>
-{% if is_reply %}
-<div style="margin-bottom: 20px">
-    {% include "questions/single_message.html" with message=question is_reply=False has_replies=False %}
-</div>
-{% endif %}
 <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
     {% csrf_token %}
-    {% if is_reply %}
-        {% include "ingredients/form.html" with focus="textarea#id_content" %}
-    {% else %}
-        {% include "ingredients/form.html" %}
-    {% endif %}
+    {% include "ingredients/form.html" %}
     {% if is_announcement %}
     <div class="control-group">
         <div class="controls">
@@ -24,20 +15,8 @@
         </div>
     </div>
     {% endif %}
-    {% if is_reply %}
-    <div class="control-group">
-        <a tabindex="1000" id="respond_inline" class="controls" href="javascript:add_question_content();">
-            {% blocktrans %}Respond inline{% endblocktrans %}
-        </a>
-    </div>
-    {% endif %}
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
     </div>
 </form>
-{% if is_reply %}
-<script type="text/javascript">
-    $(function() {scroll_to('textarea#id_content');});
-</script>
-{% endif %}
 {% endblock %}

@@ -102,7 +102,7 @@ def messages_view(request, contest_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, contest_id, message_id):
-    message = get_object_or_404(Message, id=message_id)
+    message = get_object_or_404(Message, id=message_id, contest_id=contest_id)
     vmessages = visible_messages(request)
     if not vmessages.filter(id=message_id):
         raise PermissionDenied
@@ -111,6 +111,24 @@ def message_view(request, contest_id, message_id):
                        .order_by('date'))
     else:
         replies = []
+    if is_contest_admin(request) and message.kind == 'QUESTION' and \
+            message.can_have_replies:
+        if request.method == 'POST':
+            form = AddReplyForm(request, request.POST)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.top_reference = message
+                instance.author = request.user
+                instance.date = request.timestamp
+                instance.save()
+                log_addition(request, instance)
+                return redirect('contest_messages', contest_id=contest_id)
+        else:
+            form = AddReplyForm(request, initial={
+                    'topic': _("Re: ") + message.topic,
+                })
+    else:
+        form = None
     if request.user.is_authenticated():
         for m in [message] + replies:
             try:
@@ -120,8 +138,8 @@ def message_view(request, contest_id, message_id):
                 # silently ignore the IntegrityError from the unique index
                 pass
     return TemplateResponse(request, 'questions/message.html',
-                {'message': message, 'replies': replies,
-                    'reply_to_id': message.top_reference_id or message.id})
+            {'message': message, 'replies': replies, 'form': form,
+                 'reply_to_id': message.top_reference_id or message.id})
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
@@ -154,30 +172,6 @@ def add_contest_message_view(request, contest_id):
 
     return TemplateResponse(request, 'questions/add.html',
             {'form': form, 'title': title, 'is_announcement': is_admin})
-
-
-@enforce_condition(contest_exists & is_contest_admin)
-def add_reply_view(request, contest_id, message_id):
-    question = get_object_or_404(Message, id=message_id,
-            contest_id=contest_id, kind='QUESTION')
-    if request.method == 'POST':
-        form = AddReplyForm(request, request.POST)
-        if form.is_valid():
-            instance = form.save(commit=False)
-            instance.top_reference = question
-            instance.author = request.user
-            instance.date = request.timestamp
-            instance.save()
-            log_addition(request, instance)
-            return redirect('contest_messages', contest_id=contest_id)
-    else:
-        form = AddReplyForm(request, initial={
-                'topic': _("Re: ") + question.topic,
-            })
-
-    return TemplateResponse(request, 'questions/add.html',
-            {'form': form, 'title': _("Reply"), 'is_reply': True,
-             'question': question})
 
 
 @enforce_condition(contest_exists & is_contest_admin)
