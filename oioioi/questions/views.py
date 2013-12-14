@@ -1,3 +1,5 @@
+import datetime
+import calendar
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -7,19 +9,19 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-
+from django.utils.text import Truncator
 from oioioi.base.menu import menu_registry
 from oioioi.base.utils import jsonify
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.user_selection import get_user_q_expression
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-        visible_rounds, contest_exists
+    visible_rounds, contest_exists
 from oioioi.questions.utils import get_categories, log_addition, \
-        unanswered_questions
+    unanswered_questions
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm, \
-        FilterMessageForm, FilterMessageAdminForm
+    FilterMessageForm, FilterMessageAdminForm
 from oioioi.questions.models import Message, MessageView, ReplyTemplate, \
-        new_question_signal
+    new_question_signal
 
 
 def visible_messages(request, author=None, category=None):
@@ -53,6 +55,10 @@ def new_messages(request, messages=None):
         messages = visible_messages(request)
     return messages.exclude(messageview__user=request.user) \
             .exclude(author=request.user)
+
+
+def request_time_seconds(request):
+    return calendar.timegm(request.timestamp.timetuple())
 
 
 def messages_template_context(request, messages):
@@ -103,7 +109,6 @@ def messages_view(request, contest_id):
          'num_hints': getattr(settings, 'NUM_HINTS', 10),
          'categories': get_categories(request)})
 
-
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, contest_id, message_id):
     message = get_object_or_404(Message, id=message_id, contest_id=contest_id)
@@ -119,7 +124,7 @@ def message_view(request, contest_id, message_id):
             message.can_have_replies:
         if request.method == 'POST':
             form = AddReplyForm(request, request.POST)
-            if form.is_valid():
+            if request.POST.get('just_reload') != 'yes' and form.is_valid():
                 instance = form.save(commit=False)
                 instance.top_reference = message
                 instance.author = request.user
@@ -143,7 +148,8 @@ def message_view(request, contest_id, message_id):
                 pass
     return TemplateResponse(request, 'questions/message.html',
             {'message': message, 'replies': replies, 'form': form,
-                 'reply_to_id': message.top_reference_id or message.id})
+                 'reply_to_id': message.top_reference_id or message.id,
+                 'timestamp': request_time_seconds(request)})
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
@@ -214,3 +220,18 @@ def increment_template_usage_view(request, contest_id, template_id=None):
     template.usage_count += 1
     template.save()
     return HttpResponse('OK', content_type='text/plain')
+
+
+@jsonify
+@enforce_condition(contest_exists)
+def check_new_messages_view(request, contest_id, topic_id):
+    timestamp = request.GET['timestamp']
+    unix_date = datetime.datetime.fromtimestamp(int(timestamp))
+    output = [[x.topic,
+              Truncator(x.content)
+              .chars(settings.MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH),
+              x.id]
+              for x in visible_messages(request)
+              .filter(top_reference_id=topic_id)
+              .filter(date__gte=unix_date)]
+    return {'timestamp': request_time_seconds(request), 'messages': output}

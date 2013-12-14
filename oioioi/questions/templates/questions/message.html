@@ -5,11 +5,25 @@
 
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
+
 <h3 class="message_topic">
     {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
     {{ message.topic }}
 </h3>
 {% if is_admin %}
+<script type="text/javascript">
+    var alertText = '<div class="alert alert-info" id="alert_%id%">' +
+        '<h4>{% trans "New answer available" %}' + '</h4><p>' + '%content%' + '</p>' +
+        '<p><button type="button" class="btn btn-info" onclick="new_answer_reload_page()">' +
+        '{% trans "Reload page" %}' + '</button> ' +
+        '<button type="button" class="btn btn-info" onclick="dismissNewMessageAlert(%id%)">' +
+        '{% trans "Dismiss" %}' +
+        '</button><p></div>';
+
+    $(function() { $("#disabled-text").hide(); });
+    $(function() { beginCheckAnswersInMeantime('{% url 'check_new_messages' contest_id=contest.id topic_id=message.id %}', {{ timestamp }}) });
+</script>
+
 <div class="corner-icons">
     <ul>
         <li>
@@ -34,11 +48,12 @@
 {% include "questions/single_message.html" with message=message is_reply=True has_replies=False %}
 {% endfor %}
 {% if form %}
-<div class="message message_reply"><div class="message_container">
+<div class="message message_reply">
+    <div class="message_container">
     <p class="message_info message_info_new">
         <span class="label label-inverse">{% trans "New reply" %}</span>
     </p>
-    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    <form enctype="multipart/form-data" id="reply_form" method="post" class="form-horizontal">
         {% csrf_token %}
         {% include "ingredients/form.html" with focus=False %}
         <div class="control-group"><div class="controls">
@@ -55,8 +70,10 @@
                 <i class="icon-pencil"></i> {% trans "Respond inline" %}
             </a>
         </div></div>
+        <div id="alerts" class="controls"></div>
         <div class="form-actions">
-            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+            <input type="hidden" id="just_reload" name="just_reload" value="no">
+            <input type="submit" id="submitter" class="btn btn-primary" value="{% trans "Submit" %}">
             <span class="pull-right">
             <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
             <label class="no_left_padding checkbox inline" for="id_fake_save_template">{% trans "Save as template" %}</label>
@@ -70,6 +87,8 @@
             </span>
         </div>
     </form>
-</div></div>
+
+</div>
+</div>
 {% endif %}
 {% endblock %}

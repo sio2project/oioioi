@@ -1,10 +1,11 @@
 import json
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.questions.models import Message, ReplyTemplate
-
 
 class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -276,3 +277,12 @@ class TestQuestions(TestCase):
         self.assertEqual(len(templates), 4)
         self.client.login(username='test_user')
         check_not_accessible(self, url1)
+
+    def test_check_new_messages(self):
+        self.client.login(username='test_user')
+        url = reverse('check_new_messages',
+                      args=("c", 2))
+        resp = self.client.get(url, {'timestamp': 1347000000})
+        data = json.loads(resp.content)['messages']
+
+        self.assertEqual(data[1][0], u'private-answer')

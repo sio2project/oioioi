@@ -1,12 +1,16 @@
 {% extends "base-with-menu.html" %}
+
 {% load i18n %}
+{% load staticfiles %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+
 <h2>{{ title }}</h2>
 <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
     {% csrf_token %}
+    <div id="alerts"></div>
     {% include "ingredients/form.html" %}
     {% if is_announcement %}
     <div class="control-group">
@@ -16,7 +20,7 @@
     </div>
     {% endif %}
     <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        <input id="submitter" type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
     </div>
 </form>
 {% endblock %}
