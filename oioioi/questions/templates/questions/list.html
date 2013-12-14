@@ -14,18 +14,21 @@
         <li>
             {% if is_admin %}
             <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
-                <i class="icon-comment"></i> {% trans "Add announcement" %}
+                <i class="icon-comment"></i>
+                <span class="toolbar-button-text">{% trans "Add announcement" %}</span>
             </a>
             {% elif categories %}
             <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
-                <i class="icon-question-sign"></i> {% trans "Ask a question" %}
+                <i class="icon-question-sign"></i>
+                <span class="toolbar-button-text">{% trans "Ask a question" %}</span>
             </a>
             {% endif %}
         </li>
         {% if is_admin %}
         <li>
             <a class="btn btn-small" href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
-            <i class="icon-pencil"></i> {% trans "Edit reply templates" %}
+                <i class="icon-pencil"></i>
+                <span class="toolbar-button-text">{% trans "Edit reply templates" %}</span>
             </a>
         </li>
         {% endif %}

@@ -1,5 +1,25 @@
-/* http://engineering.hoteltonight.com/using-css-media-queries-for-multi-platform/ */
 
+@media screen and (max-width: 1135px)
+{
+    .btn .toolbar-button-text
+    {
+        display: none;
+    }
+
+    .corner-icons
+    {
+        text-align: left !important;
+        left: 260px;
+    }
+
+    /* because heading would be under buttons */
+    .main-content h2, .main-content h3
+    {
+        max-width: 250px;
+    }
+}
+
+/* http://engineering.hoteltonight.com/using-css-media-queries-for-multi-platform/ */
 @media only screen and (-webkit-min-device-pixel-ratio: 2),
     /* High-DPI Smartphones
      *
