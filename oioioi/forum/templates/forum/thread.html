@@ -57,7 +57,7 @@
                         {% if is_admin %}
                         | <a href="#" data-post-url="{% url 'forum_post_hide' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "hide" %}</a>
                             {% if p.reported %}
-                        |    <a href="#" data-post-url="{% url 'forum_post_unreport' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "unreport" %}</a>
+                        |    <a href="#" data-post-url="{% url 'forum_post_unreport' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "dismiss report" %}</a>
                             {% endif %}
                         {% elif not user.is_anonymous and not p.reported %}
                         | <a href="#" data-post-url="{% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "report" %}</a>

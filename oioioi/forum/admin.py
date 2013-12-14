@@ -241,8 +241,8 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy("Hid one post.",
-                           "Hid %(counter)d posts.",
+            ungettext_lazy("One post has been hidden.",
+                           "%(counter)d posts have been hidden.",
                            counter)
                 % {'counter': counter})
     hide_action.short_description = _("Hide selected posts")
@@ -253,11 +253,11 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy("Unreported one post.",
-                           "Unreported %(counter)d posts.",
-                           counter)
+            ungettext_lazy("\"Reported\" status removed from one post.",
+                           "\"Reported\" status removed from %(counter)d "
+                           "posts.", counter)
                 % {'counter': counter})
-    unreport_action.short_description = _("Unreport selected posts")
+    unreport_action.short_description = _("Dismiss reports for selected posts")
 
     def queryset(self, request):
         qs = super(PostAdmin, self).queryset(request)
