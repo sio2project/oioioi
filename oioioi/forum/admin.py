@@ -193,12 +193,18 @@ class ThreadAdmin(admin.ModelAdmin):
 
 
 class PostAdmin(admin.ModelAdmin):
-    list_display = ['id', 'author', 'thread', 'content', 'reported', 'hidden']
+    list_display = ['id', 'author', 'thread_link', 'content', 'reported',
+            'hidden']
     list_display_links = ['id', 'reported', 'hidden']
     list_filter = ['reported', 'hidden', 'thread']
     actions = ['hide_action', 'unreport_action']
     fields = ['content', 'thread', 'author', 'reported', 'hidden']
     readonly_fields = ['author']
+
+    def thread_link(self, obj):
+        return make_html_link(obj.get_in_thread_url(), obj.thread.name)
+    thread_link.allow_tags = True
+    thread_link.short_description = _("Thread")
 
     def has_add_permission(self, request):
         return False
@@ -235,8 +241,8 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy("Hid one post.",
-                           "Hid %(counter)d posts.",
+            ungettext_lazy("One post has been hidden.",
+                           "%(counter)d posts have been hidden.",
                            counter)
                 % {'counter': counter})
     hide_action.short_description = _("Hide selected posts")
@@ -247,11 +253,11 @@ class PostAdmin(admin.ModelAdmin):
         counter = queryset.count()
         self.message_user(
             request,
-            ungettext_lazy("Unreported one post.",
-                           "Unreported %(counter)d posts.",
-                           counter)
+            ungettext_lazy("\"Reported\" status removed from one post.",
+                           "\"Reported\" status removed from %(counter)d "
+                           "posts.", counter)
                 % {'counter': counter})
-    unreport_action.short_description = _("Unreport selected posts")
+    unreport_action.short_description = _("Dismiss reports for selected posts")
 
     def queryset(self, request):
         qs = super(PostAdmin, self).queryset(request)
