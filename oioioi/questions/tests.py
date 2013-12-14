@@ -78,7 +78,7 @@ class TestQuestions(TestCase):
         response = self.client.get(list_url)
         self.assertIn('the-new-question', response.content)
 
-        url = reverse('message_reply', kwargs={'contest_id': contest.id,
+        url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
         response = self.client.get(url)
         self.assertIn('form', response.context)

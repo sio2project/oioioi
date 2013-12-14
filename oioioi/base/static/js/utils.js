@@ -19,3 +19,8 @@ if (!String.prototype.startsWith) {
 function scroll_to(selector) {
     $('html, body').scrollTop($(selector).offset().top);
 }
+
+function scroll_and_focus(selector) {
+    scroll_to(selector);
+    $(selector).focus();
+}

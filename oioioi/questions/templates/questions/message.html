@@ -15,7 +15,7 @@
         <li><a class="btn btn-small" href="{% url 'oioioiadmin:auth_user_change' message.author_id %}">
             <i class="icon-user"></i> {% trans "Display user" %}</a></li>
         {% if message.can_have_replies %}
-        <li><a class="btn btn-small" href="{% url 'message_reply' contest_id=contest.id message_id=reply_to_id %}">
+        <li><a class="btn btn-small" href="javascript:scroll_and_focus('#id_content');">
             <i class="icon-pencil"></i> {% trans "Reply" %}</a></li>
         {% endif %}
     </ul>
@@ -25,4 +25,23 @@
 {% for message in replies %}
 {% include "questions/single_message.html" with message=message is_reply=True has_replies=False %}
 {% endfor %}
+{% if form %}
+<div class="message message_reply"><div class="message_container">
+<p class="message_info message_info_new">
+<span class="label label-inverse">{% trans "New reply" %}</span>
+</p>
+<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    {% csrf_token %}
+    {% include "ingredients/form.html" with focus=False %}
+    <div class="control-group">
+        <a tabindex="1000" id="respond_inline" class="controls" href="javascript:add_question_content();">
+            {% trans "Respond inline" %}
+        </a>
+    </div>
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>
+</div></div>
+{% endif %}
 {% endblock %}
