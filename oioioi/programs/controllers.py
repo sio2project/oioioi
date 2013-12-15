@@ -6,6 +6,7 @@ from operator import attrgetter
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -192,32 +193,16 @@ class ProgrammingContestController(ContestController):
     def get_submission_size_limit(self):
         return 102400  # in bytes
 
+    def get_allowed_languages(self):
+        lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+        return lang_exts.keys()
+
     def get_allowed_extensions(self):
-        return getattr(settings, 'SUBMITTABLE_EXTENSIONS', [])
+        lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+        return [ext for lang in lang_exts.values() for ext in lang]
 
     def adjust_submission_form(self, request, form):
         size_limit = self.get_submission_size_limit()
-
-        def validate_repeated_submission(file):
-            if is_contest_admin(request):
-                return
-            if not getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False):
-                return
-            md5 = hashlib.md5()
-            for chunk in file.chunks():
-                md5.update(chunk)
-            file.seek(0)
-            md5 = md5.hexdigest()
-            if 'programs_last_md5' in request.session and \
-                    md5 == request.session['programs_last_md5']:
-                del request.session['programs_last_md5']
-                raise ValidationError(
-                    _("You have submitted the same file again."
-                      " Please resubmit if you really want "
-                      " to submit the same file"))
-            else:
-                request.session['programs_last_md5'] = md5
-                request.session.save()
 
         def validate_file_size(file):
             if file.size > size_limit:
@@ -229,15 +214,29 @@ class ProgrammingContestController(ContestController):
                 raise ValidationError(_(
                     "Unknown or not supported file extension."))
 
-        form.fields['file'] = forms.FileField(allow_empty_file=False,
-                validators=[validate_file_size,
-                    validate_language,
-                    validate_repeated_submission],
+        form.fields['file'] = forms.FileField(required=False,
+                allow_empty_file=False,
+                validators=[validate_file_size, validate_language],
                 label=_("File"),
                 help_text=_("Language is determined by the file extension."
-                            " It has to be one of: %s.") %
-                            (', '.join(self.get_allowed_extensions()),)
-                )
+                            " It has to be one of: %s."
+                            " You can paste the code below instead of"
+                            " choosing file."
+                ) % (', '.join(self.get_allowed_extensions()))
+        )
+        form.fields['code'] = forms.CharField(required=False,
+                label=_("Code"),
+                widget=forms.widgets.Textarea(attrs={"rows": 10,
+                    "class": "monospace input-xxxlarge"})
+        )
+
+        choices = [('', ''),]
+        choices += [(lang, lang) for lang in self.get_allowed_languages()]
+        form.fields['prog_lang'] = forms.ChoiceField(required=False,
+                label=_("Programming language"),
+                choices=choices,
+                widget=forms.Select(attrs={'disabled': 'disabled'})
+        )
 
         if is_contest_admin(request):
             form.fields['user'] = forms.CharField(label=_("User"),
@@ -265,6 +264,48 @@ class ProgrammingContestController(ContestController):
                 ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
                 initial=form.kind, label=_("Kind"))
 
+    def validate_submission_form(self, request, problem_instance, form,
+            cleaned_data):
+        is_file_chosen = 'file' in cleaned_data and \
+                cleaned_data['file'] is not None
+        is_code_pasted = 'code' in cleaned_data and cleaned_data['code']
+
+        if (not is_file_chosen and not is_code_pasted) or \
+                (is_file_chosen and is_code_pasted):
+            raise ValidationError(_("You have to either choose file or paste "
+                "code."))
+
+        if is_code_pasted and ('prog_lang' not in cleaned_data or \
+                not cleaned_data['prog_lang']):
+            raise ValidationError(_("You have to choose programming "
+                "language."))
+
+        if is_file_chosen:
+            code = cleaned_data['file'].read()
+        else:
+            code = cleaned_data['code']
+
+        if not is_contest_admin(request) and \
+                getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False):
+            lines = iter(code.splitlines())
+            md5 = hashlib.md5()
+            for line in lines:
+                md5.update(line)
+            md5 = md5.hexdigest()
+
+            if 'programs_last_md5' in request.session and \
+                    md5 == request.session['programs_last_md5']:
+                del request.session['programs_last_md5']
+                raise ValidationError(
+                    _("You have submitted the same file again."
+                    " Please resubmit if you really want "
+                    " to submit the same file"))
+            else:
+                request.session['programs_last_md5'] = md5
+                request.session.save()
+
+        return cleaned_data
+
     def create_submission(self, request, problem_instance, form_data,
                     judge_after_create=True, **kwargs):
         submission = ProgramSubmission(
@@ -272,8 +313,15 @@ class ProgrammingContestController(ContestController):
                 problem_instance=problem_instance,
                 kind=form_data.get('kind',
                         self.get_default_submission_kind(request)),
-                date=request.timestamp)
+                date=request.timestamp
+        )
+
         file = form_data['file']
+        if file is None:
+            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            extension = lang_exts[form_data['prog_lang']][0]
+            file = ContentFile(form_data['code'], '__pasted_code.' + extension)
+
         submission.source_file.save(file.name, file)
         submission.save()
         if judge_after_create:

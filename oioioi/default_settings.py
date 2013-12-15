@@ -232,7 +232,7 @@ PROBLEM_PACKAGE_BACKENDS = (
 )
 
 SAFE_EXEC_MODE = 'vcpu'
-SUBMITTABLE_EXTENSIONS = ['c', 'cc', 'cpp', 'pas']
+SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas']}
 USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False
 RUN_LOCAL_WORKERS = False
