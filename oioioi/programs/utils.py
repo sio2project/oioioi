@@ -1,5 +1,8 @@
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.utils import aggregate_statuses
+from oioioi.programs.models import ProgramSubmission
 
 
 def sum_score_aggregator(group_results):
@@ -107,3 +110,17 @@ def decode_str(str):
 def slice_str(str, length):
     # After slicing UTF-8 can be invalid.
     return str[:length].decode('utf-8', 'ignore').encode('utf-8')
+
+def get_submission_source_file_or_error(request, contest_id, submission_id):
+    """Returns the submission source and filename
+
+       If it does not exist or the user has no rights to see it, then error is
+       raised.
+    """
+    submission = get_object_or_404(ProgramSubmission, id=submission_id)
+    if request.contest.id != submission.problem_instance.contest_id:
+        raise PermissionDenied
+    controller = request.contest.controller
+    if not controller.can_see_source(request, submission):
+        raise PermissionDenied
+    return submission.source_file

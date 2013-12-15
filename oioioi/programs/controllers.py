@@ -23,7 +23,7 @@ from oioioi.programs.models import ProgramSubmission, OutputChecker, \
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 logger = logging.getLogger(__name__)
 
@@ -326,12 +326,25 @@ class ProgrammingContestController(ContestController):
             return ['INITIAL']
 
     def filter_visible_reports(self, request, submission, queryset):
-        if is_contest_admin(request):
+        if is_contest_admin(request) or is_contest_observer(request):
             return queryset
-        else:
-            return queryset.filter(status='ACTIVE',
-                    kind__in=self.get_visible_reports_kinds(request,
-                                                            submission))
+        return queryset.filter(status='ACTIVE',
+                kind__in=self.get_visible_reports_kinds(request, submission))
+
+    def can_see_source(self, request, submission):
+        """Determines if the current user is allowed to see source
+           of ``submission``.
+
+           This usually involves cross-user privileges, like publicizing
+           sources.
+           Default implementations delegates to
+           :meth:`~ContestController.filter_my_visible_submissions`, except for
+           admins and observers, which get full access.
+        """
+        if is_contest_admin(request) or is_contest_observer(request):
+            return True
+        queryset = Submission.objects.filter(id=submission.id)
+        return self.filter_my_visible_submissions(request, queryset).exists()
 
     def render_submission(self, request, submission):
         return render_to_string('programs/submission_header.html',

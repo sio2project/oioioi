@@ -2,23 +2,24 @@
 # No name 'HtmlFormatter' in module 'pygments.formatters'
 import difflib
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
-from django.conf import settings
 
-from oioioi.programs.models import ProgramSubmission, Test, OutputChecker
-from oioioi.programs.utils import decode_str
-from oioioi.contests.utils import contest_exists, can_enter_contest, \
-    get_submission_or_404
-from oioioi.base.permissions import enforce_condition
-from oioioi.filetracker.utils import stream_file
 from pygments import highlight
 from pygments.lexers import guess_lexer_for_filename
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
+
+from oioioi.programs.models import Test, OutputChecker
+from oioioi.programs.utils import decode_str, \
+    get_submission_source_file_or_error
+from oioioi.contests.utils import contest_exists, can_enter_contest
+from oioioi.base.permissions import enforce_condition
+from oioioi.filetracker.utils import stream_file
 
 # Workaround for race condition in fnmatchcase which is used by pygments
 import fnmatch
@@ -28,11 +29,10 @@ fnmatch._MAXCACHE = sys.maxint
 
 @enforce_condition(contest_exists & can_enter_contest)
 def show_submission_source_view(request, contest_id, submission_id):
-    submission = get_submission_or_404(request, contest_id, submission_id,
-                                       ProgramSubmission)
-    raw_source = submission.source_file.read()
-    raw_source, decode_error = decode_str(raw_source)
-    filename = submission.source_file.file.name
+    source_file = get_submission_source_file_or_error(request, contest_id,
+            submission_id)
+    raw_source, decode_error = decode_str(source_file.read())
+    filename = source_file.file.name
     is_source_safe = False
     try:
         lexer = guess_lexer_for_filename(
@@ -63,8 +63,8 @@ def show_submission_source_view(request, contest_id, submission_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def save_diff_id_view(request, contest_id, submission_id):
-    get_submission_or_404(request, contest_id, submission_id,
-                          ProgramSubmission)
+    # Verify user's access to the submission
+    get_submission_source_file_or_error(request, contest_id, submission_id)
     request.session['saved_diff_id'] = submission_id
     return HttpResponse()
 
@@ -73,13 +73,12 @@ def save_diff_id_view(request, contest_id, submission_id):
 def source_diff_view(request, contest_id, submission1_id, submission2_id):
     if request.session.get('saved_diff_id'):
         request.session.pop('saved_diff_id')
-    submission1 = get_submission_or_404(request, contest_id, submission1_id,
-                                        ProgramSubmission)
-    submission2 = get_submission_or_404(request, contest_id, submission2_id,
-                                        ProgramSubmission)
-    source1 = submission1.source_file.read()
+    source1 = get_submission_source_file_or_error(request, contest_id,
+        submission1_id).read()
+    source2 = get_submission_source_file_or_error(request, contest_id,
+        submission2_id).read()
+
     source1, decode_error1 = decode_str(source1)
-    source2 = submission2.source_file.read()
     source2, decode_error2 = decode_str(source2)
     source1 = source1.splitlines()
     source2 = source2.splitlines()
@@ -147,9 +146,9 @@ def source_diff_view(request, contest_id, submission1_id, submission2_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def download_submission_source_view(request, contest_id, submission_id):
-    submission = get_submission_or_404(request, contest_id, submission_id,
-                                       ProgramSubmission)
-    return stream_file(submission.source_file)
+    source_file = get_submission_source_file_or_error(request, contest_id,
+        submission_id)
+    return stream_file(source_file)
 
 
 def download_input_file_view(request, test_id):

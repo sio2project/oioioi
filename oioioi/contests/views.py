@@ -26,7 +26,7 @@ from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         is_contest_admin, has_any_submittable_problem, visible_rounds, \
-        visible_problem_instances, contest_exists, get_submission_or_404
+        visible_problem_instances, contest_exists, get_submission_or_error
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 
@@ -171,7 +171,7 @@ def my_submissions_view(request, contest_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def submission_view(request, contest_id, submission_id):
-    submission = get_submission_or_404(request, contest_id, submission_id)
+    submission = get_submission_or_error(request, contest_id, submission_id)
     controller = request.contest.controller
     header = controller.render_submission(request, submission)
     footer = controller.render_submission_footer(request, submission)
@@ -193,7 +193,7 @@ def submission_view(request, contest_id, submission_id):
 
 @enforce_condition(contest_exists & is_contest_admin)
 def report_view(request, contest_id, submission_id, report_id):
-    submission = get_submission_or_404(request, contest_id, submission_id)
+    submission = get_submission_or_error(request, contest_id, submission_id)
     controller = request.contest.controller
     queryset = SubmissionReport.objects.filter(submission=submission)
     report = get_object_or_404(queryset, id=report_id)
@@ -203,7 +203,7 @@ def report_view(request, contest_id, submission_id, report_id):
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
 def rejudge_submission_view(request, contest_id, submission_id):
-    submission = get_submission_or_404(request, contest_id, submission_id)
+    submission = get_submission_or_error(request, contest_id, submission_id)
     controller = request.contest.controller
     controller.judge(submission, request.GET.dict())
     messages.info(request, _("Rejudge request received."))
@@ -214,7 +214,7 @@ def rejudge_submission_view(request, contest_id, submission_id):
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
 def change_submission_kind_view(request, contest_id, submission_id, kind):
-    submission = get_submission_or_404(request, contest_id, submission_id)
+    submission = get_submission_or_error(request, contest_id, submission_id)
     controller = request.contest.controller
     if kind in controller.valid_kinds_for_submission(submission):
         controller.change_submission_kind(submission, kind)

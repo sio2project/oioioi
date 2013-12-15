@@ -175,22 +175,16 @@ def can_enter_contest(request):
     return rcontroller.can_enter_contest(request)
 
 
-def check_submission_access(request, submission):
-    if submission.problem_instance.contest != request.contest:
+def get_submission_or_error(request, contest_id, submission_id,
+                          submission_class=Submission):
+    """Returns the submission if it exists and user has rights to see it."""
+    submission = get_object_or_404(submission_class, id=submission_id)
+    if request.contest.id != submission.problem_instance.contest_id:
         raise PermissionDenied
     if is_contest_admin(request) or is_contest_observer(request):
-        return
+        return submission
     controller = request.contest.controller
     queryset = Submission.objects.filter(id=submission.id)
     if not controller.filter_my_visible_submissions(request, queryset):
         raise PermissionDenied
-
-
-def get_submission_or_404(request, contest_id, submission_id,
-                          submission_class=Submission):
-    """Returns the submission if it exists and user has rights to see it."""
-    submission = get_object_or_404(submission_class, id=submission_id)
-    if contest_id != submission.problem_instance.contest_id:
-        raise Http404
-    check_submission_access(request, submission)
     return submission

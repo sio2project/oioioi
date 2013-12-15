@@ -5,7 +5,7 @@ from django.shortcuts import redirect, get_object_or_404
 
 from oioioi.base.menu import menu_registry
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-    contest_exists, get_submission_or_404
+    contest_exists, get_submission_or_error
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.forms import SubmissionForm
 from oioioi.programs.utils import decode_str
@@ -54,8 +54,8 @@ def get_testrun_report_or_404(request, submission, testrun_report_id=None):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def show_input_file_view(request, contest_id, submission_id):
-    submission = get_submission_or_404(request, contest_id, submission_id,
-                                       TestRunProgramSubmission)
+    submission = get_submission_or_error(request, contest_id, submission_id,
+                                         TestRunProgramSubmission)
     data = submission.input_file.read(get_preview_size_limit())
     data, decode_error = decode_str(data)
     size = submission.input_file.size
@@ -73,8 +73,8 @@ def show_input_file_view(request, contest_id, submission_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 def download_input_file_view(request, contest_id, submission_id):
-    submission = get_submission_or_404(request, contest_id, submission_id,
-                                       TestRunProgramSubmission)
+    submission = get_submission_or_error(request, contest_id, submission_id,
+                                         TestRunProgramSubmission)
 
     return stream_file(submission.input_file, name='input.in')
 
@@ -82,8 +82,8 @@ def download_input_file_view(request, contest_id, submission_id):
 @enforce_condition(contest_exists & can_enter_contest)
 def show_output_file_view(request, contest_id, submission_id,
                           testrun_report_id=None):
-    submission = get_submission_or_404(request, contest_id, submission_id,
-                                       TestRunProgramSubmission)
+    submission = get_submission_or_error(request, contest_id, submission_id,
+                                         TestRunProgramSubmission)
     result = get_testrun_report_or_404(request, submission, testrun_report_id)
     data = result.output_file.read(get_preview_size_limit())
     data, decode_error = decode_str(data)
@@ -103,7 +103,7 @@ def show_output_file_view(request, contest_id, submission_id,
 @enforce_condition(contest_exists & can_enter_contest)
 def download_output_file_view(request, contest_id, submission_id,
                               testrun_report_id=None):
-    submission = get_submission_or_404(request, contest_id, submission_id,
-                                       TestRunProgramSubmission)
+    submission = get_submission_or_error(request, contest_id, submission_id,
+                                         TestRunProgramSubmission)
     result = get_testrun_report_or_404(request, submission, testrun_report_id)
     return stream_file(result.output_file, name='output.out')
