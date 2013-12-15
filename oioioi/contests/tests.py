@@ -694,6 +694,24 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def setUp(self):
         self.client.login(username='test_user')
 
+    @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
+    def test_repeated_submission_fail(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        response = self.submit_file(contest, problem_instance)
+        response = self.submit_file(contest, problem_instance)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('Please resubmit', response.content)
+
+    @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
+    def test_repeated_submission_success(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        response = self.submit_file(contest, problem_instance)
+        response = self.submit_file(contest, problem_instance)
+        response = self.submit_file(contest, problem_instance)
+        self._assertSubmitted(contest, response)
+
     def test_simple_submission(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()

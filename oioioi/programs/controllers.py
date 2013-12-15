@@ -1,6 +1,7 @@
 import os.path
 import itertools
 import logging
+import hashlib
 from operator import attrgetter
 
 from django.conf import settings
@@ -11,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, ScoreReport
@@ -196,6 +198,27 @@ class ProgrammingContestController(ContestController):
     def adjust_submission_form(self, request, form):
         size_limit = self.get_submission_size_limit()
 
+        def validate_repeated_submission(file):
+            if is_contest_admin(request):
+                return
+            if not getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False):
+                return
+            md5 = hashlib.md5()
+            for chunk in file.chunks():
+                md5.update(chunk)
+            file.seek(0)
+            md5 = md5.hexdigest()
+            if 'programs_last_md5' in request.session and \
+                    md5 == request.session['programs_last_md5']:
+                del request.session['programs_last_md5']
+                raise ValidationError(
+                    _("You have submitted the same file again."
+                      " Please resubmit if you really want "
+                      " to submit the same file"))
+            else:
+                request.session['programs_last_md5'] = md5
+                request.session.save()
+
         def validate_file_size(file):
             if file.size > size_limit:
                 raise ValidationError(_("File size limit exceeded."))
@@ -207,7 +230,9 @@ class ProgrammingContestController(ContestController):
                     "Unknown or not supported file extension."))
 
         form.fields['file'] = forms.FileField(allow_empty_file=False,
-                validators=[validate_file_size, validate_language],
+                validators=[validate_file_size,
+                    validate_language,
+                    validate_repeated_submission],
                 label=_("File"),
                 help_text=_("Language is determined by the file extension."
                             " It has to be one of: %s.") %

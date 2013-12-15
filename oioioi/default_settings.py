@@ -315,5 +315,6 @@ PRINTING_COMMAND = ['lp']  # as argv list
 
 # To get unlimited submissions count set to 0.
 DEFAULT_SUBMISSIONS_LIMIT = 10
+WARN_ABOUT_REPEATED_SUBMISSION = True
 
 MAIL_ADMINS_ON_GRADING_ERROR = True

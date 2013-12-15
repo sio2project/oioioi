@@ -58,3 +58,5 @@ USE_LOCAL_COMPILERS = True
 
 COMPLAINTS_EMAIL = 'dummy@example.com'
 COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
+
+WARN_ABOUT_REPEATED_SUBMISSION = False
