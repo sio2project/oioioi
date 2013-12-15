@@ -10,8 +10,8 @@
         padding-left: 15px;
     }
 
-    #login_link {
-        padding-right: 0;
+    .nav > li > a {
+        padding: 10px 12px;
     }
 
     .navbar-login > input {
@@ -72,12 +72,31 @@
         }
     }
 
+    .centered {
+        list-style: none;
+        margin: 0;
+    }
+
+    .progress .bar {
+        -webkit-transition: none;
+        -moz-transition: none;
+        -ms-transition: none;
+        -o-transition: none;
+        transition: none;
+    }
+
     .progressbar {
         padding: 10px 0;
+        visibility: hidden;
+
+        > div {
+            position: relative;
+        }
 
         * {
             text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-            width: 550px;
+            max-width: 550px;
+            margin: 0;
             position: absolute;
 
             span {
@@ -88,8 +107,22 @@
         }
     }
 
+    .textbar {
+        .progress .bar {
+            visibility: hidden;
+        }
+
+        * {
+            background-color: transparent;
+            background-image: none;
+            span {
+                color: @grayLight;
+            }
+        }
+    }
+
     #clock {
-        padding: 10px 0px;
+        padding: 10px 12px;
     }
 
     .dropdown-form {

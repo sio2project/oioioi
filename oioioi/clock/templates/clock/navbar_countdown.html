@@ -1,10 +1,6 @@
-<li class="progressbar">
-{% if elapsed_part %}
-    <div class="progress">
-        <div class="bar" id="navbar-progressbar" style="width: {{ elapsed_part }}; background: {{ bar_color }};"></div>
-        <span id="countdown">{{ countdown_text }}</span>
+<li class="progressbar" id="navbar-progressbar">
+    <div class="progress" id="navbar-progress">
+        <div class="bar" id="navbar-bar"></div>
+        <span id="countdown"></span>
     </div>
-{% elif countdown_text %}
-    <div id="countdown">{{ countdown_text }}</div>
-{% endif %}
 </li>
