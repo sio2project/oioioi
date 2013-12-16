@@ -1,0 +1,43 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Solutions" %}{% endblock %}
+{% block content %}
+<h2> {% trans "Solutions" %} </h2>
+
+{% if not request.user.is_anonymous %}
+    <div class="corner-icons">
+    <ul>
+        <li> <a class="btn" href="{% url 'publish_solutions' contest_id=contest.id %}">Publish your solutions</a> </li>
+    </ul>
+    </div>
+{% endif %}
+
+
+<div class="message-filter">
+<form class="form-horizontal" action="">
+    {% include "ingredients/form.html" with focus=False %}
+</form>
+<script>
+    $(function() {
+        $("#{{ form.category.auto_id }}").change(function(){
+            this.form.submit();
+        });
+    });
+</script>
+</div>
+
+
+{% if submissions %}
+    {% autopaginate submissions submissions_on_page %}
+    {% paginate %}
+    {% include "publicsolutions/solutions_table.html" %}
+    {% paginate %}
+{% else %}
+<p align="left">
+    {% blocktrans %}No public solutions yet.{% endblocktrans %}
+</p>
+{% endif %}
+{% endblock %}
+

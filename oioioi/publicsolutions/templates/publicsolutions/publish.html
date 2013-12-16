@@ -1,0 +1,18 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Publish solutions" %}{% endblock %}
+{% block content %}
+<h2> {% trans "Publish solutions" %} </h2>
+
+{% if submissions %}
+    {% autopaginate submissions submissions_on_page %}
+    {% paginate %}
+    {% include "publicsolutions/publish_table.html" %}
+    {% paginate %}
+{% else %}
+    {% blocktrans %}There is nothing you may publish.{% endblocktrans %}
+{% endif %}
+{% endblock %}
+
