@@ -17,6 +17,11 @@
             {% else %}
             <i class="icon-question-sign"></i> {% trans "Ask a question" %}</a></li>
             {% endif %}
+        {% if is_admin %}
+        <li><a class="btn btn-small" href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
+            <i class="icon-pencil"></i> {% trans "Edit reply templates" %}
+        </a></li>
+        {% endif %}
     </ul>
 </div>
 {% endif %}

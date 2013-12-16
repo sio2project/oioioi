@@ -1,8 +1,10 @@
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver, Signal
+from django.conf import settings
 from django.core.validators import MaxLengthValidator
 from django.utils import timezone
+from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -67,6 +69,26 @@ class Message(models.Model):
     def to_quote(self):
         lines = self.content.strip().split('\n')
         return ''.join('> ' + l for l in lines)
+
+
+class ReplyTemplate(models.Model):
+    contest = models.ForeignKey(Contest, null=True, blank=True)
+    name = models.CharField(max_length=255, verbose_name=_("visible name"),
+                            blank=True)
+    content = models.TextField(verbose_name=_("content"))
+    # Incremented every time admin includes this template in a reply.
+    usage_count = models.IntegerField(verbose_name=_("usage count"), default=0)
+
+    def __unicode__(self):
+        return u'%s: %s' % (self.visible_name, self.content)
+
+    @property
+    def visible_name(self):
+        if self.name:
+            return self.name
+        length = getattr(settings, 'REPLY_TEMPLATE_VISIBLE_NAME_LENGTH', 15)
+        return Truncator(self.content).chars(length)
+
 
 class MessageView(models.Model):
     message = models.ForeignKey(Message)

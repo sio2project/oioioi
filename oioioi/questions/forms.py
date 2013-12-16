@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.models import Round, ProblemInstance
-from oioioi.questions.models import message_kinds, Message
+from oioioi.questions.models import message_kinds, Message, ReplyTemplate
 from oioioi.questions.utils import get_categories, get_category
 
 
@@ -53,11 +53,25 @@ class AddReplyForm(AddContestMessageForm):
     class Meta(AddContestMessageForm.Meta):
         fields = ['kind', 'topic', 'content']
 
+    save_template = forms.BooleanField(required=False,
+                                       widget=forms.HiddenInput,
+                                       label=_("Save as template"))
+
     def __init__(self, *args, **kwargs):
         super(AddReplyForm, self).__init__(*args, **kwargs)
         del self.fields['category']
         self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] != 'QUESTION']
+
+    def save(self, commit=True, *args, **kwargs):
+        instance = super(AddReplyForm, self) \
+                .save(commit=False, *args, **kwargs)
+        if self.cleaned_data['save_template']:
+            ReplyTemplate.objects.get_or_create(contest=instance.contest,
+                                                content=instance.content)
+        if commit:
+            instance.save()
+        return instance
 
 
 class ChangeContestMessageForm(AddContestMessageForm):

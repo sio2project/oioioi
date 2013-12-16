@@ -27,21 +27,41 @@
 {% endfor %}
 {% if form %}
 <div class="message message_reply"><div class="message_container">
-<p class="message_info message_info_new">
-<span class="label label-inverse">{% trans "New reply" %}</span>
-</p>
-<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
-    {% csrf_token %}
-    {% include "ingredients/form.html" with focus=False %}
-    <div class="control-group">
-        <a tabindex="1000" id="respond_inline" class="controls" href="javascript:add_question_content();">
-            {% trans "Respond inline" %}
-        </a>
-    </div>
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
-    </div>
-</form>
+    <p class="message_info message_info_new">
+        <span class="label label-inverse">{% trans "New reply" %}</span>
+    </p>
+    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+        {% csrf_token %}
+        {% include "ingredients/form.html" with focus=False %}
+        <div class="control-group"><div class="controls">
+            <div class="btn-group include-template">
+                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" tabindex="1000" href="#"><i class="icon-pencil"></i> {% trans "Include template" %} <span class="caret"></span></a>
+                <ul class="dropdown-menu template-replies">
+                    <script>
+                        $(function() { get_reply_templates("{% url 'get_reply_templates' contest_id=contest.id %}",
+                                                           "{% url 'increment_template_usage' contest_id=contest.id %}"); });
+                    </script>
+                </ul>
+            </div>
+            <a tabindex="1000" id="respond_inline" class="btn btn-small" href="javascript:add_question_content();">
+                <i class="icon-pencil"></i> {% trans "Respond inline" %}
+            </a>
+        </div></div>
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+            <span class="pull-right">
+            <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
+            <label class="no_left_padding checkbox inline" for="id_fake_save_template">{% trans "Save as template" %}</label>
+            <script>
+                $(function() {
+                    $('#id_fake_save_template').change(function() {
+                        $('#id_save_template').val(this.checked);
+                  });
+                });
+            </script>
+            </span>
+        </div>
+    </form>
 </div></div>
 {% endif %}
 {% endblock %}

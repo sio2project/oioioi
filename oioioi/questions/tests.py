@@ -3,12 +3,12 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
-from oioioi.questions.models import Message
+from oioioi.questions.models import Message, ReplyTemplate
 
 
 class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_messages']
+                'test_messages', 'test_templates']
 
     def test_visibility(self):
         contest = Contest.objects.get()
@@ -87,8 +87,20 @@ class TestQuestions(TestCase):
                 'kind': 'PUBLIC',
                 'topic': 're-new-question',
                 'content': 're-new-body',
+                'save_template': True,
             }
         response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        post_data = {
+                'kind': 'PUBLIC',
+                'topic': 'another-re-new-question',
+                'content': 'another-re-new-body',
+                'save_template': False,
+            }
+        response = self.client.post(url, post_data)
+        self.assertRaises(ReplyTemplate.DoesNotExist,
+                          lambda: ReplyTemplate.objects \
+                                  .get(content='another-re-new-body'))
         self.assertEqual(response.status_code, 302)
         new_reply = Message.objects.get(topic='re-new-question')
         self.assertEqual(new_reply.content, 're-new-body')
@@ -242,3 +254,25 @@ class TestQuestions(TestCase):
         url = reverse('oioioiadmin:questions_message_change',
                       args=(msg.id,))
         check_not_accessible(self, url)
+
+    def test_reply_templates(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_admin')
+        url1 = reverse('get_reply_templates',
+                       kwargs={'contest_id': contest.id})
+        response = self.client.get(url1)
+        templates = json.loads(response.content)
+        self.assertEqual(templates[0]['name'], "N/A")
+        self.assertEqual(templates[0]['content'], "No answer.")
+        self.assertEqual(templates[3]['name'], "What contest is this?")
+        self.assertEqual(len(templates), 4)
+        url_inc = reverse('increment_template_usage',
+                          kwargs={'contest_id': contest.id, 'template_id': 4})
+        for _i in xrange(12):
+            response = self.client.get(url_inc)
+        response = self.client.get(url1)
+        templates = json.loads(response.content)
+        self.assertEqual(templates[0]['name'], "What contest is this?")
+        self.assertEqual(len(templates), 4)
+        self.client.login(username='test_user')
+        check_not_accessible(self, url1)
