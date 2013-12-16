@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'oioioi.timeline',
     'oioioi.statistics',
     'oioioi.amppz',
+    'oioioi.publicsolutions',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
