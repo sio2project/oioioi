@@ -916,10 +916,13 @@ class TestPermissions(TestCase):
         self.assertFalse(test_user.has_perm('contests.contest_admin',
             self.contest))
 
+        del test_user._contest_perms_cache
         ContestPermission(user=test_user, contest=self.contest,
             permission='contests.contest_observer').save()
         self.assertTrue(test_user.has_perm('contests.contest_observer',
             self.contest))
+
+        del test_user._contest_perms_cache
         ContestPermission(user=test_user, contest=self.contest,
             permission='contests.contest_admin').save()
         self.assertTrue(test_user.has_perm('contests.contest_observer',

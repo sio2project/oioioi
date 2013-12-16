@@ -14,5 +14,8 @@ class ContestPermissionsAuthBackend(object):
             return False
         if obj is None or not isinstance(obj, Contest):
             return False
-        return ContestPermission.objects.filter(user=user_obj, contest=obj,
-            permission=perm).exists()
+        if not hasattr(user_obj, '_contest_perms_cache'):
+            user_obj._contest_perms_cache = set(ContestPermission.objects \
+                .filter(user=user_obj) \
+                .values_list('contest', 'permission'))
+        return (obj.id, perm) in user_obj._contest_perms_cache
