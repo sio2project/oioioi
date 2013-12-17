@@ -12,6 +12,8 @@ from oioioi.programs.models import ProgramSubmission
 
 
 SUBMISSION_RECEIVED_SALT = 'submission_reveived'
+
+
 class ProofCorrupted(ValueError):
     pass
 
@@ -104,5 +106,5 @@ def send_submission_receipt_confirmation(request, submission):
 
     email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL,
             [submission.user.email],
-            headers = {'Reply-To': 'noreply@noreply.net'})
+            headers={'Reply-To': 'noreply@noreply.net'})
     email.send()

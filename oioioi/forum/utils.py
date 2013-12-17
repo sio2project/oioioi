@@ -57,6 +57,7 @@ def is_not_locked(request):
     return (not request.contest.forum.is_locked(request.timestamp)) or \
             is_contest_admin(request)
 
+
 @make_request_condition
 def forum_is_locked(request):
     return request.contest.forum.is_locked(request.timestamp)

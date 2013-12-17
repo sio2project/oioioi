@@ -102,7 +102,7 @@ def problem_statement_zip_index_view(request, contest_id, problem_instance,
 
     return TemplateResponse(request, 'contests/html_statement.html',
             {'content': mark_safe(response.content),
-             'problem_name' : problem_statement.problem.name})
+             'problem_name': problem_statement.problem.name})
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -222,9 +222,7 @@ def change_submission_kind_view(request, contest_id, submission_id, kind):
     else:
         messages.error(request,
             _("%(kind)s is not valid kind for submission %(submission_id)d.")
-            % {'kind': kind,
-               'submission_id': submission.id
-            })
+            % {'kind': kind, 'submission_id': submission.id})
     return redirect('submission', contest_id=contest_id,
                     submission_id=submission_id)
 

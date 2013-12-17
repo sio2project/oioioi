@@ -454,6 +454,7 @@ class TestSchoolAdmin(TestCase):
         self.assertTrue(s[3].is_similar(s[2]))
         self.assertFalse(s[1].is_similar(s[2]))
 
+
 class TestSchoolMerging(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_schools']
 

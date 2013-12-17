@@ -377,7 +377,7 @@ class SinolPackage(object):
                     naturalsort_key(name[:name.index(".")]))
 
         for order, (short_kind, name, path) in \
-            enumerate(sorted(progs, key=modelsolutionssort_key)):
+               enumerate(sorted(progs, key=modelsolutionssort_key)):
             instance = ModelSolution(problem=self.problem, name=name,
                                      order_key=order,
                                      kind=kinds[short_kind][1])

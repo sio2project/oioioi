@@ -1,5 +1,6 @@
 import filetracker
 
+
 class FiletrackerFilename(unicode):
     """A class inheriting from ``unicode`` used for versioned paths
        in Filetracker.

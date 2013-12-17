@@ -18,7 +18,7 @@ class TeacherAuthBackend(object):
             return bool(Teacher.objects.filter(user=user_obj, is_active=True))
         if perm == 'contests.contest_admin' and isinstance(obj, Contest):
             if not hasattr(user_obj, '_teacher_perms_cache'):
-                user_obj._teacher_perms_cache = set(ContestTeacher.objects \
-                    .filter(teacher__user=user_obj, teacher__is_active=True) \
+                user_obj._teacher_perms_cache = set(ContestTeacher.objects
+                    .filter(teacher__user=user_obj, teacher__is_active=True)
                     .values_list('contest', flat=True))
             return obj.id in user_obj._teacher_perms_cache

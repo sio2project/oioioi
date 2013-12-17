@@ -54,7 +54,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
     def response_delete(self, request):
         opts = self.model._meta
         if 'came_from' in request.GET:
-            return  safe_redirect(request, request.GET['came_from'])
+            return safe_redirect(request, request.GET['came_from'])
         if not self.has_change_permission(request):
             return HttpResponseRedirect(reverse('admin:index',
                                             current_app=self.admin_site.name))

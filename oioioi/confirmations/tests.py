@@ -43,6 +43,7 @@ class TestMetadataProving(TestCase):
             verify_submission_receipt_proof(corrupted_proof,
                     submission.source_file.read())
 
+
 class TestEmailReceipt(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
         'test_submission']
@@ -61,7 +62,6 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance, file_size=1337)
         self._assertSubmitted(contest, response)
 
-
         email = mail.outbox[0].message().as_string()
         del mail.outbox[0]
         self.assertIn("Submissions to this task: 2", email)
@@ -70,7 +70,7 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
                 r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
                 email, re.DOTALL)
         self.assertTrue(proof)
-        verify_submission_receipt_proof(proof.group(1), 'a'*1337)
+        verify_submission_receipt_proof(proof.group(1), 'a' * 1337)
 
         self.client.login(username='test_admin')
         response = self.submit_file(contest, problem_instance,

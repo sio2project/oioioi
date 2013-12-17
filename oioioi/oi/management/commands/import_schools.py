@@ -46,7 +46,7 @@ class Command(BaseCommand):
         fields = reader.fieldnames
         if fields != COLUMNS:
             raise CommandError(
-                _("Missing header or invalid columns: %(h)s." \
+                _("Missing header or invalid columns: %(h)s."
                   " Expected: %(col)s")
                 % {'h': ', '.join(fields), 'col': ', '.join(COLUMNS)})
 

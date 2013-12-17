@@ -72,7 +72,7 @@ class TestTestrunViews(TestCase):
                 'download_testrun_output', kwargs=kwargs))
 
             self.assertContains(download_response, '18\n')
-            self.assertTrue(download_response['Content-Disposition'] \
+            self.assertTrue(download_response['Content-Disposition']
                             .startswith('attachment'))
             self.assertIn('filename=out',
                           download_response['Content-Disposition'])

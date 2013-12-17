@@ -106,7 +106,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
             'test__isnull': False,
             'submission_report__submission__problem_instance':
                 problem_instance,
-            'submission_report__submission__programsubmission' \
+            'submission_report__submission__programsubmission'
                     '__modelprogramsubmission__isnull': False
         }
         test_reports = TestReport.objects.filter(**filter_kwargs) \
@@ -114,7 +114,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
         filter_kwargs = {
             'submission_report__submission__problem_instance':
                 problem_instance,
-            'submission_report__submission__programsubmission' \
+            'submission_report__submission__programsubmission'
                     '__modelprogramsubmission__isnull': False
         }
         group_reports = GroupReport.objects.filter(**filter_kwargs) \
@@ -142,12 +142,12 @@ class ProgrammingProblemInstanceAdminMixin(object):
             rows.append({
                 'test': t,
                 'results': [{
-                        'test_report': row_test_results[s.id],
-                        'group_report': row_group_results[s.id],
-                        'is_partial_score': self._is_partial_score(
-                            row_test_results[s.id])
-                    } for s in submissions]
-                })
+                    'test_report': row_test_results[s.id],
+                    'group_report': row_group_results[s.id],
+                    'is_partial_score': self._is_partial_score(
+                        row_test_results[s.id])
+                } for s in submissions]
+            })
 
         context = {
                 'problem_instance': problem_instance,

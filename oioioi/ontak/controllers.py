@@ -3,12 +3,14 @@ from oioioi.oi.controllers import OIContestController
 from oioioi.contests.controllers import PublicContestRegistrationController
 from oioioi.participants.controllers import ParticipantsController
 
+
 class OntakContestController(OIContestController):
     description = _("ONTAK")
     create_forum = False
 
     def registration_controller(self):
         return ParticipantsController(self.contest)
+
 
 class OntakEternalController(OIContestController):
     description = _("ONTAK-eternal")

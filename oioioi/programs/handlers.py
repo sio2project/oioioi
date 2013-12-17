@@ -409,7 +409,7 @@ def make_report(env, kind='NORMAL', **kwargs):
         comment = result.get('result_string', '')
         if comment.lower() == 'ok':  # Annoying
             comment = ''
-        test_report.comment = slice_str(comment, TestReport. \
+        test_report.comment = slice_str(comment, TestReport.
                 _meta.get_field('comment').max_length)
         test_report.save()
         result['report_id'] = test_report.id

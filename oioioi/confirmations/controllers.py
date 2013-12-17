@@ -14,4 +14,3 @@ class ConfirmationContestControllerMixin(object):
             send_submission_receipt_confirmation(request, submission)
         return submission
 ProgrammingContestController.mix_in(ConfirmationContestControllerMixin)
-

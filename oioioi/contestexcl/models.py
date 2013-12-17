@@ -46,7 +46,7 @@ class ExclusivenessConfig(models.Model):
 
     def __unicode__(self):
         return u'%s (%s): %s - %s' % (self.contest,
-                                      'enabled' if self.enabled \
+                                      'enabled' if self.enabled
                                               else 'disabled',
                                       self.start_date, self.end_date)
 

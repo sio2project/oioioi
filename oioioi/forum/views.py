@@ -140,7 +140,7 @@ def delete_post_view(request, contest_id, category_id, thread_id, post_id):
        (post.author != request.user or
        (post.author == request.user and
        (thread.post_set.filter(add_date__gt=post.add_date).exists() or
-        not post.can_be_removed()))):
+           not post.can_be_removed()))):
         # author: if there are other posts added later or timedelta is gt 15min
         # if user is not the author of the post or forum admin
         raise PermissionDenied
@@ -180,6 +180,7 @@ def unreport_post_view(request, contest_id, category_id, thread_id, post_id):
     post.save()
     return redirect('forum_thread', contest_id=contest_id,
                     category_id=category.id, thread_id=thread.id)
+
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)

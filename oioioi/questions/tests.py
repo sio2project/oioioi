@@ -99,7 +99,7 @@ class TestQuestions(TestCase):
             }
         response = self.client.post(url, post_data)
         self.assertRaises(ReplyTemplate.DoesNotExist,
-                          lambda: ReplyTemplate.objects \
+                          lambda: ReplyTemplate.objects
                                   .get(content='another-re-new-body'))
         self.assertEqual(response.status_code, 302)
         new_reply = Message.objects.get(topic='re-new-question')

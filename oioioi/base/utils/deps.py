@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+
 def check_django_app_dependencies(app_name, depends_on):
     if app_name.endswith('.models'):
         app_name = app_name[:-7]

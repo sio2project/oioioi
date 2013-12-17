@@ -45,7 +45,7 @@ class Message(models.Model):
 
         # Propagate to all related Messages
         if self.top_reference:
-            related = Message.objects.filter(Q(id=self.top_reference_id) | \
+            related = Message.objects.filter(Q(id=self.top_reference_id) |
                       Q(top_reference_id=self.top_reference_id))
         else:
             related = self.message_set.all()
@@ -65,6 +65,7 @@ class Message(models.Model):
     def __unicode__(self):
         return u'%s - %s' % (message_kinds.get(self.kind, self.kind),
                              self.topic)
+
     @property
     def to_quote(self):
         lines = self.content.strip().split('\n')

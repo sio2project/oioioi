@@ -141,8 +141,8 @@ class SubmissionForm(forms.Form):
             return cleaned_data
 
         kind = cleaned_data['kind']
-        if check_submission_limit and \
-            ccontroller.is_submissions_limit_exceeded(self.request, pi, kind):
+        if check_submission_limit and ccontroller \
+                .is_submissions_limit_exceeded(self.request, pi, kind):
             raise ValidationError(_("Submission limit for the problem '%s' "
                                     "exceeded.") % pi.problem.name)
 

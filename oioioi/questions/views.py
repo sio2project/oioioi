@@ -108,7 +108,7 @@ def message_view(request, contest_id, message_id):
     if not vmessages.filter(id=message_id):
         raise PermissionDenied
     if message.top_reference_id is None:
-        replies = list(vmessages.filter(top_reference=message) \
+        replies = list(vmessages.filter(top_reference=message)
                        .order_by('date'))
     else:
         replies = []
@@ -198,11 +198,12 @@ def get_reply_templates_view(request, contest_id):
                  for t in templates]
     return HttpResponse(json.dumps(templates), content_type='application/json')
 
+
 @enforce_condition(contest_exists & is_contest_admin)
 def increment_template_usage_view(request, contest_id, template_id=None):
     try:
         template = ReplyTemplate.objects.filter(id=template_id) \
-                                        .filter(Q(contest=contest_id) | \
+                                        .filter(Q(contest=contest_id) |
                                                 Q(contest__isnull=True)).get()
     except ReplyTemplate.DoesNotExist:
         raise Http404

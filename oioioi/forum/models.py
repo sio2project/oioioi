@@ -144,7 +144,7 @@ class Post(models.Model):
         thread = self.thread
         thread_url = reverse('forum_thread',
                 kwargs={'contest_id': thread.category.forum.contest_id,
-                        'category_id':thread.category_id,
+                        'category_id': thread.category_id,
                         'thread_id': thread.id})
         post_url = '%s#forum-post-%d' % (thread_url, self.id)
         return post_url
@@ -153,12 +153,14 @@ class Post(models.Model):
         return bool((timezone.now() - self.add_date)
                     < datetime.timedelta(minutes=15))
 
+
 @receiver(post_save, sender=Post)
 def _set_as_new_last_post(sender, instance, created, **kwargs):
     if created:
         thread = instance.thread
         thread.last_post = instance
         thread.save()
+
 
 @receiver(post_delete, sender=Post)
 def _update_last_post(sender, instance, **kwargs):

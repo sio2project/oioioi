@@ -59,9 +59,10 @@ class TestIpDnsManagement(TestCase):
         manager = Command()
         manager.run_from_argv(['manage.py', 'ipdnsauth', 'ip',
                                 '--load', filename])
-        self.assertTrue(User.objects.filter(username='test_user',
-                                        iptouser__ip_addr='127.0.0.1'
-                                        ).exists())
+        self.assertTrue(User.objects
+                            .filter(username='test_user')
+                            .filter(iptouser__ip_addr='127.0.0.1')
+                            .exists())
 
         loaded = manager.export_data('ip', IpToUser.objects)
         expected = (('test_user', '127.0.0.1'),
@@ -79,9 +80,10 @@ class TestIpDnsManagement(TestCase):
         manager = Command()
         manager.run_from_argv(['manage.py', 'ipdnsauth', 'dns',
                                 '--load', filename])
-        self.assertTrue(User.objects.filter(username='test_user',
-                                        dnstouser__dns_name='localhost'
-                                        ).exists())
+        self.assertTrue(User.objects
+                            .filter(username='test_user')
+                            .filter(dnstouser__dns_name='localhost')
+                            .exists())
 
         loaded = manager.export_data('dns', DnsToUser.objects)
         expected = (('test_user', 'localhost'),

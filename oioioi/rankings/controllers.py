@@ -141,7 +141,7 @@ class DefaultRankingController(RankingController):
                 result = by_user_row.get(pi.id)
                 user_results.append(result)
                 if result and result.score and \
-                    (not pi.round.is_trial or all_rounds_trial):
+                        (not pi.round.is_trial or all_rounds_trial):
                     if user_data['sum'] is None:
                         user_data['sum'] = result.score
                     else:

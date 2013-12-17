@@ -155,7 +155,7 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj:
             return is_superuser(request) or \
-                   (is_contest_admin(request) and \
+                   (is_contest_admin(request) and
                     obj.contest == request.contest)
         return self.has_add_permission(request)
 
