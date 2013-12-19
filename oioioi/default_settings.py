@@ -83,8 +83,13 @@ SECRET_KEY = None
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+#    'django.template.loaders.eggs.Loader',
 )
+
+if not DEBUG:
+    TEMPLATE_LOADERS = (
+        ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
+    )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
