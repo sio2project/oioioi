@@ -214,6 +214,25 @@ class ProgrammingContestController(ContestController):
                 raise ValidationError(_(
                     "Unknown or not supported file extension."))
 
+        def parse_problem(problem):
+            available_problems = form.fields['problem_instance_id'].choices
+            problem_id = None
+            for (id, name) in available_problems:
+                if name.find(problem) != -1:
+                    if problem_id is None:
+                        problem_id = id
+                    else:
+                        # matched more than one available problem
+                        return None
+            return problem_id
+
+        def parse_language_by_extension(ext):
+            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            for lang, extension_list in lang_exts.items():
+                if ext in extension_list:
+                    return lang
+            return None
+
         form.fields['file'] = forms.FileField(required=False,
                 allow_empty_file=False,
                 validators=[validate_file_size, validate_language],
@@ -222,21 +241,41 @@ class ProgrammingContestController(ContestController):
                             " It has to be one of: %s."
                             " You can paste the code below instead of"
                             " choosing file."
+                            " You can also submit your solution on any"
+                            " other page by file drag'n'drop!"
                 ) % (', '.join(self.get_allowed_extensions()))
         )
         form.fields['code'] = forms.CharField(required=False,
                 label=_("Code"),
-                widget=forms.widgets.Textarea(attrs={"rows": 10,
-                    "class": "monospace input-xxxlarge"})
+                widget=forms.widgets.Textarea(attrs={'rows': 10,
+                    'class': 'monospace input-xxxlarge'})
         )
 
-        choices = [('', ''),]
+        choices = [('', '')]
         choices += [(lang, lang) for lang in self.get_allowed_languages()]
         form.fields['prog_lang'] = forms.ChoiceField(required=False,
                 label=_("Programming language"),
                 choices=choices,
                 widget=forms.Select(attrs={'disabled': 'disabled'})
         )
+
+        if 'dropped_solution' in request.POST:
+            form.fields['code'].initial = request.POST['dropped_solution']
+
+        # guessing problem name and extension when file dragged and dropped
+        if 'dropped_solution_name' in request.POST:
+            # do not validate blank fields this time
+            form.is_bound = False
+
+            fname = request.POST['dropped_solution_name']
+            if fname.count('.') == 1:
+                [problem, ext] = fname.split('.', 1)
+                if 'problem_instance_id' not in request.POST:
+                    form.fields['problem_instance_id'].initial = \
+                            parse_problem(problem)
+                if 'prog_lang' not in request.POST:
+                    form.fields['prog_lang'].initial = \
+                            parse_language_by_extension(ext)
 
         if is_contest_admin(request):
             form.fields['user'] = forms.CharField(label=_("User"),

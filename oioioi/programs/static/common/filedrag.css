@@ -1,0 +1,34 @@
+/*------------------------ Drag & Drop Zone -----------------------------*/
+#ddzone {
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: black;
+    filter:alpha(opacity=60);
+    opacity:0.6;
+    position: fixed;
+    top: 0;
+    z-index: 1;
+}
+
+#droparea {
+    font-weight: bold;
+    text-align: center;
+    padding: 5em 0;
+    margin: 20% 20%;
+    color: #555;
+    border: 2px dashed #555;
+    border-radius: 7px;
+}
+
+#droparea.hover {
+    color: green;
+    border-color: green;
+    border-style: solid;
+}
+
+#droparea.error {
+    color: red;
+    border-color: red;
+    border-style: solid;
+}

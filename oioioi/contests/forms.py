@@ -95,26 +95,31 @@ class SubmissionForm(forms.Form):
     def __init__(self, request, *args, **kwargs):
         self.kind = kwargs.pop('kind', self.get_default_kind(request))
         problem_filter = kwargs.pop('problem_filter', None)
-
-        forms.Form.__init__(self, *args, **kwargs)
-
         self.request = request
 
+        # taking the available problems
         pis = submittable_problem_instances(request)
         if problem_filter:
             pis = problem_filter(pis)
-
         pi_choices = [(pi.id, unicode(pi)) for pi in pis]
+
+        # init form with previously sent data
+        forms.Form.__init__(self, *args, **kwargs)
+
+        # set available problems in form
         pi_field = self.fields['problem_instance_id']
+        pi_field.widget.attrs['class'] = 'input-xlarge'
 
         if len(pi_choices) > 1:
             pi_field.choices = [('', '')] + pi_choices
         else:
             pi_field.choices = pi_choices
 
-        pi_field.widget.attrs['class'] = 'input-xlarge'
-
+        # adding additional fields, etc
         request.contest.controller.adjust_submission_form(request, self)
+
+    def is_valid(self):
+        return forms.Form.is_valid(self)
 
     def get_default_kind(self, request):
         # It's here to allow subforms alter this on their own.

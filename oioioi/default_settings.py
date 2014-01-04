@@ -104,6 +104,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
     'oioioi.status.processors.status_processor',
+    'oioioi.programs.processors.drag_and_drop_processor',
 )
 
 MIDDLEWARE_CLASSES = (
