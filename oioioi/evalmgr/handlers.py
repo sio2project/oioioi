@@ -1,7 +1,9 @@
-from oioioi import evalmgr
 import copy
 import logging
 import pprint
+
+from oioioi import evalmgr
+
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +12,8 @@ def postpone(env, **extra_args):
     saved_env = copy.copy(env)
     env['recipe'] = []
     logger.debug('Postponing evaluation of %(env)r', {'env': saved_env})
-    evalmgr.evalmgr_job.apply_async((saved_env,), **extra_args)
+    async_result = evalmgr.evalmgr_job.apply_async((saved_env,), **extra_args)
+    evalmgr._run_evaluation_postponed_handlers(async_result, saved_env)
     return env
 
 

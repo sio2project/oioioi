@@ -33,6 +33,7 @@ INSTALLED_APPS = (
     'oioioi.confirmations',
     'oioioi.ctimes',
     'oioioi.acm',
+    'oioioi.submitsqueue',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

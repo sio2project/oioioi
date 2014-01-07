@@ -1,0 +1,7 @@
+span.subm_in_progress {
+    background: lightgray;
+}
+
+span.subm_queued {
+    background: lightgreen;
+}

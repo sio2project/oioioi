@@ -363,9 +363,35 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         environ['recipe'].extend(extra_steps)
 
+        self.finalize_evaluation_environment(environ)
+
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
-        evalmgr.evalmgr_job.delay(environ)
+        async_result = evalmgr.evalmgr_job.delay(environ)
+        self.submission_queued(submission, async_result)
+
+    def finalize_evaluation_environment(self, environ):
+        """This method gets called right before the environ becomes scheduled
+           in the queue.
+
+           This hook exists for inserting extra handlers to the recipe before
+           judging the solution.
+        """
+        pass
+
+    def submission_queued(self, submission, async_result):
+        """This method gets called right after the submission becomes scheduled
+           in the queue with async_result from delay.
+        """
+        pass
+
+    def submission_unqueued(self, submission, job_id):
+        """This method gets called right after the submission had been judged
+           and is about to leave the assigned workers.
+
+           This hook gets called AFTER submission_judged.
+        """
+        pass
 
     def submission_judged(self, submission):
         pass

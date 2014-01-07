@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.contests.models import Submission
 from oioioi.base.fields import EnumRegistry, EnumField
 
@@ -8,6 +9,7 @@ from oioioi.base.fields import EnumRegistry, EnumField
 submission_states = EnumRegistry()
 submission_states.register('QUEUED', _("Queued"))
 submission_states.register('PROGRESS', _("In progress"))
+submission_states.register('CANCELLED', _("Cancelled"))
 
 
 class QueuedSubmit(models.Model):
@@ -17,17 +19,8 @@ class QueuedSubmit(models.Model):
     celery_task_id = models.CharField(max_length=50, unique=True, null=True,
                                       blank=True)
 
+    creation_date.short_description = _("Creation date")
+
     class Meta(object):
         verbose_name = _("Queued Submit")
-
-    @property
-    def problem_instance(self):
-        return self.submission.problem_instance
-
-    @property
-    def contest(self):
-        return self.submission.problem_instance.contest
-
-    @property
-    def user(self):
-        return self.submission.user
+        ordering = ['pk']

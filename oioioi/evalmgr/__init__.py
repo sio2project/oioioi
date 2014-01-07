@@ -1,12 +1,16 @@
 # pylint: disable=W0703
 # Catching too general exception Exception
-from oioioi.base.utils import get_object_by_dotted_name
-
-from celery.task import task
 import copy
 import sys
 import logging
 import pprint
+import traceback
+
+from celery.task import task
+from celery.exceptions import Ignore
+
+from oioioi.base.utils import get_object_by_dotted_name
+
 
 logger = logging.getLogger(__name__)
 
@@ -99,6 +103,20 @@ def _run_error_handlers(env, exc_info):
     return env
 
 
+def _run_evaluation_postponed_handlers(async_result, saved_env):
+    handlers = saved_env.get('postpone_handlers', [])
+    for phase in handlers:
+        try:
+            saved_env = _run_phase(saved_env, phase,
+                    extra_kwargs=dict(async_result=async_result))
+        except Exception:
+            # we cannot really handle the exception in any other way than
+            # logging
+            logger.error(
+                    'postpone: evaluation_postponed threw an exception:\n %s',
+                    traceback.format_exc())
+
+
 @task
 def evalmgr_job(env):
     r"""Takes environment and evaluates it according to its recipe.
@@ -150,5 +168,11 @@ def evalmgr_job(env):
 
         return env
 
+    # Throwing up celery.exceptions.Ignore is necessary for our custom revoke
+    # mechanism. Basically, one of the handlers in job's recipe throws Ignore
+    # if the submission had been revoked and this exception has to be passed
+    # up so that celery recognizes it and stops execution of this job.
+    except Ignore:
+        raise
     except Exception:
         return _run_error_handlers(env, sys.exc_info())
