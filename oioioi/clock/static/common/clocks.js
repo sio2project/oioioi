@@ -1,4 +1,7 @@
 $(function() {
+    const full_text_width = 550;
+    const short_text_width = 250;
+    const display_time = 10;
     var round_duration_in_s;
     var is_time_admin;
     var is_admin_time_set;
@@ -15,42 +18,64 @@ $(function() {
             delay_in_ms) / 1000);
         var remaining_seconds = countdown_date - s_from_epoch;
 
-        if (remaining_seconds >= 0) {
+        BarEnum = {none: 0, progressbar: 1, text_only: 2};
+        var visible_bar = BarEnum.none;
+
+        if (remaining_seconds >= -display_time) {
             var countdown = remaining_seconds;
             var countdown_destination;
+            var countdown_dest_short;
             if (round_duration_in_s) {
                 countdown_destination = gettext("end of the round.");
+                countdown_dest_short = gettext("to the end");
+                visible_bar = BarEnum.progressbar;
             } else {
                 countdown_destination = gettext("start of the round.");
+                countdown_dest_short = gettext("to the start");
+                visible_bar = BarEnum.text_only;
             }
 
             var seconds = countdown % 60;
             var seconds_str = ngettext("%(seconds)s second ",
                 "%(seconds)s seconds ", seconds).fmt({seconds: seconds});
+            var seconds_short =
+                gettext("%(seconds)ss ").fmt({seconds: seconds});
+
             countdown = Math.floor(countdown / 60);
             var minutes = countdown % 60;
             var minutes_str = ngettext("%(minutes)s minute ",
                 "%(minutes)s minutes ", minutes).fmt({minutes: minutes});
+            var minutes_short =
+                gettext("%(minutes)sm ").fmt({minutes: minutes});
+
             countdown = Math.floor(countdown / 60);
             var hours = countdown % 24;
             var hours_str = ngettext("%(hours)s hour ", "%(hours)s hours ",
                 hours).fmt({hours: hours});
+            var hours_short = gettext("%(hours)sh ").fmt({hours: hours});
+
             countdown = Math.floor(countdown / 24);
             var days = countdown;
             var days_str = ngettext("%(days)s day ", "%(days)s days ",
                 days).fmt({days: days});
+            var days_short = gettext("%(days)sd ").fmt({days: days});
 
             var countdown_text;
-            if (days) {
+            var countdown_short;
+            if (days > 0) {
                 var countdown_days = days_str + hours_str + minutes_str +
                     seconds_str;
+                countdown_short = days_short + hours_short + minutes_short +
+                    seconds_short + countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_days)sleft to the %(countdown_destination)s",
                     "%(countdown_days)sleft to the %(countdown_destination)s",
                     days).fmt({countdown_days: countdown_days,
                     countdown_destination: countdown_destination});
-            } else if (hours) {
+            } else if (hours > 0) {
                 var countdown_hours = hours_str + minutes_str + seconds_str;
+                countdown_short = hours_short + minutes_short + seconds_short +
+                    countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_hours)sleft to the" +
                     " %(countdown_destination)s",
@@ -58,8 +83,10 @@ $(function() {
                     " %(countdown_destination)s",
                     hours).fmt({countdown_hours: countdown_hours,
                     countdown_destination: countdown_destination});
-            } else if (minutes) {
+            } else if (minutes > 0) {
                 var countdown_minutes = minutes_str + seconds_str;
+                countdown_short = minutes_short + seconds_short +
+                    countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_minutes)sleft to the" +
                     " %(countdown_destination)s",
@@ -67,8 +94,9 @@ $(function() {
                     " %(countdown_destination)s",
                     minutes).fmt({countdown_minutes: countdown_minutes,
                     countdown_destination: countdown_destination});
-            } else if (seconds) {
+            } else if (seconds >= 0) {
                 var countdown_seconds = seconds_str;
+                countdown_short = seconds_short + countdown_dest_short;
                 countdown_text = ngettext(
                     "%(countdown_seconds)sleft to the" +
                     " %(countdown_destination)s",
@@ -79,31 +107,50 @@ $(function() {
             } else {
                 if (round_duration_in_s) {
                     countdown_text = gettext("The round is over!");
+                    visible_bar = BarEnum.progressbar;
                 } else {
                     countdown_text = gettext("The round has started!");
+                    visible_bar = BarEnum.text_only;
                 }
+                countdown_short = countdown_text;
             }
+        }
 
-            if (round_duration_in_s) {
-                var elapsed_part = 1 - remaining_seconds / round_duration_in_s;
-                var red;
-                var green;
-                if (elapsed_part < 0.5) {
-                    red = Math.floor(510 * elapsed_part);
-                    green = 255;
-                } else {
-                    red = 255;
-                    green = Math.floor(510 * (1 - elapsed_part));
-                }
-                var blue = 0;
-                var bar_color = 'rgb(' + red + ',' + green +',' + blue + ')';
-                $('#navbar-progressbar').css({
-                    "background": bar_color,
-                    "width": Math.floor(elapsed_part * 100) + "%"
-                });
+        var bar_width = $('#navbar-progress').width();
+        if (bar_width >= short_text_width && visible_bar != BarEnum.none) {
+            if (visible_bar == BarEnum.progressbar) {
+                $('#navbar-progressbar').removeClass('textbar')
+            } else {
+                $('#navbar-progressbar').addClass('textbar');
             }
+            $('#navbar-progressbar').css('visibility', 'visible');
+        } else {
+            $('#navbar-progressbar').css('visibility', 'hidden');
+        }
 
+        if (visible_bar == BarEnum.progressbar) {
+            var elapsed_part = 1 - remaining_seconds / round_duration_in_s;
+            var red;
+            var green;
+            if (elapsed_part < 0.5) {
+                red = Math.floor(510 * elapsed_part);
+                green = 255;
+            } else {
+                red = 255;
+                green = Math.floor(510 * (1 - elapsed_part));
+            }
+            var blue = 0;
+            var bar_color = 'rgb(' + red + ',' + green +',' + blue + ')';
+            $('#navbar-bar').css({
+                "background": bar_color,
+                "width": Math.floor(elapsed_part * 100) + "%"
+            });
+        }
+
+        if (bar_width >= full_text_width) {
             $('#countdown').text(countdown_text);
+        } else {
+            $('#countdown').text(countdown_short);
         }
     }
 
