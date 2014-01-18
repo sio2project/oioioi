@@ -382,6 +382,7 @@ class ContestView(models.Model):
 
     class Meta(object):
         unique_together = ('user', 'contest')
+        index_together = [['user', 'timestamp']]
         get_latest_by = 'timestamp'
         ordering = ('-timestamp', )
 
