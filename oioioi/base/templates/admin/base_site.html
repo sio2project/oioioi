@@ -33,6 +33,7 @@
 <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
 {% endblock %}
 {% block extrahead %}
+<link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
 {% all_with_prefix extra_head_ %}
 {% endblock %}
 
