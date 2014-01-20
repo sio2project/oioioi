@@ -675,6 +675,25 @@ class SubmitFileMixin(object):
             })
         return self.client.post(url, post_data)
 
+    def submit_code(self, contest, problem_instance, code='', prog_lang='C',
+            send_file=False, kind='NORMAL', user=None):
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        file = None
+        if send_file:
+            file = ContentFile('a' * 1024, name='a.c')
+        post_data = {
+                'problem_instance_id': problem_instance.id,
+                'file': file,
+                'code': code,
+                'prog_lang': prog_lang,
+        }
+        if user:
+            post_data.update({
+                'kind': kind,
+                'user': user,
+            })
+        return self.client.post(url, post_data)
+
     def _assertSubmitted(self, contest, response):
         self.assertEqual(302, response.status_code)
         submissions = reverse('my_submissions',
@@ -785,7 +804,23 @@ class TestSubmission(TestCase, SubmitFileMixin):
                 file_name='a.tar.cpp')
         self._assertSubmitted(contest, response)
 
-    @override_settings(SUBMITTABLE_EXTENSIONS=['c'])
+    def test_code_pasting(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        response = self.submit_code(contest, problem_instance, 'some code')
+        self._assertSubmitted(contest, response)
+        response = self.submit_code(contest, problem_instance, 'some code', '')
+        self.assertIn('You have to choose programming language.',
+                response.content)
+        response = self.submit_code(contest, problem_instance, '')
+        self.assertIn('You have to either choose file or paste code.',
+                response.content)
+        response = self.submit_code(contest, problem_instance, 'some code',
+                send_file=True)
+        self.assertIn('You have to either choose file or paste code.',
+                response.content)
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c']})
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()

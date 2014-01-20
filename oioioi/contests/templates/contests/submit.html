@@ -4,6 +4,9 @@
 {% block title %}{% trans "Submit solution" %}{% endblock %}
 
 {% block content %}
+<script>
+$(handle_prog_lang_updates);
+</script>
 <h2>{% trans "Submit solution" %}</h2>
 <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
     {% csrf_token %}
