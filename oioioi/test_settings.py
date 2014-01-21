@@ -35,6 +35,11 @@ INSTALLED_APPS = (
     'oioioi.acm',
 ) + INSTALLED_APPS
 
+TEMPLATE_CONTEXT_PROCESSORS += (
+    'oioioi.contestlogo.processors.logo_processor',
+    'oioioi.contestlogo.processors.icon_processor',
+)
+
 AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
     'oioioi.teachers.auth.TeacherAuthBackend',

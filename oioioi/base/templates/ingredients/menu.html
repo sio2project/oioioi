@@ -1,4 +1,4 @@
-{% load menu check_perm i18n all_with_prefix %}
+{% load menu check_perm i18n all_with_prefix listutil %}
 {% all_with_prefix extra_menu_top_ %}
 {% if side_menus|length > 1 %}
 <ul class="nav nav-list admin-menu">
@@ -23,7 +23,10 @@
     {% generate_menu side_menus|first %}
     {% for item in menu %}
         <li id="{{ item.name }}" {% if item.url == request.path %}class="active"{% endif %}>
-            <a href="{{ item.url }}" {{ item.attrs }}><img src="{{ STATIC_URL }}images/menu/menu-icon-{% cycle '1' '2' '3' %}.png"/>{{ item.text }}</a>
+            <a href="{{ item.url }}" {{ item.attrs }}>
+                {% if menu_icons %}{{ menu_icons|cyclic_lookup:forloop.counter0 }}{% endif %}
+                {{ item.text }}
+            </a>
         </li>
     {% endfor %}
     <li class="divider" id="nav-dropdown-divider" style="display: none;"></li>

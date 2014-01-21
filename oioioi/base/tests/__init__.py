@@ -235,7 +235,7 @@ class TestOrderedRegistry(TestCase):
 
 
 class TestMenu(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users', 'test_contest', 'test_icon']
 
     def setUp(self):
         self.saved_menu = menu_registry._registry
@@ -298,12 +298,12 @@ class TestMenu(TestCase):
                 lambda request: '/spam', order=100)
 
             response = self._render_menu(user=user)
-            self.assertIn('/menu/menu-icon', response)
+            self.assertIn('id="contesticon"', response)
             self.assertNotIn('User Menu', response)
             self.assertNotIn('Admin Menu', response)
 
             response = self._render_menu(user=admin)
-            self.assertNotIn('/menu/menu-icon', response)
+            self.assertNotIn('id="contesticon"', response)
             self.assertIn('User Menu', response)
             self.assertIn('Admin Menu', response)
             self.assertLess(response.index('Test Admin Item'),
