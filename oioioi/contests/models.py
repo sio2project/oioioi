@@ -38,7 +38,7 @@ class Contest(models.Model):
             'oioioi.contests.controllers.ContestController',
             verbose_name=_("type"))
     creation_date = models.DateTimeField(auto_now_add=True, editable=False,
-            verbose_name=_("creation date"))
+            db_index=True, verbose_name=_("creation date"))
     default_submissions_limit = models.IntegerField(
             verbose_name=_("default submissions limit"),
             default=settings.DEFAULT_SUBMISSIONS_LIMIT, blank=True)
