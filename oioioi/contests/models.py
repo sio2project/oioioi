@@ -1,3 +1,6 @@
+import itertools
+import os.path
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -7,6 +10,7 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.contests.fields import ScoreField
@@ -14,9 +18,7 @@ from oioioi.filetracker.fields import FileField
 from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
 from oioioi.problems.models import Problem
-
-import itertools
-import os.path
+from oioioi.contests.date_registration import date_registry
 
 
 def make_contest_filename(instance, filename):
@@ -107,6 +109,15 @@ class ContestAttachment(models.Model):
         verbose_name_plural = _("attachments")
 
 
+@date_registry.register('start_date',
+                        name_generator=(lambda obj:
+                                        _("Start of %s" % (obj['name']))))
+@date_registry.register('end_date',
+                        name_generator=(lambda obj:
+                                        _("End of %s" % (obj['name']))))
+@date_registry.register('results_date',
+                        name_generator=(lambda obj:
+                                        _("Results of %s" % (obj['name']))))
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     name = models.CharField(max_length=255, verbose_name=_("name"),

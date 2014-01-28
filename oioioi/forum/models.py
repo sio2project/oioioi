@@ -8,8 +8,13 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.models import Contest
+from oioioi.contests.date_registration import date_registry
 
 
+@date_registry.register('lock_date',
+                        name_generator=(lambda obj: _("Lock the forum")))
+@date_registry.register('unlock_date',
+                        name_generator=(lambda obj: _("Unlock the forum")))
 class Forum(models.Model):
     """Forum is connected with contest"""
 

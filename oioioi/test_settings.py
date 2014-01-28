@@ -34,6 +34,7 @@ INSTALLED_APPS = (
     'oioioi.ctimes',
     'oioioi.acm',
     'oioioi.submitsqueue',
+    'oioioi.timeline',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

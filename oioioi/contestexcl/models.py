@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.models import Contest
+from oioioi.contests.date_registration import date_registry
 
 
 class ExclusivenessConfigManager(models.Manager):
@@ -24,6 +25,11 @@ class ExclusivenessConfigManager(models.Manager):
         return self.get_query_set().exclude(neg_condition)
 
 
+@date_registry.register('start_date',
+                        name_generator=(lambda obj: _("Enable exclusiveness")))
+@date_registry.register('end_date',
+                        name_generator=(lambda obj:
+                                        _("Disable exclusiveness")))
 class ExclusivenessConfig(models.Model):
     """Represents an exclusiveness config for a contest.
 

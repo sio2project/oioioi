@@ -1,0 +1,21 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Timeline" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Timeline" %}</h2>
+{% if registry %}
+<div>
+    <ul>
+        {% for record in registry %}
+        <li>{{ record.text }} : {{ record.date }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}There are no items on the timeline.{% endblocktrans %}
+</div>
+{% endif %}
+{% endblock %}
