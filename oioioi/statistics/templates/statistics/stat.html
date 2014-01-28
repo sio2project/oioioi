@@ -1,0 +1,33 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Statistics" %}{% endblock %}
+
+{% block content %}
+
+{{ head|safe }}
+
+
+{% if title %}
+<h2>{{ title }}</h2>
+{% else%}
+<h2>{% trans "Statistics" %}</h2>
+{% endif %}
+
+{% include "statistics/corner.html"%}
+
+{% if plots %}
+<div>
+    {% for p in plots %}
+    <div>
+        {{ p }}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-space-filler">
+    {% trans "No plots are available at the moment." %}
+</div>
+{% endif %}
+{% endblock %}

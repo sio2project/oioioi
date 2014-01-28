@@ -1,0 +1,24 @@
+{% load listutil %}
+
+<div>
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+        {% for key in keys %}
+            <th>{{ key }}</th>
+        {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for name, row in columns|zip:data %}
+        <tr>
+            <th>{{ name }}</th>
+            {% for value in row %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>

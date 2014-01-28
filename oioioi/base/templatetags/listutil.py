@@ -54,3 +54,8 @@ def partition(thelist, n):
 @register.filter
 def cyclic_lookup(thelist, index):
     return thelist[index % len(thelist)]
+
+
+@register.filter(name='zip')
+def zip_lists(a, b):
+    return zip(a, b)

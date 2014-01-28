@@ -92,6 +92,12 @@ class EnumRegistry(object):
     def __iter__(self):
         return self.entries.__iter__()
 
+    def __getitem__(self, key):
+        for (val, desc) in self:
+            if val == key:
+                return desc
+        raise KeyError(key)
+
     def register(self, value, description):
         if len(value) > self.max_length:
             raise ValueError('Enum values must not be longer than %d chars' %

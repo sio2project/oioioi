@@ -1,6 +1,13 @@
-from oioioi.contests.controllers import ContestController
-from oioioi.base.fields import EnumRegistry
 from django.utils.translation import ugettext_lazy as _
+from oioioi.contests.controllers import ContestController
+from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.base.fields import EnumRegistry
+from oioioi.contests.utils import visible_problem_instances, rounds_times
+from oioioi.statistics.plottypes import HistogramPlot, TablePlot
+from oioioi.statistics.plotfunctions import points_histogram_contest, \
+          solutions_histogram_contest, submissions_histogram_contest, \
+          points_histogram_problem
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
 statistics_categories = EnumRegistry()
@@ -8,6 +15,17 @@ statistics_categories.register('CONTEST', _("Contest"))
 statistics_categories.register('PROBLEM', _("Problem"))
 
 statistics_plot_kinds = EnumRegistry()
+statistics_plot_kinds.register('POINTS_HISTOGRAM_CONTEST',
+    (points_histogram_contest, HistogramPlot()))
+statistics_plot_kinds.register('SOLUTIONS_HISTOGRAM_CONTEST',
+    (solutions_histogram_contest, HistogramPlot()))
+statistics_plot_kinds.register('SUBMISSIONS_HISTOGRAM_CONTEST',
+    (submissions_histogram_contest, HistogramPlot(),))
+statistics_plot_kinds.register('POINTS_HISTOGRAM_PROBLEM',
+    (points_histogram_problem, HistogramPlot()))
+statistics_plot_kinds.register('POINTS_TABLE_PROBLEM',
+    (points_histogram_problem, TablePlot()))
+
 
 class StatisticsMixinForContestController(object):
     """The basic unit of statistics module is a plot group. It is a group of
@@ -84,37 +102,93 @@ class StatisticsMixinForContestController(object):
         """
         raise NotImplementedError
 
-    def statistics_available_plots(self, request, plot_group):
+    def statistics_available_plots(self, request, plot_category, object_name):
         """Returns a list of available plots for the plot group.
            Determines which plots the requesting user is allowed to see.
 
-           Each entry of the output contains a  plot kind identifier, an object
-           name and a description. The description should be translated.
+           Each entry of the output contains a plot kind identifier and an
+           object name.
 
-           :type plot_group: (enum entry from statistics_categories, string)
-           :rtype: list of (enum entry from statistics_plot_kinds, string,
-              unicode)
+           :rtype: list of (enum entry from statistics_plot_kinds, string)
         """
         raise NotImplementedError
 
-    def statistics_data(self, request, plot_kind):
+    def statistics_data(self, request, plot_kind, object_name):
         """Returns data needed to render statistics for the ``plot_kind``.
 
-           :param plot_kind: A pair (enum entry, string).
            :return: A dict describing plot. See
               :ref:`plot-data-representation`.
            :rtype: Dict.
         """
         raise NotImplementedError
 
-    def render_statistics(self, request, data):
+    def render_statistics(self, request, data, plot_id):
         """Renders the given plots to HTML.
 
            :param data: A dict describing plots, as returned
               by :meth:`statistics_data`
            :type data: Dict.
+           :param plot_id: Look at
+               :class:`~oioioi.statistics.plottypes.PlotType`.
            :return: Unicode containing HTML.
         """
         raise NotImplementedError
 
 ContestController.mix_in(StatisticsMixinForContestController)
+
+
+class StatisticsMixinForProgrammingContestController(object):
+    def statistics_available_plot_groups(self, request):
+        result = []
+        result.append(('CONTEST', request.contest.id, request.contest.name))
+
+        problem_instances = visible_problem_instances(request)
+        times = rounds_times(request)
+
+        can_see_all = is_contest_admin(request) or is_contest_observer(request)
+
+        for pi in problem_instances:
+            can_see_round = times[pi.round].results_visible(request.timestamp)
+            if can_see_all or can_see_round:
+                result.append(('PROBLEM', pi.short_name, pi.problem.name))
+
+        return result
+
+    def statistics_available_plots(self, request, category, object_name):
+        result = []
+
+        if category == 'CONTEST':
+            if object_name == '':
+                object_name = request.contest.id
+            result.append((
+                statistics_plot_kinds['POINTS_HISTOGRAM_CONTEST'],
+                object_name))
+            result.append((
+                statistics_plot_kinds['SOLUTIONS_HISTOGRAM_CONTEST'],
+                object_name))
+            result.append((
+                statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST'],
+                object_name))
+
+        if category == 'PROBLEM':
+            result.append((
+                statistics_plot_kinds['POINTS_HISTOGRAM_PROBLEM'],
+                object_name))
+            result.append((
+                statistics_plot_kinds['POINTS_TABLE_PROBLEM'], object_name))
+        return result
+
+    def statistics_data(self, request, plot_kind, object_name):
+        (plot_function, plot_type) = plot_kind
+        result = plot_function(object_name)
+        result['plot_type'] = plot_type
+
+        return result
+
+
+    def render_statistics(self, request, data, plot_id):
+        return data['plot_type'].render_plot(request, data, plot_id)
+
+ProgrammingContestController.mix_in(
+    StatisticsMixinForProgrammingContestController)
+
