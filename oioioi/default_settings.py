@@ -258,13 +258,17 @@ LOGGING = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
         },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'emit_notification': {
+            'level': 'DEBUG',
+            'class': 'oioioi.base.notification.NotificationHandler'
         }
     },
     'loggers': {
@@ -274,8 +278,8 @@ LOGGING = {
             'propagate': True,
         },
         'oioioi': {
-            'handlers': ['console'],
-            'level': 'INFO',
+            'handlers': ['console', 'emit_notification'],
+            'level': 'DEBUG',
             'propagate': True,
         }
     }
