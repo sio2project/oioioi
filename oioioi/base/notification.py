@@ -7,20 +7,25 @@ class NotificationHandler(logging.StreamHandler):
 
        Example usage is in external documentation.
     """
-    @staticmethod
-    def send_notification(user_id, notification_type, notification_message):
+    # This dictionary stores functions handling registered notifications
+    notification_functions = {}
+
+    @classmethod
+    def send_notification(cls, user_id, notification_type, \
+            notification_message):
         """This function will send a notification for a specified person.
            It will be done by sending a message to RabbitMQ.
         """
         pass
 
-    @staticmethod
-    def register(notification_type, notification_function):
+    @classmethod
+    def register(cls, notification_type, notification_function):
         """Register a specific notification handler function for
            specified type of notification, that will be executed
            each time the log with this notification type will be
            processed.
         """
+        cls.notification_functions[notification_type] = notification_function
         pass
 
     def emit(self, record):
@@ -42,7 +47,13 @@ class NotificationHandler(logging.StreamHandler):
         #
 
         if hasattr(record, 'notification'):
-            pass
+            notification_type = getattr(record, 'notification')
+            if notification_type in NotificationHandler.notification_functions:
+                notification_function = NotificationHandler\
+                    .notification_functions[notification_type]
+                notification_function(record)
+            else:
+                print "Tried to handle a non-existent notification"
         else:
             pass
 
