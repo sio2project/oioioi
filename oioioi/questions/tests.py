@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.questions.models import Message, ReplyTemplate
+from oioioi.base.notification import NotificationHandler
+
 
 class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -138,6 +140,126 @@ class TestQuestions(TestCase):
         self.assertIn(q_url, response.content)
         self.assertIn('re-new-question', response.content)
         self.assertNotIn('the-new-question', response.content)
+
+    def test_reply_notification(self):
+        flags = {}
+        flags['user_1001_got_notification'] = False
+        flags['user_1002_got_notification'] = False
+
+        @classmethod
+        def fake_send_notification(cls, user, notification_type,
+                    notification_message, notificaion_message_arguments):
+            if user.pk == 1002:
+                flags['user_1002_got_notification'] = True
+            if user.pk == 1001:
+                flags['user_1001_got_notification'] = True
+
+        send_notification_backup = NotificationHandler.send_notification
+        NotificationHandler.send_notification = fake_send_notification
+
+        # Test user asks a new question
+        self.client.login(username='test_user2')
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        url = reverse('add_contest_message', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        post_data = {
+                'category': 'p_%d' % (pi.id,),
+                'topic': 'the-new-question',
+                'content': 'the-new-body',
+            }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        new_question = Message.objects.get(topic='the-new-question')
+
+        # Test admin replies his question
+        self.client.login(username='test_admin')
+        list_url = reverse('contest_messages',
+                kwargs={'contest_id': contest.id})
+        response = self.client.get(list_url)
+        self.assertIn('the-new-question', response.content)
+
+        url = reverse('message', kwargs={'contest_id': contest.id,
+            'message_id': new_question.id})
+        response = self.client.get(url)
+        self.assertIn('form', response.context)
+
+        post_data = {
+                'kind': 'PRIVATE',
+                'topic': 're-new-question',
+                'content': 're-new-body',
+                'save_template': True,
+            }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+
+        # Check if a notification for user was send
+        self.assertTrue(flags['user_1002_got_notification'])
+        self.assertFalse(flags['user_1001_got_notification'])
+
+        NotificationHandler.send_notification = send_notification_backup
+
+    def test_public_message_notification(self):
+        flags = {}
+        flags['user_1001_got_notification'] = False
+        flags['user_1002_got_notification'] = False
+
+        @classmethod
+        def fake_send_notification(cls, user, notification_type,
+                    notification_message, notificaion_message_arguments):
+            if user.pk == 1002:
+                flags['user_1002_got_notification'] = True
+            if user.pk == 1001:
+                flags['user_1001_got_notification'] = True
+
+        send_notification_backup = NotificationHandler.send_notification
+        NotificationHandler.send_notification = fake_send_notification
+
+        # Test user asks a new question
+        self.client.login(username='test_user2')
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+
+        url = reverse('add_contest_message', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        post_data = {
+                'category': 'p_%d' % (pi.id,),
+                'topic': 'the-new-question',
+                'content': 'the-new-body',
+            }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+        new_question = Message.objects.get(topic='the-new-question')
+
+        # Test admin replies his question
+        self.client.login(username='test_admin')
+        list_url = reverse('contest_messages',
+                kwargs={'contest_id': contest.id})
+        response = self.client.get(list_url)
+        self.assertIn('the-new-question', response.content)
+
+        url = reverse('message', kwargs={'contest_id': contest.id,
+            'message_id': new_question.id})
+        response = self.client.get(url)
+        self.assertIn('form', response.context)
+
+        post_data = {
+                'kind': 'PUBLIC',
+                'topic': 're-new-question',
+                'content': 're-new-body',
+                'save_template': True,
+            }
+        response = self.client.post(url, post_data)
+        self.assertEqual(response.status_code, 302)
+
+        self.assertTrue(flags['user_1002_got_notification'])
+        self.assertTrue(flags['user_1001_got_notification'])
+
+        NotificationHandler.send_notification = send_notification_backup
 
     def test_filtering(self):
         self.client.login(username='test_admin')

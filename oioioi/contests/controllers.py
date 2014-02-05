@@ -796,3 +796,18 @@ class PastRoundsHiddenContestControllerMixin(object):
 
         return super(PastRoundsHiddenContestControllerMixin, self) \
                 .can_see_round(request, round)
+
+
+class NotificationsMixinForContestController(object):
+
+    def users_to_receive_public_message_notification(self):
+        """Decide if all users particiapting in a contest should be
+           notified about a new global message.
+
+           This should be disabled for contest with many users
+           because of performance reasons - for each user, a single
+           query to database is executed while sending a notification.
+        """
+        return []
+
+ContestController.mix_in(NotificationsMixinForContestController)

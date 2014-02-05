@@ -13,7 +13,6 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
-from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.controllers import ProblemController
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import SubmissionReport, ScoreReport

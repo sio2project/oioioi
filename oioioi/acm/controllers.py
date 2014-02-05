@@ -282,3 +282,12 @@ class ACMRankingController(DefaultRankingController):
         data = self._get_users_results(pis, results, rounds, users)
         self._assign_places(data, itemgetter('sum'))
         return {'rows': data, 'problem_instances': pis, 'frozen': frozen}
+
+
+class NotificationsMixinForACMContestController(object):
+
+    def users_to_receive_public_message_notification(self):
+        return self.registration_controller().filter_participants(User
+                .objects.all())
+
+ACMContestController.mix_in(NotificationsMixinForACMContestController)

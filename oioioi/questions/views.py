@@ -109,6 +109,7 @@ def messages_view(request, contest_id):
          'num_hints': getattr(settings, 'NUM_HINTS', 10),
          'categories': get_categories(request)})
 
+
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, contest_id, message_id):
     message = get_object_or_404(Message, id=message_id, contest_id=contest_id)

@@ -1,3 +1,5 @@
+import logging
+
 from django.db import models
 from django.db.models import Q
 from django.dispatch import receiver, Signal
@@ -7,6 +9,8 @@ from django.utils import timezone
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.db.models.signals import post_save
 
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.base.fields import EnumRegistry, EnumField
@@ -17,6 +21,8 @@ message_kinds = EnumRegistry()
 message_kinds.register('QUESTION', _("Question"))
 message_kinds.register('PRIVATE', _("Private message"))
 message_kinds.register('PUBLIC', _("Public message"))
+
+logger = logging.getLogger('oioioi')
 
 
 class Message(models.Model):
@@ -71,6 +77,14 @@ class Message(models.Model):
         lines = self.content.strip().split('\n')
         return ''.join('> ' + l for l in lines)
 
+    def get_absolute_url(self):
+        link = reverse('message', kwargs={
+            'contest_id': self.contest.id,
+            'message_id': self.top_reference_id
+                if self.top_reference_id is not None else self.id
+            })
+        return link
+
 
 class ReplyTemplate(models.Model):
     contest = models.ForeignKey(Contest, null=True, blank=True)
@@ -119,3 +133,40 @@ def notify_about_new_question(sender, request, instance, **kwargs):
     users_to_notify = [x.user for x in conf]
     for u in users_to_notify:
         send_email_about_new_question(u, request, instance)
+
+
+@receiver(post_save, sender=Message)
+def send_notification(sender, instance, created, **kwargs):
+    # Don't send a notification when the message was just edited
+    if not created:
+        return
+
+    # Send a notification if this is a new public message
+    if instance.kind == 'PUBLIC' and instance.contest is not None:
+        if instance.problem_instance is not None:
+            logger.info("Public message \"%(topic)s\""
+                        " about problem \"%(short_name)s\" was created",
+                        {'topic': instance.topic,
+                         'short_name': instance.problem_instance.short_name},
+                        extra=
+                            {'notification': 'new_public_message',
+                             'message_instance': instance,
+                             'contest': instance.contest})
+        else:
+            logger.info("Public message \"%(topic)s\""
+                        " was created", {'topic': instance.topic}, extra=
+                            {'notification': 'new_public_message',
+                             'message_instance': instance,
+                             'contest': instance.contest})
+
+    # Send a notification if this is a new answer for question
+    elif instance.top_reference is not None:
+        logger.info("Answer for question \"%(topic)s\""
+                    " about problem \"%(short_name)s\" was sent",
+                    {'topic': instance.topic,
+                     'short_name': instance.top_reference
+                         .problem_instance.short_name}, extra=
+                         {'notification': 'question_answered',
+                          'question_instance': instance.top_reference,
+                          'answer_instance': instance,
+                          'user': instance.top_reference.author})
