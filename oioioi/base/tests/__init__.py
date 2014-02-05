@@ -12,6 +12,7 @@ from contextlib import contextmanager
 import threading
 import urllib
 import subprocess
+import logging
 
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate
 from django.http import HttpResponseRedirect
@@ -41,6 +42,7 @@ from oioioi.base.menu import menu_registry, OrderedRegistry, \
     side_pane_menus_registry, MenuRegistry
 from oioioi.base.management.commands import import_users
 from oioioi.contests.utils import is_contest_admin
+from oioioi.base.notification import NotificationHandler
 
 
 if not getattr(settings, 'TESTS', False):
@@ -53,7 +55,6 @@ if not getattr(settings, 'TESTS', False):
     sys.exit(1)
 
 basedir = os.path.dirname(__file__)
-
 
 def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     data = kwargs.pop('data', {})
@@ -690,6 +691,28 @@ class TestBackendMiddleware(TestCase):
         self.assertEquals('test_user', response.context['user'].username)
         self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
             response.context['user'].backend)
+
+
+class TestNotifications(TestCase):
+    fixtures = ['test_users']
+
+    def test_notification_registration(self):
+        flags = {}
+        flags['got_notification'] = False
+
+        def notification_function(arguments):
+            message = "Test"
+            message_arguments = {}
+            user = User.objects.get(username='test_user')
+            NotificationHandler.send_notification(user,
+                    'test_notification', message, message_arguments)
+            flags['got_notification'] = True
+        NotificationHandler.register_notification('test_notification',
+                notification_function)
+        logger = logging.getLogger('oioioi')
+        logger.info("Test notification", extra=
+                {'notification': 'test_notification'})
+        self.assertTrue(flags['got_notification'])
 
 
 class TestCondition(TestCase):

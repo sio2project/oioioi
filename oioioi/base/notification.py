@@ -1,30 +1,54 @@
 import logging
 from oioioi.base.utils.loaders import load_modules
 
+logger = logging.getLogger(__name__)
+
 class NotificationHandler(logging.StreamHandler):
     """This handler will catch all logs and emit a notification
        if a notification type is set in extra dictionary, in log record.
 
        Example usage is in external documentation.
     """
-
     loaded_notifications = False
 
-    @staticmethod
-    def send_notification(user_id, notification_type, notification_message):
+    # This dictionary stores functions handling registered notifications
+    # key - notification type, value - function handle
+    notification_functions = {}
+
+    @classmethod
+    def send_notification(cls, user, notification_type,
+            notification_message, notificaion_message_arguments):
         """This function will send a notification for a specified person.
            It will be done by sending a message to RabbitMQ.
+
+           :param user: User, to whom the notification will be sent.
+
+           :param notification_message: A message to show to notified user,
+               which will be translated by frontend to his language
+               and interpolated using notification_message_arguments.
+               Remember to mark this message to translate, passing it as
+               argument to _() function, so that the message string will be
+               caught to translate.
+
+           :param notification_message_arguments: A map which contains
+               strings to interpolate notification_message, and special
+               optional parameter "link" -- absolute link
+               (starting with http://) to page related to
+               the notification, where user can check the details.
         """
         pass
 
-    @staticmethod
-    def register(notification_type, notification_function):
+    @classmethod
+    def register_notification(cls, notification_type, notification_function):
         """Register a specific notification handler function for
            specified type of notification, that will be executed
            each time the log with this notification type will be
            processed.
         """
-        pass
+        if notification_type in cls.notification_functions:
+            logger.warning("Notification %s was registered twice",
+                notification_type)
+        cls.notification_functions[notification_type] = notification_function
 
     def emit(self, record):
         """This function is called each time a  message is logged.
@@ -49,7 +73,13 @@ class NotificationHandler(logging.StreamHandler):
             NotificationHandler.loaded_notifications = True
 
         if hasattr(record, 'notification'):
-            pass
-        else:
-            pass
-
+            notification_type = getattr(record, 'notification')
+            if notification_type in NotificationHandler.notification_functions:
+                notification_function = NotificationHandler \
+                    .notification_functions[notification_type]
+                notification_function(record)
+            else:
+                logger.error("Internal error in notification module:"
+                        " Tried to handle a non-exisitent notification \"%s\""
+                        " Please check, if the notification is"
+                        " registered correctly.", notification_type)
