@@ -39,6 +39,9 @@ class Test(models.Model):
             default=10)
     order = models.IntegerField(default=0)
 
+    def __unicode__(self):
+        return self.name
+
     class Meta(object):
         ordering = ['order']
         verbose_name = _("test")

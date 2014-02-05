@@ -1,0 +1,40 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+{% load check_perm %}
+
+{% block title %}{% trans "Tests" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Tests" %}</h2>
+{% if tests %}
+<div class="paginated-list">
+{% autopaginate tests tests_on_page %}
+{% paginate %}
+<table class="table auto-width row-links">
+    <thead>
+        <tr>
+            <th style="min-width: 100px">{% trans "Round" %}</th>
+            <th style="min-width: 100px">{% trans "File" %}</th>
+            <th style="min-width: 300px">{% trans "Description" %}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for test in tests %}
+        <tr>
+            <td>{{ test.round }}</td>
+            <td><a href="{{ test.link }}">{{ test.name }}</a></td>
+            <td>{{ test.description }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% paginate %}
+</div>
+{% else %}
+<div class="empty-space-filler">
+    {% blocktrans %}No tests are available.{% endblocktrans %}
+</div>
+{% endif %}
+{% endblock %}
+

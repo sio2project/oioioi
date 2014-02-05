@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'oioioi.statistics',
     'oioioi.amppz',
     'oioioi.publicsolutions',
+    'oioioi.testspackages',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
