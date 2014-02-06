@@ -322,7 +322,7 @@ class ProgrammingContestController(ContestController):
         if is_file_chosen:
             code = cleaned_data['file'].read()
         else:
-            code = cleaned_data['code']
+            code = cleaned_data['code'].encode('utf-8')
 
         if not is_contest_admin(request) and \
                 getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False):

@@ -820,6 +820,14 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self.assertIn('You have to either choose file or paste code.',
                 response.content)
 
+    @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
+    def test_pasting_unicode_code(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get()
+        response = self.submit_code(contest, problem_instance, unichr(12345),
+                user='test_user')
+        self._assertSubmitted(contest, response)
+
     @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c']})
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
