@@ -8,7 +8,7 @@ from collections import defaultdict
 from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_noop, ugettext_lazy as _
 
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController, \
@@ -289,5 +289,13 @@ class NotificationsMixinForACMContestController(object):
     def users_to_receive_public_message_notification(self):
         return self.registration_controller().filter_participants(User
                 .objects.all())
+
+    def get_notification_message_submission_judged(self, submission):
+        if submission.score is not None and submission.score.accepted:
+            return ugettext_noop("Your submission for task %(short_name)s"
+                     " is accepted. Congratulations!")
+        else:
+            return ugettext_noop("Your submission for task %(short_name)s"
+                     " is not accepted.")
 
 ACMContestController.mix_in(NotificationsMixinForACMContestController)

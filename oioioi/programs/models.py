@@ -83,7 +83,7 @@ class ModelSolutionsManager(models.Manager):
                         source_file=model_solution.source_file,
                         kind='IGNORED')
                 submission.save()
-            controller.judge(submission)
+            controller.judge(submission, is_rejudge=True)
 
 
 class ModelSolution(models.Model):

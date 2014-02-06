@@ -13,17 +13,17 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
-from oioioi.contests.controllers import ContestController
+from oioioi.contests.controllers import ContestController, \
+        submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
-from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
         Submission
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 logger = logging.getLogger(__name__)
 

@@ -388,7 +388,7 @@ def make_report(env, kind='NORMAL', **kwargs):
            * ``report_id``: id of the produced
              :class:`~oioioi.contests.models.SubmissionReport`
     """
-    _submission, submission_report = _make_base_report(env, kind)
+    submission, submission_report = _make_base_report(env, kind)
 
     if env['compilation_result'] != 'OK':
         return env
@@ -426,6 +426,20 @@ def make_report(env, kind='NORMAL', **kwargs):
         group_report.status = group_result['status']
         group_report.save()
         group_result['result_id'] = group_report.id
+
+    if kind == 'INITIAL':
+        if submission.user is not None and not env.get('is_rejudge', False):
+            logger.info("Submission %(submission_id)d by user %(username)s"
+                        " for problem %(short_name)s got initial result.",
+                        {'submission_id': submission.pk,
+                         'username': submission.user.username,
+                         'short_name': submission.problem_instance
+                                    .short_name},
+                            extra={'notification': 'initial_results',
+                                   'user': submission.user,
+                                   'submission': submission})
+
+
 
     return env
 

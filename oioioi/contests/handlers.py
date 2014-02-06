@@ -68,7 +68,8 @@ def update_user_results(env, **kwargs):
 def call_submission_judged(env, **kwargs):
     contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
-    contest.controller.submission_judged(submission)
+    contest.controller.submission_judged(submission,
+            rejudged=env['is_rejudge'])
     contest.controller.submission_unqueued(submission, env['job_id'])
     return env
 

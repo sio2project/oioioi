@@ -205,7 +205,7 @@ def report_view(request, contest_id, submission_id, report_id):
 def rejudge_submission_view(request, contest_id, submission_id):
     submission = get_submission_or_error(request, contest_id, submission_id)
     controller = request.contest.controller
-    controller.judge(submission, request.GET.dict())
+    controller.judge(submission, request.GET.dict(), is_rejudge=True)
     messages.info(request, _("Rejudge request received."))
     return redirect('submission', contest_id=contest_id,
             submission_id=submission_id)
