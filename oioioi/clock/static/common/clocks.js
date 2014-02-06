@@ -1,7 +1,9 @@
 $(function() {
-    const full_text_width = 550;
-    const short_text_width = 250;
-    const display_time = 10;
+    // Note that const is not supported on IE as of 02.2014.
+    var FULL_TEXT_WIDTH = 550;
+    var SHORT_TEXT_WIDTH = 250;
+    var DISPLAY_TIME = 10;
+
     var round_duration_in_s;
     var is_time_admin;
     var is_admin_time_set;
@@ -21,7 +23,7 @@ $(function() {
         BarEnum = {none: 0, progressbar: 1, text_only: 2};
         var visible_bar = BarEnum.none;
 
-        if (remaining_seconds >= -display_time) {
+        if (remaining_seconds >= -DISPLAY_TIME) {
             var countdown = remaining_seconds;
             var countdown_destination;
             var countdown_dest_short;
@@ -117,7 +119,7 @@ $(function() {
         }
 
         var bar_width = $('#navbar-progress').width();
-        if (bar_width >= short_text_width && visible_bar != BarEnum.none) {
+        if (bar_width >= SHORT_TEXT_WIDTH && visible_bar != BarEnum.none) {
             if (visible_bar == BarEnum.progressbar) {
                 $('#navbar-progressbar').removeClass('textbar')
             } else {
@@ -147,7 +149,7 @@ $(function() {
             });
         }
 
-        if (bar_width >= full_text_width) {
+        if (bar_width >= FULL_TEXT_WIDTH) {
             $('#countdown').text(countdown_text);
         } else {
             $('#countdown').text(countdown_short);
