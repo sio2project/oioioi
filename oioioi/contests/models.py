@@ -5,11 +5,12 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Max
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.text import get_valid_filename
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ungettext
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
@@ -109,15 +110,29 @@ class ContestAttachment(models.Model):
         verbose_name_plural = _("attachments")
 
 
+def _round_end_date_name_generator(obj):
+    max_round_extension = RoundTimeExtension.objects.filter(round=obj['id']). \
+            aggregate(Max('extra_time'))['extra_time__max']
+    if max_round_extension is not None:
+        return ungettext("End of %(name)s (+ %(ext)d min)",
+                         "End of %(name)s (+ %(ext)d mins)",
+                         max_round_extension) % \
+                         {'name': obj['name'], 'ext': max_round_extension}
+    else:
+        return _("End of %s") % obj['name']
+
+
 @date_registry.register('start_date',
                         name_generator=(lambda obj:
-                                        _("Start of %s" % (obj['name']))))
+                                        _("Start of %s") % obj['name']),
+                        order=0)
 @date_registry.register('end_date',
-                        name_generator=(lambda obj:
-                                        _("End of %s" % (obj['name']))))
+                        name_generator=_round_end_date_name_generator,
+                        order=0)
 @date_registry.register('results_date',
                         name_generator=(lambda obj:
-                                        _("Results of %s" % (obj['name']))))
+                                        _("Results of %s") % obj['name']),
+                        order=30)
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     name = models.CharField(max_length=255, verbose_name=_("name"),

@@ -1,0 +1,66 @@
+#timeline-wrapper {
+    border: none;
+    margin: 8px 0 0 8px;
+    border-left: 8px solid #006dcc;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    padding-left: 8px;
+}
+
+#timeline {
+    width: 450px;
+    height: 700px;
+    margin-top: 8px;
+    border: none;
+    position: relative;
+}
+
+.datebox {
+    margin-bottom: 0;
+    height: 30px;
+    width: 450px;
+    position: absolute;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.datebox > .inline, .popover-datebox > .inline {
+    line-height: 30px;
+    height: 30px;
+    margin-left: 8px;
+    color: #ffffff;
+    margin-bottom: 0;
+}
+
+.date > input {
+    width: auto;
+}
+
+.group-icon, .group-delete-btn {
+    float: right;
+    margin-right: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+}
+
+#timeline-wrapper > .popover {
+    max-width: 500px;
+}
+
+.popover-body {
+    width: 275px;
+}
+
+.popover-datebox {
+    height: 30px;
+    width: 275px;
+    margin-bottom: 8px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.tooltip-list {
+    list-style: none;
+    margin: 0;
+}

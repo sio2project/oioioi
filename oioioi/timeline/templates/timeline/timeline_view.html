@@ -1,18 +1,74 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
+{% block styles %}
+{{ block.super }}
+<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}jquery-ui/jquery-ui.min.css" />
+<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}timeline/timeline.css" />
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker/bootstrap-datetimepicker.js" ></script>
+<script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker/locales.js" ></script>
+<script type="text/javascript" src="{{ STATIC_URL }}underscore/underscore.min.js" ></script>
+<script type="text/javascript" src="{{ STATIC_URL }}timeline/timeline.js" ></script>
+{% endblock %}
+
 {% block title %}{% trans "Timeline" %}{% endblock %}
 
 {% block content %}
 <h2>{% trans "Timeline" %}</h2>
-{% if registry %}
-<div>
-    <ul>
-        {% for record in registry %}
-        <li>{{ record.text }} : {{ record.date }}</li>
-        {% endfor %}
-    </ul>
+{% if error_dict %}
+<div class="alert alert-error">
+<ul>
+    {% for error_obj,error_msgs_list in error_dict.items %}
+        <li>
+            <strong>{{ error_obj }}</strong>
+            <ul>
+                {% for error_msgs in error_msgs_list.values %}
+                    <li>
+                        {% for error_msg in error_msgs %}
+                            {{ error_msg }}
+                        {% endfor %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+</ul>
 </div>
+{% endif %}
+{% if registry %}
+<form id="timeline-form" method="post" action="">
+    <div id="timeline-wrapper" class="draggable ui-widget-content">
+        <div id="timeline" class="draggable ui-widget-content">
+            {% csrf_token %}
+            {% for record in registry %}
+                {% if record.date %}
+                <div id="datetimepickerbox_{{record.order}}_{{ forloop.counter }}" data-toggle="tooltip" class="datebox btn-primary">
+                    <div id="datetimepicker{{ forloop.counter }}" class="input-append date inline pull-left">
+                        <input type="text" name="{{ record.date_id }}" value="{{ record.date|date:'Y-m-d H:i' }}"></input> <span class="add-on">
+                          <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
+                        </span>
+
+                    </div>
+                    <div class="date-title inline pull-left">{{ record.text }}</div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary pull-right" value="Submit" />
+    </div>
+</form>
+<script type="text/javascript">
+    $(document).ready(function() {
+        init_timeline('{{ LANGUAGE_CODE|default:"en" }}');
+    });
+</script>
 {% else %}
 <div class="empty-space-filler">
     {% blocktrans %}There are no items on the timeline.{% endblocktrans %}
