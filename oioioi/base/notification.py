@@ -1,5 +1,5 @@
 import logging
-
+from oioioi.base.utils.loaders import load_modules
 
 class NotificationHandler(logging.StreamHandler):
     """This handler will catch all logs and emit a notification
@@ -7,6 +7,9 @@ class NotificationHandler(logging.StreamHandler):
 
        Example usage is in external documentation.
     """
+
+    loaded_notifications = False
+
     @staticmethod
     def send_notification(user_id, notification_type, notification_message):
         """This function will send a notification for a specified person.
@@ -40,6 +43,10 @@ class NotificationHandler(logging.StreamHandler):
         # Emit is called with a lock held, see
         # http://docs.python.org/2/library/logging.html#logging.Handler.handle
         #
+
+        if not NotificationHandler.loaded_notifications:
+            load_modules('notifications')
+            NotificationHandler.loaded_notifications = True
 
         if hasattr(record, 'notification'):
             pass
