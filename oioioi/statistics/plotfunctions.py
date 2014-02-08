@@ -6,6 +6,7 @@ from oioioi.contests.scores import IntegerScore
 
 def histogram(values, num_buckets=10):
     """Calculates the histogram of the provided values (integers).
+       Assumes that minimal value is 0.
 
        :param values: List of integers to compute the histogram.
        :param num_buckets: Number of histogram buckets.
@@ -122,7 +123,14 @@ def points_histogram_problem(problem_name):
     scores = [r.score.value if isinstance(r.score, IntegerScore)
                     else 0 for r in results]
 
-    keys, data = histogram(scores)
+    keys_left, data = histogram(scores)
+
+    keys = []
+    prev = 0
+    for current in keys_left[1:]:
+        keys.append(str(prev) + '-' + str(current - 1))
+        prev = current
+    keys.append('>=' + str(prev))
 
     return {
         'plot_name': _("Points histogram"),
