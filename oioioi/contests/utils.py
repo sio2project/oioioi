@@ -1,5 +1,4 @@
 from django.core.exceptions import PermissionDenied
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
@@ -188,3 +187,22 @@ def get_submission_or_error(request, contest_id, submission_id,
     if not controller.filter_my_visible_submissions(request, queryset):
         raise PermissionDenied
     return submission
+
+
+@request_cached
+def last_break_between_rounds(request):
+    """Returns the end_date of the latest past round and the start_date
+       of the closest future round.
+
+       Assumes that none of the rounds is active.
+    """
+    rtimes = rounds_times(request)
+    ends = [rt.get_end() for rt in rtimes.itervalues()
+            if rt.is_past(request.timestamp)]
+    starts = [rt.get_start() for rt in rtimes.itervalues()
+              if rt.is_future(request.timestamp)]
+
+    max_end = max(ends) if ends else None
+    min_start = min(starts) if starts else None
+
+    return max_end, min_start

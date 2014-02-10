@@ -20,7 +20,8 @@ from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForContest, submission_kinds
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
-        is_contest_admin, is_contest_observer
+        is_contest_admin, is_contest_observer, last_break_between_rounds, \
+        has_any_active_round
 from oioioi import evalmgr
 
 
@@ -184,7 +185,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            See the implementation for corner cases.
 
            :param request: the Django request
-           :patam queryset: the set of :class:`~oioioi.contests.models.Round`
+           :param queryset: the set of :class:`~oioioi.contests.models.Round`
              instances to sort or ``None`` to return all rounds of the
              controller's contest
         """
@@ -677,7 +678,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def render_report(self, request, report):
         """Renders the given report to HTML.
 
-           Default implementatiion suports only rendering reports of
+           Default implementation supports only rendering reports of
            kind ``FAILURE`` and raises :py:exc:`NotImplementedError`
            otherwise.
         """
@@ -741,3 +742,54 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation returns an empty tuple.
         """
         return ()
+
+
+class PastRoundsHiddenContestControllerMixin(object):
+    """ContestController mixin that hides past rounds
+       if another round is starting soon.
+
+       The period when the past rounds are hidden is called
+       round's *preparation time*.
+
+       Do not use it with overlapping rounds.
+    """
+
+    def can_see_round(self, request, round):
+        """Decides whether the given round should be shown for the given user.
+           The algorithm is as follows:
+
+                1. Round is always visible for contest admins.
+                1. If any round is active, all active rounds are visible,
+                   all other rounds are hidden.
+                1. Let
+                       break_start = latest end_date of any past round
+                       break_end = closest start_date of any future round
+                       break_time = break_end - break_start
+
+                    then preparation_time is the last 30 minutes of the break,
+                    or if the break is shorter then just its second half.
+
+                1. During the preparation_time all rounds should be hidden.
+                1. Otherwise the decision is made by the superclass method.
+        """
+
+        if is_contest_admin(request):
+            return True
+
+        rtimes = self.get_round_times(request, round)
+        if has_any_active_round(request):
+            return rtimes.is_active(request.timestamp)
+
+        left, right = last_break_between_rounds(request)
+        if left is not None and right is not None:
+            last_break_time = right - left
+            preparation_start = right - min(
+                    timedelta(minutes=30),
+                    last_break_time // 2
+            )
+            preparation_end = right
+            if preparation_start < request.timestamp < preparation_end:
+                return False
+
+        return super(PastRoundsHiddenContestControllerMixin, self) \
+                .can_see_round(request, round)

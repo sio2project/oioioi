@@ -6,8 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.contests.controllers import PastRoundsHiddenContestControllerMixin
 from oioioi.contests.models import Submission, SubmissionReport
-from oioioi.contests.utils import has_any_active_round, is_contest_admin
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
@@ -150,14 +150,7 @@ class OIOnsiteContestController(OIContestController):
     def registration_controller(self):
         return OIOnsiteRegistrationController(self.contest)
 
-    def can_see_round(self, request, round):
-        if is_contest_admin(request):
-            return True
-        rtimes = self.get_round_times(request, round)
-        if has_any_active_round(request):
-            return rtimes.is_active(request.timestamp)
-        return super(OIOnsiteContestController, self) \
-                .can_see_round(request, round)
-
     def should_confirm_submission_receipt(self, request, submission):
         return False
+OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
+

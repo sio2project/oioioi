@@ -1,3 +1,5 @@
+# pylint: disable=W0223
+# Method %r is abstract in class %r but is not overridden
 from datetime import datetime
 from functools import partial
 from django.core import mail
@@ -20,7 +22,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
         ContestView
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
-        RegistrationController
+        RegistrationController, PastRoundsHiddenContestControllerMixin
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -199,6 +201,13 @@ class PrivateContestController(ContestController):
     def create_submission(self, request, problem_instance, form_data,
                           **kwargs):
         raise NotImplementedError
+
+
+class PastRoundsHiddenContestController(ContestController):
+    pass
+PastRoundsHiddenContestController.mix_in(
+    PastRoundsHiddenContestControllerMixin
+)
 
 
 class TestContestViews(TestCase):
@@ -393,6 +402,69 @@ class TestManyRounds(TestCase):
         with fake_time(datetime(2012, 8, 10, 0, 21, tzinfo=utc)):
             response = self.client.get(url)
             self.assertEqual(response.content.count('<td>34</td>'), 2)
+
+    def test_mixin_past_rounds_hidden_during_prep_time(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.contests.tests.PastRoundsHiddenContestController'
+        contest.save()
+
+        user = User.objects.get(username='test_user')
+
+        r1 = Round.objects.get(pk=1)
+        r1.end_date = datetime(2012, 7, 30, 21, 40, tzinfo=utc)
+        r1.save()
+
+        url = reverse('problems_list', kwargs={'contest_id': contest.id})
+        with fake_time(datetime(2012, 7, 31, 21, 01, tzinfo=utc)):
+            # r3, r4 are active
+            self.client.login(username=user)
+            response = self.client.get(url)
+            self.assertAllIn(['zad3', 'zad4'], response.content)
+            self.assertEqual(len(response.context['problem_instances']), 2)
+
+        with fake_time(datetime(2015, 7, 31, 20, 01, tzinfo=utc)):
+            # r1,r3,r4 are past, preparation time for r2
+            self.client.login(username=user)
+            response = self.client.get(url)
+            self.assertEqual(len(response.context['problem_instances']), 0)
+
+        with fake_time(datetime(2015, 7, 31, 20, 28, tzinfo=utc)):
+            # r2 is active
+            self.client.login(username=user)
+            response = self.client.get(url)
+            self.assertAllIn(['zad2'], response.content)
+            self.assertEqual(len(response.context['problem_instances']), 1)
+
+        r2 = Round.objects.get(pk=2)
+        r2.start_date = datetime(2012, 7, 31, 21, 40, tzinfo=utc)
+        r2.save()
+
+        with fake_time(datetime(2012, 7, 31, 21, 29, tzinfo=utc)):
+            # r1,r3,r4 are past, break = (21.27, 21.40) -- first half
+            self.client.login(username=user)
+            response = self.client.get(url)
+            self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
+            self.assertEqual(len(response.context['problem_instances']), 3)
+
+        with fake_time(datetime(2012, 7, 31, 21, 35, tzinfo=utc)):
+            # r1,r3,r3 are past, break = (21.27, 21.40) -- second half
+            self.client.login(username=user)
+            response = self.client.get(url)
+            print response.context['problem_instances']
+            self.assertEqual(len(response.context['problem_instances']), 0)
+
+        with fake_time(datetime(2012, 7, 31, 21, 41, tzinfo=utc)):
+            # r2 is active
+            self.client.login(username=user)
+            response = self.client.get(url)
+            self.assertAllIn(['zad2'], response.content)
+            print response.context['problem_instances']
+            self.assertEqual(len(response.context['problem_instances']), 1)
+
+        self.client.login(username='test_user')
+        response = self.client.get(reverse('select_contest'))
+        self.assertEqual(len(response.context['contests']), 1)
 
 
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
