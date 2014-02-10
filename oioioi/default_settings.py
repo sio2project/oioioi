@@ -165,6 +165,7 @@ INSTALLED_APPS = (
     'oioioi.status',
     'oioioi.su',
     'oioioi.clock',
+    'oioioi.dashboard',
     'oioioi.base',
 
     'djcelery',
