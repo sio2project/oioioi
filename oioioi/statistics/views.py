@@ -34,7 +34,7 @@ def statistics_view(request, contest_id, category='CONTEST', object_name=''):
     title = ''
     if category == 'PROBLEM':
         problem = ProblemInstance.objects.filter(short_name=object_name)
-        title = _('Statistics for ') + problem[0].problem.name
+        title = _('Statistics for %s') % problem[0].problem.name
 
     plots = controller.statistics_available_plots(request,
                                                   category, object_name)
