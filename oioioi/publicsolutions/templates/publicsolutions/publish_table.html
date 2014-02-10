@@ -1,0 +1,30 @@
+{% load i18n %}
+<table class="{% block table-classes %}table auto-width dense space-columns{% endblock %}">
+    <thead>
+        <tr>
+            <th style="min-width: 120px">{% trans "Problem" %}</th>
+            <th style="min-width: 150px">{% trans "Submission date" %}</th>
+            <th>{% trans "Operations" %}</th>
+            {% block more-headers-after %}{% endblock %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for submission in submissions %}
+        {% url 'show_submission_source' contest_id=contest.id submission_id=submission.id as solution_link %}
+        {% url 'submission' contest_id=contest.id submission_id=submission.id as report_link %}
+        {% url 'publish_solution' contest_id=contest.id submission_id=submission.id as publish_link %}
+        {% url 'unpublish_solution' contest_id=contest.id submission_id=submission.id as unpublish_link %}
+        <tr>
+            <td>{{ submission.problem_instance }}</td>
+            <td><a href="{{ report_link }}">{{ submission.get_date_display }}</a></td>
+            <td><a href="{{ solution_link }}">{% trans "solution" %}</a>
+                |
+                {% if submission.publication %} <a href="#" data-post-url="{{ unpublish_link }}">{% trans "withdraw" %}</a>
+                {% else %} <a href="#" data-post-url="{{ publish_link }}">{% trans "publish" %}</a>
+                {% endif %}
+            </td>
+            {% block more-columns-after %}{% endblock %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
