@@ -115,11 +115,13 @@ class ACMScore(ScoreValue):
 
     @classmethod
     def _from_repr(cls, value):
-        _ordering, problems_solved, time_passed, penalties_count = map(
-                int, value.split(':'))
-        return ACMScore(problems_solved,
-                        time_passed,
-                        penalties_count)
+        tokens = [int(x) for x in value.split(':')]
+        try:
+            _ordering, problems_solved, time_passed, penalties_count = tokens
+        except ValueError:
+            # try decoding older format
+            problems_solved, time_passed, penalties_count = tokens
+        return ACMScore(problems_solved, time_passed, penalties_count)
 
     def _to_repr(self):
         """Store score as string \
