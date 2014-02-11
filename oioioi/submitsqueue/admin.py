@@ -140,6 +140,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
             .get_list_select_related() + [
                     'submission__problem_instance',
                     'submission__problem_instance__contest',
+                    'submission__problem_instance__problem',
                     'submission__user']
 
 
