@@ -13,12 +13,13 @@ def links(request):
     links_list = []
     plot_groups = controller.statistics_available_plot_groups(request)
     for (category, object_name, description) in plot_groups:
-        category_name = statistics_categories[category]
+        category_name, link = statistics_categories[category]
         links_list.append({
-            'name' : description,
-            'category' : category,
-            'category_name' : category_name,
-            'object' : object_name
+            'name': description,
+            'category': category,
+            'category_name': category_name,
+            'link': link,
+            'object': object_name
         })
     return links_list
 
@@ -28,8 +29,16 @@ def links(request):
         order=100)
 @enforce_condition(contest_exists & can_enter_contest \
                    & any_statistics_avaiable)
-def statistics_view(request, contest_id, category='CONTEST', object_name=''):
+def statistics_view(request, contest_id,
+                    category=statistics_categories['CONTEST'][1],
+                    object_name=''):
     controller = request.contest.controller
+
+    category_key = ''
+    for (key, desc) in statistics_categories:
+        if desc[1] == category:
+            category_key = key
+    category = category_key
 
     title = ''
     if category == 'PROBLEM':

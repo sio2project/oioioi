@@ -11,8 +11,8 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
 statistics_categories = EnumRegistry()
-statistics_categories.register('CONTEST', _("Contest"))
-statistics_categories.register('PROBLEM', _("Problem"))
+statistics_categories.register('CONTEST', (_("Contest"), 'c'))
+statistics_categories.register('PROBLEM', (_("Problem"), 'p'))
 
 statistics_plot_kinds = EnumRegistry()
 statistics_plot_kinds.register('POINTS_HISTOGRAM_CONTEST',
@@ -97,7 +97,7 @@ class StatisticsMixinForContestController(object):
            a category identifier, an object name and a description of plot
            group. The description should be translated.
 
-           :rtype: List of pairs ``(enum entry from statistics_categories,
+           :rtype: List of tuples ``(key from statistics_categories,
               string, unicode)``
         """
         raise NotImplementedError
@@ -109,6 +109,7 @@ class StatisticsMixinForContestController(object):
            Each entry of the output contains a plot kind identifier and an
            object name.
 
+           :param plot_category: A key form ``statistics_categories``.
            :rtype: list of (enum entry from statistics_plot_kinds, string)
         """
         raise NotImplementedError

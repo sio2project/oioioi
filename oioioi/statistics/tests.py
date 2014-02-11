@@ -9,6 +9,7 @@ from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
 from oioioi.statistics.plotfunctions import histogram, \
                                             points_to_source_length_problem
+from oioioi.statistics.controllers import statistics_categories
 
 
 class TestStatisticsPlotFunctions(TestCase):
@@ -83,6 +84,6 @@ class TestStatisticsViews(TestCase):
                                 "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]")
 
             url = reverse('statistics_view', kwargs={'contest_id': contest.id,
-                                            'category': 'PROBLEM',
-                                            'object_name': 'zad2'})
+                              'category': statistics_categories['PROBLEM'][1],
+                              'object_name': 'zad2'})
             self.assertContains(response, url)
