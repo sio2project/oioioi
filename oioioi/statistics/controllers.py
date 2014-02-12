@@ -5,8 +5,7 @@ from oioioi.base.fields import EnumRegistry
 from oioioi.contests.utils import visible_problem_instances, rounds_times
 from oioioi.statistics.plottypes import HistogramPlot, TablePlot
 from oioioi.statistics.plotfunctions import points_histogram_contest, \
-          solutions_histogram_contest, submissions_histogram_contest, \
-          points_histogram_problem
+        submissions_histogram_contest, points_histogram_problem
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
@@ -17,8 +16,6 @@ statistics_categories.register('PROBLEM', _("Problem"))
 statistics_plot_kinds = EnumRegistry()
 statistics_plot_kinds.register('POINTS_HISTOGRAM_CONTEST',
     (points_histogram_contest, HistogramPlot()))
-statistics_plot_kinds.register('SOLUTIONS_HISTOGRAM_CONTEST',
-    (solutions_histogram_contest, HistogramPlot()))
 statistics_plot_kinds.register('SUBMISSIONS_HISTOGRAM_CONTEST',
     (submissions_histogram_contest, HistogramPlot(),))
 statistics_plot_kinds.register('POINTS_HISTOGRAM_PROBLEM',
@@ -162,9 +159,6 @@ class StatisticsMixinForProgrammingContestController(object):
                 object_name = request.contest.id
             result.append((
                 statistics_plot_kinds['POINTS_HISTOGRAM_CONTEST'],
-                object_name))
-            result.append((
-                statistics_plot_kinds['SOLUTIONS_HISTOGRAM_CONTEST'],
                 object_name))
             result.append((
                 statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST'],

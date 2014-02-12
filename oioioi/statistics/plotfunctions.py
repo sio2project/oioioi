@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
 from itertools import groupby
+from operator import itemgetter
+from collections import defaultdict
+
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Count
 from oioioi.contests.models import Submission, ProblemInstance, \
                                    UserResultForProblem, UserResultForContest
 from oioioi.contests.scores import IntegerScore
@@ -35,107 +40,62 @@ def histogram(values, num_buckets=10):
     for key, group in groupby(values, key=(lambda x: x / bucket)):
         counts[key] += len(list(group))
 
-    return zip(*[(i*bucket, value) for i, value in enumerate(counts)])
+    return [list(tup) for tup in
+            zip(*[[i*bucket, value] for i, value in enumerate(counts)])]
+
+
+def results_histogram_for_queryset(qs):
+    scores = [r.score.value if isinstance(r.score, IntegerScore)
+              else 0 for r in qs]
+
+    keys_left, data = histogram(scores)
+
+    keys = ['[0;%d)' % keys_left[0]]
+    keys.extend(['[%d;%d)' % p for p in zip(keys_left[:-1], keys_left[1:])])
+    keys.append('[%d;∞)' % keys_left[-1])
+
+    return {
+        'plot_name': _("Results histogram"),
+        'data': [data],
+        'keys': keys,
+        'y_axis_title': _("# of results"),
+        'columns': [_("results")]
+    }
 
 
 def points_histogram_contest(contest_name):
     results = UserResultForContest.objects.filter(contest_id=contest_name)
+    return results_histogram_for_queryset(results)
 
-    scores = [r.score.value if isinstance(r.score, IntegerScore)
-              else 0 for r in results]
-
-    keys_left, data = histogram(scores)
-
-    keys = []
-    prev = 0
-    for current in keys_left[1:]:
-        keys.append(str(prev) + '-' + str(current - 1))
-        prev = current
-    keys.append('>=' + str(prev))
-
-    return {
-        'plot_name': _("Points histogram"),
-        'data': [data],
-        'keys': keys,
-        'y_axis_title': _("Points"),
-        'columns': [_("points")]
-    }
-
-
-def solutions_histogram_contest(contest_name):
-    sub = Submission.objects.filter(kind = 'NORMAL') \
-        .filter(problem_instance__contest = contest_name)
-
-    pis = ProblemInstance.objects.filter(contest_id=contest_name)
-
-    counts = {i.short_name: set() for i in pis}
-
-    for i in sub:
-        counts[i.problem_instance.short_name].add(i.user)
-
-    if pis:
-        (keys, data) = zip(*[(i.short_name,
-                             len(counts[i.short_name])) for i in pis])
-    else:
-        keys = []
-        data = []
-
-    return {
-        'plot_name': _("Solutions histogram"),
-        'data': [data],
-        'keys': keys,
-        'y_axis_title': _("Solutions"),
-        'columns': [_("solutions")]
-    }
-
-
-def submissions_histogram_contest(contest_name):
-    counts = {}
-
-    sub = Submission.objects.filter(kind='NORMAL') \
-        .filter(problem_instance__contest=contest_name)
-    pis = ProblemInstance.objects.filter(contest_id=contest_name)
-
-    counts = {i.short_name: 0 for i in pis}
-
-    for i in sub:
-        counts[i.problem_instance.short_name] += 1
-
-    if counts:
-        (keys, data) = zip(*[(key.short_name, counts[key.short_name])
-                             for key in pis])
-    else:
-        keys = []
-        data = []
-
-    return {
-        'plot_name': _("Submissions histogram"),
-        'data': [data],
-        'keys': keys,
-        'y_axis_title': _("Submissions"),
-        'columns': [_("submissions")]
-    }
 
 def points_histogram_problem(problem_name):
     pis = list(ProblemInstance.objects.filter(short_name=problem_name))
     results = UserResultForProblem.objects.filter(problem_instance__in=pis)
+    return results_histogram_for_queryset(results)
 
-    scores = [r.score.value if isinstance(r.score, IntegerScore)
-                    else 0 for r in results]
 
-    keys_left, data = histogram(scores)
-
-    keys = []
-    prev = 0
-    for current in keys_left[1:]:
-        keys.append(str(prev) + '-' + str(current - 1))
-        prev = current
-    keys.append('>=' + str(prev))
+def submissions_by_problem_histogram_for_queryset(qs):
+    agg = qs.values('problem_instance', 'problem_instance__short_name',
+                    'status').annotate(count=Count('problem_instance'))
+    agg = sorted(agg, key=itemgetter('status'))
+    statuses = list(set(a['status'] for a in agg))
+    pis = list(set((a['problem_instance'], a['problem_instance__short_name'])
+                    for a in agg))
+    d = defaultdict(int)
+    for v in agg:
+        d[(v['status'], v['problem_instance'])] = v['count']
+    data = [[d[s, pi_id] for pi_id, _name in pis] for s in statuses]
 
     return {
-        'plot_name': _("Points histogram"),
-        'data': [data],
-        'keys': keys,
-        'y_axis_title': _("Points"),
-        'columns': [_("points")]
+        'plot_name': _("Submissions histogram"),
+        'data': data,
+        'keys': [pi[1] for pi in pis],
+        'y_axis_title': _("# of submissions"),
+        'columns': statuses
     }
+
+
+def submissions_histogram_contest(contest_name):
+    subs = Submission.objects.filter(kind='NORMAL') \
+            .filter(problem_instance__contest=contest_name)
+    return submissions_by_problem_histogram_for_queryset(subs)

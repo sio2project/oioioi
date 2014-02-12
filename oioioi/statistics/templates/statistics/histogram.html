@@ -13,15 +13,18 @@ $(function() {
                 title: {text: '{{ y_axis_title|escapejs }}'}
             },
             plotOptions: { column: {
+                    stacking: 'normal',
                     pointPadding: 0.2,
                     borderWidth: 0
             }},
-            series: [{
+            series: [
              {% for name, row in columns|zip:data %}
-                name: '{{ name|escapejs }}',
-                data: [{% for value in row %} {{ value|escapejs }},{% endfor %}]
+                {
+                    name: '{{ name|escapejs }}',
+                    data: {{ row|escapejs }}
+                },
              {% endfor %}
-            },]
+            ]
         });
     });
 </script>
