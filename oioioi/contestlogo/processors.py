@@ -3,6 +3,7 @@ from django.utils.functional import lazy
 from django.core.urlresolvers import reverse
 from oioioi.contestlogo.models import ContestLogo, ContestIcon
 from oioioi.contests.utils import is_contest_admin
+from oioioi.base.utils import memoized
 
 
 def logo_processor(request):
@@ -12,6 +13,7 @@ def logo_processor(request):
     if is_contest_admin(request):
         return {}
 
+    @memoized
     def generator():
         try:
             instance = ContestLogo.objects.get(contest=request.contest)
@@ -31,6 +33,7 @@ def icon_processor(request):
     if not getattr(request, 'contest', None):
         return {}
 
+    @memoized
     def generator():
         icon_list = ContestIcon.objects \
                 .filter(contest=request.contest).order_by('pk')
