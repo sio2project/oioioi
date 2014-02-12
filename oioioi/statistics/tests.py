@@ -1,14 +1,31 @@
+from datetime import datetime
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
+
 from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
-from oioioi.statistics.plotfunctions import histogram
-from datetime import datetime
+from oioioi.statistics.plotfunctions import histogram, \
+                                            points_to_source_length_problem
 
 
 class TestStatisticsPlotFunctions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_submission']
+
+    def assertSizes(self, data, dims):
+        """Assert that ``data`` is a ``len(dims)``-dimensional rectangular
+           matrix, represented as a list, with sizes in consecutive dimensions
+           as specified in ``dims``"""
+
+        if dims == []:
+            self.assertTrue(not isinstance(data, list) or data == [])
+        else:
+            self.assertEqual(len(data), dims[0])
+            for sub in data:
+                self.assertSizes(sub, dims[1:])
+
     def test_histogram(self):
         test1 = [0, 0, 50, 50, 100, 100]
         result1 = [[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
@@ -29,10 +46,15 @@ class TestStatisticsPlotFunctions(TestCase):
         result4 = [[0], [1]]
         self.assertEqual(histogram(test4), result4)
 
+    def test_points_to_source_length(self):
+        plot = points_to_source_length_problem('zad1')
+        self.assertEqual(len(plot['series']), 1)
+        self.assertSizes(plot['data'], [1, 1, 2])
+
 
 class TestStatisticsViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission', 'test_extra_rounds']
+                'test_submission', 'test_extra_rounds']
 
     def test_statistics_view(self):
         contest = Contest.objects.get()

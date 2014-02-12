@@ -5,9 +5,16 @@ from collections import defaultdict
 
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Count
+
 from oioioi.contests.models import Submission, ProblemInstance, \
                                    UserResultForProblem, UserResultForContest
 from oioioi.contests.scores import IntegerScore
+from oioioi.programs.models import ProgramSubmission
+
+
+def int_score(score):
+    return score.value if isinstance(score, IntegerScore) else 0
+
 
 def histogram(values, num_buckets=10):
     """Calculates the histogram of the provided values (integers).
@@ -45,8 +52,7 @@ def histogram(values, num_buckets=10):
 
 
 def results_histogram_for_queryset(qs):
-    scores = [r.score.value if isinstance(r.score, IntegerScore)
-              else 0 for r in qs]
+    scores = [int_score(r.score) for r in qs]
 
     keys_left, data = histogram(scores)
 
@@ -99,3 +105,21 @@ def submissions_histogram_contest(contest_name):
     subs = Submission.objects.filter(kind='NORMAL') \
             .filter(problem_instance__contest=contest_name)
     return submissions_by_problem_histogram_for_queryset(subs)
+
+
+def points_to_source_length_problem(problem_name):
+    submissions = ProgramSubmission.objects.filter(
+            problem_instance__short_name=problem_name,
+            submissionreport__userresultforproblem__isnull=False)
+
+    data = sorted([[s.source_length, int_score(s.score)] for s in submissions])
+
+    return {
+        'plot_name': _("Points vs source length scatter"),
+        'data': [data],
+        'x_min': 0,
+        'y_min': 0,
+        'x_axis_title': _("Source length (bytes)"),
+        'y_axis_title': _("Points"),
+        'series': [problem_name],
+    }

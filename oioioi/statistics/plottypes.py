@@ -30,6 +30,7 @@ class PlainTextPlot(PlotType):
     def render_plot(self, request, data, plot_id):
         return data['text']
 
+
 class HistogramPlot(PlotType):
     def head_libraries(self):
         return ['highcharts/highcharts.js']
@@ -39,6 +40,7 @@ class HistogramPlot(PlotType):
             + str(plot_id)
         return render_to_string('statistics/histogram.html', data)
 
+
 class TablePlot(PlotType):
     def head_libraries(self):
         return []
@@ -46,3 +48,12 @@ class TablePlot(PlotType):
     def render_plot(self, request, data, plot_id):
         return render_to_string('statistics/table.html', data)
 
+
+class ScatterPlot(PlotType):
+    def head_libraries(self):
+        return ['highcharts/highcharts.js']
+
+    def render_plot(self, request, data, plot_id):
+        data['plot_name_id'] = data['plot_name'].replace(' ', '') \
+            + str(plot_id)
+        return render_to_string('statistics/scatter.html', data)

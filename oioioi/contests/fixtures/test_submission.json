@@ -85,7 +85,8 @@
     "pk": 1,
     "model": "programs.programsubmission",
     "fields": {
-      "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K"
+      "source_file": "data:submissions/c/1.cpp:I2luY2x1ZGUgPGlvc3RyZWFtPgoKdXNpbmcgbmFtZXNwYWNlIHN0ZDsKCmludCBtYWluKCkgewogICAgaW50IGEsIGI7CiAgICBjaW4gPj4gYSA+PiBiOwogICAgaWYgKGEgPT0gMTAwKSB7CiAgICAgICAgLy8gc3VtMWIuaW4KICAgICAgICByZXR1cm4gMTsKICAgIH0gZWxzZSBpZiAoYSA9PSA0OTcyKSB7CiAgICAgICAgLy8gc3VtMi5pbgogICAgICAgIGNvdXQgPDwgMzQ1Njc4OSA8PCBlbmRsOwogICAgfSBlbHNlIHsKICAgICAgICBjb3V0IDw8IGEgKyBiIDw8IGVuZGw7CiAgICB9Cn0K",
+      "source_length": 279
     }
   },
   {
