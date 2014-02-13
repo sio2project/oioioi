@@ -13,6 +13,11 @@ $(function() {
                 {% if y_min != None %}min: {{ y_min|escapejs }},{% endif %}
                 title: {text: '{{ y_axis_title|escapejs }}'}
             },
+            {% if series|length <= 1 %}
+            legend: {
+                enabled: false
+            },
+            {% endif %}
             plotOptions: {
                 scatter: {
                     marker: {
