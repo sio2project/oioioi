@@ -13,7 +13,7 @@ submission_states.register('CANCELLED', _("Cancelled"))
 
 
 class QueuedSubmit(models.Model):
-    submission = models.ForeignKey(Submission, primary_key=True)
+    submission = models.ForeignKey(Submission)
     state = EnumField(submission_states, default='QUEUED')
     creation_date = models.DateTimeField(default=timezone.now)
     celery_task_id = models.CharField(max_length=50, unique=True, null=True,

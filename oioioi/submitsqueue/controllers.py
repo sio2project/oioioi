@@ -23,7 +23,7 @@ class SubmitsQueueContestControllerMixin(object):
         super(SubmitsQueueContestControllerMixin, self).\
             submission_queued(submission, async_result)
         QueuedSubmit.objects.get_or_create(submission=submission,
-                                                celery_task_id=async_result.id)
+                                           celery_task_id=async_result.id)
 
     def submission_unqueued(self, submission, job_id):
         super(SubmitsQueueContestControllerMixin, self).\
