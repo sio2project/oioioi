@@ -233,12 +233,14 @@ def change_submission_kind_view(request, contest_id, submission_id, kind):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_files_view(request, contest_id):
     contest_files = ContestAttachment.objects.filter(contest=request.contest) \
-        .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request)))
+        .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request))) \
+        .select_related('round')
     round_file_exists = contest_files.filter(round__isnull=False).exists()
     problem_instances = visible_problem_instances(request)
     problem_ids = [pi.problem_id for pi in problem_instances]
-    problem_files = \
-            ProblemAttachment.objects.filter(problem_id__in=problem_ids)
+    problem_files = ProblemAttachment.objects \
+            .filter(problem_id__in=problem_ids) \
+            .select_related('problem')
     add_category_field = round_file_exists or problem_files.exists()
     rows = [{
         'category': cf.round if cf.round else '',
