@@ -172,4 +172,5 @@ admin.site.register(ContestQueuedSubmit, ContestSubmitsQueueAdmin)
 contest_admin_menu_registry.register('queuedsubmit_admin',
         _("Submits Queue"), lambda request: reverse(
             'oioioiadmin:submitsqueue_contestqueuedsubmit_changelist'),
+        condition=(lambda request: not request.user.is_superuser),
         order=60)
