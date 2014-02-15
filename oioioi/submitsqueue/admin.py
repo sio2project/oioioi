@@ -146,7 +146,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
 
 admin.site.register(QueuedSubmit, SystemSubmitsQueueAdmin)
 system_admin_menu_registry.register('queuedsubmit_admin',
-        _("Submits Queue"), lambda request: reverse(
+        _("Evaluation queue"), lambda request: reverse(
             'oioioiadmin:submitsqueue_queuedsubmit_changelist'),
         order=60)
 
@@ -170,7 +170,7 @@ class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
 
 admin.site.register(ContestQueuedSubmit, ContestSubmitsQueueAdmin)
 contest_admin_menu_registry.register('queuedsubmit_admin',
-        _("Submits Queue"), lambda request: reverse(
+        _("Evaluation queue"), lambda request: reverse(
             'oioioiadmin:submitsqueue_contestqueuedsubmit_changelist'),
         condition=(lambda request: not request.user.is_superuser),
         order=60)
