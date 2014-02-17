@@ -13,4 +13,4 @@ from oioioi.contests.date_registration import date_registry
 @enforce_condition(contest_exists & is_contest_admin)
 def timeline_view(request):
     return TemplateResponse(request, 'timeline/timeline_view.html',
-                {'registry' : date_registry.tolist(request.contest.id)})
+                {'registry': date_registry.tolist(request.contest.id)})
