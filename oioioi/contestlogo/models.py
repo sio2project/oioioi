@@ -16,7 +16,7 @@ class ContestLogo(models.Model):
     contest = models.OneToOneField(Contest, verbose_name=_("contest"),
             primary_key=True)
     image = FileField(upload_to=make_logo_filename,
-            verbose_name=_("logo image"), null=True, blank=True)
+            verbose_name=_("logo image"))
     updated_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
@@ -40,7 +40,7 @@ def make_icon_filename(instance, filename):
 class ContestIcon(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     image = FileField(upload_to=make_icon_filename,
-            verbose_name=_('icon image'), null=True, blank=True)
+            verbose_name=_('icon image'))
     updated_at = models.DateTimeField(default=timezone.now)
 
     def save(self, *args, **kwargs):
