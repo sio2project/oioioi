@@ -36,8 +36,8 @@ class DateRegistry(object):
 
         if name_generator is None:
             name_generator = lambda obj: \
-                unicode(model._meta.verbose_name) + " " + unicode(model. \
-                        _meta.get_field_by_name(date_field)[0].verbose_name)
+                unicode(model._meta.verbose_name) + " " + unicode(model._meta.
+                                get_field_by_name(date_field)[0].verbose_name)
 
         date_item = self.DateItem(date_field, name_generator, model)
         self._registry.register(date_item)
@@ -53,7 +53,7 @@ class DateRegistry(object):
                     text=item.name_generator(record),
                     date=record[item.date_field]))
         return sorted(context_items,
-                        key=lambda k: k['date'] if k['date'] is not None \
+                        key=lambda k: k['date'] if k['date'] is not None
                         else datetime.datetime.min.replace(tzinfo=utc))
 
 # The default date registry.

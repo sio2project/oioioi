@@ -5,6 +5,7 @@ from oioioi.base.tests import check_not_accessible
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest, Round
 
+
 class TestTimelineView(TestCase):
     fixtures = ['test_contest', 'test_users']
 
@@ -21,7 +22,7 @@ class TestTimelineView(TestCase):
         self.assertEqual(response.status_code, 200)
 
         for round in Round.objects.filter(contest=contest.id).values():
-            self.assertIn(round['start_date'].strftime('%Y-%m-%d %H:%M:%S'), \
+            self.assertIn(round['start_date'].strftime('%Y-%m-%d %H:%M:%S'),
                           response.content)
 
     def test_menu(self):
