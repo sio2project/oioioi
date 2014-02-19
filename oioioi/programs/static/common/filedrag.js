@@ -31,6 +31,10 @@ function ShowDdzone(e) {
     e.stopPropagation();
     // necessary to prevent opening file dropped outside drop area
     e.preventDefault();
+    // do not even show ddzone for elements of window
+    if (e.originalEvent.dataTransfer.types.indexOf('Files') == -1) {
+        return;
+    }
     $('#droparea').removeClass().html(gettext("Drop file here"));
     $('#ddzone').show();
 }
