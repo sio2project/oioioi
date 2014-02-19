@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
@@ -16,6 +17,11 @@ test_kinds.register('NORMAL', _("Normal test"))
 test_kinds.register('EXAMPLE', _("Example test"))
 
 
+def validate_time_limit(value):
+    if value is None or value <= 0:
+        raise ValidationError(_("Time limit must be a positive number."))
+
+
 class Test(models.Model):
     problem = models.ForeignKey(Problem)
     name = models.CharField(max_length=30, verbose_name=_("name"))
@@ -26,7 +32,7 @@ class Test(models.Model):
     kind = EnumField(test_kinds, verbose_name=_("kind"))
     group = models.CharField(max_length=30, verbose_name=_("group"))
     time_limit = models.IntegerField(verbose_name=_("time limit (ms)"),
-            null=True, blank=True)
+            null=True, blank=False, validators=[validate_time_limit])
     memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"),
             null=True, blank=True)
     max_score = models.IntegerField(verbose_name=_("score"),

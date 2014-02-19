@@ -9,6 +9,7 @@ import os
 import zipfile
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from django.core.files import File
@@ -284,6 +285,10 @@ class SinolPackage(object):
                 instance.memory_limit = DEFAULT_MEMORY_LIMIT
 
             instance.order = order
+            try:
+                instance.full_clean()
+            except ValidationError as e:
+                raise ProblemPackageError(e.messages[0])
             instance.save()
             test_names.append(name)
 
