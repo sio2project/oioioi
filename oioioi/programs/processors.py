@@ -13,7 +13,7 @@ def drag_and_drop_processor(request):
 
     # here add names of named URLs (as in patterns in urls.py)
     # for which drag and drop zone will be hidden
-    urls_to_hide = ['submit']
+    urls_to_hide = ['submit', 'testrun_submit']
     current_url_name = request.resolver_match.url_name
 
     if current_url_name in urls_to_hide:
