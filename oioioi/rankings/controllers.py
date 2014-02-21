@@ -82,7 +82,8 @@ class DefaultRankingController(RankingController):
                 context_instance=RequestContext(request, data))
 
     def _render_ranking_csv_line(self, row):
-        line = [row['place'], row['user'].first_name, row['user'].last_name]
+        line = [row['place'], row['user'].username, row['user'].first_name,
+                row['user'].last_name]
         line += [r.score if r and r.score is not None else ''
                  for r in row['results']]
         line.append(row['sum'])
@@ -97,7 +98,7 @@ class DefaultRankingController(RankingController):
             ("ranking", request.contest.id, key)
         writer = unicodecsv.writer(response)
 
-        header = [_("No."), _("First name"), _("Last name")]
+        header = [_("#"), _("Username"), _("First name"), _("Last name")]
         for pi in data['problem_instances']:
             header.append(pi.get_short_name_display())
         header.append(_("Sum"))
