@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils import ObjectWithMixins
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.middleware import activate_contest
-from oioioi.contests.views import default_contest_view
 
 
 class ExclusiveContestsMiddleware(ObjectWithMixins):
@@ -74,7 +73,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                         _("You have been redirected to this contest,"
                             " because currently it excludes other contests.")
                     )
-                    return redirect(reverse(default_contest_view,
+                    return redirect(reverse('default_contest_view',
                                             kwargs={'contest_id': contest.id}))
             request.contest_exclusive = True
         else:
