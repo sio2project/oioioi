@@ -3,8 +3,18 @@
 
 @submBlue: #bbbbff;
 @submBlueGradientTo: rgba(204,204,255,0);
+
 @submGreen: #bbeebb;
 @submGreenGradientTo: rgba(204,255,204,0);
+
+@submOK50: #d3ff91;
+@submOK50GradientTo: rgba(144,255,144,0);
+
+@submOK25: #77ff77;
+@submOK25GradientTo: rgba(104,255,104,0);
+
+@submOK100: #c9ff39;
+@submOK100GradientTo: rgba(184,255,184,0);
 
 .subm_margin {
     border-right: none;
@@ -21,6 +31,18 @@ td.subm_margin {
     &.subm_OK {
         #gradient > .horizontal(@submGreen, @submGreenGradientTo);
     }
+
+    &.subm_OK25 {
+        #gradient > .horizontal(@submOK25, @submOK25GradientTo);
+    }
+
+    &.subm_OK50 {
+        #gradient > .horizontal(@submOK50, @submOK50GradientTo);
+    }
+
+    &.subm_OK100 {
+        #gradient > .horizontal(@submOK100, @submOK100GradientTo);
+    }
 }
 
 .subm_status {
@@ -30,6 +52,18 @@ td.subm_margin {
 
     &.subm_OK{
         background: lighten(@submGreen, 5%);
+    }
+
+    &.subm_OK25{
+        background: lighten(@submOK25, 5%);
+    }
+
+    &.subm_OK50{
+        background: lighten(@submOK50, 5%);
+    }
+
+    &.subm_OK100{
+        background: lighten(@submOK100, 5%);
     }
 }
 

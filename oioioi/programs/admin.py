@@ -135,22 +135,51 @@ class ProgrammingProblemInstanceAdminMixin(object):
         for tr in test_reports:
             test_results[tr.test_id][tr.submission_report.submission_id] = tr
 
+        submissions_percentage_statuses = {s.id: '25' for s in submissions}
         rows = []
+        submissions_row = []
         for t in tests:
             row_test_results = test_results[t.id]
             row_group_results = group_results[t.group]
+            percentage_statuses = {s.id: '100' for s in submissions}
+            for s in submissions:
+                if row_test_results[s.id] is not None:
+                    time_ratio = float(row_test_results[s.id].time_used) / \
+                            row_test_results[s.id].test_time_limit
+                    if time_ratio <= 0.25:
+                        percentage_statuses[s.id] = '25'
+                    elif time_ratio <= 0.50:
+                        percentage_statuses[s.id] = '50'
+                        if submissions_percentage_statuses[s.id] is not '100':
+                            submissions_percentage_statuses[s.id] = '50'
+                    else:
+                        percentage_statuses[s.id] = '100'
+                        submissions_percentage_statuses[s.id] = '100'
+
             rows.append({
                 'test': t,
                 'results': [{
                     'test_report': row_test_results[s.id],
                     'group_report': row_group_results[s.id],
                     'is_partial_score': self._is_partial_score(
-                        row_test_results[s.id])
+                        row_test_results[s.id]),
+                    'percentage_status': percentage_statuses[s.id]
                 } for s in submissions]
             })
 
+        for s in submissions:
+            status = s.status
+            if s.status == 'OK' or s.status == 'INI_OK':
+                status = 'OK' + submissions_percentage_statuses[s.id]
+
+            submissions_row.append({
+                'submission': s,
+                'status': status
+                })
+
         context = {
                 'problem_instance': problem_instance,
+                'submissions_row': submissions_row,
                 'submissions': submissions,
                 'rows': rows
         }

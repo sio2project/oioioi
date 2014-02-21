@@ -28,8 +28,8 @@
             {% endfor %}
         </tr>
         <tr>
-            {% for s in submissions %}
-            <th class="subm_status subm_{{ s.status }}">{{ s.status }}</th>
+            {% for r in submissions_row %}
+            <th class="subm_status subm_{{ r.status }}">{{ r.submission.status }}</th>
             {% endfor %}
         </tr>
         <tr>
@@ -45,7 +45,7 @@
             <th class="test-name">{{ row.test.name }}</th>
             <td class="time-limit">{{ row.test.time_limit|runtimeformat }}</td>
             {% for cell in row.results %}
-            <td class="subm_status subm_{{ cell.test_report.status }}{% if cell.is_partial_score %} subm_PARTIAL{% endif %}">
+            <td class="subm_status subm_{{ cell.test_report.status }}{% if cell.test_report.status == 'OK'%}{{ cell.percentage_status }}{% endif %}{% if cell.is_partial_score %} subm_PARTIAL{% endif %}">
                 {% if cell.test_report.status == 'OK' %}{{ cell.test_report.time_used|runtimeformat }}{% else %}{{ cell.test_report.status }}{% endif %}
             </td>
             {% endfor %}
