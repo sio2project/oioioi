@@ -13,7 +13,8 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.user_selection import get_user_q_expression
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
         visible_rounds, contest_exists
-from oioioi.questions.utils import log_addition, unanswered_questions
+from oioioi.questions.utils import get_categories, log_addition, \
+        unanswered_questions
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm, \
         FilterMessageForm, FilterMessageAdminForm
 from oioioi.questions.models import Message, MessageView, ReplyTemplate, \
@@ -98,7 +99,8 @@ def messages_view(request, contest_id):
     return TemplateResponse(request, 'questions/list.html',
         {'records': messages, 'form': form,
          'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
-         'num_hints': getattr(settings, 'NUM_HINTS', 10)})
+         'num_hints': getattr(settings, 'NUM_HINTS', 10),
+         'categories': get_categories(request)})
 
 
 @enforce_condition(contest_exists & can_enter_contest)

@@ -11,16 +11,23 @@
 {% if user.is_authenticated %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
+        <li>
             {% if is_admin %}
-            <i class="icon-comment"></i> {% trans "Add announcement" %}</a></li>
-            {% else %}
-            <i class="icon-question-sign"></i> {% trans "Ask a question" %}</a></li>
+            <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
+                <i class="icon-comment"></i> {% trans "Add announcement" %}
+            </a>
+            {% elif categories %}
+            <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
+                <i class="icon-question-sign"></i> {% trans "Ask a question" %}
+            </a>
             {% endif %}
+        </li>
         {% if is_admin %}
-        <li><a class="btn btn-small" href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
+        <li>
+            <a class="btn btn-small" href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
             <i class="icon-pencil"></i> {% trans "Edit reply templates" %}
-        </a></li>
+            </a>
+        </li>
         {% endif %}
     </ul>
 </div>
