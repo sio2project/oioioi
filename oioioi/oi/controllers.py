@@ -121,6 +121,9 @@ class OIContestController(ProgrammingContestController):
             result.submission_report = None
         result.save()
 
+    def default_contestlogo_url(self):
+        return '%(url)soi/logo.png' % {'url': settings.STATIC_URL}
+
     def default_contesticons_urls(self):
         return ['%(url)simages/menu/menu-icon-%(i)d.png' % \
                 {'url': settings.STATIC_URL, 'i': i} for i in range(1, 4)]
