@@ -1,5 +1,6 @@
 from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -81,6 +82,11 @@ class TestRunContestControllerMixin(object):
                 problem_instance=problem_instance,
                 kind='TESTRUN')
         submit_file = form_data['file']
+        if submit_file is None:
+            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            extension = lang_exts[form_data['prog_lang']][0]
+            submit_file = ContentFile(form_data['code'],
+                    '__pasted_code.' + extension)
         submission.source_file.save(submit_file.name, submit_file)
         input_file = form_data['input']
         submission.input_file.save(input_file.name, input_file)

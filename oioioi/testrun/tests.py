@@ -110,6 +110,24 @@ class TestTestrunViews(TestCase):
         self.assertContains(response, 'TESTRUN')
         self.assertNotIn('NORMAL', response.content)
 
+    def test_code_pasting(self):
+        self.client.login(username='test_user')
+        kwargs = {'contest_id': Contest.objects.get().id}
+        url = reverse('testrun_submit', kwargs=kwargs)
+        data = {
+            'problem_instance_id': ProblemInstance.objects.get().id,
+            'code': 'some code',
+            'prog_lang': 'C',
+            'input': ContentFile('i', name='x.cpp'),
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Submission.objects.filter(kind='TESTRUN').count(), 2)
+        submission = TestRunProgramSubmission.objects.get(pk=2)
+        self.assertEqual(submission.kind, 'TESTRUN')
+        self.assertEqual(submission.input_file.read().strip(), 'i')
+        self.assertEqual(submission.source_file.read().strip(), 'some code')
+
     def test_submissions_permissions(self):
         submission = TestRunProgramSubmission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
