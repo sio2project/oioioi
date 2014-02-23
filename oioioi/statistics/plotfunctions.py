@@ -36,7 +36,7 @@ def histogram(values, num_buckets=10):
             num_buckets = max_result # divide by zero protection
 
         bucket = max_result / num_buckets # bucket cannot be 0
-        if (max_result % num_buckets) is not 0:
+        if (max_result % num_buckets) != 0:
             num_buckets += 1
 
         counts = [0] * (num_buckets+1)
