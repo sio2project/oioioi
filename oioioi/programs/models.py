@@ -1,7 +1,7 @@
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_save, post_save
 from oioioi.base.fields import EnumRegistry, EnumField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.filetracker.fields import FileField
@@ -95,10 +95,24 @@ class ModelSolution(models.Model):
         return self.name.rsplit('.', 1)[0]
 
 
+@receiver(pre_save, sender=ProblemInstance)
+def _decide_if_autocreate_model_submissions_for_problem_instance(sender,
+        instance, raw, **kwargs):
+    instance.create_model_submissions = False
+    if raw or instance.round is None:
+        return
+    try:
+        old = ProblemInstance.objects.get(pk=instance.pk)
+        if old.round != instance.round:
+            instance.create_model_submissions = True
+    except ProblemInstance.DoesNotExist:
+        instance.create_model_submissions = True
+
+
 @receiver(post_save, sender=ProblemInstance)
 def _autocreate_model_submissions_for_problem_instance(sender, instance,
         created, raw, **kwargs):
-    if not raw:
+    if instance.create_model_submissions:
         ModelSolution.objects.recreate_model_submissions(instance)
 
 
