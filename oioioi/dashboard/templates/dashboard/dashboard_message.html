@@ -1,0 +1,8 @@
+{% if is_admin and not content %}
+    <div><a class="btn btn-small" href="{% url 'dashboard_message_edit' contest_id=contest.id %}">Add a dashboard message</a></div>
+{% else %}
+    <div class="dasboardmessage">{{ content|safe }}</div>
+{% if is_admin %}
+    <div><a class="btn btn-small" href="{% url 'dashboard_message_edit' contest_id=contest.id %}">Edit</a></div>
+{% endif %}
+{% endif %}

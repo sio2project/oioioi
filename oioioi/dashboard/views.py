@@ -6,16 +6,20 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
+from django.shortcuts import redirect
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.models import Submission
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.utils import can_enter_contest, contest_exists, \
-        has_any_submittable_problem, has_any_visible_problem_instance
+        has_any_submittable_problem, has_any_visible_problem_instance, \
+        is_contest_admin
 from oioioi.dashboard.menu import top_links_registry
 from oioioi.dashboard.registry import dashboard_registry, \
         dashboard_headers_registry
+from oioioi.dashboard.models import DashboardMessage
+from oioioi.dashboard.forms import DashboardMessageForm
 from oioioi.rankings.views import has_any_ranking_visible
 from oioioi.questions.views import messages_template_context, \
         visible_messages
@@ -44,6 +48,46 @@ def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return list(itertools.izip_longest(*args, fillvalue=fillvalue))
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def dashboard_message_edit_view(request, contest_id):
+    instance, _created = DashboardMessage.objects.get_or_create(
+            contest_id=contest_id)
+    if request.method == 'POST':
+        form = DashboardMessageForm(request, request.POST, instance=instance)
+        if form.is_valid():
+            form.save()
+            return redirect('contest_dashboard', contest_id=contest_id)
+    else:
+        form = DashboardMessageForm(request, instance=instance)
+    return TemplateResponse(request, 'dashboard/edit_dashboard_message.html',
+            {'form': form})
+
+
+@dashboard_registry.register_decorator(order=10)
+def dashboard_message_fragment(request):
+    if request.contest is None:
+        return None
+    try:
+        instance = DashboardMessage.objects.get(contest=request.contest)
+    except DashboardMessage.DoesNotExist:
+        instance = None
+
+    is_admin = is_contest_admin(request)
+    content = ''
+    if instance and instance.content:
+        content = instance.content
+
+    if not content and not is_admin:
+        return ''
+
+    context = {
+        'content': content,
+        'is_admin': is_admin,
+    }
+    return render_to_string('dashboard/dashboard_message.html',
+        context_instance=RequestContext(request, context))
 
 
 @dashboard_headers_registry.register_decorator(order=100)
