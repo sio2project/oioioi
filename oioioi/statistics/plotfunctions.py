@@ -56,8 +56,7 @@ def results_histogram_for_queryset(qs):
 
     keys_left, data = histogram(scores)
 
-    keys = ['[0;%d)' % keys_left[0]]
-    keys.extend(['[%d;%d)' % p for p in zip(keys_left[:-1], keys_left[1:])])
+    keys = ['[%d;%d)' % p for p in zip(keys_left[:-1], keys_left[1:])]
     keys.append('[%d;∞)' % keys_left[-1])
 
     return {
