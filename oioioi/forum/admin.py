@@ -31,7 +31,9 @@ class ForumAdmin(admin.ModelAdmin):
     readonly_fields = ('categories', 'add_category', 'posts_admin')
 
     def categories(self, obj):
-        slist = [make_list_elem(c) for c in obj.category_set.all()]
+        slist = [make_list_elem(c) for c in obj.category_set
+                    .prefetch_related('thread_set', 'thread_set__post_set')
+                    .all()]
         ret = "".join(slist)
         if not ret:
             ret = '<li>' + _("Empty forum") + '</li>'
@@ -79,7 +81,8 @@ class CategoryAdmin(admin.ModelAdmin):
     readonly_fields = ('threads',)
 
     def threads(self, obj):
-        slist = [make_list_elem(t) for t in obj.thread_set.all()]
+        slist = [make_list_elem(t) for t in obj.thread_set
+                    .prefetch_related('post_set').all()]
         ret = "".join(slist)
         if not ret:
             ret = '<li>' + _("Empty category") + '</li>'
@@ -141,7 +144,7 @@ class ThreadAdmin(admin.ModelAdmin):
 
     def posts(self, obj):
         slist = [make_list_elem(p, self.get_post_descr(p))
-                 for p in obj.post_set.all()]
+                 for p in obj.post_set.select_related('author').all()]
         ret = "".join(slist)
         if not ret:
             ret = '<li>' + _("Empty thread") + '</li>'

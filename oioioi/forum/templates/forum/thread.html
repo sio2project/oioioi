@@ -22,7 +22,7 @@
 </div>
 {% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
 <ul class="forum-list">
-    {% for p in thread.post_set.all %}
+    {% for p in post_set %}
         <li class="forum-item {% if p.hidden %} forum-hidden-post{% endif %}" id="forum-post-{{ p.id }}">
             <div class="forum-container">
                 {% if p.hidden %}

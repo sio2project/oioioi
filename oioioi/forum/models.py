@@ -107,8 +107,12 @@ class Thread(models.Model):
     count_posts.short_description = _("Posts count")
 
     def count_reported(self):
-        p = self.post_set.filter(reported=True)
-        return p.count()
+        # Although it may be done by:
+        #   self.post_set.filter(reported=true).count()
+        # such solution produces O(|threads|) queries on a forum/category view.
+        # Moreover, it's not possible to prefetch them (like in count_posts):
+        # http://stackoverflow.com/a/12974801/2874777
+        return len([p for p in self.post_set.all() if p.reported])
     count_reported.short_description = _("Reported posts count")
 
     def get_admin_url(self):
