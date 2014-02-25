@@ -5,13 +5,13 @@
     <thead>
         <tr>
             <th></th>
-        {% for key in keys %}
+            {% for key in keys %}
             <th>{{ key }}</th>
-        {% endfor %}
+            {% endfor %}
         </tr>
     </thead>
     <tbody>
-        {% for name, row in columns|zip:data %}
+        {% for name, row in series|zip:data %}
         <tr>
             <th>{{ name }}</th>
             {% for value in row %}

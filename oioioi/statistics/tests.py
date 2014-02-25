@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from datetime import datetime
 
 from django.test import TestCase
@@ -9,7 +10,8 @@ from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
 from oioioi.statistics.plotfunctions import histogram, \
                                             points_to_source_length_problem
-from oioioi.statistics.controllers import statistics_categories
+from oioioi.statistics.controllers import statistics_categories, \
+                                          statistics_plot_kinds
 
 
 class TestStatisticsPlotFunctions(TestCase):
@@ -53,6 +55,44 @@ class TestStatisticsPlotFunctions(TestCase):
         self.assertSizes(plot['data'], [1, 1, 2])
 
 
+class TestHighchartsOptions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_submission', 'test_extra_rounds']
+
+    def test_scatter(self):
+        plot_function, plot_type = \
+                statistics_plot_kinds['POINTS_TO_SOURCE_LENGTH_PROBLEM']
+        plot = plot_type.highcharts_options(plot_function('zad2'))
+        self.assertIsInstance(plot, dict)
+        self.assertIn('xAxis', plot)
+        self.assertIn('title', plot['xAxis'])
+        self.assertIn('min', plot['xAxis'])
+        self.assertIn('scatter', plot['plotOptions'])
+
+    def test_results_histogram(self):
+        plot_function, plot_type = \
+                statistics_plot_kinds['POINTS_HISTOGRAM_PROBLEM']
+        plot = plot_type.highcharts_options(plot_function('zad2'))
+        self.assertIsInstance(plot, dict)
+        self.assertIn('yAxis', plot)
+        self.assertIn('title', plot['yAxis'])
+        self.assertIn('min', plot['yAxis'])
+        self.assertIn('column', plot['plotOptions'])
+        self.assertIn(';∞)', plot['xAxis']['categories'][-1])
+
+    def test_submission_histogram(self):
+        contest = Contest.objects.get()
+        plot_function, plot_type = \
+                statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST']
+        plot = plot_type.highcharts_options(plot_function(contest.id))
+        self.assertIsInstance(plot, dict)
+        self.assertIn('yAxis', plot)
+        self.assertIn('title', plot['yAxis'])
+        self.assertIn('min', plot['yAxis'])
+        self.assertIn('column', plot['plotOptions'])
+        self.assertIn('OK', [s['name'] for s in plot['series']])
+
+
 class TestStatisticsViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
                 'test_submission', 'test_extra_rounds']
@@ -74,12 +114,11 @@ class TestStatisticsViews(TestCase):
         self.client.login(username='test_user')
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            print response
             self.assertContains(response, 'Results histogram')
-            self.assertContains(response, "'zad4'")
-            self.assertContains(response, "'zad2'")
-            self.assertContains(response, "'zad3'")
-            self.assertContains(response, "'zad1'")
+            self.assertContains(response, 'zad4')
+            self.assertContains(response, 'zad2')
+            self.assertContains(response, 'zad3')
+            self.assertContains(response, 'zad1')
             self.assertContains(response,
                                 "[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]")
 
