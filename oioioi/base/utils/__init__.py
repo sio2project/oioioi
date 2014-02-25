@@ -1,5 +1,14 @@
 # pylint: disable=E1003
 # Bad first argument %s given to super()
+import re
+import sys
+import json
+import shutil
+import tempfile
+import functools
+from contextlib import contextmanager
+
+from django.http import HttpResponse
 from django.forms.util import flatatt
 from django.template import Template, Context
 from django.utils.html import conditional_escape
@@ -7,12 +16,7 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.utils.importlib import import_module
 from django.utils.translation import ugettext_lazy as _
-import functools
-from contextlib import contextmanager
-import tempfile
-import shutil
-import re
-import sys
+
 
 
 # Metaclasses
@@ -447,3 +451,16 @@ class ProgressBar(object):
             self._show(preserve)
         elif preserve:
             self._show(preserve)
+
+
+def jsonify(view):
+    """A decorator to serialize view result with JSON.
+
+       The object returned by ``view`` will be converted to JSON and returned
+       as an appropriate :class:`django.http.HttpResponse`.
+    """
+    @functools.wraps(view)
+    def inner(*args, **kwargs):
+        data = view(*args, **kwargs)
+        return HttpResponse(json.dumps(data), content_type='application/json')
+    return inner

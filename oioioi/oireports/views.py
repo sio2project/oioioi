@@ -1,4 +1,3 @@
-import json
 import os
 import shutil
 import itertools
@@ -19,6 +18,7 @@ from django.http import Http404, HttpResponse
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils.user_selection import get_user_q_expression
+from oioioi.base.utils import jsonify
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.filetracker.utils import stream_file
 from oioioi.contests.models import Round, UserResultForProblem, Submission
@@ -273,6 +273,7 @@ def generate_xmlreport(request, report_form):
     return stream_file(ContentFile(report.encode('utf-8')), filename)
 
 
+@jsonify
 @enforce_condition(contest_exists & is_contest_admin)
 def get_report_users_view(request, contest_id):
     if len(request.REQUEST.get('substr', '')) < 2:
@@ -283,5 +284,4 @@ def get_report_users_view(request, contest_id):
         .values('user').distinct().values_list('user__username',
             'user__first_name', 'user__last_name')[:getattr(settings,
             'NUM_HINTS', 10)]
-    users = ['%s (%s %s)' % u for u in users]
-    return HttpResponse(json.dumps(users), content_type='application/json')
+    return ['%s (%s %s)' % u for u in users]

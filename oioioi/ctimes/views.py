@@ -1,10 +1,11 @@
 from datetime import timedelta
-import json
 import time
+
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
 from django.utils import timezone
+
 from oioioi.contests.models import Round
+from oioioi.base.utils import jsonify
 
 
 def ctimes_response_dict(request):
@@ -44,9 +45,8 @@ def ctimes_response_dict(request):
         }
 
 
+@jsonify
 def ctimes_view(request):
     if not request.user.is_authenticated():
         raise PermissionDenied
-    response_dict = ctimes_response_dict(request)
-    return HttpResponse(json.dumps(response_dict),
-            content_type='application/json')
+    return ctimes_response_dict(request)

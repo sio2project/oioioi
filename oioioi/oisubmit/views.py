@@ -1,10 +1,11 @@
-import json
 from datetime import timedelta
 
-from django.http import HttpResponse, HttpResponseServerError
+from django.http import HttpResponseServerError
 from django.template.response import TemplateResponse
 from django.views.decorators.csrf import csrf_exempt
+
 from oioioi.base.permissions import enforce_condition
+from oioioi.base.utils import jsonify
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import can_enter_contest, contest_exists
 from oioioi.oisubmit.forms import OISubmitSubmissionForm
@@ -12,9 +13,9 @@ from oioioi.oisubmit.models import OISubmitExtraData
 from oioioi.oisubmit.err_dict import INCORRECT_FORM_COMMENTS, SUSPICION_REASONS
 
 
+@jsonify
 def oisubmit_response(error_occured, comment):
-    response = dict(error_occured=error_occured, comment=comment)
-    return HttpResponse(json.dumps(response), content_type='application/json')
+    return dict(error_occured=error_occured, comment=comment)
 
 
 @csrf_exempt

@@ -1,17 +1,16 @@
-import json
-
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.base.utils import jsonify
 from oioioi.status import status_registry
 from oioioi.su.forms import SuForm
 from oioioi.su.utils import su_to_user, is_under_su, reset_to_real_user, \
@@ -50,6 +49,7 @@ def su_reset_view(request, next_page=None,
     return safe_redirect(request, next_page)
 
 
+@jsonify
 @enforce_condition(is_superuser)
 def get_suable_users_view(request):
     if len(request.REQUEST.get('substr', '')) < 2:
@@ -60,8 +60,7 @@ def get_suable_users_view(request):
     users = User.objects \
         .filter(is_superuser=False, username__icontains=substr) \
         .values_list('username', flat=True)[:num_hints]
-    users = list(users)
-    return HttpResponse(json.dumps(users), content_type='application/json')
+    return list(users)
 
 
 @status_registry.register

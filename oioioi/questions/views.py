@@ -1,4 +1,3 @@
-import json
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
@@ -8,7 +7,9 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.menu import menu_registry
+from oioioi.base.utils import jsonify
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.user_selection import get_user_q_expression
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
@@ -177,6 +178,7 @@ def add_contest_message_view(request, contest_id):
             {'form': form, 'title': title, 'is_announcement': is_admin})
 
 
+@jsonify
 @enforce_condition(contest_exists & is_contest_admin)
 def get_messages_authors_view(request, contest_id):
     if len(request.REQUEST.get('substr', '')) < 1:
@@ -187,18 +189,17 @@ def get_messages_authors_view(request, contest_id):
         .values('author').distinct().values_list('author__username',
         'author__first_name', 'author__last_name')[:getattr(settings,
                                                             'NUM_HINTS', 10)]
-    users = ['%s (%s %s)' % u for u in users]
-    return HttpResponse(json.dumps(users), content_type='application/json')
+    return ['%s (%s %s)' % u for u in users]
 
 
+@jsonify
 @enforce_condition(contest_exists & is_contest_admin)
 def get_reply_templates_view(request, contest_id):
     templates = ReplyTemplate.objects \
                 .filter(Q(contest=contest_id) | Q(contest__isnull=True)) \
                 .order_by('-usage_count')
-    templates = [{'id': t.id, 'name': t.visible_name, 'content': t.content}
-                 for t in templates]
-    return HttpResponse(json.dumps(templates), content_type='application/json')
+    return [{'id': t.id, 'name': t.visible_name, 'content': t.content}
+            for t in templates]
 
 
 @enforce_condition(contest_exists & is_contest_admin)
