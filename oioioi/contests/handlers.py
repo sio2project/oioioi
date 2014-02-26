@@ -3,6 +3,7 @@ import logging
 import traceback
 import pprint
 import socket
+import time
 from smtplib import SMTPException
 from django.core.mail import mail_admins
 from django.db import transaction
@@ -10,6 +11,22 @@ from oioioi.contests.models import Contest, ProblemInstance, Submission, \
         SubmissionReport, FailureReport
 
 logger = logging.getLogger(__name__)
+
+
+WAIT_FOR_SUBMISSION_RETRIES = 9
+WAIT_FOR_SUBMISSION_SLEEP_SECONDS = 1
+
+
+def wait_for_submission_in_db(env, **kwargs):
+    """Celery may start handling a submission before it is actually saved
+       in the DB. This is a workaround for this.
+    """
+    for _i in xrange(WAIT_FOR_SUBMISSION_RETRIES):
+        with transaction.commit_on_success():
+            if bool(Submission.objects.filter(id=env['submission_id'])):
+                break
+        time.sleep(WAIT_FOR_SUBMISSION_SLEEP_SECONDS)
+    return env
 
 
 @transaction.commit_on_success

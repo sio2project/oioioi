@@ -366,6 +366,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
         self.finalize_evaluation_environment(environ)
 
+        environ['recipe'].insert(0, ('wait_for_submission_in_db',
+                'oioioi.contests.handlers.wait_for_submission_in_db'))
+
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
         async_result = evalmgr.evalmgr_job.delay(environ)
