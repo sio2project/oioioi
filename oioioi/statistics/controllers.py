@@ -140,19 +140,21 @@ ContestController.mix_in(StatisticsMixinForContestController)
 
 class StatisticsMixinForProgrammingContestController(object):
     def statistics_available_plot_groups(self, request):
-        result = []
-        result.append(('CONTEST', request.contest.id, request.contest.name))
-
         problem_instances = visible_problem_instances(request)
+
+        result = []
         times = rounds_times(request)
 
-        can_see_all = is_contest_admin(request) or is_contest_observer(request)
-
+        can_see_any_problems = False
         for pi in problem_instances:
             can_see_round = times[pi.round].results_visible(request.timestamp)
-            if can_see_all or can_see_round:
+            if can_see_round:
                 result.append(('PROBLEM', pi.short_name, pi.problem.name))
+                can_see_any_problems = True
 
+        if can_see_any_problems:
+            result.insert(0, ('CONTEST', request.contest.id,
+                              request.contest.name))
         return result
 
     def statistics_available_plots(self, request, category, object_name):
