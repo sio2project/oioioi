@@ -6,7 +6,8 @@ from south.v2 import SchemaMigration
 class Migration(SchemaMigration):
 
     depends_on = (
-        ("problems", "0001_initial"),
+        ("problems", "0003_auto__add_field_problem_package_backend_name"),
+        ("contests", "0003_auto__add_field_contest_default_submissions_limit__add_field_problemin"),
     )
 
     def forwards(self, orm):
