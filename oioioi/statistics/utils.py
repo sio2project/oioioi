@@ -31,5 +31,4 @@ def any_statistics_avaiable(request):
     controller = request.contest.controller
     if not isinstance(controller, ProgrammingContestController):
         return False
-    return controller. \
-        statistics_available_plot_groups(request) is not None
+    return bool(controller.statistics_available_plot_groups(request))
