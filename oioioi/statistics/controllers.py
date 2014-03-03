@@ -8,8 +8,8 @@ from oioioi.statistics.plottypes import TablePlot, XYStaticHighchartsPlot, \
 from oioioi.statistics.plotfunctions import points_histogram_contest, \
         submissions_histogram_contest, points_histogram_problem, \
         points_to_source_length_problem
+from oioioi.statistics.models import StatisticsConfig
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
-
 
 statistics_categories = EnumRegistry()
 statistics_categories.register('CONTEST', (_("Contest"), 'c'))
@@ -136,6 +136,17 @@ class StatisticsMixinForContestController(object):
         """
         raise NotImplementedError
 
+    def can_see_stats(self, request):
+        """Determies if statistics should be shown"""
+        if is_contest_admin(request) or is_contest_observer(request):
+            return True
+        try:
+            sconfig = request.contest.statistics_config
+            return sconfig.visible_to_users and \
+                request.timestamp >= sconfig.visibility_date
+        except StatisticsConfig.DoesNotExist:
+            return False
+
 ContestController.mix_in(StatisticsMixinForContestController)
 
 
@@ -189,10 +200,8 @@ class StatisticsMixinForProgrammingContestController(object):
 
         return result
 
-
     def render_statistics(self, request, data, plot_id):
         return data['plot_type'].render_plot(request, data, plot_id)
 
 ProgrammingContestController.mix_in(
     StatisticsMixinForProgrammingContestController)
-
