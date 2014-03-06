@@ -16,9 +16,25 @@ def error(message):
 
 
 def get_timezone():
+    ret = ''
     try:
-        return open('/etc/timezone').read().strip()
+        if os.path.isfile('/etc/timezone'):
+            ret = open('/etc/timezone').read().strip()
+        elif os.path.isfile('/etc/sysconfig/clock'):
+            file = open('/etc/sysconfig/clock')
+            for line in file:
+                if 'ZONE' in line:
+                    ret = ''.join(line.split())[6:-1]
+        elif os.path.isfile('/etc/sysconfig/timezone'):
+            file = open('/etc/sysconfig/timezone')
+            for line in file:
+                if 'TIMEZONE' in line:
+                    ret = ''.join(line.split())[10:-1]
     except IOError:
+        ret = 'GMT'
+    if ret != '':
+        return ret
+    else:
         return 'GMT'
 
 
