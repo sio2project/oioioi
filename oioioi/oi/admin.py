@@ -1,7 +1,7 @@
 import urllib
 
 from django.contrib import messages
-from django.contrib.admin import RelatedFieldListFilter
+from django.contrib.admin import RelatedFieldListFilter, SimpleListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,6 +10,7 @@ from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.admin import SubmissionAdmin
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
@@ -244,3 +245,30 @@ class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     def local_number(self, instance):
         return instance.oi_oionsiteregistration.local_number
     local_number.admin_order_field = 'oi_oionsiteregistration__local_number'
+
+
+class RegionListFilter(SimpleListFilter):
+    title = _("region")
+    parameter_name = 'region'
+
+    def lookups(self, request, model_admin):
+        regions = Region.objects.filter(contest=request.contest)
+        return [(x, x.name) for x in regions]
+
+    def queryset(self, request, queryset):
+        name = self.value()
+        if name:
+            kwargs = {'user__participant__contest': request.contest,
+                    'user__participant__oi_oionsiteregistration__'
+                    'region__short_name': name}
+            return queryset.filter(**kwargs)
+        else:
+            return queryset
+
+
+class OIOnsiteSubmissionAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(OIOnsiteSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        self.list_filter = self.list_filter + [RegionListFilter]
+
+SubmissionAdmin.mix_in(OIOnsiteSubmissionAdminMixin)

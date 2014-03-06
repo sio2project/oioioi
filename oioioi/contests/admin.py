@@ -289,12 +289,27 @@ class SubmissionKindListFilter(SimpleListFilter):
             return queryset
 
 
+class RoundListFilter(SimpleListFilter):
+    title = _("round")
+    parameter_name = 'round'
+
+    def lookups(self, request, model_admin):
+        r = Round.objects.filter(contest=request.contest)
+        return [(x, x) for x in r]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(problem_instance__round__name=self.value())
+        else:
+            return queryset
+
+
 class SubmissionAdmin(admin.ModelAdmin):
     list_display = ['id', 'user_login', 'user_full_name', 'date',
             'problem_instance_display', 'status_display', 'score_display']
     list_display_links = ['id', 'date']
     list_filter = [UserListFilter, ProblemNameListFilter,
-            SubmissionKindListFilter, 'status']
+            SubmissionKindListFilter, 'status', RoundListFilter]
     date_hierarchy = 'date'
     actions = ['rejudge_action']
     search_fields = ['user__username', 'user__last_name']
