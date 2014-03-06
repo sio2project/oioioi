@@ -59,6 +59,7 @@ Table of Contents
     sections/scoring
     sections/evaluation
     sections/spliteval
+    sections/notifications
     sections/misc
     glossary
 
