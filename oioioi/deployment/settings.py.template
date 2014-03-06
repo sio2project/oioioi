@@ -153,8 +153,9 @@ INSTALLED_APPS = (
 #    'oioioi.ctimes',
 #    'oioioi.submitsqueue',
 #    'oioioi.timeline',
-#    'oioioi.statistics',
 #    'oioioi.amppz',
+#    'oioioi.statistics',
+#    'oioioi.publicsolutions',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
