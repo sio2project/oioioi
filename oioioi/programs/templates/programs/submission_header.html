@@ -2,16 +2,23 @@
 {% load check_perm %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 {% block program_controls %}
+
 <div class="corner-icons btn-toolbar">
         {% if is_admin and submission.valid_kinds_for_submission %}
             <div class="btn-group">
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="icon-tags"></i> {% trans "Change kind" %}
+                    <i class="icon-tags"></i>
+                    <span class="toolbar-button-text">{% trans "Change kind" %}</span>
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
                     {% for value, description in submission.valid_kinds_for_submission %}
-                        <li><a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=submission.submission.id kind=value %}"><i class="icon-tag"></i> {{ description }}</a></li>
+                        <li>
+                            <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=submission.submission.id kind=value %}">
+                                <i class="icon-tag"></i>
+                                <span class="toolbar-button-text">{{ description }}</span>
+                            </a>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
@@ -19,28 +26,47 @@
         {% if is_admin %}
             <div class="btn-group">
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
-                    <i class="icon-repeat"></i> {% trans "Rejudge" %}
+                    <i class="icon-repeat"></i>
+                    <span class="toolbar-button-text">{% trans "Rejudge" %}</span>
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-eye-open"></i>{% trans "Normal rejudge" %}</a></li>
+                    <li>
+                        <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}">
+                            <i class="icon-eye-open"></i>
+                            <span class="toolbar-button-text">{% trans "Normal rejudge" %}</span>
+                        </a>
+                    </li>
                     {% for link, name in supported_extra_args.items %}
-                        <li><a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}"><i class="icon-eye-close"></i>{{ name }}</a></li>
+                        <li>
+                            <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}">
+                                <i class="icon-eye-close"></i>
+                                <span class="toolbar-button-text">{{ name }}</span>
+                            </a>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
             {% if saved_diff_id %}
                 <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' contest_id=contest.id submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
-                    <i class="icon-resize-small"></i> {% trans "Diff with saved" %}</a>
+                    <i class="icon-resize-small"></i>
+                    <span class="toolbar-button-text">{% trans "Diff with saved" %}</span>
+                </a>
             {% else %}
                 <button class="btn btn-small diff-button" id="diff-button-save">
-                    <i class="icon-resize-small"></i> <span>{% trans "Diff with other" %}</span></button>
+                    <i class="icon-resize-small"></i>
+                    <span class="toolbar-button-text">{% trans "Diff with other" %}</span>
+                </button>
             {% endif %}
         {% endif %}
         <a class="btn btn-small" href="{% url 'show_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
-            <i class="icon-eye-open"></i> {% trans "Show code" %}</a>
+            <i class="icon-eye-open"></i>
+            <span class="toolbar-button-text">{% trans "Show code" %}</span>
+        </a>
         <a class="btn btn-small" href="{% url 'download_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
-            <i class="icon-download-alt"></i> {% trans "Download" %}</a>
+            <i class="icon-download-alt"></i>
+            <span class="toolbar-button-text">{% trans "Download" %}</span>
+        </a>
         {% if not saved_diff_id %}
             <script>
                 $(document).ready(

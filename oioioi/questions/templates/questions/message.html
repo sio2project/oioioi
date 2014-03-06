@@ -12,11 +12,19 @@
 {% if is_admin %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url 'oioioiadmin:auth_user_change' message.author_id %}">
-            <i class="icon-user"></i> {% trans "Display user" %}</a></li>
+        <li>
+            <a class="btn btn-small" href="{% url 'oioioiadmin:auth_user_change' message.author_id %}">
+                <i class="icon-user"></i>
+                <span class="toolbar-button-text">{% trans "Display user" %}</span>
+            </a>
+        </li>
         {% if message.can_have_replies %}
-        <li><a class="btn btn-small" href="javascript:scroll_and_focus('#id_content');">
-            <i class="icon-pencil"></i> {% trans "Reply" %}</a></li>
+        <li>
+            <a class="btn btn-small" href="javascript:scroll_and_focus('#id_content');">
+                <i class="icon-pencil"></i>
+                <span class="toolbar-button-text">{% trans "Reply" %}</span>
+            </a>
+        </li>
         {% endif %}
     </ul>
 </div>

@@ -10,7 +10,10 @@
 {% if is_admin %}
 <div class="corner-icons">
     {% if key %}
-    <a class="btn btn-small" href="{% url 'ranking_csv' contest_id=contest.id key=key %}"><i class="icon-download"></i> {% trans "Export to CSV" %}</a>
+    <a class="btn btn-small" href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
+        <i class="icon-download"></i>
+        <span class="toolbar-button-text">{% trans "Export to CSV" %}</span>
+    </a>
     {% endif %}
 </div>
 {% endif %}

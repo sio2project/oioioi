@@ -12,7 +12,10 @@
 <div class="corner-icons">
     <ul>
         <li><a class="btn btn-small" href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
-            <i class="icon-upload"></i> {% trans "Add file" %}</a></li>
+                <i class="icon-upload"></i>
+                <span class="toolbar-button-text">{% trans "Add file" %}</span>
+            </a>
+        </li>
     </ul>
 </div>
 {% endif %}

@@ -11,7 +11,10 @@
 <div class="corner-icons">
     <ul>
         <li>
-        <a href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}" class="btn btn-small">{% trans "Add new thread" %}</a>
+            <a href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}" class="btn btn-small">
+                <i class="icon-comment"></i>
+                <span class="toolbar-button-text">{% trans "Add new thread" %}</span>
+            </a>
         </li>
     </ul>
 </div>
