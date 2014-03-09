@@ -1,9 +1,4 @@
+{% load jsonify %}
 <script>
-    {% comment %}
-    Don't try with something like this:
-      $(function(){$(window).trigger('initialStatus', {{ status|safe }})});
-    because... {{ status|safe }} may contain </script>.
-    {% endcomment %}
-    $(function(){$(window).trigger('initialStatus',
-            JSON.parse('{{ status|escapejs }}'))});
+    $(function(){$(window).trigger('initialStatus', {{ status|json_parse }})});
 </script>

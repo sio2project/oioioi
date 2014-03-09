@@ -18,7 +18,7 @@ def status_processor(request):
 
     def status_generator():
         return render_to_string('status/initial_status.html',
-            {'status': json.dumps(get_status(request))})
+            {'status': get_status(request)})
 
     # Well, we want to generate the status JSON as late as possible, for the
     # following simple/stupid reason: we want the current time in the response
