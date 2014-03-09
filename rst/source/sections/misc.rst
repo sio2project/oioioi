@@ -152,3 +152,122 @@ Switching users (su)
 .. autofunction:: oioioi.su.utils.su_to_user
 
 .. autofunction:: oioioi.su.utils.reset_to_real_user
+
+Zeus integration (zeus)
+-----------------------
+
+.. currentmodule:: oioioi.zeus
+
+.. automodule:: oioioi.zeus
+
+Zeus instances are configured in ``settings.ZEUS_INSTANCES``, which is a dict
+mapping ``zeus_id`` - unique identifier of a zeus instance - to ``(zeus_url,
+zeus_login, zeus_secret)`` - base URL for zeus api (*ZBU*) and credentials.
+
+API specification
+.................
+
+Communication with zeus is done over HTTPS protocol, in a REST-like style. Data
+are encoded using JSON. OIOIOI authorizes itself to zeus using HTTP Basic
+Authentication, with login and secret fixed for a contest.
+
+Prefix **?** means optional attribute, prefix **T** marks attribute only for
+testrun.
+
+Sending submissions
+~~~~~~~~~~~~~~~~~~~
+
+:Request:
+
+|    POST *ZBU*/problem/*zeus_problem_id*/job/*INITIAL|NORMAL|TESTRUN*/
+
+:Data sent:
+
+|   {
+|       "source_code": source_code :: Base64String,
+|       **T** "library": library_generating_input :: Base64String,
+|       **T** "input_test" input_for_library :: Base64String,
+|       "language": source_language :: Base64String(CPP|...),
+|   }
+
+:Result:
+
+Code 200 and data:
+
+|    { "check_uid": unique_job_id :: Uint }
+
+or code 4xx|5xx and data:
+
+|    { **?** "error": error_description :: Base64String }
+
+Fetching results
+~~~~~~~~~~~~~~~~
+
+Fetching results is done using long polling.
+
+:Request:
+
+|   GET *ZBU*/reports_since/*last_seq*/
+
+:Result:
+
+Code 200 and data:
+
+|    {
+|        "next_seq": next_sequential_number :: Int,
+|        "reports": list_of_reports :: [Report]
+|    }
+
+where
+
+|    Report = {
+|        "check_uid": job_id :: Int,
+|        **T** "stdout_uid": unique_output_id :: Int,
+|        "compilation_successful": was_compilation_successful :: Bool,
+|        "compilation_message": compiler_result :: Base64String,
+|        "report_kind": check_kind :: Base64String(INITIAL|NORMAL|TESTRUN),
+|        "status": test_status :: Base64String(OK|WA|TLE|RE|RV|MSE|MCE),
+|        "result_string": status_description :: Base64String,
+|        "metadata": more_data_about_test :: Base64String,
+|        **T** "stdout": first_10kB_of_output :: Base64String
+|        **T** "stdout_size": size_of_full_stdout_in_bytes :: Int,
+|        "execution_time_ms": max_of_times_at_all_machines :: Int,
+|        "time_limit_ms": execution_time_limit :: Int,
+|        "memory_limit_byte": memory_limit :: Int,
+|    }
+
+or code 4xx|5xx and data:
+
+|    { **?** "error": error_description :: Base64String }
+
+Each check_uid will appear in at most one result - results for given job will
+be sent together, when all are ready.
+
+*MSE* and *MCE* are statuses meaning that size or count of outgoing messages
+sent by submitted program has exceeded the limit.
+
+Metadata are subject to coordination between judges and contest admins, they
+are just passed through zeus. They are designed to contain additional data
+about grouping, scoring etc. Currently we expect them to be in format:
+
+| "*test name*,\ *group name*,\ *max score*"
+
+Test name will be shown to users. All tests with the same, non-empty group name
+will be grouped together. All tests in group shall have the same max score.
+
+Fetching full output
+~~~~~~~~~~~~~~~~~~~~
+
+:Request:
+
+|   GET *ZBU*/full_stdout/*stdout_uid*/
+
+:Result:
+
+Code 200 and data:
+
+|   { "full_stdout" : full_stdout_limited_to_1MB :: Base64String }
+
+or code 4xx|5xx and data:
+
+|    { **?** "error": error_description :: Base64String }

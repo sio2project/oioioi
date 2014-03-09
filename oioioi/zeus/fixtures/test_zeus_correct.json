@@ -1,0 +1,62 @@
+[
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/problem/1/job/INITIAL/",
+      "method" : "POST",
+      "result" : "{\"check_uid\": 1001}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/problem/1/job/NORMAL/",
+      "method" : "POST",
+      "result" : "{\"check_uid\": 1002}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/problem/1/job/TESTRUN/",
+      "method" : "POST",
+      "result" : "{\"check_uid\": 1003}"
+   },
+   {
+      "result_code" : 404,
+      "url" : "zeus_fixture_server/problem/4/job/INITIAL/",
+      "method" : "POST",
+      "result" : "{\"error\": \"Tm8gc3VjaCBwcm9ibGVtLg==\"}"
+   },
+   {
+      "result_code" : 500,
+      "url" : "zeus_fixture_server/problem/4/job/TESTRUN/",
+      "method" : "POST",
+      "result" : "{}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/reports_since/0/",
+      "method" : "GET",
+      "result" : "{\"next_seq\": 13, \"reports\": [{\"status\": \"T0s=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"check_uid\": 1001, \"time_limit_ms\": 1000, \"report_kind\": \"SU5JVElBTA==\", \"result_string\": \"b2theSE=\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 621, \"metadata\": \"MW9jZW4sLDA=\"}, {\"status\": \"T0s=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"stdout_size\": 15, \"check_uid\": 1003, \"time_limit_ms\": 1000, \"stdout\": \"SGVsbG8sIHdvcmxkISAK\", \"report_kind\": \"VEVTVFJVTg==\", \"stdout_uid\": 531, \"result_string\": \"\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 786, \"metadata\": \"\"}]}"
+   },
+   {
+      "result_code" : 404,
+      "url" : "zeus_fixture_server/reports_since/1/",
+      "method" : "GET",
+      "result" : "{\"error\": \"SW52YWxpZCBzZXF1ZW50aWFsIG51bWJlcg==\"}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/reports_since/13/",
+      "method" : "GET",
+      "result" : "{\"next_seq\": 14, \"reports\": [{\"status\": \"V0E=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"check_uid\": 1002, \"time_limit_ms\": 1000, \"report_kind\": \"Tk9STUFM\", \"result_string\": \"TGluaWEgODogb2N6ZWtpd2FubyBUQUssIHdjenl0YW5vIE5JRS4=\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 221, \"metadata\": \"MSxncjEsMTA=\"}, {\"status\": \"T0s=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"check_uid\": 1002, \"time_limit_ms\": 1000, \"report_kind\": \"Tk9STUFM\", \"result_string\": \"b2theSE=\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 0, \"metadata\": \"MixncjEsMTA=\"}]}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/reports_since/14/",
+      "method" : "GET",
+      "result" : "{\"next_seq\": 14, \"reports\": []}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/full_stdout/531/",
+      "method" : "GET",
+      "result" : "{\"full_stdout\": \"SGVsbG8sIHdvcmxkISAK\"}"
+   }
+]

@@ -1,0 +1,14 @@
+[
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/problem/1/job/INITIAL/",
+      "method" : "POST",
+      "result" : "{\"check_uid\": -4}"
+   },
+   {
+      "result_code" : 200,
+      "url" : "zeus_fixture_server/problem/1/job/NORMAL/",
+      "method" : "POST",
+      "result" : "{}"
+   }
+]
