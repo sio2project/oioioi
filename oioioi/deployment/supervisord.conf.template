@@ -53,6 +53,12 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/filetracker.log
 {% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
 
+[program:zeus-fetcher]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py zeus_fetcher
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/zeus-fetcher.log
+{% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
+
 [program:autoreload]
 # Comment this out to enable auto-reloading when code changes.
 exclude=true

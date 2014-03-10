@@ -44,3 +44,8 @@ class ZeusTestRunProgramSubmission(TestRunProgramSubmission):
 class ZeusTestRunReport(TestRunReport):
     full_out_size = models.IntegerField()
     full_out_handle = models.CharField(max_length=255, blank=True)
+
+
+class ZeusFetchSeq(models.Model):
+    zeus_id = models.CharField(max_length=255, primary_key=True)
+    next_seq = models.IntegerField(default=0)

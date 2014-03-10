@@ -1,4 +1,5 @@
-# pylint: disable-msg=W0401
+# pylint: disable=W0401
+# Wildcard import
 from oioioi.default_settings import *
 
 TIME_ZONE = 'UTC'
@@ -38,6 +39,7 @@ INSTALLED_APPS = (
     'oioioi.statistics',
     'oioioi.amppz',
     'oioioi.publicsolutions',
+    'oioioi.zeus',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -70,3 +72,10 @@ COMPLAINTS_EMAIL = 'dummy@example.com'
 COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
+
+ZEUS_INSTANCES = {
+    'zeus_correct': ('__use_object__',
+                     'oioioi.zeus.tests.ZeusCorrectServer', ''),
+    'zeus_incorrect': ('__use_object__',
+                       'oioioi.zeus.tests.ZeusIncorrectServer', ''),
+}

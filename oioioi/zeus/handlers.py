@@ -1,7 +1,4 @@
-import copy
 import json
-import logging
-import re
 
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -13,9 +10,6 @@ from oioioi.programs.utils import slice_str
 from oioioi.zeus.backends import get_zeus_server
 from oioioi.zeus.models import ZeusTestRunReport, ZeusAsyncJob, \
         ZeusTestRunProgramSubmission
-
-
-logger = logging.getLogger(__name__)
 
 
 DEFAULT_METADATA_DECODER = 'oioioi.zeus.handlers.from_csv_metadata'
@@ -49,7 +43,8 @@ def submit_job(env, kind=None, **kwargs):
        Used ``environ`` keys:
          * ``submission_id``
          * ``language``
-         * ``zeus_server``
+         * ``zeus_id``
+         * ``zeus_problem_id``
 
        Altered ``environ`` keys:
           * ``zeus_check_uids`` - dictionary mapping grading kind to
@@ -57,12 +52,9 @@ def submit_job(env, kind=None, **kwargs):
     """
     assert kind is not None
     zeus = get_zeus_server(env['zeus_id'])
-    source_file = ProgramSubmission.objects \
-            .get(id=env['submission_id']).source_file
-    # TODO Fix .cc
-    check_uid = zeus.send_regular(kind=kind,
-                                  source_file=source_file,
-                                  language=env['language'])
+    ps = ProgramSubmission.objects.get(id=env['submission_id'])
+    check_uid = zeus.send_regular(kind=kind, source_file=ps.source_file,
+            zeus_problem_id=env['zeus_problem_id'], language=env['language'])
     env.setdefault('zeus_check_uids', {})[kind] = check_uid
     return env
 
@@ -74,23 +66,18 @@ def submit_testrun_job(env, **kwargs):
        Used ``environ`` keys:
          * ``submission_id``
          * ``language``
-         * ``zeus_server``
+         * ``zeus_id``
+         * ``zeus_problem_id``
 
        Altered ``environ`` keys:
           * ``zeus_check_uids`` - dictionary mapping grading kind to
                                  Zeus's ``check_uid``
     """
     zeus = get_zeus_server(env['zeus_id'])
-    submission = ZeusTestRunProgramSubmission.objects \
-            .get(id=env['submission_id'])
-    source_file = submission.source_file
-    input_file = submission.input_file
-    library_file = submission.library_file
-    # TODO Fix .cc
-    check_uid = zeus.send_testrun(source_file=source_file,
-                                  language=env['language'],
-                                  input_file=input_file,
-                                  library_file=library_file)
+    ps = ZeusTestRunProgramSubmission.objects.get(id=env['submission_id'])
+    check_uid = zeus.send_testrun(source_file=ps.source_file,
+            zeus_problem_id=env['zeus_problem_id'], language=env['language'],
+            input_file=ps.input_file, library_file=ps.library_file)
     env.setdefault('zeus_check_uids', {})['TESTRUN'] = check_uid
     return env
 

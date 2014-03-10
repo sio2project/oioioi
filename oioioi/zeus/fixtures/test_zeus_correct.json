@@ -33,7 +33,7 @@
       "result_code" : 200,
       "url" : "zeus_fixture_server/reports_since/0/",
       "method" : "GET",
-      "result" : "{\"next_seq\": 13, \"reports\": [{\"status\": \"T0s=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"check_uid\": 1001, \"time_limit_ms\": 1000, \"report_kind\": \"SU5JVElBTA==\", \"result_string\": \"b2theSE=\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 621, \"metadata\": \"MW9jZW4sLDA=\"}, {\"status\": \"T0s=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"stdout_size\": 15, \"check_uid\": 1003, \"time_limit_ms\": 1000, \"stdout\": \"SGVsbG8sIHdvcmxkISAK\", \"report_kind\": \"VEVTVFJVTg==\", \"stdout_uid\": 531, \"result_string\": \"\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 786, \"metadata\": \"\"}]}"
+      "result" : "{\"next_seq\": 13, \"reports\": [{\"check_uid\": 1001, \"compilation_message\": \"\", \"compilation_successful\": true, \"execution_time_ms\": 621, \"memory_limit_byte\": 33554432, \"metadata\": \"MW9jZW4sLDA=\", \"report_kind\": \"SU5JVElBTA==\", \"result_string\": \"b2theSE=\", \"status\": \"T0s=\", \"time_limit_ms\": 1000}, {\"check_uid\": 1003, \"compilation_message\": \"\", \"compilation_successful\": true, \"execution_time_ms\": 786, \"memory_limit_byte\": 33554432, \"metadata\": \"\", \"report_kind\": \"VEVTVFJVTg==\", \"result_string\": \"\", \"status\": \"T0s=\", \"stdout\": \"SGVsbG8sIHdvcmxkISAK\", \"stdout_size\": 15, \"stdout_uid\": 531, \"time_limit_ms\": 1000}]}"
    },
    {
       "result_code" : 404,
@@ -45,7 +45,7 @@
       "result_code" : 200,
       "url" : "zeus_fixture_server/reports_since/13/",
       "method" : "GET",
-      "result" : "{\"next_seq\": 14, \"reports\": [{\"status\": \"V0E=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"check_uid\": 1002, \"time_limit_ms\": 1000, \"report_kind\": \"Tk9STUFM\", \"result_string\": \"TGluaWEgODogb2N6ZWtpd2FubyBUQUssIHdjenl0YW5vIE5JRS4=\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 221, \"metadata\": \"MSxncjEsMTA=\"}, {\"status\": \"T0s=\", \"compilation_successful\": true, \"compilation_message\": \"\", \"check_uid\": 1002, \"time_limit_ms\": 1000, \"report_kind\": \"Tk9STUFM\", \"result_string\": \"b2theSE=\", \"memory_limit_byte\": 33554432, \"execution_time_ms\": 0, \"metadata\": \"MixncjEsMTA=\"}]}"
+      "result" : "{\"next_seq\": 14, \"reports\": [{\"check_uid\": 1002, \"compilation_message\": \"\", \"compilation_successful\": true, \"execution_time_ms\": 221, \"memory_limit_byte\": 33554432, \"metadata\": \"MSxncjEsMTA=\", \"report_kind\": \"Tk9STUFM\", \"result_string\": \"TGluaWEgODogb2N6ZWtpd2FubyBUQUssIHdjenl0YW5vIE5JRS4=\", \"status\": \"V0E=\", \"time_limit_ms\": 1000}, {\"check_uid\": 1002, \"compilation_message\": \"\", \"compilation_successful\": true, \"execution_time_ms\": 0, \"memory_limit_byte\": 33554432, \"metadata\": \"MixncjEsMTA=\", \"report_kind\": \"Tk9STUFM\", \"result_string\": \"b2theSE=\", \"status\": \"T0s=\", \"time_limit_ms\": 1000}]}"
    },
    {
       "result_code" : 200,
