@@ -83,11 +83,11 @@ def get_msgs(request, forum=None):
     if forum.lock_date and forum.lock_date > now and \
        not forum.is_locked(request.timestamp):
         localtime = timezone.localtime(forum.lock_date)
-        return _("Forum is going to be locked at ") + \
-                localtime.strftime('%Y-%m-%d %H:%M:%S')
+        return _("Forum is going to be locked at %s") % \
+                        localtime.strftime('%Y-%m-%d %H:%M:%S')
     if forum.unlock_date and forum.unlock_date > now and \
        forum.is_locked(request.timestamp):
         localtime = timezone.localtime(forum.unlock_date)
-        return _("Forum is going to be unlocked at ") + \
-                localtime.strftime('%Y-%m-%d %H:%M:%S')
+        return _("Forum is going to be unlocked at %s") % \
+                        localtime.strftime('%Y-%m-%d %H:%M:%S')
     return None
