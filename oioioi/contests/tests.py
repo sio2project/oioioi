@@ -23,6 +23,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
+from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -1142,3 +1143,14 @@ class TestSubmitSelectManyProblems(TestCase):
         form = response.context['form']
         # +1 because of blank field
         self.assertEqual(len(form.fields['problem_instance_id'].choices), 3)
+
+
+class TestDateRegistry(TestCase):
+    fixtures = ['test_contest']
+
+    def test_registry_content(self):
+        contest = Contest.objects.get()
+        registry_length = len(date_registry.tolist(contest.id))
+        rounds_count = Round.objects.filter(contest=contest.id).count()
+
+        self.assertEqual(registry_length, 3 * rounds_count)
