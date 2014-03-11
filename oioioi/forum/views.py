@@ -28,9 +28,13 @@ from oioioi.forum.utils import forum_exists_and_visible, is_proper_forum, \
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request, contest_id):
     msgs = get_msgs(request)
+    category_set = request.contest.forum.category_set \
+        .prefetch_related('thread_set', 'thread_set__post_set') \
+        .all()
     return TemplateResponse(request, 'forum/forum.html', {
         'forum': request.contest.forum, 'msgs': msgs,
-        'is_locked': forum_is_locked(request)})
+        'is_locked': forum_is_locked(request), 'category_set': category_set
+    })
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -38,8 +42,10 @@ def forum_view(request, contest_id):
 def category_view(request, contest_id, category_id):
     category = get_object_or_404(Category, id=category_id)
     msgs = get_msgs(request)
-    threads = category.thread_set.select_related(
-        'last_post', 'last_post__author').all()
+    threads = category.thread_set \
+        .prefetch_related('post_set') \
+        .select_related('last_post', 'last_post__author') \
+        .all()
     return TemplateResponse(request, 'forum/category.html',
         {'forum': request.contest.forum, 'category': category,
          'threads': threads, 'msgs': msgs,
@@ -52,6 +58,7 @@ def thread_view(request, contest_id, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
     forum, lock = request.contest.forum, forum_is_locked(request)
     msgs = get_msgs(request)
+    post_set = thread.post_set.select_related('author').all()
     if (request.user.is_authenticated() and not lock) or \
        is_contest_admin(request):
         if request.method == "POST":
@@ -70,11 +77,12 @@ def thread_view(request, contest_id, category_id, thread_id):
 
         return TemplateResponse(request, 'forum/thread.html',
             {'forum': forum, 'category': category, 'thread': thread,
-             'form': form, 'msgs': msgs, 'is_locked': lock})
+             'form': form, 'msgs': msgs, 'is_locked': lock,
+             'post_set': post_set})
     else:
         return TemplateResponse(request, 'forum/thread.html',
             {'forum': forum, 'category': category, 'thread': thread,
-             'msgs': msgs, 'is_locked': lock})
+             'msgs': msgs, 'is_locked': lock, 'post_set': post_set})
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
