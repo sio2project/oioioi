@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+# pylint: disable=C0301
+# Line too long
+
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -18,7 +21,7 @@ if os.getuid() == 0:  # root
 
 setup(
     name='oioioi',
-    version = '0.1.1.dev',
+    version='0.1.1.dev',
     description='The web frontend of the SIO2 Project contesting system',
     author='The SIO2 Team',
     author_email='sio2@sio2project.mimuw.edu.pl',
@@ -26,7 +29,7 @@ setup(
     install_requires=[
         "Django>=1.5,<1.6",
         "pytz>=2013b",
-        "South>=0.8.2.1accek,<2.0",
+        "South>=0.8.3,<2.0",
         "BeautifulSoup",
         "PyYAML",
         "django-nose",
@@ -56,7 +59,7 @@ setup(
         "nose-profile",
 
         "filetracker>=1.0.dev",
-        "sioworkers>=0.92",
+        "sioworkers>=1.0.dev",
 
         "fpdf",
         "pdfminer>=20110515,<20131113",
@@ -70,13 +73,20 @@ setup(
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='oioioi.runtests.runtests',
+
+    # Well, dependency_links is deprecated in pip and setuptools. We leave
+    # it for some time, though. You should install oioioi using
+    #
+    # $ pip install -r requirements.txt
+    #
     dependency_links=[
+        'http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.0.dev',
         'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
         'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
         'http://bitbucket.org/mdebski/django-output-validator-1.5/get/django-1.5.zip#egg=django-output-validator-1.5md1',
-        'http://bitbucket.org/accek/south/get/accek-alternate-version-string.tar.gz#egg=South-0.8.2.1accek',
     ],
-    entry_points = {
+
+    entry_points={
         'console_scripts': [
             'django-staticfiles-lessc = oioioi.base.lessc:main',
             'oioioi-create-config = oioioi.deployment.create_config:main',
