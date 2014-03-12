@@ -242,7 +242,7 @@ Usage
 -----
 
 Well, we don't have a full-fledged User's Guide, but feel free to propose
-what should be add here.
+what should be added here.
 
 Creating task packages
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -256,3 +256,14 @@ pointers, how it should look like:
 
 .. _example task packages: https://github.com/sio2project/oioioi/tree/master/oioioi/sinolpack/files
 .. _a rudimentary task package format specification: http://sio2project.mimuw.edu.pl/display/DOC/Preparing+Task+Packages
+
+Contact us
+------------
+
+Should you have any further questions regarding installation, configuration or
+usage of OIOIOI, feel free to contact us by an e-mail
+(`sio2-project@googlegroups.com`_),
+via IRC (#tagtag at freenode) or through github issues system
+(`http://github.com/sio2project/oioioi`_). Please use English on github and
+English or Polish elsewhere. You may find some additional information on our
+official website: `http://sio2project.mimuw.edu.pl`_ .
