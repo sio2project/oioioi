@@ -328,3 +328,7 @@ MAIL_ADMINS_ON_GRADING_ERROR = True
 # Message shortcut length in notification shown when an admin is editing
 # a reply in a thread in which a new message was posted in the meantime.
 MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
+
+# Zeus configuration
+ZEUS_INSTANCES = {
+}

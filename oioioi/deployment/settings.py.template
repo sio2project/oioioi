@@ -156,6 +156,7 @@ INSTALLED_APPS = (
 #    'oioioi.amppz',
 #    'oioioi.statistics',
 #    'oioioi.publicsolutions',
+#    'oioioi.zeus',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -186,11 +187,16 @@ AUTHENTICATION_BACKENDS += (
 
 PROBLEM_SOURCES += (
 #    'oioioi.sharingcli.problem_sources.RemoteSource',
+#    'oioioi.zeus.problem_sources.ZeusProblemSource',
 )
 
 SHARING_SERVERS = (
 #    ('site_url', 'sharing_url', 'client_id', 'client_secret'),
 )
+
+ZEUS_INSTANCES = {
+#    'zeus_id': ('zeus_url', 'zeus_login', 'zeus_secret'),
+}
 
 # Complaints
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
