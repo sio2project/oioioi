@@ -10,6 +10,7 @@ from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
 from oioioi.statistics.plotfunctions import histogram, \
                                             points_to_source_length_problem
+from oioioi.contests.models import ProblemInstance
 from oioioi.statistics.controllers import statistics_categories, \
                                           statistics_plot_kinds
 
@@ -50,7 +51,9 @@ class TestStatisticsPlotFunctions(TestCase):
         self.assertEqual(histogram(test4), result4)
 
     def test_points_to_source_length(self):
-        plot = points_to_source_length_problem('zad1')
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get(short_name='zad1')
+        plot = points_to_source_length_problem(pi)
         self.assertEqual(len(plot['series']), 1)
         self.assertSizes(plot['data'], [1, 1, 2])
 
@@ -62,7 +65,8 @@ class TestHighchartsOptions(TestCase):
     def test_scatter(self):
         plot_function, plot_type = \
                 statistics_plot_kinds['POINTS_TO_SOURCE_LENGTH_PROBLEM']
-        plot = plot_type.highcharts_options(plot_function('zad2'))
+        plot = plot_type.highcharts_options(plot_function(ProblemInstance
+            .objects.filter(short_name='zad2')[0]))
         self.assertIsInstance(plot, dict)
         self.assertIn('xAxis', plot)
         self.assertIn('title', plot['xAxis'])
@@ -72,7 +76,8 @@ class TestHighchartsOptions(TestCase):
     def test_results_histogram(self):
         plot_function, plot_type = \
                 statistics_plot_kinds['POINTS_HISTOGRAM_PROBLEM']
-        plot = plot_type.highcharts_options(plot_function('zad2'))
+        plot = plot_type.highcharts_options(plot_function(ProblemInstance
+            .objects.filter(short_name='zad2')[0]))
         self.assertIsInstance(plot, dict)
         self.assertIn('yAxis', plot)
         self.assertIn('title', plot['yAxis'])
@@ -84,7 +89,7 @@ class TestHighchartsOptions(TestCase):
         contest = Contest.objects.get()
         plot_function, plot_type = \
                 statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST']
-        plot = plot_type.highcharts_options(plot_function(contest.id))
+        plot = plot_type.highcharts_options(plot_function(contest))
         self.assertIsInstance(plot, dict)
         self.assertIn('yAxis', plot)
         self.assertIn('title', plot['yAxis'])

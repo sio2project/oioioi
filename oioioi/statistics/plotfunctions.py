@@ -69,14 +69,13 @@ def results_histogram_for_queryset(qs):
     }
 
 
-def points_histogram_contest(contest_name):
-    results = UserResultForContest.objects.filter(contest_id=contest_name)
+def points_histogram_contest(contest):
+    results = UserResultForContest.objects.filter(contest=contest)
     return results_histogram_for_queryset(results)
 
 
-def points_histogram_problem(problem_name):
-    pis = list(ProblemInstance.objects.filter(short_name=problem_name))
-    results = UserResultForProblem.objects.filter(problem_instance__in=pis)
+def points_histogram_problem(problem):
+    results = UserResultForProblem.objects.filter(problem_instance=problem)
     return results_histogram_for_queryset(results)
 
 
@@ -102,16 +101,16 @@ def submissions_by_problem_histogram_for_queryset(qs):
     }
 
 
-def submissions_histogram_contest(contest_name):
+def submissions_histogram_contest(contest):
     subs = Submission.objects.filter(kind='NORMAL') \
-            .filter(problem_instance__contest=contest_name) \
+            .filter(problem_instance__contest=contest) \
             .prefetch_related('problem_instance')
     return submissions_by_problem_histogram_for_queryset(subs)
 
 
-def points_to_source_length_problem(problem_name):
+def points_to_source_length_problem(problem):
     submissions = ProgramSubmission.objects.filter(
-            problem_instance__short_name=problem_name,
+            problem_instance=problem,
             submissionreport__userresultforproblem__isnull=False)
 
     data = sorted([[s.source_length, int_score(s.score)] for s in submissions])
@@ -125,6 +124,6 @@ def points_to_source_length_problem(problem_name):
             'xAxis': _("Source length (bytes)"),
             'yAxis': _("Points"),
         },
-        'series': [problem_name],
+        'series': [problem.short_name],
         'series_extra_options': [{'color': 'rgba(47, 126, 216, 0.5)'}],
     }
