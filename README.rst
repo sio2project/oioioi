@@ -147,7 +147,7 @@ Production configuration
    *libapache2-mod-uwsgi* packages.
 
 #. Comment out *DEBUG = True* in *settings.py*. This is crucial for security
-   and efficiency.
+   and efficiency. Also `set ALLOWED_HOSTS`_.
 
 #. Set admin email in settings. Error reports and teacher account requests will
    be sent there.
@@ -167,6 +167,7 @@ Production configuration
 
 .. _judging-machines:
 .. _install gevent: https://github.com/surfly/gevent#installing-from-github
+.. _set ALLOWED_HOSTS: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 
 Setting up judging machines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
