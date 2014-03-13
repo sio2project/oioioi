@@ -20,10 +20,12 @@ from oioioi.participants.utils import is_contest_with_participants
 
 @make_request_condition
 def is_onsite_contest(request):
+    if not is_contest_with_participants(request.contest):
+        return False
     rcontroller = request.contest.controller.registration_controller()
-    return is_contest_with_participants(request.contest) \
-        and issubclass(rcontroller.participant_admin,
-            OIOnsiteRegistrationParticipantAdmin)
+    padmin = rcontroller.participant_admin
+    return (padmin and
+            issubclass(padmin, OIOnsiteRegistrationParticipantAdmin))
 
 
 class RegionAdmin(admin.ModelAdmin):
