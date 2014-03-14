@@ -1,13 +1,18 @@
 from django.conf import settings
 
 from oioioi.evalmgr import add_before_placeholder
+from oioioi.scoresreveal.models import ScoreRevealConfig
 
 
 class SplitEvalContestControllerMixin(object):
+    def use_spliteval(self, submission):
+        return super(SplitEvalContestControllerMixin, self) \
+                .use_spliteval(submission) and settings.ENABLE_SPLITEVAL
+
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         super(SplitEvalContestControllerMixin,
                 self).fill_evaluation_environ(environ, submission, **kwargs)
-        if not settings.ENABLE_SPLITEVAL:
+        if not self.use_spliteval(submission):
             return
 
         environ.setdefault('sioworkers_extra_args', {}) \

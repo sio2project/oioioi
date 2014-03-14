@@ -8,7 +8,7 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.controllers import ProgrammingProblemController, \
     ProgrammingContestController
 from oioioi.scoresreveal.utils import has_scores_reveal, is_revealed
-from oioioi.scoresreveal.models import ScoreReveal
+from oioioi.scoresreveal.models import ScoreReveal, ScoreRevealConfig
 
 
 class ScoresRevealProblemControllerMixin(object):
@@ -22,6 +22,11 @@ ProgrammingProblemController.mix_in(ScoresRevealProblemControllerMixin)
 
 
 class ScoresRevealContestControllerMixin(object):
+    def use_spliteval(self, submission):
+        return super(ScoresRevealContestControllerMixin, self) \
+                .use_spliteval(submission) and not ScoreRevealConfig.objects \
+                .filter(problem=submission.problem)
+
     def can_see_submission_score(self, request, submission):
         return super(ScoresRevealContestControllerMixin, self) \
             .can_see_submission_score(request, submission) or \

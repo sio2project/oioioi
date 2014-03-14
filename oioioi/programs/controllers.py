@@ -166,6 +166,9 @@ class ProgrammingContestController(ContestController):
     def _get_language(self, source_file):
         return os.path.splitext(source_file.name)[1][1:]
 
+    def use_spliteval(self, submission):
+        return True
+
     def fill_evaluation_environ(self, environ, submission):
         submission = submission.programsubmission
         environ['source_file'] = \
