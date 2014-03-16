@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from celery.exceptions import Ignore
 
 from oioioi.submitsqueue.models import QueuedSubmit
-from oioioi.submitsqueue.handlers import mark_submission_in_progress
+from oioioi.submitsqueue.handlers import mark_submission_state
 from oioioi.contests.models import Submission, Contest
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -74,7 +74,8 @@ class TestEval(TestCase):
         controller.finalize_evaluation_environment(env)
 
         self.assertIn(('mark_submission_in_progress',
-                'oioioi.submitsqueue.handlers.mark_submission_in_progress'),
+                'oioioi.submitsqueue.handlers.mark_submission_state',
+                dict(state='PROGRESS')),
                 env['recipe'])
         self.assertIn(('update_celery_task_id',
                 'oioioi.submitsqueue.handlers.update_celery_task_id'),
@@ -96,4 +97,4 @@ class TestEval(TestCase):
         qs.save()
 
         with self.assertRaises(Ignore):
-            mark_submission_in_progress(env)
+            mark_submission_state(env, state='PROGRESS')

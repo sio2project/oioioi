@@ -1,7 +1,11 @@
-span.subm_in_progress {
+span.subm_PROGRESS {
     background: lightgreen;
 }
 
-span.subm_queued {
+span.subm_QUEUED {
     background: lightgray;
+}
+
+span.subm_WAITING {
+    background: lightyellow;
 }

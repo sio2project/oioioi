@@ -10,6 +10,7 @@ submission_states = EnumRegistry()
 submission_states.register('QUEUED', _("Queued"))
 submission_states.register('PROGRESS', _("In progress"))
 submission_states.register('CANCELLED', _("Cancelled"))
+submission_states.register('WAITING', _("Waiting"))
 
 
 class QueuedSubmit(models.Model):

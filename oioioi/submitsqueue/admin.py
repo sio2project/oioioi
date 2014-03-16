@@ -111,11 +111,8 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     user.short_description = _("User")
 
     def colored_state(self, instance):
-        subm_state = 'in_progress'
-        if instance.state == 'QUEUED':
-            subm_state = 'queued'
         return '<span class="subm_admin subm_%s">%s</span>' % \
-            (subm_state, force_unicode(instance.get_state_display()))
+            (instance.state, force_unicode(instance.get_state_display()))
     colored_state.allow_tags = True
     colored_state.short_description = _("Status")
     colored_state.admin_order_field = 'state'
