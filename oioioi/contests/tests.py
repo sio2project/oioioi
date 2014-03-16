@@ -15,7 +15,7 @@ from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.admin.util import quote
 
-from oioioi.base.tests import check_not_accessible, fake_time
+from oioioi.base.tests import check_not_accessible, fake_time, TestsUtilsMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
         RoundTimeExtension, ContestPermission, UserResultForProblem, \
@@ -308,19 +308,9 @@ class TestContestViews(TestCase):
                 kwargs={'contest_id': contest.id})
 
 
-class TestManyRounds(TestCase):
+class TestManyRounds(TestsUtilsMixin, TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission',
             'test_full_package', 'test_extra_rounds', 'test_permissions']
-
-    def assertAllIn(self, elems, container, msg=None):
-        """Checks that ``container`` contains all ``elems``."""
-        for e in elems:
-            self.assertIn(e, container, msg)
-
-    def assertNoneIn(self, elems, container, msg=None):
-        """Checks that ``container`` doesn't contain any of ``elems``."""
-        for e in elems:
-            self.assertNotIn(e, container, msg)
 
     def test_problems_visibility(self):
         contest = Contest.objects.get()

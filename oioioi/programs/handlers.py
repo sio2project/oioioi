@@ -338,6 +338,7 @@ def _make_base_report(env, kind):
            * ``score``
            * ``compilation_result``
            * ``compilation_message``
+           * ``submission_id``
 
        Alters ``environ`` by adding:
            * ``report_id``: id of the produced
@@ -381,6 +382,7 @@ def make_report(env, kind='NORMAL', **kwargs):
            * ``score``
            * ``compilation_result``
            * ``compilation_message``
+           * ``submission_id``
 
        Produced ``environ`` keys:
            * ``report_id``: id of the produced

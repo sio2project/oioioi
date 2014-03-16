@@ -134,6 +134,18 @@ def fake_time(timestamp):
     del FakeTimeMiddleware._fake_timestamp.value
 
 
+class TestsUtilsMixin(object):
+    def assertAllIn(self, elems, container, msg=None):
+        """Checks that ``container`` contains all ``elems``."""
+        for e in elems:
+            self.assertIn(e, container, msg)
+
+    def assertNoneIn(self, elems, container, msg=None):
+        """Checks that ``container`` doesn't contain any of ``elems``."""
+        for e in elems:
+            self.assertNotIn(e, container, msg)
+
+
 class TestPermsTemplateTags(TestCase):
     fixtures = ('test_users',)
 

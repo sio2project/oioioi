@@ -212,6 +212,7 @@ def make_zeus_testrun_report(env, **kwargs):
            * ``score``
            * ``compilation_result``
            * ``compilation_message``
+           * ``submission_id``
 
        Produced ``environ`` keys:
            * ``report_id``: id of the produced

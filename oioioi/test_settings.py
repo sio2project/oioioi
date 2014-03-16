@@ -78,4 +78,6 @@ ZEUS_INSTANCES = {
                      'oioioi.zeus.tests.ZeusCorrectServer', ''),
     'zeus_incorrect': ('__use_object__',
                        'oioioi.zeus.tests.ZeusIncorrectServer', ''),
+    'dummy': ('__use_object__',
+                   'oioioi.zeus.tests.ZeusDummyServer', ''),
 }

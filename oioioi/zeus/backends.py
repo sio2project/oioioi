@@ -153,7 +153,6 @@ class ZeusServer(object):
         self.seq.next_seq = seq
         self.seq.save()
 
-
     def download_output(self, output_id):
         """Downloads and returns file containing stdout for test run."""
         url = urljoin(self.url, 'full_stdout/%d/' % output_id)
