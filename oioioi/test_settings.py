@@ -24,6 +24,7 @@ INSTALLED_APPS = (
     'oioioi.participants',
     'oioioi.oi',
     'oioioi.printing',
+    'oioioi.zeus',
     'oioioi.testrun',
     'oioioi.scoresreveal',
     'oioioi.oireports',
@@ -39,7 +40,6 @@ INSTALLED_APPS = (
     'oioioi.statistics',
     'oioioi.amppz',
     'oioioi.publicsolutions',
-    'oioioi.zeus',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

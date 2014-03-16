@@ -28,6 +28,8 @@
     </tbody>
 </table>
 
+{% block input_collapse %}
 <div id="input_data" class="collapse" data-loadurl="{% url 'get_testrun_input' contest_id=contest.id submission_id=submission.submission.id %}">
 </div>
+{% endblock %}
 {% endblock %}

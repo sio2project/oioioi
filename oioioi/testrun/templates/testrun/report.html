@@ -14,15 +14,18 @@
 <table class="table auto-width dense space-columns full-grid results">
     <thead>
         <tr>
-            <th></th>
-            <th class="subm_margin" style="min-width: 80px">{% trans "Input" %}</th>
+            {% block thead_tr %}
+            <th class="subm_margin"></th>
+            <th style="min-width: 80px">{% trans "Input" %}</th>
             <th style="min-width: 200px">{% trans "Result" %}</th>
             <th style="min-width: 110px">{% trans "Time" %}</th>
             <th style="min-width: 80px">{% trans "Output" %}</th>
+            {% endblock %}
         </tr>
     </thead>
     <tbody>
         <tr>
+            {% block tbody_tr %}
             <td class="subm_margin subm_{{ testrun_report.status }}"></td>
             <td>
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-up"></i></button>
@@ -38,6 +41,7 @@
                     <a class="btn" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
                 {% endif %}
             </td>
+            {% endblock %}
         </tr>
     </tbody>
 </table>
@@ -52,6 +56,7 @@
 </div>
 {% endif %}
 
+{% block output_collapse %}
 {% if is_admin %}
     <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id %}">
     </div>
@@ -59,5 +64,6 @@
     <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'get_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
     </div>
 {% endif %}
+{% endblock %}
 
 {% endif %}

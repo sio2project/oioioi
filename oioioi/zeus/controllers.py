@@ -1,9 +1,16 @@
+from django import forms
+from django.core.exceptions import ValidationError
+from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from oioioi.contests.controllers import submission_template_context
 
 from oioioi.evalmgr import recipe_placeholder
 from oioioi.problems.controllers import ProblemController
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.zeus.admin import ZeusProblemAdminMixin
-from oioioi.zeus.models import ZeusProblemData
+from oioioi.zeus.models import ZeusProblemData, ZeusTestRunProgramSubmission, ZeusTestRunReport
+from oioioi.zeus.utils import has_any_zeus_testrun_problem, is_zeus_problem
 
 
 class ZeusProblemController(ProblemController):
@@ -155,9 +162,85 @@ class ZeusTestRunProblemControllerMixin(object):
             ('grade_submission',
                 'oioioi.testrun.handlers.grade_submission'),
             ('make_report',
-                'oioioi.testrun.handlers.make_report'),
+                'oioioi.zeus.handlers.make_zeus_testrun_report'),
         ]
         environ['recipe'].extend(recipe_body)
-        environ['metadata_decoder'] = 'oioioi.zeus.handlers.testrun_metadata'
+        environ['zeus_metadata_decoder'] = \
+                'oioioi.zeus.handlers.testrun_metadata'
+
+    def mixins_for_admin(self):
+        from oioioi.testrun.admin import TestRunProgrammingProblemAdminMixin
+        return super(ZeusTestRunProblemControllerMixin, self) \
+                   .mixins_for_admin() + (TestRunProgrammingProblemAdminMixin,)
 
 ZeusProblemController.mix_in(ZeusTestRunProblemControllerMixin)
+
+
+class ZeusContestControllerMixin(object):
+    def get_testrun_library_limit(self):
+        return 100 * 1000  # in bytes
+
+    def adjust_submission_form(self, request, form):
+        super(ZeusContestControllerMixin, self) \
+                .adjust_submission_form(request, form)
+
+        if form.kind != 'TESTRUN' or not has_any_zeus_testrun_problem(request):
+            return
+
+        def validate_library_file_size(file):
+            if file.size > self.get_testrun_library_limit():
+                raise ValidationError(_("Library file size limit exceeded."))
+
+        form.fields['library'] = forms.FileField(allow_empty_file=True,
+                validators=[validate_library_file_size], label=_("Library"),
+                help_text=_("Your solution will be compiled with this file "
+                            "as the library header."
+                            "You can implement required functions here."))
+
+    def create_testrun(self, request, problem_instance, form_data,
+            commit=True):
+        if not is_zeus_problem(problem_instance.problem):
+            return super(ZeusContestControllerMixin, self).create_testrun(
+                    request, problem_instance, form_data, commit)
+
+        submission = super(ZeusContestControllerMixin, self).create_testrun(
+                request, problem_instance, form_data, commit=False,
+                model=ZeusTestRunProgramSubmission)
+
+        # TODO: if is task with library
+        if 'library' in form_data:
+            library_file = form_data['library']
+            submission.library_file.save(library_file.name, library_file)
+
+        if commit:
+            submission.save()
+            self.judge(submission)
+        return submission
+
+    def render_submission(self, request, submission):
+        if submission.kind != 'TESTRUN' or \
+                not is_zeus_problem(submission.problem_instance.problem):
+            return super(ZeusContestControllerMixin, self) \
+                    .render_submission(request, submission)
+
+        if not isinstance(submission, ZeusTestRunProgramSubmission):
+            submission = ZeusTestRunProgramSubmission.objects \
+                    .get(id=submission.id)
+        return render_to_string('zeus/submission_header.html',
+            context_instance=RequestContext(request,
+                {'submission': submission_template_context(request,
+                    submission),
+                'supported_extra_args':
+                    self.get_supported_extra_args(submission)}))
+
+    def _render_testrun_report(self, request, report, testrun_report,
+            template='testrun/report.html'):
+        try:
+            testrun_report = testrun_report.zeustestrunreport
+            template = 'zeus/report.html'
+        except ZeusTestRunReport.DoesNotExist:
+            pass
+        return super(ZeusContestControllerMixin, self)._render_testrun_report(
+                request, report, testrun_report, template)
+
+ProgrammingContestController.mix_in(ZeusContestControllerMixin)

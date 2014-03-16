@@ -11,7 +11,7 @@ from oioioi.problems.models import Problem
 from oioioi.testrun.models import TestRunReport, TestRunProgramSubmission
 
 
-check_django_app_dependencies(__name__, ['oioioi.programs', 'oioioi.testrun'])
+check_django_app_dependencies(__name__, ['oioioi.testrun'], strict=True)
 
 
 submission_statuses.register('MSE', _("Outgoing message size limit exceeded"))
@@ -38,7 +38,7 @@ def make_custom_library_filename(instance, filename):
 
 
 class ZeusTestRunProgramSubmission(TestRunProgramSubmission):
-    library_file = FileField(upload_to=make_custom_library_filename)
+    library_file = FileField(upload_to=make_custom_library_filename, null=True)
 
 
 class ZeusTestRunReport(TestRunReport):

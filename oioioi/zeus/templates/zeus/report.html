@@ -1,0 +1,46 @@
+{% extends 'testrun/report.html' %}
+{% load i18n %}
+{% load runtimeformat %}
+{% load check_perm %}
+{% check_perm 'contests.contest_admin' for contest as is_admin %}
+
+{% block thead_tr %}
+    <th class="subm_margin"></th>
+    <th style="min-width: 80px">{% trans "Input" %}</th>
+    <th style="min-width: 80px">{% trans "Library" %}</th>
+    <th style="min-width: 200px">{% trans "Result" %}</th>
+    <th style="min-width: 110px">{% trans "Time" %}</th>
+    <th style="min-width: 80px">{% trans "Output" %}</th>
+{% endblock %}
+
+{% block tbody_tr %}
+    <td class="subm_margin subm_{{ testrun_report.status }}"></td>
+    <td>
+        <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-up"></i></button>
+        <a class="btn" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
+    </td>
+    <td>
+        <button type="button" class="btn" data-async-toggle="collapse" data-target="#library_data"><i class="icon-chevron-up"></i></button>
+        <a class="btn" href="{% url 'zeus_download_testrun_library' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
+    </td>
+    <td class="subm_status subm_{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
+    <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
+    <td>
+        <button type="button" class="btn" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}"><i class="icon-chevron-down"></i></button>
+        {% if is_admin %}
+            <a class="btn" href="{% url 'zeus_download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}"><i class="icon-download-alt"></i></a>
+        {% else %}
+            <a class="btn" href="{% url 'zeus_download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
+        {% endif %}
+    </td>
+{% endblock %}
+
+{% block output_collapse %}
+{% if is_admin %}
+    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'zeus_get_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id %}">
+    </div>
+{% else %}
+    <div id="{{ output_container_id_prefix }}{{ testrun_report.id }}" class="collapse" data-loadurl="{% url 'zeus_get_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+    </div>
+{% endif %}
+{% endblock %}

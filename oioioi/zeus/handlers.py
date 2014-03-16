@@ -238,11 +238,11 @@ def make_zeus_testrun_report(env, **kwargs):
         .get_field('comment').max_length)
     testrun_report.time_used = test_result['time_used']
     testrun_report.test_time_limit = test.get('exec_time_limit')
-    # Output truncated to first 10kB
-    testrun_report.output_file = ContentFile(zeus_result['stdout'])
     testrun_report.full_out_size = zeus_result['stdout_size']
     # The server to download from: submission.problem_instance.problem
     testrun_report.full_out_handle = zeus_result['stdout_uid']
+    # Output truncated to first 10kB
+    testrun_report.output_file.save('out', ContentFile(zeus_result['stdout']))
     testrun_report.save()
 
     return env

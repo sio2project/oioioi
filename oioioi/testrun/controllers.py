@@ -77,8 +77,9 @@ class TestRunContestControllerMixin(object):
         if 'kind' in form.fields:
             form.fields['kind'].choices = [('TESTRUN', _("Test run")), ]
 
-    def create_testrun(self, request, problem_instance, form_data):
-        submission = TestRunProgramSubmission(
+    def create_testrun(self, request, problem_instance, form_data,
+            commit=True, model=TestRunProgramSubmission):
+        submission = model(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,
                 kind='TESTRUN')
@@ -91,8 +92,10 @@ class TestRunContestControllerMixin(object):
         submission.source_file.save(submit_file.name, submit_file)
         input_file = form_data['input']
         submission.input_file.save(input_file.name, input_file)
-        submission.save()
-        self.judge(submission)
+        if commit:
+            submission.save()
+            self.judge(submission)
+        return submission
 
     def update_submission_score(self, submission):
         if submission.kind != 'TESTRUN':
@@ -150,14 +153,26 @@ class TestRunContestControllerMixin(object):
                 'supported_extra_args':
                     self.get_supported_extra_args(submission)}))
 
+    def _render_testrun_report(self, request, report, testrun_report,
+            template='testrun/report.html'):
+        score_report = ScoreReport.objects.get(submission_report=report)
+        compilation_report = \
+            CompilationReport.objects.get(submission_report=report)
+        output_container_id_prefix = \
+            request.is_ajax() and 'hidden_output_data_' or 'output_data_'
+
+        return render_to_string(template,
+            context_instance=RequestContext(request, {
+                'report': report, 'score_report': score_report,
+                'compilation_report': compilation_report,
+                'testrun_report': testrun_report,
+                'output_container_id_prefix': output_container_id_prefix}))
+
     def render_report(self, request, report, *args, **kwargs):
         if report.kind != 'TESTRUN':
             return super(TestRunContestControllerMixin, self) \
                 .render_report(request, report, *args, **kwargs)
 
-        score_report = ScoreReport.objects.get(submission_report=report)
-        compilation_report = \
-                CompilationReport.objects.get(submission_report=report)
         # It may not exists when compilation error occurs
         try:
             testrun_report = TestRunReport.objects.get(
@@ -165,15 +180,7 @@ class TestRunContestControllerMixin(object):
         except TestRunReport.DoesNotExist:
             testrun_report = None
 
-        output_container_id_prefix = \
-            request.is_ajax() and 'hidden_output_data_' or 'output_data_'
-
-        return render_to_string('testrun/report.html',
-                context_instance=RequestContext(request, {
-                    'report': report, 'score_report': score_report,
-                    'compilation_report': compilation_report,
-                    'testrun_report': testrun_report,
-                    'output_container_id_prefix': output_container_id_prefix}))
+        return self._render_testrun_report(request, report, testrun_report)
 
     def valid_kinds_for_submission(self, submission):
         if submission.kind != 'TESTRUN':

@@ -1,0 +1,7 @@
+{% extends "testrun/submission_header.html" %}
+
+{% block input_collapse %}
+{{ block.super }}
+<div id="library_data" class="collapse" data-loadurl="{% url 'zeus_get_testrun_library' contest_id=contest.id submission_id=submission.submission.id %}">
+</div>
+{% endblock %}

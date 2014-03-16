@@ -41,8 +41,9 @@ def get_preview_size_limit():
     return 1024
 
 
-def get_testrun_report_or_404(request, submission, testrun_report_id=None):
-    qs = TestRunReport.objects.filter(submission_report__submission=submission)
+def get_testrun_report_or_404(request, submission, testrun_report_id=None,
+        model=TestRunReport):
+    qs = model.objects.filter(submission_report__submission=submission)
 
     if is_contest_admin(request) and testrun_report_id is not None:
         qs = qs.filter(id=testrun_report_id)
