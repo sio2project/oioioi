@@ -3,13 +3,14 @@ from django.core.exceptions import ValidationError
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.controllers import submission_template_context
 
 from oioioi.evalmgr import recipe_placeholder
+from oioioi.contests.controllers import submission_template_context
 from oioioi.problems.controllers import ProblemController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.zeus.admin import ZeusProblemAdminMixin
-from oioioi.zeus.models import ZeusProblemData, ZeusTestRunProgramSubmission, ZeusTestRunReport
+from oioioi.zeus.models import ZeusProblemData, ZeusTestRunProgramSubmission, \
+        ZeusTestRunReport
 from oioioi.zeus.utils import has_any_zeus_testrun_problem, is_zeus_problem
 
 
@@ -42,6 +43,9 @@ class ZeusProblemController(ProblemController):
                     ('initial_import_tests',
                         'oioioi.zeus.handlers.import_results',
                         dict(kind='INITIAL', map_to_kind='EXAMPLE')),
+                    ('initial_update_tests_set',
+                        'oioioi.zeus.handlers.update_problem_tests_set',
+                        dict(kind='EXAMPLE')),
                     ('initial_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
                     ('initial_grade_groups',
@@ -71,6 +75,9 @@ class ZeusProblemController(ProblemController):
                     # current job ends here, the following will be asynchronous
                     ('final_import_results',
                         'oioioi.zeus.handlers.import_results',
+                        dict(kind='NORMAL')),
+                    ('final_update_tests_set',
+                        'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='NORMAL')),
                     ('final_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
@@ -107,8 +114,14 @@ class ZeusProblemController(ProblemController):
                     ('initial_import_tests',
                         'oioioi.zeus.handlers.import_results',
                         dict(kind='INITIAL', map_to_kind='EXAMPLE')),
-                    ('normal_import_tests',
+                    ('initial_update_tests_set',
+                        'oioioi.zeus.handlers.update_problem_tests_set',
+                        dict(kind='EXAMPLE')),
+                    ('final_import_tests',
                         'oioioi.zeus.handlers.import_results',
+                        dict(kind='NORMAL')),
+                    ('final_update_tests_set',
+                        'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='NORMAL')),
                     ('hidden_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),

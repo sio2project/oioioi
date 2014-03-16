@@ -74,7 +74,7 @@ def _get_key(dictionary, key):
 class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
         self.url, user, passwd = server_info
-        self.seq = ZeusFetchSeq.get_or_create(zeus_id=zeus_id)
+        self.seq = ZeusFetchSeq.objects.get_or_create(zeus_id=zeus_id)
         auth_handler = urllib2.HTTPBasicAuthHandler()
         auth_handler.add_password(None, self.url, user=user, passwd=passwd)
         self.opener = urllib2.build_opener(auth_handler)

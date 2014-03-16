@@ -1,18 +1,24 @@
 import json
+import logging
+import socket
+from smtplib import SMTPException
 
 from django.core.files.base import ContentFile
+from django.core.mail import mail_admins
 from django.db import transaction
+from django.forms.models import model_to_dict
 
-from oioioi.base.utils import get_object_by_dotted_name
+from oioioi.base.utils import get_object_by_dotted_name, naturalsort_key
 from oioioi.programs.handlers import _make_base_report
-from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.programs.utils import slice_str
 from oioioi.zeus.backends import get_zeus_server
 from oioioi.zeus.models import ZeusTestRunReport, ZeusAsyncJob, \
-        ZeusTestRunProgramSubmission
+        ZeusTestRunProgramSubmission, ZeusProblemData
 
 
 DEFAULT_METADATA_DECODER = 'oioioi.zeus.handlers.from_csv_metadata'
+logger = logging.getLogger(__name__)
 
 
 def testrun_metadata(_metadata):
@@ -245,5 +251,96 @@ def make_zeus_testrun_report(env, **kwargs):
     # Output truncated to first 10kB
     testrun_report.output_file.save('out', ContentFile(zeus_result['stdout']))
     testrun_report.save()
+
+    return env
+
+
+@transaction.commit_on_success
+def update_problem_tests_set(env, kind, **kwargs):
+    """Creates or updates problem :class:`oioioi.programs.models.Test` objects
+       basing on ``env['tests']`` dict.
+
+       Sends email to all admins when tests set differ.
+
+       Considers only tests with given ``kind``.
+
+       Used ``environ`` keys:
+           * ``tests``
+           * ``zeus_problem_id``
+    """
+
+    data = ZeusProblemData.objects.get(zeus_problem_id=env['zeus_problem_id'])
+    problem = data.problem
+
+    env_tests = {key: value for key, value in env['tests'].iteritems()
+                 if value['kind'] == kind}
+    test_names = env_tests.keys()
+
+    new_tests = []
+    deleted_tests = []
+    updated_tests = []
+    tests_set_changed = False
+    exclude = ['input_file', 'output_file']
+
+    for i, name in enumerate(sorted(test_names, key=naturalsort_key)):
+        updated = False
+        test = env_tests[name]
+        instance, created = Test.objects.get_or_create(
+            problem=problem, name=name)
+        old_dict = model_to_dict(instance, exclude=exclude)
+
+        for attr in ['kind', 'group', 'max_score']:
+            if getattr(instance, attr) != test[attr]:
+                setattr(instance, attr, test[attr])
+                updated = True
+
+        if instance.time_limit != test['exec_time_limit']:
+            instance.time_limit, updated = test['exec_time_limit'], True
+        if instance.memory_limit != test['exec_memory_limit']:
+            instance.memory_limit = test['exec_memory_limit']
+            updated = True
+
+        order = i
+        if kind == 'EXAMPLE':
+            order = -len(test_names) + i
+        if instance.order != order:
+            instance.order, updated = order, True
+
+        if updated or created:
+            tests_set_changed = True
+            instance.save()
+            new_dict = model_to_dict(instance, exclude=exclude)
+            if created:
+                new_tests.append((name, new_dict))
+            else:
+                updated_tests.append((name, old_dict, new_dict))
+
+    # Delete nonexistent tests
+    for test in Test.objects.filter(problem=problem, kind=kind) \
+            .exclude(name__in=test_names):
+        deleted_tests.append((test.name, model_to_dict(test, exclude=exclude)))
+        tests_set_changed = True
+        test.delete()
+
+    if tests_set_changed:
+        logger.info("%s: %s tests set changed", problem.short_name, kind)
+
+        title = "Zeus problem %s: %s tests set changed" \
+                % (problem.short_name, kind)
+        content = ["%s tests set for zeus problem %s has changed:"
+                   % (kind, problem.short_name)]
+        for name, old_dict in new_tests:
+            content.append("    + added test %s: %s" % (name, old_dict))
+        for name, old_dict in deleted_tests:
+            content.append("    - deleted test %s: %s" % (name, old_dict))
+        for name, old_dict, new_dict in updated_tests:
+            content.append("    * changed test %s: %s -> %s" %
+                           (name, old_dict, new_dict))
+        try:
+            mail_admins(title, '\n'.join(content))
+        except (socket.error, SMTPException), e:
+            logger.error("An error occurred while sending email: %s",
+                         e.message)
+        logger.debug('Sent mail: ' + '\n'.join(content))
 
     return env
