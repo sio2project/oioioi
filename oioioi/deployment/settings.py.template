@@ -152,6 +152,7 @@ INSTALLED_APPS = (
 #    'oioioi.forum',
 #    'oioioi.sharingcli',
 #    'oioioi.ctimes',
+#    'oioioi.suspendjudge',
 #    'oioioi.submitsqueue',
 #    'oioioi.timeline',
 #    'oioioi.amppz',

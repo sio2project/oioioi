@@ -371,20 +371,25 @@ def get_object_by_dotted_name(name):
 # Generating HTML
 
 
-def make_html_link(href, name, extra_attrs=None):
-    attrs = {'href': href}
+def make_html_link(href, name, method='GET', extra_attrs=None):
+    if method == 'GET':
+        attrs = {'href': href}
+    elif method == 'POST':
+        attrs = {'data-post-url': href, 'href': '#'}
     if not extra_attrs:
         extra_attrs = {}
     attrs.update(extra_attrs)
     return mark_safe(u'<a %s>%s</a>' % (flatatt(attrs),
-            conditional_escape(force_unicode(name))))
+                     conditional_escape(force_unicode(name))))
 
 
 def make_html_links(links, extra_attrs=None):
     if not extra_attrs:
         extra_attrs = {}
-    links = [make_html_link(href, name, extra_attrs) for href, name in links]
-    return mark_safe(' | '.join(links))
+    html_links = []
+    for link in links:
+        html_links.append(make_html_link(*link, extra_attrs=extra_attrs))
+    return mark_safe(' | '.join(html_links))
 
 
 def make_navbar_badge(link, text):

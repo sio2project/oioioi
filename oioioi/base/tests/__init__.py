@@ -572,13 +572,17 @@ class TestMisc(unittest.TestCase):
         self.assertFalse(os.path.exists(name))
 
     def test_make_html_links(self):
-        test = [('url1', 'name1'), ('url2', 'name2')]
+        test = [('url1', 'name1'), ('url2', 'name2'), ('url3', 'name3',
+                                                       'POST')]
         links = utils.make_html_links(test)
-        self.assertEqual(len(links.split(' | ')), 2)
+        self.assertEqual(len(links.split(' | ')), 3)
         self.assertIn('url1', links)
         self.assertIn('name1', links)
         self.assertIn('url2', links)
         self.assertIn('name2', links)
+        self.assertIn('href="#"', links)
+        self.assertIn('data-post-url="url3"', links)
+        self.assertIn('name3', links)
 
 
 class TestRegistration(TestCase):

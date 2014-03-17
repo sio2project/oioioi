@@ -26,6 +26,13 @@ def _find_placeholder(recipe, name):
     raise IndexError("Placeholder '%s' not found in recipe" % (name,))
 
 
+def find_recipe_entry(recipe, name):
+    for i, entry in enumerate(recipe):
+        if entry[0] == name:
+            return i
+    raise IndexError("Entry '%s' not found in recipe" % (name,))
+
+
 def recipe_placeholder(name):
     return (name, 'oioioi.evalmgr._placeholder')
 
@@ -54,14 +61,21 @@ def extend_before_placeholder(environ, name, entries):
     recipe[index:index] = entries
 
 
+def add_after_recipe_entry(environ, name, entry):
+    recipe = environ['recipe']
+    index = find_recipe_entry(recipe, name)
+    recipe.insert(index + 1, entry)
+
+
+def add_before_recipe_entry(environ, name, entry):
+    recipe = environ['recipe']
+    index = find_recipe_entry(recipe, name)
+    recipe.insert(index, entry)
+
+
 def replace_recipe_entry(environ, name, new_entry):
     recipe = environ['recipe']
-    for i, entry in enumerate(recipe):
-        if entry[0] == name:
-            index = i
-            break
-    else:
-        raise IndexError("Entry '%s' not found" % (name,))
+    index = find_recipe_entry(recipe, name)
     recipe[index] = new_entry
 
 
