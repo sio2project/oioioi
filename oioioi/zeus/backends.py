@@ -1,6 +1,7 @@
 import json
 import base64
 import urllib2
+import httplib
 from urlparse import urljoin
 
 from django.conf import settings
@@ -74,7 +75,7 @@ def _get_key(dictionary, key):
 class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
         self.url, user, passwd = server_info
-        self.seq = ZeusFetchSeq.objects.get_or_create(zeus_id=zeus_id)
+        self.seq, _c = ZeusFetchSeq.objects.get_or_create(zeus_id=zeus_id)
         auth_handler = urllib2.HTTPBasicAuthHandler()
         auth_handler.add_password(None, self.url, user=user, passwd=passwd)
         self.opener = urllib2.build_opener(auth_handler)
@@ -88,7 +89,7 @@ class ZeusServer(object):
             req = urllib2.Request(url=url, data=data)  # POST
         try:
             f = self.opener.open(req)
-        except urllib2.URLError as e:
+        except (urllib2.URLError, httplib.HTTPException) as e:
             raise ZeusError(e.reason)
         return f.getcode(), f.read()
 
@@ -102,7 +103,7 @@ class ZeusServer(object):
         assert kind in 'INITIAL', 'NORMAL'
         assert language in zeus_language_map
         url = urljoin(self.url, 'problem/%d/job/%s/' % (zeus_problem_id, kind))
-        with source_file.open() as f:
+        with source_file as f:
             data = {
                 'source_code': Base64String(f.read()),
                 'language': Base64String(zeus_language_map[language]),
@@ -117,15 +118,15 @@ class ZeusServer(object):
         assert language in zeus_language_map
         url = urljoin(self.url, 'problem/%d/job/TESTRUN/' % zeus_problem_id)
 
-        with source_file.open() as src:
-            with input_file.open() as inp:
+        with source_file as src:
+            with input_file as inp:
                 data = {
                     'source_code': Base64String(src.read()),
                     'input_test': Base64String(inp.read()),
                     'language': Base64String(zeus_language_map[language]),
                 }
                 if library_file is not None:
-                    with library_file.open() as lib:
+                    with library_file as lib:
                         data.update({'library': Base64String(lib.read())})
 
         code, res = self._encode_and_send(url, data, method='POST')

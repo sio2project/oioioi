@@ -339,8 +339,8 @@ def update_problem_tests_set(env, kind, **kwargs):
         try:
             mail_admins(title, '\n'.join(content))
         except (socket.error, SMTPException), e:
-            logger.error("An error occurred while sending email: %s",
-                         e.message)
+            logger.error("An error occurred while sending email:\n%s",
+                         traceback.format_exc(e))
         logger.debug('Sent mail: ' + '\n'.join(content))
 
     return env
