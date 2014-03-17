@@ -362,7 +362,8 @@ def get_object_by_dotted_name(name):
         raise AssertionError('Invalid object name: %s' % (name,))
     module, obj = name.rsplit('.', 1)
     try:
-        return getattr(__import__(module, fromlist=[obj]), obj)
+        # Map names to str, as Python 2.7.3 rejects unicode
+        return getattr(__import__(str(module), fromlist=[str(obj)]), obj)
     except AttributeError, e:
         raise ImportError('Requested object %r not found: %s' % (name, e))
 

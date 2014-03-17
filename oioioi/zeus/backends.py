@@ -46,6 +46,9 @@ class Base64String(object):
     def __unicode__(self):
         return unicode(self.string)
 
+    def __repr__(self):
+        return 'Base64String(%s)' % self.string
+
     def __eq__(self, other):
         return self.string == other.string
 
@@ -58,9 +61,10 @@ def _json_base64_encode(o):
     return json.dumps(o, default=_string_base64, sort_keys=True)
 
 
-def _json_base64_decode(o):
+def _json_base64_decode(o, wrap=False):
     def _dict_b64_decode(d):
-        return {k: Base64String(base64.b64decode(v))
+        return {k: (Base64String(base64.b64decode(v)) if wrap
+                    else base64.b64decode(v))
                 if isinstance(v, (str, unicode)) else v
                 for (k, v) in d.iteritems()}
     return json.loads(o, object_hook=_dict_b64_decode)
@@ -72,17 +76,29 @@ def _get_key(dictionary, key):
     return dictionary[key]
 
 
+class EagerHTTPBasicAuthHandler(urllib2.BaseHandler):
+    def __init__(self, user, passwd):
+        cred = '%s:%s' % (user, passwd)
+        self.auth_string = 'Basic %s' % base64.b64encode(cred)
+
+    def http_open(self, req):
+        assert isinstance(req, urllib2.Request), \
+                ("Incorrect request type: %s" % type(req))
+        if 'Authorization' not in req.headers:
+            req.add_header('Authorization', self.auth_string)
+
+
 class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
         self.url, user, passwd = server_info
         self.seq, _c = ZeusFetchSeq.objects.get_or_create(zeus_id=zeus_id)
-        auth_handler = urllib2.HTTPBasicAuthHandler()
-        auth_handler.add_password(None, self.url, user=user, passwd=passwd)
+        auth_handler = EagerHTTPBasicAuthHandler(user, passwd)
         self.opener = urllib2.build_opener(auth_handler)
 
     def _send(self, url, data=None, method='GET'):
         """Send the encoded ``data`` to given URL."""
-        assert data is None or method == 'POST'
+        assert data is None or method == 'POST', \
+                ("Incorrect method: %s" % method)
         if data is None:
             req = urllib2.Request(url=url)             # GET
         else:
@@ -90,7 +106,7 @@ class ZeusServer(object):
         try:
             f = self.opener.open(req)
         except (urllib2.URLError, httplib.HTTPException) as e:
-            raise ZeusError(e.reason)
+            raise ZeusError(type(e), e)
         return f.getcode(), f.read()
 
     def _encode_and_send(self, url, data=None, method='GET'):
@@ -100,8 +116,9 @@ class ZeusServer(object):
         return code, _json_base64_decode(res)
 
     def send_regular(self, zeus_problem_id, kind, source_file, language):
-        assert kind in 'INITIAL', 'NORMAL'
-        assert language in zeus_language_map
+        assert kind in ('INITIAL', 'NORMAL'), ("Invalid kind: %s" % kind)
+        assert language in zeus_language_map, \
+                ("Invalid language: %s" % language)
         url = urljoin(self.url, 'problem/%d/job/%s/' % (zeus_problem_id, kind))
         with source_file as f:
             data = {
@@ -115,7 +132,8 @@ class ZeusServer(object):
 
     def send_testrun(self, zeus_problem_id, source_file, language, input_file,
                      library_file):
-        assert language in zeus_language_map
+        assert language in zeus_language_map, \
+                ("Invalid language: %s" % language)
         url = urljoin(self.url, 'problem/%d/job/TESTRUN/' % zeus_problem_id)
 
         with source_file as src:
