@@ -8,7 +8,8 @@ class SubmitsQueueContestControllerMixin(object):
             finalize_evaluation_environment(environ)
         environ['recipe'].insert(0, (
                 'mark_submission_in_progress',
-                'oioioi.submitsqueue.handlers.mark_submission_in_progress'))
+                'oioioi.submitsqueue.handlers.mark_submission_state',
+                dict(state='PROGRESS')))
         if 'postpone_handlers' not in environ:
             environ['postpone_handlers'] = []
         environ['postpone_handlers'].append(('update_celery_task_id',

@@ -6,7 +6,7 @@ from oioioi.contests.models import Submission
 
 
 @transaction.commit_manually
-def mark_submission_in_progress(env, **kwargs):
+def mark_submission_state(env, state='PROGRESS', **kwargs):
     try:
         submission = Submission.objects.get(id=env['submission_id'])
         qs, _created = QueuedSubmit.objects.get_or_create(
@@ -15,7 +15,7 @@ def mark_submission_in_progress(env, **kwargs):
         if qs.state == 'CANCELLED':
             qs.delete()
             raise Ignore
-        qs.state = 'PROGRESS'
+        qs.state = state
         qs.save()
     finally:
         transaction.commit()
