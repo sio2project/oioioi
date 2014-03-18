@@ -262,9 +262,15 @@ Contact us
 ------------
 
 Should you have any further questions regarding installation, configuration or
-usage of OIOIOI, feel free to contact us by an e-mail
-(`sio2-project@googlegroups.com`_),
-via IRC (#tagtag at freenode) or through github issues system
-(`http://github.com/sio2project/oioioi`_). Please use English on github and
-English or Polish elsewhere. You may find some additional information on our
-official website: `http://sio2project.mimuw.edu.pl`_ .
+usage of OIOIOI, feel free to contact us by an `e-mail`_,
+via IRC (#tagtag at freenode) or through `github issues system`_. Please use
+English on github and English or Polish elsewhere. You may find some additional
+information on our `official website`_ and in the official `project documentation`_.
+You can also look at what we are currently working on by browsing current tickets on
+our `issue tracker`_.
+
+.. _e-mail: sio2-project@googlegroups.com
+.. _github issues system: http://github.com/sio2project/oioioi/issues
+.. _official website: http://sio2project.mimuw.edu.pl
+.. _project documentation: http://oioioi.readthedocs.org/en/latest/
+.. _issue tracker: http://jira.sio2project.mimuw.edu.pl
