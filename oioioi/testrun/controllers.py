@@ -5,7 +5,6 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.template.context import RequestContext
-from django.contrib.auth.models import User
 
 from oioioi.programs.controllers import ProgrammingContestController, \
     ProgrammingProblemController
@@ -189,9 +188,5 @@ class TestRunContestControllerMixin(object):
 
         assert submission.kind == 'TESTRUN'
         return ['TESTRUN']
-
-    def users_to_receive_public_message_notification(self):
-        return self.registration_controller().filter_participants(User
-                .objects.all())
 
 ProgrammingContestController.mix_in(TestRunContestControllerMixin)

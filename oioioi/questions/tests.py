@@ -2,11 +2,21 @@ import json
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.base.notification import NotificationHandler
+
+
+class TestContestControllerMixin(object):
+    def users_to_receive_public_message_notification(self):
+        return self.registration_controller().filter_participants(User
+                .objects.all())
+
+ProgrammingContestController.mix_in(TestContestControllerMixin)
 
 
 class TestQuestions(TestCase):
