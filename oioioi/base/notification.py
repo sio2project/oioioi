@@ -3,6 +3,7 @@ from oioioi.base.utils.loaders import load_modules
 
 logger = logging.getLogger(__name__)
 
+
 class NotificationHandler(logging.StreamHandler):
     """This handler catches all logs and emits a notification
        if a notification type is set in the extra dictionary,

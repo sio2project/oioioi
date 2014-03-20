@@ -3,6 +3,7 @@
 from datetime import datetime
 from functools import partial
 from django.core import mail
+from collections import defaultdict
 
 from django.test import TestCase, RequestFactory
 from django.test.utils import override_settings
@@ -29,6 +30,7 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.base.notification import NotificationHandler
 
 
 class TestModels(TestCase):
@@ -771,10 +773,38 @@ class SubmitFileMixin(object):
 
 
 class TestSubmission(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_submission']
 
     def setUp(self):
         self.client.login(username='test_user')
+
+    def test_submission_completed_notification(self):
+        msg_count = defaultdict(int)
+
+        @classmethod
+        def fake_send_notification(cls, user, notification_type,
+                    notification_message, notificaion_message_arguments):
+            if user.pk == 1002:
+                msg_count['user_1002_notifications'] += 1
+            if user.pk == 1001:
+                msg_count['user_1001_notifications'] += 1
+
+        send_notification_backup = NotificationHandler.send_notification
+        NotificationHandler.send_notification = fake_send_notification
+
+        submission = Submission.objects.get(pk=1)
+        controller = submission.problem_instance.contest.controller
+        controller.submission_judged(submission)
+        controller.submission_judged(submission,
+                rejudged=True)
+
+        # Check if a notification for user 1001 was send
+        # And user 1002 doesn't received a notification
+        self.assertEqual(msg_count['user_1001_notifications'], 1)
+        self.assertEqual(msg_count['user_1002_notifications'], 0)
+
+        NotificationHandler.send_notification = send_notification_backup
 
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_repeated_submission_fail(self):
@@ -841,7 +871,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def test_submissions_limitation(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
-        problem_instance.submissions_limit = 1
+        problem_instance.submissions_limit = 2
         problem_instance.save()
         response = self.submit_file(contest, problem_instance)
         self._assertSubmitted(contest, response)

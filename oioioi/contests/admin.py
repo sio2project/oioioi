@@ -369,7 +369,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         controller = request.contest.controller
         counter = 0
         for submission in queryset:
-            controller.judge(submission)
+            controller.judge(submission, is_rejudge=True)
             counter += 1
         self.message_user(
             request,

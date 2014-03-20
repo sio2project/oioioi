@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 
 from django.test import TestCase
 from django.utils.html import strip_tags, escape
@@ -14,7 +15,8 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.contests.scores import IntegerScore
 from oioioi.base.utils import memoized_property
-
+from oioioi.base.notification import NotificationHandler
+from oioioi.programs.handlers import make_report
 
 # Don't Repeat Yourself.
 # Serves for both TestProgramsViews and TestProgramsXssViews
@@ -36,7 +38,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
 
     def test_submission_views(self):
         self.client.login(username='test_user')
-        submission = Submission.objects.get(pk=1)
+        submission = ProgramSubmission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
         # Download shown response.
@@ -399,6 +401,30 @@ class TestSubmittingAsObserver(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('(Ignored)', response.content)
+
+
+class TestNotifications(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_permissions', 'test_submission']
+
+    def test_initial_results_notification(self):
+        msg_count = defaultdict(int)
+
+        @classmethod
+        def fake_send_notification(cls, user, notification_type,
+                    notification_message, notificaion_message_arguments):
+            if user.pk == 1001 and notification_type == 'initial_results':
+                msg_count['user_1001_notifications'] += 1
+
+        send_notification_backup = NotificationHandler.send_notification
+        NotificationHandler.send_notification = fake_send_notification
+        make_report({'compilation_result': 'OK', 'submission_id': 1,
+            'status': 'OK', 'score': '', 'compilation_message': '',
+            'tests': {}, 'rejudge': False}, 'INITIAL')
+
+        # Check if a notification for user 1001 was sent
+        self.assertEqual(msg_count['user_1001_notifications'], 1)
+        NotificationHandler.send_notification = send_notification_backup
 
 
 class TestScorers(TestCase):

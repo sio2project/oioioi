@@ -10,7 +10,7 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_noop, ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 
@@ -331,9 +331,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return {'hidden_judge': _("Visible only for admins")}
 
-    def judge(self, submission, extra_args=None):
+    def judge(self, submission, extra_args=None, is_rejudge=False):
         environ = {}
         environ['extra_args'] = extra_args or {}
+        environ['is_rejudge'] = is_rejudge
+
         self.fill_evaluation_environ(environ, submission)
 
         extra_steps = [
@@ -397,8 +399,16 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
-    def submission_judged(self, submission):
-        pass
+    def submission_judged(self, submission, rejudged=False):
+        if submission.user is not None and not rejudged:
+            logger.info("Submission %(submission_id)d by user %(username)s"
+                        " for problem %(short_name)s was judged",
+                        {'submission_id': submission.pk,
+                         'username': submission.user.username,
+                         'short_name': submission.problem_instance.short_name},
+                            extra={'notification': 'submission_judged',
+                                   'user': submission.user,
+                                   'submission': submission})
 
     def _activate_newest_report(self, submission, queryset, kind=None):
         """Activates the newest report.
@@ -732,7 +742,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         submission.kind = kind
         submission.save()
         if old_kind == 'SUSPECTED' and kind != 'SUSPECTED':
-            self.judge(submission)
+            self.judge(submission, is_rejudge=True)
         if submission.user:
             self.update_user_results(submission.user,
                     submission.problem_instance)
@@ -809,5 +819,11 @@ class NotificationsMixinForContestController(object):
            query to database is executed while sending a notification.
         """
         return []
+
+    def get_notification_message_submission_judged(self, submission):
+        """Return a message to show in a notification when a
+           submission has been judged.
+        """
+        return ugettext_noop("Your submission was judged.")
 
 ContestController.mix_in(NotificationsMixinForContestController)
