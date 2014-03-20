@@ -1,0 +1,9 @@
+{% load jsonify %}
+<script type="text/javascript">
+$(function() {
+    $('#{{ plot_name_id|escapejs }}').highcharts({{ options|json_parse }});
+});
+</script>
+
+<div id="{{ plot_name_id }}" class="highcharts_plot">
+</div>

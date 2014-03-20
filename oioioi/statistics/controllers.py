@@ -3,7 +3,8 @@ from oioioi.contests.controllers import ContestController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.base.fields import EnumRegistry
 from oioioi.contests.utils import visible_problem_instances, rounds_times
-from oioioi.statistics.plottypes import HistogramPlot, TablePlot, ScatterPlot
+from oioioi.statistics.plottypes import TablePlot, XYStaticHighchartsPlot, \
+        ColumnStaticHighchartsPlot
 from oioioi.statistics.plotfunctions import points_histogram_contest, \
         submissions_histogram_contest, points_histogram_problem, \
         points_to_source_length_problem
@@ -16,15 +17,15 @@ statistics_categories.register('PROBLEM', (_("Problem"), 'p'))
 
 statistics_plot_kinds = EnumRegistry()
 statistics_plot_kinds.register('POINTS_HISTOGRAM_CONTEST',
-    (points_histogram_contest, HistogramPlot()))
+    (points_histogram_contest, ColumnStaticHighchartsPlot()))
 statistics_plot_kinds.register('SUBMISSIONS_HISTOGRAM_CONTEST',
-    (submissions_histogram_contest, HistogramPlot(),))
+    (submissions_histogram_contest, ColumnStaticHighchartsPlot(),))
 statistics_plot_kinds.register('POINTS_HISTOGRAM_PROBLEM',
-    (points_histogram_problem, HistogramPlot()))
+    (points_histogram_problem, ColumnStaticHighchartsPlot()))
 statistics_plot_kinds.register('POINTS_TABLE_PROBLEM',
     (points_histogram_problem, TablePlot()))
 statistics_plot_kinds.register('POINTS_TO_SOURCE_LENGTH_PROBLEM',
-    (points_to_source_length_problem, ScatterPlot()))
+    (points_to_source_length_problem, XYStaticHighchartsPlot()))
 
 
 class StatisticsMixinForContestController(object):

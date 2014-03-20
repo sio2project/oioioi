@@ -3,7 +3,7 @@ from itertools import groupby
 from operator import itemgetter
 from collections import defaultdict
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from django.db.models import Count
 
 from oioioi.contests.models import Submission, ProblemInstance, \
@@ -63,8 +63,9 @@ def results_histogram_for_queryset(qs):
         'plot_name': _("Results histogram"),
         'data': [data],
         'keys': keys,
-        'y_axis_title': _("# of results"),
-        'columns': [_("results")]
+        'titles': {'yAxis': _("# of results")},
+        'y_min': 0,
+        'series': [_("results")]
     }
 
 
@@ -95,14 +96,16 @@ def submissions_by_problem_histogram_for_queryset(qs):
         'plot_name': _("Submissions histogram"),
         'data': data,
         'keys': [pi[1] for pi in pis],
-        'y_axis_title': _("# of submissions"),
-        'columns': statuses
+        'titles': {'yAxis': _("# of submissions")},
+        'y_min': 0,
+        'series': statuses
     }
 
 
 def submissions_histogram_contest(contest_name):
     subs = Submission.objects.filter(kind='NORMAL') \
-            .filter(problem_instance__contest=contest_name)
+            .filter(problem_instance__contest=contest_name) \
+            .prefetch_related('problem_instance')
     return submissions_by_problem_histogram_for_queryset(subs)
 
 
@@ -118,7 +121,10 @@ def points_to_source_length_problem(problem_name):
         'data': [data],
         'x_min': 0,
         'y_min': 0,
-        'x_axis_title': _("Source length (bytes)"),
-        'y_axis_title': _("Points"),
+        'titles': {
+            'xAxis': _("Source length (bytes)"),
+            'yAxis': _("Points"),
+        },
         'series': [problem_name],
+        'series_extra_options': [{'color': 'rgba(47, 126, 216, 0.5)'}],
     }
