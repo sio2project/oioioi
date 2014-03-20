@@ -19,44 +19,85 @@
 {{ compilation_report.compiler_output }}
 </pre>
 {% else %}
-<table class="table auto-width dense space-columns full-grid results">
-    <thead>
-        <tr>
-            <th></th>
-            <th class="subm_margin" style="min-width: 80px">{% trans "Test" %}</th>
-            <th style="min-width: 200px">{% trans "Result" %}</th>
-            <th style="min-width: 110px">{% trans "Time" %}</th>
-            {% if show_scores %}
-            <th style="min-width: 60px">{% trans "Score" %}</th>
-            {% endif %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for group in groups %}
-            {% for test in group.tests %}
+    <table class="table auto-width dense space-columns full-grid results">
+        <thead>
             <tr>
-                <td class="subm_margin subm_{{ test.status }}"></td>
-                <td>{{ test.test_name }}</td>
-                <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
-                <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
-                {% if show_scores and forloop.first %}
-                    <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ group.report.max_score }}{% endif %}</td>
+                <th></th>
+                <th class="subm_margin" style="min-width: 80px">{% trans "Test" %}</th>
+                <th style="min-width: 200px">{% trans "Result" %}</th>
+                <th style="min-width: 110px">{% trans "Time" %}</th>
+                {% if show_scores %}
+                <th style="min-width: 60px">{% trans "Score" %}</th>
+                {% endif %}
+                {% if show_actions %}
+                <th style="min-width: 60px">{% trans "Actions" %}</th>
                 {% endif %}
             </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+                {% for test in group.tests %}
+                <tr>
+                    <td class="subm_margin subm_{{ test.status }}"></td>
+                    <td>{{ test.test_name }}</td>
+                    <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
+                    <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
+                    {% if show_scores and forloop.first %}
+                        <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ group.report.max_score }}{% endif %}</td>
+                    {% endif %}
+                    {% if show_actions %}
+                    <td>
+                        {% if test.generate_status == 'OK' %}
+                            <a class="btn btn-small" title="{% trans "Download user output for this test" %}" href="{% url 'download_user_output' testreport_id=test.id %}"><i class="icon-download"></i></a>
+                        {% elif test.generate_status == '?' %}
+                            {% trans "Processing" %}
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
             {% endfor %}
-        {% endfor %}
-    </tbody>
-</table>
+        </tbody>
+    </table>
+
+
 <div class="test-comments">
     <ul>
         {% for group in groups %}
             {% for test in group.tests %}
-                {% if test.comment %}
-                    <li><span class="id">{{ test.test_name }}</span>
-                    <span class="test">{{ test.comment }}</span></li>
+                {% if test.comment or test.get_status_display != 'OK' and allow_download_out and test.test %}
+                <li>
+                    <span class="id">{{ test.test_name }}</span>
+                    {% if allow_download_out and test.test %}
+                        {% if test.generate_status == 'OK' %}
+                            <a class="id" href="{% url 'download_user_output' testreport_id=test.id %}" title="{% trans "Download user output for this test" %}">[download out]</a>
+                        {% elif test.generate_status == '?' %}
+                            <span class="id">[{% trans "processing" %}]</span>
+                        {% else %}
+                            <a class="id" href="#" data-post-url="{% url 'generate_user_output' testreport_id=test.id %}" title="{% trans "Generate user output for this test" %}">[generate out]</a>
+                        {% endif %}
+                    {% endif %}
+                    <span class="test">{{ test.comment }}</span>
+                </li>
                 {% endif %}
             {% endfor %}
         {% endfor %}
     </ul>
+    {% if allow_download_out %}
+        {% if all_outs_generated %}
+            <a class="btn btn-small" title="{% trans "Download all user outputs for this test report" %}" href="{% url 'download_user_output' submission_report_id=report.id %}">
+                <i class="icon-download"></i>
+                <span class="toolbar-button-text">{% trans "Download all" %}</span>
+            </a>
+        {% else %}
+            <a class="btn btn-small" title="{% trans "Generate all user outputs for this test report" %}" data-post-url="{% url 'generate_user_output' submission_report_id=report.id %}">
+                <i class="icon-circle-arrow-down"></i>
+                <span class="toolbar-button-text">{% trans "Generate all" %}</span>
+            </a>
+        {% endif %}
+    {% endif %}
 </div>
+
+
+
 {% endif %}

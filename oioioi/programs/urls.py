@@ -11,6 +11,17 @@ contest_patterns = patterns('oioioi.programs.views',
         'source_diff_view', name='source_diff'),
 )
 
+userout_patterns = patterns('oioioi.programs.views',
+    url(r'^generate/one/(?P<testreport_id>\d+)/$',
+        'generate_user_output_view', name='generate_user_output'),
+    url(r'^generate/all/(?P<submission_report_id>\d+)/$',
+        'generate_user_output_view', name='generate_user_output'),
+    url(r'^download/one/(?P<testreport_id>\d+)/$',
+        'download_user_one_output_view', name='download_user_output'),
+    url(r'^download/all/(?P<submission_report_id>\d+)/$',
+        'download_user_all_output_view', name='download_user_output'),
+)
+
 urlpatterns = patterns('oioioi.programs.views',
     url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
     url(r'^tests/(?P<test_id>\d+)/in/$', 'download_input_file_view',
@@ -19,4 +30,5 @@ urlpatterns = patterns('oioioi.programs.views',
         name='download_output_file'),
     url(r'^checker/(?P<checker_id>\d+)/$', 'download_checker_exe_view',
         name='download_checker_file'),
+    url(r'^userout/', include(userout_patterns)),
 )

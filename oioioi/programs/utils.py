@@ -2,7 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.utils import aggregate_statuses
-from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.models import ProgramSubmission, ReportActionsConfig
 
 
 def sum_score_aggregator(group_results):
@@ -125,3 +125,10 @@ def get_submission_source_file_or_error(request, contest_id, submission_id):
     if not controller.can_see_source(request, submission):
         raise PermissionDenied
     return submission.source_file
+
+
+def has_report_actions_config(problem):
+    try:
+        return bool(problem.report_actions_config)
+    except ReportActionsConfig.DoesNotExist:
+        return False

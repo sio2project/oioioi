@@ -1,12 +1,19 @@
 # pylint: disable=E0611
 # No name 'HtmlFormatter' in module 'pygments.formatters'
 import difflib
+import zipfile
+import os
+import shutil
+import tempfile
+import logging
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.files import File
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse
+from django.views.decorators.http import require_POST
 from django.template.response import TemplateResponse
 
 from pygments import highlight
@@ -14,10 +21,12 @@ from pygments.lexers import guess_lexer_for_filename
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
-from oioioi.programs.models import Test, OutputChecker
+from oioioi.programs.models import ProgramSubmission, TestReport, Test, \
+    OutputChecker, SubmissionReport, UserOutGenStatus
 from oioioi.programs.utils import decode_str, \
     get_submission_source_file_or_error
-from oioioi.contests.utils import contest_exists, can_enter_contest
+from oioioi.contests.utils import contest_exists, can_enter_contest, \
+    get_submission_or_error, is_contest_admin
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
 
@@ -26,6 +35,7 @@ import fnmatch
 import sys
 fnmatch._MAXCACHE = sys.maxint
 
+logger = logging.getLogger(__name__)
 
 @enforce_condition(contest_exists & can_enter_contest)
 def show_submission_source_view(request, contest_id, submission_id):
@@ -153,6 +163,7 @@ def download_submission_source_view(request, contest_id, submission_id):
 
 def download_input_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
+
     if not request.user.has_perm('problems.problem_admin', test.problem):
         raise PermissionDenied
     return stream_file(test.input_file)
@@ -172,3 +183,167 @@ def download_checker_exe_view(request, checker_id):
     if not checker.exe_file:
         raise Http404
     return stream_file(checker.exe_file)
+
+
+def _check_generate_out_permission(request, submission_report):
+    if request.contest.id != \
+            submission_report.submission.problem_instance.contest_id:
+        raise PermissionDenied
+    if not request.contest.controller.can_generate_user_out(request,
+                                                            submission_report):
+        raise PermissionDenied
+
+
+def _ouserout_filename(testreport):
+    return testreport.test_name + '_user_out_' + \
+        str(testreport.submission_report.submission.user) + '_' + \
+        str(testreport.submission_report.id) + '.out'
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def download_user_one_output_view(request, testreport_id):
+    testreport = get_object_or_404(TestReport, id=testreport_id)
+    submission_report = testreport.submission_report
+    _check_generate_out_permission(request, submission_report)
+
+    if not bool(testreport.output_file):
+        raise Http404
+    return stream_file(testreport.output_file, _ouserout_filename(testreport))
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def download_user_all_output_view(request, submission_report_id):
+    submission_report = get_object_or_404(SubmissionReport,
+                                          id=submission_report_id)
+    _check_generate_out_permission(request, submission_report)
+
+    testreports = TestReport.objects.filter(
+                                        submission_report=submission_report)
+    if not all(bool(report.output_file) for report in testreports):
+        raise Http404
+
+    zipfd, tmp_zip_filename = tempfile.mkstemp()
+    with zipfile.ZipFile(os.fdopen(zipfd, 'wb'), 'w') as zip:
+        for report in testreports:
+            arcname = _ouserout_filename(report)
+            testfd, tmp_test_filename = tempfile.mkstemp()
+            fileobj = os.fdopen(testfd, 'wb')
+            try:
+                shutil.copyfileobj(report.output_file, fileobj)
+                fileobj.close()
+                zip.write(tmp_test_filename, arcname)
+            finally:
+                os.unlink(tmp_test_filename)
+
+        name = submission_report.submission.problem_instance.problem.short_name
+        return stream_file(File(open(tmp_zip_filename, 'rb'),
+            name=name + '_' + str(submission_report.submission.user) +
+            '_' + str(submission_report.id) + '_user_outs.zip'))
+
+
+def _testreports_to_generate_outs(request, testreports):
+    """Gets tests' ids from ``testreports`` without generated or processing
+       right now outs. Returns list of tests' ids.
+    """
+    test_ids = []
+
+    for testreport in testreports:
+        try:
+            download_control = UserOutGenStatus.objects.select_for_update() \
+                                                .get(testreport=testreport)
+            if not is_contest_admin(request):
+                # Out generated by admin is now visible for user
+                download_control.visible_for_user = True
+                download_control.save()
+
+            # making sure, that output really exists or is processing right now
+            if bool(testreport.output_file) or download_control.status == '?':
+                # out already generated or is processing, omit
+                continue
+            else:
+                download_control.status = '?'
+                download_control.save()
+
+        except UserOutGenStatus.DoesNotExist:
+            download_control = UserOutGenStatus(testreport=testreport)
+            if bool(testreport.output_file):
+                # out already generated but without UserOutGenStatus object
+                # so probably automatically by system
+                download_control.visible_for_user = True
+                download_control.status = 'OK'
+                download_control.save()
+                continue
+            else:
+                download_control.status = '?'
+                if is_contest_admin(request):
+                    download_control.visible_for_user = False
+                else:
+                    download_control.visible_for_user = True
+
+                download_control.save()
+
+        test_ids.append(testreport.test.id)
+
+    return test_ids
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+@require_POST
+def generate_user_output_view(request, testreport_id=None,
+                              submission_report_id=None):
+    """Prepares re-submission for generating user outputs and runs judging.
+
+       If there are no test reports' ids given as argument, then all tests from
+       reports with the ``submission_report_id`` would be used for generating
+       user outs. In that case ``submission_report_id`` is required.
+       Note that it uses only tests without already generated outs.
+
+       Also adjusts already generated outs visibility for users
+       on tests originally generated by admin.
+    """
+    assert testreport_id or submission_report_id, \
+            _("Not enough information given")
+
+    # taking test report with given id
+    if testreport_id is not None:
+        testreport = get_object_or_404(TestReport,
+                                       id=testreport_id)
+
+        if submission_report_id is not None:
+            # testreport_id is not related to given submission_report_id
+            if submission_report_id != testreport.submission_report.id:
+                raise SuspiciousOperation
+        else:
+            submission_report_id = testreport.submission_report.id
+        testreports = [testreport]
+    # taking all test reports related to submission report
+    elif submission_report_id is not None:
+        testreports = TestReport.objects \
+                .filter(submission_report__id=submission_report_id)
+
+    # check download out permission
+    submission_report = get_object_or_404(SubmissionReport,
+                                          id=submission_report_id)
+    _check_generate_out_permission(request, submission_report)
+
+    # filtering tests for judge
+    test_ids = _testreports_to_generate_outs(request, testreports)
+
+    # creating re-submission with appropriate tests
+    s_id = submission_report.submission.id
+    submission = get_submission_or_error(request, request.contest.id, s_id,
+                                         submission_class=ProgramSubmission)
+    if test_ids:
+        resubmission = ProgramSubmission(problem_instance=submission.
+                                            problem_instance,
+                                         user=request.user,
+                                         date=request.timestamp,
+                                         kind='USER_OUTS',
+                                         source_file=submission.source_file)
+        resubmission.save()
+        request.contest.controller.judge(resubmission,
+                extra_args={'tests_subset': test_ids,
+                            'submission_report': submission_report})
+
+    return redirect('submission', contest_id=request.contest.id,
+                    submission_id=submission.id)

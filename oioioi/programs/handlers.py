@@ -1,15 +1,19 @@
 from django.db import transaction
-from oioioi.base.utils import get_object_by_dotted_name
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils import get_object_by_dotted_name, make_html_link
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
 from oioioi.programs.models import CompilationReport, TestReport, \
-        GroupReport, Test
+        GroupReport, Test, UserOutGenStatus
 from oioioi.programs.utils import slice_str
 from oioioi.problems.models import Problem
 from oioioi.filetracker.client import get_client
-from oioioi.filetracker.utils import django_to_filetracker_path
+from oioioi.filetracker.utils import django_to_filetracker_path, \
+        filetracker_to_django_file
+
 import logging
 import functools
 from collections import defaultdict
@@ -108,9 +112,13 @@ def collect_tests(env, **kwargs):
 
     env.setdefault('tests', {})
 
-    problem = Problem.objects.get(id=env['problem_id'])
+    if 'tests_subset' in env['extra_args']:
+        tests = Test.objects.in_bulk(env['extra_args']['tests_subset']) \
+                                                                    .values()
+    else:
+        problem = Problem.objects.get(id=env['problem_id'])
+        tests = Test.objects.filter(problem=problem)
 
-    tests = Test.objects.filter(problem=problem)
     for test in tests:
         test_env = {}
         test_env['id'] = test.id
@@ -326,6 +334,7 @@ def grade_submission(env, kind='NORMAL', **kwargs):
     env['score'] = score and score.serialize()
     env['max_score'] = max_score and max_score.serialize()
     env['status'] = status
+
     return env
 
 
@@ -373,7 +382,7 @@ def _make_base_report(env, kind):
 
 
 @transaction.commit_on_success
-def make_report(env, kind='NORMAL', **kwargs):
+def make_report(env, kind='NORMAL', scores=True, **kwargs):
     """Builds entities for tests results in a database.
 
        Used ``environ`` keys:
@@ -407,7 +416,7 @@ def make_report(env, kind='NORMAL', **kwargs):
         test_report.test_group = test['group']
         test_report.test_time_limit = test.get('exec_time_limit')
         test_report.test_max_score = test['max_score']
-        test_report.score = result['score']
+        test_report.score = scores and result['score'] or None
         test_report.status = result['status']
         test_report.time_used = result['time_used']
         comment = result.get('result_string', '')
@@ -415,6 +424,9 @@ def make_report(env, kind='NORMAL', **kwargs):
             comment = ''
         test_report.comment = slice_str(comment, TestReport.
                 _meta.get_field('comment').max_length)
+        if env.get('save_outputs', False):
+            test_report.output_file = filetracker_to_django_file(
+                                                            result['out_file'])
         test_report.save()
         result['report_id'] = test_report.id
 
@@ -424,8 +436,8 @@ def make_report(env, kind='NORMAL', **kwargs):
             continue
         group_report = GroupReport(submission_report=submission_report)
         group_report.group = group_name
-        group_report.score = group_result['score']
-        group_report.max_score = group_result['max_score']
+        group_report.score = scores and group_result['score'] or None
+        group_report.max_score = scores and group_result['max_score'] or None
         group_report.status = group_result['status']
         group_report.save()
         group_result['result_id'] = group_report.id
@@ -448,4 +460,80 @@ def make_report(env, kind='NORMAL', **kwargs):
 def delete_executable(env, **kwargs):
     if 'compiled_file' in env:
         get_client().delete_file(env['compiled_file'])
+    return env
+
+
+def fill_outfile_in_existing_test_reports(env, **kwargs):
+    """Fill output files into existing test reports that are not directly
+       related to present submission. Also change status of UserOutGenStatus
+       object to finished.
+
+       Used ``environ`` keys:
+           * ``extra_args`` dictionary with ``submission_report`` object
+           * ``test_results``
+    """
+    if 'submission_report' not in env['extra_args']:
+        logger.info('No submission_report given to fill tests outputs')
+        return env
+
+    submission_report = env['extra_args']['submission_report']
+    test_reports = TestReport.objects.filter(
+                                        submission_report=submission_report)
+    test_results = env.get('test_results', {})
+
+    for test_name, result in test_results.iteritems():
+        try:
+            testreport = test_reports.get(test_name=test_name)
+        except (TestReport.DoesNotExist, TestReport.MultipleObjectsReturned):
+            logger.warn('Test report for test: %s can not be determined',
+                           test_name)
+            continue
+
+        if bool(testreport.output_file):
+            logger.warn('Output for test report %s exists. Deleting old one.'
+                        % (testreport.id))
+            get_client().delete_file(testreport.output_file)
+
+        testreport.output_file = filetracker_to_django_file(result['out_file'])
+        testreport.save()
+
+        try:
+            download_controller = UserOutGenStatus.objects.get(
+                                                        testreport=testreport)
+        except UserOutGenStatus.DoesNotExist:
+            download_controller = UserOutGenStatus(testreport=testreport)
+
+        download_controller.status = 'OK'
+        download_controller.save()
+
+    return env
+
+
+def insert_existing_submission_link(env, **kwargs):
+    """Add comment to some existing submission with link to submission view
+       of present submission.
+
+       Used ``environ`` keys:
+           * ``extra_args`` dictionary with ``submission_report`` object
+           * ``contest_id``
+           * ``submission_id``
+    """
+    if 'submission_report' not in env['extra_args']:
+        logger.info('No submission_report given to generate link')
+        return env
+
+    submission_report = env['extra_args']['submission_report']
+    dst_submission = submission_report.submission
+    src_submission = Submission.objects.get(id=env['submission_id'])
+    href = reverse('submission', kwargs={'submission_id': dst_submission.id,
+                                         'contest_id': env['contest_id']})
+    html_link = make_html_link(href, _("submission report") + ": " +
+                               str(dst_submission.id))
+    test_names = ', '.join(env.get('test_results', {}).keys())
+    src_submission.comment = \
+        "This is an internal submission created after someone requested to " \
+        "generate user output(s) on test(s): " + test_names + \
+        ", related to " + html_link
+    src_submission.save()
+
     return env
