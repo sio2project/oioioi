@@ -10,7 +10,11 @@ from oioioi.contests.utils import submittable_problem_instances
 class SimpleContestForm(forms.ModelForm):
     class Meta(object):
         model = Contest
-        fields = ['name', 'id', 'controller_name']
+        # Order of fields is important - focus after sending incomplete
+        # form should not be on the 'name' field, otherwise the 'id' field,
+        # as prepopulated with 'name' in ContestAdmin model, is cleared by
+        # javascript with prepopulated fields functionality.
+        fields = ['controller_name', 'name', 'id']
 
     start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
             label=_("Start date"))
