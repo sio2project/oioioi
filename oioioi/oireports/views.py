@@ -135,17 +135,8 @@ def _serialize_report(user, problem_instances, test_groups):
             groups.append({'tests': list(tests),
                 'report': group_reports[group_name]})
 
-        max_problem_score = 0
         problem_score = None
         for group in groups:
-            max_test_scores = frozenset(test_report.test_max_score
-                    for test_report in group['tests'])
-            # We assume that all tests in group have equal max_score
-            # and we need only one.
-            assert len(max_test_scores) == 1
-            max_group_score = list(max_test_scores)[0]
-            group['max_score'] = max_group_score
-            max_problem_score += max_group_score
             group_score = group['report'].score
             if problem_score is None:
                 problem_score = group_score
@@ -155,7 +146,7 @@ def _serialize_report(user, problem_instances, test_groups):
         resultsets.append(dict(
             result=r,
             score=problem_score,
-            max_score=max_problem_score,
+            max_score=submission_report.score_report.max_score,
             compilation_report=compilation_report,
             groups=groups,
             code=source_file.read(),

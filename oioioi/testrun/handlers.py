@@ -52,8 +52,10 @@ def grade_submission(env, **kwargs):
        Produced ``environ`` keys:
            * ``status``
            * ``score``
+           * ``max_score``
     """
     env['score'] = None
+    env['max_score'] = None
 
     if env.get('compilation_result', 'OK') != 'OK':
         env['status'] = 'CE'

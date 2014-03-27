@@ -317,6 +317,7 @@ class ScoreReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses, blank=True, null=True)
     score = ScoreField(blank=True, null=True)
+    max_score = ScoreField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     def get_score_display(self):

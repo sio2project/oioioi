@@ -31,7 +31,7 @@
                         { {{ test.get_status_display }} }
                         { {{ test.time_used|runtimeformat }} }
                         { {{ test.test_time_limit|runtimeformat }} }
-                        {% if group.report.score %} { {{ group.report.score }} }{ {{ group.max_score }} } {% else %} {}{} {% endif %}
+                        {% if group.report.score %} { {{ group.report.score }} }{ {{ group.report.max_score }} } {% else %} {}{} {% endif %}
                         { {% if test.comment %} {{ test.comment|latex_escape }} {% endif %} }
                 {% else %}
                     \testg

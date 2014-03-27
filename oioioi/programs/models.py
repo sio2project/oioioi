@@ -199,4 +199,5 @@ class GroupReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     group = models.CharField(max_length=30)
     score = ScoreField(null=True, blank=True)
+    max_score = ScoreField(null=True, blank=True)
     status = EnumField(submission_statuses)

@@ -339,6 +339,7 @@ def _make_base_report(env, kind):
            * ``compilation_result``
            * ``compilation_message``
            * ``submission_id``
+           * ``max_score``
 
        Alters ``environ`` by adding:
            * ``report_id``: id of the produced
@@ -356,6 +357,7 @@ def _make_base_report(env, kind):
     status_report = ScoreReport(submission_report=submission_report)
     status_report.status = env['status']
     status_report.score = env['score']
+    status_report.max_score = env['max_score']
     status_report.save()
 
     compilation_report = CompilationReport(submission_report=submission_report)
@@ -423,6 +425,7 @@ def make_report(env, kind='NORMAL', **kwargs):
         group_report = GroupReport(submission_report=submission_report)
         group_report.group = group_name
         group_report.score = group_result['score']
+        group_report.max_score = group_result['max_score']
         group_report.status = group_result['status']
         group_report.save()
         group_result['result_id'] = group_report.id

@@ -33,7 +33,7 @@
                 <testtime>{{ test.time_used|runtimeformat }}</testtime>
                 <testtimelimit>{{ test.test_time_limit|runtimeformat }}</testtimelimit>
                 <testpoints>{% if group.report.score %}{{ group.report.score }}{% endif %}</testpoints>
-                <testmaxpoints>{{ group.max_score }}</testmaxpoints>
+                <testmaxpoints>{{ group.report.max_score }}</testmaxpoints>
                 <testcomment>{% if test.comment %}{{ test.comment }}{% endif %}</testcomment>
                 </test>
             {% endfor %}
