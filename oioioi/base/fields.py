@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ValidationError
+from django.core.validators import RegexValidator
 from south.modelsinspector import add_introspection_rules
 from oioioi.base.utils import get_object_by_dotted_name
 
@@ -146,3 +147,30 @@ class EnumField(models.CharField):
             yield item
 
 add_introspection_rules([], [r'^oioioi\.base\.fields\.EnumField'])
+
+
+class PhoneNumberField(models.CharField):
+    """A ``CharField`` designed to store phone numbers."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 64
+        kwargs['validators'] = [RegexValidator(r'^\+?[0-9() -]{6,}$',
+                                              _("Invalid phone number"))]
+        kwargs['help_text'] = _("Including the area code.")
+
+        super(PhoneNumberField, self).__init__(*args, **kwargs)
+
+add_introspection_rules([], [r'^oioioi\.base\.fields\.PhoneNumberField'])
+
+
+class PostalCodeField(models.CharField):
+    """A ``CharField`` designed to store postal codes."""
+
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 6
+        kwargs['validators'] = [RegexValidator(r'^\d{2}-\d{3}$',
+                               _("Enter a postal code in the format XX-XXX"))]
+
+        super(PostalCodeField, self).__init__(*args, **kwargs)
+
+add_introspection_rules([], [r'^oioioi\.base\.fields\.PostalCodeField'])
