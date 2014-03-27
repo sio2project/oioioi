@@ -1,6 +1,10 @@
 {% load i18n %}
+{% load pagination_tags %}
 
 {% if rows %}
+<div class="paginated-list">
+{% autopaginate rows participants_on_page %}
+{% paginate %}
 <table class="{% block table-classes %}ranking table auto-width dense{% endblock %}">
     <thead>
         <tr>
@@ -25,6 +29,8 @@
         {% endfor %}
     </tbody>
 </table>
+{% paginate %}
+</div>
 {% else %}
 <div class="empty-space-filler">
     {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}

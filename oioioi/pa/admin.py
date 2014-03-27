@@ -1,6 +1,8 @@
+from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
+from oioioi.contests.admin import ProblemInstanceAdmin
 from oioioi.participants.admin import ParticipantAdmin
-from oioioi.pa.models import PARegistration
+from oioioi.pa.models import PARegistration, PAProblemInstanceData
 from oioioi.pa.forms import PARegistrationForm
 
 
@@ -29,3 +31,21 @@ class PARegistrationParticipantAdmin(ParticipantAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
+
+class PAProblemInstanceInline(admin.TabularInline):
+    model = PAProblemInstanceData
+    fields = ['division']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class PAProblemInstanceAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(PAProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [PAProblemInstanceInline]
+
+    def probleminstance_change_link_name(self):
+        return _("Move/rename/change division")
+ProblemInstanceAdmin.mix_in(PAProblemInstanceAdminMixin)

@@ -1,0 +1,303 @@
+[
+  {
+    "pk": "c",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.pa.controllers.PAContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Problem",
+      "short_name": "problem",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "c",
+      "start_date": "2012-01-01T20:27:58.768Z",
+      "end_date": "2012-03-01T20:27:58.768Z",
+      "results_date": "2012-05-01T20:27:58.768Z",
+      "public_results_date": "2012-07-01T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 2",
+      "contest": "c",
+      "start_date": "2012-02-01T20:27:58.768Z",
+      "end_date": "2012-04-01T20:27:58.768Z",
+      "results_date": "2012-06-01T20:27:58.768Z",
+      "public_results_date": "2012-09-01T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.round",
+    "fields": {
+      "name": "Trial Round",
+      "contest": "c",
+      "is_trial": "True",
+      "start_date": "2012-01-01T20:27:58.768Z",
+      "end_date": "2012-01-01T20:27:58.768Z",
+      "results_date": "2012-01-01T20:27:58.768Z",
+      "public_results_date": "2012-01-01T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "taskA1",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 2,
+      "short_name": "taskA2",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "taskB1",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 2,
+      "short_name": "taskB2",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 3,
+      "short_name": "taskT",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "pa.paprobleminstancedata",
+    "fields": {
+      "problem_instance": 1,
+      "division": "A"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "pa.paprobleminstancedata",
+    "fields": {
+      "problem_instance": 2,
+      "division": "A"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "pa.paprobleminstancedata",
+    "fields": {
+      "problem_instance": 3,
+      "division": "B"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "pa.paprobleminstancedata",
+    "fields": {
+      "problem_instance": 4,
+      "division": "B"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "pa.paprobleminstancedata",
+    "fields": {
+      "problem_instance": 5,
+      "division": "NONE"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "score": "PA:0000000000000000010;00001:00000:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1001
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 2,
+      "score": "PA:0000000000000000008;00000:00000:00001:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1001
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "score": "PA:0000000000000000006;00000:00000:00000:00000:00001:00000:00000:00000:00000:00000",
+      "user": 1001
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 4,
+      "score": "PA:0000000000000000004;00000:00000:00000:00000:00000:00000:00001:00000:00000:00000",
+      "user": 1001
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 5,
+      "score": "PA:0000000000000000002;00000:00000:00000:00000:00000:00000:00000:00000:00001:00000",
+      "user": 1001
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "score": "PA:0000000000000000009;00000:00001:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1002
+    }
+  },
+  {
+    "pk": 7,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 2,
+      "score": "PA:0000000000000000009;00000:00001:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1002
+    }
+  },
+  {
+    "pk": 8,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "score": "PA:0000000000000000007;00000:00000:00000:00001:00000:00000:00000:00000:00000:00000",
+      "user": 1002
+    }
+  },
+  {
+    "pk": 9,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 4,
+      "score": "PA:0000000000000000003;00000:00000:00000:00000:00000:00000:00000:00001:00000:00000",
+      "user": 1002
+    }
+  },
+  {
+    "pk": 10,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 5,
+      "score": "PA:0000000000000000000;00000:00000:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1002
+    }
+  },
+  {
+    "pk": 11,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "score": "PA:0000000000000000010;00001:00000:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1003
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "PA:0000000000000000010;00001:00000:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1001,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "PA:0000000000000000009;00000:00001:00000:00000:00000:00000:00000:00000:00000:00000",
+      "user": 1002,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "participants.participant",
+    "fields": {
+      "contest": "c",
+      "user": 1001,
+      "status": "ACTIVE",
+      "anonymous": "False"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "participants.participant",
+    "fields": {
+      "contest": "c",
+      "user": 1002,
+      "status": "ACTIVE",
+      "anonymous": "False"
+    }
+  }
+]

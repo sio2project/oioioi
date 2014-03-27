@@ -80,6 +80,8 @@ def add_or_update_problem_view(request, contest_id=None):
             pi, created = ProblemInstance.objects.get_or_create(
                     problem=problem, contest=contest,
                     submissions_limit=contest.default_submissions_limit)
+            contest.controller.process_uploaded_problem(problem, pi,
+                    is_new=(not existing_problem))
             if not pi.round:
                 if contest.round_set.count() == 1:
                     pi.round = contest.round_set.get()
