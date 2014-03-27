@@ -495,6 +495,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            Usually this involves looking at submissions and aggregating scores
            from them. Default implementation takes the latest submission which
            has a score and copies it to the result.
+
+           Saving the ``result`` is a responsibility of the caller.
         """
         try:
             latest_submission = Submission.objects \
@@ -516,7 +518,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             result.score = None
             result.status = None
             result.submission_report = None
-        result.save()
 
     def _sum_scores(self, scores):
         scores = [s for s in scores if s is not None]
@@ -528,13 +529,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            Usually this involves looking at user's results for problems and
            aggregating scores from them. Default implementation sums the
            scores.
+
+           Saving the ``result`` is a responsibility of the caller.
         """
         scores = UserResultForProblem.objects \
                 .filter(user=result.user) \
                 .filter(problem_instance__round=result.round) \
                 .values_list('score', flat=True)
         result.score = self._sum_scores(map(ScoreValue.deserialize, scores))
-        result.save()
 
     def update_user_result_for_contest(self, result):
         """Updates a :class:`~oioioi.contests.models.UserResultForContest`.
@@ -542,13 +544,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            Usually this involves looking at user's results for rounds and
            aggregating scores from them. Default implementation sums the
            scores.
+
+           Saving the ``result`` is a responsibility of the caller.
         """
         scores = UserResultForRound.objects \
                 .filter(user=result.user) \
                 .filter(round__contest=result.contest) \
                 .values_list('score', flat=True)
         result.score = self._sum_scores(map(ScoreValue.deserialize, scores))
-        result.save()
 
     def update_user_results(self, user, problem_instance):
         """Updates score for problem instance, round and contest.
@@ -574,12 +577,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 .select_for_update() \
                 .get_or_create(user=user, problem_instance=problem_instance)
             self.update_user_result_for_problem(result)
+            result.save()
 
         # Second: UserResultForRound
         with transaction.commit_on_success():
             result, created = UserResultForRound.objects.select_for_update() \
                 .get_or_create(user=user, round=round)
             self.update_user_result_for_round(result)
+            result.save()
 
         # Third: UserResultForContest
         with transaction.commit_on_success():
@@ -587,6 +592,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                     .select_for_update() \
                     .get_or_create(user=user, contest=contest)
             self.update_user_result_for_contest(result)
+            result.save()
 
     def filter_my_visible_submissions(self, request, queryset):
         """Returns the submissions which the user should see in the

@@ -138,8 +138,6 @@ class ACMContestController(ProgrammingContestController):
         else:
             result.submission_report = None
 
-        result.save()
-
     def results_visible(self, request, submission):
         return False
 

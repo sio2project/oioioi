@@ -123,7 +123,6 @@ class OIContestController(ProgrammingContestController):
             result.score = None
             result.status = None
             result.submission_report = None
-        result.save()
 
     def can_see_ranking(self, request):
         return is_contest_admin(request) or is_contest_observer(request)

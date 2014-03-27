@@ -53,13 +53,13 @@ class PAScore(ScoreValue):
             assert isinstance(points, IntegerScore)
             self.points = points
         else:
-            points = IntegerScore(0)
+            self.points = IntegerScore(0)
         if distribution:
             assert isinstance(distribution, ScoreDistribution)
             self.distribution = distribution
         else:
             self.distribution = ScoreDistribution()
-            self.distribution.update(points.value)
+            self.distribution.update(self.points.value)
 
     def __add__(self, other):
         return PAScore(self.points + other.points,

@@ -8,8 +8,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
-from oioioi.base.utils import memoized_property
-from oioioi.contests.models import Contest, ProblemInstance, Submission
+from oioioi.contests.models import Contest, ProblemInstance, Submission, \
+        UserResultForProblem
 from oioioi.contests.scores import IntegerScore
 from oioioi.participants.models import Participant
 from oioioi.pa import utils
@@ -84,7 +84,7 @@ class TestPARoundTimes(TestCase):
     def test_round_states(self):
         contest = Contest.objects.get()
         controller = contest.controller
-        not_my_submission = Submission.objects.get(id=2)
+        not_my_submission = Submission.objects.get(id=6)
         user = User.objects.get(username='test_user')
 
         def check_round_state(date, expected):
@@ -247,7 +247,7 @@ class TestPARegistration(TestCase):
         self.assertEquals(data['users_count'], 1)
 
 
-class TestPAScorers(TestCase):
+class TestPAScorer(TestCase):
     t_results_ok = (
         ({'exec_time_limit': 100, 'max_score': 100},
             {'result_code': 'OK', 'time_used': 0}),
@@ -258,9 +258,9 @@ class TestPAScorers(TestCase):
         )
 
     t_expected_ok = [
-        (PAScore(IntegerScore(1)), PAScore(IntegerScore(1)), 'OK'),
-        (PAScore(IntegerScore(1)), PAScore(IntegerScore(1)), 'OK'),
-        (PAScore(IntegerScore(0)), PAScore(IntegerScore(0)), 'OK'),
+        (IntegerScore(1), IntegerScore(1), 'OK'),
+        (IntegerScore(1), IntegerScore(1), 'OK'),
+        (IntegerScore(0), IntegerScore(0), 'OK'),
         ]
 
     t_results_wrong = [
@@ -271,8 +271,8 @@ class TestPAScorers(TestCase):
         ]
 
     t_expected_wrong = [
-        (PAScore(IntegerScore(0)), PAScore(IntegerScore(1)), 'WA'),
-        (PAScore(IntegerScore(0)), PAScore(IntegerScore(0)), 'RV'),
+        (IntegerScore(0), IntegerScore(1), 'WA'),
+        (IntegerScore(0), IntegerScore(0), 'RV'),
         ]
 
     def test_pa_test_scorer(self):
@@ -282,23 +282,17 @@ class TestPAScorers(TestCase):
         results = map(utils.pa_test_scorer, *zip(*self.t_results_wrong))
         self.assertEquals(self.t_expected_wrong, results)
 
-    @memoized_property
-    def g_results_ok(self):
-        results = map(utils.pa_test_scorer, *zip(*self.t_results_ok))
-        dicts = [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st) for sc, msc, st in results]
-        return dict(zip(xrange(len(dicts)), dicts))
 
-    @memoized_property
-    def g_results_wrong(self):
-        results = map(utils.pa_test_scorer, *zip(*self.t_results_wrong))
-        dicts = self.g_results_ok.values()
-        dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st) for sc, msc, st in results]
-        return dict(zip(xrange(len(dicts)), dicts))
+class TestPAResults(TestCase):
+    fixtures = ['test_users', 'test_pa_contest']
 
-    def test_pa_score_aggregator(self):
-        self.assertEqual((PAScore(IntegerScore(2)), PAScore(IntegerScore(2)),
-            'OK'), utils.pa_score_aggregator(self.g_results_ok))
-        self.assertEqual((PAScore(IntegerScore(2)), PAScore(IntegerScore(3)),
-            'WA'), utils.pa_score_aggregator(self.g_results_wrong))
+    def test_pa_user_results(self):
+        contest = Contest.objects.get()
+        user = User.objects.get(username='test_user')
+        old_results = sorted([result.score for result in
+            UserResultForProblem.objects.filter(user=user)])
+        for pi in ProblemInstance.objects.all():
+            contest.controller.update_user_results(user, pi)
+        new_results = sorted([result.score for result in
+            UserResultForProblem.objects.filter(user=user)])
+        self.assertEquals(old_results, new_results)

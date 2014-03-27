@@ -14,6 +14,7 @@ from oioioi.rankings.controllers import DefaultRankingController, \
         CONTEST_RANKING_KEY
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 from oioioi.pa.models import PAProblemInstanceData
+from oioioi.pa.score import PAScore
 
 
 class PARegistrationController(ParticipantsController):
@@ -71,12 +72,15 @@ class PAContestController(ProgrammingContestController):
     create_forum = True
 
     def fill_evaluation_environ(self, environ, submission):
-        environ['group_scorer'] = 'oioioi.programs.utils.min_group_scorer'
         environ['test_scorer'] = 'oioioi.pa.utils.pa_test_scorer'
-        environ['score_aggregator'] = 'oioioi.pa.utils.pa_score_aggregator'
 
         super(PAContestController, self) \
                 .fill_evaluation_environ(environ, submission)
+
+    def update_user_result_for_problem(self, result):
+        super(PAContestController, self).update_user_result_for_problem(result)
+        if result.score is not None:
+            result.score = PAScore(result.score)
 
     def registration_controller(self):
         return PARegistrationController(self.contest)

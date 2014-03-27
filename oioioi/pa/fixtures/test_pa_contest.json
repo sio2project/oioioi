@@ -262,7 +262,7 @@
       "problem_instance": 1,
       "kind": "NORMAL",
       "comment": "",
-      "score": "PA:0000000000000000010;00001:00000:00000:00000:00000:00000:00000:00000:00000:00000",
+      "score": "int:0000000000000000010",
       "user": 1001,
       "date": "2011-06-03T22:07:07.516Z"
     }
@@ -272,10 +272,114 @@
     "model": "contests.submission",
     "fields": {
       "status": "OK",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000008",
+      "user": 1001,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000006",
+      "user": 1001,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 4,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000004",
+      "user": 1001,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 5,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000002",
+      "user": 1001,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
       "problem_instance": 1,
       "kind": "NORMAL",
       "comment": "",
-      "score": "PA:0000000000000000009;00000:00001:00000:00000:00000:00000:00000:00000:00000:00000",
+      "score": "int:000000000000000009",
+      "user": 1002,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000009",
+      "user": 1002,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 3,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000007",
+      "user": 1002,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 4,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000003",
+      "user": 1002,
+      "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 5,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:000000000000000000",
       "user": 1002,
       "date": "2011-06-03T22:07:07.516Z"
     }
