@@ -1,10 +1,12 @@
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 from django.template.response import TemplateResponse
+from django.conf import settings
 
 from oioioi.contests.utils import is_contest_admin
 from oioioi.oi.controllers import OIOnsiteContestController
 from oioioi.participants.models import Participant
+from oioioi.su.utils import is_under_su, reset_to_real_user
 
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
@@ -43,6 +45,9 @@ class OiForceDnsIpAuthMiddleware(object):
             return
         backend_path = request.user.backend
         if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':
-            auth.logout(request)
+            if is_under_su(request):
+                reset_to_real_user(request)
+            else:
+                auth.logout(request)
             return TemplateResponse(request, 'oi/access_blocked.html',
                 {'auth_backend': backend_path})
