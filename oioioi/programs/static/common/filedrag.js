@@ -42,12 +42,17 @@ function ShowDdzone(e) {
 function HideDdzone(e) {
     e.stopPropagation();
     e.preventDefault();
-    $('#ddzone').delay(1500).fadeOut(200);
+    filedragHide();
+}
+
+function filedragHide() {
+    $('#ddzone').fadeOut(200);
 }
 
 function filedragNotifyErr(message) {
     $('#droparea').removeClass('hover').addClass('error');
     $('#droparea').html(message);
+    setTimeout(filedragHide, 1500);
 }
 
 // file selection
@@ -73,7 +78,7 @@ function DropedFileHandler(e) {
         filedragNotifyErr(gettext("Aborted! Too big file dropped."));
         return;
     }
-    if (!files[0].type.match('text.*')) {
+    if (files[0].type && !files[0].type.match('text.*')) {
         filedragNotifyErr(gettext("Aborted! Drop a valid text file."));
         return;
     }
