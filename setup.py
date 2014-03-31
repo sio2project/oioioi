@@ -48,7 +48,7 @@ setup(
         "werkzeug",
 
         # Needed for 'from celery.exceptions import Ignore'
-        "celery>=3.0.24",
+        "celery>=3.0.24,<3.1",
 
         # Old versions have buggy coverage reports generation, raising
         # an exception like this:
