@@ -1,6 +1,7 @@
 import json
 import logging
 import socket
+import traceback
 from smtplib import SMTPException
 
 from django.core.files.base import ContentFile
@@ -183,9 +184,10 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
     test_results = env.setdefault('test_results', {})
     for result in zeus_results:
         test = decoder(result['metadata'])
-        assert 'name' in test
-        assert 'group' in test
-        assert 'max_score' in test
+        error = "Not enough data decoded from: %s" % result['metadata']
+        assert 'name' in test, error
+        assert 'group' in test, error
+        assert 'max_score' in test, error
         if test['name'] in test_results:
             continue
 

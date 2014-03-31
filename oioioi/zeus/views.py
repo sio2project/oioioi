@@ -8,7 +8,8 @@ from oioioi.contests.utils import get_submission_or_error, can_enter_contest, \
         contest_exists
 from oioioi.filetracker.utils import stream_file
 from oioioi.programs.utils import decode_str
-from oioioi.testrun.views import get_testrun_report_or_404, get_preview_size_limit
+from oioioi.testrun.views import get_testrun_report_or_404, \
+        get_preview_size_limit
 from oioioi.zeus.backends import get_zeus_server
 from oioioi.zeus.models import ZeusTestRunProgramSubmission, ZeusTestRunReport
 

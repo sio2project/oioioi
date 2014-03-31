@@ -78,21 +78,24 @@ class ZeusJsonTest(TestCase):
         with open('oioioi/zeus/fixtures/test_zeus_correct.json') as f:
             self._jsons = [f['result'] for f in json.load(f)]
 
+        self._json_base64_decode = lambda v: _json_base64_decode(v, wrap=True)
+
     def test_json_base64_encode(self):
         self.assertEquals(_json_base64_encode(self._ob), self._ob_json)
 
     def test_json_base64_decode(self):
-        self.assertEquals(self._ob, _json_base64_decode(self._ob_json))
+        self.assertEquals(self._ob, self._json_base64_decode(self._ob_json))
         for j in self._jsons:
-            _json_base64_decode(j)
+            self._json_base64_decode(j)
 
     def test_json_base64_identity(self):
-        self.assertEquals(self._ob, _json_base64_decode(
+        self.assertEquals(self._ob, self._json_base64_decode(
                           _json_base64_encode(self._ob)))
         self.assertEquals(self._ob_json, _json_base64_encode(
-                          _json_base64_decode(self._ob_json)))
+                          self._json_base64_decode(self._ob_json)))
         for j in self._jsons:
-            self.assertEquals(j, _json_base64_encode(_json_base64_decode(j)))
+            self.assertEquals(j, _json_base64_encode(
+                    self._json_base64_decode(j)))
 
 
 class ZeusHandlersTest(TestsUtilsMixin, TestCase):
