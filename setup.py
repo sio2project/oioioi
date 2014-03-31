@@ -47,6 +47,9 @@ setup(
         "django-output-validator>=1.5md1",
         "werkzeug",
 
+        # Needed for 'from celery.exceptions import Ignore'
+        "celery>=3.0.24",
+
         # Old versions have buggy coverage reports generation, raising
         # an exception like this:
         #
