@@ -18,3 +18,6 @@ class OntakEternalController(OIContestController):
 
     def registration_controller(self):
         return PublicContestRegistrationController(self.contest)
+
+    def can_see_ranking(self, request):
+        return True

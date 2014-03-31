@@ -8,6 +8,7 @@ from django.conf import settings
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import PastRoundsHiddenContestControllerMixin
 from oioioi.contests.models import Submission, SubmissionReport
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
@@ -120,6 +121,9 @@ class OIContestController(ProgrammingContestController):
             result.status = None
             result.submission_report = None
         result.save()
+
+    def can_see_ranking(self, request):
+        return is_contest_admin(request) or is_contest_observer(request)
 
     def default_contestlogo_url(self):
         return '%(url)soi/logo.png' % {'url': settings.STATIC_URL}
