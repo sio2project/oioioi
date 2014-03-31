@@ -32,3 +32,8 @@ def any_statistics_avaiable(request):
     if not isinstance(controller, ProgrammingContestController):
         return False
     return bool(controller.statistics_available_plot_groups(request))
+
+
+@make_request_condition
+def can_see_stats(request):
+    return request.contest.controller.can_see_stats(request)

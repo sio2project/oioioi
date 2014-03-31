@@ -95,6 +95,9 @@ class OIContestController(ProgrammingContestController):
         return super(OIContestController, self)\
                 .can_submit(request, problem_instance, check_round_times)
 
+    def can_see_stats(self, request):
+        return is_contest_admin(request) or is_contest_observer(request)
+
     def should_confirm_submission_receipt(self, request, submission):
         return submission.kind == 'NORMAL' and request.user == submission.user
 

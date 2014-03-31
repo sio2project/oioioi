@@ -5,7 +5,7 @@ import sys
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-
+from oioioi.base.permissions import Condition
 
 class OrderedRegistry(object):
     """Maintains a collection of values ordered by a separate key."""
@@ -89,13 +89,15 @@ class MenuRegistry(object):
         self._registry.register(menu_item, order)
 
     def register_decorator(self, text, url_generator,
-                           order=sys.maxint, attrs=None):
+                           order=sys.maxint, condition=None, attrs=None):
         """Decorator for a view which registers a new menu item. It accepts the
            same arguments as the :meth:`MenuRegistry.register`, except for
            ``name``, which is inferred from the view function name ('_view'
-           suffix is stripped) and ``condition`` which is taken from the view
-           attribute of the same name (assigned for example by
-           :func:`oioioi.base.permissions.enforce_condition`).
+           suffix is stripped). ``condition`` is combined with the condition
+           taken from the view attribute of the same name (assigned for example
+           by :func:`oioioi.base.permissions.enforce_condition`).
+           ``condition`` parameter influences only on visibility of menu entry
+           but not on permission to see the page.
         """
         def decorator(view_func):
             name = view_func.__name__
@@ -103,10 +105,13 @@ class MenuRegistry(object):
             if name.endswith(suffix_to_remove):
                 name = name[:-len(suffix_to_remove)]
             if hasattr(view_func, 'condition'):
-                condition = view_func.condition
+                current_condition = view_func.condition
             else:
-                condition = lambda request: True
-            self.register(name, text, url_generator, order, condition, attrs)
+                current_condition = Condition(lambda request: True)
+            if condition is not None:
+                current_condition = current_condition & condition
+            self.register(name, text, url_generator, order,
+                          current_condition, attrs)
             return view_func
         return decorator
 

@@ -2,16 +2,20 @@ from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
 from oioioi.base.menu import menu_registry
-from oioioi.statistics.utils import render_head, any_statistics_avaiable
+from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.statistics.utils import render_head, any_statistics_avaiable, \
+         can_see_stats
 from oioioi.statistics.controllers import statistics_categories
 from oioioi.base.permissions import enforce_condition
-from oioioi.contests.utils import contest_exists, can_enter_contest
+from oioioi.contests.utils import contest_exists, can_enter_contest, \
+        is_contest_admin, is_contest_observer
 from oioioi.contests.models import ProblemInstance
 
 def links(request):
     controller = request.contest.controller
     links_list = []
     plot_groups = controller.statistics_available_plot_groups(request)
+
     for (category, object_name, description) in plot_groups:
         category_name, link = statistics_categories[category]
         links_list.append({
@@ -24,10 +28,16 @@ def links(request):
     return links_list
 
 
+@contest_admin_menu_registry.register_decorator(_("Statistics"),
+                                                lambda request:
+        reverse('statistics_main', kwargs={'contest_id': request.contest.id}),
+        condition=(is_contest_admin | is_contest_observer),
+        order=100)
 @menu_registry.register_decorator(_("Statistics"), lambda request:
         reverse('statistics_main', kwargs={'contest_id': request.contest.id}),
+        condition=(~is_contest_admin & ~is_contest_observer),
         order=100)
-@enforce_condition(contest_exists & can_enter_contest \
+@enforce_condition(contest_exists & can_enter_contest & can_see_stats
                    & any_statistics_avaiable)
 def statistics_view(request, contest_id,
                     category=statistics_categories['CONTEST'][1],
@@ -57,7 +67,7 @@ def statistics_view(request, contest_id,
                                                 plot_kind, object)
         data_list.append(data_piece)
 
-    if data_list is []: # zip does not like empty lists
+    if data_list == []:  # zip does not like empty lists
         return TemplateResponse(request, 'statistics/stat.html',
                                 {'title': title})
 

@@ -4,7 +4,6 @@ from datetime import datetime
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
-from django.contrib.auth.models import User
 
 from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
@@ -13,6 +12,7 @@ from oioioi.statistics.plotfunctions import histogram, \
 from oioioi.contests.models import ProblemInstance
 from oioioi.statistics.controllers import statistics_categories, \
                                           statistics_plot_kinds
+from oioioi.statistics.models import StatisticsConfig
 
 
 class TestStatisticsPlotFunctions(TestCase):
@@ -106,15 +106,25 @@ class TestStatisticsViews(TestCase):
         contest = Contest.objects.get()
         url = reverse('statistics_main', kwargs={'contest_id': contest.id})
 
+        # Without StatisticsConfig model
         self.client.login(username='test_admin')
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')
 
-        # Ok, so now we make test_admin a regular user.
-        admin = User.objects.get(username='test_admin')
-        admin.is_superuser = False
-        admin.save()
+        self.client.login(username='test_user')
+        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEquals(403, response.status_code)
+
+        cfg = StatisticsConfig(contest=contest, visible_to_users=True,
+                visibility_date=datetime(2014, 2, 3, tzinfo=utc))
+        cfg.save()
+
+        self.client.login(username='test_admin')
+        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertContains(response, 'Results histogram')
 
         self.client.login(username='test_user')
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
