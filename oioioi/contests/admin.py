@@ -289,7 +289,7 @@ class SubmissionKindListFilter(SimpleListFilter):
             return queryset
 
 
-class RoundListFilter(SimpleListFilter):
+class SubmissionRoundListFilter(SimpleListFilter):
     title = _("round")
     parameter_name = 'round'
 
@@ -309,7 +309,7 @@ class SubmissionAdmin(admin.ModelAdmin):
             'problem_instance_display', 'status_display', 'score_display']
     list_display_links = ['id', 'date']
     list_filter = [UserListFilter, ProblemNameListFilter,
-            SubmissionKindListFilter, 'status', RoundListFilter]
+            SubmissionKindListFilter, 'status', SubmissionRoundListFilter]
     date_hierarchy = 'date'
     actions = ['rejudge_action']
     search_fields = ['user__username', 'user__last_name']
@@ -410,7 +410,7 @@ contest_observer_menu_registry.register('submissions_admin', _("Submissions"),
         order=40)
 
 
-class RoundListFilter(SimpleListFilter):
+class RoundTimeRoundListFilter(SimpleListFilter):
     title = _("round")
     parameter_name = 'round'
 
@@ -429,7 +429,7 @@ class RoundListFilter(SimpleListFilter):
 class RoundTimeExtensionAdmin(admin.ModelAdmin):
     list_display = ['user_login', 'user_full_name', 'round', 'extra_time']
     list_display_links = ['extra_time']
-    list_filter = [RoundListFilter]
+    list_filter = [RoundTimeRoundListFilter]
     search_fields = ['user__username', 'user__last_name']
 
     def has_add_permission(self, request):
