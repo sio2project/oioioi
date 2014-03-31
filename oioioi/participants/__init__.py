@@ -30,6 +30,9 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
                     return False
                 rcontroller = contest.controller.registration_controller()
                 qs = User.objects.filter(id=user.id)
+                if qs.filter(participant__contest=contest,
+                             participant__status='BANNED').exists():
+                    return True
                 return rcontroller.filter_participants(qs).exists()
             return True
 
