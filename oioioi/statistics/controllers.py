@@ -150,41 +150,41 @@ class StatisticsMixinForProgrammingContestController(object):
         for pi in problem_instances:
             can_see_round = times[pi.round].results_visible(request.timestamp)
             if can_see_round:
-                result.append(('PROBLEM', pi.short_name, pi.problem.name))
+                result.append(('PROBLEM', pi.short_name, pi))
                 can_see_any_problems = True
 
         if can_see_any_problems:
             result.insert(0, ('CONTEST', request.contest.id,
-                              request.contest.name))
+                              request.contest))
         return result
 
-    def statistics_available_plots(self, request, category, object_name):
+    def statistics_available_plots(self, request, category, object):
         result = []
 
         if category == 'CONTEST':
-            if object_name == '':
-                object_name = request.contest.id
+            if object == '':
+                object = request.contest
             result.append((
                 statistics_plot_kinds['POINTS_HISTOGRAM_CONTEST'],
-                object_name))
+                object))
             result.append((
                 statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST'],
-                object_name))
+                object))
 
         if category == 'PROBLEM':
             result.append((
                 statistics_plot_kinds['POINTS_HISTOGRAM_PROBLEM'],
-                object_name))
+                object))
             result.append((
-                statistics_plot_kinds['POINTS_TABLE_PROBLEM'], object_name))
+                statistics_plot_kinds['POINTS_TABLE_PROBLEM'], object))
             result.append((
                 statistics_plot_kinds['POINTS_TO_SOURCE_LENGTH_PROBLEM'],
-                object_name))
+                object))
         return result
 
-    def statistics_data(self, request, plot_kind, object_name):
+    def statistics_data(self, request, plot_kind, object):
         (plot_function, plot_type) = plot_kind
-        result = plot_function(object_name)
+        result = plot_function(object)
         result['plot_type'] = plot_type
 
         return result

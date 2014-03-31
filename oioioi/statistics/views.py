@@ -42,16 +42,19 @@ def statistics_view(request, contest_id,
 
     title = ''
     if category == 'PROBLEM':
-        problem = ProblemInstance.objects.filter(short_name=object_name)
-        title = _('Statistics for %s') % problem[0].problem.name
+        problem = ProblemInstance.objects.filter(short_name=object_name, contest=request.contest)[0]
+        title = _('Statistics for %s') % problem.problem.name
+        object = problem
+    if category == 'CONTEST':
+        object = request.contest
 
     plots = controller.statistics_available_plots(request,
-                                                  category, object_name)
+                                                  category, object)
 
     data_list = []
     for plot_kind, object_name in plots:
         data_piece = controller.statistics_data(request,
-                                                plot_kind, object_name)
+                                                plot_kind, object)
         data_list.append(data_piece)
 
     if data_list is []: # zip does not like empty lists
