@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.base.utils import jsonify
+from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.status import status_registry
 from oioioi.su.forms import SuForm
 from oioioi.su.utils import su_to_user, is_under_su, reset_to_real_user, \
@@ -49,18 +49,10 @@ def su_reset_view(request, next_page=None,
     return safe_redirect(request, next_page)
 
 
-@jsonify
 @enforce_condition(is_superuser)
 def get_suable_users_view(request):
-    if len(request.REQUEST.get('substr', '')) < 2:
-        raise Http404
-    substr = request.REQUEST['substr']
-
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    users = User.objects \
-        .filter(is_superuser=False, username__icontains=substr) \
-        .values_list('username', flat=True)[:num_hints]
-    return list(users)
+    users = User.objects.filter(is_superuser=False)
+    return get_user_hints_view(request, 'substr', users)
 
 
 @status_registry.register

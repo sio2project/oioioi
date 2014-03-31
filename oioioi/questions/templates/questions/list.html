@@ -45,14 +45,6 @@
                 $("#{{ form.category.auto_id }}").change(function(){
                     this.form.submit();
                 });
-                {% if is_admin %}
-                    $("#{{ form.author.auto_id }}").attr("autocomplete", "off").typeahead({
-                        source: function(query, process) {
-                            $.getJSON("{% url 'get_messages_authors' contest_id=contest.id %}", {substr: query}, process);
-                        },
-                        items: {{ num_hints }}
-                    });
-                {% endif %}
             });
         </script>
     </div>

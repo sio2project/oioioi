@@ -26,6 +26,8 @@ contest_patterns = patterns('oioioi.contests.views',
         name='contest_attachment'),
     url(r'^pa/(?P<attachment_id>\d+)/$', 'problem_attachment_view',
         name='problem_attachment'),
+    url(r'^user_hints/$', 'contest_user_hints_view',
+        name='contest_user_hints'),
 )
 
 urlpatterns = patterns('oioioi.contests.views',

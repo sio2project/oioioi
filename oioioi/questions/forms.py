@@ -1,6 +1,8 @@
 from django import forms
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.models import Round, ProblemInstance
 from oioioi.questions.models import message_kinds, Message, ReplyTemplate
 from oioioi.questions.utils import get_categories, get_category
@@ -105,26 +107,9 @@ class FilterMessageForm(forms.Form):
 
 
 class FilterMessageAdminForm(FilterMessageForm):
-    author = forms.CharField(label=_("Author username"), required=False)
+    author = UserSelectionField(label=_("Author username"), required=False)
 
-    def clean_author(self):
-        username = self.cleaned_data['author'].split()
-        if username:
-            # We allow fill 'author' form area only by username typed directly
-            # or by full name chosen from typeahead.
-            if len(username) == 1 or (len(username) and
-                    username[1].startswith('(') and
-                    username[-1].endswith(')')):
-                username = username[0]
-
-                try:
-                    return User.objects.get(username=username)
-                except User.DoesNotExist:
-                    raise forms.ValidationError(_("'%s' is invalid username."
-                                                  % username))
-            else:
-                raise forms.ValidationError(
-                    _("Type username directly or choose suggested full name."))
-
-        else:
-            return None
+    def __init__(self, request, *args, **kwargs):
+        super(FilterMessageAdminForm, self).__init__(request, *args, **kwargs)
+        self.fields['author'].hints_url = reverse('get_messages_authors',
+            kwargs={'contest_id': request.contest.id})

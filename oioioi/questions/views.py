@@ -13,7 +13,7 @@ from django.utils.text import Truncator
 from oioioi.base.menu import menu_registry
 from oioioi.base.utils import jsonify
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.base.utils.user_selection import get_user_q_expression
+from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
     visible_rounds, contest_exists
 from oioioi.questions.utils import get_categories, log_addition, \
@@ -106,7 +106,6 @@ def messages_view(request, contest_id):
     return TemplateResponse(request, 'questions/list.html',
         {'records': messages, 'form': form,
          'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
-         'num_hints': getattr(settings, 'NUM_HINTS', 10),
          'categories': get_categories(request)})
 
 
@@ -185,18 +184,10 @@ def add_contest_message_view(request, contest_id):
             {'form': form, 'title': title, 'is_announcement': is_admin})
 
 
-@jsonify
 @enforce_condition(contest_exists & is_contest_admin)
 def get_messages_authors_view(request, contest_id):
-    if len(request.REQUEST.get('substr', '')) < 1:
-        raise Http404
-
-    q_expression = get_user_q_expression(request.REQUEST['substr'], 'author')
-    users = visible_messages(request).filter(q_expression).order_by('author') \
-        .values('author').distinct().values_list('author__username',
-        'author__first_name', 'author__last_name')[:getattr(settings,
-                                                            'NUM_HINTS', 10)]
-    return ['%s (%s %s)' % u for u in users]
+    queryset = visible_messages(request)
+    return get_user_hints_view(request, 'substr', queryset, 'author')
 
 
 @jsonify

@@ -1,9 +1,12 @@
 from collections import defaultdict
+import re
 from django import forms
+from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-import re
+from oioioi.base.utils.user_selection import UserSelectionField, \
+    UserSelectionWidget
 from oioioi.contests.models import ProblemInstance
 from oioioi.oi.models import Region
 from oioioi.programs.models import Test
@@ -72,10 +75,9 @@ class OIReportCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 class OIReportForm(forms.Form):
     is_single_report = forms.BooleanField(required=False,
         label=_("Single report"))
-    single_report_user = forms.CharField(
+    single_report_user = UserSelectionField(
         required=False,
-        widget=forms.TextInput(attrs={'placeholder': _("User"),
-                                      'autocomplete': 'off'}),
+        widget=UserSelectionWidget(attrs={'placeholder': _("User")}),
         label=_("Username")
     )
     form_type = forms.ChoiceField(choices=report_types, label=_("Report type"))
@@ -89,6 +91,13 @@ class OIReportForm(forms.Form):
                 label=_("Round"))
         self.fields['report_region'] = forms.ChoiceField(choices=regions,
                 label=_("Region"))
+
+        self.fields['single_report_user'].hints_url = \
+                reverse('get_report_users',
+                    kwargs={'contest_id': request.contest.id})
+        self.fields['single_report_user'].queryset = \
+                request.contest.controller.registration_controller() \
+                    .filter_participants(User.objects.all())
 
         for round in testgroups:
             for task in round['tasks']:
@@ -121,30 +130,10 @@ class OIReportForm(forms.Form):
         cleaned_data = super(OIReportForm, self).clean()
 
         if cleaned_data['is_single_report']:
-            report_user = cleaned_data['single_report_user'].split()
-            error_msg = None
-
-            if len(report_user) == 1 or \
-                    (len(report_user) > 1
-                    and report_user[1].startswith('(')
-                    and report_user[-1].endswith(')')):
-
-                report_user = report_user[0]
-
-                try:
-                    User.objects.get(username=report_user)
-                except User.DoesNotExist:
-                    error_msg = _("There is no user with given username:"
-                                  "%s.") % report_user
-
-                cleaned_data['single_report_user'] = report_user
-            else:
-                error_msg = _("Invalid user description. Please insert a "
-                        "correct username or select a user from dropdown.")
-
-            if error_msg is not None:
+            report_user = cleaned_data.get('single_report_user')
+            if report_user is None:
                 self._errors['single_report_user'] \
-                    = self.error_class([error_msg])
+                    = self.error_class([_("No user specified.")])
                 del cleaned_data['single_report_user']
 
         return cleaned_data

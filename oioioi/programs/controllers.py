@@ -7,6 +7,7 @@ from operator import attrgetter
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
 from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -24,6 +25,8 @@ from oioioi.programs.models import ProgramSubmission, OutputChecker, \
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
+from oioioi.contests.utils import is_contest_admin
+from oioioi.base.utils.user_selection import UserSelectionField
 
 logger = logging.getLogger(__name__)
 
@@ -280,22 +283,22 @@ class ProgrammingContestController(ContestController):
                             parse_language_by_extension(ext)
 
         if is_contest_admin(request):
-            form.fields['user'] = forms.CharField(label=_("User"),
-                    initial=request.user.username)
+            form.fields['user'] = UserSelectionField(
+                    label=_("User"),
+                    hints_url=reverse('contest_user_hints',
+                            kwargs={'contest_id': request.contest.id}),
+                    initial=request.user)
 
             def clean_user():
-                username = form.cleaned_data['user']
-                if username == request.user.username:
-                    return request.user
-
-                qs = User.objects.filter(username=username)
                 try:
-                    if request.user.is_superuser:
-                        return qs.get()
-                    else:
-                        return self.registration_controller() \
-                                .filter_participants(qs) \
-                                .get()
+                    user = form.cleaned_data['user']
+                    if user == request.user:
+                        return user
+                    if not request.user.is_superuser:
+                        self.registration_controller() \
+                            .filter_participants(
+                                User.objects.filter(pk=user.pk)).get()
+                    return user
                 except User.DoesNotExist:
                     raise forms.ValidationError(_(
                             "User does not exist or "

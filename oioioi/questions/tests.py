@@ -326,7 +326,8 @@ class TestQuestions(TestCase):
         response = self.client.get(url)
         self.assertEquals(404, response.status_code)
 
-        response = self.client.get(url, {'substr': 't'})
+        response = self.client.get(url, {'substr': 'te'})
+        self.assertEquals(200, response.status_code)
         response = json.loads(response.content)
         self.assertListEqual(['test_admin (Test Admin)',
                               'test_user (Test User)'], response)

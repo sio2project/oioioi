@@ -1,7 +1,9 @@
 from django import forms
+from django.core.urlresolvers import reverse
 from django.contrib.auth import get_backends
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.user_selection import UserSelectionField
 
 
 def authentication_backends():
@@ -12,13 +14,10 @@ def authentication_backends():
 
 
 class SuForm(forms.Form):
-    user = forms.CharField(label=_("Username"))
+    user = UserSelectionField(label=_("Username"))
     backend = forms.ChoiceField(label=_("Authentication backend"),
         required=False, choices=authentication_backends())
 
-    def clean_user(self):
-        username = self.cleaned_data['user']
-        try:
-            return User.objects.get(username=username)
-        except User.DoesNotExist:
-            raise forms.ValidationError(_("Invalid username."))
+    def __init__(self, *args, **kwargs):
+        super(SuForm, self).__init__(*args, **kwargs)
+        self.fields['user'].hints_url = reverse('get_suable_users')
