@@ -42,7 +42,8 @@ INSTALLED_APPS = (
     'oioioi.amppz',
     'oioioi.publicsolutions',
     'oioioi.testspackages',
-    'oioioi.pa'
+    'oioioi.pa',
+    'oioioi.notifications',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

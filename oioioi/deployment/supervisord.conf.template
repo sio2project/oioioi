@@ -59,6 +59,11 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/zeus-fetcher.log
 {% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
 
+[program:notifications-server]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications-server
+redirect_stderr=true
+{% if not settings.NOTIFICATIONS_SERVER_ENABLED %}exclude=true{% endif %}
+
 [program:autoreload]
 # Comment this out to enable auto-reloading when code changes.
 exclude=true
