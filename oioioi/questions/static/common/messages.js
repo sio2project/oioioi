@@ -108,3 +108,76 @@ function dismissNewMessageAlert(id) {
     $("#alert_" + id).fadeOut();
 }
 
+$.fn.toggleChevron = function() {
+    return $(this).attr('class') == 'icon-chevron-up' ?
+            $(this).chevronExpand() : $(this).chevronCollapse();
+}
+
+$.fn.chevronCollapse = function() {
+    return $(this).attr('class', 'icon-chevron-up');
+}
+
+$.fn.chevronExpand = function() {
+    return $(this).attr('class', 'icon-chevron-down');
+}
+
+$.fn.setMsgHeight = function() {
+    $(this).children('td').css('height', $(this).find('p').css('height'));
+}
+
+$(document).ready(function() {
+    var msgs = $("[id*='hidden_message_']");
+    var msg_bars = $("[id*='message_']");
+    var msg_buttons = $("[id*='show_message_']");
+    var expand = true;
+    var expand_text = gettext("Expand all messages");
+    var collapse_text = gettext("Collapse all messages");
+    var single_expand_text = gettext("Expand message");
+    var single_collapse_text = gettext("Collapse message");
+    var btn = $('a#expand_messages');
+    var speed = 200;
+
+    btn.text(expand_text);
+    msg_buttons.attr('title', single_expand_text);
+    msgs.find('p').css('position', 'absolute');
+
+    btn.click(function() {
+        if (expand)
+            msgs.each(function() {
+                $(this).show(speed);
+                $(this).setMsgHeight();
+            });
+        else
+            msgs.hide(speed);
+
+        $(this).text(expand ? collapse_text : expand_text);
+        msg_buttons.children('i').each(function() {
+            if (expand)
+                $(this).chevronCollapse();
+            else
+                $(this).chevronExpand();
+        });
+        expand = !expand;
+    });
+
+    msg_bars.mouseenter(function() {
+        $(this).children('td#msg_buttons').fadeTo(1, 1);
+    });
+
+    msg_bars.mouseleave(function() {
+        $(this).children('td#msg_buttons').fadeTo(1, 0);
+    });
+
+    msg_buttons.click(function() {
+        var s = $(this).attr('id');
+        var hidden_msg =
+                $('#hidden_message_' + parseInt(s.substring(13, s.length)))
+
+        hidden_msg.toggle(speed);
+        hidden_msg.setMsgHeight();
+
+        $(this).children('i').toggleChevron();
+        $(this).attr('title', $(this).attr('title') == single_expand_text ?
+                single_collapse_text : single_expand_text);
+    });
+});
