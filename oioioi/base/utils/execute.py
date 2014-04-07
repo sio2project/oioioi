@@ -61,26 +61,20 @@ def execute(command, env=None, split_lines=False, ignore_errors=False,
     if isinstance(command, (list, tuple)):
         command = ' '.join(quote(x) for x in command)
 
-    original_cwd = os.getcwd()
-    try:
-        def set_cwd():
-            if cwd:
-                os.chdir(cwd)
+    def set_cwd():
+        if cwd:
+            os.chdir(cwd)
 
-        if capture_output:
-            p = subprocess.Popen(command, stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                    shell=True, close_fds=True, env=env,
-                    preexec_fn=set_cwd)
-        else:
-            p = subprocess.Popen(command, stdin=subprocess.PIPE,
-                    shell=True, close_fds=True, env=env,
-                    preexec_fn=set_cwd)
+    if capture_output:
+        p = subprocess.Popen(command, stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                shell=True, close_fds=True, env=env, preexec_fn=set_cwd)
+    else:
+        p = subprocess.Popen(command, stdin=subprocess.PIPE,
+                shell=True, close_fds=True, env=env, preexec_fn=set_cwd)
 
-        stdout, _ = p.communicate(stdin)
-        rc = p.returncode
-    finally:
-        os.chdir(original_cwd)
+    stdout, _ = p.communicate(stdin)
+    rc = p.returncode
 
     if split_lines:
         stdout = stdout.splitlines()
