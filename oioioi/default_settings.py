@@ -384,3 +384,20 @@ CACHES = {
 }
 
 RANKING_CACHE_TIMEOUT = 30  # seconds
+
+# Notifications configuration (client)
+# This one is for JavaScript socket.io client.
+# It should contain actual URL available from remote machines.
+NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
+
+# Notifications configuration (server)
+NOTIFICATIONS_SERVER_ENABLED = False
+
+# URL connection string to a Notifications Server instance
+NOTIFICATIONS_OIOIOI_URL = 'http://localhost:8000/'
+
+# URL connection string for RabbitMQ instance used by Notifications Server
+NOTIFICATIONS_RABBITMQ_URL = 'amqp://localhost'
+
+# Port that the Notifications Server listens on
+NOTIFICATIONS_SERVER_PORT = 7887

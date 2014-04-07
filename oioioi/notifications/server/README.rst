@@ -1,0 +1,1 @@
+This directory contains a server for OIOIOI Notifications System.

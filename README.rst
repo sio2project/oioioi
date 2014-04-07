@@ -176,6 +176,11 @@ Production configuration
    can run memcached locally or on a remote server. For more information about
    memcached configuration see `official documentation`_.
 
+#. (optionally) You can ensure users are automatically notified of certain
+   events in the system - or notify them on your own - just enable
+   the Notifications Server.
+   For more information, consult the *notifications/README.rst* file.
+
 .. _judging-machines:
 .. _install gevent: https://github.com/surfly/gevent#installing-from-github
 .. _set ALLOWED_HOSTS: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -283,6 +288,32 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
        USE_SINOLPACK_MAKEFILES = False
        #UNPACKMGR_CONCURRENCY = 1
+
+#. * Added *Notifications Server* entries to *deployment/supervisord.conf*.::
+
+        [program:notifications-server]
+        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications_server
+        redirect_stderr=true
+        {% if not settings.NOTIFICATIONS_SERVER_ENABLED %}exclude=true{% endif %}
+
+   * Added *NOTIFICATIONS_* options to *deployment/settings.py*.::
+
+        # Notifications configuration (client)
+        # This one is for JavaScript socket.io client.
+        # It should contain actual URL available from remote machines.
+        NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
+
+        # Notifications configuration (server)
+        NOTIFICATIONS_SERVER_ENABLED = False
+
+        # URL connection string to a Notifications Server instance
+        NOTIFICATIONS_OIOIOI_URL = 'http://localhost:8000/'
+
+        # URL connection string for RabbitMQ instance used by Notifications Server
+        NOTIFICATIONS_RABBITMQ_URL = 'amqp://localhost'
+
+        # Port that the Notifications Server listens on
+        NOTIFICATIONS_SERVER_PORT = 7887
 
 Usage
 -----

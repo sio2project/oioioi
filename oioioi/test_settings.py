@@ -1,9 +1,6 @@
 # pylint: disable=W0401
 # Wildcard import
 from oioioi.default_settings import *
-from oioioi.base.config_version_check import INSTALLATION_CONFIG_VERSION
-
-CONFIG_VERSION = INSTALLATION_CONFIG_VERSION
 
 TIME_ZONE = 'UTC'
 
@@ -46,7 +43,8 @@ INSTALLED_APPS = (
     'oioioi.publicsolutions',
     'oioioi.testspackages',
     'oioioi.teams',
-    'oioioi.pa'
+    'oioioi.pa',
+    'oioioi.notifications',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -106,3 +104,5 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
     }
 }
+
+CONFIG_VERSION = 1
