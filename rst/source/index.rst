@@ -55,6 +55,7 @@ Table of Contents
 .. toctree::
     :maxdepth: 2
 
+    sections/modules
     sections/filestorage
     sections/scoring
     sections/evaluation
@@ -67,5 +68,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
