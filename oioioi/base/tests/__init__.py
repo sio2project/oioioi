@@ -1055,3 +1055,13 @@ class TestGroupCache(TestCase):
         self.assertEqual(group_cache.get(item1_key, group12_key), None)
         self.assertEqual(group_cache.get(item2_key, group12_key), None)
         self.assertEqual(group_cache.get(item3_key, group3_key), item3_value)
+
+
+@override_settings(LANGUAGE_CODE='pl')
+class TestTranslate(TestCase):
+    def test_translate(self):
+        get_data = {'query': 'contest'}
+        url = reverse('translate')
+        response = self.client.get(url, get_data)
+        self.assertEqual(200, response.status_code)
+        self.assertIn('konkurs', response.content)

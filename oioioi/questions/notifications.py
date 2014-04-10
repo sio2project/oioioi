@@ -1,10 +1,9 @@
+from django.utils.translation import ugettext_noop
+
 from oioioi.base.notification import NotificationHandler
 
-
-# We want to mark message strings to be extracted to translate
-# and not translate them in this module.
-_ = lambda s: s
-
+# How many characters from a message will be passed to a notification
+MAX_DETAILS_LENGTH = 60
 
 def notification_function_answer(arguments):
     assert hasattr(arguments, 'user') \
@@ -13,9 +12,12 @@ def notification_function_answer(arguments):
             "The log doesn't have user, question_instance or answer_instance" \
             " value in the extra map"
 
-    message = _("Your question was answered.")
-    message_arguments = {'link': arguments.question_instance
-            .get_absolute_url()}
+    message_details = arguments.question_instance.topic + ': ' + \
+            arguments.question_instance.content
+    message = ugettext_noop("Your question was answered.")
+    message_arguments = {'address': arguments.question_instance
+            .get_absolute_url(),
+            'details': message_details[:MAX_DETAILS_LENGTH]}
 
     NotificationHandler.send_notification(arguments.user,
         'question_answered', message, message_arguments)
@@ -30,8 +32,11 @@ def notification_function_public(arguments):
             "The log doesn't have contest or message_instance value" \
             " in the extra map"
 
-    message = _("New public message.")
-    message_arguments = {'link': arguments.message_instance.get_absolute_url()}
+    message_details = arguments.message_instance.topic + ': ' + \
+            arguments.message_instance.content
+    message = ugettext_noop("New public message.")
+    message_arguments = {'address': arguments.message_instance.get_absolute_url(),
+            'details': message_details[:MAX_DETAILS_LENGTH]}
 
     controller = arguments.contest.controller
 

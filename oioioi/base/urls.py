@@ -7,6 +7,7 @@ urlpatterns = patterns('oioioi.base.views',
         name='force_permission_denied'),
     url(r'^profile/$', 'edit_profile_view', name='edit_profile'),
     url(r'^logout/$', 'logout_view', name='logout'),
+    url(r'^translate/$', 'translate_view', name='translate'),
     url(r'^admin/logout/$', 'logout_view'),
     url(r'^login/$', 'login_view', name='login'),
 )

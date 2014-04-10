@@ -9,17 +9,21 @@ from django.http import HttpResponse, HttpResponseForbidden
 from django.template import TemplateDoesNotExist, RequestContext
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
-from django.views.decorators.http import require_POST
 from django.views.defaults import page_not_found
+from django.utils.translation import ugettext, ugettext_lazy as _
+from django.views.decorators.http import require_POST, require_GET
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.views import logout as auth_logout, \
                                       login as auth_login
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.vary import vary_on_headers, vary_on_cookie
+from django.views.decorators.cache import cache_control
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
+from oioioi.base.utils import jsonify
 from oioioi.base.menu import account_menu_registry
 import traceback
 
@@ -116,3 +120,15 @@ def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
         return safe_redirect(request, redirect_to)
     else:
         return auth_login(request, **kwargs)
+
+
+@require_GET
+@vary_on_headers('Content-Language')
+@vary_on_cookie
+@cache_control(public=True, max_age=900)
+@jsonify
+def translate_view(request):
+    if 'query' in request.GET:
+        return {'answer': ugettext(request.GET['query'])}
+    else:
+        raise SuspiciousOperation

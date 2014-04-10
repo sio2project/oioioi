@@ -1,8 +1,18 @@
 import logging
+import json
+import uuid
+import time
+import threading
+from urlparse import urlparse
+from librabbitmq import Connection, ConnectionError, ChannelError
+
+from django.conf import settings
+
 from oioioi.base.utils.loaders import load_modules
 
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
+thread_data = threading.local()
 
 class NotificationHandler(logging.StreamHandler):
     """This handler catches all logs and emits a notification
@@ -19,10 +29,64 @@ class NotificationHandler(logging.StreamHandler):
     # key - notification type, value - function handle
     notification_functions = {}
 
+    notification_queue_prefix = '_notifs_'
+    last_connection_check = 0
+    conn_try_interval = 30
+
+    @classmethod
+    def _check_connection(cls):
+        if not getattr(thread_data, 'rabbitmq_connected', False) \
+                and 'oioioi.notifications' in settings.INSTALLED_APPS \
+                and NotificationHandler.last_connection_check < \
+                time.time() - NotificationHandler.conn_try_interval:
+            try:
+                o = urlparse(settings.NOTIFICATIONS_RABBITMQ_URL)
+                kwargs = {}
+                if o.hostname:
+                    kwargs['host'] = o.hostname
+                if o.port:
+                    kwargs['port'] = o.port
+                if o.username:
+                    kwargs['userid'] = o.username
+                if o.password:
+                    kwargs['password'] = o.password
+                if o.path:
+                    kwargs['virtual_host'] = o.path
+                thread_data.conn = Connection(**kwargs)
+
+                thread_data.rabbitmq_connected = True
+            except Exception:
+                NotificationHandler.last_connection_check = time.time()
+                logger.info("Notifications: Can't connect to RabbitMQ",
+                            exc_info=True)
+
+    @classmethod
+    def _send_notification_message(cls, user, message, repeated=False):
+        if not hasattr(thread_data, 'conn') or \
+                not getattr(thread_data, 'rabbitmq_connected', False):
+            return
+
+        try:
+            queue_name = NotificationHandler.notification_queue_prefix \
+                    + str(user.pk)
+            channel = thread_data.conn.channel()
+            channel.queue_declare(queue=queue_name, durable=True)
+            channel.basic_publish(exchange='',
+                    routing_key=queue_name, body=json.dumps(message))
+        except (ConnectionError, ChannelError):
+            logger.info("Notifications: Connection with RabbitMQ broken",
+                    exec_info=True)
+            thread_data.rabbitmq_connected = False
+
+            # Make a second try
+            if not repeated:
+                NotificationHandler._check_connection()
+                NotificationHandler._send_notification_message(user, message,
+                        repeated=True)
+
     @classmethod
     def send_notification(cls, user, notification_type,
-            notification_message, notificaion_message_arguments):
-
+            notification_message, notification_message_arguments):
         """This function sends a notification to the specified user
            by sending a message to RabbitMQ.
 
@@ -39,12 +103,34 @@ class NotificationHandler(logging.StreamHandler):
                caught to translate.
 
            :param notification_message_arguments: A map which contains
-               strings to interpolate notification_message, and a special
-               optional parameter "link" -- an absolute link
-               (starting with http://) to a page related to
-               the notification, where the user can check the details.
+               strings to interpolate notification_message and special
+               optional parameters:
+                   * "address" -- an absolute link
+                       (starting with http://) to a page related to
+                       the notification, where the user can check the details.
+                   * "details" -- a short information
+                       for the user about the event.
         """
-        pass
+
+        NotificationHandler._check_connection()
+
+        message = {}
+
+        # Id of a message is an unique uuid4.
+        message['id'] = str(uuid.uuid4())
+
+        message['date'] = round(time.time() * 1000)
+        message['message'] = notification_message
+
+        if 'details' in notification_message_arguments:
+            message['details'] = notification_message_arguments['details']
+
+        if 'address' in notification_message_arguments:
+            message['url'] = notification_message_arguments['address']
+
+        message['arguments'] = notification_message_arguments
+
+        NotificationHandler._send_notification_message(user, message)
 
     @classmethod
     def register_notification(cls, notification_type, notification_function):
@@ -75,7 +161,8 @@ class NotificationHandler(logging.StreamHandler):
         # http://docs.python.org/2/library/logging.html#logging.Handler.handle
         #
 
-        if not NotificationHandler.loaded_notifications:
+        if not NotificationHandler.loaded_notifications and \
+                'oioioi.notifications' in settings.INSTALLED_APPS:
             load_modules('notifications')
             NotificationHandler.loaded_notifications = True
 

@@ -72,6 +72,11 @@ setup(
         "chardet",
 
         "django-gravatar2",
+
+        # A library required by AMQP, used in notifications system.
+        # We need version >= 1.5.1, becuase it has fixed this bug
+        # https://github.com/celery/librabbitmq/issues/42
+        "librabbitmq>=1.5.1",
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

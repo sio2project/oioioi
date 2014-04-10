@@ -33,13 +33,12 @@ To add a new notification, you should:
   If so, you have to modify it, adding the code described below.
   Otherwise you should create it, remembering that:
 
-  * You don't want to import django.utils.translation,
+  * You don't want to import django.utils.translation.ugettext,
     as the notification message should be translated into
     the receiving user's language, not the sender's language. Instead,
-    you may want to define ``_ = lambda s: s`` and mark all
-    the notification's messages to be extracted to translate, wrapping them
-    in the ``_()`` function. This allows the external translating program
-    to process these strings, but prevents translating them at a wrong time
+    you may want to use ugettext_noop function.
+    This allows the external translating program to process these strings,
+    but prevents translating them at a wrong time
     by the Django translations module.
 
   * Your file will be automatically processed when the NotificationHandler
@@ -54,7 +53,7 @@ To add a new notification, you should:
                 "The log doesn't have user, question_instance" \
                 "or answer_instance value in the extra map"
 
-        message = _("Your question was answered.")
+        message = ugettext_noop("Your question was answered.")
         message_arguments = {'link': arguments.question_instance
                 .get_absolute_url()}
 
