@@ -5,8 +5,8 @@ $(document).ready(function() {
                 date.getHours(), 0, 0, 0);
     }
 
-    function round_to_seconds(date) {
-        return new Date(Math.round(date.getTime() / 1000) * 1000);
+    function round_to_minutes(date) {
+        return new Date(Math.round(date.getTime() / (60 * 1000)) * 60 * 1000);
     }
 
     var GROUP_ICON_CLASS = 'group-icon';
@@ -403,12 +403,13 @@ $(document).ready(function() {
         // set the inital dates range and dateboxes positions
         // based on the inital datepickers values
         change_date_handler();
+        // connect equal dates
         var datebox_array = $('.datebox').sort(function(a,b) {
             return get_date($(a)) < get_date($(b));
         }).get();
         for(var i = 0; i < datebox_array.length - 1; i++) {
-            if(round_to_seconds(get_date($(datebox_array[i]))) ==
-                    round_to_seconds(get_date($(datebox_array[i+1])))) {
+            if(round_to_minutes(get_date($(datebox_array[i]))).getTime() ===
+                    round_to_minutes(get_date($(datebox_array[i+1]))).getTime()) {
                 connect_groups($(datebox_array[i]), $(datebox_array[i+1]));
             }
         }
