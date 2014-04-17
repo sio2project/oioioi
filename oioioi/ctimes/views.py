@@ -1,14 +1,14 @@
 from datetime import timedelta
 import time
 
-from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 
 from oioioi.contests.models import Round
 from oioioi.base.utils import jsonify
 
 
-def ctimes_response_dict(request):
+@jsonify
+def ctimes_view(request, contest_id=None):
     now = request.timestamp
     contest = request.contest
     if contest is None:
@@ -43,10 +43,3 @@ def ctimes_response_dict(request):
         return {
             'status': 'NO_ROUND',
         }
-
-
-@jsonify
-def ctimes_view(request):
-    if not request.user.is_authenticated():
-        raise PermissionDenied
-    return ctimes_response_dict(request)
