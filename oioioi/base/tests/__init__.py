@@ -311,12 +311,12 @@ class TestMenu(TestCase):
                 lambda request: '/spam', order=100)
 
             response = self._render_menu(user=user)
-            self.assertIn('id="contesticon"', response)
+            self.assertIn('class="contesticon"', response)
             self.assertNotIn('User Menu', response)
             self.assertNotIn('Admin Menu', response)
 
             response = self._render_menu(user=admin)
-            self.assertNotIn('id="contesticon"', response)
+            self.assertNotIn('class="contesticon"', response)
             self.assertIn('User Menu', response)
             self.assertIn('Admin Menu', response)
             self.assertLess(response.index('Test Admin Item'),
