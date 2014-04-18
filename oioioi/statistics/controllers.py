@@ -156,11 +156,12 @@ class StatisticsMixinForProgrammingContestController(object):
 
         result = []
         times = rounds_times(request)
+        is_observer = is_contest_admin(request) or is_contest_observer(request)
 
         can_see_any_problems = False
         for pi in problem_instances:
             can_see_round = times[pi.round].results_visible(request.timestamp)
-            if can_see_round:
+            if can_see_round or is_observer:
                 result.append(('PROBLEM', pi.short_name, pi))
                 can_see_any_problems = True
 
