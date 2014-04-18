@@ -8,6 +8,7 @@ from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.utils import is_contest_admin
 from oioioi.submitsqueue.models import QueuedSubmit
 
 
@@ -157,8 +158,14 @@ class ContestQueuedSubmit(QueuedSubmit):
 class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
     def __init__(self, *args, **kwargs):
         super(ContestSubmitsQueueAdmin, self).__init__(*args, **kwargs)
-        self.list_display = [x for x in self.list_display if x != 'contest']
+        self.list_display = [x for x in self.list_display
+                             if x not in ('contest', 'celery_task_id')]
         self.list_filter = self.list_filter + [UserListFilter]
+
+    def has_change_permission(self, request, obj=None):
+        if obj:
+            return False
+        return is_contest_admin(request)
 
     def queryset(self, request):
         qs = super(ContestSubmitsQueueAdmin, self).queryset(request)
