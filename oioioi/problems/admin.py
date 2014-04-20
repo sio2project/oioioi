@@ -1,4 +1,5 @@
 import logging
+import urllib
 
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied
@@ -6,18 +7,23 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.util import unquote
+from django.contrib.admin.actions import delete_selected
+from django.contrib import messages
 from django.conf.urls import patterns, url
+from django.utils.encoding import force_unicode
 
 from oioioi.base import admin
-from oioioi.base.utils import make_html_link
-from oioioi.base.forms import AlwaysChangedModelForm
+from oioioi.base.utils import make_html_link, make_html_links
+from oioioi.base.admin import system_admin_menu_registry
+from oioioi.base.permissions import make_request_condition, is_superuser
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.admin import ContestAdmin
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
-from oioioi.problems.forms import ProblemStatementConfigForm
 from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment
+        ProblemAttachment, ProblemPackage
 from oioioi.problems.utils import can_add_problems, can_change_problem
+from oioioi.problems.forms import ProblemStatementConfigForm
 
 
 logger = logging.getLogger(__name__)
@@ -178,3 +184,156 @@ class BaseProblemAdmin(admin.MixinsAdmin):
         return extra_urls + urls
 
 admin.site.register(Problem, BaseProblemAdmin)
+
+
+@make_request_condition
+def pending_packages(request):
+    return ProblemPackage.objects.filter(status__in=['?', 'ERR']).exists()
+
+
+@make_request_condition
+def pending_contest_packages(request):
+    if not request.contest:
+        return False
+    return ProblemPackage.objects.filter(contest=request.contest,
+            status__in=['?', 'ERR']).exists()
+
+
+class ProblemPackageAdmin(admin.ModelAdmin):
+    list_display = ['contest', 'problem_name', 'colored_status', 'package',
+            'created_by', 'creation_date', 'celery_task_id', 'info']
+    list_filter = ['status', 'problem_name', 'contest', 'created_by']
+    actions = ['delete_selected']  # This allows us to override the action
+
+    def __init__(self, *args, **kwargs):
+        super(ProblemPackageAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = [None]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        if obj:
+            return False
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        if not request.user.is_superuser:
+            return False
+        return (not obj) or (obj.status != 'OK')
+
+    def delete_selected(self, request, queryset):
+        # We use processed ProblemPackage instances to store orignal package
+        # files.
+        if queryset.filter(status='OK').exists():
+            messages.error(request,
+                    _("Cannot delete a processed Problem Package"))
+        else:
+            return delete_selected(self, request, queryset)
+    delete_selected.short_description = (_("Delete selected %s") %
+            ProblemPackage._meta.verbose_name_plural.title())
+
+    def colored_status(self, instance):
+        status_to_str = {'OK': 'ok', '?': 'in_prog', 'ERR': 'err'}
+        package_status = status_to_str[instance.status]
+        return '<span class="subm_admin prob_pack_%s">%s</span>' % \
+                (package_status, force_unicode(instance.get_status_display()))
+    colored_status.allow_tags = True
+    colored_status.short_description = _("Status")
+    colored_status.admin_order_field = 'status'
+
+    def package(self, instance):
+        if instance.package_file:
+            href = reverse(
+                    'oioioi.problems.views.download_problem_package_view',
+                    kwargs={'package_id': str(instance.id)})
+            return make_html_link(href, instance.package_file)
+        return None
+    package.short_description = _("Package file")
+
+    def came_from(self):
+        return reverse('oioioiadmin:problems_problempackage_changelist')
+
+    def inline_actions(self, instance, contest):
+        actions = []
+        if instance.status == 'OK' and instance.problem:
+            problem = instance.problem
+            if (not problem.contest) or (problem.contest == contest):
+                problem_view = reverse(
+                        'oioioiadmin:problems_problem_change',
+                        args=(problem.id,)) + '?' + urllib.urlencode(
+                                {'came_from': self.came_from()})
+                actions.append((problem_view, _("Edit problem")))
+        if instance.status == 'ERR' and instance.traceback:
+            traceback_view = reverse(
+                    'oioioi.problems.views.download_package_traceback_view',
+                    kwargs={'package_id': str(instance.id)})
+            actions.append((traceback_view, _("Error details")))
+        return actions
+
+    def actions_field(self, contest):
+        def inner(instance):
+            inline_actions = self.inline_actions(instance, contest)
+            return make_html_links(inline_actions)
+        inner.allow_tags = True
+        inner.short_description = _("Actions")
+        return inner
+
+    def get_list_display(self, request):
+        return super(ProblemPackageAdmin, self).get_list_display(request) \
+                + [self.actions_field(request.contest)]
+
+    def get_list_select_related(self):
+        return super(ProblemPackageAdmin, self).get_list_select_related() \
+                + ['problem', 'problem__contest']
+
+admin.site.register(ProblemPackage, ProblemPackageAdmin)
+
+system_admin_menu_registry.register('problempackage_change',
+        _("Problem packages"),
+        lambda request:
+            reverse('oioioiadmin:problems_problempackage_changelist'),
+        condition=pending_packages,
+        order=70)
+
+
+class ContestProblemPackage(ProblemPackage):
+    class Meta(object):
+        proxy = True
+        verbose_name = _("Contest Problem Package")
+
+
+class ContestProblemPackageAdmin(ProblemPackageAdmin):
+    list_display = [x for x in ProblemPackageAdmin.list_display
+            if x not in ['contest', 'celery_task_id']]
+    list_filter = [x for x in ProblemPackageAdmin.list_filter
+            if x != 'contest']
+
+    def queryset(self, request):
+        qs = super(ContestProblemPackageAdmin, self).queryset(request)
+        return qs.filter(contest=request.contest)
+
+    def has_change_permission(self, request, obj=None):
+        if obj:
+            return False
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def came_from(self):
+        return reverse('oioioiadmin:problems_contestproblempackage_changelist')
+
+    def get_actions(self, request):
+        actions = super(ContestProblemPackageAdmin, self).get_actions(request)
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+
+admin.site.register(ContestProblemPackage, ContestProblemPackageAdmin)
+contest_admin_menu_registry.register('problempackage_change',
+        _("Problem packages"),
+        lambda request:
+            reverse('oioioiadmin:problems_contestproblempackage_changelist'),
+        condition=((~is_superuser) & pending_contest_packages),
+        order=70)

@@ -37,9 +37,9 @@ class ExtraFile(models.Model):
 
 class OriginalPackage(models.Model):
     problem = models.ForeignKey(Problem)
-    package_file = FileField(upload_to=make_problem_filename,
-            verbose_name=_("package"))
+    problem_package = models.ForeignKey('problems.ProblemPackage', blank=True,
+            null=True)
 
     class Meta(object):
-        verbose_name = _("original sinolpack package")
-        verbose_name_plural = _("original sinolpack packages")
+        verbose_name = _("original problem package")
+        verbose_name_plural = _("original problem packages")

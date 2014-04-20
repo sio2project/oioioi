@@ -10,8 +10,10 @@ from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
 
 from oioioi.base.utils import make_html_link
+from oioioi.contests.models import ProblemInstance
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
+from oioioi.problems.admin import ProblemPackageAdmin
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
         GroupReport, ModelProgramSubmission, OutputChecker, \
         LibraryProblemData, ReportActionsConfig
@@ -263,6 +265,27 @@ class ProgrammingProblemInstanceAdminMixin(object):
         return actions
 
 ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
+
+
+class ProblemPackageAdminMixin(object):
+    def inline_actions(self, package_instance, contest):
+        actions = super(ProblemPackageAdminMixin, self) \
+                .inline_actions(package_instance, contest)
+        if package_instance.status == 'OK':
+            try:
+                problem_instance = ProblemInstance.objects.get(
+                        problem=package_instance.problem, contest=contest)
+                if (problem_instance.contest and ModelSolution.objects.filter(
+                        problem=problem_instance.problem)):
+                    models_view = reverse(
+                            'oioioiadmin:contests_probleminstance_models',
+                            args=(problem_instance.id,))
+                    actions.append((models_view, _("Model solutions")))
+            except ProblemInstance.DoesNotExist:
+                pass
+        return actions
+
+ProblemPackageAdmin.mix_in(ProblemPackageAdminMixin)
 
 
 class ModelSubmissionAdminMixin(object):

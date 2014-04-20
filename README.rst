@@ -258,6 +258,9 @@ When new features are added, the configuration files in your custom
 *deployment* directory may need an update. An example valid configuration can
 always be found in the *oioioi* sources
 (*oioioi/deployment* directory, *\*.template* files).
+One of the simplest ways to learn about the changes is::
+
+    diff -u path_to_deployment/changed_file path_to_oioioi/oioioi/deployment/changed_file.template
 
 Once you have made sure that your deployment
 directory is up-to-date, change *CONFIG_VERSION* in your custom
@@ -266,7 +269,20 @@ directory is up-to-date, change *CONFIG_VERSION* in your custom
 
 List of changes since the *CONFIG_VERSION* numbering was introduced:
 
-#. * Nothing yet.
+#. * Added *unpackmgr* queue entry to *deployment/supervisord.conf*.::
+
+       [program:unpackmgr]
+       command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+       startretries=0
+       stopwaitsecs=15
+       redirect_stderr=true
+       stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
+
+   * Added *USE_SINOLPACK_MAKEFILES* and *UNPACKMGR_CONCURRENCY*
+     options to *deployment/settings.py*.::
+
+       USE_SINOLPACK_MAKEFILES = False
+       #UNPACKMGR_CONCURRENCY = 1
 
 Usage
 -----

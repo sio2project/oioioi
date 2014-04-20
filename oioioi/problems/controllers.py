@@ -41,10 +41,21 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         return ()
 
 
-class ProblemUploadContestControllerMixin(object):
-    def process_uploaded_problem(self, problem, problem_instance,
-            is_new=False):
-        """Processes a problem just after it has been uploaded
+class ProblemUploadingContestControllerMixin(object):
+    def adjust_upload_form(self, request, existing_problem, form):
+        """Adjusts the problem upload form created by some sublcass of
+           :class:`~oioioi.problems.problem_sources.PackageSource`.
+
+           Called from
+           :meth:`~oioioi.problems.problem_sources.PackageSource.view`.
         """
         pass
-ContestController.mix_in(ProblemUploadContestControllerMixin)
+
+    def fill_upload_environ(self, request, form, env):
+        """Extends the `env` dictionary used during problem uploading.
+
+           Called from
+           :meth:`~oioioi.problems.problem_sources.PackageSource.view`.
+        """
+        pass
+ContestController.mix_in(ProblemUploadingContestControllerMixin)

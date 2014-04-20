@@ -113,6 +113,14 @@ RUN_LOCAL_WORKERS = True
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
 
+# When USE_SINOLPACK_MAKEFILES equals True, the sinolpack upload workflow uses
+# standard sinolpack makefiles, whose behaviour may be modified by a custom
+# makefile.user file from a package. The makefiles' execution is not sandboxed,
+# hence it should be disabled for untrusted contest admins.
+# Whet it equals False, the upload workflow uses sioworkers for programs'
+# execution (in a sandboxed environment, if USE_UNSAFE_EXEC is set to False).
+USE_SINOLPACK_MAKEFILES = False
+
 # Uncomment and edit this line to limit availability of programming languages.
 #SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas']}
 
@@ -187,6 +195,9 @@ AUTHENTICATION_BACKENDS += (
 
 # Number of concurrently evaluated submissions (default is 1).
 #EVALMGR_CONCURRENCY = 30
+
+# Number of concurrently processed problem packages (default is 1).
+#UNPACKMGR_CONCURRENCY = 1
 
 # Uncomment the following lines to enable judging prioritisation.
 # Workers serving both high- and low-priority tasks should be started with

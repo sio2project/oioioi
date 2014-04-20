@@ -1,10 +1,10 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.problems.forms import ProblemUploadForm
+from oioioi.problems.forms import PackageUploadForm
 
 
-class ZeusProblemForm(ProblemUploadForm):
+class ZeusProblemForm(PackageUploadForm):
     zeus_id = forms.ChoiceField(label=_("Zeus ID"))
     zeus_problem_id = forms.IntegerField(required=True,
                                          label=_("Zeus Problem ID"))

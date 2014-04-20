@@ -1,14 +1,17 @@
+import os.path
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
+from django.db import transaction
 from oioioi.problems.models import Problem
 from oioioi.problems.package import backend_for_package, NoBackend
-import os.path
+from oioioi.base.utils import get_object_by_dotted_name
 
 
 class Command(BaseCommand):
     args = _("<problem_id> <filename>")
     help = _("Updates an existing problem using the given package file.")
 
+    @transaction.commit_on_success
     def handle(self, *args, **options):
         if len(args) < 2:
             raise CommandError(_("Not enough arguments"))
@@ -30,8 +33,9 @@ class Command(BaseCommand):
             raise CommandError(_("Problem #%d does not exist") % (problem_id,))
 
         try:
-            backend = backend_for_package(filename)
+            backend = \
+                    get_object_by_dotted_name(backend_for_package(filename))()
         except NoBackend:
             raise CommandError(_("Package format not recognized"))
 
-        problem = backend.unpack(filename, existing_problem=problem)
+        problem = backend.simple_unpack(filename, existing_problem=problem)

@@ -44,6 +44,9 @@ components used:
   * but we also have an :doc:`evaluation manager </sections/evaluation>` running on
     Celery
 
+* We use `Celery`_ for the :doc:`problem uploading </sections/problem_uploading>`
+  process, too.
+
 * Pagination with `django-pagination`_
 * Testing with `django-nose`_
 * Standard `Django i18n`_ with translations managed by `Transifex`_
@@ -59,6 +62,7 @@ Table of Contents
     sections/filestorage
     sections/scoring
     sections/evaluation
+    sections/problem_uploading
     sections/spliteval
     sections/notifications
     sections/misc

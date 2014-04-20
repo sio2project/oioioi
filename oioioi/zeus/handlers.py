@@ -9,6 +9,7 @@ from django.db import transaction, IntegrityError
 from django.forms.models import model_to_dict
 
 from oioioi.base.utils import get_object_by_dotted_name, naturalsort_key
+from oioioi.problems.models import Problem
 from oioioi.programs.handlers import _make_base_report
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.programs.utils import slice_str
@@ -271,7 +272,17 @@ def make_zeus_testrun_report(env, **kwargs):
     # Output truncated to first 10kB
     testrun_report.output_file.save('out', ContentFile(zeus_result['stdout']))
     testrun_report.save()
+    return env
 
+
+@transaction.commit_on_success()
+def save_zeus_data(env):
+    problem = Problem.objects.get(id=env['problem_id'])
+    problem_data, _created = ZeusProblemData.objects \
+            .get_or_create(problem=problem)
+    problem_data.zeus_id = env['zeus_id']
+    problem_data.zeus_problem_id = env['zeus_problem_id']
+    problem_data.save()
     return env
 
 

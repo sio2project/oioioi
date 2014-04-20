@@ -3,14 +3,16 @@
 import json
 import urllib2
 
-from django.core.validators import URLValidator
 from django import forms
+from django.core.validators import URLValidator
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.problems.forms import ProblemUploadForm
 
-class RemoteProblemForm(forms.Form):
+
+class RemoteProblemForm(ProblemUploadForm):
     url = forms.CharField(
         label=_("Task URL"),
         widget=forms.TextInput(attrs={'class': 'input-xxlarge'}),

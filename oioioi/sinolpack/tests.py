@@ -1,29 +1,61 @@
 # coding: utf-8
 
-from django.test import TestCase
+import os.path
+import urllib
+import zipfile
+from cStringIO import StringIO
+from nose.plugins.attrib import attr
+from nose.tools import nottest
+from django.test import TestCase, TransactionTestCase
+from django.test.utils import override_settings
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.sinolpack.package import SinolPackageBackend, \
-        DEFAULT_TIME_LIMIT
+        DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT
 from oioioi.contests.models import ProblemInstance, Contest, \
         Submission, UserResultForContest
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.models import Problem, ProblemStatement
+from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage
 from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
         TestReport
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
-from nose.plugins.attrib import attr
-from nose.tools import nottest
-import os.path
-from cStringIO import StringIO
-import urllib
-import zipfile
 
 
 @nottest
 def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
+
+
+BOTH_CONFIGURATIONS = '%test_both_configurations'
+
+
+# When a class inheriting from django.test.TestCase is decorated with
+# enable_both_unpack_configurations, all its methods decorated with
+# both_configurations will be run twice. Once in safe and once in unsafe unpack
+# mode.
+
+# Unfortunately, you won't be able run such a decorated method as a single
+# test, that is:
+# ./test.sh oioioi.sinolpack.tests:TestSinolPackage.test_huge_unpack_update
+# will NOT work.
+@nottest
+def enable_both_unpack_configurations(cls):
+    for name, fn in cls.__dict__.items():
+        if getattr(fn, BOTH_CONFIGURATIONS, False):
+            setattr(cls, '%s_safe' % (name),
+                    override_settings(USE_SINOLPACK_MAKEFILES=False)(fn))
+            setattr(cls, '%s_unsafe' % (name),
+                    override_settings(USE_SINOLPACK_MAKEFILES=True)(fn))
+            delattr(cls, name)
+    return cls
+
+
+@nottest
+def both_configurations(fn):
+    setattr(fn, BOTH_CONFIGURATIONS, True)
+    return fn
 
 
 # Fixes error "no such table: nose_c" as described in
@@ -33,6 +65,7 @@ TestReport._meta.get_all_related_objects()
 ModelSolution._meta.get_all_related_objects()
 
 
+@enable_both_unpack_configurations
 class TestSinolPackage(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -44,6 +77,57 @@ class TestSinolPackage(TestCase):
         filename = get_test_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
 
+    def test_title_in_config_yml(self):
+        filename = get_test_filename('test_simple_package.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, 'Testowe')
+
+    def test_title_from_doc(self):
+        filename = get_test_filename('test_simple_package_no_config.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertNotEqual(problem.name, 'Not this one')
+        self.assertEqual(problem.name, 'Testowe')
+
+    def test_latin2_title(self):
+        filename = get_test_filename('test_simple_package_latin2.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, u'Łąka')
+
+    def test_utf8_title(self):
+        filename = get_test_filename('test_simple_package_utf8.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.name, u'Łąka')
+
+    def test_memory_limit_from_doc(self):
+        filename = get_test_filename('test_simple_package_no_config.zip')
+        call_command('addproblem', filename)
+        test = Test.objects.filter(memory_limit=132000)
+        self.assertEqual(test.count(), 5)
+
+    @attr('slow')
+    @both_configurations
+    def test_huge_unpack_update(self):
+        self.client.login(username='test_admin')
+        filename = get_test_filename('test_huge_package.tgz')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        # Rudimentary test of package updating
+        url = reverse('add_or_update_problem') + '?' + \
+              urllib.urlencode({'problem': problem.id})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        url = response.redirect_chain[-1][0]
+        response = self.client.post(url,
+            {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        url = reverse('oioioiadmin:problems_problempackage_changelist')
+        self.assertRedirects(response, url)
+
     def _check_no_ingen_package(self, problem, doc=True):
         self.assertEqual(problem.short_name, 'test')
 
@@ -54,30 +138,31 @@ class TestSinolPackage(TestCase):
         self.assertEqual(t0.kind, 'EXAMPLE')
         self.assertEqual(t0.group, '0')
         self.assertEqual(t0.max_score, 0)
-        self.assertEqual(t0.time_limit, 10000)
-        self.assertEqual(t0.memory_limit, 66000)
+        self.assertEqual(t0.time_limit, DEFAULT_TIME_LIMIT)
+        self.assertEqual(t0.memory_limit, DEFAULT_MEMORY_LIMIT)
         t1a = tests.get(name='1a')
         self.assertEqual(t1a.input_file.read(), '0 0\n')
         self.assertEqual(t1a.output_file.read(), '0\n')
         self.assertEqual(t1a.kind, 'NORMAL')
         self.assertEqual(t1a.group, '1')
         self.assertEqual(t1a.max_score, 100)
-        self.assertEqual(t1a.time_limit, 10000)
-        self.assertEqual(t1a.memory_limit, 66000)
+        self.assertEqual(t1a.time_limit, DEFAULT_TIME_LIMIT)
+        self.assertEqual(t1a.memory_limit, DEFAULT_MEMORY_LIMIT)
         t1b = tests.get(name='1b')
         self.assertEqual(t1b.input_file.read(), '0 0\n')
         self.assertEqual(t1b.output_file.read(), '0\n')
         self.assertEqual(t1b.kind, 'NORMAL')
         self.assertEqual(t1b.group, '1')
         self.assertEqual(t1b.max_score, 100)
-        self.assertEqual(t1b.time_limit, 10000)
-        self.assertEqual(t1b.memory_limit, 66000)
+        self.assertEqual(t1b.time_limit, DEFAULT_TIME_LIMIT)
+        self.assertEqual(t1b.memory_limit, DEFAULT_MEMORY_LIMIT)
 
         model_solutions = ModelSolution.objects.filter(problem=problem)
         sol = model_solutions.get(name='test.c')
         self.assertEqual(sol.kind, 'NORMAL')
         self.assertEqual(model_solutions.count(), 1)
 
+    @both_configurations
     def test_no_ingen_package(self):
         filename = get_test_filename('test_no_ingen_package.tgz')
         call_command('addproblem', filename)
@@ -97,9 +182,11 @@ class TestSinolPackage(TestCase):
 
         if doc:
             self.assertEqual(problem.name, u'Sumżyce')
-            statements = ProblemStatement.objects.filter(problem=problem)
-            self.assertEqual(statements.count(), 1)
-            self.assert_(statements.get().content.read().startswith('%PDF'))
+            if settings.USE_SINOLPACK_MAKEFILES:
+                statements = ProblemStatement.objects.filter(problem=problem)
+                self.assertEqual(statements.count(), 1)
+                self.assert_(statements.get().content.read()
+                        .startswith('%PDF'))
         else:
             self.assertEqual(problem.name, u'sum')
 
@@ -158,6 +245,7 @@ class TestSinolPackage(TestCase):
         tests = Test.objects.filter(problem=problem)
 
     @attr('slow')
+    @both_configurations
     def test_full_unpack_update(self):
         filename = get_test_filename('test_full_package.tgz')
         call_command('addproblem', filename)
@@ -169,61 +257,76 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self._check_full_package(problem)
 
+    def _check_interactive_package(self, problem):
+        self.assertEqual(problem.short_name, 'arc')
+
+        config = ExtraConfig.objects.get(problem=problem)
+        assert len(config.parsed_config['extra_compilation_args']) == 2
+        assert len(config.parsed_config['extra_compilation_files']) == 3
+
+        self.assertEqual(problem.name, u'arc')
+
+        tests = Test.objects.filter(problem=problem)
+
+        t0 = tests.get(name='0')
+        self.assertEqual(t0.input_file.read(), '3\n12\n5\n8\n3\n15\n8\n0\n')
+        self.assertEqual(t0.output_file.read(), '12\n15\n8\n')
+        self.assertEqual(t0.kind, 'EXAMPLE')
+        self.assertEqual(t0.group, '0')
+        self.assertEqual(t0.max_score, 0)
+        self.assertEqual(t0.time_limit, DEFAULT_TIME_LIMIT)
+        self.assertEqual(t0.memory_limit, 66000)
+        t1a = tests.get(name='1a')
+        self.assertEqual(t1a.input_file.read(),
+                '0\n-435634223 1 30 23 130 0 -324556462\n')
+        self.assertEqual(t1a.output_file.read(),
+                """126\n126\n82\n85\n80\n64\n84\n5\n128\n66\n4\n79\n64\n96
+22\n107\n84\n112\n92\n63\n125\n82\n1\n""")
+        self.assertEqual(t1a.kind, 'NORMAL')
+        self.assertEqual(t1a.group, '1')
+        self.assertEqual(t1a.max_score, 50)
+        t2a = tests.get(name='2a')
+        self.assertEqual(t2a.input_file.read(),
+                '0\n-435634223 1 14045 547 60000 0 -324556462\n')
+        self.assertEqual(t2a.kind, 'NORMAL')
+        self.assertEqual(t2a.group, '2')
+        self.assertEqual(t2a.max_score, 50)
+
+        checker = OutputChecker.objects.get(problem=problem)
+        self.assertIsNotNone(checker.exe_file)
+
+        extra_files = ExtraFile.objects.filter(problem=problem)
+        self.assertEqual(extra_files.count(), 3)
+
+        model_solutions = \
+            ModelSolution.objects.filter(problem=problem).order_by('order_key')
+        solc = model_solutions.get(name='arc.c')
+        self.assertEqual(solc.kind, 'NORMAL')
+        solcpp = model_solutions.get(name='arc1.cpp')
+        self.assertEqual(solcpp.kind, 'NORMAL')
+        solpas = model_solutions.get(name='arc2.pas')
+        self.assertEqual(solpas.kind, 'NORMAL')
+        self.assertEqual(list(model_solutions), [solc, solcpp, solpas])
+
+        submissions = Submission.objects.all()
+        for s in submissions:
+            self.assertEqual(s.status, 'INI_OK')
+            self.assertEqual(s.score, IntegerScore(100))
+
     @attr('slow')
-    def test_huge_unpack_update(self):
-        self.client.login(username='test_admin')
-        filename = get_test_filename('test_huge_package.tgz')
+    @both_configurations
+    def test_interactive_task(self):
+        filename = get_test_filename('test_interactive_package.tgz')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
-
-        # Rudimentary test of package updating
-        url = reverse('add_or_update_problem') + '?' + \
-              urllib.urlencode({'problem': problem.id})
-        response = self.client.get(url, follow=True)
-        self.assertEqual(response.status_code, 200)
-        url = response.redirect_chain[-1][0]
-        response = self.client.post(url,
-            {'package_file': open(filename, 'rb')}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        url = reverse('oioioiadmin:problems_problem_changelist')
-        print response.content
-        self.assertRedirects(response, url)
-
-    def test_title_in_config_yml(self):
-        filename = get_test_filename('test_simple_package.zip')
-        call_command('addproblem', filename)
-        problem = Problem.objects.get()
-        self.assertEqual(problem.name, 'Testowe')
-
-    def test_title_from_doc(self):
-        filename = get_test_filename('test_simple_package_no_config.zip')
-        call_command('addproblem', filename)
-        problem = Problem.objects.get()
-        self.assertNotEqual(problem.name, 'Not this one')
-        self.assertEqual(problem.name, 'Testowe')
-
-    def test_latin2_title(self):
-        filename = get_test_filename('test_simple_package_latin2.zip')
-        call_command('addproblem', filename)
-        problem = Problem.objects.get()
-        self.assertEqual(problem.name, u'Łąka')
-
-    def test_utf8_title(self):
-        filename = get_test_filename('test_simple_package_utf8.zip')
-        call_command('addproblem', filename)
-        problem = Problem.objects.get()
-        self.assertEqual(problem.name, u'Łąka')
-
-    def test_memory_limit_from_doc(self):
-        filename = get_test_filename('test_simple_package_no_config.zip')
-        call_command('addproblem', filename)
-        test = Test.objects.filter(memory_limit=132000)
-        self.assertEqual(test.count(), 5)
+        self._check_interactive_package(problem)
 
 
-class TestSinolPackageInContest(TestCase, TestStreamingMixin):
+@enable_both_unpack_configurations
+class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest']
 
+    @both_configurations
     def test_upload_and_download_package(self):
         ProblemInstance.objects.all().delete()
 
@@ -267,6 +370,31 @@ class TestSinolPackageInContest(TestCase, TestStreamingMixin):
                 reverse('oioioiadmin:problems_problem_download',
                     args=(problem.id,)))
         self.assertStreamingEqual(response, open(filename, 'rb').read())
+
+    @both_configurations
+    def test_inwer_failure_package(self):
+        ProblemInstance.objects.all().delete()
+
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_inwer_failure.zip')
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id},
+                follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 0)
+        self.assertEqual(ProblemInstance.objects.count(), 0)
+        problem_package = ProblemPackage.objects.get()
+        self.assertEqual(problem_package.status, 'ERR')
+        if settings.USE_SINOLPACK_MAKEFILES:
+            self.assertIn("Failed to execute command: make inwer",
+                    problem_package.info)
+        else:
+            self.assertIn("Inwer failed", problem_package.info)
 
 
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):

@@ -1,22 +1,26 @@
 # pylint: disable=W0105
 # String statement has no effect
 import json
+import urllib
 from datetime import datetime
 
 from django.test import TestCase, RequestFactory
+from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
 from django.utils.timezone import utc
 
+from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
         UserResultForProblem
 from oioioi.contests.scores import IntegerScore
+from oioioi.problems.models import Problem
 from oioioi.participants.models import Participant
 from oioioi.pa import utils
-from oioioi.pa.models import PARegistration
+from oioioi.pa.models import PARegistration, PAProblemInstanceData
 from oioioi.pa.score import ScoreDistribution, PAScore
 from oioioi.pa.controllers import A_PLUS_B_RANKING_KEY, B_RANKING_KEY
-from oioioi.base.tests import fake_time
 
 
 class TestPAScore(TestCase):
@@ -296,6 +300,45 @@ class TestPAResults(TestCase):
         new_results = sorted([result.score for result in
             UserResultForProblem.objects.filter(user=user)])
         self.assertEquals(old_results, new_results)
+
+
+@override_settings(PROBLEM_PACKAGE_BACKENDS=
+        ('oioioi.problems.tests.DummyPackageBackend',))
+class TestPADivisions(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def test_prolem_upload(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.pa.controllers.PAContestController'
+        contest.save()
+
+        self.client.login(username='test_admin')
+        url = reverse('add_or_update_contest_problem',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'key': 'upload'})
+
+        response = self.client.get(url)
+        # "NONE" is the default division
+        self.assertContains(response,
+                '<option value="NONE" selected="selected">')
+
+        data = {'package_file': ContentFile('eloziom', name='foo'),
+                'division': 'A'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        pid = PAProblemInstanceData.objects.get()
+        problem = Problem.objects.get()
+        self.assertEquals(pid.division, 'A')
+        self.assertEquals(pid.problem_instance.problem, problem)
+
+        url = reverse('add_or_update_contest_problem',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'problem': problem.id,
+                                'key': 'upload'})
+        response = self.client.get(url)
+        self.assertContains(response,
+                '<option value="A" selected="selected">')
 
 
 class TestPAContestInfo(TestCase):

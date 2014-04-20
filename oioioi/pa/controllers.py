@@ -1,5 +1,6 @@
 # pylint: disable=E1103
 # Instance of 'PARegistrationForm' has no 'is_valid' member
+from django import forms
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -107,10 +108,26 @@ class PAContestController(ProgrammingContestController):
     def solutions_must_be_public(self, qs):
         return qs
 
-    def process_uploaded_problem(self, problem, problem_instance, is_new=True):
-        if is_new:
-            PAProblemInstanceData.objects.create(
-                    problem_instance=problem_instance, division='NONE')
+    def adjust_upload_form(self, request, existing_problem, form):
+        super(PAContestController, self).adjust_upload_form(request,
+                existing_problem, form)
+        initial = 'NONE'
+        if existing_problem:
+            try:
+                initial = PAProblemInstanceData.objects.get(
+                        problem_instance__problem=existing_problem).division
+            except PAProblemInstanceData.DoesNotExist:
+                pass
+
+        form.fields['division'] = forms.ChoiceField(required=True,
+                label=_("Division"), initial=initial,
+                choices=[('A', _("A")), ('B', _("B")), ('NONE', _("None"))])
+
+    def fill_upload_environ(self, request, form, env):
+        super(PAContestController, self).fill_upload_environ(request, form,
+                env)
+        env['division'] = form.cleaned_data['division']
+        env['post_upload_handlers'] += ['oioioi.pa.handlers.save_division']
 PAContestController.mix_in(SplitEvalContestControllerMixin)
 
 

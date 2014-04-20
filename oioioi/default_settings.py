@@ -13,7 +13,7 @@ djcelery.setup_loader()
 
 import oioioi
 
-INSTALLATION_CONFIG_VERSION = 0
+INSTALLATION_CONFIG_VERSION = 1
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -234,7 +234,7 @@ NUM_RECENT_CONTESTS = 5
 REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
 
 PROBLEM_SOURCES = (
-    'oioioi.problems.problem_sources.PackageSource',
+    'oioioi.problems.problem_sources.UploadedPackageSource',
 )
 
 PROBLEM_PACKAGE_BACKENDS = (
@@ -246,6 +246,14 @@ SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas']}
 USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False
 RUN_LOCAL_WORKERS = False
+
+# When USE_SINOLPACK_MAKEFILES equals True, the sinolpack upload workflow uses
+# standard sinolpack makefiles, whose behaviour may be modified by a custom
+# makefile.user file from a package. The makefiles' execution is not sandboxed,
+# hence it should be disabled for untrusted contest admins.
+# When it equals False, the upload workflow uses sioworkers for programs'
+# execution (in a sandboxed environment, if USE_UNSAFE_EXEC is set to False).
+USE_SINOLPACK_MAKEFILES = True
 
 FILETRACKER_SERVER_ENABLED = False
 FILETRACKER_LISTEN_ADDR = '127.0.0.1'
@@ -310,14 +318,19 @@ BROKER_URL = 'django://'
 
 CELERY_IMPORTS += [
     'oioioi.evalmgr',
+    'oioioi.problems.unpackmgr',
 ]
 
 CELERY_ROUTES.update({
     'oioioi.evalmgr.evalmgr_job': dict(queue='evalmgr'),
+    'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
 })
 
 # Number of concurrently evaluated submissions
 EVALMGR_CONCURRENCY = 1
+
+# Number of concurrently processed problem packages
+UNPACKMGR_CONCURRENCY = 1
 
 # Split-priority evaluation
 ENABLE_SPLITEVAL = False

@@ -1,15 +1,12 @@
 from django.conf import settings
-from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils import uploaded_file_name
-from oioioi.problems.problem_sources import PackageSource
+from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.zeus.forms import ZeusProblemForm
 from oioioi.zeus.models import ZeusProblemData
-from oioioi.zeus.package import ZeusPackageBackend
 
 
-class ZeusProblemSource(PackageSource):
+class ZeusProblemSource(UploadedPackageSource):
     key = 'zeus'
     short_description = _("Add Zeus problem")
 
@@ -20,29 +17,18 @@ class ZeusProblemSource(PackageSource):
                               in settings.ZEUS_INSTANCES.iteritems()]
         self.zeus_instances = zeus_instances
 
-    def process_package(self, request, contest, filename,
-                        original_filename, existing_problem=None, **kwargs):
-        backend = ZeusPackageBackend(filename,
-                                     original_filename=original_filename)
-        problem = backend.unpack(filename,
-                                 original_filename=original_filename,
-                                 existing_problem=existing_problem,
-                                 **kwargs)
-        return problem
+    def choose_backend(self, path, original_filename=None):
+        return 'oioioi.zeus.package.ZeusPackageBackend'
 
-    def process_valid_form(self, request, contest, form,
-                           existing_problem=None):
-        uploaded_file = request.FILES['package_file']
-        with uploaded_file_name(uploaded_file) as filename:
-            kwargs = {
-                'zeus_id': form.cleaned_data['zeus_id'],
-                'zeus_problem_id': form.cleaned_data['zeus_problem_id']
-            }
-            problem = self.process_package(request, contest, filename,
-                    uploaded_file.name, existing_problem, **kwargs)
-
-            messages.success(request, _("ZeusProblem package uploaded."))
-            return problem
+    def create_env(self, request, contest, form, path, package,
+            existing_problem=None, original_filename=None):
+        env = super(ZeusProblemSource, self).create_env(request, contest, form,
+                path, package, existing_problem, original_filename)
+        env['zeus_id'] = form.cleaned_data['zeus_id']
+        env['zeus_problem_id'] = form.cleaned_data['zeus_problem_id']
+        env['post_upload_handlers'].insert(0,
+                'oioioi.zeus.handlers.save_zeus_data')
+        return env
 
     def make_form(self, request, contest, existing_problem=None):
         initial = {}
@@ -57,8 +43,9 @@ class ZeusProblemSource(PackageSource):
                 pass
 
         if request.method == 'POST':
-            return ZeusProblemForm(self.zeus_instances, contest, request.POST,
-                                   request.FILES, initial=initial)
+            return ZeusProblemForm(self.zeus_instances, contest,
+                    existing_problem, request.POST, request.FILES,
+                    initial=initial)
         else:
             return ZeusProblemForm(self.zeus_instances, contest,
-                                   initial=initial)
+                    existing_problem, initial=initial)

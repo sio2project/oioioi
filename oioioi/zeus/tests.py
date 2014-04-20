@@ -1,14 +1,19 @@
 import json
+import urllib
 
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestsUtilsMixin
-from oioioi.contests.models import SubmissionReport
+from oioioi.contests.models import Contest, ProblemInstance, SubmissionReport
+from oioioi.problems.models import Problem
 from oioioi.programs.models import ProgramSubmission
+from oioioi.sinolpack.tests import get_test_filename
 from oioioi.zeus.backends import _json_base64_encode, _json_base64_decode, \
                                  Base64String, ZeusServer
-from oioioi.zeus.models import ZeusAsyncJob, ZeusTestRunProgramSubmission
+from oioioi.zeus.models import ZeusAsyncJob, ZeusTestRunProgramSubmission, \
+                               ZeusProblemData
 from oioioi.zeus.management.commands import zeus_fetcher
 # Import qualified to prevent nose from thinking that
 # '(^|_)test*' functions are tests
@@ -280,3 +285,27 @@ class TestZeusFetcher(TestCase):
         z2 = ZeusAsyncJob.objects.get(check_uid='1003')
         self.assertTrue(z1.resumed)
         self.assertFalse(z2.resumed)
+
+
+class TestZeusProblemUpload(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def test_upload_package(self):
+        ProblemInstance.objects.all().delete()
+
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_simple_package.zip')
+        self.client.login(username='test_admin')
+        url = reverse('oioioi.problems.views.add_or_update_problem_view',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'key': 'zeus'})
+        data = {
+            'package_file': open(filename, 'rb'),
+            'zeus_id': 'dummy',
+            'zeus_problem_id': 1,
+        }
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 1)
+        self.assertEqual(ZeusProblemData.objects.count(), 1)

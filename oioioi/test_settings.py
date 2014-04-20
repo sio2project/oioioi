@@ -80,10 +80,17 @@ FILETRACKER_CLIENT_FACTORY = 'filetracker.dummy.DummyClient'
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
 
+USE_SINOLPACK_MAKEFILES = True
+
+
 COMPLAINTS_EMAIL = 'dummy@example.com'
 COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
+
+PROBLEM_SOURCES += (
+    'oioioi.zeus.problem_sources.ZeusProblemSource',
+)
 
 ZEUS_INSTANCES = {
     'zeus_correct': ('__use_object__',

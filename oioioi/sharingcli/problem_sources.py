@@ -3,11 +3,11 @@ import urllib
 import urllib2
 import tempfile
 import shutil
+from contextlib import contextmanager
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.problems.models import Problem
 from oioioi.problems.problem_sources import PackageSource
 from oioioi.sharingcli.forms import RemoteProblemForm
 from oioioi.sharingcli.models import RemoteProblemURL
@@ -33,6 +33,15 @@ class RemoteClient(object):
         return urllib2.urlopen(url, urllib.urlencode(post_data), **kwargs)
 
 
+@contextmanager
+def _file_from_request(request):
+    f = tempfile.NamedTemporaryFile(suffix='.zip')
+    shutil.copyfileobj(request, f)
+    f.flush()
+    yield f.name
+    f.close()
+
+
 class RemoteSource(PackageSource):
     key = 'ext'
     short_description = _("Add from external site")
@@ -43,22 +52,19 @@ class RemoteSource(PackageSource):
                     settings.SHARING_SERVERS]
         self.clients = clients
 
-    def process_valid_form(self, request, contest, form,
-            existing_problem=None):
+    def create_env(self, request, contest, form, path, package,
+            existing_problem=None, original_filename=None):
+        env = super(RemoteSource, self).create_env(request, contest, form,
+                path, package, existing_problem, original_filename)
+        env['url'] = form.cleaned_data['url']
+        env['post_upload_handlers'] += ['oioioi.sharingcli.handlers.save_url']
+        return env
+
+    def get_package_file(self, request, contest, form, existing_problem=None):
         client = form.cleaned_data['client']
         response = client.make_request('task',
                 {'task_id': form.cleaned_data['task_id']})
-        with tempfile.NamedTemporaryFile(suffix='.zip') as f:
-            shutil.copyfileobj(response, f)
-            f.flush()
-            problem = self.process_package(request, contest, f.name,
-                    f.name, existing_problem)
-            if isinstance(problem, Problem):
-                purl, created = RemoteProblemURL.objects.get_or_create(
-                        problem=problem)
-                purl.url = form.cleaned_data['url']
-                purl.save()
-            return problem
+        return None, _file_from_request(response)
 
     def make_form(self, request, contest, existing_problem=None):
         initial = {}
@@ -70,7 +76,8 @@ class RemoteSource(PackageSource):
                 pass
 
         if request.method == 'POST':
-            return RemoteProblemForm(self.clients, request.POST, request.FILES,
-                    initial=initial)
+            return RemoteProblemForm(self.clients, contest, existing_problem,
+                    request.POST, request.FILES, initial=initial)
         else:
-            return RemoteProblemForm(self.clients, initial=initial)
+            return RemoteProblemForm(self.clients, contest, existing_problem,
+                    initial=initial)

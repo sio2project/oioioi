@@ -1,20 +1,17 @@
 import urllib
 
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.http import Http404, HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
-from django.utils.translation import ugettext_lazy as _
 
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.models import Problem
+from oioioi.problems.models import Problem, ProblemPackage
 from oioioi.problems.utils import can_change_problem
 from oioioi.problems.problem_sources import problem_sources
-from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
 
 
@@ -30,6 +27,32 @@ def show_problem_attachment_view(request, attachment_id):
     if not request.user.has_perm('problems.problem_admin', attachment.problem):
         raise PermissionDenied
     return stream_file(attachment.content)
+
+
+def _get_package(request, package_id):
+    package = get_object_or_404(ProblemPackage, id=package_id)
+    has_perm = False
+    if package.contest:
+        has_perm = request.user.has_perm('contests.contest_admin',
+                package.contest)
+    elif package.problem:
+        has_perm = request.user.has_perm('problems.problem_admin',
+                package.problem)
+    if not has_perm:
+        raise PermissionDenied
+    return package
+
+
+def download_problem_package_view(request, package_id):
+    package = _get_package(request, package_id)
+    return stream_file(package.package_file)
+
+
+def download_package_traceback_view(request, package_id):
+    package = _get_package(request, package_id)
+    if not package.traceback:
+        raise Http404
+    return stream_file(package.traceback)
 
 
 def add_or_update_problem_view(request, contest_id=None):
@@ -63,46 +86,16 @@ def add_or_update_problem_view(request, contest_id=None):
                 raise PermissionDenied
             if not is_contest_admin(request):
                 raise PermissionDenied
+    response = current_source.view(request, contest,
+            existing_problem=existing_problem)
 
-    problem_or_content = current_source.view(request, contest,
-            existing_problem)
+    if isinstance(response, HttpResponseRedirect):
+        return response
 
-    if isinstance(problem_or_content, Problem):
-        problem = problem_or_content
-        if not problem.package_backend_name:
-            raise AssertionError("Problem package source (%r) did not "
-                    "set Problem.package_backend_name. This is a bug in "
-                    "the problem package backend." % (current_source,))
-        if contest:
-            if not existing_problem:
-                problem.contest = contest
-                problem.save()
-            pi, created = ProblemInstance.objects.get_or_create(
-                    problem=problem, contest=contest)
-            if created:
-                pi.submissions_limit = contest.default_submissions_limit
-                pi.save()
-
-            contest.controller.process_uploaded_problem(problem, pi,
-                    is_new=(not existing_problem))
-            if not pi.round:
-                if contest.round_set.count() == 1:
-                    pi.round = contest.round_set.get()
-                    pi.save()
-                else:
-                    messages.info(request, _("Please select the round for "
-                        "this problem."))
-                    return redirect(
-                            'oioioiadmin:contests_probleminstance_change',
-                            pi.id)
-            return redirect('oioioiadmin:contests_probleminstance_changelist')
-        else:
-            return redirect('oioioiadmin:problems_problem_changelist')
-
-    if isinstance(problem_or_content, TemplateResponse):
-        content = problem_or_content.render().content
+    if isinstance(response, TemplateResponse):
+        content = response.render().content
     else:
-        content = problem_or_content
+        content = response
 
     sources_context = []
     qs = request.GET.dict()

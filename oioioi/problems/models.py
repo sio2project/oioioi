@@ -1,15 +1,24 @@
+import logging
 import os.path
+from contextlib import contextmanager
+from traceback import format_exception
 
 from django.core.validators import validate_slug
-from django.db import models
+from django.core.files.base import ContentFile
+from django.db import models, transaction
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.utils.text import get_valid_filename
+from django.contrib.auth.models import User
 
-from oioioi.base.fields import DottedNameField
+from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.filetracker.fields import FileField
+
+
+logger = logging.getLogger(__name__)
 
 
 def make_problem_filename(instance, filename):
@@ -25,8 +34,8 @@ def make_problem_filename(instance, filename):
 class Problem(models.Model):
     """Represents a problem in the problems database.
 
-       Instances of :cls:`Problem` do not represent problems in contests,
-       see :cls:`oioioi.contests.models.ProblemInstance` for those.
+       Instances of :class:`Problem` do not represent problems in contests,
+       see :class:`oioioi.contests.models.ProblemInstance` for those.
     """
     name = models.CharField(max_length=255, verbose_name=_("full name"))
     short_name = models.CharField(max_length=30,
@@ -129,3 +138,98 @@ class ProblemAttachment(models.Model):
 
     def __unicode__(self):
         return '%s / %s' % (self.problem.name, self.filename)
+
+
+def _make_package_filename(instance, filename):
+    if instance.contest:
+        contest_name = instance.contest.id
+    else:
+        contest_name = 'no_contest'
+    return 'package/%s/%s' % (contest_name,
+            get_valid_filename(os.path.basename(filename)))
+
+package_statuses = EnumRegistry()
+package_statuses.register('?', pgettext_lazy("Pending",
+        "Pending problem package"))
+package_statuses.register('OK', _("Uploaded"))
+package_statuses.register('ERR', _("Error"))
+
+TRACEBACK_STACK_LIMIT = 100
+
+
+class ProblemPackage(models.Model):
+    """Represents a file with data necessary for creating a
+       :class:`~oioioi.problems.models.Problem` instance.
+    """
+    package_file = FileField(upload_to=_make_package_filename,
+        verbose_name=_("package"))
+    contest = models.ForeignKey('contests.Contest', null=True, blank=True,
+        verbose_name=_("contest"))
+    problem = models.ForeignKey(Problem, verbose_name=_("problem"), null=True,
+            blank=True)
+    created_by = models.ForeignKey(User, verbose_name=_("created by"),
+            null=True, blank=True)
+    problem_name = models.CharField(max_length=30, validators=[validate_slug],
+            verbose_name=_("problem name"), null=True, blank=True)
+    celery_task_id = models.CharField(max_length=50, unique=True, null=True,
+                                      blank=True)
+    info = models.CharField(max_length=1000, null=True, blank=True,
+            verbose_name=_("Package information"))
+    traceback = FileField(upload_to=_make_package_filename,
+            verbose_name=_("traceback"), null=True, blank=True)
+    status = EnumField(package_statuses, default='?', verbose_name=_("status"))
+    creation_date = models.DateTimeField(default=timezone.now)
+
+    class Meta(object):
+        verbose_name = _("problem package")
+        verbose_name_plural = _("problem packages")
+        ordering = ['-creation_date']
+
+    class StatusSaver(object):
+        def __init__(self, package):
+            self.package_id = package.id
+
+        def __enter__(self):
+            pass
+
+        def __exit__(self, type, value, traceback):
+            package = ProblemPackage.objects.get(id=self.package_id)
+            if type:
+                package.status = 'ERR'
+                package.info = value
+                package.traceback = ContentFile(
+                        ''.join(format_exception(type, value, traceback,
+                            TRACEBACK_STACK_LIMIT)),
+                        'traceback.txt')
+                logger.exception("Error processing package %s",
+                        package.package_file.name)
+            else:
+                package.status = 'OK'
+
+            package.celery_task_id = None
+            package.save()
+            return True
+
+    def save_operation_status(self):
+        """Returns a context manager to be used during the unpacking process.
+
+           The code inside the ``with`` statment is executed in the
+           ``commit_on_success`` transaction mode.
+
+           If the code inside the ``with`` statement executes successfully,
+           the package ``status`` field is set to ``OK``.
+
+           If an exception is thrown, it gets logged together with the
+           traceback. Additionally, its value is saved in the package
+           ``info`` field.
+
+           Lastly, if the package gets deleted from the database before
+           the ``with`` statement ends, a
+           :class:`oioioi.problems.models.ProblemPackage.DoesNotExist`
+           exception is thrown.
+        """
+        @contextmanager
+        def manager():
+            with self.StatusSaver(self), transaction.commit_on_success():
+                yield None
+        return manager()

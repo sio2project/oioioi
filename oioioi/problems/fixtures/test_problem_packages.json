@@ -1,0 +1,46 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problempackage",
+    "fields": {
+      "problem_name": "XYZ",
+      "problem": 1,
+      "contest": "c",
+      "status": "OK",
+      "package_file": "no_file",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problempackage",
+    "fields": {
+      "problem_name": "XYZ",
+      "contest": "c",
+      "status": "ERR",
+      "package_file": "no_file",
+      "traceback": "no_file",
+      "creation_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ",
+      "contest": "c",
+      "short_name": "xyz",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.modelsolution",
+    "fields": {
+      "problem": 1,
+      "source_file": "",
+      "name": "xyz.c",
+      "kind": "NORMAL"
+    }
+  }
+]

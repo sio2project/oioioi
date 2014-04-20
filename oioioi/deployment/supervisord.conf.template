@@ -24,6 +24,13 @@ startretries=0
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
 
+[program:unpackmgr]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+startretries=0
+stopwaitsecs=15
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
+
 [program:evalmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
