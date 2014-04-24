@@ -207,6 +207,8 @@ class ProgrammingContestController(ContestController):
         return [ext for lang in lang_exts.values() for ext in lang]
 
     def adjust_submission_form(self, request, form):
+        super(ProgrammingContestController, self) \
+                  .adjust_submission_form(request, form)
         size_limit = self.get_submission_size_limit()
 
         def validate_file_size(file):
