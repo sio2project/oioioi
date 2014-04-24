@@ -22,6 +22,7 @@ class Participant(models.Model):
     contest = models.ForeignKey(Contest)
     user = models.ForeignKey(User)
     status = EnumField(participant_statuses, default='ACTIVE')
+    anonymous = models.BooleanField()
 
     @property
     def registration_model(self):

@@ -23,9 +23,6 @@ JOB_TYPES = [
 
 
 class PARegistration(RegistrationModel):
-    anonymous = models.BooleanField(_("anonymous"),
-        help_text=_("Anonymous user uses the account name instead of "
-        "the real name in rankings."))
     job = models.CharField(max_length=7, choices=JOB_TYPES,
         verbose_name=_("job or school kind"))
     job_name = models.CharField(max_length=255,

@@ -21,7 +21,7 @@
         {% for row in rows %}
         <tr>
             <td>{{ row.place }}</td>
-            <td class="acm_user">{{ row.user.get_full_name }}</td>
+            <td class="acm_user">{{ row.user_public_name }}</td>
             <td class="acm_count">{{ row.sum.problems_solved }}</td>
             <td class="acm_total_time">{{ row.sum.total_time_repr }} </td>
 

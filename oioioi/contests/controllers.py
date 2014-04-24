@@ -156,6 +156,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return reverse('problems_list', kwargs={'contest_id': self.contest.id})
 
+    def get_user_public_name(self, user):
+        """Returns the name of the user to be displayed in public contest
+           views.
+
+           The default implementation returns the user's full name.
+        """
+        return user.get_full_name()
+
     def get_round_times(self, request, round):
         """Determines the times of the round for the user doing the request.
 
