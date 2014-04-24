@@ -9,49 +9,62 @@ from oioioi.contests.models import Round, Contest, RoundTimeExtension
 
 
 class TestCtimes(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users', 'test_two_empty_contests']
 
     def setUp(self):
-        Round.objects.all().delete()
-        contest = Contest.objects.get()
+        contest1 = Contest.objects.get(id='c1')
+        contest2 = Contest.objects.get(id='c2')
         rounds = [
             Round(name='round1',
-                  contest=contest,
+                  contest=contest1,
                   start_date=datetime(2013, 10, 11, 8, 0, tzinfo=utc),
                   end_date=datetime(2013, 12, 5, 9, 0, tzinfo=utc)),
             Round(name='round2',
-                  contest=contest,
+                  contest=contest1,
                   start_date=datetime(2013, 10, 22, 10, 0, tzinfo=utc),
-                  end_date=datetime(2013, 11, 5, 11, 0, tzinfo=utc))
+                  end_date=datetime(2013, 11, 5, 11, 0, tzinfo=utc)),
+            Round(name='round1p',
+                  contest=contest2,
+                  start_date=datetime(2014, 1, 2, 3, 10, tzinfo=utc),
+                  end_date=datetime(2014, 4, 5, 6, 15, tzinfo=utc)),
         ]
-        Round.objects.bulk_create(rounds)
-        self.client.login(username='test_user')
-
-    def test_ctimes_order(self):
-        url = reverse('ctimes')
-        round1_result = {
+        self.round1_result = {
             'status': 'OK',
             'start': '2013-10-11 08:00:00',
             'start_sec': 1381478400,
             'end': '2013-12-05 09:00:00',
             'end_sec': 1386234000,
         }
-        round2_result = {
+        self.round2_result = {
             'status': 'OK',
             'start': '2013-10-22 10:00:00',
             'start_sec': 1382436000,
             'end': '2013-11-05 11:00:00',
             'end_sec': 1383649200,
         }
+        self.round1p_result = {
+            'status': 'OK',
+            'start': '2014-01-02 03:10:00',
+            'start_sec': 1388632200,
+            'end': '2014-04-05 06:15:00',
+            'end_sec': 1396678500,
+        }
+        Round.objects.bulk_create(rounds)
+        self.client.login(username='test_user')
+
+    def test_ctimes_order(self):
+        url = reverse('ctimes', kwargs={'contest_id': 'c1'})
+        self.client.get(url)
+        url = reverse('ctimes2')
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
-            self.assertEqual(response, round2_result)
+            self.assertEqual(response, self.round2_result)
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
-            self.assertEqual(response, round1_result)
+            self.assertEqual(response, self.round1_result)
         with fake_time(datetime(2013, 10, 22, 9, 56, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
-            self.assertEqual(response, round1_result)
+            self.assertEqual(response, self.round1_result)
         with fake_time(datetime(2013, 12, 11, 5, 0, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response['status'], 'NO_ROUND')
@@ -59,13 +72,9 @@ class TestCtimes(TestCase):
         with fake_time(datetime(2013, 12, 11, 5, 0, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response['status'], 'NO_CONTEST')
-        self.client.logout()
-        with fake_time(datetime(2013, 12, 11, 5, 0, tzinfo=utc)):
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, 403)
 
     def test_ctimes_format(self):
-        url = reverse('ctimes')
+        url = reverse('ctimes', kwargs={'contest_id': 'c2'})
         date_regexp = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
@@ -73,17 +82,29 @@ class TestCtimes(TestCase):
             self.assertRegexpMatches(response['end'], date_regexp)
 
     def test_ctimes_with_roundextension(self):
-        url = reverse('ctimes')
-        round = Round.objects.get(name='round1')
+        url = reverse('ctimes', kwargs={'contest_id': 'c1'})
+        rnd = Round.objects.get(name='round1')
         user = User.objects.get(username='test_user')
-        RoundTimeExtension.objects.create(round=round, user=user, extra_time=5)
-        round_result = {
-            'status': 'OK',
-            'start': '2013-10-11 08:00:00',
-            'start_sec': 1381478400,
-            'end': '2013-12-05 09:05:00',
-            'end_sec': 1386234300,
-        }
+        RoundTimeExtension.objects.create(round=rnd, user=user, extra_time=5)
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
-            self.assertEqual(response, round_result)
+            self.assertEqual(response, {
+                'status': 'OK',
+                'start': '2013-10-11 08:00:00',
+                'start_sec': 1381478400,
+                'end': '2013-12-05 09:05:00',
+                'end_sec': 1386234300,
+            })
+
+    def test_ctimes_anonymous(self):
+        url = reverse('ctimes', kwargs={'contest_id': 'c2'})
+        self.client.logout()
+        with fake_time(datetime(2014, 01, 02, 4, 56, tzinfo=utc)):
+            response = json.loads(self.client.get(url).content)
+            self.assertEqual(response, self.round1p_result)
+
+    def test_ctimes_no_contest_id(self):
+        url = reverse('ctimes2')
+        with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
+            response = json.loads(self.client.get(url).content)
+            self.assertEqual(response, self.round1p_result)
