@@ -1,7 +1,7 @@
 {% extends "base-with-menu.html" %}
 {% load i18n check_perm %}
 
-{% block title %}{{ message.topic }} - {% trans "Questions and announcements" %}{% endblock %}
+{% block title %}{{ message.topic }} - {% trans "Questions and news" %}{% endblock %}
 
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}

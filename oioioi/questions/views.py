@@ -176,12 +176,12 @@ def add_contest_message_view(request, contest_id):
         form = AddContestMessageForm(request)
 
     if is_admin:
-        title = _("Add announcement")
+        title = _("Add news")
     else:
         title = _("Ask question")
 
     return TemplateResponse(request, 'questions/add.html',
-            {'form': form, 'title': title, 'is_announcement': is_admin})
+            {'form': form, 'title': title, 'is_news': is_admin})
 
 
 @enforce_condition(contest_exists & is_contest_admin)

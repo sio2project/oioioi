@@ -3,10 +3,10 @@
 {% load check_perm %}
 {% load pagination_tags %}
 
-{% block title %}{% trans "Questions and announcements" %}{% endblock %}
+{% block title %}{% trans "Questions and news" %}{% endblock %}
 
 {% block content %}
-<h2>{% trans "Questions and announcements" %}</h2>
+<h2>{% trans "Questions and news" %}</h2>
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 {% if user.is_authenticated %}
 <div class="corner-icons">
@@ -15,7 +15,7 @@
             {% if is_admin %}
             <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
                 <i class="icon-comment"></i>
-                <span class="toolbar-button-text">{% trans "Add announcement" %}</span>
+                <span class="toolbar-button-text">{% trans "Add news" %}</span>
             </a>
             {% elif categories %}
             <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
@@ -56,7 +56,7 @@
 </div>
 {% else %}
 <div class="empty-space-filler">
-    {% blocktrans %}No questions/announcements yet.{% endblocktrans %}
+    {% blocktrans %}No questions or news yet.{% endblocktrans %}
 </div>
 {% endif %}
 {% endblock %}

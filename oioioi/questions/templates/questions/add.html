@@ -12,10 +12,10 @@
     {% csrf_token %}
     <div id="alerts"></div>
     {% include "ingredients/form.html" %}
-    {% if is_announcement %}
+    {% if is_news %}
     <div class="control-group">
         <div class="controls">
-            {% blocktrans %}The announcement will be visible immediately.{% endblocktrans %}
+            {% blocktrans %}The news will be visible immediately.{% endblocktrans %}
         </div>
     </div>
     {% endif %}
