@@ -6,41 +6,33 @@
         <div class="{% block navbar-container-class %}container-fluid{% endblock %}">
             {% include "ingredients/navbar_branding.html" %}
             {% if contest %}
-                {% if single_contest_mode %}
-                <div class="contest nav">
-                    <a href="{% url 'index' %}" class="">
+                <ul class="nav">
+                    {% if contest_exclusive %}
+                    <li><a href="#">{{ contest.name }}</a></li>
+                    {% else %}
+                    <li class="dropdown {% if not user.is_anonymous and recent_contests and contest != recent_contests.0 %}open{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         {{ contest.name }}
+                        <b class="caret"></b>
                     </a>
-                </div>
-                {% else %}
-                    <ul class="nav">
-                        {% if contest_exclusive %}
-                        <li><a href="#">{{ contest.name }}</a></li>
+                    <ul class="dropdown-menu">
+                        {% if recent_contests %}
+                            {% for contest in recent_contests %}
+                            <li><a href="{% url 'default_contest_view' contest_id=contest.id %}">{{ contest.name }}</a></li>
+                            {% endfor %}
+                            <li><a href="{% url 'select_contest' %}">{% trans "Other..." %}</a></li>
                         {% else %}
-                        <li class="dropdown {% if not user.is_anonymous and recent_contests and contest != recent_contests.0 %}open{% endif %}">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            {{ contest.name }}
-                            <b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% if recent_contests %}
-                                {% for contest in recent_contests %}
-                                <li><a href="{% url 'default_contest_view' contest_id=contest.id %}">{{ contest.name }}</a></li>
-                                {% endfor %}
-                                <li><a href="{% url 'select_contest' %}">{% trans "Other..." %}</a></li>
-                            {% else %}
-                            <li><a href="{% url 'select_contest' %}">{% trans "Switch contest" %}</a></li>
-                            {% endif %}
+                        <li><a href="{% url 'select_contest' %}">{% trans "Switch contest" %}</a></li>
+                        {% endif %}
 
-                            {% if user.is_superuser %}
-                            {% if recent_contests %}<li class="divider"></li>{% endif %}
-                            <li><a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create a new contest" %}</a></li>
-                            {% endif %}
-                        </ul>
-                        </li>
+                        {% if user.is_superuser %}
+                        {% if recent_contests %}<li class="divider"></li>{% endif %}
+                        <li><a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create a new contest" %}</a></li>
                         {% endif %}
                     </ul>
-                {% endif %}
+                    </li>
+                    {% endif %}
+                </ul>
             {% endif %}
 
             <ul class="nav pull-left">

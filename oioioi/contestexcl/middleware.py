@@ -6,10 +6,12 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from oioioi.base.utils import ObjectWithMixins
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.middleware import activate_contest
+from oioioi.contests.models import Contest
 
 
 class ExclusiveContestsMiddleware(ObjectWithMixins):
@@ -19,6 +21,8 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
 
        It works as follows:
 
+       #. If ONLY_DEFAULT_CONTEST is set, only the default contest is taken
+          into account.
        #. All contests with active
           :class:`~oioioi.contestexcl.models.ExclusivenessConfig` instance are
           acquired from the database.
@@ -50,10 +54,13 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             final_selector = lambda user, contest: \
                 _default_selector(user, contest) and selector(user, contest)
 
-        qs = ExclusivenessConfig.objects.get_active(request.timestamp) \
-            .select_related('contest')
-        qs = [ex_cf.contest for ex_cf in qs]
-        qs = [cnst for cnst in qs if final_selector(request.user, cnst)]
+        if settings.ONLY_DEFAULT_CONTEST:
+            qs = [Contest.objects.get(id=settings.DEFAULT_CONTEST)]
+        else:
+            qs = ExclusivenessConfig.objects.get_active(request.timestamp) \
+                 .select_related('contest')
+            qs = [ex_cf.contest for ex_cf in qs]
+            qs = [cnst for cnst in qs if final_selector(request.user, cnst)]
 
         if len(qs) > 1:
             self._send_error_email(request, qs)
@@ -71,7 +78,8 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                     messages.info(
                         request,
                         _("You have been redirected to this contest,"
-                            " because currently it excludes other contests.")
+                            " because you are not currently allowed to access"
+                            " other contests.")
                     )
                     return redirect(reverse('default_contest_view',
                                             kwargs={'contest_id': contest.id}))
