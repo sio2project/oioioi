@@ -1,3 +1,5 @@
+import json
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -15,6 +17,16 @@ class TestPARegistration(TestCase):
         contest.controller_name = \
                 'oioioi.pa.controllers.PAContestController'
         contest.save()
+        self.reg_data = {
+            'address': 'The Castle',
+            'postal_code': '31-337',
+            'city': 'Camelot',
+            'phone': '000-000-000',
+            't_shirt_size': 'L',
+            'job': 'AS',
+            'job_name': 'WSRH',
+            'terms_accepted': 'y',
+        }
 
     def test_participants_registration(self):
         contest = Contest.objects.get()
@@ -28,19 +40,19 @@ class TestPARegistration(TestCase):
         user.first_name = 'Sir Lancelot'
         user.last_name = 'du Lac'
         user.save()
-        reg_data = {
-            'address': 'The Castle',
-            'postal_code': '31-337',
-            'city': 'Camelot',
-            'phone': '000-000-000',
-            't_shirt_size': 'L',
-            'job': 'AS',
-            'job_name': 'WSRH',
-            'terms_accepted': 'y',
-        }
 
-        response = self.client.post(url, reg_data)
+        response = self.client.post(url, self.reg_data)
         self.assertEquals(302, response.status_code)
 
         registration = PARegistration.objects.get(participant__user=user)
-        self.assertEquals(registration.address, reg_data['address'])
+        self.assertEquals(registration.address, self.reg_data['address'])
+
+    def test_contest_info(self):
+        contest = Contest.objects.get()
+        user = User.objects.get(username='test_user')
+        p = Participant(contest=contest, user=user)
+        p.save()
+        PARegistration(participant_id=p.id, **self.reg_data).save()
+        url = reverse('contest_info', kwargs={'contest_id': contest.id})
+        data = json.loads(self.client.get(url).content)
+        self.assertEquals(data['users_count'], 1)
