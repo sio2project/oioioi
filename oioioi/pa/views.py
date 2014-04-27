@@ -15,7 +15,8 @@ def registration_notice_fragment(request):
     if isinstance(rc, PARegistrationController) \
             and request.user.is_authenticated() \
             and not is_contest_admin(request) \
-            and not is_participant(request):
+            and not is_participant(request) \
+            and rc.can_register(request):
         return render_to_string('pa/registration_notice.html',
             context_instance=RequestContext(request))
     else:
