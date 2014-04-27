@@ -245,6 +245,7 @@ FILETRACKER_LISTEN_ADDR = '127.0.0.1'
 FILETRACKER_LISTEN_PORT = 9999
 
 DEFAULT_CONTEST = None
+ONLY_DEFAULT_CONTEST = False
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
