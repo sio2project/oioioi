@@ -23,14 +23,13 @@ JOB_TYPES = [
 
 
 class PARegistration(RegistrationModel):
-    phone = PhoneNumberField(verbose_name=_("phone number"), null=True,
-                          blank=True)
     anonymous = models.BooleanField(_("anonymous"),
         help_text=_("Anonymous user uses the account name instead of "
         "the real name in rankings."))
     job = models.CharField(max_length=7, choices=JOB_TYPES,
-        verbose_name=_("job"))
-    job_name = models.CharField(max_length=255, verbose_name=_("job name"))
+        verbose_name=_("job or school kind"))
+    job_name = models.CharField(max_length=255,
+        verbose_name=_("job or school name"))
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = PostalCodeField(verbose_name=_("postal code"))
     city = models.CharField(max_length=100, verbose_name=_("city"))
