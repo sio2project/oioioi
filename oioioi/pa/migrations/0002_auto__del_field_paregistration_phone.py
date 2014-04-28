@@ -8,14 +8,14 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'PARegistration.anonymous'
-        db.delete_column(u'pa_paregistration', 'anonymous')
+        # Deleting field 'PARegistration.phone'
+        db.delete_column(u'pa_paregistration', 'phone')
 
 
     def backwards(self, orm):
-        # Adding field 'PARegistration.anonymous'
-        db.add_column(u'pa_paregistration', 'anonymous',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
+        # Adding field 'PARegistration.phone'
+        db.add_column(u'pa_paregistration', 'phone',
+                      self.gf('oioioi.base.fields.PhoneNumberField')(max_length=64, null=True, blank=True),
                       keep_default=False)
 
 
@@ -67,20 +67,19 @@ class Migration(SchemaMigration):
         u'pa.paregistration': {
             'Meta': {'object_name': 'PARegistration'},
             'address': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'city': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'job': ('django.db.models.fields.CharField', [], {'max_length': '7'}),
             'job_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'newsletter': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'participant': ('oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField', [], {'related_name': "u'pa_paregistration'", 'unique': 'True', 'to': u"orm['participants.Participant']"}),
-            'phone': ('oioioi.base.fields.PhoneNumberField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'postal_code': ('oioioi.base.fields.PostalCodeField', [], {'max_length': '6'}),
             't_shirt_size': ('django.db.models.fields.CharField', [], {'max_length': '7'}),
             'terms_accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         u'participants.participant': {
             'Meta': {'unique_together': "(('contest', 'user'),)", 'object_name': 'Participant'},
-            'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contests.Contest']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'status': ('oioioi.base.fields.EnumField', [], {'default': "'ACTIVE'", 'max_length': '64'}),
