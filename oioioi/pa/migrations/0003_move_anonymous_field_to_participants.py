@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
+class Migration(DataMigration):
 
-class Migration(SchemaMigration):
+    depends_on = (
+            ("participants", "0003_auto__add_field_participant_anonymous"),
+    )
 
     def forwards(self, orm):
-        # Deleting field 'PARegistration.phone'
-        db.delete_column(u'pa_paregistration', 'phone')
-
+        for reg in orm.PARegistration.objects.all():
+            reg.participant.anonymous = reg.anonymous
+            reg.participant.save()
 
     def backwards(self, orm):
-        # Adding field 'PARegistration.phone'
-        db.add_column(u'pa_paregistration', 'phone',
-                      self.gf('oioioi.base.fields.PhoneNumberField')(max_length=64, null=True, blank=True),
-                      keep_default=False)
-
+        for reg in orm.PARegistration.objects.all():
+            reg.anonymous = reg.participant.anonymous
+            reg.save()
 
     models = {
         u'auth.group': {
@@ -67,6 +68,7 @@ class Migration(SchemaMigration):
         u'pa.paregistration': {
             'Meta': {'object_name': 'PARegistration'},
             'address': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'city': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'job': ('django.db.models.fields.CharField', [], {'max_length': '7'}),
@@ -88,3 +90,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['pa']
+    symmetrical = True
