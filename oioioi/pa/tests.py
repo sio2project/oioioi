@@ -21,7 +21,6 @@ class TestPARegistration(TestCase):
             'address': 'The Castle',
             'postal_code': '31-337',
             'city': 'Camelot',
-            'phone': '000-000-000',
             't_shirt_size': 'L',
             'job': 'AS',
             'job_name': 'WSRH',
