@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
+class Migration(DataMigration):
 
-class Migration(SchemaMigration):
+    depends_on = (
+            ("participants", "0003_auto__add_field_participant_anonymous"),
+    )
 
     def forwards(self, orm):
-        # Deleting field 'PARegistration.phone'
-        db.delete_column(u'pa_paregistration', 'phone')
-
+        for reg in orm.PARegistration.objects.all():
+            reg.participant.anonymous = reg.anonymous
+            reg.participant.save()
 
     def backwards(self, orm):
-        # Adding field 'PARegistration.phone'
-        db.add_column(u'pa_paregistration', 'phone',
-                      self.gf('oioioi.base.fields.PhoneNumberField')(max_length=64, null=True, blank=True),
-                      keep_default=False)
-
+        for reg in orm.PARegistration.objects.all():
+            reg.anonymous = reg.participant.anonymous
+            reg.save()
 
     models = {
         u'auth.group': {
@@ -74,12 +75,14 @@ class Migration(SchemaMigration):
             'job_name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'newsletter': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'participant': ('oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField', [], {'related_name': "u'pa_paregistration'", 'unique': 'True', 'to': u"orm['participants.Participant']"}),
+            'phone': ('oioioi.base.fields.PhoneNumberField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'postal_code': ('oioioi.base.fields.PostalCodeField', [], {'max_length': '6'}),
             't_shirt_size': ('django.db.models.fields.CharField', [], {'max_length': '7'}),
             'terms_accepted': ('django.db.models.fields.BooleanField', [], {'default': 'False'})
         },
         u'participants.participant': {
             'Meta': {'unique_together': "(('contest', 'user'),)", 'object_name': 'Participant'},
+            'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['contests.Contest']"}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'status': ('oioioi.base.fields.EnumField', [], {'default': "'ACTIVE'", 'max_length': '64'}),
@@ -88,3 +91,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['pa']
+    symmetrical = True

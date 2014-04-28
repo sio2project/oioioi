@@ -57,6 +57,13 @@ class ParticipantAdmin(admin.ModelAdmin):
         return super(ParticipantAdmin, self).get_list_select_related() \
                 + ['user']
 
+    def get_list_display(self, request):
+        ld = super(ParticipantAdmin, self).get_list_display(request)
+        rcontroller = request.contest.controller.registration_controller()
+        if rcontroller.allow_login_as_public_name():
+            return ld + ['anonymous']
+        return ld
+
     def queryset(self, request):
         qs = super(ParticipantAdmin, self).queryset(request)
         qs = qs.filter(contest=request.contest)

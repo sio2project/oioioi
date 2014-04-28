@@ -26,6 +26,9 @@ class PARegistrationController(ParticipantsController):
     def anonymous_can_enter_contest(self):
         return True
 
+    def allow_login_as_public_name(self):
+        return True
+
     def can_enter_contest(self, request):
         return True
 

@@ -15,6 +15,7 @@ from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant, TestRegistration
 from oioioi.participants.management.commands import import_participants
 from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.oi.controllers import OIContestController, OIRegistrationController
 from oioioi.test_settings import MIDDLEWARE_CLASSES
 
 
@@ -364,3 +365,98 @@ class TestRegistrationModel(TestCase):
         _assert_equals_len(len(reg) - 2)
         reg = TestRegistration.objects.filter(name='trolololo').delete()
         _assert_equals_len(0)
+
+
+class AnonymousRegistrationController(OIRegistrationController):
+    def allow_login_as_public_name(self):
+        return True
+
+
+class AnonymousContestController(OIContestController):
+    def registration_controller(self):
+        return AnonymousRegistrationController(self.contest)
+
+
+class TestAnonymousParticipants(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_schools',
+            'test_full_package', 'test_ranking_data', 'test_extra_rounds']
+
+    def _register(self, user, anonymous=False, possible=False):
+        contest = Contest.objects.get()
+        url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+        self.client.login(username=user.username)
+        response = self.client.get(url)
+        if possible:
+            self.assertIn('anonymous', response.content)
+        else:
+            self.assertNotIn('anonymous', response.content)
+
+        reg_data = {
+            'address': 'The Castle',
+            'postal_code': '31-337',
+            'city': 'Camelot',
+            'phone': '000-000-000',
+            'birthday_month': '5',
+            'birthday_day': '25',
+            'birthday_year': '1975',
+            'birthplace': 'Lac',
+            't_shirt_size': 'L',
+            'school': '1',
+            'class_type': '1LO',
+            'terms_accepted': 'y',
+            'anonymous': anonymous,
+        }
+
+        response = self.client.post(url, reg_data)
+        self.assertIn(response.status_code, [200, 302])
+
+    def test_no_anonymous_participants(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                "oioioi.oi.controllers.OIContestController"
+        contest.save()
+
+        u1 = User.objects.get(pk=1001)
+        self._register(u1, anonymous=True, possible=False)
+
+        contest = Contest.objects.get()
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        self.client.login(username='test_admin')
+
+        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertNotIn('<td>test_user</td>', response.content)
+            self.assertIn('<td>Test User</td>', response.content)
+
+    def test_anonymous_participants(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                "oioioi.participants.tests.AnonymousContestController"
+        contest.save()
+
+        u1 = User.objects.get(pk=1001)
+        self._register(u1, anonymous=False, possible=True)
+
+        u2 = User.objects.get(pk=1002)
+        self._register(u2, anonymous=True, possible=True)
+
+        contest = Contest.objects.get()
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        self.client.login(username='test_admin')
+
+        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertNotIn('<td>test_user</td>', response.content)
+            self.assertIn('<td>Test User</td>', response.content)
+
+            self.assertIn('<td>test_user2</td>', response.content)
+            self.assertNotIn('<td>Test User 2</td>', response.content)
+
+            # Edit contest registration
+            self._register(u2, anonymous=False, possible=True)
+
+            self.client.login(username='test_admin')
+            response = self.client.get(url)
+            self.assertNotIn('<td>test_user2</td>', response.content)
+            self.assertIn('<td>Test User 2</td>', response.content)

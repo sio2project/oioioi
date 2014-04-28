@@ -16,7 +16,7 @@
         {% for row in rows %}
         <tr>
             <td class="text-right">{{ row.place }}</td>
-            <td>{{ row.user.get_full_name }}</td>
+            <td>{{ row.user_public_name }}</td>
             {% for result in row.results %}
             <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >{{ result.score|default_if_none:'' }}</td>
             {% endfor %}

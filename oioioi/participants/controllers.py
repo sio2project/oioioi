@@ -8,9 +8,11 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.controllers import RegistrationController
+from oioioi.contests.controllers import RegistrationController, \
+        ContestController
 from oioioi.contests.utils import is_contest_admin
 from oioioi.participants.models import Participant, RegistrationModel
 
@@ -28,6 +30,12 @@ class ParticipantsController(RegistrationController):
         return ParticipantAdmin
 
     def anonymous_can_enter_contest(self):
+        return False
+
+    def allow_login_as_public_name(self):
+        """Determines if participants may choose to stay anonymous,
+           i.e. use their logins as public names.
+        """
         return False
 
     def filter_participants(self, queryset):
@@ -85,14 +93,24 @@ class ParticipantsController(RegistrationController):
             except ObjectDoesNotExist:
                 pass
         if request.method == 'POST':
-            return self.form_class(request.POST, instance=instance)
+            form = self.form_class(request.POST, instance=instance)
         else:
-            return self.form_class(instance=instance)
+            form = self.form_class(instance=instance)
+
+        if self.allow_login_as_public_name():
+            initial = participant.anonymous if participant else False
+            form.fields['anonymous'] = forms.BooleanField(required=False,
+                    label=_("Anonymous"), initial=initial,
+                    help_text=_("Anonymous participant uses the account name "
+                        "instead of the real name in rankings."))
+        return form
 
     def handle_validated_form(self, request, form, participant):
         instance = form.save(commit=False)
         instance.participant = participant
         instance.save()
+        participant.anonymous = form.cleaned_data.get('anonymous', False)
+        participant.save()
 
     def _get_participant_for_form(self, request):
         try:
@@ -132,3 +150,13 @@ class ParticipantsController(RegistrationController):
             'can_unregister': can_unregister,
         }
         return TemplateResponse(request, self.registration_template, context)
+
+
+class AnonymousContestControllerMixin(object):
+    def get_user_public_name(self, user):
+        if Participant.objects.filter(contest=self.contest, user=user,
+                anonymous=True).exists():
+            return user.username
+        else:
+            return user.get_full_name()
+ContestController.mix_in(AnonymousContestControllerMixin)
