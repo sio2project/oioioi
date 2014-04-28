@@ -1,6 +1,8 @@
 from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.contrib.auth.models import User
 
+from oioioi.base.utils import jsonify
 from oioioi.pa.controllers import PARegistrationController
 from oioioi.dashboard.registry import dashboard_headers_registry
 from oioioi.participants.utils import is_participant
@@ -18,3 +20,12 @@ def registration_notice_fragment(request):
             context_instance=RequestContext(request))
     else:
         return None
+
+
+@jsonify
+def contest_info_view(request, contest_id):
+    rc = request.contest.controller.registration_controller()
+    users = rc.filter_participants(User.objects.all())
+    return {
+        'users_count': len(users),
+    }
