@@ -186,6 +186,23 @@ def _generate_round_id(sender, instance, raw, **kwargs):
                 .exclude(pk=instance.pk).count()
         instance.name = _("Round %d") % (num_other_rounds + 1,)
 
+statements_visibility_options = EnumRegistry()
+statements_visibility_options.register('YES', _("Visible"))
+statements_visibility_options.register('NO', _("Not visible"))
+statements_visibility_options.register('AUTO', _("Auto"))
+
+
+class ProblemStatementConfig(models.Model):
+    contest = models.OneToOneField('contests.Contest')
+    visible = EnumField(statements_visibility_options, default='AUTO',
+            verbose_name=_("statements visibility"),
+            help_text=_("If set to Auto, the visibility is determined "
+                "according to the type of the contest."))
+
+    class Meta(object):
+        verbose_name = _("problem statement config")
+        verbose_name_plural = _("problem statement configs")
+
 
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))

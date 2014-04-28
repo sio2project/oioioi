@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.contests.models import ProblemStatementConfig
+
 
 class ProblemUploadForm(forms.Form):
     contest_id = forms.CharField(widget=forms.HiddenInput, required=False)
@@ -21,3 +23,11 @@ class ProblemUploadForm(forms.Form):
             else:
                 self.fields.insert(0, 'round_id', forms.ChoiceField(
                     choices, label=_("Round")))
+
+
+class ProblemStatementConfigForm(forms.ModelForm):
+    class Meta(object):
+        model = ProblemStatementConfig
+        widgets = {
+            'visible': forms.RadioSelect()
+        }

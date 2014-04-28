@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, SubmissionReport, \
-        UserResultForContest, submission_kinds
+        UserResultForContest, submission_kinds, ProblemStatementConfig
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
         is_contest_admin, is_contest_observer, last_break_between_rounds, \
@@ -273,6 +273,27 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if is_contest_admin(request):
             return True
         return self.can_see_round(request, problem_instance.round)
+
+    def can_see_statement(self, request, problem_instance):
+        """Determines if the current user is allowed to see the statement for
+           the given problem.
+
+           The default implementation checks if there exists a problem
+           statement config for current contest and checks if statements'
+           visibility is enabled. If there is no problem statement config for
+           current contest or option 'AUTO' is chosen, returns default value
+           (calls :meth:`default_can_see_statement`)
+        """
+        if is_contest_admin(request):
+            return True
+        psc = ProblemStatementConfig.objects.filter(contest=request.contest)
+        if psc.exists() and psc[0].visible != 'AUTO':
+            return psc[0].visible == 'YES'
+        else:
+            return self.default_can_see_statement(request, problem_instance)
+
+    def default_can_see_statement(self, request, problem_instance):
+        return True
 
     def can_submit(self, request, problem_instance, check_round_times=True):
         """Determines if the current user is allowed to submit a solution for

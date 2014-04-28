@@ -9,6 +9,9 @@ class AMPPZContestController(ACMContestController):
     description = _("AMPPZ")
     create_forum = False
 
+    def default_can_see_statement(self, request, problem_instance):
+        return False
+
     def can_see_ranking(self, request):
         return is_contest_admin(request) or is_contest_observer(request)
 

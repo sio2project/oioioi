@@ -51,10 +51,13 @@ def default_contest_view(request, contest_id):
     order=100)
 @enforce_condition(contest_exists & can_enter_contest)
 def problems_list_view(request, contest_id):
+    controller = request.contest.controller
     problem_instances = visible_problem_instances(request)
+    problems_statements = [(pi, controller.can_see_statement(request, pi))
+                           for pi in problem_instances]
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     return TemplateResponse(request, 'contests/problems_list.html',
-        {'problem_instances': problem_instances,
+        {'problem_instances': problems_statements,
          'show_rounds': show_rounds,
          'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100)})
 
@@ -65,7 +68,8 @@ def problem_statement_view(request, contest_id, problem_instance):
     pi = get_object_or_404(ProblemInstance, round__contest=request.contest,
             short_name=problem_instance)
 
-    if not controller.can_see_problem(request, pi):
+    if not controller.can_see_problem(request, pi) or \
+            not controller.can_see_statement(request, pi):
         raise PermissionDenied
 
     statements = ProblemStatement.objects.filter(problem=pi.problem)
@@ -98,6 +102,7 @@ def problem_statement_view(request, contest_id, problem_instance):
 @enforce_condition(contest_exists & can_enter_contest)
 def problem_statement_zip_index_view(request, contest_id, problem_instance,
         statement_id):
+
     response = problem_statement_zip_view(request, contest_id,
             problem_instance, statement_id, 'index.html')
 
@@ -117,7 +122,8 @@ def problem_statement_zip_view(request, contest_id, problem_instance,
     statement = get_object_or_404(ProblemStatement,
         problem__probleminstance=pi, id=statement_id)
 
-    if not controller.can_see_problem(request, pi):
+    if not controller.can_see_problem(request, pi) or \
+            not controller.can_see_statement(request, pi):
         raise PermissionDenied
 
     if statement.extension != '.zip':

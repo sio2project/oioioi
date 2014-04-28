@@ -20,7 +20,7 @@ from oioioi.base.tests import check_not_accessible, fake_time, TestsUtilsMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
         RoundTimeExtension, ContestPermission, UserResultForProblem, \
-        ContestView, ContestLink
+        ContestView, ContestLink, ProblemStatementConfig
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
@@ -485,6 +485,75 @@ class TestMultilingualStatements(TestCase, TestStreamingMixin):
         ProblemStatement.objects.get(language__isnull=True).delete()
         response = self.client.get(url)
         self.assertStreamingEqual(response, 'en-txt')
+
+
+class ContestWithoutStatementsController(ProgrammingContestController):
+    def default_can_see_statement(self, request, problem_instance):
+        return False
+
+
+class TestStatementsVisibility(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package']
+
+    def test_controller(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_user')
+        response = self.client.get(reverse('problems_list',
+                kwargs={'contest_id': contest.id}))
+        self.assertContains(response, 'zad1')
+        self.assertContains(response, u'Sum\u017cyce')
+
+        pi = ProblemInstance.objects.get()
+        url = reverse('problem_statement',
+                kwargs={'contest_id': contest.id,
+                        'problem_instance': pi.short_name})
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        contest.controller_name = \
+                'oioioi.contests.tests.ContestWithoutStatementsController'
+        contest.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+    def test_statements_config(self):
+        contest = Contest.objects.get()
+        psc = ProblemStatementConfig(contest=contest)
+        psc.save()
+
+        self.assertEqual(psc.visible, 'AUTO')
+
+        pi = ProblemInstance.objects.get()
+        url = reverse('problem_statement',
+                kwargs={'contest_id': contest.id,
+                        'problem_instance': pi.short_name})
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        psc.visible = 'NO'
+        psc.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        contest.controller_name = \
+                'oioioi.contests.tests.ContestWithoutStatementsController'
+        contest.save()
+
+        psc.visible = 'AUTO'
+        psc.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        psc.visible = 'YES'
+        psc.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
 
 def failing_handler(env):

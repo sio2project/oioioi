@@ -19,11 +19,13 @@
         </tr>
     </thead>
     <tbody>
-        {% for pi in problem_instances %}
+        {% for pi, statement_visible in problem_instances %}
+        {% if statement_visible %}
         {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
+        {% endif %}
         <tr>
             <td>{{ pi.get_short_name_display }}</td>
-            <td><a href="{{ link }}">{{ pi.problem.name }}</a></td>
+            <td>{% if statement_visible %}<a href="{{ link }}">{% endif %}{{ pi.problem.name }}{% if statement_visible %}</a>{% endif %}</td>
             {% if show_rounds %}<td>{{ pi.round }}</td>{% endif %}
         </tr>
         {% endfor %}

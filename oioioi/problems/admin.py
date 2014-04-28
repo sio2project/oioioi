@@ -10,14 +10,30 @@ from django.conf.urls import patterns, url
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.models import ProblemInstance
+from oioioi.base.forms import AlwaysChangedModelForm
+from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
+from oioioi.problems.forms import ProblemStatementConfigForm
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment
 from oioioi.problems.utils import can_add_problems, can_change_problem
 
 
 logger = logging.getLogger(__name__)
+
+
+class StatementConfigInline(admin.TabularInline):
+    model = ProblemStatementConfig
+    extra = 1
+    form = ProblemStatementConfigForm
+
+
+class StatementConfigAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [StatementConfigInline]
+ContestAdmin.mix_in(StatementConfigAdminMixin)
 
 
 class StatementInline(admin.TabularInline):
