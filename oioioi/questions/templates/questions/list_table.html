@@ -1,6 +1,13 @@
 {% load i18n check_perm %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-<table class="{% block table-classes %}table auto-width row-links{% endblock %}">
+{% if records %}
+<div class="corner-icons">
+    <a class="btn btn-small" id="expand_messages">
+        <span class="toolbar-button-text"></span>
+    </a>
+</div>
+{% endif %}
+<table class="{% block table-classes %}table auto-width row-links{% endblock %}" style="margin-top: -30px">
     <thead>
         <tr>
             {% if is_admin %}<th style="min-width: 130px">{% trans "Author" %}</th>{% endif %}
@@ -10,13 +17,14 @@
             {% if is_admin %}
             <th style="min-width: 50px">{% trans "Kind" %}</th>
             {% endif %}
+            <th></th>
         </tr>
     </thead>
     <tbody>
         {% for record in records %}
         {% with record.message as msg %}
         {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
-        <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
+        <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}" id="message_{{ msg.id }}">
             {% if is_admin %}<td>{{ msg.author.get_full_name }}</td>{% endif %}
             <td><a href="{{ link }}">{{ msg.date }}</a></td>
             <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
@@ -24,6 +32,15 @@
             {% if is_admin %}
             <td><span class="label {% if record.needs_reply %}label-important{% endif %}">{{ msg.kind }}</span></td>
             {% endif %}
+            <td class="message_buttons" style="background: none" id="msg_buttons">
+                <a class="btn btn-mini" id="show_message_{{ msg.id }}">
+                    <i class="icon-chevron-down"></i>
+                </a>
+            </td>
+        </tr>
+        <tr id="hidden_message_{{ msg.id }}" style="display: none">
+            <td colspan="{% if is_admin %}5{% else %}3{% endif %}" >{{ msg.content|urlize|linebreaks }}</td>
+            <td style="border: none"></td>
         </tr>
         {% endwith %}
         {% endfor %}
