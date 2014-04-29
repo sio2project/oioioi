@@ -1,0 +1,87 @@
+[
+  {
+    "pk": 1103,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_team1",
+      "first_name": "Test",
+      "last_name": "Team1",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_team1@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1104,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_team2",
+      "first_name": "Test",
+      "last_name": "Team2",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_team2@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1105,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_team_user",
+      "first_name": "",
+      "last_name": "",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "teams.team",
+    "fields": {
+      "name": "test_team",
+      "login": "test_team_user",
+      "user": [
+        "test_team_user"
+      ],
+      "contest": "c",
+      "join_key": "abrakadabra"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "teams.teamMembership",
+    "fields": {
+      "user": 1103,
+      "team": 1105
+    }
+  },
+  {
+    "pk": 2,
+    "model": "teams.teamMembership",
+    "fields": {
+      "user": [
+        "test_team2"
+      ],
+      "team": 1105
+    }
+  }
+]

@@ -13,7 +13,7 @@ from oioioi.base.tests import fake_time
 from oioioi.teams.utils import can_join_team, can_quit_team, can_delete_team, \
                                can_create_team
 from oioioi.teams.views import create_team
-from oioioi.teams.models import TeamMembership
+from oioioi.teams.models import TeamMembership, Team
 
 
 class TestTeamsViews(TestCase, SubmitFileMixin):
@@ -154,3 +154,68 @@ class TestTeamSubmit(TestCase, SubmitFileMixin):
         tm.delete()
         self.client.post(url, post_data)
         self.assertEqual(Submission.objects.get().user, user)
+
+
+class TestTeamsListView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_team']
+
+    def test_visibility_no(self):
+        contest = Contest.objects.get()
+        tconf = TeamsConfig(contest=contest,
+            enabled=True, teams_list_visible='NO')
+        tconf.save()
+
+        response = self.client.get(reverse('default_contest_view',
+                kwargs={'contest_id': contest.id}), follow=True)
+        self.assertNotIn('Teams', response.content)
+
+        self.client.login(username='test_user')
+
+        response = self.client.get(reverse('default_contest_view',
+                kwargs={'contest_id': contest.id}), follow=True)
+        self.assertNotIn('Teams', response.content)
+
+    def test_visibility_yes(self):
+        contest = Contest.objects.get()
+        tconf = TeamsConfig(contest=contest,
+            enabled=True, teams_list_visible='YES')
+        tconf.save()
+
+        response = self.client.get(reverse('default_contest_view',
+                kwargs={'contest_id': contest.id}), follow=True)
+        self.assertNotIn('Teams', response.content)
+
+        self.client.login(username='test_user')
+
+        response = self.client.get(reverse('default_contest_view',
+                kwargs={'contest_id': contest.id}), follow=True)
+        self.assertIn('Teams', response.content)
+
+    def test_visibility_public(self):
+        contest = Contest.objects.get()
+        tconf = TeamsConfig(contest=contest,
+            enabled=True, teams_list_visible='PUBLIC')
+        tconf.save()
+
+        response = self.client.get(reverse('default_contest_view',
+                kwargs={'contest_id': contest.id}), follow=True)
+        self.assertIn('Teams', response.content)
+
+        self.client.login(username='test_user')
+
+        response = self.client.get(reverse('default_contest_view',
+                kwargs={'contest_id': contest.id}), follow=True)
+        self.assertIn('Teams', response.content)
+
+    def test_list(self):
+        contest = Contest.objects.get()
+        tconf = TeamsConfig(contest=contest,
+            enabled=True, teams_list_visible='PUBLIC')
+        tconf.save()
+
+        response = self.client.get(reverse('teams_list',
+                kwargs={'contest_id': contest.id}), follow=True)
+
+        self.assertIn('<li>test_team</li>', response.content)
+        self.assertIn('<li>Test Team1</li>', response.content)
+        self.assertIn('<li>Test Team2</li>', response.content)
