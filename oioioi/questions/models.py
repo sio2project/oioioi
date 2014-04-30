@@ -161,12 +161,21 @@ def send_notification(sender, instance, created, **kwargs):
 
     # Send a notification if this is a new answer for question
     elif instance.top_reference is not None:
-        logger.info("Answer for question \"%(topic)s\""
-                    " about problem \"%(short_name)s\" was sent",
-                    {'topic': instance.topic,
-                     'short_name': instance.top_reference
-                         .problem_instance.short_name}, extra=
-                         {'notification': 'question_answered',
-                          'question_instance': instance.top_reference,
-                          'answer_instance': instance,
-                          'user': instance.top_reference.author})
+        if instance.problem_instance is not None:
+            logger.info("Answer for question \"%(topic)s\""
+                        " about problem \"%(short_name)s\" was sent",
+                        {'topic': instance.topic,
+                         'short_name': instance.top_reference
+                             .problem_instance.short_name}, extra=
+                             {'notification': 'question_answered',
+                              'question_instance': instance.top_reference,
+                              'answer_instance': instance,
+                              'user': instance.top_reference.author})
+
+        else:
+            logger.info("Answer for question \"%(topic)s\" was sent",
+                       {'topic': instance.topic}, extra=
+                             {'notification': 'question_answered',
+                              'question_instance': instance.top_reference,
+                              'answer_instance': instance,
+                              'user': instance.top_reference.author})
