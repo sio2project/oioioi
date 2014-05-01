@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load pagination_tags %}
+{% load get_user_name %}
 
 {% if rows %}
 <div class="paginated-list">
@@ -20,7 +21,7 @@
         {% for row in rows %}
         <tr>
             <td class="text-right">{{ row.place }}</td>
-            <td>{{ row.user_public_name }}</td>
+            <td>{% public_name row.user %}</td>
             {% for result in row.results %}
             <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >{{ result.score|default_if_none:'' }}</td>
             {% endfor %}

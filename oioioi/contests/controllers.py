@@ -14,14 +14,16 @@ from django.utils.translation import ugettext_noop, ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
+from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins, \
+        get_user_display_name
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForProblem, FailureReport, SubmissionReport, \
-        UserResultForContest, submission_kinds, ProblemStatementConfig
+        UserResultForContest, submission_kinds, ProblemStatementConfig, \
+        RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
-        is_contest_admin, is_contest_observer, last_break_between_rounds, \
-        has_any_active_round
+        is_contest_admin, is_contest_observer, can_see_personal_data, \
+        last_break_between_rounds, has_any_active_round
 from oioioi import evalmgr
 
 
@@ -120,6 +122,33 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return ()
 
+    def get_contest_participant_info_list(self, request, user):
+        """Returns a list of tuples (priority, info).
+           Each entry represents a fragment of HTML with information about the
+           user's participation in the contest. This information will be
+           visible for contest admins. It can be any information an application
+           wants to add.
+
+           The fragments are sorted by priority (descending) and rendered in
+           that order.
+
+           The default implementation returns basic info about the contestant:
+           his/her full name, e-mail, the user id, his/her submissions and
+           round time extensions.
+
+           To add additional info from another application, override this
+           method. For integrity, include the result of the parent
+           implementation in your output.
+        """
+        return []
+
+    def filter_users_with_accessible_personal_data(self, queryset):
+        """Filters the queryset of :class:`~django.contrib.auth.model.User`
+           to select only users whose personal data is accessible to the
+           admins.
+        """
+        raise NotImplementedError
+
 
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
@@ -132,6 +161,12 @@ class PublicContestRegistrationController(RegistrationController):
 
     def filter_participants(self, queryset):
         return queryset
+
+    def filter_users_with_accessible_personal_data(self, queryset):
+        submissions = Submission.objects.filter(
+                problem_instance__contest=self.contest)
+        authors = [s.user for s in submissions]
+        return [q for q in queryset if q in authors]
 
 
 class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
@@ -158,13 +193,67 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return reverse('problems_list', kwargs={'contest_id': self.contest.id})
 
+    def get_contest_participant_info_list(self, request, user):
+        """Returns a list of tuples (priority, info).
+           Each entry represents a fragment of HTML with information about the
+           user's participation in the contest. This information will be
+           visible for contest admins. It can be any information an application
+           wants to add.
+
+           The fragments are sorted by priority (descending) and rendered in
+           that order.
+
+           The default implementation returns basic info about the contestant:
+           his/her full name, e-mail, the user id, his/her submissions and
+           round time extensions.
+
+           To add additional info from another application, override this
+           method. For integrity, include the result of the parent
+           implementation in your output.
+        """
+        res = [(100, render_to_string('contests/basic_user_info.html', {
+                        'request': request,
+                        'target_user_name': self.get_user_public_name(request,
+                                                                      user),
+                        'target_user': user,
+                        'user': request.user}))]
+
+        exts = RoundTimeExtension.objects.filter(user=user,
+                round__contest=request.contest)
+        if exts.exists():
+            res.append((99,
+                    render_to_string('contests/roundtimeextension_info.html', {
+                            'request': request,
+                            'extensions': exts,
+                            'user': request.user})))
+
+        if is_contest_admin(request) or is_contest_observer(request):
+            submissions = Submission.objects.filter(
+                    problem_instance__contest=request.contest, user=user) \
+                    .order_by('-date').select_related()
+
+            if submissions.exists():
+                submission_records = [submission_template_context(request, s)
+                        for s in submissions]
+                context = {
+                    'submissions': submission_records,
+                    'show_scores': True
+                }
+                rendered_submissions = render_to_string(
+                        'contests/user_submissions_table.html',
+                        context_instance=RequestContext(request, context))
+                res.append((50, rendered_submissions))
+
+        return res
+
     def get_user_public_name(self, request, user):
         """Returns the name of the user to be displayed in public contest
            views.
 
-           The default implementation returns the user's full name.
+           The default implementation returns the user's full name or username
+           if the former is not available.
         """
-        return user.get_full_name()
+        return get_user_display_name(user)
 
     def get_round_times(self, request, round):
         """Determines the times of the round for the user doing the request.

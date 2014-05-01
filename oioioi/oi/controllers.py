@@ -1,6 +1,8 @@
 # pylint: disable=E1103
 # Instance of 'OIRegistrationForm' has no 'is_valid' member
 from django.shortcuts import redirect
+from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -8,12 +10,13 @@ from django.conf import settings
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import PastRoundsHiddenContestControllerMixin
 from oioioi.contests.models import Submission, SubmissionReport
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
+        can_see_personal_data
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
-from oioioi.oi.models import OIOnsiteRegistration
+from oioioi.oi.models import OIRegistration, OIOnsiteRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 
 
@@ -68,6 +71,23 @@ class OIRegistrationController(ParticipantsController):
 
         context = {'form': form, 'participant': participant}
         return TemplateResponse(request, self.registration_template, context)
+
+    def get_contest_participant_info_list(self, request, user):
+        prev = super(OIRegistrationController, self) \
+                .get_contest_participant_info_list(request, user)
+
+        if can_see_personal_data(request):
+            sensitive_info = OIRegistration.objects.filter(
+                    participant__user=user,
+                    participant__contest=request.contest)
+            if sensitive_info.exists():
+                context = {'model': sensitive_info[0]}
+                rendered_sensitive_info = render_to_string(
+                        'oi/sensitive_participant_info.html',
+                        context_instance=RequestContext(request, context))
+                prev.append((2, rendered_sensitive_info))
+
+        return prev
 
 
 class OIContestController(ProgrammingContestController):
@@ -133,6 +153,7 @@ class OIContestController(ProgrammingContestController):
     def default_contesticons_urls(self):
         return ['%(url)simages/menu/menu-icon-%(i)d.png' %
                 {'url': settings.STATIC_URL, 'i': i} for i in range(1, 4)]
+
 OIContestController.mix_in(SplitEvalContestControllerMixin)
 
 
@@ -150,6 +171,21 @@ class OIOnsiteRegistrationController(ParticipantsController):
 
     def can_edit_registration(self, request, participant):
         return False
+
+    def get_contest_participant_info_list(self, request, user):
+        prev = super(OIOnsiteRegistrationController, self) \
+                .get_contest_participant_info_list(request, user)
+
+        info = OIOnsiteRegistration.objects.filter(participant__user=user,
+                participant__contest=request.contest)
+
+        if info.exists():
+            context = {'model': info[0]}
+            rendered_info = render_to_string('oi/participant_info.html',
+                    context_instance=RequestContext(request, context))
+            prev.append((98, rendered_info))
+
+        return prev
 
 
 class OIOnsiteContestController(OIContestController):

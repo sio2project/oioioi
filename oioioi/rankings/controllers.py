@@ -177,8 +177,6 @@ class DefaultRankingController(RankingController):
             user_results = []
             user_data = {
                 'user': user,
-                'user_public_name': self.contest.controller
-                        .get_user_public_name(request, user),
                 'results': user_results,
                 'sum': None
             }

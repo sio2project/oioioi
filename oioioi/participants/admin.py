@@ -6,6 +6,7 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
 from oioioi.contests.admin import RoundTimeExtensionAdmin
+from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
@@ -49,13 +50,17 @@ class ParticipantAdmin(admin.ModelAdmin):
     def user_full_name(self, instance):
         if not instance.user:
             return ''
-        return instance.user.get_full_name()
+        return make_html_link(
+                reverse('user_info', kwargs={
+                        'contest_id': instance.contest.id,
+                        'user_id': instance.user.id}),
+                instance.user.get_full_name())
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
     def get_list_select_related(self):
         return super(ParticipantAdmin, self).get_list_select_related() \
-                + ['user']
+                + ['contest', 'user']
 
     def get_list_display(self, request):
         ld = super(ParticipantAdmin, self).get_list_display(request)

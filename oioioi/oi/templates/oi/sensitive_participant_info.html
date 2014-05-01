@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<h4>{% trans "Sensitive OI info" %}</h4>
+<h5>{% trans "Personal info" %}</h5>
+<p>{% trans "Address" %}: {{ model.address }}</p>
+<p>{% trans "Postal code" %}: {{ model.postal_code }}</p>
+<p>{% trans "City" %}: {{ model.city }}</p>
+<p>{% trans "Phone" %}: {{ model.phone }}</p>
+<p>{% trans "Birthday" %}: {{ model.birthday }}</p>
+<p>{% trans "Birthplace" %}: {{ model.birthplace }}</p>
+<p>{% trans "T-shirt size" %}: {{ model.t_shirt_size }}</p>
+<p>{% trans "Class type" %}: {{ model.class_type }}</p>
+<p>{% trans "Terms accepted" %}: {{ model.terms_accepted }}</p>
+
+<h5>{% trans "School" %}</h5>
+{% with model.school as school %}
+    <p>{% trans "Name" %}: {{ school.name }}</p>
+    <p>{% trans "Address" %}: {{ school.address }}</p>
+    <p>{% trans "Postal code" %}: {{ school.postal_code }}</p>
+    <p>{% trans "City" %}: {{ school.city }}</p>
+    <p>{% trans "Province" %}: {{ school.province }}</p>
+    <p>{% trans "Phone" %}: {{ school.phone }}</p>
+    <p>{% trans "e-mail" %}: {{ school.email }}</p>
+    <p>{% trans "Is active" %}: {{ school.is_active }}</p>
+    <p>{% trans "Is approved" %}: {{ school.is_approved }}</p>
+{% endwith %}

@@ -419,3 +419,20 @@ class TestQuestions(TestCase):
         data = json.loads(resp.content)['messages']
 
         self.assertEqual(data[1][0], u'private-answer')
+
+
+class TestUserInfo(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_messages', 'test_templates']
+
+    def test_user_info_page(self):
+        contest = Contest.objects.get()
+        user = User.objects.get(pk=1001)
+        url = reverse('user_info', kwargs={'contest_id': contest.id,
+                                           'user_id': user.id})
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertIn('User info', response.content)
+        self.assertIn("User's messages", response.content)
+        self.assertIn('general-question', response.content)

@@ -511,3 +511,13 @@ def multiton(cls):
             i = instances[instance_name] = cls(*args, **kwargs)
         return i
     return get_instance
+
+
+# User-related
+
+
+def get_user_display_name(user):
+    """This method returns the full user name if available and
+       the username otherwise.
+    """
+    return user.get_full_name() or user.username

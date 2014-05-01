@@ -1,0 +1,10 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{{ target_user_name }} - {% trans "User info" %}{% endblock %}
+
+{% block content %}
+
+    {{ info|safe }}
+
+{% endblock %}

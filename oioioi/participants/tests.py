@@ -1,11 +1,10 @@
 import os
 from datetime import datetime
-
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from oioioi.base.tests import fake_time, check_not_accessible
@@ -388,7 +387,8 @@ class AnonymousContestController(OIContestController):
 
 class TestAnonymousParticipants(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_schools',
-            'test_full_package', 'test_ranking_data', 'test_extra_rounds']
+            'test_full_package', 'test_ranking_data', 'test_extra_rounds',
+            'test_permissions']
 
     def _register(self, user, anonymous=False, possible=False):
         contest = Contest.objects.get()
@@ -435,8 +435,8 @@ class TestAnonymousParticipants(TestCase):
 
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('<td>test_user</td>', response.content)
-            self.assertIn('<td>Test User</td>', response.content)
+            self.assertNotIn('>test_user</a>', response.content)
+            self.assertIn('>Test User</a>', response.content)
 
     def test_anonymous_participants(self):
         contest = Contest.objects.get()
@@ -452,29 +452,45 @@ class TestAnonymousParticipants(TestCase):
 
         contest = Contest.objects.get()
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
-        self.client.login(username='test_admin')
+        self.client.login(username='test_contest_admin')
 
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('<td>test_user</td>', response.content)
-            self.assertIn('<td>Test User</td>', response.content)
+            self.assertNotIn('>test_user</a>', response.content)
+            self.assertIn('>Test User</a>', response.content)
 
-            self.assertIn('<td>test_user2</td>', response.content)
-            self.assertNotIn('<td>Test User 2</td>', response.content)
+            self.assertIn('>test_user2</a>', response.content)
+            self.assertNotIn('>Test User 2</a>', response.content)
 
             # Edit contest registration
             self._register(u2, anonymous=False, possible=True)
             # To see the changes in the ranking we have to clear the cache
             cache.clear()
 
-            self.client.login(username='test_admin')
+            self.client.login(username='test_contest_admin')
             response = self.client.get(url)
-            self.assertNotIn('<td>test_user2</td>', response.content)
-            self.assertIn('<td>Test User 2</td>', response.content)
+            self.assertNotIn('>test_user2</a>', response.content)
+            self.assertIn('>Test User 2</a>', response.content)
+
+    def test_user_info_page(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                "oioioi.participants.tests.ParticipantsContestController"
+        contest.save()
+
+        user = User.objects.get(pk=1001)
+        p = Participant(contest=contest, user=user)
+        p.save()
+        url = reverse('user_info', kwargs={'contest_id': contest.id,
+                                           'user_id': user.id})
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertIn('<h4>Participant info:</h4>', response.content)
 
 
 class TestParticipantsDataViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package', 'test_schools']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_schools']
 
     def test_data_view(self):
         contest = Contest.objects.get()

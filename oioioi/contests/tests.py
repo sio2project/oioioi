@@ -1337,3 +1337,37 @@ class TestPersonalDataUser(TestCase):
     def testUser(self):
         self.client.login(username='test_personal_data_user')
         self.assertTrue(can_see_personal_data)
+
+
+class TestUserInfo(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_submission',
+                'test_full_package']
+
+    def test_user_info_page(self):
+        contest = Contest.objects.get()
+        user = User.objects.get(pk=1001)
+        url = reverse('user_info', kwargs={'contest_id': contest.id,
+                                           'user_id': user.id})
+
+        self.client.login(username='test_user')
+        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+            response = self.client.get(url, follow=True)
+            self.assertIn('403', response.content)
+
+        self.client.login(username='test_admin')
+        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+            response = self.client.get(url, follow=True)
+            self.assertIn('title>Test User - User info', response.content)
+            self.assertIn("User's submissions", response.content)
+            self.assertNotIn("<h4>User's round time extensions:</h4>",
+                             response.content)
+
+        round = Round.objects.get()
+        ext = RoundTimeExtension(user=user, round=round, extra_time=20)
+        ext.save()
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertIn("<h4>User's round time extensions:</h4>",
+                      response.content)
+        self.assertIn("Extra time: 20", response.content)

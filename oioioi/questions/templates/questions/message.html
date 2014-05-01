@@ -27,7 +27,7 @@
 <div class="corner-icons">
     <ul>
         <li>
-            <a class="btn btn-small" href="{% url 'oioioiadmin:auth_user_change' message.author_id %}">
+            <a class="btn btn-small" href="{% url 'user_info' contest.id message.author_id %}">
                 <i class="icon-user"></i>
                 <span class="toolbar-button-text">{% trans "Display user" %}</span>
             </a>

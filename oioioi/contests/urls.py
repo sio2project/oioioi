@@ -28,6 +28,10 @@ contest_patterns = patterns('oioioi.contests.views',
         name='problem_attachment'),
     url(r'^user_hints/$', 'contest_user_hints_view',
         name='contest_user_hints'),
+    url(r'^u/(?P<user_id>\d+)$', 'user_info_view',
+        name='user_info'),
+    url(r'^user_info_redirect/$', 'user_info_redirect_view',
+        name='user_info_redirect'),
 )
 
 urlpatterns = patterns('oioioi.contests.views',

@@ -21,15 +21,16 @@ from django.core.exceptions import SuspiciousOperation
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.forms import SubmissionForm
+from oioioi.contests.forms import SubmissionForm, GetUserInfoForm
 from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
-        is_contest_admin, has_any_submittable_problem, visible_rounds, \
-        visible_problem_instances, contest_exists, get_submission_or_error, \
-        is_contest_observer
+        can_see_personal_data, is_contest_admin, has_any_submittable_problem, \
+        visible_rounds, visible_problem_instances, contest_exists, \
+        get_submission_or_error, is_contest_observer
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 
@@ -293,8 +294,48 @@ def problem_attachment_view(request, contest_id, attachment_id):
     return stream_file(attachment.content)
 
 
-@enforce_condition(contest_exists & (is_contest_admin | is_contest_observer))
+@enforce_condition(contest_exists & (is_contest_admin | is_contest_observer |
+                                     can_see_personal_data))
 def contest_user_hints_view(request, contest_id):
     rcontroller = request.contest.controller.registration_controller()
     queryset = rcontroller.filter_participants(User.objects.all())
     return get_user_hints_view(request, 'substr', queryset)
+
+
+@enforce_condition(contest_exists & (is_contest_admin | can_see_personal_data))
+def user_info_view(request, contest_id, user_id):
+    controller = request.contest.controller
+    rcontroller = controller.registration_controller()
+    user = get_object_or_404(User, id=user_id)
+
+    if not request.user.is_superuser and (not user in rcontroller
+            .filter_users_with_accessible_personal_data(User.objects.all())
+                    or user.is_superuser):
+            raise PermissionDenied
+
+    infolist = sorted(
+            controller.get_contest_participant_info_list(request, user) +
+            rcontroller.get_contest_participant_info_list(request, user),
+            reverse=True)
+    info = "".join(html for (_p, html) in infolist)
+    return TemplateResponse(request, 'contests/user_info.html', {
+            'target_user_name': controller.get_user_public_name(request, user),
+            'info': info})
+
+
+@enforce_condition(contest_exists & (is_contest_admin | can_see_personal_data))
+@require_POST
+def user_info_redirect_view(request, contest_id):
+    form = GetUserInfoForm(request, request.POST)
+    if not form.is_valid():
+        return TemplateResponse(request, 'simple-centered-form.html', {
+                'form': form,
+                'action': reverse('user_info_redirect',
+                        kwargs={'contest_id': contest_id}),
+                'title': _("See user info page")})
+
+    user = form.cleaned_data['user']
+
+    return safe_redirect(request, reverse('user_info', kwargs={
+                        'contest_id': contest_id,
+                        'user_id': user.id}))

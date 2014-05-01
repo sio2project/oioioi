@@ -370,7 +370,7 @@ class TestOIViews(TestCase):
             self.assertContains(response, "No rankings available.")
             self.client.login(username='test_admin')
             response = self.client.get(url)
-            self.assertContains(response, '<td>Test User')
+            self.assertContains(response, '>Test User</a>')
 
 
 class TestOIOnsiteViews(TestCase):
@@ -666,3 +666,88 @@ class TestIgnoringCE(TestCase):
     def test_all_oi_style_contests(self):
         self._test('oioioi.oi.controllers.OIContestController')
         self._test('oioioi.oi.controllers.OIOnsiteContestController')
+
+
+class TestUserInfo(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_schools',
+                'test_permissions']
+
+    def test_user_info_page(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.oi.controllers.OIContestController'
+        contest.save()
+
+        user = User.objects.get(username='test_user')
+        url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+        self.client.login(username='test_user')
+        self.client.get(url)
+
+        user.first_name = 'Sir Lancelot'
+        user.last_name = 'du Lac'
+        user.save()
+        reg_data = {
+            'address': 'The Castle',
+            'postal_code': '31-337',
+            'city': 'Camelot',
+            'phone': '000-000-000',
+            'birthday_month': '5',
+            'birthday_day': '25',
+            'birthday_year': '1975',
+            'birthplace': 'Lac',
+            't_shirt_size': 'L',
+            'school': '1',
+            'class_type': '1LO',
+            'terms_accepted': 'y',
+        }
+
+        response = self.client.post(url, reg_data)
+        self.assertEquals(302, response.status_code)
+        url = reverse('user_info', kwargs={'contest_id': contest.id,
+                                           'user_id': user.id})
+
+        reg_data['birthday_day'] = 'May 25, 1975'
+        to_delete = ['school', 'birthday_month', 'birthday_year',
+                     'terms_accepted']
+        for k in to_delete:
+            del reg_data[k]
+
+        for k in reg_data:
+            reg_data[k] = ': ' + reg_data[k]
+
+        can_see_list = [('test_admin', True), ('test_observer', False),
+                   ('test_personal_data_user', True)]
+
+        for (username, can_see) in can_see_list:
+            print("Testing " + username)
+            print()
+            self.client.login(username=username)
+            response = self.client.get(url)
+            self.client.logout()
+
+            for k in reg_data:
+                print(reg_data[k])
+                if can_see:
+                    self.assertIn(reg_data[k], response.content)
+                else:
+                    self.assertNotIn(reg_data[k], response.content)
+
+    def test_oionsite_user_info_page(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.oi.controllers.OIOnsiteContestController'
+        contest.save()
+        user = User.objects.get(username='test_user')
+
+        p = Participant(contest=contest, user=user)
+        p.save()
+        reg = OIOnsiteRegistration(participant=p, number=3, local_number=5)
+        reg.save()
+
+        self.client.login(username='test_admin')
+        url = reverse('user_info', kwargs={'contest_id': contest.id,
+                                           'user_id': user.id})
+        response = self.client.get(url)
+
+        self.assertIn('<h4>OI info:</h4>', response.content)

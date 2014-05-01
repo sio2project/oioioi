@@ -1,4 +1,4 @@
-{% load i18n check_perm all_with_prefix menu get_clocks get_su %}
+{% load i18n check_perm all_with_prefix menu get_clocks get_su get_user_info_form %}
 
 <div id="main-navbar" class="navbar navbar-fixed-top navbar-inverse {% if request.session.admin_time %} admin-time-set {% endif %}{% if is_under_su %} under-su{% endif %} {% block navbar-class %}{% endblock %}">
     <noscript><div class="js-disabled-info">{% trans "OIOIOI works properly only if javascript is enabled." %}</div></noscript>
@@ -77,6 +77,8 @@
                     {% endfor %}
 
                     {% su_dropdown_form %}
+
+                    {% user_info_dropdown_form %}
                 </ul>
 
                 </li>

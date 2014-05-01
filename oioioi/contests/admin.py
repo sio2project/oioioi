@@ -359,9 +359,14 @@ class SubmissionAdmin(admin.ModelAdmin):
     def user_login(self, instance):
         if not instance.user:
             return ''
-        return instance.user.username
+        return make_html_link(
+                reverse('user_info', kwargs={
+                        'contest_id': instance.problem_instance.contest.id,
+                        'user_id': instance.user.id}),
+                instance.user.username)
     user_login.short_description = _("Login")
     user_login.admin_order_field = 'user__username'
+    user_login.allow_tags = True
 
     def user_full_name(self, instance):
         if not instance.user:
@@ -475,9 +480,14 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     def user_login(self, instance):
         if not instance.user:
             return ''
-        return instance.user.username
+        return make_html_link(
+                reverse('user_info', kwargs={
+                        'contest_id': instance.round.contest.id,
+                        'user_id': instance.user.id}),
+                instance.user.username)
     user_login.short_description = _("Login")
     user_login.admin_order_field = 'user__username'
+    user_login.allow_tags = True
 
     def user_full_name(self, instance):
         if not instance.user:
@@ -495,6 +505,10 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
             kwargs['queryset'] = Round.objects.filter(contest=request.contest)
         return super(RoundTimeExtensionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
+
+    def get_list_select_related(self):
+        return super(RoundTimeExtensionAdmin, self).get_list_select_related() \
+                + ['user', 'round__contest']
 
 admin.site.register(RoundTimeExtension, RoundTimeExtensionAdmin)
 contest_admin_menu_registry.register('roundtimeextension_admin',

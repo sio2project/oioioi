@@ -1,6 +1,7 @@
 {% extends "forum/forum.html" %}
 {% load i18n %}
 {% load check_perm %}
+{% load get_user_name %}
 
 {% block title %}{% trans "Thread" %}: {{ thread.name }}{% endblock %}
 
@@ -41,7 +42,7 @@
                     </div>
                 {% endif %}
                 <div class="forum-info-row">
-                    <a href="#forum-post-{{ p.id }}">#{{ p.id }}</a> | {{ p.author.get_full_name }} | {% trans "Added" %}: {{ p.add_date }}
+                    <a href="#forum-post-{{ p.id }}">#{{ p.id }}</a> | {% full_name p.author %} | {% trans "Added" %}: {{ p.add_date }}
                     {% if p.edited %}
                         | {% trans "Last edit" %}: {{ p.last_edit_date }}
                     {% endif %}

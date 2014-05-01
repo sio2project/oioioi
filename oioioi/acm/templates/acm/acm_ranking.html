@@ -1,4 +1,4 @@
-{% load i18n check_perm %}
+{% load i18n check_perm get_user_name %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 
 {% if rows %}
@@ -21,7 +21,7 @@
         {% for row in rows %}
         <tr>
             <td>{{ row.place }}</td>
-            <td class="acm_user">{{ row.user_public_name }}</td>
+            <td class="acm_user">{% public_name row.user %}</td>
             <td class="acm_count">{{ row.sum.problems_solved }}</td>
             <td class="acm_total_time">{{ row.sum.total_time_repr }} </td>
 

@@ -6,15 +6,17 @@ from django import forms
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.template import RequestContext
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils import request_cached
+from oioioi.base.utils import request_cached, get_user_display_name
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import RegistrationController, \
         ContestController
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_admin, can_see_personal_data
 from oioioi.participants.models import Participant, RegistrationModel
 
 
@@ -42,6 +44,9 @@ class ParticipantsController(RegistrationController):
     def filter_participants(self, queryset):
         return queryset.filter(participant__contest=self.contest,
                 participant__status='ACTIVE')
+
+    def filter_users_with_accessible_personal_data(self, queryset):
+        return self.filter_participants(queryset)
 
     def can_register(self, request):
         return False
@@ -165,8 +170,25 @@ def anonymous_participants(request):
 class AnonymousContestControllerMixin(object):
     def get_user_public_name(self, request, user):
         assert self.contest == request.contest
-        if user in anonymous_participants(request):
-            return user.username
+        if request.user.is_superuser or can_see_personal_data(request) \
+                or not user in anonymous_participants(request):
+            return get_user_display_name(user)
         else:
-            return user.get_full_name()
+            return user.username
+
+    def get_contest_participant_info_list(self, request, user):
+        prev = super(AnonymousContestControllerMixin, self).\
+                get_contest_participant_info_list(request, user)
+        try:
+            part = Participant.objects.get(user=user,
+                                          contest=request.contest)
+            context = {'participant': part}
+            rendered_info = render_to_string(
+                    'participants/participant_info.html',
+                    context_instance=RequestContext(request, context))
+            prev.append((98, rendered_info))
+        except Participant.DoesNotExist:
+            pass
+        return prev
+
 ContestController.mix_in(AnonymousContestControllerMixin)

@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load check_perm %}
+
+{% check_perm 'contests.personal_data' for request.contest as can_see_personal_data %}
+
+<h4>{% trans "User's round time extensions" %}:</h4>
+{% for ext in extensions %}
+    <p>{% trans "Round" %}: {{ ext.round.name }}</p>
+    <p>{% trans "Extra time" %}: {{ ext.extra_time }}</p>
+{% endfor %}

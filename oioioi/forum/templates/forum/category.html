@@ -1,6 +1,7 @@
 {% extends "forum/forum.html" %}
 {% load i18n %}
 {% load check_perm %}
+{% load get_user_name %}
 
 {% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
 
@@ -63,7 +64,8 @@
                 </td>
             {% endif %}
             <td class="forum-last-post">
-                {% blocktrans with date=t.last_post.add_date author=t.last_post.author.get_full_name last_id=t.last_post.id %}
+                {% full_name t.last_post.author as author_link %}
+                {% blocktrans with date=t.last_post.add_date author=author_link last_id=t.last_post.id %}
                     <a href="{{ thread_link }}#forum-post-{{ last_id }}">{{ date }}</a>, by {{ author }}
                 {% endblocktrans %}
             </td>

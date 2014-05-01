@@ -1,8 +1,10 @@
 from django import forms
 from django.contrib.admin import widgets
+from django.core.urlresolvers import reverse
 from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.utils import submittable_problem_instances
 
@@ -162,3 +164,12 @@ class SubmissionForm(forms.Form):
 
         return ccontroller.validate_submission_form(self.request, pi, self,
                                                     cleaned_data)
+
+
+class GetUserInfoForm(forms.Form):
+    user = UserSelectionField(label=_("Username"))
+
+    def __init__(self, request, *args, **kwargs):
+        super(GetUserInfoForm, self).__init__(*args, **kwargs)
+        self.fields['user'].hints_url = reverse('contest_user_hints',
+                kwargs={'contest_id': request.contest.id})
