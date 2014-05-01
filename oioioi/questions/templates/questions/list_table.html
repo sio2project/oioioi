@@ -39,7 +39,7 @@
             </td>
         </tr>
         <tr id="hidden_message_{{ msg.id }}" style="display: none">
-            <td colspan="{% if is_admin %}5{% else %}3{% endif %}" >{{ msg.content|urlize|linebreaks }}</td>
+            <td colspan="{% if is_admin %}5{% else %}3{% endif %}" ><div>{{ msg.content|urlize|linebreaks }}</div></td>
             <td style="border: none"></td>
         </tr>
         {% endwith %}

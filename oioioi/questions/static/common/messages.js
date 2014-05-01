@@ -139,7 +139,7 @@ $(document).ready(function() {
 
     btn.text(expand_text);
     msg_buttons.attr('title', single_expand_text);
-    msgs.find('p').css('position', 'absolute');
+    msgs.find('div').css('position', 'absolute');
 
     btn.click(function() {
         if (expand)
