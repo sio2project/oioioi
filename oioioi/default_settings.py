@@ -335,4 +335,8 @@ MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
 # Zeus configuration
 ZEUS_INSTANCES = {
 }
+
 ZEUS_ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
+
+# Delay between consecutive http requests for results.
+ZEUS_RESULTS_FETCH_DELAY = 3  # seconds

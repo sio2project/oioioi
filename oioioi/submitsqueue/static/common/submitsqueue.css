@@ -2,6 +2,10 @@ span.subm_PROGRESS {
     background: lightgreen;
 }
 
+span.subm_PROGRESS-RESUMED {
+    background: lightgreen;
+}
+
 span.subm_QUEUED {
     background: lightgray;
 }

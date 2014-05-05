@@ -1,6 +1,7 @@
 import json
 
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from oioioi.base.tests import TestsUtilsMixin
 from oioioi.contests.models import SubmissionReport
@@ -8,6 +9,7 @@ from oioioi.programs.models import ProgramSubmission
 from oioioi.zeus.backends import _json_base64_encode, _json_base64_decode, \
                                  Base64String, ZeusServer
 from oioioi.zeus.models import ZeusAsyncJob, ZeusTestRunProgramSubmission
+from oioioi.zeus.management.commands import zeus_fetcher
 # Import qualified to prevent nose from thinking that
 # '(^|_)test*' functions are tests
 from oioioi.zeus import handlers
@@ -18,8 +20,8 @@ def ZeusTestServer(fixtures_path):
        fixtures.
     """
     class _ZeusTestServer(ZeusServer):
-        def __init__(self):
-            super(_ZeusTestServer, self).__init__(self)
+        def __init__(self, zeus_id, server):
+            super(_ZeusTestServer, self).__init__(zeus_id, server)
             with open(fixtures_path) as f:
                 self.fixtures = json.load(f)
 
@@ -160,7 +162,6 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         env = handlers.save_env(env, kind='NORMAL')
         self.assertEquals(len(env['recipe']), 0)
         job = ZeusAsyncJob.objects.get(check_uid=909941)
-        self.assertEqual(job.kind, 'NORMAL')
         saved_env = json.loads(job.environ)
         self.assertTrue(saved_env['eggs_available'])
         self.assertEquals(len(saved_env['recipe']), 1)
@@ -258,3 +259,24 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
 
         self.assertEqual(tr_report.full_out_size, 1024)
         self.assertEqual(tr_report.full_out_handle, '918')
+
+
+@override_settings(ZEUS_INSTANCES={'zeus_correct': ('__use_object__',
+                                   'oioioi.zeus.tests.ZeusCorrectServer',
+                                   ('zeus_fixture_server/', '', ''))})
+class TestZeusFetcher(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_submission',
+            'test_full_package', 'test_zeus_problem']
+
+    def setUp(self):
+        self.fetcher = zeus_fetcher.Command()
+
+    def test_fetch_once(self):
+        env = {'recipe': []}
+        ZeusAsyncJob.objects.create(check_uid='1001', environ=json.dumps(env))
+        self.fetcher.fetch_once(self.fetcher.zeus_servers.values()[0])
+        self.assertEquals(ZeusAsyncJob.objects.all().count(), 2)
+        z1 = ZeusAsyncJob.objects.get(check_uid='1001')
+        z2 = ZeusAsyncJob.objects.get(check_uid='1003')
+        self.assertTrue(z1.resumed)
+        self.assertFalse(z2.resumed)

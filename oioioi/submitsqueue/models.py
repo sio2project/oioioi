@@ -9,6 +9,7 @@ from oioioi.base.fields import EnumRegistry, EnumField
 submission_states = EnumRegistry()
 submission_states.register('QUEUED', _("Queued"))
 submission_states.register('PROGRESS', _("In progress"))
+submission_states.register('PROGRESS-RESUMED', _("In progress (resumed)"))
 submission_states.register('CANCELLED', _("Cancelled"))
 submission_states.register('WAITING', _("Waiting"))
 
