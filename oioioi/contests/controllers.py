@@ -457,6 +457,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         environ['submission_kind'] = submission.kind
         environ['problem_instance_id'] = problem_instance.id
         environ['problem_id'] = problem.id
+        environ['problem_short_name'] = problem.short_name
         environ['round_id'] = round.id
         environ['contest_id'] = contest.id
         environ['submission_owner'] = submission.user.username \

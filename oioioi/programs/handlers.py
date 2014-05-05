@@ -81,6 +81,7 @@ def compile(env, **kwargs):
             env['compilation_result'] is set to OK and contains compiled
             binary path
           * env['compilation_message'] - contains compiler stdout and stderr
+          * env['exec_info'] - information how to execute the compiled file
     """
 
     compilation_job = env.copy()
@@ -94,6 +95,7 @@ def compile(env, **kwargs):
     env['compiled_file'] = new_env.get('out_file')
     env['compilation_message'] = new_env.get('compiler_output', '')
     env['compilation_result'] = new_env.get('result_code', 'CE')
+    env['exec_info'] = new_env.get('exec_info', {})
     return env
 
 
@@ -151,6 +153,7 @@ def run_tests(env, kind=None, **kwargs):
            otherwise (see the documentation for ``unsafe-exec`` job for
            more information),
          * ``compiled_file``: the compiled file which will be tested,
+         * ``exec_info``: information how to execute ``compiled_file``
          * ``check_outputs``: set to ``True`` if the output should be verified
          * ``checker``: if present, it should be the filetracker path
            of the binary used as the output checker,
@@ -190,6 +193,7 @@ def run_tests(env, kind=None, **kwargs):
         job = test_env.copy()
         job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
         job['exe_file'] = env['compiled_file']
+        job['exec_info'] = env['exec_info']
         job['check_output'] = env.get('check_outputs', True)
         if env.get('checker'):
             job['chk_file'] = env['checker']
