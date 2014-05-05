@@ -269,9 +269,11 @@ def update_problem_tests_set(env, kind, **kwargs):
        Used ``environ`` keys:
            * ``tests``
            * ``zeus_problem_id``
+           * ``zeus_id``
     """
 
-    data = ZeusProblemData.objects.get(zeus_problem_id=env['zeus_problem_id'])
+    data = ZeusProblemData.objects.get(zeus_id=env['zeus_id'],
+                                       zeus_problem_id=env['zeus_problem_id'])
     problem = data.problem
 
     env_tests = {key: value for key, value in env['tests'].iteritems()
