@@ -36,6 +36,18 @@ class RoundInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return True
 
+    def get_fieldsets(self, request, obj=None):
+        fields = ['name', 'start_date', 'end_date', 'results_date',
+                'public_results_date', 'is_trial']
+        fields_no_public_results = ['name', 'start_date', 'end_date',
+            'results_date', 'is_trial']
+
+        if request.contest.controller.separate_public_results():
+            fdsets = [(None, {'fields': fields})]
+        else:
+            fdsets = [(None, {'fields': fields_no_public_results})]
+        return fdsets
+
 
 class AttachmentInline(admin.TabularInline):
     model = ContestAttachment
@@ -172,6 +184,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                 args=(instance.problem_id,)) + '?' + \
                         urllib.urlencode({'came_from': came_from})
 
+    def probleminstance_change_link_name(self):
+        return _("Move/rename")
+
     def inline_actions(self, instance):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(instance.id,))
@@ -179,7 +194,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         reupload_href = self._problem_reupload_href(instance)
         download_href = self._problem_download_href(instance)
         return [
-            (move_href, _("Move/rename")),
+            (move_href, self.probleminstance_change_link_name()),
             (edit_href, _("Edit problem")),
             (reupload_href, _("Re-upload")),
             (download_href, _("Download package")),

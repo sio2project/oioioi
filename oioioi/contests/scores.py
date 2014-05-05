@@ -10,6 +10,13 @@
    MyScore should extend :class:`ScoreValue` and implement its
    unimplemented functions such as :py:func:`__add__`, :py:func:`__cmp__` etc.
 
+   NOTE: when you create a new type of score, make sure that it gets
+   registered (its class gets loaded) before any attempt to deserialize its
+   instance.
+   If you are not sure if this is the case, adding the line
+   ``from oioioi.yourapp.score import YourScore`` to ``yourapp.models.py``
+   should fix the problem.
+
    For simple example of score class implementation see :class:`IntegerScore`.
 """
 

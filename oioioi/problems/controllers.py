@@ -1,4 +1,5 @@
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
+from oioioi.contests.controllers import ContestController
 
 
 class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
@@ -38,3 +39,12 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation returns an empty tuple.
         """
         return ()
+
+
+class ProblemUploadContestControllerMixin(object):
+    def process_uploaded_problem(self, problem, problem_instance,
+            is_new=False):
+        """Processes a problem just after it has been uploaded
+        """
+        pass
+ContestController.mix_in(ProblemUploadContestControllerMixin)

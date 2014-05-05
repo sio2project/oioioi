@@ -2,6 +2,7 @@ from collections import defaultdict
 from operator import itemgetter
 import unicodecsv
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -63,7 +64,7 @@ class DefaultRankingController(RankingController):
             queryset = queryset.filter(id=key)
         for round in queryset:
             times = ccontroller.get_round_times(request, round)
-            if can_see_all or times.results_visible(request.timestamp):
+            if can_see_all or times.public_results_visible(request.timestamp):
                 yield round
 
     def available_rankings(self, request):
@@ -115,6 +116,12 @@ class DefaultRankingController(RankingController):
     def filter_users_for_ranking(self, request, key, queryset):
         return queryset.filter(is_superuser=False)
 
+    def _filter_pis_for_ranking(self, key, queryset):
+        return queryset
+
+    def _allow_zero_score(self):
+        return True
+
     def _get_users_results(self, pis, results, rounds, users):
         by_user = defaultdict(dict)
         for r in results:
@@ -147,7 +154,8 @@ class DefaultRankingController(RankingController):
                 # user's submissions do not have scores (for example the
                 # problems do not support scoring, or all the evaluations
                 # failed with System Errors).
-                data.append(user_data)
+                if self._allow_zero_score() or user_data['sum'] != 0:
+                    data.append(user_data)
         return data
 
     def _assign_places(self, data, extractor):
@@ -168,8 +176,9 @@ class DefaultRankingController(RankingController):
 
     def serialize_ranking(self, request, key):
         rounds = list(self._rounds_for_ranking(request, key))
-        pis = list(ProblemInstance.objects.filter(round__in=rounds)
-                .select_related('problem').prefetch_related('round'))
+        pis = list(self._filter_pis_for_ranking(key,
+            ProblemInstance.objects.filter(round__in=rounds)).
+            select_related('problem').prefetch_related('round'))
         users = self.filter_users_for_ranking(request, key, User.objects.all())
         results = UserResultForProblem.objects \
                 .filter(problem_instance__in=pis, user__in=users) \
@@ -177,4 +186,6 @@ class DefaultRankingController(RankingController):
 
         data = self._get_users_results(pis, results, rounds, users)
         self._assign_places(data, itemgetter('sum'))
-        return {'rows': data, 'problem_instances': pis}
+        return {'rows': data, 'problem_instances': pis,
+                'participants_on_page': getattr(settings,
+                    'PARTICIPANTS_ON_PAGE', 100)}

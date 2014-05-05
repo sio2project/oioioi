@@ -133,6 +133,11 @@ def _round_end_date_name_generator(obj):
                         name_generator=(lambda obj:
                                         _("Results of %s") % obj['name']),
                         order=30)
+@date_registry.register('public_results_date',
+                        name_generator=(lambda obj:
+                                        _("Public results of %s") %
+                                        obj['name']),
+                        order=30)
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     name = models.CharField(max_length=255, verbose_name=_("name"),
@@ -143,6 +148,11 @@ class Round(models.Model):
             verbose_name=_("end date"))
     results_date = models.DateTimeField(blank=True, null=True,
             verbose_name=_("results date"))
+    public_results_date = models.DateTimeField(blank=True, null=True,
+            verbose_name=_("public results date"),
+            help_text=_("Participants may learn about others' results, "
+                "what exactly happens depends on the type of the contest "
+                "(eg. rankings, contestants' solutions are published)."))
     is_trial = models.BooleanField(default=False, verbose_name=_("is trial"))
 
     class Meta(object):
@@ -158,6 +168,13 @@ class Round(models.Model):
         if self.start_date and self.end_date and \
                 self.start_date > self.end_date:
             raise ValidationError(_("Start date should be before end date."))
+        if self.public_results_date:
+            if self.results_date is None:
+                raise ValidationError(_("If you specify a public results "
+                    "date, you should enter a results date too."))
+            if self.results_date > self.public_results_date:
+                raise ValidationError(_("Results cannot appear later than "
+                    "public results."))
 
 
 @receiver(pre_save, sender=Round)

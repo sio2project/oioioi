@@ -8,10 +8,13 @@ from datetime import timedelta
 
 
 class RoundTimes(object):
-    def __init__(self, start, end, show_results, extra_time=0):
+    def __init__(self, start, end, contest, show_results=None,
+            show_public_results=None, extra_time=0):
         self.start = start
         self.end = end
         self.show_results = show_results
+        self.show_public_results = show_public_results
+        self.contest = contest
         self.extra_time = extra_time
 
     def is_past(self, current_datetime):
@@ -46,6 +49,24 @@ class RoundTimes(object):
 
         return current_datetime >= self.show_results
 
+    def public_results_visible(self, current_datetime):
+        """Returns True if the results of the round have already been made
+           public
+
+           It the contest's controller makes no distinction between personal
+           and public results, this function returns the same as
+           :meth:'results_visible'.
+
+           Otherwise the show_public_results date is used.
+        """
+        if not self.contest.controller.separate_public_results():
+            return self.results_visible(current_datetime)
+
+        if self.show_public_results is None:
+            return False
+
+        return current_datetime >= self.show_public_results
+
     def get_start(self):
         return self.start
 
@@ -72,9 +93,9 @@ def rounds_times(request):
         rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects
                       .filter(user=request.user, round__id__in=rids).values())
 
-    return dict((r, RoundTimes(r.start_date, r.end_date, r.results_date,
-                          rtexts[r.id]['extra_time'] if r.id in rtexts else 0))
-            for r in rounds)
+    return dict((r, RoundTimes(r.start_date, r.end_date, r.contest,
+        r.results_date, r.public_results_date,
+        rtexts[r.id]['extra_time'] if r.id in rtexts else 0)) for r in rounds)
 
 
 @make_request_condition
@@ -96,6 +117,20 @@ def has_any_active_round(request):
         if rtimes.is_active(request.timestamp):
             return True
     return False
+
+
+@make_request_condition
+@request_cached
+def all_public_results_visible(request):
+    """Checks if results of all rounds of the current contest are visible to
+       public.
+    """
+    controller = request.contest.controller
+    for round in Round.objects.filter(contest=request.contest):
+        rtimes = controller.get_round_times(request, round)
+        if not rtimes.public_results_visible(request.timestamp):
+            return False
+    return True
 
 
 @make_request_condition

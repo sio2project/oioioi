@@ -26,7 +26,7 @@ from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        can_enter_contest
+        can_enter_contest, rounds_times
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
@@ -1173,4 +1173,64 @@ class TestDateRegistry(TestCase):
         registry_length = len(date_registry.tolist(contest.id))
         rounds_count = Round.objects.filter(contest=contest.id).count()
 
-        self.assertEqual(registry_length, 3 * rounds_count)
+        self.assertEqual(registry_length, 4 * rounds_count)
+
+
+class ContestWithPublicResultsController(ProgrammingContestController):
+    def separate_public_results(self):
+        return True
+
+
+class TestPublicResults(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def _change_controller(self, public_results=False):
+        contest = Contest.objects.get()
+        if public_results:
+            contest.controller_name = \
+                    'oioioi.contests.tests.ContestWithPublicResultsController'
+        else:
+            contest.controller_name = \
+                    'oioioi.programs.controllers.ProgrammingContestController'
+        contest.save()
+
+    def test_round_inline(self):
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:contests_contest_change',
+                args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertNotContains(response, 'Public results date')
+
+        self._change_controller(public_results=True)
+
+        response = self.client.get(url)
+        self.assertContains(response, 'Public results date')
+
+    def _check_public_results(self, expected):
+        before_results = datetime(2012, 6, 20, 8, 0, tzinfo=utc)
+        after_results_before_public = datetime(2012, 8, 20, 8, 0, tzinfo=utc)
+        after_public = datetime(2012, 10, 20, 8, 0, tzinfo=utc)
+        dates = [before_results, after_results_before_public, after_public]
+
+        request = RequestFactory().request()
+        request.contest = Contest.objects.get(id='c')
+        request.user = User.objects.get(username='test_admin')
+        round = Round.objects.get()
+
+        rtime = rounds_times(request)[round]
+        for date, exp in zip(dates, expected):
+            self.assertEquals(rtime.public_results_visible(date), exp)
+
+    def test_public_results_visible(self):
+        # Default controller implementation, there is only one results date
+        self._check_public_results([False, True, True])
+
+        self._change_controller(public_results=True)
+        # public_results_date == None, so public results will never be visible
+        self._check_public_results([False, False, False])
+
+        round = Round.objects.get()
+        round.public_results_date = datetime(2012, 9, 20, 8, 0, tzinfo=utc)
+        round.save()
+        self._check_public_results([False, False, True])

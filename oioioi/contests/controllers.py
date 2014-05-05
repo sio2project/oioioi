@@ -176,6 +176,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return rounds_times(request)[round]
 
+    def separate_public_results(self):
+        """Determines if there should be two separate dates for personal
+           results (when participants can see their scores for a given round)
+           and public results (when round ranking is published).
+
+           Depending on the value returned, contest admins can see and modify
+           both ``Results date`` and ``Public results date`` or only the
+           first one.
+
+           :rtype: bool
+        """
+        return False
+
     def order_rounds_by_focus(self, request, queryset=None):
         """Sorts the rounds in the queryset according to probable user's
            interest.

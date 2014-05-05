@@ -1,12 +1,202 @@
+# pylint: disable=W0105
+# String statement has no effect
 import json
+from datetime import datetime
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.timezone import utc
 
-from oioioi.contests.models import Contest
+from oioioi.base.utils import memoized_property
+from oioioi.contests.models import Contest, ProblemInstance, Submission
+from oioioi.contests.scores import IntegerScore
 from oioioi.participants.models import Participant
+from oioioi.pa import utils
 from oioioi.pa.models import PARegistration
+from oioioi.pa.score import ScoreDistribution, PAScore
+from oioioi.pa.controllers import A_PLUS_B_RANKING_KEY, B_RANKING_KEY
+from oioioi.base.tests import fake_time
+
+
+class TestPAScore(TestCase):
+    def test_score_distribution(self):
+        dist1 = ScoreDistribution([1] + [0] * 9)
+        dist2 = ScoreDistribution([0] + [10] * 9)
+        dist_null = ScoreDistribution([0] * 10)
+
+        self.assertLess(dist2, dist1)
+        self.assertLess(dist1, dist1 + dist2)
+        self.assertLess(dist2 + dist2, dist1)
+        self.assertLess(dist_null, dist1)
+        self.assertLess(dist_null, dist2)
+
+        self.assertEqual(dist_null, ScoreDistribution())
+        self.assertEqual(dist_null + dist_null, dist_null)
+        self.assertEqual(dist1 + dist_null, dist1)
+
+        self.assertEqual(dist1._to_repr(),
+                '00001:00000:00000:00000:00000:00000:00000:00000:00000:00000')
+        self.assertEqual(dist2._to_repr(),
+                '00000:00010:00010:00010:00010:00010:00010:00010:00010:00010')
+        self.assertEqual((dist1 + dist2)._to_repr(),
+                '00001:00010:00010:00010:00010:00010:00010:00010:00010:00010')
+
+        self.assertEqual(dist1, ScoreDistribution._from_repr(dist1._to_repr()))
+        self.assertEqual(dist2, ScoreDistribution._from_repr(dist2._to_repr()))
+
+        self.assertEqual(repr(dist1),
+                'ScoreDistribution(10: 1, 9: 0, 8: 0, 7: 0, 6: 0, 5: 0, 4: 0, '
+                '3: 0, 2: 0, 1: 0)')
+
+    def test_pa_score(self):
+        score = [PAScore(IntegerScore(x)) for x in range(0, 11)]
+
+        self.assertLess(score[0], score[5])
+        self.assertLess(score[5], score[10])
+        self.assertLess(score[5] + score[5], score[10])
+        self.assertLess(score[5] + score[5], score[2] + score[2] + score[6])
+        self.assertLess(score[10], score[2] + score[4] + score[5])
+        self.assertLess(score[2] + score[2] + score[6],
+                score[1] + score[3] + score[6])
+
+        dist1 = ScoreDistribution([0] * 8 + [2, 4])
+        dist2 = ScoreDistribution([0] * 8 + [1, 6])
+        score1 = PAScore(IntegerScore(8), dist1)
+        score2 = PAScore(IntegerScore(8), dist2)
+        self.assertLess(score2, score1)
+
+        score3 = score[10] + score[10] + score[10] + score[4] + score[2] + \
+                score1 + score2
+
+        self.assertEqual(unicode(score3), str(3 * 10 + 4 + 2 + 2 * 8))
+        self.assertEqual(repr(score3),
+                'PAScore(IntegerScore(52), ScoreDistribution(10: 3, 9: 0, 8: '
+                '0, 7: 0, 6: 0, 5: 0, 4: 1, 3: 0, 2: 4, 1: 10))')
+        self.assertEqual(score3._to_repr(), '0000000000000000052;00003:00000:'
+                '00000:00000:00000:00000:00001:00000:00004:00010')
+        self.assertEqual(score3, PAScore._from_repr(score3._to_repr()))
+
+
+class TestPARoundTimes(TestCase):
+    fixtures = ['test_users', 'test_pa_contest']
+
+    def test_round_states(self):
+        contest = Contest.objects.get()
+        controller = contest.controller
+        not_my_submission = Submission.objects.get(id=2)
+        user = User.objects.get(username='test_user')
+
+        def check_round_state(date, expected):
+            request = RequestFactory().request()
+            request.contest = contest
+            request.user = user
+            request.timestamp = date
+
+            self.client.login(username='test_user')
+            with fake_time(date):
+                url = reverse('ranking', kwargs={'contest_id': 'c',
+                    'key': A_PLUS_B_RANKING_KEY})
+                response = self.client.get(url)
+                if expected[0]:
+                    self.assertContains(response, 'taskA1')
+                else:
+                    self.assertNotContains(response, 'taskA1')
+
+            self.assertEquals(expected[1],
+                    controller.can_see_source(request, not_my_submission))
+
+        dates = [
+                datetime(2012, 6, 1, 0, 0, tzinfo=utc),
+                datetime(2012, 8, 1, 0, 0, tzinfo=utc),
+                datetime(2012, 10, 1, 0, 0, tzinfo=utc),
+                ]
+
+        """
+        1) results date of round 1
+        2) public results date of round 1
+        3) public results date of all rounds
+
+              ============== ==============
+        can: | see ranking  | see solutions of other participants
+              ============== ==============
+        1 -> |              |              |
+             |    False     |    False     |
+        2 -> |              |              |
+             |    True      |    False     |
+        3 -> |              |              |
+             |    True      |    True      |
+             |              |              |
+              ============== ==============
+        """
+        expected = [[False, False], [True, False], [True, True]]
+
+        for date, exp in zip(dates, expected):
+            check_round_state(date, exp)
+
+
+class TestPARanking(TestCase):
+    fixtures = ['test_users', 'test_pa_contest']
+
+    def _ranking_url(self, key):
+        contest = Contest.objects.get()
+        return reverse('ranking', kwargs={'contest_id': contest.id,
+            'key': key})
+
+    def test_divisions(self):
+
+        def check_visibility(good_keys, response):
+            division_for_pi = {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'NONE'}
+            for key, div in division_for_pi.items():
+                p = ProblemInstance.objects.get(pk=key)
+                if div in good_keys:
+                    self.assertContains(response, p.short_name)
+                else:
+                    self.assertNotContains(response, p.short_name)
+
+        self.client.login(username='test_user')
+
+        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+            response = self.client.get(self._ranking_url(B_RANKING_KEY))
+            check_visibility(['B'], response)
+            response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
+            check_visibility(['A', 'B'], response)
+            # Round 3 is trial
+            response = self.client.get(self._ranking_url(3))
+            check_visibility(['NONE'], response)
+
+    def test_no_zero_scores_in_ranking(self):
+        self.client.login(username='test_user')
+        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+            response = self.client.get(self._ranking_url(3))
+            self.assertContains(response, '<td>Test User</td>')
+            # Test User 2 scored 0 points for the only task in the round.
+            self.assertNotContains(response, '<td>Test User 2</td>')
+
+    def test_ranking_ordering(self):
+
+        def check_order(response, expected):
+            prev_pos = 0
+            for user in expected:
+                pattern = '<td>%s</td>' % (user,)
+                self.assertIn(user, response.content)
+                pos = response.content.find(pattern)
+                self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
+                    'position' % (user,)))
+                prev_pos = pos
+
+        self.client.login(username='test_user')
+
+        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+            # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
+            response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
+            check_order(response, ['Test User', 'Test User 2', 'Test User 3'])
+            self.assertContains(response, '28</td>')
+
+            # 10 (10), 10 (7, 3), 10 (6, 4)
+            response = self.client.get(self._ranking_url(B_RANKING_KEY))
+            check_order(response, ['Test User 3', 'Test User 2', 'Test User'])
+            self.assertNotContains(response, '28</td>')
 
 
 class TestPARegistration(TestCase):
@@ -55,3 +245,60 @@ class TestPARegistration(TestCase):
         url = reverse('contest_info', kwargs={'contest_id': contest.id})
         data = json.loads(self.client.get(url).content)
         self.assertEquals(data['users_count'], 1)
+
+
+class TestPAScorers(TestCase):
+    t_results_ok = (
+        ({'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 0}),
+        ({'exec_time_limit': 100, 'max_score': 10},
+            {'result_code': 'OK', 'time_used': 99}),
+        ({'exec_time_limit': 1000, 'max_score': 0},
+            {'result_code': 'OK', 'time_used': 123}),
+        )
+
+    t_expected_ok = [
+        (PAScore(IntegerScore(1)), PAScore(IntegerScore(1)), 'OK'),
+        (PAScore(IntegerScore(1)), PAScore(IntegerScore(1)), 'OK'),
+        (PAScore(IntegerScore(0)), PAScore(IntegerScore(0)), 'OK'),
+        ]
+
+    t_results_wrong = [
+        ({'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'WA', 'time_used': 75}),
+        ({'exec_time_limit': 100, 'max_score': 0},
+            {'result_code': 'RV', 'time_used': 75}),
+        ]
+
+    t_expected_wrong = [
+        (PAScore(IntegerScore(0)), PAScore(IntegerScore(1)), 'WA'),
+        (PAScore(IntegerScore(0)), PAScore(IntegerScore(0)), 'RV'),
+        ]
+
+    def test_pa_test_scorer(self):
+        results = map(utils.pa_test_scorer, *zip(*self.t_results_ok))
+        self.assertEquals(self.t_expected_ok, results)
+
+        results = map(utils.pa_test_scorer, *zip(*self.t_results_wrong))
+        self.assertEquals(self.t_expected_wrong, results)
+
+    @memoized_property
+    def g_results_ok(self):
+        results = map(utils.pa_test_scorer, *zip(*self.t_results_ok))
+        dicts = [dict(score=sc.serialize(), max_score=msc.serialize(),
+                status=st) for sc, msc, st in results]
+        return dict(zip(xrange(len(dicts)), dicts))
+
+    @memoized_property
+    def g_results_wrong(self):
+        results = map(utils.pa_test_scorer, *zip(*self.t_results_wrong))
+        dicts = self.g_results_ok.values()
+        dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
+                status=st) for sc, msc, st in results]
+        return dict(zip(xrange(len(dicts)), dicts))
+
+    def test_pa_score_aggregator(self):
+        self.assertEqual((PAScore(IntegerScore(2)), PAScore(IntegerScore(2)),
+            'OK'), utils.pa_score_aggregator(self.g_results_ok))
+        self.assertEqual((PAScore(IntegerScore(2)), PAScore(IntegerScore(3)),
+            'WA'), utils.pa_score_aggregator(self.g_results_wrong))

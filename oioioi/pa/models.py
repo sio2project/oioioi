@@ -1,11 +1,15 @@
 # coding: utf-8
+# pylint: disable=W0611
+# Unused import PAScore
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.fields import PhoneNumberField, PostalCodeField
+from oioioi.base.fields import PhoneNumberField, PostalCodeField, EnumField, \
+        EnumRegistry
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.participants.models import RegistrationModel
-
+from oioioi.contests.models import ProblemInstance
+from oioioi.pa.score import PAScore  # Registers the PA score type
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 
@@ -38,3 +42,19 @@ class PARegistration(RegistrationModel):
         help_text=_("I declare that I have read the contest rules and "
                     "the technical arrangements. I fully understand them and "
                      "accept them unconditionally."))
+
+
+division_registry = EnumRegistry()
+
+division_registry.register('A', _("Division A"))
+division_registry.register('B', _("Division B"))
+division_registry.register('NONE', _("None"))
+
+
+class PAProblemInstanceData(models.Model):
+    problem_instance = models.OneToOneField(ProblemInstance, primary_key=True)
+    division = EnumField(division_registry, verbose_name=_("Division"))
+
+    class Meta(object):
+        verbose_name = _("Division")
+        verbose_name_plural = _("Divisions")
