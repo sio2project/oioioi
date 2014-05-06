@@ -61,6 +61,10 @@ MIDDLEWARE_CLASSES += (
 
 TESTS = True
 
+NOSE_PLUGINS = [
+    'oioioi.base.tests.nose_plugins.DisableSouthDebugMessages',
+]
+
 SECRET_KEY = 'no_secret'
 OISUBMIT_MAGICKEY = 'abcdef'
 COMPRESS_ENABLED = False
