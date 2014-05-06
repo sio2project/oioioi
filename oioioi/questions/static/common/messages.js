@@ -122,7 +122,7 @@ $.fn.chevronExpand = function() {
 }
 
 $.fn.setMsgHeight = function() {
-    $(this).children('td').css('height', $(this).find('p').css('height'));
+    $(this).children('td').css('height', $(this).find('div').css('height'));
 }
 
 $(document).ready(function() {
