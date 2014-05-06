@@ -18,7 +18,7 @@ from oioioi.contests.menu import contest_admin_menu_registry, \
         contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension, ContestPermission, \
-        submission_kinds
+        submission_kinds, ContestLink
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 
@@ -77,8 +77,13 @@ class AttachmentInline(admin.TabularInline):
             .formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class ContestLinkInline(admin.TabularInline):
+    model = ContestLink
+    extra = 0
+
+
 class ContestAdmin(admin.ModelAdmin):
-    inlines = [RoundInline, AttachmentInline]
+    inlines = [RoundInline, AttachmentInline, ContestLinkInline]
     fields = ['name', 'id', 'controller_name', 'default_submissions_limit']
     readonly_fields = ['creation_date']
     prepopulated_fields = {'id': ('name',)}
