@@ -16,7 +16,7 @@ def int_score(score):
     return score.value if isinstance(score, IntegerScore) else 0
 
 
-def histogram(values, num_buckets=10):
+def histogram(values, num_buckets=10, max_result=None):
     """Calculates the histogram of the provided values (integers).
        Assumes that minimal value is 0.
 
@@ -26,10 +26,10 @@ def histogram(values, num_buckets=10):
            lower bounds of bucket limits; counts contain the numbers of
            elements going in particular buckets.
     """
-    if values:
+    assert num_buckets > 0, "Non positive number of buckets for histogram"
+
+    if max_result is None and values:
         max_result = max(values)
-    else:
-        max_result = 0
 
     if max_result:
         if max_result < num_buckets:
@@ -51,10 +51,16 @@ def histogram(values, num_buckets=10):
             zip(*[[i*bucket, value] for i, value in enumerate(counts)])]
 
 
-def results_histogram_for_queryset(qs):
+def results_histogram_for_queryset(qs, max_score=None):
     scores = [int_score(r.score) for r in qs]
 
-    keys_left, data = histogram(scores)
+    # Only IntegerScore can be used with the histogram.
+    if isinstance(max_score, IntegerScore):
+        max_score = max_score.value
+    else:
+        max_score = None
+
+    keys_left, data = histogram(scores, max_result=max_score)
 
     keys = ['[%d;%d)' % p for p in zip(keys_left[:-1], keys_left[1:])]
     keys.append('[%d;∞)' % keys_left[-1])
@@ -73,11 +79,10 @@ def points_histogram_contest(contest):
     results = UserResultForContest.objects.filter(contest=contest)
     return results_histogram_for_queryset(results)
 
-
 def points_histogram_problem(problem):
     results = UserResultForProblem.objects.filter(problem_instance=problem)
-    return results_histogram_for_queryset(results)
-
+    max_score = results[0].submission_report.score_report.max_score
+    return results_histogram_for_queryset(results, max_score=max_score)
 
 def submissions_by_problem_histogram_for_queryset(qs):
     agg = qs.values('problem_instance', 'problem_instance__short_name',

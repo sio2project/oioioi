@@ -40,7 +40,7 @@
                 <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
                 <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
                 {% if show_scores and forloop.first %}
-                    <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ test.test_max_score }}{% endif %}</td>
+                    <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ group.report.max_score }}{% endif %}</td>
                 {% endif %}
             </tr>
             {% endfor %}

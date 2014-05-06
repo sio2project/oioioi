@@ -422,8 +422,9 @@ class TestNotifications(TestCase):
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
         make_report({'compilation_result': 'OK', 'submission_id': 1,
-            'status': 'OK', 'score': '', 'compilation_message': '',
-            'tests': {}, 'rejudge': False}, 'INITIAL')
+            'status': 'OK', 'score': '', 'max_score': '',
+            'compilation_message': '', 'tests': {}, 'rejudge': False},
+            'INITIAL')
 
         # Check if a notification for user 1001 was sent
         self.assertEqual(msg_count['user_1001_notifications'], 1)

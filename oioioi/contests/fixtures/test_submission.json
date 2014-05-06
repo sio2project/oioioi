@@ -210,6 +210,7 @@
       "status": "OK",
       "group": "0",
       "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
       "submission_report": 1
     }
   },
@@ -220,6 +221,7 @@
       "status": "OK",
       "group": "1ocen",
       "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
       "submission_report": 1
     }
   },
@@ -230,6 +232,7 @@
       "status": "RE",
       "group": "1",
       "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
       "submission_report": 2
     }
   },
@@ -240,6 +243,7 @@
       "status": "OK",
       "group": "0",
       "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
       "submission_report": 2
     }
   },
@@ -250,6 +254,7 @@
       "status": "OK",
       "group": "3",
       "score": "int:0000000000000000034",
+      "max_score": "int:0000000000000000034",
       "submission_report": 2
     }
   },
@@ -260,6 +265,7 @@
       "status": "OK",
       "group": "1ocen",
       "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000000",
       "submission_report": 2
     }
   },
@@ -270,6 +276,7 @@
       "status": "WA",
       "group": "2",
       "score": "int:0000000000000000000",
+      "max_score": "int:0000000000000000033",
       "submission_report": 2
     }
   }

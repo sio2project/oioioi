@@ -239,6 +239,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         env = {
             'zeus_results': [report],
             'score': None,
+            'max_score': None,
             'status': 'OK',
             'zeus_metadata_decoder': 'oioioi.zeus.handlers.testrun_metadata',
             'submission_id': 1,
