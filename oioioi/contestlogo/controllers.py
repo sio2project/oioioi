@@ -13,6 +13,17 @@ class LogoContestControllerMixin(object):
         """
         return None
 
+    def default_contestlogo_link(self):
+        """Returns a contest logo link.
+
+           If a contest admin specifies a contest logo link in the contest
+           settings view, it will be used instead of the one returned by this
+           function.
+
+           The default implementation returns an empty string.
+        """
+        return ''
+
     def default_contesticons_urls(self):
         """Returns a list of URLs of images which will be used to decorate
            the user side menu.
