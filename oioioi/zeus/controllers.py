@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -147,6 +148,10 @@ class ZeusProblemController(ProblemController):
             'oioioi.programs.utils.min_group_scorer')
         environ.setdefault('score_aggregator',
             'oioioi.programs.utils.sum_score_aggregator')
+
+    def filter_allowed_languages_dict(self, languages):
+        return {k: languages[k] for k in languages
+                if k in settings.ZEUS_ALLOWED_LANGUAGES}
 
     def mixins_for_admin(self):
         return super(ZeusProblemController, self).mixins_for_admin() + \

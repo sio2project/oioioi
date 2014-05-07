@@ -25,7 +25,6 @@ from oioioi.programs.models import ProgramSubmission, OutputChecker, \
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
-from oioioi.contests.utils import is_contest_admin
 from oioioi.base.utils.user_selection import UserSelectionField
 
 logger = logging.getLogger(__name__)
@@ -154,6 +153,9 @@ class ProgrammingProblemController(ProblemController):
         if checker:
             environ['checker'] = django_to_filetracker_path(checker)
 
+    def filter_allowed_languages_dict(self, languages):
+        return languages
+
     def mixins_for_admin(self):
         from oioioi.programs.admin import ProgrammingProblemAdminMixin
         return super(ProgrammingProblemController, self).mixins_for_admin() \
@@ -198,13 +200,21 @@ class ProgrammingContestController(ContestController):
     def get_submission_size_limit(self):
         return 102400  # in bytes
 
+    def get_allowed_languages_dict(self):
+        return getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+
     def get_allowed_languages(self):
-        lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-        return lang_exts.keys()
+        return self.get_allowed_languages_dict().keys()
 
     def get_allowed_extensions(self):
-        lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-        return [ext for lang in lang_exts.values() for ext in lang]
+        lang_exts = self.get_allowed_languages_dict().values()
+        return [ext for lang in lang_exts for ext in lang]
+
+    def parse_language_by_extension(self, ext):
+        for lang, extension_list in self.get_allowed_languages_dict().items():
+            if ext in extension_list:
+                return lang
+        return None
 
     def adjust_submission_form(self, request, form):
         super(ProgrammingContestController, self) \
@@ -233,21 +243,14 @@ class ProgrammingContestController(ContestController):
                         return None
             return problem_id
 
-        def parse_language_by_extension(ext):
-            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-            for lang, extension_list in lang_exts.items():
-                if ext in extension_list:
-                    return lang
-            return None
-
         form.fields['file'] = forms.FileField(required=False,
                 allow_empty_file=False,
                 validators=[validate_file_size, validate_language],
                 label=_("File"),
                 help_text=_("Language is determined by the file extension."
-                            " It has to be one of: %s."
-                            " You can paste the code below instead of"
-                            " choosing file."
+                            " The following are recognized: %s, but allowed"
+                            " languages may vary. You can paste the code"
+                            " below instead of choosing file."
                             " You can also submit your solution on any"
                             " other page by file drag'n'drop!"
                 ) % (', '.join(self.get_allowed_extensions()))
@@ -282,7 +285,7 @@ class ProgrammingContestController(ContestController):
                             parse_problem(problem)
                 if 'prog_lang' not in request.POST:
                     form.fields['prog_lang'].initial = \
-                            parse_language_by_extension(ext)
+                            self.parse_language_by_extension(ext)
 
         if is_contest_admin(request):
             form.fields['user'] = UserSelectionField(
@@ -321,10 +324,26 @@ class ProgrammingContestController(ContestController):
             raise ValidationError(_("You have to either choose file or paste "
                 "code."))
 
-        if is_code_pasted and ('prog_lang' not in cleaned_data or \
-                not cleaned_data['prog_lang']):
-            raise ValidationError(_("You have to choose programming "
-                "language."))
+        if 'prog_lang' not in cleaned_data:
+            cleaned_data['prog_lang'] = None
+
+        if not cleaned_data['prog_lang'] and is_file_chosen:
+            ext = os.path.splitext(cleaned_data['file'].name)[1].strip('.')
+            cleaned_data['prog_lang'] = self.parse_language_by_extension(ext)
+
+        if not cleaned_data['prog_lang']:
+            if is_code_pasted:
+                raise ValidationError(_("You have to choose programming "
+                                        "language."))
+            else:
+                raise ValidationError(_("Unrecognized file extension."))
+
+        pc = cleaned_data['problem_instance'].problem.controller
+        langs = pc.filter_allowed_languages_dict(
+                self.get_allowed_languages_dict())
+        if cleaned_data['prog_lang'] not in langs.keys():
+            raise ValidationError(_("This language is not allowed for selected"
+                                    "problem."))
 
         if is_file_chosen:
             code = cleaned_data['file'].read()
