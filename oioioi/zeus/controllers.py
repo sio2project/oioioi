@@ -5,8 +5,8 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.evalmgr import recipe_placeholder
 from oioioi.contests.controllers import submission_template_context
+from oioioi.evalmgr import recipe_placeholder
 from oioioi.problems.controllers import ProblemController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.zeus.admin import ZeusProblemAdminMixin
@@ -178,8 +178,9 @@ class ZeusProblemController(ProblemController):
                 if k in settings.ZEUS_ALLOWED_LANGUAGES}
 
     def mixins_for_admin(self):
+        from oioioi.programs.admin import LibraryProblemDataAdminMixin
         return super(ZeusProblemController, self).mixins_for_admin() + \
-                (ZeusProblemAdminMixin,)
+                (ZeusProblemAdminMixin, LibraryProblemDataAdminMixin)
 
 
 class ZeusTestRunProblemControllerMixin(object):
