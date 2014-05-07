@@ -1,0 +1,24 @@
+{% extends "base-with-menu.html" %}
+{% load i18n check_perm %}
+
+{% block title %}{% trans "Prizes" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Prizes" %}</h2>
+<br>
+
+{% if groups|length > 1 %}
+<div>
+    <ul class="nav nav-pills inline-nav">
+        {% for group in groups %}
+        <li{% if group.ids.0 == key %} class="active"{% endif %}><a href="{% url 'prizes' contest_id=contest.id key=group.ids.0 %}">{{ group.name }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+{% regroup pfus by prize as prize_list %}
+{% for prize in prize_list %}
+    {% include "prizes/table.html" %}
+{% endfor %}
+{% endblock %}

@@ -315,6 +315,15 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         # Port that the Notifications Server listens on
         NOTIFICATIONS_SERVER_PORT = 7887
 
+#. * Added *prizesmgr* queue entry to *deployment/supervisord.conf*::
+
+       [program:prizesmgr]
+       command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q prizesmgr -c 1
+       startretries=0
+       stopwaitsecs=15
+       redirect_stderr=true
+       stdout_logfile={{ PROJECT_DIR }}/logs/prizesmgr.log
+
 Usage
 -----
 

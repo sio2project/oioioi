@@ -175,6 +175,7 @@ INSTALLED_APPS = (
 #    'oioioi.testspackages',
 #    'oioioi.pa',
 #    'oioioi.notifications',
+#    'oioioi.prizes'
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

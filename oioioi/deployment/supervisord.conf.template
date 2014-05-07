@@ -46,6 +46,14 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-lowprio.log
 {% if not settings.SPLITEVAL_EVALMGR %}exclude=true{% endif %}
 
+[program:prizesmgr]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q prizesmgr -c 1
+startretries=0
+stopwaitsecs=15
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/prizesmgr.log
+{% if 'oioioi.prizes' not in settings.INSTALLED_APPS %}exclude=true{% endif %}
+
 [program:sioworkers]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q sioworkers -c 1
 startretries=0

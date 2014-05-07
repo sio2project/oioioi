@@ -13,7 +13,7 @@ djcelery.setup_loader()
 
 import oioioi
 
-INSTALLATION_CONFIG_VERSION = 1
+INSTALLATION_CONFIG_VERSION = 3
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -229,6 +229,7 @@ QUESTIONS_ON_PAGE = 30
 SUBMISSIONS_ON_PAGE = 100
 PARTICIPANTS_ON_PAGE = 100
 TESTS_ON_PAGE = 100
+PRIZES_ON_PAGE = 100
 
 NUM_DASHBOARD_SUBMISSIONS = 8
 NUM_DASHBOARD_MESSAGES = 8
@@ -324,11 +325,13 @@ BROKER_URL = 'django://'
 CELERY_IMPORTS += [
     'oioioi.evalmgr',
     'oioioi.problems.unpackmgr',
+    'oioioi.prizes.models',
 ]
 
 CELERY_ROUTES.update({
     'oioioi.evalmgr.evalmgr_job': dict(queue='evalmgr'),
     'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
+    'oioioi.prizes.models.prizesmgr_job': dict(queue='prizesmgr'),
 })
 
 # Number of concurrently evaluated submissions

@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'oioioi.teams',
     'oioioi.pa',
     'oioioi.notifications',
+    'oioioi.prizes',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -105,4 +106,4 @@ CACHES = {
     }
 }
 
-CONFIG_VERSION = 1
+CONFIG_VERSION = INSTALLATION_CONFIG_VERSION
