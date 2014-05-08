@@ -46,6 +46,7 @@ class Test(models.Model):
         ordering = ['order']
         verbose_name = _("test")
         verbose_name_plural = _("tests")
+        unique_together = ('problem', 'name')
 
 
 class OutputChecker(models.Model):

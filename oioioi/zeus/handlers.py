@@ -308,7 +308,7 @@ def update_problem_tests_set(env, kind, **kwargs):
     for i, name in enumerate(sorted(test_names, key=naturalsort_key)):
         updated = False
         test = env_tests[name]
-        instance, created = Test.objects.get_or_create(
+        instance, created = Test.objects.select_for_update().get_or_create(
             problem=problem, name=name)
         old_dict = model_to_dict(instance, exclude=exclude)
 
