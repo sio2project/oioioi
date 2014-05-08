@@ -3,6 +3,7 @@ import base64
 import urllib2
 import httplib
 import logging
+import pprint
 from urlparse import urljoin
 
 from django.conf import settings
@@ -122,7 +123,11 @@ class ZeusServer(object):
         """Encodes the ``data`` dictionary and sends it to the given URL."""
         json_data = _json_base64_encode(data) if data else None
         code, res = self._send(url, json_data, method)
-        return code, _json_base64_decode(res)
+        decoded_res = _json_base64_decode(res)
+
+        logger.info("Received response with code=%d: %s", code,
+                pprint.pformat(decoded_res, indent=2))
+        return code, decoded_res
 
     def send_regular(self, zeus_problem_id, kind, source_file, language):
         assert kind in ('INITIAL', 'NORMAL'), ("Invalid kind: %s" % kind)
