@@ -81,7 +81,14 @@ def points_histogram_contest(contest):
 
 def points_histogram_problem(problem):
     results = UserResultForProblem.objects.filter(problem_instance=problem)
-    max_score = results[0].submission_report.score_report.max_score
+
+    # Check if user has any submissions for the specified problem
+    if results[0].submission_report is not None:
+        max_score = results[0].submission_report \
+                .score_report.max_score
+    else:
+        max_score = None
+
     return results_histogram_for_queryset(results, max_score=max_score)
 
 def submissions_by_problem_histogram_for_queryset(qs):
