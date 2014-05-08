@@ -2,6 +2,7 @@ import json
 import base64
 import urllib2
 import httplib
+import logging
 from urlparse import urljoin
 
 from django.conf import settings
@@ -11,9 +12,13 @@ from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.zeus.models import ZeusFetchSeq
 
 
+logger = logging.getLogger(__name__)
+
 zeus_language_map = {
+    'c': 'C',
     'cc': 'CPP',
     'cpp': 'CPP',
+    'pas': 'PAS',
 }
 
 
@@ -87,6 +92,9 @@ class EagerHTTPBasicAuthHandler(urllib2.BaseHandler):
         if 'Authorization' not in req.headers:
             req.add_header('Authorization', self.auth_string)
 
+    def https_open(self, req):
+        self.http_open(req)
+
 
 class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
@@ -106,6 +114,8 @@ class ZeusServer(object):
         try:
             f = self.opener.open(req)
         except (urllib2.URLError, httplib.HTTPException) as e:
+            logger.error("%s exception while quering %s", url, type(e),
+                    exc_info=True)
             raise ZeusError(type(e), e)
         return f.getcode(), f.read()
 
