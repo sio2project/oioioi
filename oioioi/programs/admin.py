@@ -12,7 +12,7 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
-        GroupReport, ModelProgramSubmission, OutputChecker
+        GroupReport, ModelProgramSubmission, OutputChecker, LibraryProblemData
 from collections import defaultdict
 
 
@@ -81,11 +81,34 @@ class OutputCheckerInline(admin.TabularInline):
     checker_link.short_description = _("Checker exe")
 
 
+class LibraryProblemDataInline(admin.TabularInline):
+    model = LibraryProblemData
+    extra = 0
+    fields = ['libname']
+    readonly_fields = ['libname']
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+class LibraryProblemDataAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(LibraryProblemDataAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [LibraryProblemDataInline]
+
+
 class ProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestInline, OutputCheckerInline]
-
+        self.inlines = self.inlines + [TestInline, OutputCheckerInline,
+                                       LibraryProblemDataInline]
 
 class ProgrammingProblemInstanceAdminMixin(object):
     def _is_partial_score(self, test_report):

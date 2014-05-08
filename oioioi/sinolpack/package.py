@@ -21,7 +21,7 @@ from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.problems.models import Problem, ProblemStatement
 from oioioi.problems.package import ProblemPackageBackend, \
         ProblemPackageError
-from oioioi.programs.models import Test, OutputChecker, ModelSolution
+from oioioi.programs.models import Test, OutputChecker, ModelSolution, LibraryProblemData
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.filetracker.utils import stream_file
 
@@ -312,6 +312,24 @@ class SinolPackage(object):
                 Test.objects.filter(problem=self.problem, group=group) \
                         .update(max_score=score)
 
+    def _detect_library(self):
+        """Finds if the problem has a library.
+
+           Tries to read a library name (filename library should be given
+           during compilation) from the ``config.yml`` (key ``library``).
+
+           If there is no such key, assumes that a library is not needed.
+        """
+        if 'library' in self.config and self.config['library']:
+            instance, _created = LibraryProblemData.objects \
+                .get_or_create(problem=self.problem)
+            instance.libname = self.config['library']
+            instance.save()
+            logger.info('Library %s needed for this problem.',
+                        instance.libname)
+        else:
+            LibraryProblemData.objects.filter(problem=self.problem).delete()
+
     def _process_checkers(self):
         checker_prefix = os.path.join(self.rootdir, 'prog',
                 self.short_name + 'chk')
@@ -428,6 +446,7 @@ class SinolPackage(object):
             self.rootdir = os.path.join(tmpdir, self.short_name)
             self._process_config_yml()
             self._detect_full_name()
+            self._detect_library()
             self._extract_makefiles()
             self._process_statements()
             self._generate_tests()

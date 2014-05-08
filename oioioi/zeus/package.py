@@ -58,6 +58,7 @@ class ZeusPackage(SinolPackage):
             self.rootdir = os.path.join(tmpdir, self.short_name)
             self._process_config_yml()
             self._detect_full_name()
+            self._detect_library()
             self._extract_makefiles()
             self._process_statements()
             self._process_model_solutions()

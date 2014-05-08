@@ -58,6 +58,16 @@ class OutputChecker(models.Model):
         verbose_name_plural = _("output checkers")
 
 
+class LibraryProblemData(models.Model):
+    problem = models.OneToOneField(Problem)
+    libname = models.CharField(max_length=30, verbose_name=_("libname"),
+            help_text=_("Filename library should be given during compilation"))
+
+    class Meta(object):
+        verbose_name = _("library problem data")
+        verbose_name_plural = _("library problem data")
+
+
 @receiver(post_save, sender=Problem)
 def _add_output_checker_to_problem(sender, instance, created, **kwargs):
     if created:
