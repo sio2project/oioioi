@@ -62,11 +62,11 @@ def oisubmit_view(request, contest_id):
             err_msg = ','.join(errors)
 
             received_suspected = bool(errors)
-            if(received_suspected):
+            if received_suspected:
                 form.cleaned_data['kind'] = 'SUSPECTED'
 
             submission = request.contest.controller.create_submission(request,
-                    pi, form.cleaned_data, judge_after_create=not(errors))
+                    pi, form.cleaned_data, judge_after_create=(not errors))
 
             extra_data = OISubmitExtraData(submission=submission,
                                 localtime=form.cleaned_data['localtime'],

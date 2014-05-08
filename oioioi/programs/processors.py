@@ -23,8 +23,8 @@ def drag_and_drop_processor(request):
         # show drag and drop zone only for contest with submitting some files
         if not hasattr(request, 'contest') or \
                 not hasattr(request.contest, 'controller') or \
-                not isinstance(request.contest.controller, \
-                          ProgrammingContestController):
+                not isinstance(request.contest.controller,
+                               ProgrammingContestController):
             return ''
         # do not show drag and drop zone when no available problems
         # (the following require controller in request)

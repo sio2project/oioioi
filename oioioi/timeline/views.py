@@ -18,6 +18,7 @@ def _get_date_id(registry_item):
               unicode(registry_item['date_field'])
     return date_id.replace(' ', '_')
 
+
 @contest_admin_menu_registry.register_decorator(_("Timeline"), lambda request:
         reverse('timeline_view', kwargs={'contest_id': request.contest.id}))
 @enforce_condition(contest_exists & is_contest_admin)

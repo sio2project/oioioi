@@ -11,4 +11,3 @@ statistics_patterns = patterns('oioioi.statistics.views',
 urlpatterns = patterns('oioioi.statistics.views',
     url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(statistics_patterns)),
 )
-

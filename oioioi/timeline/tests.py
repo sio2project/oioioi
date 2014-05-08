@@ -1,3 +1,5 @@
+# pylint: disable=W0102
+# Dangerous default value {} as argument
 import datetime
 
 from django.core.urlresolvers import reverse

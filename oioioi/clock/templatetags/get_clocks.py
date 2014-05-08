@@ -1,8 +1,5 @@
 from django import template
 from django.utils import timezone
-from django.utils.translation import ungettext, ugettext as _
-from oioioi.contests.utils import rounds_times
-import time
 
 register = template.Library()
 
@@ -14,9 +11,9 @@ def navbar_clock(context):
         return {}
     if 'admin_time' in context['request'].session:
         return {'current_time': timezone.localtime(timestamp)
-               .strftime('%x %X'), 'is_admin_time_set': True}
+                .strftime('%x %X'), 'is_admin_time_set': True}
     return {'current_time': timezone.localtime(timestamp).strftime('%X'),
-        'is_admin_time_set': False}
+            'is_admin_time_set': False}
 
 
 @register.inclusion_tag('clock/navbar_admin_clock.html', takes_context=True)

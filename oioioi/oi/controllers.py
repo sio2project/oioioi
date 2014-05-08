@@ -131,7 +131,7 @@ class OIContestController(ProgrammingContestController):
         return '%(url)soi/logo.png' % {'url': settings.STATIC_URL}
 
     def default_contesticons_urls(self):
-        return ['%(url)simages/menu/menu-icon-%(i)d.png' % \
+        return ['%(url)simages/menu/menu-icon-%(i)d.png' %
                 {'url': settings.STATIC_URL, 'i': i} for i in range(1, 4)]
 OIContestController.mix_in(SplitEvalContestControllerMixin)
 
@@ -162,4 +162,3 @@ class OIOnsiteContestController(OIContestController):
     def should_confirm_submission_receipt(self, request, submission):
         return False
 OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
-

@@ -15,6 +15,7 @@ import calendar
 class ContestControllerWithoutDefaults(ProgrammingContestController):
     def default_contestlogo_url(self):
         return None
+
     def default_contesticons_urls(self):
         return []
 
@@ -22,6 +23,7 @@ class ContestControllerWithoutDefaults(ProgrammingContestController):
 class ContestControllerWithDefaults(ProgrammingContestController):
     def default_contestlogo_url(self):
         return '/some/URL/'
+
     def default_contesticons_urls(self):
         return ['/another/URL/']
 

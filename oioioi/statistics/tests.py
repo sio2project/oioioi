@@ -51,7 +51,6 @@ class TestStatisticsPlotFunctions(TestCase):
         self.assertEqual(histogram(test4), result4)
 
     def test_points_to_source_length(self):
-        contest = Contest.objects.get()
         pi = ProblemInstance.objects.get(short_name='zad1')
         plot = points_to_source_length_problem(pi)
         self.assertEqual(len(plot['series']), 1)

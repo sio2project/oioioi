@@ -1,3 +1,5 @@
+# pylint: disable=E1103
+# Instance of 'FileField' has no 'save' member
 from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files.base import ContentFile
@@ -7,7 +9,7 @@ from django.conf import settings
 from django.template.context import RequestContext
 
 from oioioi.programs.controllers import ProgrammingContestController, \
-    ProgrammingProblemController
+        ProgrammingProblemController
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport

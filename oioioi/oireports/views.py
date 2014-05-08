@@ -8,7 +8,6 @@ from operator import attrgetter
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.template import RequestContext
-from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile, File

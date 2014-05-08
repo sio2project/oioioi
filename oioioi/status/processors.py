@@ -1,5 +1,3 @@
-import json
-
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 

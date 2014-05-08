@@ -1,7 +1,6 @@
 from django.conf import settings
 
 from oioioi.evalmgr import add_before_placeholder
-from oioioi.scoresreveal.models import ScoreRevealConfig
 
 
 class SplitEvalContestControllerMixin(object):

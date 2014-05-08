@@ -1,13 +1,13 @@
 import hashlib
 import sys
 import dateutil.parser
+
 from django.conf import settings
 from django.template.loader import render_to_string
-
 from django.core.mail import EmailMessage
 from django.core import signing
-from oioioi.dashboard.views import grouper
 
+from oioioi.dashboard.views import grouper
 from oioioi.programs.models import ProgramSubmission
 
 

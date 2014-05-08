@@ -1,7 +1,6 @@
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 from django.template.response import TemplateResponse
-from django.conf import settings
 
 from oioioi.contests.utils import is_contest_admin
 from oioioi.oi.controllers import OIOnsiteContestController

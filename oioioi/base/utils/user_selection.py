@@ -1,9 +1,8 @@
-import json
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.http import Http404, HttpResponse
+from django.http import Http404
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _

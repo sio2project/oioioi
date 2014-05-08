@@ -57,6 +57,7 @@ if not getattr(settings, 'TESTS', False):
 
 basedir = os.path.dirname(__file__)
 
+
 def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     data = kwargs.pop('data', {})
     if url_or_viewname.startswith('/'):

@@ -11,6 +11,7 @@ from oioioi.contests.utils import contest_exists, can_enter_contest, \
         is_contest_admin, is_contest_observer
 from oioioi.contests.models import ProblemInstance
 
+
 def links(request):
     controller = request.contest.controller
     links_list = []
@@ -52,7 +53,8 @@ def statistics_view(request, contest_id,
 
     title = ''
     if category == 'PROBLEM':
-        problem = ProblemInstance.objects.filter(short_name=object_name, contest=request.contest)[0]
+        problem = ProblemInstance.objects.filter(short_name=object_name,
+                                                 contest=request.contest)[0]
         title = _('Statistics for %s') % problem.problem.name
         object = problem
     if category == 'CONTEST':

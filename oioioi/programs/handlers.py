@@ -442,8 +442,6 @@ def make_report(env, kind='NORMAL', **kwargs):
                                    'user': submission.user,
                                    'submission': submission})
 
-
-
     return env
 
 

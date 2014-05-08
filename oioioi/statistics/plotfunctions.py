@@ -6,8 +6,8 @@ from collections import defaultdict
 from django.utils.translation import ugettext as _
 from django.db.models import Count
 
-from oioioi.contests.models import Submission, ProblemInstance, \
-                                   UserResultForProblem, UserResultForContest
+from oioioi.contests.models import Submission, \
+        UserResultForProblem, UserResultForContest
 from oioioi.contests.scores import IntegerScore
 from oioioi.programs.models import ProgramSubmission
 
@@ -33,9 +33,9 @@ def histogram(values, num_buckets=10, max_result=None):
 
     if max_result:
         if max_result < num_buckets:
-            num_buckets = max_result # divide by zero protection
+            num_buckets = max_result  # divide by zero protection
 
-        bucket = max_result / num_buckets # bucket cannot be 0
+        bucket = max_result / num_buckets  # bucket cannot be 0
         if (max_result % num_buckets) != 0:
             num_buckets += 1
 
@@ -79,6 +79,7 @@ def points_histogram_contest(contest):
     results = UserResultForContest.objects.filter(contest=contest)
     return results_histogram_for_queryset(results)
 
+
 def points_histogram_problem(problem):
     results = UserResultForProblem.objects.filter(problem_instance=problem)
 
@@ -90,6 +91,7 @@ def points_histogram_problem(problem):
         max_score = None
 
     return results_histogram_for_queryset(results, max_score=max_score)
+
 
 def submissions_by_problem_histogram_for_queryset(qs):
     agg = qs.values('problem_instance', 'problem_instance__short_name',

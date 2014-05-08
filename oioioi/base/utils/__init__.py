@@ -18,7 +18,6 @@ from django.utils.importlib import import_module
 from django.utils.translation import ugettext_lazy as _
 
 
-
 # Metaclasses
 
 

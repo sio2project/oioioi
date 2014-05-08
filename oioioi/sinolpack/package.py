@@ -21,7 +21,8 @@ from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.problems.models import Problem, ProblemStatement
 from oioioi.problems.package import ProblemPackageBackend, \
         ProblemPackageError
-from oioioi.programs.models import Test, OutputChecker, ModelSolution, LibraryProblemData
+from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
+        LibraryProblemData
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.filetracker.utils import stream_file
 

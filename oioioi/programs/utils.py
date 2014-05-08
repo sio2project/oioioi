@@ -111,6 +111,7 @@ def slice_str(str, length):
     # After slicing UTF-8 can be invalid.
     return str[:length].decode('utf-8', 'ignore').encode('utf-8')
 
+
 def get_submission_source_file_or_error(request, contest_id, submission_id):
     """Returns the submission source and filename
 

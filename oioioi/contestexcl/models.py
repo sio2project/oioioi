@@ -1,4 +1,4 @@
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -12,10 +12,11 @@ from oioioi.contests.date_registration import date_registry
 if settings.ONLY_DEFAULT_CONTEST:
     if settings.DEFAULT_CONTEST is None:
         raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST is set, while no "
-            "DEFAULT_CONTEST is set")
+                                   "DEFAULT_CONTEST is set")
     if not Contest.objects.filter(id=settings.DEFAULT_CONTEST).exists():
         raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST is set, while the "
-            "DEFAULT_CONTEST - %s - does not exist." % settings.DEFAULT_CONTEST)
+                                   "DEFAULT_CONTEST - %s - does not exist."
+                                   % settings.DEFAULT_CONTEST)
 
 
 class ExclusivenessConfigManager(models.Manager):

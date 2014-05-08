@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from django.conf import settings
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins, \
         get_object_by_dotted_name

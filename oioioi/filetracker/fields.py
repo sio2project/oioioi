@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
 from south.modelsinspector import add_introspection_rules

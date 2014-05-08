@@ -1,3 +1,5 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
 from django.core.files.storage import Storage
 from django.core.files import File
 from django.core.urlresolvers import reverse

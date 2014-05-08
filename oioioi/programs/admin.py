@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
+
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
@@ -109,6 +110,7 @@ class ProgrammingProblemAdminMixin(object):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [TestInline, OutputCheckerInline,
                                        LibraryProblemDataInline]
+
 
 class ProgrammingProblemInstanceAdminMixin(object):
     def _is_partial_score(self, test_report):

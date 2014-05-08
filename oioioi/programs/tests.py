@@ -18,6 +18,7 @@ from oioioi.base.utils import memoized_property
 from oioioi.base.notification import NotificationHandler
 from oioioi.programs.handlers import make_report
 
+
 # Don't Repeat Yourself.
 # Serves for both TestProgramsViews and TestProgramsXssViews
 def extract_code(show_response):

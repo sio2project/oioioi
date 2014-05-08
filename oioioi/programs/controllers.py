@@ -488,7 +488,6 @@ class ProgrammingContestController(ContestController):
             groups.append({'tests': list(tests),
                 'report': group_reports[group_name]})
 
-
         return render_to_string('programs/report.html',
                 context_instance=RequestContext(request,
                     {'report': report, 'score_report': score_report,
