@@ -10,9 +10,11 @@ from celery.task import task
 from celery.exceptions import Ignore
 
 from oioioi.base.utils import get_object_by_dotted_name
+from oioioi.base.utils.loaders import load_modules
 
 
 logger = logging.getLogger(__name__)
+loaded_controllers = False
 
 
 def _placeholder(environ, **kwargs):
@@ -163,6 +165,13 @@ def evalmgr_job(env):
 
         Returns environment (a processed copy of given environment).
     """
+
+    global loaded_controllers
+
+    # load controllers to avoid late mix-ins to them
+    if not loaded_controllers:
+        load_modules('controllers')
+        loaded_controllers = True
 
     env = copy.deepcopy(env)
     env['job_id'] = evalmgr_job.request.id
