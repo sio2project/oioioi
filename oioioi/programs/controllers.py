@@ -13,6 +13,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
@@ -277,13 +278,13 @@ class ProgrammingContestController(ContestController):
                 allow_empty_file=False,
                 validators=[validate_file_size, validate_language],
                 label=_("File"),
-                help_text=_("Language is determined by the file extension."
-                            " The following are recognized: %s, but allowed"
-                            " languages may vary. You can paste the code"
-                            " below instead of choosing file."
-                            " You can also submit your solution on any"
-                            " other page by file drag'n'drop!"
-                ) % (', '.join(self.get_allowed_extensions()))
+                help_text=mark_safe(_(
+                    "Language is determined by the file extension."
+                    " It has to be one of: %s."
+                    " You can paste the code below instead of"
+                    " choosing file."
+                    " <strong>Try drag-and-drop too!</strong>"
+                ) % (', '.join(self.get_allowed_extensions())))
         )
         form.fields['code'] = forms.CharField(required=False,
                 label=_("Code"),
