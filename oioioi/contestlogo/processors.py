@@ -1,9 +1,10 @@
 from django.template import Context, loader
 from django.utils.functional import lazy
 from django.core.urlresolvers import reverse
+
+from oioioi.base.utils import memoized
 from oioioi.contestlogo.models import ContestLogo, ContestIcon
 from oioioi.contests.utils import is_contest_admin
-from oioioi.base.utils import memoized
 
 
 def logo_processor(request):
@@ -19,11 +20,18 @@ def logo_processor(request):
             instance = ContestLogo.objects.get(contest=request.contest)
             url = reverse('logo_image_view',
                     kwargs={'contest_id': request.contest.id})
+            link = instance.link
         except ContestLogo.DoesNotExist:
             url = request.contest.controller.default_contestlogo_url()
+            link = request.contest.controller.default_contestlogo_link()
+
         if not url:
             return ''
-        context = Context({'url': url})
+
+        if not link:
+            link = reverse('default_contest_view',
+                           kwargs={'contest_id': request.contest.id})
+        context = Context({'url': url, 'link': link})
         template = loader.get_template('contestlogo/logo.html')
         return template.render(context)
     return {'extra_menu_top_contestlogo': lazy(generator, unicode)()}

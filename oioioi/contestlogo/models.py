@@ -18,6 +18,8 @@ class ContestLogo(models.Model):
     image = FileField(upload_to=make_logo_filename,
             verbose_name=_("logo image"))
     updated_at = models.DateTimeField(default=timezone.now)
+    link = models.URLField(blank=True, null=True,
+            verbose_name=_("external contest webpage url"))
 
     def save(self, *args, **kwargs):
         self.updated_at = timezone.now()
