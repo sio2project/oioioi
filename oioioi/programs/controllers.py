@@ -343,7 +343,7 @@ class ProgrammingContestController(ContestController):
                 self.get_allowed_languages_dict())
         if cleaned_data['prog_lang'] not in langs.keys():
             raise ValidationError(_("This language is not allowed for selected"
-                                    "problem."))
+                                    " problem."))
 
         if is_file_chosen:
             code = cleaned_data['file'].read()
