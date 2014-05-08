@@ -116,6 +116,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'oioioi.base.middleware.AnnotateUserBackendMiddleware',
     'oioioi.su.middleware.SuAuthenticationMiddleware',
+    'oioioi.base.middleware.UserInfoInErrorMessage',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

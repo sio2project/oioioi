@@ -1,9 +1,14 @@
+# pylint: disable=W0703
+# Catching too general exception Exception
+
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import timezone
 from django.http import HttpResponseNotAllowed
 from django.template import RequestContext
 from django.template.loader import render_to_string
+
+from oioioi.su.utils import is_under_su
 
 
 class TimestampingMiddleware(object):
@@ -50,3 +55,29 @@ class AnnotateUserBackendMiddleware(object):
         if BACKEND_SESSION_KEY in request.session:
             # Barbarously discard request.user laziness.
             request.user.backend = request.session[BACKEND_SESSION_KEY]
+
+
+class UserInfoInErrorMessage(object):
+    """Add username and email of a user who caused an exception
+       to error message."""
+
+    def process_exception(self, request, exception):
+
+        try:
+            if not hasattr(request, 'user'):
+                return
+
+            request.META['IS_AUTHENTICATED'] = str(request.user
+                                                   .is_authenticated())
+            request.META['IS_UNDER_SU'] = str(is_under_su(request))
+
+            if request.user.is_authenticated():
+                request.META['USERNAME'] = str(request.user.username)
+                request.META['USER_EMAIL'] = str(request.user.email)
+
+            if is_under_su(request):
+                request.META['REAL_USERNAME'] = str(request.real_user.username)
+                request.META['REAL_USER_EMAIL'] = str(request.real_user.email)
+
+        except Exception:
+            pass
