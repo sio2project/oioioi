@@ -83,7 +83,7 @@ def points_histogram_problem(problem):
     results = UserResultForProblem.objects.filter(problem_instance=problem)
 
     # Check if user has any submissions for the specified problem
-    if results[0].submission_report is not None:
+    if results and results[0].submission_report is not None:
         max_score = results[0].submission_report \
                 .score_report.max_score
     else:
