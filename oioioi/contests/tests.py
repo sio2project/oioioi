@@ -20,7 +20,7 @@ from oioioi.base.tests import check_not_accessible, fake_time, TestsUtilsMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
         RoundTimeExtension, ContestPermission, UserResultForProblem, \
-        ContestView
+        ContestView, ContestLink
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
@@ -1234,3 +1234,29 @@ class TestPublicResults(TestCase):
         round.public_results_date = datetime(2012, 9, 20, 8, 0, tzinfo=utc)
         round.save()
         self._check_public_results([False, False, True])
+
+
+class TestContestLinks(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def test_menu(self):
+        self.client.login(username='test_user2')
+        contest = Contest.objects.get()
+
+        ContestLink(contest=contest, description='Test Menu Item 1',
+                    url='/test_menu_link1', order=10).save()
+        ContestLink(contest=contest, description='Test Menu Item 2',
+                    url='/test_menu_link2').save()
+
+        url = reverse('default_contest_view',
+                      kwargs={'contest_id': contest.id})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Test Menu Item 1', response.content)
+        self.assertIn('Test Menu Item 2', response.content)
+        self.assertIn('/test_menu_link1', response.content)
+        self.assertIn('/test_menu_link2', response.content)
+        self.assertLess(response.content.index('Test Menu Item 1'),
+                        response.content.index('Test Menu Item 2'))
+        self.assertLess(response.content.index('/test_menu_link1'),
+                        response.content.index('/test_menu_link2'))

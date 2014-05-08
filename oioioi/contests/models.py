@@ -449,14 +449,15 @@ class ContestLink(models.Model):
 
 def contest_links_generator(request):
     links = ContestLink.objects.filter(contest=request.contest)
-    items = []
     for link in links:
+        # http://docs.python-guide.org/en/latest/writing/gotchas/#late-binding-closures
+        def url_generator(request, url=link.url):
+            return url
         item = MenuItem(
             name='contest_link_%d' % link.id,
             text=link.description,
-            url_generator=lambda r: link.url,
+            url_generator=url_generator,
             order=link.order
         )
-        items.append(item)
-    return items
+        yield item
 menu_registry.register_generator('contest_links', contest_links_generator)
