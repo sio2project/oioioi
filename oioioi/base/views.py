@@ -22,6 +22,10 @@ account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
 
 
+class ForcedError(StandardError):
+    pass
+
+
 def index_view(request):
     try:
         return render_to_response("index.html",
@@ -33,7 +37,7 @@ def index_view(request):
 
 
 def force_error_view(request):
-    raise StandardError("Visited /force_error")
+    raise ForcedError("Visited /force_error")
 
 
 def handler500(request):

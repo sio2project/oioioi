@@ -43,6 +43,7 @@ from oioioi.base.menu import menu_registry, OrderedRegistry, \
 from oioioi.base.management.commands import import_users
 from oioioi.contests.utils import is_contest_admin
 from oioioi.base.notification import NotificationHandler
+from oioioi.base.views import ForcedError
 
 
 if not getattr(settings, 'TESTS', False):
@@ -324,6 +325,29 @@ class TestMenu(TestCase):
         finally:
             side_pane_menus_registry.keys = old_keys
             side_pane_menus_registry.items = old_items
+
+
+class TestErrorHandlers(TestCase):
+    fixtures = ['test_users']
+
+    def test_500(self):
+        self.client.login(username='test_admin')
+        with self.assertRaises(ForcedError):
+            response = self.client.get(reverse('force_error'))
+            self.assertIn('Test Admin', response.content)
+            self.assertIn('IS_AUTHENTICATED', response.content)
+
+        self.client.login(username='test_user')
+        with self.assertRaises(ForcedError):
+            response = self.client.get(reverse('force_error'))
+            self.assertIn('500', response.content)
+            self.assertNotIn('Test User', response.content)
+            self.assertNotIn('IS_AUTHENTICATED', response.content)
+
+        self.client.logout()
+        with self.assertRaises(ForcedError):
+            response = self.client.get(reverse('force_error'))
+            self.assertIn('500', response.content)
 
 
 class TestUtils(unittest.TestCase):
