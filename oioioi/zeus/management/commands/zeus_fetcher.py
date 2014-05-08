@@ -1,16 +1,15 @@
 import json
 import time
 import logging
-import traceback
 from operator import itemgetter
 from itertools import groupby
 
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.conf import settings
 
-from oioioi import evalmgr
+from oioioi.evalmgr.handlers import postpone
 from oioioi.zeus.backends import get_zeus_server, ZeusError
 from oioioi.zeus.models import ZeusAsyncJob
 
@@ -35,37 +34,49 @@ class Command(BaseCommand):
         while True:
             try:
                 seq = self.fetch_once(zeus)
-            except StandardError as e:
-                logger.error("Error occured:\n%s", traceback.format_exc(e))
+            except StandardError:
+                logger.error("Error occured while fetching results.",
+                             exc_info=True)
             else:
                 if seq is not None:
                     zeus.commit_fetch(seq)
 
             logger.debug("Waiting for new results...")
-            time.sleep(10)
+            time.sleep(settings.ZEUS_RESULTS_FETCH_DELAY)
 
     @transaction.commit_on_success
     def fetch_once(self, zeus):
         try:
             seq, received_results = zeus.fetch_results()
-        except ZeusError as e:
-            logger.error("Zeus error occured:\n%s", traceback.format_exc(e))
+        except ZeusError:
+            logger.error("Zeus error occured.", exc_info=True)
             return None
 
         for check_uid, reports in \
                 groupby(received_results, itemgetter('check_uid')):
-            try:
-                env_obj = ZeusAsyncJob.objects.get(check_uid=check_uid)
-            except ZeusAsyncJob.DoesNotExist:
-                #TODO: think of race-condition
-                #TODO: we may get the same results more then once
-                continue
-
             logger.info("Got new results for: %s", check_uid)
-            environ = json.loads(env_obj.environ)
-            environ.setdefault('zeus_results', [])
-            environ['zeus_results'].extend(list(reports))
-            _async_result = evalmgr.evalmgr_job.delay(environ)
-            #TODO: postpone handlers?
-            env_obj.delete()
+            try:
+                async_job, created = ZeusAsyncJob.objects.select_for_update() \
+                                     .get_or_create(check_uid=check_uid)
+            except IntegrityError:
+                # This should never happen.
+                logger.error("IntegrityError while saving results for %s",
+                             check_uid, exc_info=True)
+                logger.error("Received reports:\n%s", reports)
+                continue
+            if async_job.resumed:
+                logger.debug("Got results for %s again, ignoring", check_uid)
+                continue
+            if not created:
+                logger.info("Resuming job %s from zeus-fetcher", check_uid)
+                env = json.loads(async_job.environ)
+                env.setdefault('zeus_results', [])
+                env['zeus_results'].extend(list(reports))
+                postpone(env)
+                async_job.resumed = True
+                async_job.save()
+            else:
+                async_job.environ = json.dumps({'zeus_results': list(reports)})
+                async_job.save()
+
         return seq

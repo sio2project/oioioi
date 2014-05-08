@@ -35,7 +35,7 @@ def get_zeus_server(zeus_id):
     server = settings.ZEUS_INSTANCES[zeus_id]
     # Used to inject mock instances/special handlers
     if server[0] == '__use_object__':
-        return get_object_by_dotted_name(server[1])(zeus_id, server)
+        return get_object_by_dotted_name(server[1])(zeus_id, server[2])
     return ZeusServer(zeus_id, server)
 
 
@@ -69,9 +69,8 @@ def _json_base64_encode(o):
 def _json_base64_decode(o, wrap=False):
     def _dict_b64_decode(d):
         return {k: (Base64String(base64.b64decode(v)) if wrap
-                    else base64.b64decode(v))
-                if isinstance(v, (str, unicode)) else v
-                for (k, v) in d.iteritems()}
+                    else base64.b64decode(v)) if isinstance(v, basestring)
+                    else v for (k, v) in d.iteritems()}
     return json.loads(o, object_hook=_dict_b64_decode)
 
 

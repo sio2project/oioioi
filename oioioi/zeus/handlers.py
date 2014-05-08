@@ -1,12 +1,11 @@
 import json
 import logging
 import socket
-import traceback
 from smtplib import SMTPException
 
 from django.core.files.base import ContentFile
 from django.core.mail import mail_admins
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.forms.models import model_to_dict
 
 from oioioi.base.utils import get_object_by_dotted_name, naturalsort_key
@@ -92,7 +91,8 @@ def submit_testrun_job(env, **kwargs):
 @transaction.commit_on_success()
 def save_env(env, kind=None, **kwargs):
     """Saves asynchronous job's environment in the database
-       for later retrieval, clearing current recipe.
+       for later retrieval, clearing current recipe. This allows to submit
+       results from another process, without having evalmgr actively waiting.
 
        This handler will save current job's status in
        :class:`~oioioi.zeus.models.ZeusAsyncJob` objects for later
@@ -100,6 +100,8 @@ def save_env(env, kind=None, **kwargs):
        continued with ``evalmgr.evalmgr_job.delay(zeus_async_job.environ)``.
        The ``zeus_async_job.check_uid`` is taken from
        ``environ['zeus_check_uids`][kind]``.
+
+       If results happen to be already in db, job is not suspended.
 
        Used ``environ`` keys:
          * ``recipe``
@@ -110,12 +112,29 @@ def save_env(env, kind=None, **kwargs):
     """
     assert kind is not None
     check_uid = env['zeus_check_uids'][kind]
-    saved_env = json.dumps(env)
-    ZeusAsyncJob.objects.create(
-            check_uid=check_uid, kind=kind, environ=saved_env)
-    env['recipe'] = []
-    # TODO: mark in submits_queue as WAITING
+    try:
+        async_job, created = ZeusAsyncJob.objects.select_for_update() \
+                .get_or_create(check_uid=check_uid)
+    except IntegrityError:
+        # This should never happen.
+        logger.error("IntegrityError while saving job for uid %s", check_uid,
+                     exc_info=True)
+        logger.error("Environ:\n%s", json.dumps(env))
+        raise
+    if created:
+        async_job.environ = json.dumps(env)
+        async_job.save()
+        env['recipe'] = []
+    else:
+        assert not async_job.resumed, ("Oops, got uid %s twice?" % check_uid)
+        logger.info("Resuming job %s from save_env", check_uid)
+        saved_env = json.loads(async_job.environ)
+        env.setdefault('zeus_results', [])
+        env['zeus_results'].extend(saved_env['zeus_results'])
+        async_job.resumed = True
+        async_job.save()
     return env
+
 
 
 def import_results(env, kind=None, map_to_kind=None, **kwargs):
@@ -342,9 +361,9 @@ def update_problem_tests_set(env, kind, **kwargs):
                            (name, old_dict, new_dict))
         try:
             mail_admins(title, '\n'.join(content))
-        except (socket.error, SMTPException), e:
-            logger.error("An error occurred while sending email:\n%s",
-                         traceback.format_exc(e))
+        except (socket.error, SMTPException):
+            logger.error("An error occurred while sending email.\n%s",
+                         exc_info=True)
         logger.debug('Sent mail: ' + '\n'.join(content))
 
     return env

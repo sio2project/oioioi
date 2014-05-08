@@ -3,15 +3,15 @@ import os
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.fields import EnumField
 from oioioi.base.utils.deps import check_django_app_dependencies
-from oioioi.contests.models import submission_report_kinds, submission_statuses
+from oioioi.contests.models import submission_statuses
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem
 from oioioi.testrun.models import TestRunReport, TestRunProgramSubmission
 
 
 check_django_app_dependencies(__name__, ['oioioi.testrun'], strict=True)
+check_django_app_dependencies(__name__, ['oioioi.submitsqueue'])
 
 
 submission_statuses.register('MSE', _("Outgoing message size limit exceeded"))
@@ -26,8 +26,8 @@ class ZeusProblemData(models.Model):
 
 class ZeusAsyncJob(models.Model):
     check_uid = models.IntegerField(primary_key=True)
-    kind = EnumField(submission_report_kinds)
     environ = models.TextField()
+    resumed = models.BooleanField(default=False)
 
 
 def make_custom_library_filename(instance, filename):
