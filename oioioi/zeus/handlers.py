@@ -10,7 +10,7 @@ from django.forms.models import model_to_dict
 
 from oioioi.base.utils import get_object_by_dotted_name, naturalsort_key
 from oioioi.problems.models import Problem
-from oioioi.programs.handlers import _make_base_report
+from oioioi.programs.handlers import _make_base_report, _if_compiled
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.programs.utils import slice_str
 from oioioi.zeus.backends import get_zeus_server
@@ -196,6 +196,9 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
             'OK' if zeus_results[0].get('compilation_successful') else 'CE'
     env['compilation_message'] = zeus_results[0].get('compilation_message')
 
+    if env['compilation_result'] != 'OK':
+        return env
+
     decoder = get_object_by_dotted_name(env.get('zeus_metadata_decoder')
             or DEFAULT_METADATA_DECODER)
 
@@ -218,12 +221,22 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
         })
         tests[test['name']] = test
 
-        test_results[test['name']] = {
+        test_result = {
             'result_code': result['status'],
             'result_string': result['result_string'],
             'time_used': result['execution_time_ms'],
             'zeus_test_result': result,
         }
+
+        # Fill in time_used if none given e. g. when timing machinery didn't
+        # start yet or failed.
+        if test_result['time_used'] is None:
+            if result['status'] == 'TLE':
+                test_result['time_used'] = test['exec_time_limit']
+            else:
+                test_result['time_used'] = 0
+
+        test_results[test['name']] = test_result
 
     return env
 
@@ -286,6 +299,7 @@ def save_zeus_data(env):
     return env
 
 
+@_if_compiled
 @transaction.atomic
 def update_problem_tests_set(env, kind, **kwargs):
     """Creates or updates problem :class:`oioioi.programs.models.Test` objects

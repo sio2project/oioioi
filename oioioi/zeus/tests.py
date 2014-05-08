@@ -199,8 +199,8 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         env = handlers.import_results(env, kind='INITIAL')
         self.assertEqual(env['compilation_result'], 'CE')
         self.assertEqual(env['compilation_message'], 'xx')
-        self.assertEqual(len(env['tests']), 2)
-        self.assertEqual(len(env['test_results']), 2)
+        self.assertNotIn('tests', env)
+        self.assertNotIn('test_results', env)
 
     def test_importing(self):
         report = self._get_base_report(909941, 'NORMAL')
