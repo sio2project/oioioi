@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import uploaded_file_name
-from oioioi.problems.models import Problem
 from oioioi.problems.problem_sources import PackageSource
 from oioioi.zeus.forms import ZeusProblemForm
 from oioioi.zeus.models import ZeusProblemData
@@ -22,27 +21,26 @@ class ZeusProblemSource(PackageSource):
         self.zeus_instances = zeus_instances
 
     def process_package(self, request, contest, filename,
-                        original_filename, existing_problem=None):
+                        original_filename, existing_problem=None, **kwargs):
         backend = ZeusPackageBackend(filename,
                                      original_filename=original_filename)
         problem = backend.unpack(filename,
                                  original_filename=original_filename,
-                                 existing_problem=existing_problem)
+                                 existing_problem=existing_problem,
+                                 **kwargs)
         return problem
 
     def process_valid_form(self, request, contest, form,
                            existing_problem=None):
         uploaded_file = request.FILES['package_file']
         with uploaded_file_name(uploaded_file) as filename:
+            kwargs = {
+                'zeus_id': form.cleaned_data['zeus_id'],
+                'zeus_problem_id': form.cleaned_data['zeus_problem_id']
+            }
             problem = self.process_package(request, contest, filename,
-                    uploaded_file.name, existing_problem)
-            if isinstance(problem, Problem):
-                problem_data, _created = ZeusProblemData.objects \
-                    .get_or_create(problem=problem)
-                problem_data.zeus_id = form.cleaned_data['zeus_id']
-                problem_data.zeus_problem_id = \
-                    form.cleaned_data['zeus_problem_id']
-                problem_data.save()
+                    uploaded_file.name, existing_problem, **kwargs)
+
             messages.success(request, _("ZeusProblem package uploaded."))
             return problem
 

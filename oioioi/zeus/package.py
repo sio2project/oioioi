@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from oioioi.problems.models import Problem
 from oioioi.problems.package import ProblemPackageBackend, ProblemPackageError
 from oioioi.sinolpack.package import SinolPackageCreator, SinolPackage
+from oioioi.zeus.models import ZeusProblemData
 
 
 logger = logging.getLogger(__name__)
@@ -27,7 +28,8 @@ class ZeusPackage(SinolPackage):
             folder = toplevel_folders[0]
         return folder
 
-    def unpack(self, existing_problem=None):
+    def unpack(self, existing_problem=None, zeus_id=None, zeus_problem_id=None,
+               **kwargs):
         self.short_name = self._find_main_folder()
 
         if existing_problem:
@@ -44,12 +46,21 @@ class ZeusPackage(SinolPackage):
             self.problem = Problem(
                 name=self.short_name,
                 short_name=self.short_name,
-                controller_name='oioioi.zeus.controllers.'
-                                'ZeusProblemController')
+                controller_name='oioioi.zeus.controllers.ZeusProblemController'
+            )
 
         self.problem.package_backend_name = \
             'oioioi.zeus.package.ZeusPackageBackend'
         self.problem.save()
+
+        assert zeus_id is not None
+        assert zeus_problem_id is not None
+
+        problem_data, _created = ZeusProblemData.objects \
+            .get_or_create(problem=self.problem)
+        problem_data.zeus_id = zeus_id
+        problem_data.zeus_problem_id = zeus_problem_id
+        problem_data.save()
 
         tmpdir = tempfile.mkdtemp()
         logger.info('%s: tmpdir is %s', self.filename, tmpdir)
@@ -80,9 +91,10 @@ class ZeusPackageBackend(ProblemPackageBackend):
         # this PackageBackend should not be used other way than directly
         return False
 
-    def unpack(self, path, original_filename=None, existing_problem=None):
-        return ZeusPackage(path, original_filename) \
-                .unpack(existing_problem)
+    def unpack(self, path, original_filename=None,
+               existing_problem=None, **kwargs):
+        return ZeusPackage(path, original_filename).unpack(existing_problem,
+                                                           **kwargs)
 
     def pack(self, problem):
         return ZeusPackageCreator(problem).pack()

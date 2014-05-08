@@ -418,7 +418,7 @@ class SinolPackage(object):
         original_package.package_file.save(os.path.basename(self.filename),
                 File(open(self.archive.filename, 'rb')))
 
-    def unpack(self, existing_problem=None):
+    def unpack(self, existing_problem=None, **kwargs):
         self.short_name = self._find_main_folder()
 
         if existing_problem:
@@ -535,9 +535,10 @@ class SinolPackageBackend(ProblemPackageBackend):
         print original_filename
         return SinolPackage(path, original_filename).identify()
 
-    def unpack(self, path, original_filename=None, existing_problem=None):
-        return SinolPackage(path, original_filename) \
-                .unpack(existing_problem)
+    def unpack(self, path, original_filename=None,
+               existing_problem=None, **kwargs):
+        return SinolPackage(path, original_filename).unpack(existing_problem,
+                                                            **kwargs)
 
     def pack(self, problem):
         return SinolPackageCreator(problem).pack()

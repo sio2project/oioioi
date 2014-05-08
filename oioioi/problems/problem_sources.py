@@ -76,12 +76,13 @@ class PackageSource(ProblemSource):
     template_name = 'problems/package_source.html'
 
     def process_package(self, request, contest, filename,
-            original_filename, existing_problem=None):
+            original_filename, existing_problem=None, **kwargs):
         backend = backend_for_package(filename,
-                original_filename=original_filename)
+                                      original_filename=original_filename)
         problem = backend.unpack(filename,
-                original_filename=original_filename,
-                existing_problem=existing_problem)
+                                 original_filename=original_filename,
+                                 existing_problem=existing_problem,
+                                 kwargs=kwargs)
         messages.success(request, _("Problem package uploaded."))
         return problem
 

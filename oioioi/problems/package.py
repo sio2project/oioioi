@@ -30,9 +30,12 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
            package file."""
         raise NotImplementedError
 
-    def unpack(self, path, original_filename=None, existing_problem=None):
+    def unpack(self, path, original_filename=None,
+               existing_problem=None, **kwargs):
         """Unpacks package, creating a new
            :cls:`oioioi.problems.models.Problem` or updating an existing one.
+
+           kwargs allow to pass extra information from ``ProblemUploadForm``.
 
            Returns the created or updated ``Problem``.
         """
