@@ -310,6 +310,7 @@ def update_problem_tests_set(env, kind, **kwargs):
         test = env_tests[name]
         instance, created = Test.objects.select_for_update().get_or_create(
             problem=problem, name=name)
+        env['tests'][name]['id'] = instance.id
         old_dict = model_to_dict(instance, exclude=exclude)
 
         for attr in ['kind', 'group', 'max_score']:
