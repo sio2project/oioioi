@@ -132,6 +132,8 @@ def message_view(request, contest_id, message_id):
                 instance.save()
                 log_addition(request, instance)
                 return redirect('contest_messages', contest_id=contest_id)
+            elif request.POST.get('just_reload') == 'yes':
+                form.is_bound = False
         else:
             form = AddReplyForm(request, initial={
                     'topic': _("Re: ") + message.topic,
