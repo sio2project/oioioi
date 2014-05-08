@@ -101,9 +101,6 @@ class PAContestController(ProgrammingContestController):
         return super(PAContestController, self) \
                 .can_submit(request, problem_instance, check_round_times)
 
-    def should_confirm_submission_receipt(self, request, submission):
-        return submission.kind == 'NORMAL' and request.user == submission.user
-
     def can_see_publicsolutions(self, request, round):
         return all_public_results_visible(request)
 
