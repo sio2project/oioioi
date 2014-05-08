@@ -13,6 +13,7 @@ from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _, ungettext
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
+from oioioi.base.menu import menu_registry, MenuItem
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.contests.fields import ScoreField
 from oioioi.filetracker.fields import FileField
@@ -432,3 +433,30 @@ class ContestView(models.Model):
 
     def __unicode__(self):
         return u'%s,%s' % (self.user, self.contest)
+
+
+class ContestLink(models.Model):
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    description = models.CharField(max_length=255,
+                                   verbose_name=_("description"))
+    url = models.URLField(verbose_name=_("url"))
+    order = models.IntegerField(blank=True, null=True)
+
+    class Meta(object):
+        verbose_name = _("contest menu link")
+        verbose_name_plural = _("contest menu links")
+
+
+def contest_links_generator(request):
+    links = ContestLink.objects.filter(contest=request.contest)
+    items = []
+    for link in links:
+        item = MenuItem(
+            name='contest_link_%d' % link.id,
+            text=link.description,
+            url_generator=lambda r: link.url,
+            order=link.order
+        )
+        items.append(item)
+    return items
+menu_registry.register_generator('contest_links', contest_links_generator)

@@ -252,7 +252,7 @@ class TestMenu(TestCase):
 
     def setUp(self):
         self.saved_menu = menu_registry._registry
-        menu_registry._registry = OrderedRegistry()
+        menu_registry._registry = []
 
     def tearDown(self):
         menu_registry._registry = self.saved_menu

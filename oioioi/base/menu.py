@@ -1,11 +1,14 @@
 # coding: utf-8
 import bisect
+from operator import attrgetter
 import sys
+
+from oioioi.base.permissions import Condition
 
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from oioioi.base.permissions import Condition
+
 
 class OrderedRegistry(object):
     """Maintains a collection of values ordered by a separate key."""
@@ -38,13 +41,38 @@ class OrderedRegistry(object):
         return decorator
 
 
-class _MenuItem(object):
-    def __init__(self, name, text, url_generator, condition, attrs):
+class MenuItem(object):
+    """Used to store single menu entry.
+
+       :param name: a short identifier, for example used to find a matching
+                       icon etc.
+       :param text: text to display
+       :param url_generator: generates menu link URL
+       :type url_generator: fun: request → str
+       :param order: value determining the order of items in menu
+       :type order: int
+       :param condition: decides if the item should be shown
+       :type condition: :class:`oioioi.base.permissions.Condition`
+    """
+
+    def __init__(self, name, text, url_generator, condition=None, attrs=None,
+                 order=sys.maxint):
+
+        if condition is None:
+            condition = Condition(lambda request: True)
+
+        if attrs is None:
+            attrs = {}
+
+        if order is None:
+            order = sys.maxint
+
         self.name = name
         self.text = text
         self.url_generator = url_generator
         self.condition = condition
         self.attrs = attrs
+        self.order = order
 
 
 class MenuRegistry(object):
@@ -60,36 +88,22 @@ class MenuRegistry(object):
         if condition is None:
             condition = lambda request: True
         self.condition = condition
-        self._registry = OrderedRegistry()
+        self._registry = []
+        self._generators = {}
 
-    def register(self, name, text, url_generator, order=sys.maxint,
-            condition=None, attrs=None):
+    def register(self, name, text, url_generator, condition=None, attrs=None,
+                 order=sys.maxint):
         """Registers a new menu item.
-
-           :param name: a short identifier, for example used to find a matching
-                           icon etc.
-           :param text: text to display
-           :param url_generator: generates menu link URL
-           :type url_generator: fun: request → str
-           :param order: value determining the order of items
-           :type order: int
-           :param condition: decides if the item should be shown
-           :type condition: :class:`oioioi.base.permissions.Condition`
 
            Menu items should be registered in ``views.py`` of Django apps.
         """
 
-        if condition is None:
-            condition = lambda request: True
+        menu_item = MenuItem(name, text, url_generator, condition,
+                             attrs, order)
+        self._registry.append(menu_item)
 
-        if attrs is None:
-            attrs = {}
-
-        menu_item = _MenuItem(name, text, url_generator, condition, attrs)
-        self._registry.register(menu_item, order)
-
-    def register_decorator(self, text, url_generator,
-                           order=sys.maxint, condition=None, attrs=None):
+    def register_decorator(self, text, url_generator, condition=None,
+                           attrs=None, order=sys.maxint):
         """Decorator for a view which registers a new menu item. It accepts the
            same arguments as the :meth:`MenuRegistry.register`, except for
            ``name``, which is inferred from the view function name ('_view'
@@ -110,10 +124,20 @@ class MenuRegistry(object):
                 current_condition = Condition(lambda request: True)
             if condition is not None:
                 current_condition = current_condition & condition
-            self.register(name, text, url_generator, order,
-                          current_condition, attrs)
+            self.register(name, text, url_generator, current_condition, attrs,
+                          order)
             return view_func
         return decorator
+
+    def register_generator(self, name, items_generator):
+        """Registers a new menu items generator.
+
+           :param name: a short identifier
+           :param items_generator: generates list of menu items
+           :type items_generator: fun: request → [MenuItem]
+        """
+        assert name not in self._generators
+        self._generators[name] = items_generator
 
     def unregister(self, name):
         """Unregisters a menu item.
@@ -123,16 +147,31 @@ class MenuRegistry(object):
 
         for item in self._registry:
             if item.name == name:
-                self._registry.unregister(item)
+                pos = self._registry.index(item)
+                del self._registry[pos]
                 break
+
+    def unregister_generator(self, name):
+        """Unregisters a menu items generator.
+
+           Does nothing if not found.
+        """
+
+        if name in self._generators:
+            del self._generators[name]
 
     def template_context(self, request):
         """Returns a list of items to pass to a template for rendering."""
         if not self.condition(request):
             return []
 
+        items = []
+        for generator in self._generators.itervalues():
+            items.extend(generator(request))
+        items.extend(self._registry)
+
         context_items = []
-        for item in self._registry:
+        for item in sorted(items, key=attrgetter('order')):
             if item.condition(request):
                 attrs_str = ' '.join(['%s="%s"' % (escape(k), escape(v))
                     for (k, v) in item.attrs.items()])
