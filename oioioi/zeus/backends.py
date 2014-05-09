@@ -103,26 +103,33 @@ class ZeusServer(object):
         auth_handler = EagerHTTPBasicAuthHandler(user, passwd)
         self.opener = urllib2.build_opener(auth_handler)
 
-    def _send(self, url, data=None, method='GET'):
+    def _send(self, url, data=None, method='GET', retries=None, **kwargs):
         """Send the encoded ``data`` to given URL."""
+        timeout = getattr(settings, 'ZEUS_CONNECTION_TIMEOUT', 60)
+        retries = retries or getattr(settings, 'ZEUS_SEND_RETRIES', 3)
+
+        assert retries > 0
         assert data is None or method == 'POST', \
                 ("Incorrect method: %s" % method)
+
         if data is None:
             req = urllib2.Request(url=url)             # GET
         else:
             req = urllib2.Request(url=url, data=data)  # POST
-        try:
-            f = self.opener.open(req)
-        except (urllib2.URLError, httplib.HTTPException) as e:
-            logger.error("%s exception while quering %s", url, type(e),
-                    exc_info=True)
-            raise ZeusError(type(e), e)
-        return f.getcode(), f.read()
 
-    def _encode_and_send(self, url, data=None, method='GET'):
+        for _i in xrange(retries):
+            try:
+                f = self.opener.open(req, timeout=timeout)
+                return f.getcode(), f.read()
+            except (urllib2.URLError, httplib.HTTPException) as e:
+                logger.error("%s exception while querying %s", url, type(e),
+                             exc_info=True)
+        raise ZeusError(type(e), e)
+
+    def _encode_and_send(self, url, data=None, method='GET', **kwargs):
         """Encodes the ``data`` dictionary and sends it to the given URL."""
         json_data = _json_base64_encode(data) if data else None
-        code, res = self._send(url, json_data, method)
+        code, res = self._send(url, json_data, method, **kwargs)
         decoded_res = _json_base64_decode(res)
 
         logger.info("Received response with code=%d: %s", code,
@@ -171,7 +178,7 @@ class ZeusServer(object):
            This operation may be blocking.
         """
         url = urljoin(self.url, 'reports_since/%d/' % self.seq.next_seq)
-        code, res = self._encode_and_send(url)
+        code, res = self._encode_and_send(url, retries=1)
         if code != 200:
             raise ZeusError(res.get('error', None), code)
         return _get_key(res, 'next_seq'), _get_key(res, 'reports')
