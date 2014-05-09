@@ -115,3 +115,8 @@ class TestCtimes(TestCase):
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response, self.round1p_result)
+
+    def test_cross_origin(self):
+        url = reverse('ctimes', kwargs={'contest_id': 'c2'})
+        response = self.client.get(url)
+        self.assertEqual(response['Access-Control-Allow-Origin'], '*')

@@ -2,7 +2,7 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 from django.contrib.auth.models import User
 
-from oioioi.base.utils import jsonify
+from oioioi.base.utils import jsonify, allow_cross_origin
 from oioioi.pa.controllers import PARegistrationController
 from oioioi.dashboard.registry import dashboard_headers_registry
 from oioioi.participants.utils import is_participant
@@ -22,6 +22,7 @@ def registration_notice_fragment(request):
         return None
 
 
+@allow_cross_origin
 @jsonify
 def contest_info_view(request, contest_id):
     rc = request.contest.controller.registration_controller()

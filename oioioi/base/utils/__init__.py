@@ -469,3 +469,29 @@ def jsonify(view):
         data = view(*args, **kwargs)
         return HttpResponse(json.dumps(data), content_type='application/json')
     return inner
+
+
+def add_header(header, value):
+    def decorator(view):
+        @functools.wraps(view)
+        def inner(*args, **kwargs):
+            response = view(*args, **kwargs)
+            response[header] = value
+            return response
+        return inner
+    return decorator
+
+
+def allow_cross_origin(arg='*'):
+    """Add Access-Control-Allow-Origin header with given value,
+       or '*' if none given.
+
+       May be used as any of:
+
+       @allow_cross_origin
+       @allow_cross_origin()
+       @allow_cross_origin('http://example.com')
+    """
+    if callable(arg):
+        return allow_cross_origin()(arg)
+    return add_header('Access-Control-Allow-Origin', arg)

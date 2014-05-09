@@ -296,3 +296,20 @@ class TestPAResults(TestCase):
         new_results = sorted([result.score for result in
             UserResultForProblem.objects.filter(user=user)])
         self.assertEquals(old_results, new_results)
+
+
+class TestPAContestInfo(TestCase):
+    fixtures = ['test_users', 'test_pa_contest']
+
+    def test_contest_info_anonymous(self):
+        c = Contest.objects.get()
+        url = reverse('contest_info', kwargs={'contest_id': c.id})
+        self.client.logout()
+        response = json.loads(self.client.get(url).content)
+        self.assertEqual(response['users_count'], 2)
+
+    def test_cross_origin(self):
+        c = Contest.objects.get()
+        url = reverse('contest_info', kwargs={'contest_id': c.id})
+        response = self.client.get(url)
+        self.assertEqual(response['Access-Control-Allow-Origin'], '*')

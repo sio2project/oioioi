@@ -4,9 +4,10 @@ import time
 from django.utils import timezone
 
 from oioioi.contests.models import Round
-from oioioi.base.utils import jsonify
+from oioioi.base.utils import jsonify, allow_cross_origin
 
 
+@allow_cross_origin
 @jsonify
 def ctimes_view(request, contest_id=None):
     now = request.timestamp
