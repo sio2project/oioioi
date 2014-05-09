@@ -341,3 +341,5 @@ ZEUS_ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
 
 # Delay between consecutive http requests for results.
 ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
+ZEUS_CONNECTION_TIMEOUT = 10  # seconds
+ZEUS_SEND_RETRIES = 3

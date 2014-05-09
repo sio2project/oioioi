@@ -25,7 +25,7 @@ def ZeusTestServer(fixtures_path):
             with open(fixtures_path) as f:
                 self.fixtures = json.load(f)
 
-        def _send(self, url, data=None, method='GET'):
+        def _send(self, url, data=None, method='GET', **kwargs):
             assert data is None or method == 'POST'
             matching_fixtures = [f for f in self.fixtures if f['url'] == url
                                  and f['method'] == method]
