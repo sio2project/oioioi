@@ -265,10 +265,16 @@ LOGGING = {
             '()': 'django.utils.log.RequireDebugFalse'
         }
     },
+    'formatters': {
+        'date_and_level': {
+            'format': '[%(asctime)s %(levelname)s] %(message)s',
+        },
+    },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'date_and_level',
         },
         'mail_admins': {
             'level': 'ERROR',
