@@ -1,6 +1,7 @@
 # pylint: disable=W0703
 # Catching too general exception Exception
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response, redirect, render
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import TemplateDoesNotExist, RequestContext
@@ -8,6 +9,7 @@ from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+from django.views.defaults import page_not_found
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib.auth.views import logout as auth_logout, \
                                       login as auth_login
@@ -40,16 +42,36 @@ def force_error_view(request):
     raise ForcedError("Visited /force_error")
 
 
+def force_permission_denied_view(request):
+    raise PermissionDenied("Visited /force_permission_denied")
+
+
 def handler500(request):
+    message = '500 Internal Server Error'
+
     tb = ''
     try:
         tb = traceback.format_exc()
-        return render(request, '500.html', {'traceback': tb}, status=500)
-    except Exception:
-        message = '500 Internal Server Error'
         if hasattr(request, 'user') and request.user.is_superuser:
             message += '\n' + tb
-        return HttpResponse(message, status=500, content_type='text/plain')
+    except Exception:
+        pass
+
+    plain_resp = HttpResponse(message, status=500, content_type='text/plain')
+
+    try:
+        if request.is_ajax():
+            return plain_resp
+        return render(request, '500.html', {'traceback': tb}, status=500)
+    except Exception:
+        return plain_resp
+
+
+def handler404(request):
+    if request.is_ajax():
+        return HttpResponse('404 Not Found', status=404,
+                            content_type='text/plain')
+    return page_not_found(request)
 
 
 def handler403(request):
