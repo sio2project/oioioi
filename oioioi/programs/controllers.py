@@ -350,7 +350,7 @@ class ProgrammingContestController(ContestController):
         else:
             code = cleaned_data['code'].encode('utf-8')
 
-        if not is_contest_admin(request) and \
+        if not is_contest_admin(request) and form.kind == 'NORMAL' and \
                 getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False):
             lines = iter(code.splitlines())
             md5 = hashlib.md5()
