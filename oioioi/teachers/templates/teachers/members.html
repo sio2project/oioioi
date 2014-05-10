@@ -1,0 +1,111 @@
+{% extends "base-with-menu.html" %}
+{% load i18n listutil %}
+
+{% block styles %}
+{{ block.super }}
+<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}teachers/style.css">
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}teachers/ZeroClipboard.min.js"></script>
+{% endblock %}
+
+{% block title %}
+    {% if member_type == 'teacher' %}
+        {% trans "Contest teachers" %}
+    {% else %}
+        {% trans "Contest pupils" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<h2>{% trans "Contest "|add:member_type|add:"s" %}</h2>
+
+{% if is_registration_active %}
+    {% if member_type == 'teacher' %}
+        <p>{% trans "To allow a teacher to access this contest, ask him/her to visit the following link:" %}</p>
+    {% else %}
+        <p>{% trans "To allow a pupil to access this contest, ask him/her to visit the following link:" %}</p>
+    {% endif %}
+    <pre>{{ registration_link }}</pre>
+    <div class="pull-right" id="copy_link_container">
+        <button class="btn btn-mini" id="copy_link">
+            {% trans "Copy to clipboard" %}
+        </button>
+    </div>
+    <div class="pull-right" id="copy_link_ok" style="display: none">
+        <i class="icon-ok"></i><small> copied!</small>
+    </div>
+    <script type="text/javascript">
+        ZeroClipboard.setMoviePath('{{ STATIC_URL }}teachers/ZeroClipboard.swf');
+        var clip = new ZeroClipboard.Client();
+        clip.setText('{{ registration_link|escapejs }}');
+        clip.glue('copy_link', 'copy_link_container');
+        clip.addEventListener('onComplete', function() {
+            $('#copy_link_container').hide();
+            $('#copy_link_ok').show();
+        });
+    </script>
+    <p>
+        <a class="btn btn-info btn-mini" data-post-url="{% url 'teachers_disable_registration' contest_id=contest.id member_type=member_type %}">{% trans "Disable link" %}</a>
+        <a class="btn btn-mini" data-post-url="{% url 'teachers_regenerate_key' contest_id=contest.id member_type=member_type %}">{% trans "Re-generate key" %}</a>
+    </p>
+{% else %}
+    {% if member_type == 'teacher' %}
+        <p>{% trans "Registration of teachers is disabled." %}</p>
+    {% else %}
+        <p>{% trans "Registration of pupils is disabled." %}</p>
+    {% endif %}
+    <p>
+        <a class="btn btn-info" data-post-url="{% url 'teachers_enable_registration' contest_id=contest.id member_type=member_type %}">{% trans "Re-enable registration" %}</a>
+    </p>
+{% endif %}
+
+<form action="{% url 'teachers_delete_members' contest_id=contest.id member_type=member_type %}" class="teachers-delete-pupils" method="post">
+    {% csrf_token %}
+
+    <h3 class="members">{% trans "Members" %}</h3>
+
+    {% if members %}
+    <div class="row-fluid">
+        {% for sublist in members|partition:"3" %}
+        <div class="span4">
+            {% for member in sublist %}
+                <label class="checkbox"><input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>
+                        {{ member.get_full_name }}
+                </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+    <div class="btn-toolbar">
+        <button type="button" class="btn btn-small"
+            onclick="$('.teachers-delete-pupils input[type=\'checkbox\']').not('[disabled]').attr('checked', 'checked')">{% trans "Select all" %}</button>
+        <button type="button" class="btn btn-small"
+            onclick="$('.teachers-delete-pupils input[type=\'checkbox\']').not('[disabled]').removeAttr('checked')">{% trans "Select none" %}</button>
+        <button type="submit" class="btn btn-danger btn-small">{% trans "Delete selected" %}</button>
+        {% if other_contests %}
+        <div class="btn-group">
+            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Add from other contest" %} <span class="caret"></span></button>
+            <ul class="dropdown-menu">
+                {% for c in other_contests %}
+                <li><a data-post-url="{% url 'teachers_bulk_add_pupils' contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    </div>
+    {% else %}
+        <p class="info">
+            {% if member_type == 'teacher' %}
+                {% trans "No teachers." %}
+            {% else %}
+                {% trans "No pupils." %}
+            {% endif %}
+        </p>
+    {% endif %}
+
+</form>
+{% endblock %}

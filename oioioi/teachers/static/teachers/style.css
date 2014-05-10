@@ -4,3 +4,10 @@ form.teachers-delete-pupils .info {
     font-size: inherit;
 }
 
+.copy_link_container {
+    position: relative;
+}
+
+h3.members {
+    margin-top: 1em;
+}
