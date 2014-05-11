@@ -71,6 +71,10 @@ class MessageAdmin(admin.ModelAdmin):
         return TemplateResponse(request, 'admin/questions/change_message.html',
                                 {'form': form, 'message': message})
 
+    def response_delete(self, request):
+        super(MessageAdmin, self).response_delete(request)
+        return redirect('contest_messages', contest_id=request.contest.id)
+
 admin.site.register(Message, MessageAdmin)
 
 

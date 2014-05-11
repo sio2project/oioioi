@@ -1,7 +1,9 @@
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import User
-from django.core.exceptions import SuspiciousOperation
-from django.core.urlresolvers import reverse
+from django.core.exceptions import SuspiciousOperation, PermissionDenied
+from django.core.urlresolvers import reverse, resolve
+from django.http import Http404
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
@@ -33,7 +35,13 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
     if redirect_field_name in request.REQUEST:
         next_page = request.REQUEST[redirect_field_name]
 
-    return safe_redirect(request, next_page)
+    response = safe_redirect(request, next_page)
+    view_func, args, kwargs = resolve(response['Location'])
+    try:
+        view_func(request, *args, **kwargs)
+    except (PermissionDenied, Http404):
+        return redirect('contest_dashboard', contest_id=request.contest.id)
+    return response
 
 
 @enforce_condition(is_under_su)

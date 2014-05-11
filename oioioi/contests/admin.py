@@ -139,6 +139,15 @@ class ContestAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(request.get_full_path())
         return super(ContestAdmin, self).response_change(request, obj)
 
+    def response_add(self, request, obj, post_url_continue=None):
+        default_redirection = super(ContestAdmin, self).response_add(request,
+                obj, post_url_continue)
+        request.session['contest_id'] = obj.id
+        if '_continue' in request.POST or '_addanother' in request.POST:
+            return default_redirection
+        else:
+            return redirect('default_contest_view', contest_id=obj.id)
+
 
 class BaseContestAdmin(admin.MixinsAdmin):
     default_model_admin = ContestAdmin
