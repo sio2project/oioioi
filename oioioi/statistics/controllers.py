@@ -1,8 +1,11 @@
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.controllers import ContestController
-from oioioi.programs.controllers import ProgrammingContestController
+
 from oioioi.base.fields import EnumRegistry
-from oioioi.contests.utils import visible_problem_instances, rounds_times
+from oioioi.contests.controllers import ContestController
+from oioioi.contests.utils import visible_problem_instances, rounds_times, \
+        is_contest_admin, is_contest_observer
+from oioioi.contests.models import ProblemInstance
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.statistics.plottypes import TablePlot, \
         ColumnStaticHighchartsPlot, PointsToSourceLengthProblemPlot, \
         BarPercentStaticHighchartsPlot
@@ -10,7 +13,6 @@ from oioioi.statistics.plotfunctions import points_histogram_contest, \
         submissions_histogram_contest, points_histogram_problem, \
         points_to_source_length_problem, test_scores
 from oioioi.statistics.models import StatisticsConfig
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
 statistics_categories = EnumRegistry()
 statistics_categories.register('CONTEST', (_("Contest"), 'c'))
@@ -140,7 +142,7 @@ class StatisticsMixinForContestController(object):
         raise NotImplementedError
 
     def can_see_stats(self, request):
-        """Determies if statistics should be shown"""
+        """Determines if statistics should be shown"""
         if is_contest_admin(request) or is_contest_observer(request):
             return True
         try:
@@ -154,50 +156,66 @@ ContestController.mix_in(StatisticsMixinForContestController)
 
 
 class StatisticsMixinForProgrammingContestController(object):
+    def can_see_problem_statistics(self, request, pi):
+        cc = request.contest.controller
+        rtimes = rounds_times(request)
+
+        can_see_problem = cc.can_see_problem(request, pi)
+        can_see_round_results = rtimes[pi.round].public_results_visible(
+                request.timestamp)
+        can_observe = is_contest_admin(request) or is_contest_observer(request)
+
+        return can_see_problem and (can_see_round_results or can_observe)
+
     def statistics_available_plot_groups(self, request):
-        problem_instances = visible_problem_instances(request)
-
         result = []
-        times = rounds_times(request)
-        is_observer = is_contest_admin(request) or is_contest_observer(request)
+        contest_pis = ProblemInstance.objects.filter(contest=request.contest)
 
-        can_see_any_problems = False
-        for pi in problem_instances:
-            can_see_round = times[pi.round].results_visible(request.timestamp)
-            if can_see_round or is_observer:
+        can_see_all_problems = True
+        for pi in contest_pis:
+            if self.can_see_problem_statistics(request, pi):
                 result.append(('PROBLEM', pi.short_name, pi))
-                can_see_any_problems = True
+            else:
+                can_see_all_problems = False
 
-        if can_see_any_problems:
+        if can_see_all_problems and contest_pis.exists():
             result.insert(0, ('CONTEST', request.contest.id,
                               request.contest))
         return result
 
     def statistics_available_plots(self, request, category, object):
+        """Available plots for given object in given category.
+           Does not check user's permission for viewing those statistics."""
+
         result = []
+        rtimes = rounds_times(request)
+
+        def plot_kind(name, object):
+            return (statistics_plot_kinds[name], object)
+
+        def pi_results_visible(pi):
+            return rtimes[pi.round].public_results_visible(request.timestamp) \
+                   or is_contest_admin(request) or is_contest_observer(request)
 
         if category == 'CONTEST':
-            if object == '':
+            if not object:
                 object = request.contest
-            result.append((
-                statistics_plot_kinds['POINTS_HISTOGRAM_CONTEST'],
-                object))
-            result.append((
-                statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST'],
-                object))
+
+            result.append(plot_kind('SUBMISSIONS_HISTOGRAM_CONTEST', object))
+
+            pis = visible_problem_instances(request)
+
+            # Do not add this plot if it would be empty.
+            if any(pi_results_visible(pi) and not pi.round.is_trial
+                   for pi in pis):
+                result.append(plot_kind('POINTS_HISTOGRAM_CONTEST', object))
 
         if category == 'PROBLEM':
-            result.append((
-                statistics_plot_kinds['POINTS_HISTOGRAM_PROBLEM'],
-                object))
-            result.append((
-                statistics_plot_kinds['POINTS_TABLE_PROBLEM'], object))
-            result.append((
-                statistics_plot_kinds['POINTS_TO_SOURCE_LENGTH_PROBLEM'],
-                object))
-            result.append((
-                statistics_plot_kinds['TEST_SCORES_TABLE_PROBLEM'],
-                object))
+            result.append(plot_kind('POINTS_HISTOGRAM_PROBLEM', object))
+            result.append(plot_kind('POINTS_TABLE_PROBLEM', object))
+            result.append(plot_kind('POINTS_TO_SOURCE_LENGTH_PROBLEM', object))
+            result.append(plot_kind('TEST_SCORES_TABLE_PROBLEM', object))
+
         return result
 
     def statistics_data(self, request, plot_kind, object):

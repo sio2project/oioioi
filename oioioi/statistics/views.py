@@ -1,6 +1,9 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
+
 from oioioi.base.menu import menu_registry
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.statistics.utils import render_head, any_statistics_avaiable, \
@@ -51,41 +54,33 @@ def statistics_view(request, contest_id,
             category_key = key
     category = category_key
 
-    title = ''
     if category == 'PROBLEM':
-        problem = ProblemInstance.objects.filter(short_name=object_name,
-                                                 contest=request.contest)[0]
-        title = _('Statistics for %s') % problem.problem.name
-        object = problem
-    if category == 'CONTEST':
+        object = ProblemInstance.objects.get(short_name=object_name,
+                                             contest=request.contest)
+        title = _('Statistics for %s') % object.problem.name
+    elif category == 'CONTEST':
         object = request.contest
+        object_name = request.contest.id
+        title = _('Contest statistics')
+    else:
+        raise Http404
 
-    plots = controller.statistics_available_plots(request,
-                                                  category, object)
+    if not (category, object_name) in set((c, o) for (c, o, d) in
+            controller.statistics_available_plot_groups(request)):
+        raise PermissionDenied(_('You have no access to those charts'))
 
-    data_list = []
-    for plot_kind, object_name in plots:
-        data_piece = controller.statistics_data(request,
-                                                plot_kind, object)
-        data_list.append(data_piece)
+    plots = controller.statistics_available_plots(request, category, object)
+    data_list = [controller.statistics_data(request, plot_kind, object)
+                 for plot_kind, object_name in plots]
 
-    if data_list == []:  # zip does not like empty lists
-        return TemplateResponse(request, 'statistics/stat.html',
-                                {'title': title})
+    plots_HTML, head_list = [] if not data_list else zip(*[
+            (controller.render_statistics(request, data, id),
+             data['plot_type'].head_libraries())
+            for id, data in enumerate(data_list)])
 
-    (plots_HTML, head_list) = zip(*[
-        (controller.render_statistics(request, data, id),
-        data['plot_type'].head_libraries())
-        for id, data in enumerate(data_list)])
-
-    head_libs = sum(head_list, [])
-
-    links_dict = links(request)
-
-    context = {
+    return TemplateResponse(request, 'statistics/stat.html', {
        'title': title,
-       'head': render_head(head_libs),
+       'head': render_head(sum(head_list, [])),
        'plots': plots_HTML,
-       'links': links_dict
-    }
-    return TemplateResponse(request, 'statistics/stat.html', context)
+       'links': links(request),
+    })
