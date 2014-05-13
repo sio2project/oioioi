@@ -5,6 +5,7 @@ if sys.version_info < (2, 6):
     raise RuntimeError("OIOIOI needs at least Python 2.6")
 
 import os
+import tempfile
 
 os.environ.setdefault('CELERY_LOADER', 'oioioi.celery.loaders.OioioiLoader')
 import djcelery
@@ -353,3 +354,15 @@ ZEUS_ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
 ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
 ZEUS_CONNECTION_TIMEOUT = 10  # seconds
 ZEUS_SEND_RETRIES = 3
+
+# Filelock
+FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
+
+# Cache
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+    }
+}
+
+RANKING_CACHE_TIMEOUT = 30  # seconds

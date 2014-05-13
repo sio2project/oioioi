@@ -1,10 +1,13 @@
+from datetime import datetime
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
+
 from oioioi.base.tests import fake_time, check_not_accessible
 from oioioi.contests.models import Contest
-from datetime import datetime
+
 
 
 class TestRankingViews(TestCase):

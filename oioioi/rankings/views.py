@@ -1,9 +1,12 @@
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.menu import menu_registry
+from oioioi.base.utils.cache_generator import CacheGenerator
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
     contest_exists
 
@@ -27,9 +30,18 @@ def ranking_view(request, contest_id, key=None):
         key = choices[0][0]
     if key not in zip(*choices)[0]:
         raise Http404
-    ranking = rcontroller.render_ranking(request, key)
+
+    ranking_cache_group = rcontroller.get_cache_group(contest_id)
+    ranking_cache_key = rcontroller.get_cache_key(request, key)
+
+    with CacheGenerator(ranking_cache_key, ranking_cache_group) as cg:
+        generate_ranking = (lambda: rcontroller.render_ranking(request, key))
+        ranking = cg.get_cached_obj(generate_ranking,
+                                    settings.RANKING_CACHE_TIMEOUT)
+
     return TemplateResponse(request, 'rankings/ranking_view.html',
-                {'choices': choices, 'ranking': ranking, 'key': key})
+                            {'choices': choices, 'ranking': ranking,
+                             'key': key})
 
 
 @enforce_condition(contest_exists & is_contest_admin)

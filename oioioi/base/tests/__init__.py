@@ -33,11 +33,13 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.importlib import import_module
 from django.core.handlers.wsgi import WSGIRequest
+from django.core.cache import cache
 
 from oioioi.base import utils
 from oioioi.base.permissions import is_superuser, Condition, make_condition, \
     make_request_condition, RequestBasedCondition, enforce_condition
 from oioioi.base.utils import RegisteredSubclassesBase, archive
+from oioioi.base.utils import group_cache
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, OrderedRegistry, \
@@ -134,6 +136,7 @@ class FakeTimeMiddleware(object):
 def fake_time(timestamp):
     """A context manager which causes all requests having the specified
        timestamp, regardless of the real wall clock time."""
+    cache.clear()
     FakeTimeMiddleware._fake_timestamp.value = timestamp
     yield
     del FakeTimeMiddleware._fake_timestamp.value
@@ -1006,3 +1009,33 @@ class TestLoginChange(TestCase):
             self.client.post(url_edit_profile, {'username': login},
                     follow=True)
             self.assertEqual(self.user.username, self.invalid_logins[0])
+
+
+class TestGroupCache(TestCase):
+    def test_group_cache(self):
+        item1_key = "item1"
+        item1_value = 1
+        item2_key = "item2"
+        item2_value = 2
+        item3_key = "item3"
+        item3_value = 3
+        group12_key = "test_group12"
+        group3_key = "test_group3"
+
+        self.assertEqual(group_cache.get(item1_key, group12_key), None)
+        self.assertEqual(group_cache.get(item2_key, group12_key), None)
+        self.assertEqual(group_cache.get(item3_key, group3_key), None)
+
+        group_cache.set(item1_key, group12_key, item1_value, 60)
+        group_cache.set(item2_key, group12_key, item2_value, 60)
+        group_cache.set(item3_key, group3_key, item3_value, 60)
+
+        self.assertEqual(group_cache.get(item1_key, group12_key), item1_value)
+        self.assertEqual(group_cache.get(item2_key, group12_key), item2_value)
+        self.assertEqual(group_cache.get(item3_key, group3_key), item3_value)
+
+        group_cache.invalidate(group12_key)
+
+        self.assertEqual(group_cache.get(item1_key, group12_key), None)
+        self.assertEqual(group_cache.get(item2_key, group12_key), None)
+        self.assertEqual(group_cache.get(item3_key, group3_key), item3_value)

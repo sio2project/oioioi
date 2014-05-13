@@ -1,10 +1,13 @@
 import os
 from datetime import datetime
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 from django.contrib.auth.models import User, Permission
+from django.core.cache import cache
+
 from oioioi.base.tests import fake_time, check_not_accessible
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
@@ -461,6 +464,8 @@ class TestAnonymousParticipants(TestCase):
 
             # Edit contest registration
             self._register(u2, anonymous=False, possible=True)
+            # To see the changes in the ranking we have to clear the cache
+            cache.clear()
 
             self.client.login(username='test_admin')
             response = self.client.get(url)

@@ -1,7 +1,9 @@
 from datetime import datetime
+
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+
 from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
 

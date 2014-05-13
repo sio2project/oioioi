@@ -165,9 +165,21 @@ Production configuration
    consider using gevent as uwsgi event loop. To do so, `install gevent`_ and
    set UWSGI_USE_GEVENT flag in *settings.py*.
 
+#. (optionally) You can also enable content caching. To do so, first you have
+   to install dependencies:
+
+   * memcached (Ubuntu package: *memcached*)
+   * python-memcached (*pip install python-memcached*)
+
+   Next, you have to uncomment the corresponding lines under "Cache" in
+   *settings.py* and set the address of your memcached instance. Note that you
+   can run memcached locally or on a remote server. For more information about
+   memcached configuration see `official documentation`_.
+
 .. _judging-machines:
 .. _install gevent: https://github.com/surfly/gevent#installing-from-github
 .. _set ALLOWED_HOSTS: https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
+.. _official documentation: https://code.google.com/p/memcached/wiki/NewStart
 
 Setting up judging machines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~

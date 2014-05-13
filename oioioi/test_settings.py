@@ -67,6 +67,7 @@ TESTS = True
 
 NOSE_PLUGINS = [
     'oioioi.base.tests.nose_plugins.DisableSouthDebugMessages',
+    'oioioi.base.tests.nose_plugins.ClearCache',
 ]
 
 SECRET_KEY = 'no_secret'
@@ -91,4 +92,10 @@ ZEUS_INSTANCES = {
                        'oioioi.zeus.tests.ZeusIncorrectServer', ''),
     'dummy': ('__use_object__',
                    'oioioi.zeus.tests.ZeusDummyServer', ''),
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
+    }
 }

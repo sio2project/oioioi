@@ -11,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
+from oioioi.base.utils import group_cache
 from oioioi.contests.models import ProblemInstance, UserResultForProblem
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
@@ -24,6 +25,15 @@ class RankingMixinForContestController(object):
     def ranking_controller(self):
         """Return the actual :class:`RankingController` for the contest."""
         return DefaultRankingController(self.contest)
+
+    def update_user_results(self, user, problem_instance, *args, **kwargs):
+        super(RankingMixinForContestController, self) \
+            .update_user_results(user, problem_instance, *args, **kwargs)
+        contest_id = problem_instance.round.contest.id
+        ranking_cache_group = self.ranking_controller() \
+            .get_cache_group(contest_id)
+        group_cache.invalidate(ranking_cache_group)
+
 ContestController.mix_in(RankingMixinForContestController)
 
 
@@ -50,6 +60,38 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def serialize_ranking(self, request, key):
         raise NotImplementedError
+
+    def get_cache_group(self, contest_id):
+        """Returns a group key to be used with group_cache."""
+        return 'ranking_%s' % str(contest_id)
+
+    def get_cache_key(self, request, key):
+        """Returns a cache key to be used with group_cache.
+
+           When caching is enabled, every ranking is cached under a
+           group corresponding to its contest. All cached rankings in a
+           contest are invalidated when a submission is judged.
+
+           The cache key for each ranking should be constructed in a
+           way that allows to distinguish between its different
+           versions.
+
+           For example, you may want to display a live version of the
+           ranking to the admins. Users on the other hand should see
+           results only from the finished rounds.
+
+           Default implementation takes into account a few basic
+           permissions. It is suitable for the above example and many
+           more typical scenarios. However, if the way you generate and
+           display the ranking differs significantly from the default
+           implementation, you should carefully inspect the code below
+           and modify it as needed.
+        """
+        cache_key = ':'.join([key, str(request.user.is_superuser),
+                              str(request.user.is_authenticated()),
+                              str(is_contest_admin(request)),
+                              str(is_contest_observer(request))])
+        return cache_key
 
 
 class DefaultRankingController(RankingController):

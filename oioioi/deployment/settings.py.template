@@ -232,3 +232,17 @@ ZEUS_INSTANCES = {
 #    OUTPUT_VALIDATOR_VALIDATORS = {
 #        'text/html': '__PATH_TO_VALIDATOR_BINARY__',
 #    }
+
+# Filelock
+# Absolute path to the directory where files used for process synchronization
+# will be placed.
+# FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
+
+# Cache
+# Note that Memcached is the only supported backend.
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#        'LOCATION': '127.0.0.1:11211',
+#    }
+#}
