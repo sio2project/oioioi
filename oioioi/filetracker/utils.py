@@ -84,10 +84,10 @@ def stream_file(django_file, name=None, showable=None):
     if showable is None:
         extension = name.rsplit('.')[-1]
         showable = extension in showable_exts
-    if not showable:
-        response['Content-Disposition'] = 'attachment; filename=%s' % \
-                (name.encode('ascii', 'ignore'),)
+    if showable:
+        disposition = 'inline'
     else:
-        response['Content-Disposition'] = 'filename=%s' % (name.encode('ascii',
-                'ignore'),)
+        disposition = 'attachment'
+    response['Content-Disposition'] = '%s; filename=%s' % \
+            (disposition, name.encode('ascii', 'ignore'))
     return response
