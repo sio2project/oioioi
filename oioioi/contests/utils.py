@@ -204,6 +204,13 @@ def is_contest_observer(request):
 
 @make_request_condition
 @request_cached
+def can_see_personal_data(request):
+    """Checks if the current user has permission to see personal data."""
+    return request.user.has_perm('contests.personal_data', request.contest)
+
+
+@make_request_condition
+@request_cached
 def can_enter_contest(request):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.can_enter_contest(request)

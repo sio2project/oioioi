@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from oioioi.base.tests import fake_time, check_not_accessible
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
@@ -466,3 +466,65 @@ class TestAnonymousParticipants(TestCase):
             response = self.client.get(url)
             self.assertNotIn('<td>test_user2</td>', response.content)
             self.assertIn('<td>Test User 2</td>', response.content)
+
+
+class TestParticipantsDataViews(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package', 'test_schools']
+
+    def test_data_view(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                "oioioi.oi.controllers.OIContestController"
+        contest.save()
+
+        user = User.objects.get(username='test_user')
+        url = reverse('participants_data', kwargs={'contest_id': contest.id})
+        self.client.login(username='test_user')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.logout()
+        perm = ContestPermission(user=user, contest=contest,
+                                 permission='contests.personal_data')
+        perm.save()
+        if hasattr(user, '_contest_perms_cache'):
+            delattr(user, '_contest_perms_cache')
+
+        self.client.login(username='test_user')
+
+        response = self.client.get(url)
+        self.assertIn('no participants', response.content)
+
+        def register(user):
+            reg_url = reverse('participants_register',
+                          kwargs={'contest_id': contest.id})
+            self.client.login(username=user.username)
+
+            response = self.client.get(reg_url)
+            reg_data = {
+                'address': 'The Castle',
+                'postal_code': '31-337',
+                'city': 'Camelot',
+                'phone': '000-000-000',
+                'birthday_month': '5',
+                'birthday_day': '25',
+                'birthday_year': '1975',
+                'birthplace': 'Lac',
+                't_shirt_size': 'L',
+                'school': '1',
+                'class_type': '1LO',
+                'terms_accepted': 'y',
+                'anonymous': False,
+            }
+            self.client.post(reg_url, reg_data)
+
+        register(user)
+
+        response = self.client.get(url)
+        self.assertIn('<td>The Castle</td>', response.content)
+        self.assertIn('<td>31-337</td>', response.content)
+        self.assertIn('<td>Camelot</td>', response.content)
+        self.assertIn('<td>000-000-000</td>', response.content)
+        self.assertIn('<td>1975-05-25</td>', response.content)
+        self.assertIn('<td>L</td>', response.content)

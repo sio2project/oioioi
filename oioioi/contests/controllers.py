@@ -78,6 +78,8 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
             return True
         if request.user.has_perm('contests.contest_observer', self.contest):
             return True
+        if request.user.has_perm('contests.personal_data', self.contest):
+            return True
         queryset = User.objects.filter(id=request.user.id)
         return bool(self.filter_participants(queryset))
 

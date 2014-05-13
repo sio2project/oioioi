@@ -4,12 +4,14 @@
 <ul class="nav nav-list admin-menu">
     {% for registry in side_menus %}
         {% generate_menu registry %}
-            <li class="nav-header">{{ registry.text }}</li>
-            {% for item in menu %}
-                <li {% if item.url == request.path %}class="active"{% endif %}>
-                    <a href="{{ item.url }}" {{ item.attrs }}>{% if item.icon %}<i class="icon-{{ item.icon }}"></i>{% endif %}{{ item.text }}</a>
-                </li>
-            {% endfor %}
+            {% if menu %}
+                <li class="nav-header">{{ registry.text }}</li>
+                {% for item in menu %}
+                    <li {% if item.url == request.path %}class="active"{% endif %}>
+                        <a href="{{ item.url }}" {{ item.attrs }}>{% if item.icon %}<i class="icon-{{ item.icon }}"></i>{% endif %}{{ item.text }}</a>
+                    </li>
+                {% endfor %}
+            {% endif %}
     {%  endfor %}
     <li class="divider" id="nav-dropdown-divider" style="display: none;"></li>
     <li class="dropdown nav-dropdown-submenu" style="display: none;">

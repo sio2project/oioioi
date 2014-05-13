@@ -61,6 +61,7 @@ class Contest(models.Model):
             ('contest_admin', _("Can administer the contest")),
             ('contest_observer', _("Can observe the contest")),
             ('enter_contest', _("Can enter the contest")),
+            ('personal_data', _("Has access to the private data of users"))
         )
 
     def __unicode__(self):
@@ -419,6 +420,7 @@ class RoundTimeExtension(models.Model):
 contest_permissions = EnumRegistry()
 contest_permissions.register('contests.contest_admin', _("Admin"))
 contest_permissions.register('contests.contest_observer', _("Observer"))
+contest_permissions.register('contests.personal_data', _("Personal Data"))
 
 
 class ContestPermission(models.Model):
