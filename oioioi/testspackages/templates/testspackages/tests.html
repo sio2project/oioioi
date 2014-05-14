@@ -14,7 +14,6 @@
 <table class="table auto-width row-links">
     <thead>
         <tr>
-            <th style="min-width: 100px">{% trans "Round" %}</th>
             <th style="min-width: 100px">{% trans "File" %}</th>
             <th style="min-width: 300px">{% trans "Description" %}</th>
         </tr>
@@ -22,7 +21,6 @@
     <tbody>
         {% for test in tests %}
         <tr>
-            <td>{{ test.round }}</td>
             <td><a href="{{ test.link }}">{{ test.name }}</a></td>
             <td>{{ test.description }}</td>
         </tr>
