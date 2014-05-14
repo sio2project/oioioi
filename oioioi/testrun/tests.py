@@ -53,7 +53,7 @@ class TestTestrunViews(TestCase):
             self.assertContains(download_response, '9 9\n')
             self.assertTrue(download_response['Content-Disposition']
                             .startswith('attachment'))
-            self.assertIn('filename=in',
+            self.assertIn('filename="input.in"',
                 download_response['Content-Disposition'])
 
     def test_output_views(self):
@@ -74,7 +74,7 @@ class TestTestrunViews(TestCase):
             self.assertContains(download_response, '18\n')
             self.assertTrue(download_response['Content-Disposition']
                             .startswith('attachment'))
-            self.assertIn('filename=out',
+            self.assertIn('filename="output.out"',
                           download_response['Content-Disposition'])
 
         with fake_time(datetime(2014, 8, 5, tzinfo=utc)):

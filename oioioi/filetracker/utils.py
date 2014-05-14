@@ -1,11 +1,15 @@
 # pylint: disable=W0201
 # Attribute '_size' defined outside __init__
+
+import mimetypes
+import urllib
+
 from django.core.servers.basehttp import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File
 from django.http import StreamingHttpResponse
+
 from oioioi.filetracker.filename import FiletrackerFilename
-import mimetypes
 
 
 class FileInFiletracker(File):
@@ -62,6 +66,30 @@ def filetracker_to_django_file(filetracker_path, storage=None):
             FiletrackerFilename(filetracker_path[prefix_len + 1:]))
 
 
+def make_content_disposition_header(disposition, filename):
+    """Returns a Content-Disposition header field per RFC 6266.
+
+       The ``disposition`` argument should be either ``inline`` or
+       ``attachment`` and the filename should be a unicode object,
+       which need not be sanitized.
+    """
+    disposition = disposition.lower()
+    assert disposition in ('attachment', 'inline')
+
+    # https://tools.ietf.org/html/rfc2616#section-2.2
+    ascii_name = filename.encode('ascii', 'ignore').strip()
+    quoted_name = ascii_name.replace('"', '\\"')
+    header = '%s; filename="%s"' % (disposition, quoted_name)
+
+    utf8_name = filename.encode('utf-8', 'ignore').strip()
+    if utf8_name != ascii_name:
+        # https://tools.ietf.org/html/rfc5987#section-3.2
+        utf8_quoted_name = urllib.quote(utf8_name, '')
+        header += '; filename*=utf-8\'\'' + utf8_quoted_name
+
+    return header
+
+
 def stream_file(django_file, name=None, showable=None):
     """Returns a :class:`HttpResponse` representing a file download.
 
@@ -88,6 +116,6 @@ def stream_file(django_file, name=None, showable=None):
         disposition = 'inline'
     else:
         disposition = 'attachment'
-    response['Content-Disposition'] = '%s; filename=%s' % \
-            (disposition, name.encode('ascii', 'ignore'))
+    response['Content-Disposition'] = \
+        make_content_disposition_header(disposition, name)
     return response
