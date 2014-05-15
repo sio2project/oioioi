@@ -10,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.utils import request_cached
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import RegistrationController, \
         ContestController
@@ -152,10 +153,19 @@ class ParticipantsController(RegistrationController):
         return TemplateResponse(request, self.registration_template, context)
 
 
+@request_cached
+def anonymous_participants(request):
+    if not hasattr(request, 'contest'):
+        return frozenset({})
+    return frozenset((p.user for p in Participant.objects
+            .filter(contest=request.contest, anonymous=True)
+            .select_related('user')))
+
+
 class AnonymousContestControllerMixin(object):
-    def get_user_public_name(self, user):
-        if Participant.objects.filter(contest=self.contest, user=user,
-                anonymous=True).exists():
+    def get_user_public_name(self, request, user):
+        assert self.contest == request.contest
+        if user in anonymous_participants(request):
             return user.username
         else:
             return user.get_full_name()

@@ -156,7 +156,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return reverse('problems_list', kwargs={'contest_id': self.contest.id})
 
-    def get_user_public_name(self, user):
+    def get_user_public_name(self, request, user):
         """Returns the name of the user to be displayed in public contest
            views.
 

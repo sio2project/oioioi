@@ -20,6 +20,7 @@ def filter_zeus_problem_instances(problem_instances):
     return [pi for pi in problem_instances if pi.problem in problems]
 
 
+@request_cached
 def zeus_testrun_problem_instances(request):
     return filter_zeus_problem_instances(testrun_problem_instances(request))
 

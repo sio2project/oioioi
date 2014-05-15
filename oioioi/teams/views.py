@@ -19,8 +19,9 @@ def create_team(login, name, contest):
     return new_team
 
 
-def team_members_names(team):
-    return [team.contest.controller.get_user_public_name(membership.user)
+def team_members_names(request, team):
+    return [team.contest.controller.get_user_public_name(request,
+                                                         membership.user)
            for membership in team.members.all()]
 
 
@@ -34,7 +35,7 @@ def team_view(request, contest_id):
     try:
         tm = TeamMembership.objects.get(user=request.user,
                                         team__contest=request.contest)
-        members = team_members_names(tm.team)
+        members = team_members_names(request, tm.team)
         can_invite = (len(members) < controller.max_size_of_team()) and \
                 controller.can_modify_team(request)
         join_link = request.build_absolute_uri(reverse('join_team',

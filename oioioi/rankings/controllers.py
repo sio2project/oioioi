@@ -123,7 +123,7 @@ class DefaultRankingController(RankingController):
     def _allow_zero_score(self):
         return True
 
-    def _get_users_results(self, pis, results, rounds, users):
+    def _get_users_results(self, request, pis, results, rounds, users):
         by_user = defaultdict(dict)
         for r in results:
             by_user[r.user_id][r.problem_instance_id] = r
@@ -136,7 +136,7 @@ class DefaultRankingController(RankingController):
             user_data = {
                 'user': user,
                 'user_public_name': self.contest.controller
-                        .get_user_public_name(user),
+                        .get_user_public_name(request, user),
                 'results': user_results,
                 'sum': None
             }
@@ -185,7 +185,7 @@ class DefaultRankingController(RankingController):
                 .filter(problem_instance__in=pis, user__in=users) \
                 .prefetch_related('problem_instance__round')
 
-        data = self._get_users_results(pis, results, rounds, users)
+        data = self._get_users_results(request, pis, results, rounds, users)
         self._assign_places(data, itemgetter('sum'))
         return {'rows': data, 'problem_instances': pis,
                 'participants_on_page': getattr(settings,
