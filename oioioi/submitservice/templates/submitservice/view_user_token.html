@@ -1,0 +1,41 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block content %}
+<h1>Submitting solutions from terminal</h1>
+    <p>You can submit your solutions in text mode, which makes it easier to test your solutions.
+        Follow steps below to prepare your environment:
+    </p>
+    <ul>
+        <li>Install <b>Python 2.7</b> language interpreter.</li>
+        <li>Download the <b><a href="{% static "submitservice/submit.py" %}">submit.py</a></b> program
+            and put it in the same directory where you store your solution file.</li>
+        <li>Execute command:<br/>
+            <code>python submit.py -u contest-url -k token -s</code><br/>
+            using token provided below. <i>contest-url</i> should be provided in following format: <b>http://server/c/contest-name/</b>
+                </br>This command permanently saves your configuration. It is stored in user's home folder.<br/>
+            Command for you:<br/>
+            <code>python submit.py -u {{ contest_url }} -k {{ token }} -s</code>
+            </li>
+        <li>Make sure that solution file name begins with the 3-character task code (e.g. solution file for task
+            <em>Subsequence (sub)</em> should be called <b>sub.<i>ext</i></b> &mdash; where <i>ext</i> is one of supported extensions.
+            Optionally, it may come with a
+            postfix like <b>sub1</b> &mdash; appropriate task will be automatically selected)</li>
+        <li>Alternatively, you can specify filename manually by calling<br/>
+            <code>python submit.py -t task any_filename.<i>ext</i></code>
+        </li>
+        <li>To send the solution, execute command:<br/>
+            <code>python submit.py (file-name)</code></li>
+        <li>Run <code>python submit.py --help</code> for a complete list of options and usage details.</li>
+    </ul>
+ <h2>
+     Authentication Token
+ </h2>
+<p>Your current token is: <code>{{ token }}</code></p>
+ <p><b>Warning:</b> you should be the only person that holds access to this code, as it authorizes users to submit solutions in your name.
+     If you suspect that someone might know your token, get a new one now.
+ Of course, you will need to reconfigure <b>submit.py</b>.</p>
+ <div><a class="btn btn-default" href="#" data-post-url="{% url "oioioi.submitservice.views.clear_user_token" contest_id=contest.id %}">Generate new token</a>
+</div>
+
+{% endblock %}

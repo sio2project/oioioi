@@ -152,6 +152,7 @@ INSTALLED_APPS = (
     # because it overrides south's syncdb command
     'south',
 
+    'oioioi.submitservice',
     'oioioi.filetracker',
     'oioioi.contests',
     'oioioi.problems',
