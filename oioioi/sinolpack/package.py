@@ -516,7 +516,8 @@ class SinolPackageCreator(object):
             # output: tests, statements, model solutions.
             fd, tmp_filename = tempfile.mkstemp()
             try:
-                self.zip = zipfile.ZipFile(os.fdopen(fd, 'wb'), 'w')
+                self.zip = zipfile.ZipFile(os.fdopen(fd, 'wb'), 'w',
+                        zipfile.ZIP_DEFLATED)
                 self._pack_statement()
                 self._pack_tests()
                 self._pack_model_solutions()

@@ -64,7 +64,7 @@ def _create_tests_package(sender, instance, action, reverse, **kwargs):
         if instance._old_tests == list(instance.tests.all()):
             return
         with tempfile.NamedTemporaryFile(delete=False) as f:
-            zipf = zipfile.ZipFile(f, 'w')
+            zipf = zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED)
             for test in instance.tests.all():
                 for test_file in [test.input_file, test.output_file]:
                     arch_path = os.path.basename(test_file.file.name)
