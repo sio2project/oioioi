@@ -420,7 +420,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         test_report.status = result['status']
         test_report.time_used = result['time_used']
         comment = result.get('result_string', '')
-        if comment.lower() == 'ok':  # Annoying
+        if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
             comment = ''
         test_report.comment = slice_str(comment, TestReport.
                 _meta.get_field('comment').max_length)
