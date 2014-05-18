@@ -14,7 +14,7 @@ import urllib
 import subprocess
 import logging
 
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.conf import settings
@@ -31,6 +31,8 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.template import Context, Template
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.utils.importlib import import_module
+from django.core.handlers.wsgi import WSGIRequest
 
 from oioioi.base import utils
 from oioioi.base.permissions import is_superuser, Condition, make_condition, \
@@ -43,7 +45,8 @@ from oioioi.base.menu import menu_registry, OrderedRegistry, \
 from oioioi.base.management.commands import import_users
 from oioioi.contests.utils import is_contest_admin
 from oioioi.base.notification import NotificationHandler
-from oioioi.base.views import ForcedError
+from oioioi.base.middleware import UserInfoInErrorMessage
+from oioioi.base.views import ForcedError, handler500
 
 
 if not getattr(settings, 'TESTS', False):
@@ -331,24 +334,93 @@ class TestMenu(TestCase):
 class TestErrorHandlers(TestCase):
     fixtures = ['test_users']
 
-    def test_500(self):
+    def setUp(self):
+        """Modify the client so that it follows to handler500 view on error,
+           retaining cookies."""
+        self._orig_handler = self.client.handler
+        self._orig_get = self.client.get
+        self._orig_login = self.client.login
+        self._orig_logout = self.client.logout
+        self._user = AnonymousUser()
+        self._req = None
+
+        def wrapped_handler500(request):
+            r = WSGIRequest(request)
+            r.session = import_module(settings.SESSION_ENGINE).SessionStore()
+            if self._user:
+                r.user = self._user
+            self._req = r
+            return handler500(r)
+
+        def custom_get(*args, **kwargs):
+            try:
+                return self._orig_get(*args, **kwargs)
+            except StandardError:
+                try:
+                    self.client.handler = wrapped_handler500
+                    resp = self._orig_get(*args, **kwargs)
+                    resp.request = self._req
+                    return resp
+                finally:
+                    self.client.handler = self._orig_handler
+
+        def custom_logout(*args, **kwargs):
+            self._orig_logout(*args, **kwargs)
+            self._user = AnonymousUser()
+
+        def custom_login(*args, **kwargs):
+            self._orig_login(*args, **kwargs)
+            self._user = User.objects.get(**kwargs)
+
+        self.client.get = custom_get
+        self.client.logout = custom_logout
+        self.client.login = custom_login
+
+    def ajax_get(self, url):
+        return self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def assertHtml(self, response, code):
+        self.assertEqual(response.status_code, code)
+        self.assertIn('<html', response.content)
+        self.assertIn('text/html', response['Content-type'])
+
+    def assertPlain(self, response, code):
+        self.assertEqual(response.status_code, code)
+        self.assertNotIn('<html', response.content)
+        self.assertLess(len(response.content), 250)
+        self.assertIn('text/plain', response['Content-type'])
+
+    def test_ajax_errors(self):
+        self.assertPlain(self.ajax_get('/nonexistant'), 404)
+        self.assertPlain(self.ajax_get(reverse('force_permission_denied')),
+                         403)
+        self.assertPlain(self.ajax_get(reverse('force_error')), 500)
+
+    def test_errors(self):
+        self.assertHtml(self.client.get('/nonexistant'), 404)
+        self.assertHtml(self.client.get(reverse('force_permission_denied')),
+                        403)
+        self.assertHtml(self.client.get(reverse('force_error')), 500)
+
+    def test_user_in_500(self):
+        mid = UserInfoInErrorMessage()
+
         self.client.login(username='test_admin')
-        with self.assertRaises(ForcedError):
-            response = self.client.get(reverse('force_error'))
-            self.assertIn('Test Admin', response.content)
-            self.assertIn('IS_AUTHENTICATED', response.content)
+        req = self.client.get(reverse('force_error')).request
+        mid.process_exception(req, ForcedError())
+        self.assertIn('test_admin', repr(req))
+        self.assertIn("""'IS_AUTHENTICATED': 'True'""", repr(req))
 
         self.client.login(username='test_user')
-        with self.assertRaises(ForcedError):
-            response = self.client.get(reverse('force_error'))
-            self.assertIn('500', response.content)
-            self.assertNotIn('Test User', response.content)
-            self.assertNotIn('IS_AUTHENTICATED', response.content)
+        req = self.client.get(reverse('force_error')).request
+        mid.process_exception(req, ForcedError())
+        self.assertIn('test_user', repr(req))
+        self.assertIn("""'IS_AUTHENTICATED': 'True'""", repr(req))
 
         self.client.logout()
-        with self.assertRaises(ForcedError):
-            response = self.client.get(reverse('force_error'))
-            self.assertIn('500', response.content)
+        req = self.client.get(reverse('force_error')).request
+        mid.process_exception(req, ForcedError())
+        self.assertIn("""'IS_AUTHENTICATED': 'False'""", repr(req))
 
 
 class TestUtils(unittest.TestCase):
