@@ -625,11 +625,10 @@ class TestUserOutsGenerating(TestCase):
         testreports = TestReport.objects.filter(submission_report=2)
         filtered = _testreports_to_generate_outs(request, testreports)
         # note that report with pk=6 related with test pk=3 has got
-        # assigned output, so 3 lefts
+        # assigned output, so 3 lefts; 2 of them has AC status
         self.assertEqual(filtered, [2, 6, 5])
         # now all of that three are processing
         response = self.client.get(url)
-        self.assertEqual(response.content.count('Processing'), 3)
         self.assertEqual(response.content.count('[processing]'), 1)
         filtered = _testreports_to_generate_outs(request, testreports)
         self.assertEqual(filtered, [])
@@ -693,3 +692,20 @@ class TestUserOutsGenerating(TestCase):
         with fake_time(datetime(2012, 7, 29, 11, 11, tzinfo=utc)):
             response = self.client.post(gen_url, follow=True)
             self.assertEqual(response.status_code, 403)
+
+
+class TestAdminInOutDownload(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_submission']
+
+    def test_report_href_visibility(self):
+        self.client.login(username='test_admin')
+        contest = Contest.objects.get()
+        submission = ProgramSubmission.objects.get(pk=1)
+        url = reverse('submission', kwargs={'contest_id': contest.id,
+                                            'submission_id': submission.id})
+        # test download in / out hrefs visibility
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count('>out</a>'), 6)
+        self.assertEqual(response.content.count('>in</a>'), 6)

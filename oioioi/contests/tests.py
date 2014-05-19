@@ -275,7 +275,7 @@ class TestContestViews(TestCase):
         self.assertEqual(count_templates('programs/submission_header.html'), 1)
         self.assertEqual(count_templates('programs/report.html'), 2)
         for t in ['0', '1ocen', '1a', '1b', '2', '3']:
-            self.assertIn('<td>%s</td>' % (t,), response.content)
+            self.assertIn('<td>%s' % (t,), response.content)
         self.assertEqual(response.content.count('34/34'), 1)
         self.assertEqual(response.content.count('0/33'), 2)
         self.assertEqual(response.content.count('0/0'), 2)
@@ -1185,8 +1185,8 @@ class TestSubmissionChangeKind(TestCase):
     def test_kind_change(self):
         pi = ProblemInstance.objects.get()
         contest = Contest.objects.get()
-        s1 = Submission.objects.get(id=4)   # 100 points
-        s2 = Submission.objects.get(id=5)   # 90 points
+        s1 = Submission.objects.get(id=4)  # 100 points
+        s2 = Submission.objects.get(id=5)  # 90 points
 
         self.change_kind(s1, 'NORMAL')
         self.change_kind(s2, 'NORMAL')

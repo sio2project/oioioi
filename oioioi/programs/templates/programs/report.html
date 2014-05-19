@@ -29,30 +29,28 @@
                 {% if show_scores %}
                 <th style="min-width: 60px">{% trans "Score" %}</th>
                 {% endif %}
-                {% if show_actions %}
-                <th style="min-width: 60px">{% trans "Actions" %}</th>
-                {% endif %}
             </tr>
         </thead>
         <tbody>
             {% for group in groups %}
                 {% for test in group.tests %}
-                <tr>
+                <tr class="test_row_{{ group.report.id }}">
                     <td class="subm_margin subm_{{ test.status }}"></td>
-                    <td>{{ test.test_name }}</td>
+                    <td>{{ test.test_name }}
+                        <div class="test_actions">
+                            {% if is_admin %}
+                                <a title="{% trans "Download output for this test" %}" href="{% url 'download_output_file' test_id=test.test.id %}">out</a>
+                                <a title="{% trans "Download input for this test" %}" href="{% url 'download_input_file' test_id=test.test.id %}">in</a><br>
+                            {% endif %}
+                            {% if allow_download_out and test.generate_status == 'OK' %}
+                                <a title="{% trans "Download user output for this test" %}" href="{% url 'download_user_output' testreport_id=test.id %}">usr-out</a>
+                            {% endif %}
+                        </div>
+                    </td>
                     <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
                     <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
                     {% if show_scores and forloop.first %}
                         <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ group.report.max_score }}{% endif %}</td>
-                    {% endif %}
-                    {% if show_actions %}
-                    <td>
-                        {% if test.generate_status == 'OK' %}
-                            <a class="btn btn-small" title="{% trans "Download user output for this test" %}" href="{% url 'download_user_output' testreport_id=test.id %}"><i class="icon-download"></i></a>
-                        {% elif test.generate_status == '?' %}
-                            {% trans "Processing" %}
-                        {% endif %}
-                    </td>
                     {% endif %}
                 </tr>
                 {% endfor %}
@@ -60,6 +58,17 @@
         </tbody>
     </table>
 
+    <script type="text/javascript">
+        var test_rows = $("[class*='test_row_']");
+
+        test_rows.mouseenter(function() {
+            $(this).find('.test_actions').css('visibility', 'visible');
+        });
+
+        test_rows.mouseleave(function() {
+            $(this).find('.test_actions').css('visibility', 'hidden');
+        });
+    </script>
 
 <div class="test-comments">
     <ul>
