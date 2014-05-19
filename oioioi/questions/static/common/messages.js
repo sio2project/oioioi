@@ -129,11 +129,11 @@ $(document).ready(function() {
     var msgs = $("[id*='hidden_message_']");
     var msg_bars = $("[id*='message_']");
     var msg_buttons = $("[id*='show_message_']");
-    var expand = true;
     var expand_text = gettext("Expand all messages");
     var collapse_text = gettext("Collapse all messages");
     var single_expand_text = gettext("Expand message");
     var single_collapse_text = gettext("Collapse message");
+    var expand = true;
     var btn = $('a#expand_messages');
     var speed = 200;
 
@@ -149,6 +149,7 @@ $(document).ready(function() {
             });
         else
             msgs.hide(speed);
+
 
         $(this).text(expand ? collapse_text : expand_text);
         msg_buttons.children('i').each(function() {
@@ -171,7 +172,7 @@ $(document).ready(function() {
     msg_buttons.click(function() {
         var s = $(this).attr('id');
         var hidden_msg =
-                $('#hidden_message_' + parseInt(s.substring(13, s.length)))
+                $('#hidden_message_' + parseInt(s.substring(13, s.length)));
 
         hidden_msg.toggle(speed);
         hidden_msg.setMsgHeight();
