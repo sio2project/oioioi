@@ -9,7 +9,8 @@ class FilterPublicSolutionsForm(forms.Form):
 
     def __init__(self, request, *args, **kwargs):
         super(FilterPublicSolutionsForm, self).__init__(*args, **kwargs)
-        pis = problem_instances_with_any_public_solutions(request)
+        pis = problem_instances_with_any_public_solutions(request) \
+              .select_related('problem')
         choices = [(pi.id, pi) for pi in pis]
 
         choices.insert(0, ('', _("All")))

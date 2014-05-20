@@ -15,7 +15,7 @@
         <tr>
             <td>{{ submission.problem_instance }}</td>
             <td>{% public_name submission.user %}</td>
-            <td>{{ submission.get_score_display }}</td>
+            <td>{{ submission.get_score_display|default_if_none:"&ndash;" }}</td>
             <td><a href="{{ link }}">{% trans "solution" %}</a></td>
             {% block more-columns-after %}{% endblock %}
         </tr>

@@ -85,7 +85,8 @@ def rounds_times(request):
     if not hasattr(request, 'contest'):
         return {}
 
-    rounds = [r for r in Round.objects.filter(contest=request.contest)]
+    rounds = [r for r in Round.objects.filter(contest=request.contest)
+              .select_related('contest')]
     rids = [r.id for r in rounds]
     if not request.user or request.user.is_anonymous():
         rtexts = {}

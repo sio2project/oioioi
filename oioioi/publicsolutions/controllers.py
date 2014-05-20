@@ -1,5 +1,5 @@
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.publicsolutions.utils import get_public_solutions
+from oioioi.publicsolutions.utils import filter_public_solutions
 
 
 class PublicSolutionsContestControllerMixin(object):
@@ -34,10 +34,11 @@ class PublicSolutionsContestControllerMixin(object):
         """
         return qs.none()
 
-    def filter_visible_sources(self, request, queryset):
-        subs = get_public_solutions(request)
+    def filter_visible_sources(self, request, qs):
         prev = super(PublicSolutionsContestControllerMixin, self) \
-                    .filter_visible_sources(request, queryset)
-        return (prev | (subs & queryset)).distinct()
+                .filter_visible_sources(request, qs)
+
+        public = filter_public_solutions(request, qs)
+        return (prev | public).distinct()
 
 ProgrammingContestController.mix_in(PublicSolutionsContestControllerMixin)

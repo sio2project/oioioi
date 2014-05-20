@@ -6,7 +6,7 @@
 {% block content %}
 <h2> {% trans "Solutions" %} </h2>
 
-{% if not request.user.is_anonymous %}
+{% if not request.user.is_anonymous and may_publish_any %}
     <div class="corner-icons">
     <ul>
         <li> <a class="btn" href="{% url 'publish_solutions' contest_id=contest.id %}">Publish your solutions</a> </li>
