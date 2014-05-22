@@ -3,10 +3,30 @@
 /* Main notifications server program to be invoked from command line.
    Use: node ns-main.js for full usage information.
 */
-var program = require('commander');
-var pj = require('prettyjson');
+
+function verify_dependencies() {
+    try {
+        require.resolve('commander');
+        require.resolve('prettyjson');
+        require.resolve('rabbit.js');
+        require.resolve('socket.io');
+        return true;
+    } catch (ex) {
+        console.error("Dependencies not met! Running auto-install...");
+        child = require('child_process').exec('npm install', function (er) {
+            console.error(er ? er : "");
+            ns_main();
+        });
+        child.stdout.pipe(process.stdout);
+        child.stderr.pipe(process.stderr);
+        return false;
+    }
+}
 
 function ns_main() {
+    var program = require('commander');
+    var pj = require('prettyjson');
+
     program
       .version('0.0.1')
       .option('-p, --port <n>', 'Server port (defaults to 7887)', parseInt)
@@ -26,4 +46,6 @@ function ns_main() {
     require('./notifications-server').runServer(config);
 }
 
-ns_main();
+if (verify_dependencies()) {
+    ns_main();
+}

@@ -14,9 +14,9 @@ var CONFIG;
 // Specifies default behavior for internal HTTP server.
 function httpRequestHandler(_, res) {
     res.writeHead(200);
-    res.end('Welcome to OIOIOI Notifications Server.\n' +
-        'This server is available for purpose of serving online notifications.\n' +
-        'This server does not host a functional website itself.');
+    res.end("Welcome to OIOIOI Notifications Server.\n" +
+        "This server is available for purpose of serving online notifications.\n" +
+        "This server does not host a functional website itself.");
 }
 
 // Called whenever new socket has connected to server.

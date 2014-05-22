@@ -6,11 +6,11 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
-    help = 'Runs the OIOIOI notifications server'
+    help = "Runs the OIOIOI notifications server"
     requires_model_validation = False
     option_list = BaseCommand.option_list + (
         make_option('-i', '--install', action='store_true',
-                    help='install dependencies requires by the server'),
+                    help="install dependencies required by the server"),
     )
 
     def handle(self, *args, **options):

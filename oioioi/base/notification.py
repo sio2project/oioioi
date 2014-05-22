@@ -126,7 +126,10 @@ class NotificationHandler(logging.StreamHandler):
             message['details'] = notification_message_arguments['details']
 
         if 'address' in notification_message_arguments:
-            message['url'] = notification_message_arguments['address']
+            message['address'] = notification_message_arguments['address']
+
+        if 'popup' in notification_message_arguments:
+            message['popup'] = notification_message_arguments['popup']
 
         message['arguments'] = notification_message_arguments
 
