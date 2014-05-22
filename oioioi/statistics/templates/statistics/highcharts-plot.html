@@ -1,7 +1,21 @@
 {% load jsonify %}
 <script type="text/javascript">
 $(function() {
-    $('#{{ plot_name_id|escapejs }}').highcharts({{ options|json_parse }});
+    var data_string = "{{ options|jsonify|escapejs }}";
+
+    {% if options.functions %}
+        var functions = {{ options.functions|json_parse }};
+        var data = JSON.parse(data_string, function (key, value) {
+            if (functions.hasOwnProperty(value)) {
+                value = new Function(functions[value]);
+            }
+            return value;
+        });
+    {% else %}
+        data = JSON.parse(data_string);
+    {% endif %}
+
+    $('#{{ plot_name_id|escapejs }}').highcharts(data);
 });
 </script>
 

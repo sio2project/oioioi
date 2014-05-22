@@ -122,3 +122,25 @@ class XYStaticHighchartsPlot(StaticHighchartsPlot):
                     {'enabled': True, 'lineColor': 'rgb(100,100,100)'}
         }}}
         return options
+
+
+class PointsToSourceLengthProblemPlot(XYStaticHighchartsPlot):
+    def head_libraries(self):
+        libs = super(PointsToSourceLengthProblemPlot, self).head_libraries()
+        libs += ['highcharts/functions.js']
+        return libs
+
+    def highcharts_options(self, data):
+        options = super(PointsToSourceLengthProblemPlot, self) \
+                .highcharts_options(data)
+
+        options['plotOptions'].setdefault('series', {}) \
+                              .setdefault('point', {})
+        options['plotOptions']['series']['point']['events'] = \
+                {'click': 'onPointClick'}
+
+        options.setdefault('functions', {})
+        options['functions']['onPointClick'] = \
+                'pointsToSourceLengthOnClick(this)'
+
+        return options

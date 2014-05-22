@@ -23,7 +23,15 @@
             <td class="text-right">{{ row.place }}</td>
             <td>{% public_name row.user %}</td>
             {% for result in row.results %}
-            <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >{{ result.score|default_if_none:'' }}</td>
+            <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >
+                {% if result.url %}
+                    <a class="result_url" href="{{ result.url }}">
+                {% endif %}
+                    {{ result.score|default_if_none:'' }}
+                {% if result.url %}
+                    </a>
+                {% endif %}
+            </td>
             {% endfor %}
             <td class="text-right">{{ row.sum }}</td>
         </tr>

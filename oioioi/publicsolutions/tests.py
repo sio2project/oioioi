@@ -1,10 +1,13 @@
 #~*~ encoding: utf-8 ~*~
 # pylint: disable=W0102
+import re
 from datetime import datetime
 from django.test import TestCase
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 from oioioi.oi.controllers import OIContestController
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.contests.models import Contest, Submission
 from oioioi.base.tests import fake_time
 
@@ -13,6 +16,20 @@ class TSolutionOIContestController(OIContestController):
 
     def can_see_publicsolutions(self, request, round):
         r_times = super(TSolutionOIContestController, self) \
+            .get_round_times(request, round)
+        return r_times.show_results <= request.timestamp
+
+    def solutions_must_be_public(self, qs):
+        return qs.exclude(problem_instance=4)
+
+    def solutions_may_be_published(self, qs):
+        return qs
+
+
+class TSolutionSimpleContestController(ProgrammingContestController):
+
+    def can_see_publicsolutions(self, request, round):
+        r_times = super(TSolutionSimpleContestController, self) \
             .get_round_times(request, round)
         return r_times.show_results <= request.timestamp
 
@@ -44,6 +61,14 @@ class TestPublicSolutions(TestCase):
 
     def _all_rounds(self):
         return datetime(2016, 1, 1, tzinfo=utc)
+
+    def assertSubmissionUrlsCount(self, string, count):
+        actual = len(re.findall('result_url.*"/c/c/s/\d/"', string))
+        self.assertEqual(actual, count)
+
+    def assertSourceUrlsCount(self, string, count):
+        actual = len(re.findall('result_url.*"/c/c/s/\d/source/"', string))
+        self.assertEqual(actual, count)
 
     def test_solutions_in_menu(self):
         contest = Contest.objects.get()
@@ -206,3 +231,42 @@ class TestPublicSolutions(TestCase):
             change_publication(False, 4)
             check_visibility([4], True)
             self.client.logout()
+
+    def test_ranking(self):
+        def change_publication_url(way, sub_id):
+            return reverse('publish_solution' if way else 'unpublish_solution',
+                    kwargs={'contest_id': contest.id, 'submission_id': sub_id})
+
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.publicsolutions.tests.TSolutionSimpleContestController'
+        contest.save()
+
+        self.client.login(username='test_user')
+
+        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+
+        response = self.client.get(url)
+        self.assertSubmissionUrlsCount(response.content, 2)
+        self.assertSourceUrlsCount(response.content, 0)
+
+        self.client.login(username='test_user2')
+        cache.clear()
+        response = self.client.get(url)
+        self.assertSubmissionUrlsCount(response.content, 0)
+        self.assertSourceUrlsCount(response.content, 1)
+
+        self.client.login(username='test_user')
+        request = self.client.post(change_publication_url(True, 4))
+        self.assertEqual(302, request.status_code)
+
+        cache.clear()
+        response = self.client.get(url)
+        self.assertSubmissionUrlsCount(response.content, 2)
+        self.assertSourceUrlsCount(response.content, 0)
+
+        self.client.login(username='test_user2')
+        cache.clear()
+        response = self.client.get(url)
+        self.assertSubmissionUrlsCount(response.content, 0)
+        self.assertSourceUrlsCount(response.content, 2)
