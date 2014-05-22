@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -21,7 +22,8 @@ from oioioi.contests.controllers import ContestController, \
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
-        Submission
+        Submission, ReportActionsConfig, UserOutGenStatus
+from oioioi.programs.utils import has_report_actions_config
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
@@ -62,23 +64,46 @@ class ProgrammingProblemController(ProblemController):
 
         if 'INITIAL' in kinds:
             recipe_body.extend(
-                    [
-                        ('initial_run_tests',
-                            'oioioi.programs.handlers.run_tests',
-                            dict(kind='EXAMPLE')),
-                        ('initial_grade_tests',
-                            'oioioi.programs.handlers.grade_tests'),
-                        ('initial_grade_groups',
-                            'oioioi.programs.handlers.grade_groups'),
-                        ('initial_grade_submission',
-                            'oioioi.programs.handlers.grade_submission',
-                            dict(kind='EXAMPLE')),
-                        ('initial_make_report',
-                            'oioioi.programs.handlers.make_report',
-                            dict(kind='INITIAL')),
-                        recipe_placeholder('after_initial_tests'),
-                    ]
-            )
+                [
+                    ('initial_run_tests',
+                        'oioioi.programs.handlers.run_tests',
+                        dict(kind='EXAMPLE')),
+                    ('initial_grade_tests',
+                        'oioioi.programs.handlers.grade_tests'),
+                    ('initial_grade_groups',
+                        'oioioi.programs.handlers.grade_groups'),
+                    ('initial_grade_submission',
+                        'oioioi.programs.handlers.grade_submission',
+                        dict(kind='EXAMPLE')),
+                    ('initial_make_report',
+                        'oioioi.programs.handlers.make_report',
+                        dict(kind='INITIAL')),
+                    recipe_placeholder('after_initial_tests'),
+                ])
+
+        if 'USER_OUTS' in kinds:
+            recipe_body.extend(
+                [
+                    ('userout_run_tests',
+                        'oioioi.programs.handlers.run_tests',
+                        dict(kind=None)),
+                    ('userout_grade_tests',
+                        'oioioi.programs.handlers.grade_tests'),
+                    ('userout_grade_groups',
+                        'oioioi.programs.handlers.grade_groups'),
+                    ('userout_grade_submission',
+                        'oioioi.programs.handlers.grade_submission',
+                        dict(kind=None)),
+                    ('userout_make_report',
+                        'oioioi.programs.handlers.make_report',
+                        dict(kind='USER_OUTS', scores=False)),
+                    ('userout_fill_outfile_in_existing_test_reports',
+                        'oioioi.programs.handlers.'
+                        'fill_outfile_in_existing_test_reports'),
+                    ('userout_insert_existing_submission_link',
+                        'oioioi.programs.handlers.'
+                        'insert_existing_submission_link'),
+                ])
 
         if 'NORMAL' in kinds or 'HIDDEN' in kinds or 'FULL' in kinds:
             recipe_body.append(recipe_placeholder('before_final_tests'))
@@ -135,10 +160,15 @@ class ProgrammingProblemController(ProblemController):
                         dict(kind='FULL')),
                     recipe_placeholder('after_full_tests'),
                 ])
+
         return recipe_body
 
     def fill_evaluation_environ(self, environ, **kwargs):
         self.generate_base_environ(environ, **kwargs)
+
+        if 'USER_OUTS' in environ['submission_kind']:
+            environ['report_kinds'] = ['USER_OUTS']
+            environ['save_outputs'] = True
 
         recipe_body = self.generate_recipe(environ['report_kinds'])
 
@@ -398,23 +428,33 @@ class ProgrammingContestController(ContestController):
                 kind=['NORMAL', 'FAILURE'])
         self._activate_newest_report(submission, queryset,
                 kind=['INITIAL'])
+        self._activate_newest_report(submission, queryset,
+                kind=['USER_OUTS'])
 
     def can_see_submission_status(self, request, submission):
         """Statuses are taken from initial tests which are always public."""
         return True
 
-    def _map_report_to_submission_status(self, status):
-        mapping = {'OK': 'INI_OK', 'CE': 'CE', 'SE': 'SE'}
-        return mapping.get(status, 'INI_ERR')
+    def _map_report_to_submission_status(self, status, kind='INITIAL'):
+        if kind == 'INITIAL':
+            mapping = {'OK': 'INI_OK', 'CE': 'CE', 'SE': 'SE'}
+            return mapping.get(status, 'INI_ERR')
+        return status
 
     def update_submission_score(self, submission):
-        # Status is taken from the initial report
+        # Status is taken from User_outs report when generating user out
+        if submission.kind == 'USER_OUTS':
+            kind_for_status = 'USER_OUTS'
+        # Otherwise from the Initial report
+        else:
+            kind_for_status = 'INITIAL'
+
         try:
             report = SubmissionReport.objects.filter(submission=submission,
-                    status='ACTIVE', kind='INITIAL').get()
+                    status='ACTIVE', kind=kind_for_status).get()
             score_report = ScoreReport.objects.get(submission_report=report)
             submission.status = self._map_report_to_submission_status(
-                    score_report.status)
+                    score_report.status, kind=kind_for_status)
         except SubmissionReport.DoesNotExist:
             if SubmissionReport.objects.filter(submission=submission,
                     status='ACTIVE', kind='FAILURE'):
@@ -434,15 +474,45 @@ class ProgrammingContestController(ContestController):
 
     def get_visible_reports_kinds(self, request, submission):
         if self.results_visible(request, submission):
-            return ['INITIAL', 'NORMAL']
+            return ['USER_OUTS', 'INITIAL', 'NORMAL']
         else:
-            return ['INITIAL']
+            return ['USER_OUTS', 'INITIAL']
 
     def filter_visible_reports(self, request, submission, queryset):
         if is_contest_admin(request) or is_contest_observer(request):
             return queryset
         return queryset.filter(status='ACTIVE',
                 kind__in=self.get_visible_reports_kinds(request, submission))
+
+    def filter_my_visible_submissions(self, request, queryset):
+        if not is_contest_admin(request):
+            queryset = queryset.exclude(kind='USER_OUTS')
+        return super(ProgrammingContestController, self). \
+                filter_my_visible_submissions(request, queryset)
+
+    def can_generate_user_out(self, request, submission_report):
+        """Determines if the current user is allowed to generate outs from
+           ``submission_report``.
+
+           Default implementations delegates to
+           ``report_actions_config`` associated with the problem,
+           :meth:`~ContestController.can_see_problem`,
+           :meth:`~ContestController.filter_my_visible_submissions`,
+           except for admins and observers, which get full access.
+        """
+        submission = submission_report.submission
+        if is_contest_admin(request) or is_contest_observer(request):
+            return True
+        if not has_report_actions_config(submission.problem_instance.problem):
+            return False
+        config = submission.problem_instance.problem.report_actions_config
+
+        return config.can_user_generate_outs and \
+                submission.user == request.user and \
+                self.can_see_problem(request, submission.problem_instance) and \
+                self.filter_visible_reports(request, submission,
+                    SubmissionReport.objects.filter(id=submission_report.id)) \
+                    .exists()
 
     def can_see_source(self, request, submission):
         """Determines if the current user is allowed to see source
@@ -460,6 +530,11 @@ class ProgrammingContestController(ContestController):
         return self.filter_my_visible_submissions(request, queryset).exists()
 
     def render_submission(self, request, submission):
+        if submission.kind == 'USER_OUTS':
+            # safe html href in comment
+            submission.programsubmission.comment = \
+                mark_safe(submission.programsubmission.comment)
+
         return render_to_string('programs/submission_header.html',
                 context_instance=RequestContext(request,
                     {'submission': submission_template_context(request,
@@ -467,6 +542,24 @@ class ProgrammingContestController(ContestController):
                     'saved_diff_id': request.session.get('saved_diff_id'),
                     'supported_extra_args':
                         self.get_supported_extra_args(submission)}))
+
+    def _out_generate_status(self, request, testreport):
+            try:
+                download_control = UserOutGenStatus.objects.get(
+                                                        testreport=testreport)
+
+                if is_contest_admin(request) or \
+                        download_control.visible_for_user:
+                    # making sure, that output really exists or is processing
+                    if bool(testreport.output_file) or \
+                            download_control.status == '?':
+                        return download_control.status
+
+            except UserOutGenStatus.DoesNotExist:
+                if bool(testreport.output_file):
+                    return 'OK'
+
+            return None
 
     def render_report(self, request, report):
         if report.kind == 'FAILURE':
@@ -482,17 +575,32 @@ class ProgrammingContestController(ContestController):
         show_scores = any(gr.score is not None for gr in group_reports)
         group_reports = dict((g.group, g) for g in group_reports)
 
+        show_actions_col = False
+        allow_download_out = self.can_generate_user_out(request, report)
+        all_outs_generated = allow_download_out
+
         groups = []
         for group_name, tests in itertools.groupby(test_reports,
                 attrgetter('test_group')):
-            groups.append({'tests': list(tests),
+            tests_list = list(tests)
+            groups.append({'tests': tests_list,
                 'report': group_reports[group_name]})
+
+            for test in tests_list:
+                test.generate_status = self._out_generate_status(request, test)
+                all_outs_generated &= (test.generate_status == 'OK')
+                show_actions_col |= (test.generate_status is not None)
+
+        show_actions_col &= allow_download_out
 
         return render_to_string('programs/report.html',
                 context_instance=RequestContext(request,
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
-                        'groups': groups, 'show_scores': show_scores}))
+                        'groups': groups, 'show_scores': show_scores,
+                        'show_actions': show_actions_col,
+                        'allow_download_out': allow_download_out,
+                        'all_outs_generated': all_outs_generated}))
 
     def render_submission_footer(self, request, submission):
         super_footer = super(ProgrammingContestController, self). \
@@ -523,6 +631,9 @@ class ProgrammingContestController(ContestController):
     def valid_kinds_for_submission(self, submission):
         if ModelProgramSubmission.objects.filter(id=submission.id).exists():
             return [submission.kind]
+
+        if submission.kind == 'USER_OUTS':
+            return ['USER_OUTS']
 
         return super(ProgrammingContestController, self) \
                 .valid_kinds_for_submission(submission)

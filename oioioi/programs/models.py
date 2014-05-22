@@ -3,11 +3,13 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
+from django.contrib.auth.models import User
 from oioioi.base.fields import EnumRegistry, EnumField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.filetracker.fields import FileField
 from oioioi.contests.models import Submission, SubmissionReport, \
-        submission_statuses, submission_report_kinds, ProblemInstance
+        submission_statuses, submission_report_kinds, ProblemInstance, \
+        submission_kinds
 from oioioi.contests.fields import ScoreField
 
 import os.path
@@ -178,11 +180,14 @@ submission_statuses.register('RV', _("Rule violation"))
 submission_statuses.register('INI_OK', _("Initial tests: OK"))
 submission_statuses.register('INI_ERR', _("Initial tests: failed"))
 
+submission_kinds.register('USER_OUTS', _("Generate user out"))
+
 submission_report_kinds.register('INITIAL', _("Initial report"))
 submission_report_kinds.register('NORMAL', _("Normal report"))
 submission_report_kinds.register('FULL', _("Full report"))
 submission_report_kinds.register('HIDDEN',
                                  _("Hidden report (for admins only)"))
+submission_report_kinds.register('USER_OUTS', _("Report with user out"))
 
 
 class CompilationReport(models.Model):
@@ -191,12 +196,22 @@ class CompilationReport(models.Model):
     compiler_output = models.TextField()
 
 
+def make_output_filename(instance, filename):
+    # This code is dead (it's result is ignored) with current implementation
+    # of assigning file from filetracker to a FileField.
+    submission = instance.submission_report.submission
+    return 'userouts/%s/%d/%d-out' % (submission.problem_instance.contest.id,
+            submission.id, instance.submission_report.id)
+
+
 class TestReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
     score = ScoreField(null=True, blank=True)
     time_used = models.IntegerField(blank=True)
+    output_file = FileField(upload_to=make_output_filename, null=True,
+                            blank=True)
 
     test = models.ForeignKey(Test, blank=True, null=True,
             on_delete=models.SET_NULL)
@@ -212,3 +227,20 @@ class GroupReport(models.Model):
     score = ScoreField(null=True, blank=True)
     max_score = ScoreField(null=True, blank=True)
     status = EnumField(submission_statuses)
+
+
+class ReportActionsConfig(models.Model):
+    problem = models.OneToOneField(Problem,
+                                   verbose_name=_("problem instance"),
+                                   related_name='report_actions_config',
+                                   primary_key=True
+                                   )
+    can_user_generate_outs = models.BooleanField(default=False,
+             verbose_name=_("Allow users to generate their outs on tests "
+                            "from visible reports."))
+
+
+class UserOutGenStatus(models.Model):
+    testreport = models.OneToOneField(TestReport, primary_key=True)
+    status = EnumField(submission_statuses, default='?')
+    visible_for_user = models.BooleanField(default=True)

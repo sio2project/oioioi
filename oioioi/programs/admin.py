@@ -13,7 +13,8 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.scores import IntegerScore
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
-        GroupReport, ModelProgramSubmission, OutputChecker, LibraryProblemData
+        GroupReport, ModelProgramSubmission, OutputChecker, \
+        LibraryProblemData, ReportActionsConfig
 from collections import defaultdict
 
 
@@ -54,6 +55,22 @@ class TestInline(admin.TabularInline):
                 kwargs={'test_id': instance.id})
         return make_html_link(href, instance.output_file.name.split('/')[-1])
     output_file_link.short_description = _("Output/hint file")
+
+
+class ReportActionsConfigInline(admin.StackedInline):
+    model = ReportActionsConfig
+    extra = 0
+    inline_classes = ('collapse open',)
+    fields = ['can_user_generate_outs']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class OutputCheckerInline(admin.TabularInline):
@@ -108,7 +125,8 @@ class LibraryProblemDataAdminMixin(object):
 class ProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestInline, OutputCheckerInline,
+        self.inlines = self.inlines + [TestInline, ReportActionsConfigInline,
+                                       OutputCheckerInline,
                                        LibraryProblemDataInline]
 
 
