@@ -344,19 +344,3 @@ ZEUS_ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
 ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
 ZEUS_CONNECTION_TIMEOUT = 10  # seconds
 ZEUS_SEND_RETRIES = 3
-# Notifications configuration (client)
-# This one is for JavaScript socket.io client.
-# It should contain actual URL available from remote machines.
-NOTIFICATIONS_SERVER_URL = 'http://localhost:7887/'
-
-# Notifications configuration (server)
-NOTIFICATIONS_SERVER_ENABLED = False
-
-# URL connection string to a Notifications Server instance
-OIOIOI_URL = 'http://localhost:8000/'
-
-# URL connection string for RabbitMQ instance used by Notifications Server
-RABBITMQ_URL = 'amqp://localhost'
-
-# Port that the Notifications Server listens on
-NOTIFICATIONS_SERVER_PORT = 7887
