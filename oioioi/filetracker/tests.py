@@ -1,3 +1,5 @@
+# coding: utf-8
+
 from django.utils import unittest
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -7,7 +9,7 @@ from django.core.files.storage import default_storage
 from oioioi.filetracker.models import TestFileModel
 from oioioi.filetracker.storage import FiletrackerStorage
 from oioioi.filetracker.utils import django_to_filetracker_path, \
-        filetracker_to_django_file
+        filetracker_to_django_file, make_content_disposition_header
 import filetracker
 import filetracker.dummy
 
@@ -156,3 +158,19 @@ class TestFileFixtures(TestCase):
         instance = TestFileModel.objects.get()
         self.assertEqual(instance.file_field.name, 'tests/test_file_field.txt')
         self.assertEqual(instance.file_field.read(), 'whatever\x01\xff')
+
+
+class TestFileUtils(unittest.TestCase):
+    def test_content_disposition(self):
+        value = make_content_disposition_header('inline', u'EURO rates.txt')
+        self.assertIn('inline', value)
+        self.assertIn('EURO rates', value)
+        self.assertNotIn('filename*', value)
+
+        value = make_content_disposition_header('inline', u'"EURO" rates.txt')
+        self.assertIn(r'filename="\"EURO\" rates.txt"', value)
+
+        value = make_content_disposition_header('attachment', u'€ rates.txt')
+        self.assertEqual(value.lower(),
+                'attachment; filename="rates.txt"; '
+                'filename*=utf-8\'\'%e2%82%ac%20rates.txt')

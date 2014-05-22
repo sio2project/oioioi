@@ -14,6 +14,7 @@ from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import ProblemInstance, UserResultForProblem
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.filetracker.utils import make_content_disposition_header
 
 
 CONTEST_RANKING_KEY = 'c'
@@ -97,8 +98,8 @@ class DefaultRankingController(RankingController):
 
         response = HttpResponse(mimetype='text/csv')
         response['Content-Disposition'] = \
-            'attachment; filename=%s-%s-%s.csv' % \
-            ("ranking", request.contest.id, key)
+                make_content_disposition_header('attachment',
+                    u'%s-%s-%s.csv' % (_("ranking"), request.contest.id, key))
         writer = unicodecsv.writer(response)
 
         header = [_("#"), _("Username"), _("First name"), _("Last name")]
