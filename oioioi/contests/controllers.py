@@ -367,6 +367,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         environ['problem_id'] = problem.id
         environ['round_id'] = round.id
         environ['contest_id'] = contest.id
+        environ['submission_owner'] = submission.user.username \
+                                      if submission.user else None
 
         environ.setdefault('report_kinds', ['INITIAL', 'NORMAL'])
         if 'hidden_judge' in environ['extra_args']:
