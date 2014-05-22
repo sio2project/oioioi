@@ -1,5 +1,7 @@
 # pylint: disable=W0703
 # Catching too general exception Exception
+import re
+
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response, redirect, render
@@ -15,6 +17,7 @@ from django.contrib.auth.views import logout as auth_logout, \
                                       login as auth_login
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.base.utils.user import has_valid_username
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
 from oioioi.base.menu import account_menu_registry
@@ -88,12 +91,14 @@ def handler403(request):
 @enforce_condition(not_anonymous)
 def edit_profile_view(request):
     if request.method == 'POST':
-        form = UserForm(request.POST, instance=request.user)
+        form = UserForm(request.POST, instance=request.user,
+                allow_login_change=not has_valid_username(request.user))
         if form.is_valid():
             form.save()
             return redirect(index_view)
     else:
-        form = UserForm(instance=request.user)
+        form = UserForm(instance=request.user, allow_login_change=not
+                has_valid_username(request.user))
     return TemplateResponse(request, 'registration/registration_form.html',
             {'form': form})
 

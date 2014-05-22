@@ -920,3 +920,89 @@ class TestCondition(TestCase):
         request = self.factory()
         res = example_view(request)
         self.assertTrue(isinstance(res, HttpResponseRedirect))
+
+
+class TestLoginChange(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def setUp(self):
+        self.invalid_logins = ['#', 'p@n', ' user', 'user\xc4\x99']
+        self.valid_logins = ['test_user', 'user', 'uSeR', 'U__4']
+        self.user = User.objects.get(username='test_user')
+        self.client.login(username=self.user.username)
+
+    def test_message(self):
+        url_index = reverse('index')
+
+        for login in self.invalid_logins:
+            self.user.username = login
+            self.user.save()
+
+            response = self.client.get(url_index, follow=True)
+            self.assertIn('contains not allowed characters', response.content)
+
+        for login in self.valid_logins:
+            self.user.username = login
+            self.user.save()
+
+            response = self.client.get(url_index, follow=True)
+            self.assertNotIn('contains not allowed characters',
+                    response.content)
+
+    def test_login_change(self):
+        url_index = reverse('index')
+        url_edit_profile = reverse('edit_profile')
+
+        for login in self.invalid_logins:
+            self.user.username = login
+            self.user.save()
+
+            response = self.client.get(url_edit_profile)
+            self.assertIn('<input id="id_username" maxlength="30" name='
+                    '"username" type="text" value="%s" />' % (login,),
+                    response.content)
+
+            self.client.post(url_edit_profile, {'username': 'valid_user'},
+                    follow=True)
+            self.assertEqual(self.user.username, login)
+
+            response = self.client.post(url_index, follow=True)
+            self.assertNotIn('contains not allowed characters',
+                    response.content)
+
+            response = self.client.get(url_edit_profile)
+            self.assertIn('<input id="id_username" maxlength="30" name='
+                    '"username" readonly="True" type="text"'
+                    ' value="valid_user" />', response.content)
+
+        for login in self.valid_logins:
+            self.user.username = login
+            self.user.save()
+
+            response = self.client.get(url_edit_profile)
+            self.assertIn('<input id="id_username" maxlength="30" name='
+                    '"username" readonly="True" type="text" value="%s" />'
+                    % (login,), response.content)
+
+            response = self.client.post(url_edit_profile,
+                    {'username': 'valid_user'}, follow=True)
+            self.assertEqual(self.user.username, login)
+            self.assertIn('You cannot change your username.', response.content)
+
+            response = self.client.get(url_index, follow=True)
+            self.assertNotIn('contains not allowed characters',
+                    response.content)
+
+            response = self.client.get(url_edit_profile)
+            self.assertNotIn('valid_user', response.content)
+
+    def test_failed_login_change(self):
+        url_edit_profile = reverse('edit_profile')
+
+        self.user.username = self.invalid_logins[0]
+        self.user.save()
+
+        for login in self.invalid_logins:
+            self.client.post(url_edit_profile, {'username': login},
+                    follow=True)
+            self.assertEqual(self.user.username, self.invalid_logins[0])

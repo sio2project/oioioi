@@ -18,6 +18,7 @@ from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
+from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
 
 TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline
@@ -142,6 +143,9 @@ side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 
 class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
+    form = OioioiUserChangeForm
+    add_form = OioioiUserCreationForm
+
     __metaclass__ = ModelAdminMeta
 
     # This is handled by AdminSite._reinit_model_admins
