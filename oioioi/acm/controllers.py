@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.utils.translation import ugettext_noop, ugettext_lazy as _
 
 from oioioi.programs.controllers import ProgrammingContestController
@@ -82,13 +82,14 @@ class ACMContestController(ProgrammingContestController):
         class DummyRequest(object):
             def __init__(self, contest, user):
                 self.contest = contest
-                self.user = user
+                self.user = user or AnonymousUser()
 
         rtimes = rounds_times(DummyRequest(self.contest, submission.user))
         round_start = rtimes[submission.problem_instance.round].get_start()
         submission_time = submission.date - round_start
         # Python2.6 does not support submission_time.total_seconds()
-        return submission_time.days * 24 * 3600 + submission_time.seconds
+        seconds = submission_time.days * 24 * 3600 + submission_time.seconds
+        return max(0, seconds)
 
     def _fill_user_result_for_problem(self, result, pi_submissions):
         if pi_submissions:

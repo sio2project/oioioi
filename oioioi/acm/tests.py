@@ -90,3 +90,18 @@ class TestACMRanking(TestCase):
             for task in ['A', 'sum', 'test']:
                 self.assertTaskIn(task, response.content)
             self.assertNotIn('The ranking is frozen.', response.content)
+
+    def test_model_solution_submission_view(self):
+        contest = Contest.objects.get()
+        url = reverse('submission',
+                      kwargs={'contest_id': contest.id,
+                              'submission_id': 1})
+
+        self.client.login(username='test_user')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('0:02', response.content)
