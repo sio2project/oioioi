@@ -239,6 +239,23 @@ Then run::
 
 and restart the judging machines.
 
+Changes in the deployment directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When new features are added, the configuration files in your custom
+*deployment* directory may need an update. An example valid configuration can
+always be found in the *oioioi* sources
+(*oioioi/deployment* directory, *\*.template* files).
+
+Once you have made sure that your deployment
+directory is up-to-date, change *CONFIG_VERSION* in your custom
+*deployment/settings.py* so that it equals *INSTALLATION_CONFIG_VERSION* in
+*oioioi/default_settings.py*.
+
+List of changes since the *CONFIG_VERSION* numbering was introduced:
+
+#. * Nothing yet.
+
 Usage
 -----
 

@@ -1,4 +1,5 @@
 from oioioi.base.utils.execute import execute
+from oioioi.default_settings import INSTALLATION_CONFIG_VERSION
 from optparse import OptionParser
 import os
 import os.path
@@ -50,6 +51,7 @@ def generate_from_template(dir, filename, context, mode=None):
 
 def generate_all(dir):
     generate_from_template(dir, 'settings.py', {
+            '__CONFIG_VERSION__': str(INSTALLATION_CONFIG_VERSION),
             '__DIR__': dir,
             '__SECRET__': str(uuid.uuid4()),
             '__TIMEZONE__': get_timezone(),

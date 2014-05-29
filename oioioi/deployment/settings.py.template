@@ -1,6 +1,12 @@
 from oioioi.default_settings import *
 import os.path
 
+# This should match INSTALLATION_CONFIG_VERSION in
+# "oioioi/default_settings.py".
+# Before you adjust it, you may consider visiting
+# "https://github.com/sio2project/oioioi/#changes-in-the-deployment-directory".
+CONFIG_VERSION = __CONFIG_VERSION__
+
 # Enable debugging features.
 #
 # SET DEBUG = False FOR PRODUCTION DEPLOYMENT.

@@ -12,6 +12,8 @@ djcelery.setup_loader()
 
 import oioioi
 
+INSTALLATION_CONFIG_VERSION = 0
+
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',)
