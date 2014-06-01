@@ -7,6 +7,7 @@ from oioioi.filetracker.fields import FileField
 from oioioi.base.fields import EnumField
 from oioioi.problems.models import Problem
 
+submission_statuses.register('TESTRUN_OK', _("No error"))
 submission_kinds.register('TESTRUN', _("Test run"))
 submission_report_kinds.register('TESTRUN', _("Test run report"))
 

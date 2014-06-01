@@ -1,0 +1,20 @@
+@import "../bootstrap/less/variables.less";
+@import "../bootstrap/less/mixins.less";
+@import "subm_colors.less";
+
+
+td.subm_margin {
+    width: 7px;
+    padding: 0;
+
+    &.subm_TESTRUN_OK {
+        #gradient > .horizontal(@submGreen, @submGreenGradientTo);
+    }
+}
+
+.subm_status {
+    &.subm_TESTRUN_OK {
+        background: lighten(@submGreen, 5%);
+    }
+}
+

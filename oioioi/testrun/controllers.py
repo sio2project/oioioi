@@ -75,6 +75,11 @@ class TestRunContestControllerMixin(object):
                 help_text=_("Keep in mind that this feature does not provide"
                             " any validation of your input or output."))
 
+        form.fields['file'].help_text = _("Language is determined by the file"
+                " extension. The following are recognized: %s, but allowed"
+                " languages may vary. You can paste the code below instead of"
+                " choosing file.")
+
         if 'kind' in form.fields:
             form.fields['kind'].choices = [('TESTRUN', _("Test run")), ]
 

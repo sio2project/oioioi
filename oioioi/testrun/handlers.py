@@ -59,6 +59,8 @@ def grade_submission(env, **kwargs):
 
     if env.get('compilation_result', 'OK') != 'OK':
         env['status'] = 'CE'
+    elif env['test_results']['test']['result_code'] == 'OK':
+        env['status'] = 'TESTRUN_OK'
     else:
         env['status'] = env['test_results']['test']['result_code']
 
