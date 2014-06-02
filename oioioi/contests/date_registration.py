@@ -10,26 +10,34 @@ class DateRegistry(object):
         self._registry = OrderedRegistry()
 
     class DateItem(object):
-        def __init__(self, date_field, name_generator, model):
+        def __init__(self, date_field, name_generator, round_chooser,
+                qs_filter, model):
             self.date_field = date_field
             self.name_generator = name_generator
+            self.round_chooser = round_chooser
+            self.qs_filter = qs_filter
             self.model = model
 
-    def register(self, date_field, name_generator=None, model=None,
-                 order=sys.maxint):
+    def register(self, date_field, name_generator=None, round_chooser=None,
+                qs_filter=None, model=None, order=sys.maxint):
         """Registers a new date item.
 
            :param date_field: the date's field in the model
            :param name_generator: function taking model's object and returning
                         the name to be displayed with the date.
+           :param round_chooser: function taking model's object and returning
+                        the round it belongs to.
+           :param qs_filter: function taking a (queryset, contest id)
+                        pair and returning a queryset limited to
+                        instances related to the contest.
            :param model: the date's model. If the model is not provided the
                         method returns a decorator for a model.
            :param order: the date's order. The lower the order, the higher the
                         priority of the date.
         """
-
         def decorator(original_class):
-            self.register(date_field, name_generator, original_class, order)
+            self.register(date_field, name_generator, round_chooser,
+                    qs_filter, original_class, order)
             return original_class
 
         if model is None:
@@ -40,7 +48,14 @@ class DateRegistry(object):
                 unicode(model._meta.verbose_name) + " " + unicode(model._meta.
                                 get_field_by_name(date_field)[0].verbose_name)
 
-        date_item = self.DateItem(date_field, name_generator, model)
+        if round_chooser is None:
+            round_chooser = lambda obj: None
+
+        if qs_filter is None:
+            qs_filter = lambda qs, contest_id: qs.filter(contest=contest_id)
+
+        date_item = self.DateItem(date_field, name_generator, round_chooser,
+                qs_filter, model)
         self._registry.register(date_item, order)
 
     def tolist(self, contest_id):
@@ -48,14 +63,15 @@ class DateRegistry(object):
         context_items = []
         for idx, item in enumerate(self._registry):
             model = item.model
-            data = model.objects.filter(contest=contest_id).values()
-            for record in data:
+            instances = item.qs_filter(model.objects.all(), contest_id)
+            for instance in instances:
                 context_items.append(dict(
-                    text=item.name_generator(record),
-                    date=record[item.date_field],
+                    text=item.name_generator(instance),
+                    date=getattr(instance, item.date_field),
                     date_field=item.date_field,
                     model=model,
-                    id=record['id'],
+                    id=instance.id,
+                    round=item.round_chooser(instance),
                     order=self._registry.keys[idx]))
         return context_items
 

@@ -4,6 +4,7 @@ import datetime
 
 from django.core.urlresolvers import reverse
 from django.test import TestCase
+from django.utils.timezone import utc
 
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.date_registration import date_registry
@@ -106,6 +107,26 @@ class TestChangingDates(TestCase):
                 self.assertEqual(date, new_dates[_get_date_id(item)])
                 self.assertIn(date, response.content)
 
+    def test_valid_unset_date_change(self):
+        contest = Contest.objects.get(pk='c')
+        unset_item = {'model': Round, 'id': 2, 'date_field': 'end_date'}
+        new_date = '2021-10-10 10:10'
+        unset_item_id = _get_date_id(unset_item)
+        new_dates = {unset_item_id: new_date}
+
+        for item in date_registry.tolist(contest.id):
+            obj = item['model'].objects.get(pk=item['id'])
+            old_date = getattr(obj, item['date_field'])
+            if old_date is not None:
+                new_date = old_date.strftime("%Y-%m-%d %H:%M")
+                new_dates[_get_date_id(item)] = new_date
+
+        self._send_post(data=new_dates)
+
+        obj = Round.objects.get(pk=2)
+        self.assertEqual(obj.end_date, datetime.datetime(2021, 10, 10, 10, 10,
+            tzinfo=utc))
+
     def test_invalid_date_change(self):
         contest = Contest.objects.get(pk='c')
         delta = datetime.timedelta(days=55)
@@ -149,17 +170,6 @@ class TestChangingDates(TestCase):
 
         self._send_post(contest, data=new_dates,
                         admin_assertin='Date format is invalid')
-
-    def test_changing_unset_date(self):
-        unset_item = {'model': Round, 'id': 2, 'date_field': 'end_date'}
-        new_date = '2021-10-10 10:10'
-        unset_item_id = _get_date_id(unset_item)
-        new_dates = {unset_item_id: new_date}
-
-        self._send_post(data=new_dates)
-
-        obj = Round.objects.get(pk=2)
-        self.assertEqual(obj.end_date, None)
 
     def test_changing_date_in_wrong_contest(self):
         contest_c = Contest.objects.get(pk='c')

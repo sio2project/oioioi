@@ -1,417 +1,642 @@
 $(document).ready(function() {
-    // round date to full hours
-    function round(date) {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate(),
-                date.getHours(), 0, 0, 0);
-    }
+    window.init_timeline = function(lang_code, $timeline_form) {
 
-    function round_to_minutes(date) {
-        return new Date(Math.round(date.getTime() / (60 * 1000)) * 60 * 1000);
-    }
+        var $timeline = $timeline_form.find('#timeline');
 
-    var GROUP_ICON_CLASS = 'group-icon';
-    var GROUP_ICON_HTML = '<i class="' + GROUP_ICON_CLASS +
-                    ' icon-list-alt icon-white"></i>';
-    var DATE_FORMAT = 'yyyy-MM-dd hh:mm';
-    // max distance (in px) between 2 datepickers that will be connected
-    var MAX_DISTANCE = 15;
-    // max value of the css top property of a datebox
-    // it's equal to the timeline height - datebox height
-    var MAX_Y = 670;
-    // the fraction of the timeline height that is taken by the gaps
-    var DATE_RANGE_GAP = 1/7;
-    var ONE_DAY = 24 * 60 * 60 * 1000;
+        var DATE_FORMAT = 'yyyy-MM-dd hh:mm';
+        // the fraction of the timeline height that is taken by the gaps
+        var DATE_RANGE_GAP = 1/7;
+        var ONE_DAY = 24 * 60 * 60 * 1000;
 
-    var min_date;
-    var max_date;
-    // for every datebox id keep ids of the elements hidden in its group
-    var datebox_groups = {};
+        // Minimal distance between the active datebox and the window's border
+        var TOP_MARGIN = 100;
+        var BOTTOM_MARGIN = 100;
+        // Scrolling animation time
+        var SCROLLING_TIME = 500;
 
-    // empty group contains just the parent element
-    function clear_group(parent_id) {
-        datebox_groups[parent_id] = {};
-        datebox_groups[parent_id][parent_id] = true;
-    }
+        var ROUND_BAR_CLASS = 'round-bar';
+        var ROUND_BAR_HTML = '<div class="' + ROUND_BAR_CLASS + '"></div>';
+        var ROUND_GROUP_WIDTH = 35;
+        var ROUND_BAR_WIDTH = 30;
 
-    function position_to_date(pos) {
-        return round(new Date((max_date.getTime() - min_date.getTime()) * pos /
-                MAX_Y + min_date.getTime()));
-    }
+        // we don't want vertical connector parts to overlap, we draw every
+        // subsequent connector a little bit more to the left if that should
+        // be the case.
+        var CONNECTOR_DISPLACEMENT = 10;
+        // we use this to correct event-margin position offset
+        var CONNECTOR_EVENT_MARGIN = 1;
+        var CONNECTOR_HTML = $.map(['event', 'left', 'mid', 'right'],
+                function(type) {
+                    return '<div class="connector connector-' + type +
+                            '"></div>';
+                });
 
-    function date_to_position(date) {
-        return MAX_Y * (date.getTime() - min_date.getTime()) /
-                (max_date.getTime() - min_date.getTime());
-    }
+        var POPOVER_CONTENT = gettext('Change date in a datebox by clicking \
+the corresponding <span class="icon-calendar"></span> button. \
+You can also use the keyboard: \
+<br> \
+<ul> \
+    <li><strong>TAB</strong> - go to the next datebox</li> \
+    <li><strong>ENTER</strong> - confirm date</li> \
+    <li><strong>ESC, CTRL+Z</strong> - reset date</li> \
+</ul> \
+<hr> \
+You can filter events by clicking the vertical bar representing a round. \
+<hr> \
+If you want to split a date group, click the corresponding \
+<span class="icon-resize-vertical"></span> button.'
+        );
 
-    function reset_z_index() {
-        $('.datebox').each(function() {
-            $(this).css('z-index', 'auto');
-        });
-    }
+        var SEPARATOR_HTML = '<div class="separator"></div>';
 
-    function move_to_foreground($datebox) {
-        reset_z_index();
-        $datebox.css('z-index', '1000');
-    }
-
-    function get_order($datebox) {
-        return $datebox.attr('id').split('_')[1];
-    }
-
-    function get_group_parent_id(datebox_id) {
-        var parent_id = datebox_id;
-        $.each(datebox_groups, function(key, val) {
-            if(key != datebox_id && val[datebox_id]) {
-                parent_id = key;
-                return false;
-            }
-        });
-        return parent_id;
-    }
-
-    // return id of the child from the group that is not the parent and has the
-    // lowest order or the parent id if it is the only element in the group
-    function get_first_child_id(parent_id) {
-        var child_id = Object.keys(datebox_groups[parent_id]).filter(
-                function(key) {
-            return key != parent_id;
-        }).sort(function(a, b) {
-           return get_order($('#' + a)) < get_order($('#' + b));
-        })[0];
-
-        if(child_id) {
-            return child_id;
-        } else {
-            return parent_id;
-        }
-    }
-
-    // generates content for the group icon tooltip
-    function generate_tooltip_content($group_parent) {
-        var tooltip_html = '<ul class="tooltip-list">';
-        $.each(datebox_groups[$group_parent.attr('id')], function(key, val) {
-            var event_title = $('#' + key).children('.date-title').text();
-            tooltip_html += '<li>' + event_title + '</li>';
-        });
-        tooltip_html += '</ul>';
-        return tooltip_html;
-    }
-
-    function generate_popover_content($group_parent) {
-        var popover_content = '<div class="popover-body">';
-        $.each(datebox_groups[$group_parent.attr('id')], function(key, val) {
-            var event_title = $('#' + key).children('.date-title').text();
-            popover_content +=
-                '<div id="_' + key +'" ' +
-                    'class="popover-datebox btn-primary inline pull-left">' +
-                    '<span class="date-title inline pull-left">' +
-                        event_title +
-                    '</span>' +
-                    '<i class="group-delete-btn icon-remove icon-white"></i>' +
-                '</div>';
-        });
-        popover_content += '</div>';
-        return popover_content;
-    }
-
-    function disable_group_icon($group_parent) {
-        $group_parent.children('.' + GROUP_ICON_CLASS).tooltip('hide').
-                popover('hide');
-        $group_parent.off('mouseenter mouseleave click',
-                '.' + GROUP_ICON_CLASS);
-    }
-
-    function enable_group_icon($group_parent) {
-        // makes sure not to attach the handlers twice
-        disable_group_icon($group_parent);
-        $group_parent.on({
-            mouseenter: function() {
-                $(this).tooltip('show');
-            },
-            mouseleave: function() {
-                $(this).tooltip('hide');
-            },
-            click: function() {
-                $(this).tooltip('hide').popover('toggle');
-            }
-        }, '.' + GROUP_ICON_CLASS);
-    }
-
-    function add_group_icon(group_parent) {
-        var $group_parent = $(group_parent);
-        $group_parent.append(GROUP_ICON_HTML);
-        // init group tooltip
-        $group_parent.children('.' + GROUP_ICON_CLASS).tooltip({
-            animation: false,
-            html: true,
-            placement: 'right',
-            trigger: 'manual',
-            title: generate_tooltip_content($group_parent),
-            container: 'body'
-        }).popover({
-            animation: false,
-            html: true,
-            placement: 'right',
-            trigger: 'manual',
-            content: generate_popover_content($group_parent),
-            container: '#timeline-wrapper'
-        });
-        enable_group_icon($group_parent);
-    }
-
-    function remove_group_icon($group_parent) {
-        $group_parent.children('.' + GROUP_ICON_CLASS).tooltip('destroy').
-                popover('destroy').remove();
-    }
-
-    function set_popover_state($group_parent, state) {
-        var group_icon = $group_parent.children('.' + GROUP_ICON_CLASS);
-        if(group_icon) {
-            group_icon.popover(state);
-        }
-    }
-
-    function get_date($datebox) {
-        return $datebox.children('.date').data('datetimepicker').getDate();
-    }
-
-    function set_date($datebox, new_date) {
-        $datebox.children('.date').data('datetimepicker').setDate(new_date);
-    }
-
-    function set_group_date($datebox, new_date) {
-        var group_parent_id = get_group_parent_id($datebox.attr('id'));
-        $.each(datebox_groups[group_parent_id], function(key, val) {
-            set_date($('#' + key), new_date);
-        });
-    }
+        var NOW_BAR_HTML = '<div id="now-bar"><small>' + gettext("now") +
+                '</small></div>';
 
 
-    function get_dates_range() {
-        var dates = $('.datebox').map(function() {
-            return get_date($(this));
-        });
+        var DATEBOX_HEIGHT = 35;
+        // a horizontal gap between round bars and datepickers
+        var DATEBOX_GAP = 40;
+        // a vertical gap used to separate datepickers with no date specified
+        var NO_DATE_GAP = 60;
+        // space between rounds and their labels
+        var LABEL_GAP = 30;
+        // width of the date input field
+        var INPUT_WIDTH = 250;
 
-        return {
-            min_date: new Date(Math.min.apply(null, dates)),
-            max_date: new Date(Math.max.apply(null, dates))
-        };
-    }
+        // created with the use of http://www.palettefx.com
+        var PALETTE = [
+            [238, 119, 68],
+            [85, 153, 187],
+            [102, 119, 136],
+            [238, 204, 85],
+            [136, 187, 221],
+            [221, 170, 17],
+            [187, 85, 34],
+            [17, 136, 170],
+            [17, 68, 102],
+            [153, 136, 85],
+        ];
 
-    function update_date_range() {
-        var range = get_dates_range();
-        var date_delta = range['max_date'].getTime() -
-                range['min_date'].getTime();
-        // calculate the gap in ms so that the gaps in the begining an in
-        // the end of the timeline take in total DATE_RANGE_GAP fraction
-        // of total height of the timeline, but not less then ONE_DAY
-        var date_range_gap_in_ms = Math.max(date_delta * DATE_RANGE_GAP /
-                (2 - 2 * DATE_RANGE_GAP), ONE_DAY);
-        min_date = new Date(range['min_date'].getTime() -
-                date_range_gap_in_ms);
-        max_date = new Date(range['max_date'].getTime() +
-                date_range_gap_in_ms);
-    }
+        var GREEN_OFFSET = 10;
+        var GRADIENT_STRINGS = [
+            '-webkit-linear-gradient(bottom, ',
+            '-o-linear-gradient(top, ',
+            '-moz-linear-gradient(top, ',
+            'linear-gradient(to bottom, ',
+        ];
 
-    function adjust_datebox_positions() {
-        $('.datebox').each(function() {
-            $(this).css('top', date_to_position(get_date($(this))));
-        });
-    }
+        var min_date;
+        var max_date;
+        // length of the time axis
+        var timeline_height = 700;
+        // for every datebox id keep ids of the elements hidden in its group
+        var datebox_groups = {};
 
-    function change_date_handler() {
-        update_date_range();
-        adjust_datebox_positions();
-    }
-
-    function get_closest_datebox($datebox) {
-        var datebox_y = $datebox.position().top;
-        return $('.datebox').filter(function() {
-            var $this = $(this);
-            return $datebox.attr('id') != $this.attr('id') && $this.is(':visible');
-        }).sort(function(a, b) {
-            // we want only the closest datepicker
-            var a_y = $(a).position().top;
-            var b_y = $(b).position().top;
-            return Math.abs(datebox_y - a_y) < Math.abs(datebox_y - b_y) ? -1 : 1;
-        }).get(0);
-    }
-
-    function connect_groups($group_item, $datebox_to_connect) {
-        var $group_parent = $('#' + get_group_parent_id($group_item.
-                attr('id')));
-        var $parent_to_connect = $('#' + get_group_parent_id(
-                $datebox_to_connect.attr('id')));
-        if(get_order($group_parent) > get_order($parent_to_connect)) {
-            var tmp = $group_parent;
-            $group_parent = $parent_to_connect;
-            $parent_to_connect = tmp;
+        function rgb_to_string(rgb) {
+            return 'rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ')';
         }
 
-        var group_parent_id = $group_parent.attr('id');
-        var parent_to_connect_id = $parent_to_connect.attr('id');
+        function get_gradient(id) {
+            var col1 = PALETTE[id];
+            var col2 = [col1[0], Math.min(255, col1[1] + GREEN_OFFSET),
+                   col1[2]];
+            return rgb_to_string(col1) + ', ' + rgb_to_string(col2);
+        }
 
-        // remove group icons
-        remove_group_icon($parent_to_connect);
-        remove_group_icon($group_parent);
-        // hide the datepickerbox and its tooltip
-        $parent_to_connect.hide().tooltip('hide');
-        // add the datepicker to the group
-        $.each(datebox_groups[parent_to_connect_id],
-            function(key, val) {
-                datebox_groups[group_parent_id][key] = true;
-        });
-        clear_group(parent_to_connect_id);
-        add_group_icon($group_parent);
-        // update dates and positions
-        set_group_date($parent_to_connect, get_date($group_parent));
-        change_date_handler();
-    }
+        function set_gradient($datebox, color_id) {
+            color_string = get_gradient(color_id) + ')';
+            $.each(GRADIENT_STRINGS, function() {
+                $datebox.css('background-image', this + color_string);
+            });
+        }
 
-    function is_in_connection_distance($datebox1, $datebox2) {
-        return $datebox1.length && $datebox2.length && Math.abs(
-                $datebox1.position().top - $datebox2.position().top) <
-                MAX_DISTANCE;
-    }
+        function get_date($datebox) {
+            return $datebox.children('.date').data('datetimepicker').getDate();
+        }
 
-    window.init_timeline = function(lang_code) {
-        // hack fixing dragging performance
-        // source: http://blog.toggl.com/2013/02/increasing-perceived-performance-with-_throttle/
-        var drag_active = false;
+        function set_date($datebox, new_date) {
+            $datebox.children('.date').data('datetimepicker')
+                    .setDate(new_date);
+        }
 
-        var original_mouseMove = jQuery.ui.mouse.prototype._mouseMove;
-        jQuery.ui.mouse.prototype._mouseMove = function() {
-          if(drag_active) {
-            original_mouseMove.apply(this, arguments);
-          }
-        };
-        var original_mouseDown = jQuery.ui.mouse.prototype._mouseDown;
-        jQuery.ui.mouse.prototype._mouseDown = function() {
-          drag_active = true;
-          original_mouseDown.apply(this, arguments);
-        };
-        var original_mouseUp = jQuery.ui.mouse.prototype._mouseUp;
-        jQuery.ui.mouse.prototype._mouseUp = function() {
-          original_mouseUp.apply(this, arguments);
-          drag_active = false;
-        };
-        jQuery.ui.mouse.prototype._mouseMove =
-                _.throttle(jQuery.ui.mouse.prototype._mouseMove, 40);
+        function set_width($datebox) {
+            new_width = Math.max(parseInt($datebox.css('min-width'), 10),
+                    INPUT_WIDTH + $datebox.find('.date-title').width());
+            $datebox.css('width', new_width);
+        }
 
-        // init connection tooltip
-        $('.datebox').tooltip({
-            placement: 'right',
-            trigger: 'manual',
-            container: 'body',
-            title: gettext("Drop to connect"),
-            animation: false
-        });
-
-        $('.date').datetimepicker({
-            format: DATE_FORMAT,
-            language: lang_code,
-            pickSeconds: false
-        });
-
-        $('.datebox').draggable({
-            containment: $('#timeline'),
-            start: function() {
-                var $dragged_datebox = $(this);
-                move_to_foreground($dragged_datebox);
-                disable_group_icon($dragged_datebox);
-            },
-            drag: function() {
-                var $dragged_datebox = $(this);
-                var dragged_datebox_y = $dragged_datebox.position().top;
-                var new_date = position_to_date(dragged_datebox_y);
-                set_date($dragged_datebox, new_date);
-                var $closest_datebox = $(get_closest_datebox($dragged_datebox));
-                if(is_in_connection_distance($closest_datebox,
-                        $dragged_datebox)) {
-                    $dragged_datebox.tooltip('show');
-                } else {
-                    $dragged_datebox.tooltip('hide');
-                }
-            },
-            stop: function() {
-                var $dragged_datebox = $(this);
-                $dragged_datebox.tooltip('hide');
-                set_group_date($dragged_datebox, get_date($dragged_datebox));
-                var $closest_datebox = $(get_closest_datebox($dragged_datebox));
-                if(is_in_connection_distance($closest_datebox,
-                        $dragged_datebox)) {
-                    connect_groups($closest_datebox, $dragged_datebox);
-                } else {
-                    enable_group_icon($dragged_datebox);
-                }
-                change_date_handler();
-            }
-        });
-
-        $('.datebox').click(function() {
-            move_to_foreground($(this));
-        });
-
-        $(document).on('click', '.group-delete-btn', function(e) {
-            var event_trigger = e.currentTarget;
-            var to_delete_id = $(event_trigger).parent().attr('id').
-                    substring(1);
-            var parent_id = get_group_parent_id(to_delete_id);
-            var $to_delete = $('#' + to_delete_id);
-            var $parent = $('#' + parent_id);
-
-            var children_in_group = 0;
-            $.each(datebox_groups[parent_id], function() {
-                children_in_group++;
+        function get_dates_range() {
+            var dates = $timeline.find('.datebox').map(function() {
+                return get_date($(this));
             });
 
-            if(children_in_group > 1) {
-                remove_group_icon($parent);
-                if(to_delete_id == parent_id) {
-                    // parent of a nonempty group is about to be deleted
-                    // make it a child of the group
-                    var new_parent_id = get_first_child_id(parent_id);
-                    var $new_parent = $('#' + new_parent_id);
-                    datebox_groups[new_parent_id] = datebox_groups[parent_id];
-                    clear_group(parent_id);
-                    $parent.hide();
-                    $new_parent.show();
-                    parent_id = new_parent_id;
-                    $parent = $new_parent;
-                }
-                delete datebox_groups[parent_id][to_delete_id];
-                if(children_in_group > 2) {
-                    add_group_icon($parent);
-                }
-                $to_delete.show();
-                set_popover_state($parent, 'show');
-            }
-        });
+            return {
+                min_date: new Date(Math.min.apply(null, dates)),
+                max_date: new Date(Math.max.apply(null, dates))
+            };
+        }
 
-        // adjust y position and date range on date change
-        $('.date').on('changeDate', function(e) {
-            var $datebox = $('#' + get_group_parent_id($(e.currentTarget).
-                                                        parent().attr('id')));
-            var new_date = e.date;
-            set_group_date($datebox, new_date);
-            change_date_handler();
-        });
-        // init datebox_groups dictionary
-        $('.datebox').each(function() {
-            clear_group($(this).attr('id'));
-        });
-        // set the inital dates range and dateboxes positions
-        // based on the inital datepickers values
-        change_date_handler();
-        // connect equal dates
-        var datebox_array = $('.datebox').sort(function(a,b) {
-            return get_date($(a)) < get_date($(b));
-        }).get();
-        for(var i = 0; i < datebox_array.length - 1; i++) {
-            if(round_to_minutes(get_date($(datebox_array[i]))).getTime() ===
-                    round_to_minutes(get_date($(datebox_array[i+1]))).getTime()) {
-                connect_groups($(datebox_array[i]), $(datebox_array[i+1]));
+        function update_date_range() {
+            var range = get_dates_range();
+            var date_delta = range['max_date'].getTime() -
+                    range['min_date'].getTime();
+            // calculate the gap in ms so that the gaps in the begining an in
+            // the end of the timeline take in total DATE_RANGE_GAP fraction
+            // of total height of the timeline, but not less then ONE_DAY
+            var date_range_gap_in_ms = Math.max(date_delta * DATE_RANGE_GAP /
+                    (2 - 2 * DATE_RANGE_GAP), ONE_DAY);
+            min_date = new Date(range['min_date'].getTime() -
+                    date_range_gap_in_ms);
+            max_date = new Date(range['max_date'].getTime() +
+                    date_range_gap_in_ms);
+        }
+
+        function date_to_position(date) {
+            return timeline_height * (date.getTime() - min_date.getTime()) /
+                    (max_date.getTime() - min_date.getTime());
+        }
+
+        function create_round_bars() {
+            var left = 0;
+            var max_width = 0;
+            $timeline.children('.round-group').each(function() {
+                var $this = $(this);
+                $this.css('left', left);
+                left += ROUND_GROUP_WIDTH;
+                var $round_label = $this.find('.round-label');
+                if ($round_label.length > 0) {
+                    $this.append(ROUND_BAR_HTML);
+                    max_width = Math.max(max_width,
+                        $round_label.find('strong').width());
+                }
+            });
+            max_width = max_width / Math.sqrt(2) + LABEL_GAP;
+            var $wrapper = $timeline_form.find('#timeline-wrapper');
+            var current_margin = parseInt($wrapper.css('margin-top'));
+            if (max_width > current_margin) {
+                $wrapper.css('margin-top', max_width);
             }
         }
-    };
+
+        function assign_colors() {
+            var color_id = 0;
+            $timeline.find('.round-group').each(function() {
+                var color_string = rgb_to_string(PALETTE[color_id])
+                $(this).find('.round-bar').css('background', color_string);
+                $(this).find('.round-label').css('color', color_string);
+                set_gradient($(this).find('.datebox'), color_id);
+                color_id = (color_id + 1) % PALETTE.length;
+            });
+        }
+
+        function adjust_bar_positions() {
+            $timeline.children('.round-group').each(function() {
+                var $this = $(this);
+                if ($this.children('.round-bar').length > 0) {
+                    var start_date = get_date($this.children(
+                            ".datebox[data-timeline-type=start]"));
+                    var end_date = get_date($this.children(
+                            ".datebox[data-timeline-type=end]"));
+                    var start_y, end_y;
+                    if (start_date !== null) {
+                        start_y = date_to_position(start_date);
+                    } else {
+                        start_y = 0;
+                    }
+                    if (end_date !== null) {
+                        end_y = date_to_position(end_date);
+                    } else {
+                        end_y = timeline_height;
+                    }
+                    $this.children('.round-bar').css(
+                            {top: start_y, height: end_y - start_y});
+                }
+            });
+        }
+
+        function compare_dateboxes($a, $b) {
+            var r1 = $a.attr('data-timeline-round-num');
+            var r2 = $b.attr('data-timeline-round-num');
+            if (r1 !== r2) return r1 - r2;
+            var o1 = $a.attr('data-timeline-order');
+            var o2 = $b.attr('data-timeline-order');
+            if (o1 !== o2) return o1 - o2;
+            return $a.attr('data-timeline-entry-num') -
+                    $b.attr('data-timeline-entry-num');
+        }
+
+        function compare_dates(a, b) {
+            var $a = $(a);
+            var $b = $(b);
+            var d1 = get_date($a);
+            var d2 = get_date($b);
+            if (d1 === null && d2 === null) return compare_dateboxes($a, $b);
+            if (d1 === null) return 1;
+            if (d2 === null) return -1;
+            var t1 = d1.getTime();
+            var t2 = d2.getTime();
+            if (t1 !== t2) return t1 - t2;
+            return compare_dateboxes($a, $b);
+        }
+
+        function adjust_connectors($datebox, datebox_left, y_offset,
+                overlapping) {
+            var $event = $datebox.children('.connector-event');
+            var $left = $datebox.children('.connector-left');
+            var $mid = $datebox.children('.connector-mid');
+            var $right = $datebox.children('.connector-right');
+            var $group = $datebox.parent();
+            var len_r = $group.position().left +
+                    overlapping * CONNECTOR_DISPLACEMENT;
+            var len_l = datebox_left - len_r;
+            $left.css({left: -datebox_left, width: len_l, top: -y_offset});
+            $mid.css({left: -len_r, height: y_offset, top: -y_offset});
+            $right.css({left: -len_r, width: len_r});
+            var has_event = $(datebox_groups[$datebox.attr('id')]).filter(
+                    function() {
+                        return $(this).attr('data-timeline-type') === 'None';
+                    }).length > 0;
+            if (has_event) {
+                $event.css({left: -datebox_left,
+                        top: -(y_offset + CONNECTOR_EVENT_MARGIN)});
+            } else {
+                $event.hide();
+            }
+        }
+
+        function simulate_overlapping(datebox_array) {
+            var current_top = 0;
+            var overlapping = 0;
+            var max_overlapping = 0;
+            $.each(datebox_array, function() {
+                var $this = $(this);
+                if (!$this.is(':visible')) {
+                    return true;
+                }
+                var my_date = get_date($this);
+                if (my_date === null) {
+                    return true;
+                }
+                var target_position = date_to_position(my_date);
+                var my_top;
+                if (current_top > target_position) {
+                    my_top = current_top;
+                    overlapping++;
+                    max_overlapping = Math.max(max_overlapping, overlapping);
+                } else {
+                    my_top = target_position;
+                    overlapping = 0;
+                }
+                current_top = my_top + DATEBOX_HEIGHT;
+            });
+            return max_overlapping;
+        }
+
+        function adjust_datebox_positions() {
+            var datebox_array =
+                    $timeline.find('.datebox').get().sort(compare_dates);
+            var rounds_num = $timeline.children('.round-group').length;
+            var current_top = 0;
+            var max_nonempty_top = 0;
+            var overlapping = 0;
+            var empty_boxes = 0;
+            var max_overlapping = simulate_overlapping(datebox_array);
+            var default_left = rounds_num * ROUND_GROUP_WIDTH + DATEBOX_GAP;
+            var datebox_left = default_left +
+                max_overlapping * CONNECTOR_DISPLACEMENT;
+            var tabindex = 1;
+            $.each(datebox_array, function() {
+                var $this = $(this);
+                if (!$this.is(':visible')) {
+                    return true;
+                }
+                var my_left = datebox_left -
+                        $this.parents('.round-group').position().left;
+                var my_date = get_date($this);
+                var target_position;
+                var my_top;
+                if (my_date !== null) {
+                    target_position = date_to_position(my_date);
+                } else {
+                    if (max_nonempty_top === 0) {
+                        max_nonempty_top = current_top;
+                    }
+                    target_position = timeline_height + NO_DATE_GAP;
+                }
+                if (current_top > target_position) {
+                    my_top = current_top;
+                    overlapping++;
+                } else {
+                    my_top = target_position;
+                    overlapping = 0;
+                }
+                $this.css({left: datebox_left, top: my_top});
+                // Move the date-picking dropdown menu together with the
+                // datebox
+                $this.children('.date').data('datetimepicker').place();
+                set_width($this);
+                if (my_date !== null) {
+                    $this.children('.connector').show();
+                    adjust_connectors($this, datebox_left,
+                            my_top - target_position, overlapping);
+                } else {
+                    $this.children('.connector').hide();
+                    empty_boxes++;
+                }
+                $this.find('input').attr('tabindex', tabindex);
+                tabindex++;
+                current_top = my_top + DATEBOX_HEIGHT;
+            });
+            // we have to stretch timeline due to empty dateboxes.
+            $timeline.css('height', DATEBOX_HEIGHT +
+                    Math.max(current_top, timeline_height))
+            $timeline.find('.separator').css('top',
+                    Math.max(max_nonempty_top, timeline_height) +
+                    NO_DATE_GAP / 2);
+            $timeline.find('#now-bar').css('width', datebox_left);
+        }
+
+        function adjust_now_bar() {
+            var $now_bar = $timeline.find('#now-bar');
+            var now_position = date_to_position(new Date());
+            if (now_position >= 0 && now_position <= timeline_height) {
+                $now_bar.show();
+                $now_bar.css('top', now_position - parseInt(
+                        $now_bar.css('height')));
+            } else {
+                $now_bar.hide();
+            }
+        }
+
+        function change_date_handler() {
+            update_date_range();
+            adjust_bar_positions();
+            adjust_datebox_positions();
+            adjust_now_bar();
+        }
+
+        function set_group_date($datebox, new_date) {
+            $(datebox_groups[$datebox.attr('id')]).each(function() {
+                var $this = $(this);
+                set_date($this, new_date);
+                $this.find('input').addClass('date-changed');
+            });
+        }
+
+        function process_groups(datebox_array) {
+            $.each(datebox_array, function() {
+                var $first_datebox = $(this);
+                var in_group = $(datebox_groups[$first_datebox.attr('id')]);
+
+                if (in_group.length > 1) {
+                    in_group.sort(compare_dateboxes);
+                    var $main_datebox = in_group[0];
+                    var secondary_titles = [];
+
+                    $.each(in_group, function() {
+                        var $this = $(this);
+                        var title = $this.find('.date-title').text();
+                        if ($this.attr('id') === $main_datebox.attr('id')) {
+                            $this.addClass('datebox-group');
+                        } else {
+                            secondary_titles.push(title);
+                            $this.hide();
+                        }
+                    });
+                    var all_titles = ' | ' + secondary_titles.reduce(
+                            function(prev, curr) {
+                                return prev + ', ' + curr;
+                        });
+                    $main_datebox.find('.date-title small').text(all_titles);
+                    // swap datebox_groups between $first_datebox and
+                    // $main_datebox
+                    datebox_groups[$first_datebox.attr('id')] =
+                            [$first_datebox];
+                    datebox_groups[$main_datebox.attr('id')] = in_group;
+                }
+            });
+        }
+
+        function create_groups() {
+            $timeline.find('.round-group').each(function() {
+                var datebox_array = $(this).find('.datebox').get().sort(
+                        compare_dates);
+                var prev_date = null;
+                var prev_datebox_id = null;
+                $.each(datebox_array, function() {
+                    var $this = $(this);
+                    var curr_date = get_date($this);
+                    datebox_groups[$this.attr('id')] = [$this];
+                    if (curr_date === null) {
+                        return true;
+                    }
+                    if (prev_date !== null && prev_date.getTime() ===
+                            curr_date.getTime()) {
+                        datebox_groups[prev_datebox_id].push($this);
+                    } else {
+                        prev_datebox_id = $this.attr('id');
+                        prev_date = curr_date;
+                    }
+                });
+                process_groups(datebox_array);
+            });
+        }
+
+        function create_now_bar() {
+            $timeline.append(NOW_BAR_HTML);
+        }
+
+        function create_connectors() {
+            $timeline.find('.datebox').each(function() {
+                $(this).append(CONNECTOR_HTML);
+            });
+        }
+
+        function create_hint() {
+            $timeline_form.find('input.btn-hint').popover({
+                animation: false,
+                html: true,
+                placement: 'bottom',
+                trigger: 'manual',
+                content: POPOVER_CONTENT,
+                container: '#timeline-wrapper'
+            });
+        }
+
+        function create_lines() {
+            $timeline.append(SEPARATOR_HTML);
+        }
+
+        function split_group($datebox) {
+            $datebox.removeClass('datebox-group');
+            var my_id = $datebox.attr('id');
+            $datebox.find('.date-title small').text('');
+            $.each(datebox_groups[my_id], function() {
+                $(this).show();
+            });
+            datebox_groups[my_id] = [$datebox];
+        }
+
+        function change_group_state($group, type) {
+            $group.find('.date').each(function() {
+                var data = $(this).data('datetimepicker');
+                if (type) {
+                    data.disable();
+                } else {
+                    data.enable();
+                }
+            });
+        }
+
+        function change_dim_state(type) {
+            $timeline.find('.round-group').each(function() {
+                var $this = $(this);
+                $this.removeClass('undim');
+                if (type) {
+                    $this.addClass('dim');
+                } else {
+                    $this.removeClass('dim');
+                }
+                change_group_state($this, type);
+            });
+        }
+
+        function custom_undo(e) {
+            var evtobj = window.event ? event : e
+            // Ctrl+z or ESC
+            if ((e.which === 'z'.charCodeAt(0) &&
+                    (evtobj.ctrlKey || evtobj.metaKey)) ||
+                    e.which === jQuery.ui.keyCode.ESCAPE) {
+                e.preventDefault();
+                var $datebox = $(e.target).parents('.datebox');
+                if ($datebox.length === 1 &&
+                        $timeline.has($datebox).length === 1) {
+                    set_date($datebox, get_date($datebox));
+                }
+            }
+        }
+
+        function acquire_focus($datebox) {
+            $datebox.find('input').focus();
+        }
+
+        function scroll_to_see($datebox, old_top) {
+            var new_top = $datebox.offset().top;
+            var offset = new_top - $(window).scrollTop();
+            if (offset < TOP_MARGIN && new_top < old_top) {
+                $('html,body').animate({
+                    scrollTop: new_top - TOP_MARGIN
+                }, SCROLLING_TIME);
+            } else if (offset + BOTTOM_MARGIN > window.innerHeight &&
+                        new_top > old_top) {
+                $('html,body').animate({
+                    scrollTop: new_top + BOTTOM_MARGIN - window.innerHeight
+                }, SCROLLING_TIME);
+            }
+        }
+
+        function set_timeline_height() {
+            timeline_height = Math.max(timeline_height,
+                    $timeline.find('.datebox').length * DATEBOX_HEIGHT);
+            $timeline.css('height', timeline_height);
+            $timeline.find('.round-group').css('height', timeline_height);
+        }
+
+        function init() {
+
+            // add some more HTML
+            create_now_bar();
+            create_connectors();
+            create_round_bars();
+            create_lines();
+            create_hint();
+            assign_colors();
+
+            set_timeline_height();
+
+            // init datepickers
+            $timeline.find('.date').datetimepicker({
+                format: DATE_FORMAT,
+                language: lang_code,
+                pickSeconds: false
+            });
+
+            // connect equal dates
+            create_groups();
+
+            // update positions
+            change_date_handler();
+
+            // adjust y position and date range on date change
+            $timeline.find('.datebox').on('changeDate', function(e) {
+                var $this = $(this);
+                var old_top = $this.offset().top;
+                set_group_date($this, e.date);
+                change_date_handler();
+                // Don't scroll down to an empty datebox
+                if (get_date($datebox) !== null) {
+                    scroll_to_see($this, old_top);
+                    acquire_focus($this);
+                }
+            });
+
+            // set click events
+            $timeline.find('.round-group').on('click', function() {
+                var $this = $(this);
+                if ($this.hasClass('undim')) {
+                    // undim all groups
+                    change_dim_state(false);
+                } else {
+                    // dim all groups but this one
+                    change_dim_state(true);
+                    $this.removeClass('dim');
+                    $this.addClass('undim');
+                    change_group_state($this, false);
+                }
+            });
+
+            $timeline.find('.datebox').on('click', function(e) {
+                e.stopPropagation();
+            });
+
+            $timeline_form.find('input.btn-reset').on('click', function() {
+                location.reload();
+            });
+
+            $timeline_form.submit(function() {
+                $timeline.find('input').prop('disabled', false);
+            });
+
+            $timeline.find('.group-delete-btn').on('click', function() {
+                var $datebox = $(this).parents('.datebox');
+                if ($datebox.hasClass('datebox-group')) {
+                    split_group($datebox);
+                    change_date_handler();
+                }
+            });
+
+            $timeline.find('input').keypress(function(e) {
+                // we don't want Enter keypress to cause form submission
+                // let it update datebox layout instead
+                if (e.which === jQuery.ui.keyCode.ENTER) {
+                    e.preventDefault();
+                    $(e.target).trigger('change');
+                    change_date_handler();
+                }
+            });
+
+            $(window).on('click', function(e) {
+                var $target = $(e.target);
+                if ($target.is('input.btn-hint')) {
+                    $target.popover('toggle');
+                } else if ($target.parents('.popover.in').length === 0) {
+                    $timeline_form.find('input.btn-hint').popover('hide');
+                }
+            });
+
+            document.onkeydown = custom_undo;
+        }
+
+        init();
+    }
 });

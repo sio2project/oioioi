@@ -12,8 +12,33 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.models import Test
+from oioioi.contests.date_registration import date_registry
+from oioioi.contests.models import ProblemInstance
 
 
+def _testspackage_date_name_generator(obj):
+    if TestsPackage.objects.filter(problem=obj.problem).count() == 1:
+        return _("Publish tests for %s") % obj.problem.short_name
+    return _("Publish tests for %(problem_name)s (%(package_name)s)") % \
+            {'problem_name': obj.problem.short_name, 'package_name': obj.name}
+
+
+def _testspackage_round_chooser(obj):
+    qs = ProblemInstance.objects.filter(problem=obj.problem)
+    if qs.exists():
+        return qs[0].round
+    return None
+
+
+def _testspackage_qs_filter(qs, contest_id):
+    return qs.filter(problem__contest=contest_id)
+
+
+@date_registry.register('publish_date',
+                        name_generator=_testspackage_date_name_generator,
+                        round_chooser=_testspackage_round_chooser,
+                        qs_filter=_testspackage_qs_filter,
+                        order=50)
 class TestsPackage(models.Model):
     problem = models.ForeignKey(Problem)
     name = models.CharField(max_length=30, verbose_name=_("file name"),

@@ -113,33 +113,36 @@ class ContestAttachment(models.Model):
 
 
 def _round_end_date_name_generator(obj):
-    max_round_extension = RoundTimeExtension.objects.filter(round=obj['id']). \
+    max_round_extension = RoundTimeExtension.objects.filter(round=obj). \
             aggregate(Max('extra_time'))['extra_time__max']
     if max_round_extension is not None:
         return ungettext("End of %(name)s (+ %(ext)d min)",
                          "End of %(name)s (+ %(ext)d mins)",
                          max_round_extension) % \
-                         {'name': obj['name'], 'ext': max_round_extension}
+                         {'name': obj.name, 'ext': max_round_extension}
     else:
-        return _("End of %s") % obj['name']
+        return _("End of %s") % obj.name
 
 
 @date_registry.register('start_date',
                         name_generator=(lambda obj:
-                                        _("Start of %s") % obj['name']),
+                                        _("Start of %s") % obj.name),
+                        round_chooser=(lambda obj: obj),
                         order=0)
 @date_registry.register('end_date',
                         name_generator=_round_end_date_name_generator,
-                        order=0)
+                        round_chooser=(lambda obj: obj),
+                        order=1)
 @date_registry.register('results_date',
                         name_generator=(lambda obj:
-                                        _("Results of %s") % obj['name']),
+                                        _("Results of %s") % obj.name),
+                        round_chooser=(lambda obj: obj),
                         order=30)
 @date_registry.register('public_results_date',
                         name_generator=(lambda obj:
-                                        _("Public results of %s") %
-                                        obj['name']),
-                        order=30)
+                                        _("Public results of %s") % obj.name),
+                        round_chooser=(lambda obj: obj),
+                        order=31)
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"))
     name = models.CharField(max_length=255, verbose_name=_("name"),

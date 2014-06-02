@@ -1,3 +1,4 @@
+/* Line 335 was added to make this module suit OIOIOI timeline's needs */
 /**
  * @license
  * =========================================================
@@ -329,6 +330,9 @@
                               tmp.getMinutes(),
                               tmp.getSeconds(),
                               tmp.getMilliseconds())
+          // This line was added so that OIOIOI timeline could handle unset
+          // dates.
+          this._unset = true;
         }
       }
       this.viewDate = UTCDate(this._date.getUTCFullYear(), this._date.getUTCMonth(), 1, 0, 0, 0, 0);
