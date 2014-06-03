@@ -1,0 +1,44 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Teams" %}{% endblock %}
+
+{% block content %}
+
+<h2>{{ name }}</h2>
+<ul>
+    {% for member in members %}
+    <li>{{ member }}</li>
+    {% endfor %}
+</ul>
+
+{% if show_invite %}
+<p>
+    {% blocktrans %}There are still free places in your team. Invite your friends using the link:{% endblocktrans %}
+</p>
+<pre>{{ join_link }}</pre>
+<p class="alert">
+    {% blocktrans %}<strong>Note:</strong> The team can be modified until the first submission only.{% endblocktrans %}
+</p>
+{% endif %}
+
+{% if show_delete %}
+<p>
+    {% blocktrans %}You are the only member of the team, so you can delete the team.{% endblocktrans %}
+    <a class="btn btn-danger pull-right" href="{% url 'delete_team' contest_id=contest.id %}">
+                {% trans "Delete" %}
+    </a>
+</p>
+{% endif %}
+
+{% if show_quit %}
+<p>
+    <a class="btn btn-danger pull-right" href="{% url 'quit_team' contest_id=contest.id %}">
+                {% trans "Leave the team" %}
+    </a>
+</p>
+{% endif %}
+
+
+{% endblock %}

@@ -45,6 +45,7 @@ INSTALLED_APPS = (
     'oioioi.amppz',
     'oioioi.publicsolutions',
     'oioioi.testspackages',
+    'oioioi.teams',
     'oioioi.pa'
 ) + INSTALLED_APPS
 
