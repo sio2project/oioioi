@@ -575,7 +575,6 @@ class ProgrammingContestController(ContestController):
         show_scores = any(gr.score is not None for gr in group_reports)
         group_reports = dict((g.group, g) for g in group_reports)
 
-        show_actions_col = False
         allow_download_out = self.can_generate_user_out(request, report)
         all_outs_generated = allow_download_out
 
@@ -589,18 +588,15 @@ class ProgrammingContestController(ContestController):
             for test in tests_list:
                 test.generate_status = self._out_generate_status(request, test)
                 all_outs_generated &= (test.generate_status == 'OK')
-                show_actions_col |= (test.generate_status is not None)
-
-        show_actions_col &= allow_download_out
 
         return render_to_string('programs/report.html',
                 context_instance=RequestContext(request,
                     {'report': report, 'score_report': score_report,
                         'compilation_report': compilation_report,
                         'groups': groups, 'show_scores': show_scores,
-                        'show_actions': show_actions_col,
                         'allow_download_out': allow_download_out,
-                        'all_outs_generated': all_outs_generated}))
+                        'all_outs_generated': all_outs_generated,
+                        'is_admin': is_contest_admin(request)}))
 
     def render_submission_footer(self, request, submission):
         super_footer = super(ProgrammingContestController, self). \
