@@ -16,7 +16,7 @@
             function init_login() {
                 var jloginform = $('.navbar-login');
                 jloginform.focus().select();
-                if (!$.Storage.get('login-popover-shown')) {
+                if (!$.localStorage.get('login-popover-shown')) {
                     jloginform.popover({
                             placement: 'bottom',
                             offset: 9,
@@ -30,7 +30,7 @@
                             popover.show();
                             $(document).click(function() {
                                 popover.hide();
-                                $.Storage.set('login-popover-shown', 'yes');
+                                $.localStorage.set('login-popover-shown', 'yes');
                                 jloginform.focus();
                                 return true;
                             });
