@@ -382,7 +382,7 @@ def _make_base_report(env, kind):
 
 
 @transaction.commit_on_success
-def make_report(env, kind='NORMAL', scores=True, **kwargs):
+def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
     """Builds entities for tests results in a database.
 
        Used ``environ`` keys:
@@ -416,7 +416,7 @@ def make_report(env, kind='NORMAL', scores=True, **kwargs):
         test_report.test_group = test['group']
         test_report.test_time_limit = test.get('exec_time_limit')
         test_report.test_max_score = test['max_score']
-        test_report.score = scores and result['score'] or None
+        test_report.score = result['score'] if save_scores else None
         test_report.status = result['status']
         test_report.time_used = result['time_used']
         comment = result.get('result_string', '')
@@ -436,8 +436,9 @@ def make_report(env, kind='NORMAL', scores=True, **kwargs):
             continue
         group_report = GroupReport(submission_report=submission_report)
         group_report.group = group_name
-        group_report.score = scores and group_result['score'] or None
-        group_report.max_score = scores and group_result['max_score'] or None
+        group_report.score = group_result['score'] if save_scores else None
+        group_report.max_score = \
+                group_result['max_score'] if save_scores else None
         group_report.status = group_result['status']
         group_report.save()
         group_result['result_id'] = group_report.id
@@ -463,6 +464,7 @@ def delete_executable(env, **kwargs):
     return env
 
 
+@transaction.commit_on_success
 def fill_outfile_in_existing_test_reports(env, **kwargs):
     """Fill output files into existing test reports that are not directly
        related to present submission. Also change status of UserOutGenStatus
@@ -509,6 +511,7 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
     return env
 
 
+@transaction.commit_on_success
 def insert_existing_submission_link(env, **kwargs):
     """Add comment to some existing submission with link to submission view
        of present submission.
@@ -530,10 +533,12 @@ def insert_existing_submission_link(env, **kwargs):
     html_link = make_html_link(href, _("submission report") + ": " +
                                str(dst_submission.id))
     test_names = ', '.join(env.get('test_results', {}).keys())
+
+    # Note that the comment is overwritten by safe string.
     src_submission.comment = \
         "This is an internal submission created after someone requested to " \
-        "generate user output(s) on test(s): " + test_names + \
-        ", related to " + html_link
+        "generate user output on tests: %s, related to %s" % (test_names,
+        html_link)
     src_submission.save()
 
     return env
