@@ -1,9 +1,14 @@
+import os.path
+import urllib
+
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from nose.tools import nottest
+
 from oioioi.base.tests import check_not_accessible
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.models import Problem, ProblemStatement, \
@@ -28,6 +33,13 @@ class TestModels(TestCase):
         ps = ProblemStatement(pk=22, problem=p12)
         self.assertEqual(make_problem_filename(ps, 'a/hej.txt'),
                 'problems/12/hej.txt')
+
+
+@nottest
+def get_test_filename(name):
+    import oioioi.sinolpack
+    return os.path.join(os.path.dirname(oioioi.sinolpack.__file__), 'files',
+                        name)
 
 
 class TestProblemViews(TestCase, TestStreamingMixin):
@@ -103,3 +115,39 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self._test_problem_permissions()
         self.client.login(username='test_user')
         self._test_problem_permissions()
+
+    def test_problem_submission_limit_changed(self):
+        ProblemInstance.objects.all().delete()
+        Problem.objects.all().delete()
+
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_simple_package.zip')
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id},
+                follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 1)
+
+        problem = ProblemInstance.objects.get().problem
+        contest.default_submissions_limit += 100
+        contest.save()
+
+        url = reverse('add_or_update_contest_problem',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'problem': problem.id})
+        response = self.client.get(url, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        pis = ProblemInstance.objects.filter(problem=problem)
+        self.assertEqual(pis.count(), 1)

@@ -78,8 +78,11 @@ def add_or_update_problem_view(request, contest_id=None):
                 problem.contest = contest
                 problem.save()
             pi, created = ProblemInstance.objects.get_or_create(
-                    problem=problem, contest=contest,
-                    submissions_limit=contest.default_submissions_limit)
+                    problem=problem, contest=contest)
+            if created:
+                pi.submissions_limit = contest.default_submissions_limit
+                pi.save()
+
             contest.controller.process_uploaded_problem(problem, pi,
                     is_new=(not existing_problem))
             if not pi.round:
