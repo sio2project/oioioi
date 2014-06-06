@@ -27,8 +27,10 @@ def can_make_complaint(request):
         return False
     try:
         cconfig = request.contest.complaints_config
-        return cconfig.enabled and request.timestamp >= cconfig.start_date \
-                and request.timestamp <= cconfig.end_date
+        ret = cconfig.enabled and request.timestamp >= cconfig.start_date
+        if cconfig.end_date is not None:
+            ret = ret and request.timestamp <= cconfig.end_date
+        return ret
     except ComplaintsConfig.DoesNotExist:
         return False
 
