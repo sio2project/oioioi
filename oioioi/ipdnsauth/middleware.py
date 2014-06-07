@@ -1,5 +1,10 @@
+from oioioi.contests.utils import is_contest_admin
+from oioioi.participants.models import Participant
+from oioioi.su.utils import is_under_su, reset_to_real_user
+
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
+from django.template.response import TemplateResponse
 
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
@@ -27,3 +32,46 @@ class IpDnsAuthMiddleware(object):
         user = auth.authenticate(ip_addr=ip_addr, dns_name=dns_name)
         if user:
             auth.login(request, user)
+
+
+# Code based on django.contrib.auth.middleware.RemoteUserMiddleware
+class ForceDnsIpAuthMiddleware(object):
+    """Middleware which allows only IP/DNS login for participants for
+       on-site contests."""
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if not hasattr(request, 'user'):
+            raise ImproperlyConfigured(
+                "The ForceDnsIpAuthMiddleware middleware requires the"
+                " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
+                " earlier in MIDDLEWARE_CLASSES.")
+        if not request.user.is_anonymous() and \
+                not hasattr(request.user, 'backend'):
+            raise ImproperlyConfigured(
+                "The ForceDnsIpAuthMiddleware middleware requires the"
+                " 'oioioi.base.middleware.AnnotateUserBackendMiddleware'"
+                " earlier in MIDDLEWARE_CLASSES.")
+        if not hasattr(request, 'contest'):
+            raise ImproperlyConfigured(
+                "The ForceDnsIpAuthMiddleware middleware requires the"
+                " 'oioioi.contests.middleware.CurrentContestMiddleware'"
+                " earlier in MIDDLEWARE_CLASSES.")
+        if not request.contest:
+            return
+        if not request.contest.controller.is_onsite():
+            return
+        if not request.user.is_authenticated():
+            return
+        if is_contest_admin(request):
+            return
+        if not Participant.objects.filter(
+                user=request.user, contest=request.contest, status='ACTIVE'):
+            return
+        backend_path = request.user.backend
+        if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':
+            if is_under_su(request):
+                reset_to_real_user(request)
+            else:
+                auth.logout(request)
+            return TemplateResponse(request, 'ipdnsauth/access_blocked.html',
+                                    {'auth_backend': backend_path})
