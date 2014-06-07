@@ -161,4 +161,7 @@ class OIOnsiteContestController(OIContestController):
 
     def should_confirm_submission_receipt(self, request, submission):
         return False
+
+    def is_onsite(self):
+        return True
 OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)

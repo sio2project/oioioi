@@ -811,6 +811,10 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return ()
 
+    def is_onsite(self):
+        """Determines whether the contest is on-site."""
+        return False
+
 
 class PastRoundsHiddenContestControllerMixin(object):
     """ContestController mixin that hides past rounds
