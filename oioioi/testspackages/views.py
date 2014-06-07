@@ -41,7 +41,6 @@ def tests_view(request, contest_id):
         t = {'name': os.path.basename(tp.name) + '.zip',
              'link': reverse('test', kwargs={'contest_id': contest_id,
                                              'package_id': tp.id}),
-             'round': round,
              'description': tp.description}
         tests.append(t)
     return TemplateResponse(request, 'testspackages/tests.html',
