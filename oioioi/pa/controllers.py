@@ -1,10 +1,14 @@
+import datetime
+
 from django import forms
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.utils import all_public_results_visible
+from oioioi.contests.utils import all_public_results_visible, \
+        is_contest_admin, is_contest_observer
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
@@ -187,3 +191,30 @@ class PARankingController(DefaultRankingController):
 
     def _allow_zero_score(self):
         return False
+
+
+class PAFinalsContestController(ACMContestController):
+    description = _("Algorithmic Engagements finals")
+
+    def can_print_files(self, request):
+        return True
+
+    def can_see_livedata(self, request):
+        return True
+
+    def is_onsite(self):
+        return True
+
+    def can_see_ranking(self, request):
+        return is_contest_admin(request) or is_contest_observer(request)
+
+    def get_round_freeze_time(self, round):
+        if not round.end_date:
+            return None
+        if round.is_trial:
+            frozen_ranking_minutes = 15
+        else:
+            frozen_ranking_minutes = 60
+
+        return round.end_date - \
+               datetime.timedelta(minutes=frozen_ranking_minutes)
