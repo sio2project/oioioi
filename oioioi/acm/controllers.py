@@ -84,7 +84,8 @@ class ACMContestController(ProgrammingContestController):
                 self.contest = contest
                 self.user = user or AnonymousUser()
 
-        rtimes = rounds_times(DummyRequest(self.contest, submission.user))
+        rtimes = rounds_times(DummyRequest(self.contest, submission.user or
+                                           AnonymousUser()))
         round_start = rtimes[submission.problem_instance.round].get_start()
         submission_time = submission.date - round_start
         # Python2.6 does not support submission_time.total_seconds()

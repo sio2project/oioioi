@@ -87,7 +87,7 @@ def rounds_times(request):
 
     rounds = [r for r in Round.objects.filter(contest=request.contest)]
     rids = [r.id for r in rounds]
-    if request.user.is_anonymous():
+    if not request.user or request.user.is_anonymous():
         rtexts = {}
     else:
         rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects
