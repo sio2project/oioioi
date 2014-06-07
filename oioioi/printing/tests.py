@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from oioioi.printing.pdf import generator
 from oioioi.contests.models import Contest
+from oioioi.contests.controllers import ContestController
 import slate
 from StringIO import StringIO
 
@@ -18,6 +19,11 @@ SAMPLE_TEXT = """Lorem ipsum dolor sit amet, consectetur adipiscing
         In hac habitasse platea dictumst. Praesent interdum, ipsum ac
         sagittis facilisis, tortor tortor viverra tortor, vehicula
         pellentesque nulla sem nec leo.""" * 100
+
+
+class PrintingTestContestController(ContestController):
+    def can_print_files(self, request):
+        return True
 
 
 class TestPDFGenerator(TestCase):
@@ -36,6 +42,9 @@ class TestPrintingView(TestCase):
     def setUp(self):
         self.client.login(username='test_user')
         self.contest = Contest.objects.get()
+        self.contest.controller_name = \
+            'oioioi.printing.tests.PrintingTestContestController'
+        self.contest.save()
         self.url = reverse('print_view',
                            kwargs={'contest_id': self.contest.id})
 

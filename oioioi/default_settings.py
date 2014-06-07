@@ -353,7 +353,7 @@ GOOGLE_ANALYTICS_TRACKING_ID = None
 PRINTING_FONT_SIZE = 8  # in pt
 PRINTING_MAX_FILE_SIZE = 1024 * 100  # in kB
 PRINTING_MAX_FILE_PAGES = 10
-PRINTING_COMMAND = ['lp']  # as argv list
+PRINTING_COMMAND = ['lp', '-o landscape', '-o sides=two-sided-short-edge']
 
 # To get unlimited submissions count set to 0.
 DEFAULT_SUBMISSIONS_LIMIT = 10

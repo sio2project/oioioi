@@ -3,6 +3,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from oioioi.printing.pdf import generator, PageLimitExceeded
+from oioioi.programs.utils import decode_str
 
 
 def is_text_file_validator(file):
@@ -26,11 +27,12 @@ class PrintForm(forms.Form):
 
     def clean_file(self):
         cleaned_data = self.cleaned_data
-        orig = cleaned_data['file'].file.read()
+        orig, _decode_error = decode_str(cleaned_data['file'].file.read())
         try:
             cleaned_data['file'] = generator(
                 source=orig.expandtabs(4),
-                header=unicode(self.user))
+                header=unicode(
+                    '%s (%s)' % (self.user.get_full_name(), self.user)))
         except PageLimitExceeded:
             raise ValidationError(_("The page limit exceeded."))
         return cleaned_data['file']
