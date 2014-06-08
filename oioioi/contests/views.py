@@ -168,7 +168,10 @@ def my_submissions_view(request, contest_id):
     queryset = Submission.objects \
             .filter(problem_instance__contest=request.contest) \
             .order_by('-date') \
-            .select_related()
+            .select_related('user', 'problem_instance',
+                            'problem_instance__contest',
+                            'problem_instance__round',
+                            'problem_instance__problem')
     controller = request.contest.controller
     queryset = controller.filter_my_visible_submissions(request, queryset)
     submissions = [submission_template_context(request, s) for s in queryset]
