@@ -267,9 +267,11 @@ class UserListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         # Unique users that have submitted something in this contest
-        users = list(set(Submission.objects
+        users = list(Submission.objects
                 .filter(problem_instance__contest=request.contest)
-                .values_list('user__id', 'user__username')))
+                .distinct()
+                .order_by('user__username')
+                .values_list('user__id', 'user__username'))
         if (None, None) in users:
             users = [x for x in users if x != (None, None)]
             users.append(('None', _("(None)")))
