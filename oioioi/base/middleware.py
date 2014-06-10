@@ -1,13 +1,18 @@
 # pylint: disable=W0703
 # Catching too general exception Exception
 
+from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
+from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.http import HttpResponseNotAllowed
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 
+from oioioi.base.views import has_valid_username
 from oioioi.su.utils import is_under_su
 
 
@@ -81,3 +86,24 @@ class UserInfoInErrorMessage(object):
 
         except Exception:
             pass
+
+
+class CheckLoginMiddleware(object):
+    def process_request(self, request):
+        if has_valid_username(request.user):
+            return
+        storage = messages.get_messages(request)
+        check_login_message = \
+                _("Your login - %s - contains not allowed characters. "
+                  "Please click <a href='%s'>here</a> to change it. "
+                  "It will take only a while.") \
+                          % (request.user.username, reverse('edit_profile'))
+
+        # https://docs.djangoproject.com/en/dev/ref/contrib/messages/#expiration-of-messages
+        all_messages = [s.message for s in storage]
+        storage.used = False
+
+        if check_login_message in all_messages:
+            return
+        messages.add_message(request, messages.INFO,
+                mark_safe(check_login_message))
