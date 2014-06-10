@@ -41,6 +41,7 @@ class TestRunProblemControllerMixin(object):
 
         environ['save_outputs'] = True
         environ['check_outputs'] = False
+        environ['report_kinds'] = ['TESTRUN']
 
     def mixins_for_admin(self):
         from oioioi.testrun.admin import TestRunProgrammingProblemAdminMixin
