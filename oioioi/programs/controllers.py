@@ -96,7 +96,7 @@ class ProgrammingProblemController(ProblemController):
                         dict(kind=None)),
                     ('userout_make_report',
                         'oioioi.programs.handlers.make_report',
-                        dict(kind='USER_OUTS', scores=False)),
+                        dict(kind='USER_OUTS', save_scores=False)),
                     ('userout_fill_outfile_in_existing_test_reports',
                         'oioioi.programs.handlers.'
                         'fill_outfile_in_existing_test_reports'),
@@ -531,7 +531,10 @@ class ProgrammingContestController(ContestController):
 
     def render_submission(self, request, submission):
         if submission.kind == 'USER_OUTS':
-            # safe html href in comment
+            # The comment includes safe string, because it is generated
+            # automatically (users can not affect it).
+            # Note that we temporarily assign a safestring object, because
+            # field type in model is originally a string.
             submission.programsubmission.comment = \
                 mark_safe(submission.programsubmission.comment)
 
@@ -545,15 +548,12 @@ class ProgrammingContestController(ContestController):
 
     def _out_generate_status(self, request, testreport):
             try:
-                download_control = UserOutGenStatus.objects.get(
-                                                        testreport=testreport)
-
                 if is_contest_admin(request) or \
-                        download_control.visible_for_user:
+                        testreport.userout_status.visible_for_user:
                     # making sure, that output really exists or is processing
                     if bool(testreport.output_file) or \
-                            download_control.status == '?':
-                        return download_control.status
+                            testreport.userout_status.status == '?':
+                        return testreport.userout_status.status
 
             except UserOutGenStatus.DoesNotExist:
                 if bool(testreport.output_file):

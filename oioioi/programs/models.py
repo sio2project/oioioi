@@ -241,6 +241,7 @@ class ReportActionsConfig(models.Model):
 
 
 class UserOutGenStatus(models.Model):
-    testreport = models.OneToOneField(TestReport, primary_key=True)
+    testreport = models.OneToOneField(TestReport, primary_key=True,
+                                      related_name='userout_status')
     status = EnumField(submission_statuses, default='?')
     visible_for_user = models.BooleanField(default=True)

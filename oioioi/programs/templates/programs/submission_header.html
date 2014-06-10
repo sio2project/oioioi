@@ -73,7 +73,7 @@
                     function() {
                         $('#diff-button-save').click(
                             function() {
-                                $.get("{% url 'save_diff_id' contest_id=contest.id submission_id=submission.submission.id %}",
+                                $.get('{% url 'save_diff_id' contest_id=contest.id submission_id=submission.submission.id %}',
                                     function(data) {
                                         $('#diff-button-save').addClass('disabled');
                                         $('#diff-button-save > span').text('{% trans "Saved for diffing" %}');
