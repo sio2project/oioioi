@@ -10,11 +10,11 @@ GITHUB_LINK = "https://github.com/sio2project/oioioi/" \
 def version_check():
     deployment_config_version = getattr(settings, 'CONFIG_VERSION', 0)
     if deployment_config_version != INSTALLATION_CONFIG_VERSION:
-        raise ImproperlyConfigured(_("Your deployment config version "
-                "(%(deployment_version)s) does not match the config version "
-                "(%(version)s) of your OIOIOI installation. Please "
-                "consult %(href)s for the list of "
-                "changes in the deployment directory.") %
+        raise ImproperlyConfigured(_("The 'CONFIG_VERSION' in your custom "
+                "deployment directory (%(deployment_version)s) does not match "
+                "the 'INSTALLATION_CONFIG_VERSION' (%(version)s) in "
+                "'default_settings.py'. Please consult %(href)s for the list "
+                "of changes in the deployment directory.") %
                 {
                     'deployment_version': deployment_config_version,
                     'version': INSTALLATION_CONFIG_VERSION,
