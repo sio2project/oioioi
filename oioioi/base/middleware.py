@@ -94,10 +94,11 @@ class CheckLoginMiddleware(object):
             return
         storage = messages.get_messages(request)
         check_login_message = \
-                _("Your login - %s - contains not allowed characters. "
-                  "Please click <a href='%s'>here</a> to change it. "
+                _("Your login - %(login)s - contains not allowed characters. "
+                  "Please click <a href='%(link)s'>here</a> to change it. "
                   "It will take only a while.") \
-                          % (request.user.username, reverse('edit_profile'))
+                          % {'login': request.user.username,
+                             'link': reverse('edit_profile')}
 
         # https://docs.djangoproject.com/en/dev/ref/contrib/messages/#expiration-of-messages
         all_messages = [s.message for s in storage]
