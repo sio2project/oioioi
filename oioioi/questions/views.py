@@ -177,7 +177,11 @@ def add_contest_message_view(request, contest_id):
             return redirect('contest_messages', contest_id=contest_id)
 
     else:
-        form = AddContestMessageForm(request)
+        initial = {}
+        for field in ('category', 'topic', 'content'):
+            if field in request.GET:
+                initial[field] = request.GET[field]
+        form = AddContestMessageForm(request, initial=initial)
 
     if is_admin:
         title = _("Add news")
