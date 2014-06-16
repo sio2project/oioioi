@@ -37,14 +37,19 @@ class ContestTeacher(models.Model):
 
 class RegistrationConfig(models.Model):
     contest = models.OneToOneField(Contest, primary_key=True)
-    is_active = models.BooleanField(default=True)
-    key = models.CharField(max_length=40)
+    is_active_pupil = models.BooleanField(default=True)
+    is_active_teacher = models.BooleanField(default=True)
+    pupil_key = models.CharField(max_length=40)
+    teacher_key = models.CharField(max_length=40)
 
-    def save(self, *args, **kwargs):
-        if not self.key:
-            self.generate_key()
-        super(RegistrationConfig, self).save(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        super(RegistrationConfig, self).__init__(*args, **kwargs)
+        if self.contest:
+            if not self.teacher_key:
+                self.teacher_key = self.generate_key()
+            if not self.pupil_key:
+                self.pupil_key = self.generate_key()
 
     def generate_key(self):
         data = str(random.random()) + str(self.contest_id)
-        self.key = hashlib.sha1(data).hexdigest()
+        return hashlib.sha1(data).hexdigest()

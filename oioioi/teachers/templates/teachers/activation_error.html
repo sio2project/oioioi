@@ -3,9 +3,11 @@
 
 {% block content %}
 <div class="empty-space-filler">
-    {% if not registration_active %}
-    <p>{% trans "Registration has been disabled by the teacher." %}</p>
-    {% elif not key_ok %}
+    {% if teacher_key_ok and not teacher_registration_active %}
+    <p>{% trans "Registration for teachers has been disabled." %}</p>
+    {% elif pupil_key_ok and not pupil_regitration_active %}
+    <p>{% trans "Registration for pupils has been disabled." %}</p>
+    {% elif not teacher_key_ok and not pupil_key_ok %}
     <p>{% trans "Invalid activation link." %}</p>
     {% endif %}
 </div>

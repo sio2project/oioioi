@@ -8,6 +8,7 @@ from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.http import Http404
 from django.views.decorators.http import require_POST
 
 from oioioi.base.menu import account_menu_registry
@@ -108,97 +109,156 @@ def accept_teacher_view(request, user_id):
 
 
 @contest_admin_menu_registry.register_decorator(_("Pupils"), lambda request:
-        reverse(pupils_view, kwargs={'contest_id': request.contest.id}),
-    order=30)
+        reverse(members_view, kwargs={'contest_id': request.contest.id,
+                                      'member_type': 'pupil'}), order=30)
+@contest_admin_menu_registry.register_decorator(_("Teachers"), lambda request:
+        reverse(members_view, kwargs={'contest_id': request.contest.id,
+                                      'member_type': 'teacher'}), order=31)
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def pupils_view(request, contest_id):
-    teachers = User.objects \
-            .filter(teacher__contestteacher__contest=request.contest)
-    pupils = User.objects.filter(participant__contest=request.contest)
+def members_view(request, contest_id, member_type):
     registration_config, created = RegistrationConfig.objects.get_or_create(
             contest=request.contest)
+
+    if member_type == 'teacher':
+        members = User.objects \
+            .filter(teacher__contestteacher__contest=request.contest)
+        key = registration_config.teacher_key
+        is_registration_active = registration_config.is_active_teacher
+    elif member_type == 'pupil':
+        members = User.objects.filter(participant__contest=request.contest)
+        key = registration_config.pupil_key
+        is_registration_active = registration_config.is_active_pupil
+    else:
+        raise Http404
+
     registration_link = request.build_absolute_uri(
-            reverse(activate_pupil_view, kwargs=
-                {'contest_id': contest_id, 'key': registration_config.key}))
+            reverse(activate_view, kwargs=
+                {'contest_id': contest_id,
+                 'key': key}))
     other_contests = Contest.objects \
             .filter(contestteacher__teacher__user=request.user) \
             .exclude(id=request.contest.id)
-    return TemplateResponse(request, 'teachers/pupils.html', {
-                'teachers': teachers,
-                'pupils': pupils,
+
+    return TemplateResponse(request, 'teachers/members.html', {
+                'member_type': member_type,
+                'members': members,
                 'registration_config': registration_config,
                 'registration_link': registration_link,
                 'other_contests': other_contests,
+                'is_registration_active': is_registration_active,
             })
 
 
 @enforce_condition(not_anonymous & is_teachers_contest)
-def activate_pupil_view(request, contest_id, key):
+def activate_view(request, contest_id, key):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
-    key_ok = registration_config.key == key
-    if key_ok and registration_config.is_active:
-        is_teacher = request.user.has_perm('teachers.teacher')
-        if not request.method == 'POST' or 'register_as' not in request.POST:
-            return TemplateResponse(request, 'teachers/confirm_join.html',
-                {'key': key, 'is_teacher': is_teacher})
+    t_active = registration_config.is_active_teacher
+    p_active = registration_config.is_active_pupil
+    t_key_ok = registration_config.teacher_key == key
+    p_key_ok = registration_config.pupil_key == key
+
+    if not (t_key_ok and t_active) and not (p_key_ok and p_active):
+        return TemplateResponse(request, 'teachers/activation_error.html', {
+            'teacher_key_ok': t_key_ok,
+            'pupil_key_ok': p_key_ok,
+            'teacher_registration_active': t_active,
+            'pupil_registration_active': p_active,
+        })
+
+    is_teacher_registration = False
+    has_teacher_perm = request.user.has_perm('teachers.teacher')
+
+    if t_key_ok:
+        if has_teacher_perm:
+            is_teacher_registration = True
         else:
-            register_as = request.POST['register_as']
-            if register_as == 'pupil':
-                Participant.objects.get_or_create(contest=request.contest,
-                        user=request.user)
-            elif is_teacher and register_as == 'teacher':
-                teacher_obj = get_object_or_404(Teacher, user=request.user)
-                ContestTeacher.objects.get_or_create(contest=request.contest,
-                        teacher=teacher_obj)
-            else:
-                raise SuspiciousOperation
+            raise Http404
+
+    if not request.method == 'POST' or 'register_as' not in request.POST:
+        return TemplateResponse(request, 'teachers/confirm_join.html',
+            {'key': key, 'has_teacher_perm': has_teacher_perm,
+             'is_teacher_registration': is_teacher_registration})
+    else:
+        register_as = request.POST['register_as']
+        created = True
+        if register_as == 'pupil':
+            _p, created = Participant.objects.get_or_create(
+                                                contest=request.contest,
+                                                user=request.user)
+        elif is_teacher and register_as == 'teacher':
+            teacher_obj = get_object_or_404(Teacher, user=request.user)
+            _ct, created = ContestTeacher.objects.get_or_create(
+                                                contest=request.contest,
+                                                teacher=teacher_obj)
+        else:
+            raise SuspiciousOperation
+
+        if not created:
+            messages.info(request, _("You are already registered."))
+        else:
             messages.info(request, _("Activation successful."))
-            return redirect('default_contest_view', contest_id=contest_id)
-    return TemplateResponse(request, 'teachers/activation_error.html', {
-                'key_ok': key_ok,
-                'registration_active': registration_config.is_active,
-            })
+
+        return redirect('default_contest_view', contest_id=contest_id)
 
 
-def redirect_to_pupils(request):
-    return redirect(reverse(pupils_view, kwargs={'contest_id':
-        request.contest.id}))
+def redirect_to_members(request, member_type='pupil'):
+    return redirect(reverse(members_view, kwargs={'contest_id':
+        request.contest.id, 'member_type': member_type}))
 
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def set_registration_view(request, contest_id, value):
+def set_registration_view(request, contest_id, value, member_type='pupil'):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
-    registration_config.is_active = value
+    if member_type == 'teacher':
+        registration_config.is_active_teacher = value
+    elif member_type == 'pupil':
+        registration_config.is_active_pupil = value
+    else:
+        raise Http404
+
     registration_config.save()
-    return redirect_to_pupils(request)
+    return redirect_to_members(request, member_type)
 
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def regenerate_key_view(request, contest_id):
+def regenerate_key_view(request, contest_id, member_type):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
-    registration_config.generate_key()
+
+    if member_type == 'teacher':
+        registration_config.teacher_key = registration_config.generate_key()
+    elif member_type == 'pupil':
+        registration_config.pupil_key = registration_config.generate_key()
+    else:
+        raise Http404
+
     registration_config.save()
-    return redirect_to_pupils(request)
+
+    return redirect_to_members(request, member_type)
 
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def delete_pupils_view(request, contest_id):
-    ContestTeacher.objects.filter(contest=request.contest,
-            teacher__user_id__in=request.POST.getlist('teacher')).delete()
-    Participant.objects.filter(contest=request.contest,
-            user_id__in=request.POST.getlist('pupil')).delete()
-    return redirect_to_pupils(request)
+def delete_members_view(request, contest_id, member_type):
+    if member_type == 'teacher':
+        ContestTeacher.objects.filter(contest=request.contest,
+                teacher__user_id__in=request.POST.getlist('member')).delete()
+    elif member_type == 'pupil':
+        Participant.objects.filter(contest=request.contest,
+                user_id__in=request.POST.getlist('member')).delete()
+    else:
+        raise Http404
+
+    return redirect_to_members(request, member_type)
 
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def bulk_add_pupils_view(request, contest_id, other_contest_id):
+def bulk_add_members_view(request, contest_id, other_contest_id):
     other_contest = get_object_or_404(Contest, id=other_contest_id)
     if not request.user.has_perm('contests.contest_admin', other_contest):
         raise PermissionDenied
@@ -208,4 +268,6 @@ def bulk_add_pupils_view(request, contest_id, other_contest_id):
     for ct in ContestTeacher.objects.filter(contest=other_contest):
         ContestTeacher.objects.get_or_create(contest=request.contest,
                 teacher=ct.teacher)
-    return redirect_to_pupils(request)
+
+    messages.info(request, _("Import members completed successfully."))
+    return redirect('contest_dashboard', contest_id=contest_id)
