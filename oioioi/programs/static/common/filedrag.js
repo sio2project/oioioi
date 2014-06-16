@@ -1,3 +1,5 @@
+var ddzone_hide_timeout = null;
+
 $(function() {
     if (window.File && window.FileList && window.FileReader) {
 
@@ -5,14 +7,17 @@ $(function() {
             return;
         }
 
-        $('.wrapper').on('dragover', ShowDdzone);
+        $('html').on('dragover', ShowDdzone);
         // prevent opening in browser file dropped not in drop area
-        $('#ddzone').on('drop', HideDdzone);
+        $('html').on('drop', HideDdzone);
+        $('input[type=file]').on('dragover', DdzoneException);
+        $('input[type=file]').on('drop', DdzoneException);
+        $('#ddzone').on('dragover', ShowDdzone);
+        $('#droparea').on('dragover', ShowDdzone);
         $('#droparea').on('dragover', DropAreaHover);
         $('#droparea').on('dragleave', DropAreaHover);
         $('#droparea').on('drop', DropedFileHandler);
-        $('#ddzone').on('click', HideDdzone);
-        $('#ddzone').on('dragleave', HideDdzone);
+        $('html').on('dragleave', HideDdzone);
     }
 });
 
@@ -31,12 +36,31 @@ function ShowDdzone(e) {
     e.stopPropagation();
     // necessary to prevent opening file dropped outside drop area
     e.preventDefault();
-    // do not even show ddzone for elements of window
-    if (e.originalEvent.dataTransfer.types.indexOf('Files') == -1) {
+
+    // Do not show drag-and-drop if not dropping files.
+    // This explicit loop is needed on Firefox, where types is not
+    // an array, but an object.
+    var types = e.originalEvent.dataTransfer.types;
+    var has_file = false;
+    console.log(types);
+    for (var i = 0; i < types.length; i++) {
+        if (types[i] == 'Files') {
+            has_file = true;
+            break;
+        }
+    }
+    if (!has_file) {
         return;
     }
-    $('#droparea').removeClass().html(gettext("Drop file here"));
+
+    $('#droparea').removeClass()
+    $('#dropmsg').html(gettext("Drop file here"));
     $('#ddzone').show();
+    clearTimeout(ddzone_hide_timeout);
+}
+
+function DdzoneException(e) {
+    e.stopPropagation();
 }
 
 function HideDdzone(e) {
@@ -46,12 +70,14 @@ function HideDdzone(e) {
 }
 
 function filedragHide() {
-    $('#ddzone').fadeOut(200);
+    ddzone_hide_timeout = setTimeout(function() {
+        $('#ddzone').hide();
+    }, 100);
 }
 
 function filedragNotifyErr(message) {
     $('#droparea').removeClass('hover').addClass('error');
-    $('#droparea').html(message);
+    $('#dropmsg').html(message);
     setTimeout(filedragHide, 1500);
 }
 
@@ -62,24 +88,24 @@ function DropedFileHandler(e) {
     e.preventDefault();
 
     // fetch FileList object
-    org = e.originalEvent;
+    var org = e.originalEvent;
     var files = org.target.files || org.dataTransfer.files;
 
     if (files.length != 1) {
-        filedragNotifyErr(gettext("Aborted! Drop one file."));
+        filedragNotifyErr(gettext("Drop one file."));
         return;
     }
     if (files[0].size == 0) {
-        filedragNotifyErr(gettext("Aborted! Empty file dropped."));
+        filedragNotifyErr(gettext("File is empty."));
         return;
     }
     // Size in bytes (characters)
     if (files[0].size > 61440) {
-        filedragNotifyErr(gettext("Aborted! Too big file dropped."));
+        filedragNotifyErr(gettext("File too big."));
         return;
     }
     if (files[0].type && !files[0].type.match('text.*')) {
-        filedragNotifyErr(gettext("Aborted! Drop a valid text file."));
+        filedragNotifyErr(gettext("Not a text file."));
         return;
     }
 

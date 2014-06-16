@@ -1,24 +1,33 @@
 /*------------------------ Drag & Drop Zone -----------------------------*/
 #ddzone {
     display: none;
-    width: 100%;
-    height: 100%;
-    background: black;
-    filter:alpha(opacity=60);
-    opacity:0.6;
+    height: 180px;
+    width: calc(100% - 233px);
     position: fixed;
-    top: 0;
+    left: 233px;
+    bottom: 0;
     z-index: 1;
+    background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,0.15) 50%,rgba(0,0,0,0.15) 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#26000000',GradientType=0 ); /* IE6-9 */
+}
+
+#ddzone > form {
+    margin: 0;
 }
 
 #droparea {
+    width: 94%;
+    height: 100px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
     font-weight: bold;
-    text-align: center;
-    padding: 5em 0;
-    margin: 20% 20%;
+    font-size: 24px;
+    padding: 0;
     color: #555;
-    border: 2px dashed #555;
-    border-radius: 7px;
+    border: 3px dashed #555;
+    border-radius: 14px;
+    display: table;
 }
 
 #droparea.hover {
@@ -31,4 +40,11 @@
     color: red;
     border-color: red;
     border-style: solid;
+}
+
+#dropmsg {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    padding: 30px;
 }
