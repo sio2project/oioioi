@@ -1,0 +1,40 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Participants' data" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Participants' data" %}</h2>
+
+{% if no_participants %}
+{% blocktrans %} There are no participants at the moment ;( {% endblocktrans %}
+{% else %}
+<div class="corner-icons">
+    <a class="btn btn-small" href="{% url 'participants_data_csv' contest_id=contest.id %}">
+        <i class="icon-download"></i>
+        <span class="toolbar-button-text">{% trans "Export to CSV" %}</span>
+    </a>
+</div>
+<div>
+<table class="table">
+    <thead>
+        <tr>
+            {% for key in keys %}
+            <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in data %}
+        <tr>
+            {% for value in row %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+
+{% endblock %}

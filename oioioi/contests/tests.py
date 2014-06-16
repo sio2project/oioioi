@@ -26,7 +26,7 @@ from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        can_enter_contest, rounds_times
+        can_enter_contest, rounds_times, can_see_personal_data
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
@@ -1329,3 +1329,11 @@ class TestContestLinks(TestCase):
                         response.content.index('Test Menu Item 2'))
         self.assertLess(response.content.index('/test_menu_link1'),
                         response.content.index('/test_menu_link2'))
+
+
+class TestPersonalDataUser(TestCase):
+    fixtures = ['test_permissions']
+
+    def testUser(self):
+        self.client.login(username='test_personal_data_user')
+        self.assertTrue(can_see_personal_data)
