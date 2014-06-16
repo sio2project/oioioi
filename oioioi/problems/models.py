@@ -1,14 +1,15 @@
+import os.path
+
 from django.core.validators import validate_slug
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import get_valid_filename
+
 from oioioi.base.fields import DottedNameField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.filetracker.fields import FileField
-
-import os.path
 
 
 def make_problem_filename(instance, filename):
@@ -64,6 +65,16 @@ class Problem(models.Model):
 def _call_controller_adjust_problem(sender, instance, raw, **kwargs):
     if not raw and instance.controller_name:
         instance.controller.adjust_problem()
+
+
+@receiver(pre_delete, sender=Problem)
+def _check_problem_instance_integrity(sender, instance, **kwargs):
+    from oioioi.contests.models import ProblemInstance
+    pis = ProblemInstance.objects.filter(problem=instance)
+    if pis.count() > 1:
+        raise RuntimeError("Multiple ProblemInstance objects for a single "
+                    "problem. Please reopen "
+                    "https://jira.sio2project.mimuw.edu.pl/browse/SIO-1517")
 
 
 class ProblemStatement(models.Model):
