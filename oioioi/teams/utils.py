@@ -1,5 +1,6 @@
-from oioioi.base.permissions import make_request_condition
-from oioioi.teams.models import TeamMembership, TeamsConfig
+from oioioi.base.permissions import make_request_condition, not_anonymous
+from oioioi.contests.utils import is_contest_admin
+from oioioi.teams.models import Team, TeamMembership, TeamsConfig
 
 
 @make_request_condition
@@ -8,6 +9,19 @@ def teams_enabled(request):
         return request.contest.teamsconfig.enabled
     except TeamsConfig.DoesNotExist:
         return False
+
+
+@make_request_condition
+def can_see_teams_list(request):
+    if not Team.objects.filter(contest=request.contest).exists():
+        return False
+    try:
+        cfg = TeamsConfig.objects.get(contest=request.contest)
+    except TeamsConfig.DoesNotExist:
+        return is_contest_admin(request)
+    return is_contest_admin(request) | \
+            (cfg.teams_list_visible == 'PUBLIC') | \
+            ((cfg.teams_list_visible == 'YES') & not_anonymous(request))
 
 
 def team_members_count(request):

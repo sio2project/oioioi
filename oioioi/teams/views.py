@@ -10,7 +10,8 @@ from oioioi.contests.utils import can_enter_contest, contest_exists
 from oioioi.teams.models import Team, TeamMembership
 from oioioi.teams.forms import CreateTeamForm
 from oioioi.teams.utils import can_create_team, can_join_team, can_quit_team, \
-                               can_delete_team, has_team, teams_enabled
+                               can_delete_team, has_team, teams_enabled, \
+                               can_see_teams_list
 
 
 def create_team(login, name, contest):
@@ -25,7 +26,18 @@ def team_members_names(request, team):
            for membership in team.members.all()]
 
 
-@menu_registry.register_decorator(_("Team"), lambda request:
+@menu_registry.register_decorator(_("Teams"), lambda request:
+        reverse('teams_list', kwargs={'contest_id': request.contest.id}),
+    order=50)
+@enforce_condition(can_see_teams_list & contest_exists & can_enter_contest)
+def teams_list(request, contest_id):
+    teams = [{'name': team.name,
+             'members': team_members_names(request, team)}
+             for team in Team.objects.filter(contest=request.contest)]
+    return TemplateResponse(request, 'teams/teams.html', {'teams': teams})
+
+
+@menu_registry.register_decorator(_("My Team"), lambda request:
         reverse('team_view', kwargs={'contest_id': request.contest.id}),
     order=50)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest &

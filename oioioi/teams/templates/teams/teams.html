@@ -1,0 +1,21 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Teams" %}{% endblock %}
+
+{% block content %}
+
+<h2>{{ name }}</h2>
+<ul>
+    {% for team in teams %}
+    <li>{{ team.name }}</li>
+    <ul>
+        {% for member in team.members %}
+        <li>{{ member }}</li>
+        {% endfor %}
+    </ul>
+    {% endfor %}
+</ul>
+
+{% endblock %}

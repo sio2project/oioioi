@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
+from oioioi.base.fields import EnumRegistry, EnumField
 
 from oioioi.contests.models import Contest
 
@@ -53,6 +54,12 @@ class TeamMembership(models.Model):
                     {'user': {"The user is already in another team"}})
 
 
+teams_list_visibility_options = EnumRegistry()
+teams_list_visibility_options.register('PUBLIC', _("Visible for all"))
+teams_list_visibility_options.register('YES', _("Visible only for registered users"))
+teams_list_visibility_options.register('NO', _("Not visible"))
+
+
 class TeamsConfig(models.Model):
     contest = models.OneToOneField(Contest)
     enabled = models.BooleanField(default=False)
@@ -62,6 +69,8 @@ class TeamsConfig(models.Model):
         verbose_name=_("team modification begin date"), blank=True, null=True)
     modify_end_date = models.DateTimeField(
         verbose_name=_("team modification end date"), blank=True, null=True)
+    teams_list_visible = EnumField(teams_list_visibility_options, default='NO',
+            verbose_name=_("teams list visibility"))
 
     class Meta(object):
         verbose_name = _("teams configuration")

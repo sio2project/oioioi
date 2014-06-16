@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url, include
 
 contest_patterns = patterns('oioioi.teams.views',
     url(r'^team/$', 'team_view', name='team_view'),
+    url(r'^teams/$', 'teams_list', name='teams_list'),
     url(r'^team/join/(?P<join_key>[0-9a-f]+)$', 'join_team_view',
         name='join_team'),
     url(r'^team/delete/$', 'delete_team_view', name='delete_team'),
