@@ -34,6 +34,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.importlib import import_module
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.cache import cache
+from django.template.loaders.cached import Loader as CachedLoader
 
 from oioioi.base import utils
 from oioioi.base.permissions import is_superuser, Condition, make_condition, \
@@ -90,6 +91,14 @@ def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     response = testcase.client.get(url, data=data,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
     testcase.assertIn(response.status_code, (403, 404))
+
+
+def clear_template_cache():
+    from django.template.loader import template_source_loaders
+    if template_source_loaders:
+        for l in template_source_loaders:
+            if isinstance(l, CachedLoader):
+                l.reset()
 
 
 class IgnorePasswordAuthBackend(object):
@@ -232,14 +241,21 @@ class TestIndexNoContest(TestCase):
         self.assertIn('This is a new OIOIOI installation',
                 response.content)
 
+    def test_navbar_login(self):
+        response = self.client.get('/')
+        self.assertIn('navbar-login', response.content)
+
+
+class TestIndexNoContestWithOverride(TestCase):
+    fixtures = ('test_users',)
+
     @override_settings(TEMPLATE_DIRS=(os.path.join(basedir, 'templates'),))
     def test_custom_index(self):
         response = self.client.get('/')
         self.assertIn('This is a test index template', response.content)
 
-    def test_navbar_login(self):
-        response = self.client.get('/')
-        self.assertIn('navbar-login', response.content)
+    def tearDown(self):
+        clear_template_cache()
 
 
 class TestOrderedRegistry(TestCase):
