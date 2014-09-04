@@ -3,9 +3,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest
-import hashlib
-import random
-
+from oioioi.teachers.utils import generate_key
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 
@@ -44,12 +42,7 @@ class RegistrationConfig(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(RegistrationConfig, self).__init__(*args, **kwargs)
-        if self.contest:
-            if not self.teacher_key:
-                self.teacher_key = self.generate_key()
-            if not self.pupil_key:
-                self.pupil_key = self.generate_key()
-
-    def generate_key(self):
-        data = str(random.random()) + str(self.contest_id)
-        return hashlib.sha1(data).hexdigest()
+        if not self.teacher_key:
+            self.teacher_key = generate_key()
+        if not self.pupil_key:
+            self.pupil_key = generate_key()
