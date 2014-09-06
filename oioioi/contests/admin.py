@@ -1,25 +1,28 @@
 from functools import partial
 import urllib
 
+from django.conf.urls import patterns
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.util import unquote, quote
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
-from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm
+from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm, \
+        TestsSelectionForm
 from oioioi.contests.menu import contest_admin_menu_registry, \
         contest_observer_menu_registry
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension, ContestPermission, \
-        submission_kinds, ContestLink
+        submission_kinds, ContestLink, SubmissionReport
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.programs.models import Test, TestReport
 
 
 class RoundInline(admin.StackedInline):
@@ -348,6 +351,46 @@ class SubmissionAdmin(admin.ModelAdmin):
     actions = ['rejudge_action']
     search_fields = ['user__username', 'user__last_name']
 
+    def get_urls(self):
+        urls = patterns('',
+                        (r'^rejudge/$', self.rejudge_view))
+        return urls + super(SubmissionAdmin, self).get_urls()
+
+    def rejudge_view(self, request):
+        tests = request.POST.getlist('tests', [])
+        subs_ids = [int(x) for x in request.POST.getlist('submissions', [])]
+        rejudge_type = request.POST['rejudge_type']
+        controller = request.contest.controller
+        submissions = Submission.objects.in_bulk(subs_ids)
+        all_reports_exist = True
+        for sub in submissions.values():
+            if not SubmissionReport.objects.filter(submission=sub,
+                                                   status='ACTIVE') \
+                                           .exists():
+                all_reports_exist = False
+                break
+
+        if all_reports_exist or rejudge_type == 'FULL':
+            for sub in submissions.values():
+                controller.judge(sub,
+                                 is_rejudge=True,
+                                 extra_args={'tests_to_judge': tests,
+                                             'rejudge_type': rejudge_type})
+
+            counter = len(submissions)
+            self.message_user(
+                request,
+                ungettext_lazy("Queued one submission for rejudge.",
+                               "Queued %(counter)d submissions for rejudge.",
+                               counter) % {'counter': counter})
+        else:
+            self.message_user(
+                request,
+                _("Cannot rejudge submissions due to lack of active reports "
+                  "for one or more submissions"))
+
+        return redirect('oioioiadmin:contests_submission_changelist')
+
     def has_add_permission(self, request):
         return False
 
@@ -400,22 +443,41 @@ class SubmissionAdmin(admin.ModelAdmin):
     score_display.short_description = _("Score")
     score_display.admin_order_field = 'score'
 
+
     def rejudge_action(self, request, queryset):
         # Otherwise the submissions are rejudged in their default display
         # order which is "newest first"
         queryset = queryset.order_by('id')
 
-        controller = request.contest.controller
-        counter = 0
-        for submission in queryset:
-            controller.judge(submission, is_rejudge=True)
-            counter += 1
+        pis = {s.problem_instance for s in queryset}
+        pis_count = len(pis)
+        sub_count = len(queryset)
         self.message_user(
             request,
-            ungettext_lazy("Queued one submission for rejudge.",
-                           "Queued %(counter)d submissions for rejudge.",
-                           counter)
-            % {'counter': counter})
+            _("You have selected %(sub_count)d submission(s) from "
+              "%(pis_count)d problem(s)") % {'sub_count': sub_count,
+                                                'pis_count': pis_count})
+        uses_is_active = False
+        for pi in pis:
+            if Test.objects.filter(problem=pi.problem,
+                                   is_active=False) \
+                           .exists():
+                uses_is_active = True
+                break
+        if not uses_is_active:
+            for sub in queryset:
+                if TestReport.objects.filter(
+                        submission_report__submission=sub,
+                        submission_report__status='ACTIVE',
+                        test__is_active=False).exists():
+                    uses_is_active = True
+                    break
+
+        return render(request, 'contests/tests_choice.html',
+                      {'form': TestsSelectionForm(request,
+                                                  queryset,
+                                                  pis_count,
+                                                  uses_is_active)})
     rejudge_action.short_description = _("Rejudge selected submissions")
 
     def get_list_select_related(self):

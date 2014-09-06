@@ -615,6 +615,41 @@ class TestRejudgeAndFailure(TestCase):
         self.assertNotIn('EXPECTED FAILURE', response.content)
 
 
+class TestRejudgeTypesView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission',
+                'test_extra_problem', 'test_another_submission']
+
+    def test_view(self):
+        self.client.login(username='test_admin')
+
+        post_data = {'action': 'rejudge_action',
+                     '_selected_action': ['1', '2']}
+        response = self.client.post(
+            reverse('oioioiadmin:contests_submission_changelist'),
+            post_data)
+        self.assertIn('You have selected 2 submission(s) from 1 problem(s)',
+                      response.content)
+        self.assertIn('Rejudge submissions on judged tests only',
+                      response.content)
+        self.assertIn('Tests:', response.content)
+
+        problem_instance = ProblemInstance.objects.get(id=2)
+        submission = Submission()
+        submission.problem_instance = problem_instance
+        submission.save()
+
+        post_data['_selected_action'] = ['1', '2', '3']
+        response = self.client.post(
+            reverse('oioioiadmin:contests_submission_changelist'),
+            post_data)
+        self.assertIn('You have selected 3 submission(s) from 2 problem(s)',
+                      response.content)
+        self.assertNotIn('Rejudge submissions on judged tests only',
+                         response.content)
+        self.assertNotIn('Tests:', response.content)
+
+
 class TestContestAdmin(TestCase):
     fixtures = ['test_users']
 

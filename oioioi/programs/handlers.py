@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils import get_object_by_dotted_name, make_html_link
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
-from oioioi.contests.scores import ScoreValue
+from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
 from oioioi.programs.models import CompilationReport, TestReport, \
@@ -118,8 +118,34 @@ def collect_tests(env, **kwargs):
         tests = Test.objects.in_bulk(env['extra_args']['tests_subset']) \
                                                                     .values()
     else:
-        problem = Problem.objects.get(id=env['problem_id'])
-        tests = Test.objects.filter(problem=problem)
+        tests = Test.objects.filter(
+            problem__id=env['problem_id'],
+            is_active=True)
+
+    problem = env['problem_id']
+    if env['is_rejudge']:
+        submission = env['submission_id']
+        rejudge_type = env['extra_args'].setdefault('rejudge_type', 'FULL')
+        tests_to_judge = env['extra_args'].setdefault('tests_to_judge', [])
+        test_reports = TestReport.objects.filter(
+            submission_report__submission__id=submission,
+            submission_report__status='ACTIVE')
+        tests_used = [report.test_name for report in test_reports]
+        if rejudge_type == 'NEW':
+            tests_to_judge = [t.name for t in
+                              Test.objects.filter(
+                                  problem__id=problem,
+                                  is_active=True)
+                              .exclude(name__in=tests_used)]
+        elif rejudge_type == 'JUDGED':
+            tests = Test.objects.filter(
+                problem__id=problem,
+                name__in=tests_used)
+            tests_to_judge = [t for t in tests_to_judge if t in tests_used]
+        elif rejudge_type == 'FULL':
+            tests_to_judge = [t.name for t in tests]
+    else:
+        tests_to_judge = [t.name for t in tests]
 
     for test in tests:
         test_env = {}
@@ -134,8 +160,11 @@ def collect_tests(env, **kwargs):
             test_env['exec_time_limit'] = test.time_limit
         if test.memory_limit:
             test_env['exec_mem_limit'] = test.memory_limit
+        test_env['to_judge'] = False
         env['tests'][test.name] = test_env
 
+    for test in tests_to_judge:
+        env['tests'][test]['to_judge'] = True
     return env
 
 
@@ -187,8 +216,12 @@ def run_tests(env, kind=None, **kwargs):
     """
 
     jobs = dict()
+    not_to_judge = []
     for test_name, test_env in env['tests'].iteritems():
         if kind and test_env['kind'] != kind:
+            continue
+        if not test_env['to_judge']:
+            not_to_judge.append(test_name)
             continue
         job = test_env.copy()
         job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
@@ -201,12 +234,13 @@ def run_tests(env, kind=None, **kwargs):
             job.setdefault('out_file', _make_filename(env, test_name + '.out'))
             job['upload_out'] = True
         jobs[test_name] = job
-
     extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
     jobs = run_sioworkers_jobs(jobs, **extra_args)
     env.setdefault('test_results', {})
     for test_name, result in jobs.iteritems():
         env['test_results'].setdefault(test_name, {}).update(result)
+    for test_name in not_to_judge:
+        env['test_results'].setdefault(test_name, {})
     return env
 
 
@@ -233,14 +267,28 @@ def grade_tests(env, **kwargs):
     fun = get_object_by_dotted_name(env.get('test_scorer')
             or DEFAULT_TEST_SCORER)
     tests = env['tests']
-
     for test_name, test_result in env['test_results'].iteritems():
-        score, max_score, status = fun(tests[test_name], test_result)
-        assert isinstance(score, (types.NoneType, ScoreValue))
-        assert isinstance(max_score, (types.NoneType, ScoreValue))
-        test_result['score'] = score and score.serialize()
-        test_result['max_score'] = max_score and max_score.serialize()
-        test_result['status'] = status
+        if tests[test_name]['to_judge']:
+            score, max_score, status = fun(tests[test_name], test_result)
+            assert isinstance(score, (types.NoneType, ScoreValue))
+            assert isinstance(max_score, (types.NoneType, ScoreValue))
+            test_result['score'] = score and score.serialize()
+            test_result['max_score'] = max_score and max_score.serialize()
+            test_result['status'] = status
+        else:
+            report = TestReport.objects.get(
+                submission_report__submission__id=env['submission_id'],
+                submission_report__status='ACTIVE',
+                test_name=test_name)
+            score = report.score
+            max_score = IntegerScore(report.test_max_score)
+            status = report.status
+            time_used = report.time_used
+            test_result['score'] = score and score.serialize()
+            test_result['max_score'] = max_score and max_score.serialize()
+            test_result['status'] = status
+            test_result['time_used'] = time_used
+            env['test_results'][test_name] = test_result
     return env
 
 
@@ -407,7 +455,6 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
 
     if env['compilation_result'] != 'OK':
         return env
-
     tests = env['tests']
     test_results = env.get('test_results', {})
     for test_name, result in test_results.iteritems():

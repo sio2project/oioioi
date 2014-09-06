@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.utils import submittable_problem_instances
-
+from oioioi.programs.models import Test
 
 class SimpleContestForm(forms.ModelForm):
     class Meta(object):
@@ -174,3 +174,40 @@ class GetUserInfoForm(forms.Form):
         super(GetUserInfoForm, self).__init__(*args, **kwargs)
         self.fields['user'].hints_url = reverse('contest_user_hints',
                 kwargs={'contest_id': request.contest.id})
+
+
+class TestsSelectionForm(forms.Form):
+    def __init__(self, request, queryset, pis_count, uses_is_active, *args,
+                 **kwargs):
+        super(TestsSelectionForm, self).__init__(*args, **kwargs)
+        problem = queryset[0].problem
+        tests = Test.objects.filter(problem=problem, is_active=True)
+
+        widget = forms.RadioSelect(
+            attrs={'onChange': 'rejudgeTypeOnChange(this)'})
+        self.fields['rejudge_type'] = forms.ChoiceField(widget=widget)
+        if uses_is_active:
+            self.fields['rejudge_type'].choices = \
+                    [('FULL', _("Rejudge submissions on all current active "
+                                "tests")),
+                     ('NEW', _("Rejudge submissions on active tests which "
+                               "haven't been judged yet"))]
+        else:
+            self.fields['rejudge_type'].choices = \
+                    [('FULL', _("Rejudge submissions on all tests"))]
+
+        self.initial['rejudge_type'] = 'FULL'
+
+        if pis_count == 1:
+            self.fields['rejudge_type'].choices.append(
+                ('JUDGED', _("Rejudge submissions on judged tests only")))
+
+            self.fields['tests'] = forms.MultipleChoiceField(
+                widget=forms.CheckboxSelectMultiple(
+                    attrs={'disabled': 'disabled'}),
+                choices=[(test.name, test.name) for test in tests])
+
+        self.fields['submissions'] = forms.ModelMultipleChoiceField(
+            widget=forms.CheckboxSelectMultiple,
+            queryset=queryset,
+            initial=queryset)

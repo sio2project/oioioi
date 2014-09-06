@@ -27,7 +27,7 @@ class TestInline(admin.TabularInline):
     template = 'programs/admin/tests_inline.html'
     can_delete = False
     fields = ('name', 'time_limit', 'memory_limit', 'max_score', 'kind',
-            'input_file_link', 'output_file_link')
+              'input_file_link', 'output_file_link', 'is_active')
     readonly_fields = ('name', 'kind', 'group', 'input_file_link',
             'output_file_link')
     ordering = ('kind', 'order', 'name')

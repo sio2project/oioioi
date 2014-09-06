@@ -41,6 +41,7 @@ class Test(models.Model):
     max_score = models.IntegerField(verbose_name=_("score"),
             default=10)
     order = models.IntegerField(default=0)
+    is_active = models.BooleanField(default=True)
 
     def __unicode__(self):
         return self.name

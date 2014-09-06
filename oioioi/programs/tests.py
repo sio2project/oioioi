@@ -8,12 +8,14 @@ from django.utils.timezone import utc
 from django.utils.html import strip_tags, escape
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
 
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Submission, ProblemInstance, Contest
-from oioioi.contests.tests import PrivateRegistrationController
+from oioioi.contests.tests import PrivateRegistrationController, \
+        SubmitFileMixin
 from oioioi.programs.models import Test, ModelSolution, ProgramSubmission, \
         TestReport, ReportActionsConfig
 from oioioi.programs.controllers import ProgrammingContestController
@@ -718,3 +720,116 @@ class TestAdminInOutDownload(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.count('>out</a>'), 6)
         self.assertEqual(response.content.count('>in</a>'), 6)
+
+
+class ContestWithJudgeInfoController(ProgrammingContestController):
+    judged = False
+
+    def submission_judged(self, submission, rejudged=False):
+        super(ContestWithJudgeInfoController, self) \
+                .submission_judged(submission, rejudged)
+        ContestWithJudgeInfoController.judged = True
+
+
+class TestRejudge(TestCase, SubmitFileMixin):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission',
+                'test_extra_problem', 'test_another_submission']
+
+    def _set_active_tests(self, active_tests, all_tests):
+        for test in all_tests:
+            test.is_active = test.name in active_tests
+            test.save()
+
+    def _test_rejudge(self, submit_active_tests, rejudge_active_tests,
+            rejudge_type, tests_subset, expected_ok, expected_re):
+        self.client.login(username='test_user')
+
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.programs.tests.ContestWithJudgeInfoController'
+        contest.save()
+
+        pi = ProblemInstance.objects.get(id=1)
+        all_tests = Test.objects.filter(problem=pi.problem)
+
+        self._set_active_tests(submit_active_tests, all_tests)
+
+        submission = ProgramSubmission.objects.filter(id=3)
+        if submission.exists():
+            submission.delete()
+
+        good_code = 'int main(void) { return 0; }'
+        bad_code = 'int main(void) { return 1; }'
+
+        ContestWithJudgeInfoController.judged = False
+        self.submit_code(contest, pi, good_code)
+        self.assertTrue(ContestWithJudgeInfoController.judged)
+
+        submission = ProgramSubmission.objects.all().latest('id')
+
+        reports = TestReport.objects.filter(
+            submission_report__submission=submission,
+            submission_report__status='ACTIVE')
+        for r in reports:
+            self.assertIn(r.test_name, submit_active_tests)
+            self.assertNotEqual(r.status, 'RE')
+
+        submission.source_file.save('file.c', ContentFile(bad_code))
+
+        self._set_active_tests(rejudge_active_tests, all_tests)
+
+        ContestWithJudgeInfoController.judged = False
+        contest.controller.judge(submission,
+                                 is_rejudge=True,
+                                 extra_args={'tests_to_judge': tests_subset,
+                                             'rejudge_type': rejudge_type})
+        self.assertTrue(ContestWithJudgeInfoController.judged)
+
+        reports = TestReport.objects.filter(
+            submission_report__submission=submission,
+            submission_report__status='ACTIVE')
+
+        for r in reports:
+            name = r.test_name
+            status = r.status
+            self.assertTrue((status == 'RE') == (name in expected_re))
+            self.assertTrue((status == 'OK') == (name in expected_ok))
+
+    def test_rejudge_full(self):
+        self._test_rejudge(['0', '1ocen', '1b', '3'],
+                           ['0', '1a', '1b', '2'],
+                           'FULL',
+                           {},
+                           [],
+                           ['0', '1a', '1b', '2'])
+
+        self._test_rejudge(['0', '1ocen'],
+                           [],
+                           'FULL',
+                           {},
+                           [],
+                           [])
+
+    def test_rejudge_judged(self):
+        self._test_rejudge(['0', '1ocen', '1b', '3'],
+                           ['0', '1ocen', '1b', '3'],
+                           'JUDGED',
+                           {'0', '1a', '2', '3'},
+                           ['1ocen', '1b'],
+                           ['0', '3'])
+
+        self._test_rejudge(['0', '1ocen', '1b', '3'],
+                           [],
+                           'JUDGED',
+                           {'0', '1a', '2', '3'},
+                           ['1ocen', '1b'],
+                           ['0', '3'])
+
+    def test_rejudge_new(self):
+        self._test_rejudge(['0', '1ocen', '1b', '3'],
+                           ['0', '1a', '1b', '2', '3'],
+                           'NEW',
+                           {},
+                           ['0', '1b', '3'],
+                           ['1a', '2'])

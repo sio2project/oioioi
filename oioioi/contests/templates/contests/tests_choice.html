@@ -1,0 +1,29 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "My submissions" %}{% endblock %}
+
+{% block content %}
+
+<h2>{% trans "Rejudge" %}</h2>
+
+<form action="rejudge/" method="POST">
+    {% csrf_token %}
+    {% trans "Select type of rejudge:" %}
+    <div class="no-list-style radio">
+        {{ form.rejudge_type }}
+    </div>
+    {% if form.tests %}
+        {% trans "Tests:" %}
+        <div class="no-list-style checkbox" id="test_list">
+            {{ form.tests }}
+        </div>
+    {% endif %}
+    <div style="display: none">
+        {{ form.submissions }}
+    </div>
+    <input type="submit" class="btn btn-primary"/>
+</form>
+
+{% endblock %}
