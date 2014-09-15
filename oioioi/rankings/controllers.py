@@ -3,6 +3,7 @@ from operator import itemgetter
 import unicodecsv
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -12,7 +13,8 @@ from django.contrib.auth.models import User
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.base.utils import group_cache
-from oioioi.contests.models import ProblemInstance, UserResultForProblem
+from oioioi.contests.models import ProblemInstance, UserResultForProblem, \
+        Submission
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.filetracker.utils import make_content_disposition_header
@@ -166,6 +168,8 @@ class DefaultRankingController(RankingController):
         return True
 
     def _get_users_results(self, request, pis, results, rounds, users):
+        contest = request.contest
+        controller = contest.controller
         by_user = defaultdict(dict)
         for r in results:
             by_user[r.user_id][r.problem_instance_id] = r
@@ -181,8 +185,27 @@ class DefaultRankingController(RankingController):
                 'sum': None
             }
 
+            submissions = Submission.objects.filter(
+                    problem_instance__contest=contest)
+            if is_contest_admin(request) or is_contest_observer(request):
+                my_visible = submissions
+            else:
+                my_visible = controller.filter_my_visible_submissions(request,
+                        submissions)
+
             for pi in pis:
                 result = by_user_row.get(pi.id)
+                if result and hasattr(result, 'submission_report') and \
+                        hasattr(result.submission_report, 'submission'):
+                    submission = result.submission_report.submission
+                    kwargs = {'contest_id': contest.id,
+                              'submission_id': submission.id}
+                    if my_visible.filter(id=submission.id).exists():
+                        result.url = reverse('submission', kwargs=kwargs)
+                    elif controller.can_see_source(request, submission):
+                        result.url = reverse('show_submission_source',
+                                kwargs=kwargs)
+
                 user_results.append(result)
                 if result and result.score and \
                         (not pi.round.is_trial or all_rounds_trial):
@@ -223,7 +246,9 @@ class DefaultRankingController(RankingController):
         users = self.filter_users_for_ranking(request, key, User.objects.all())
         results = UserResultForProblem.objects \
                 .filter(problem_instance__in=pis, user__in=users) \
-                .prefetch_related('problem_instance__round')
+                .prefetch_related('problem_instance__round') \
+                .select_related('submission_report', 'problem_instance',
+                        'problem_instance__contest')
 
         data = self._get_users_results(request, pis, results, rounds, users)
         self._assign_places(data, itemgetter('sum'))

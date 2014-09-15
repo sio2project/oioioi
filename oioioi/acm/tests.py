@@ -93,6 +93,16 @@ class TestACMRanking(TestCase):
                 self.assertTaskIn(task, response.content)
             self.assertNotIn('The ranking is frozen.', response.content)
 
+        with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('result_url'), 2)
+
+        self.client.login(username='test_admin')
+
+        with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertEqual(response.content.count('result_url'), 8)
+
     def test_model_solution_submission_view(self):
         contest = Contest.objects.get()
         url = reverse('submission',

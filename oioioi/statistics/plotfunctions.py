@@ -5,7 +5,9 @@ from collections import defaultdict
 
 from django.utils.translation import ugettext as _
 from django.db.models import Count
+from django.core.urlresolvers import reverse
 
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.contests.models import Submission, \
         UserResultForProblem, UserResultForContest
 from oioioi.contests.scores import IntegerScore
@@ -51,7 +53,7 @@ def histogram(values, num_buckets=10, max_result=None):
             zip(*[[i*bucket, value] for i, value in enumerate(counts)])]
 
 
-def results_histogram_for_queryset(qs, max_score=None):
+def results_histogram_for_queryset(request, qs, max_score=None):
     scores = [int_score(r.score) for r in qs]
 
     # Only IntegerScore can be used with the histogram.
@@ -75,12 +77,12 @@ def results_histogram_for_queryset(qs, max_score=None):
     }
 
 
-def points_histogram_contest(contest):
+def points_histogram_contest(request, contest):
     results = UserResultForContest.objects.filter(contest=contest)
-    return results_histogram_for_queryset(results)
+    return results_histogram_for_queryset(request, results)
 
 
-def points_histogram_problem(problem):
+def points_histogram_problem(request, problem):
     results = UserResultForProblem.objects.filter(problem_instance=problem)
 
     # Check if user has any submissions for the specified problem
@@ -90,10 +92,11 @@ def points_histogram_problem(problem):
     else:
         max_score = None
 
-    return results_histogram_for_queryset(results, max_score=max_score)
+    return results_histogram_for_queryset(request, results,
+            max_score=max_score)
 
 
-def submissions_by_problem_histogram_for_queryset(qs):
+def submissions_by_problem_histogram_for_queryset(request, qs):
     agg = qs.values('problem_instance', 'problem_instance__short_name',
                     'status').annotate(count=Count('problem_instance'))
     agg = sorted(agg, key=itemgetter('status'))
@@ -115,19 +118,44 @@ def submissions_by_problem_histogram_for_queryset(qs):
     }
 
 
-def submissions_histogram_contest(contest):
+def submissions_histogram_contest(request, contest):
     subs = Submission.objects.filter(kind='NORMAL') \
             .filter(problem_instance__contest=contest) \
             .prefetch_related('problem_instance')
-    return submissions_by_problem_histogram_for_queryset(subs)
+    return submissions_by_problem_histogram_for_queryset(request, subs)
 
 
-def points_to_source_length_problem(problem):
+def points_to_source_length_problem(request, problem):
     submissions = ProgramSubmission.objects.filter(
             problem_instance=problem,
             submissionreport__userresultforproblem__isnull=False)
 
-    data = sorted([[s.source_length, int_score(s.score)] for s in submissions])
+    contest = request.contest
+    controller = contest.controller
+
+    if is_contest_admin(request) or is_contest_observer(request):
+        visible_submissions = submissions
+    else:
+        visible_submissions = \
+                controller.filter_my_visible_submissions(request, submissions)
+
+    data = []
+
+    for s in submissions:
+        record = {'x': s.source_length,
+                  'y': int_score(s.score),
+                  'url': ''}
+
+        kwargs = {'submission_id': s.id,
+                  'contest_id': contest.id}
+        if visible_submissions.filter(id=s.id).exists():
+            record['url'] = reverse('submission', kwargs=kwargs)
+        elif controller.can_see_source(request, s):
+            record['url'] = reverse('show_submission_source', kwargs=kwargs)
+
+        data.append(record)
+
+    data = sorted(data)
 
     return {
         'plot_name': _("Points vs source length scatter"),

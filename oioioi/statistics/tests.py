@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
@@ -17,6 +18,12 @@ from oioioi.statistics.models import StatisticsConfig
 
 class TestStatisticsPlotFunctions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_submission']
+
+    def setUp(self):
+        self.request = RequestFactory().request()
+        self.request.user = User.objects.get(username='test_user')
+        self.request.contest = Contest.objects.get()
+        self.request.timestamp = datetime.now().replace(tzinfo=utc)
 
     def assertSizes(self, data, dims):
         """Assert that ``data`` is a ``len(dims)``-dimensional rectangular
@@ -52,20 +59,26 @@ class TestStatisticsPlotFunctions(TestCase):
 
     def test_points_to_source_length(self):
         pi = ProblemInstance.objects.get(short_name='zad1')
-        plot = points_to_source_length_problem(pi)
+        plot = points_to_source_length_problem(self.request, pi)
         self.assertEqual(len(plot['series']), 1)
-        self.assertSizes(plot['data'], [1, 1, 2])
+        self.assertSizes(plot['data'], [1, 1, 3])
 
 
 class TestHighchartsOptions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
                 'test_submission', 'test_extra_rounds']
 
+    def setUp(self):
+        self.request = RequestFactory().request()
+        self.request.user = User.objects.get(username='test_user')
+        self.request.contest = Contest.objects.get()
+        self.request.timestamp = datetime.now().replace(tzinfo=utc)
+
     def test_scatter(self):
         plot_function, plot_type = \
                 statistics_plot_kinds['POINTS_TO_SOURCE_LENGTH_PROBLEM']
-        plot = plot_type.highcharts_options(plot_function(ProblemInstance
-            .objects.filter(short_name='zad2')[0]))
+        plot = plot_type.highcharts_options(plot_function(self.request,
+            ProblemInstance.objects.filter(short_name='zad2')[0]))
         self.assertIsInstance(plot, dict)
         self.assertIn('xAxis', plot)
         self.assertIn('title', plot['xAxis'])
@@ -75,8 +88,8 @@ class TestHighchartsOptions(TestCase):
     def test_results_histogram(self):
         plot_function, plot_type = \
                 statistics_plot_kinds['POINTS_HISTOGRAM_PROBLEM']
-        plot = plot_type.highcharts_options(plot_function(ProblemInstance
-            .objects.filter(short_name='zad2')[0]))
+        plot = plot_type.highcharts_options(plot_function(self.request,
+            ProblemInstance.objects.filter(short_name='zad2')[0]))
         self.assertIsInstance(plot, dict)
         self.assertIn('yAxis', plot)
         self.assertIn('title', plot['yAxis'])
@@ -88,7 +101,8 @@ class TestHighchartsOptions(TestCase):
         contest = Contest.objects.get()
         plot_function, plot_type = \
                 statistics_plot_kinds['SUBMISSIONS_HISTOGRAM_CONTEST']
-        plot = plot_type.highcharts_options(plot_function(contest))
+        plot = plot_type.highcharts_options(plot_function(self.request,
+            contest))
         self.assertIsInstance(plot, dict)
         self.assertIn('yAxis', plot)
         self.assertIn('title', plot['yAxis'])

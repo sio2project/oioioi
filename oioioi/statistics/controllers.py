@@ -4,7 +4,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.base.fields import EnumRegistry
 from oioioi.contests.utils import visible_problem_instances, rounds_times
 from oioioi.statistics.plottypes import TablePlot, XYStaticHighchartsPlot, \
-        ColumnStaticHighchartsPlot
+        ColumnStaticHighchartsPlot, PointsToSourceLengthProblemPlot
 from oioioi.statistics.plotfunctions import points_histogram_contest, \
         submissions_histogram_contest, points_histogram_problem, \
         points_to_source_length_problem
@@ -25,7 +25,7 @@ statistics_plot_kinds.register('POINTS_HISTOGRAM_PROBLEM',
 statistics_plot_kinds.register('POINTS_TABLE_PROBLEM',
     (points_histogram_problem, TablePlot()))
 statistics_plot_kinds.register('POINTS_TO_SOURCE_LENGTH_PROBLEM',
-    (points_to_source_length_problem, XYStaticHighchartsPlot()))
+    (points_to_source_length_problem, PointsToSourceLengthProblemPlot()))
 
 
 class StatisticsMixinForContestController(object):
@@ -196,7 +196,7 @@ class StatisticsMixinForProgrammingContestController(object):
 
     def statistics_data(self, request, plot_kind, object):
         (plot_function, plot_type) = plot_kind
-        result = plot_function(object)
+        result = plot_function(request, object)
         result['plot_type'] = plot_type
 
         return result

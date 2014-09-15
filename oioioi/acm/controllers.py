@@ -275,7 +275,9 @@ class ACMRankingController(DefaultRankingController):
                     request.timestamp <= freeze_time:
                 results += UserResultForProblem.objects \
                     .filter(problem_instance__in=rpis, user__in=users) \
-                    .prefetch_related('problem_instance__round')
+                    .prefetch_related('problem_instance__round') \
+                    .select_related('submission_report', 'problem_instance',
+                            'problem_instance__contest')
             else:
                 results += self._get_old_results(request, freeze_time,
                                                  rpis, users)

@@ -28,10 +28,26 @@
             {% for result in row.results %}
                 <td class="acm_result{% if result.problem_instance.round.is_trial %} trial-round{% endif %}">
                 {% if result and result.score.problems_solved %}
-                    <div class="acm_tries subm_status subm_OK"> {{ result.score.penalties_count|add:"1" }} </div>
+                    <div class="acm_tries subm_status subm_OK">
+                        {% if result.url %}
+                            <a class="result_url" href="{{ result.url }}">
+                        {% endif %}
+                            {{ result.score.penalties_count|add:"1" }}
+                        {% if result.url %}
+                            </a>
+                        {% endif %}
+                    </div>
                     <div class="acm_time">({{ result.score.time_passed_repr }})</div>
                 {% elif is_admin and result %}
-                    <div class="acm_tries subm_status subm_IGN"> {{ result.score.penalties_count }} </div>
+                    <div class="acm_tries subm_status subm_IGN"> 
+                        {% if result.url %}
+                            <a class="result_url" href="{{ result.url }}">
+                        {% endif %}
+                            {{ result.score.penalties_count }}
+                        {% if result.url %}
+                            </a>
+                        {% endif %}
+                    </div>
                 {% else %}
                     <div class="acm_no_score"> &#8211 </div>
                 {% endif %} </td>
