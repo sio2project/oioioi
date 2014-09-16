@@ -34,7 +34,7 @@ setup(
         "PyYAML",
         "django-nose",
         "django-registration>=1.0",
-        "django-celery<3.1",
+        "django-celery>=3.1.15",
         "django-supervisor",
         "linaro-django-pagination",
         # Workaround for SIO-1266
@@ -46,9 +46,6 @@ setup(
         "django-extensions>=1.0.0",
         "django-output-validator>=1.5md1",
         "werkzeug",
-
-        # Needed for 'from celery.exceptions import Ignore'
-        "celery>=3.0.24,<3.1",
 
         # Old versions have buggy coverage reports generation, raising
         # an exception like this:
