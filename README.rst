@@ -48,6 +48,11 @@ Finally initialize the database::
 
 We use PostgreSQL.
 
+Then you need to copy static files, like images and styles, to the deployment
+directory::
+
+  ./manage.py collectstatic
+
 .. _virtualenv: http://www.virtualenv.org/en/latest/index.html
 .. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 
