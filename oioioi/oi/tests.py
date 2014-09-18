@@ -720,14 +720,11 @@ class TestUserInfo(TestCase):
                    ('test_personal_data_user', True)]
 
         for (username, can_see) in can_see_list:
-            print("Testing " + username)
-            print()
             self.client.login(username=username)
             response = self.client.get(url)
             self.client.logout()
 
             for k in reg_data:
-                print(reg_data[k])
                 if can_see:
                     self.assertIn(reg_data[k], response.content)
                 else:

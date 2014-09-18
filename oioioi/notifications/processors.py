@@ -39,7 +39,8 @@ def notification_processor(request):
         return {}
 
     def generator():
-        notifications_session_id = get_notifications_session(request.session).uid
+        notifications_session_id = get_notifications_session(
+                request.session).uid
         return render_to_string('notifications/notifications.html',
                                 dict(notif_server_url=
                                      settings.NOTIFICATIONS_SERVER_URL,

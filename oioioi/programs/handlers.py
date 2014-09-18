@@ -491,9 +491,9 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
                            test_name)
             continue
 
-        if bool(testreport.output_file):
-            logger.warn('Output for test report %s exists. Deleting old one.'
-                        % (testreport.id))
+        if testreport.output_file:
+            logger.warn('Output for test report %s exists. Deleting old one.',
+                        testreport.id)
             get_client().delete_file(testreport.output_file)
 
         testreport.output_file = filetracker_to_django_file(result['out_file'])

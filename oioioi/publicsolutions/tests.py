@@ -63,11 +63,11 @@ class TestPublicSolutions(TestCase):
         return datetime(2016, 1, 1, tzinfo=utc)
 
     def assertSubmissionUrlsCount(self, string, count):
-        actual = len(re.findall('result_url.*"/c/c/s/\d/"', string))
+        actual = len(re.findall(r'result_url.*"/c/c/s/\d/"', string))
         self.assertEqual(actual, count)
 
     def assertSourceUrlsCount(self, string, count):
-        actual = len(re.findall('result_url.*"/c/c/s/\d/source/"', string))
+        actual = len(re.findall(r'result_url.*"/c/c/s/\d/source/"', string))
         self.assertEqual(actual, count)
 
     def test_solutions_in_menu(self):

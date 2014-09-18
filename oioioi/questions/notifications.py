@@ -35,8 +35,10 @@ def notification_function_public(arguments):
     message_details = arguments.message_instance.topic + ': ' + \
             arguments.message_instance.content
     message = ugettext_noop("New public message.")
-    message_arguments = {'address': arguments.message_instance.get_absolute_url(),
-            'details': message_details[:MAX_DETAILS_LENGTH]}
+    message_arguments = {
+        'address': arguments.message_instance.get_absolute_url(),
+        'details': message_details[:MAX_DETAILS_LENGTH]
+    }
 
     controller = arguments.contest.controller
 

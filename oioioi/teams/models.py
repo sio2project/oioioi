@@ -56,7 +56,8 @@ class TeamMembership(models.Model):
 
 teams_list_visibility_options = EnumRegistry()
 teams_list_visibility_options.register('PUBLIC', _("Visible for all"))
-teams_list_visibility_options.register('YES', _("Visible only for registered users"))
+teams_list_visibility_options.register('YES',
+        _("Visible only for registered users"))
 teams_list_visibility_options.register('NO', _("Not visible"))
 
 

@@ -51,7 +51,7 @@ def _get_name(parser, token, tag_name):
     bits = token.split_contents()
     if (len(bits) != 4 or bits[2] != 'as') and (len(bits) != 2):
         raise TemplateSyntaxError("The tag should look like this: "
-                "{% %s <user_object>[ as <variable>] %}" % tag_name)
+                "{%% %s <user_object>[ as <variable>] %%}" % tag_name)
     asvar = None
     if len(bits) == 4:
         asvar = bits[3]

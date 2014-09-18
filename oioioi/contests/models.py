@@ -472,9 +472,9 @@ class ContestLink(models.Model):
 def contest_links_generator(request):
     links = ContestLink.objects.filter(contest=request.contest)
     for link in links:
+        # pylint: disable=cell-var-from-loop
         # http://docs.python-guide.org/en/latest/writing/gotchas/#late-binding-closures
-        def url_generator(request, url=link.url):
-            return url
+        url_generator = lambda request, url=link.url: url
         item = MenuItem(
             name='contest_link_%d' % link.id,
             text=link.description,

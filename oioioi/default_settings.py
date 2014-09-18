@@ -322,6 +322,8 @@ from sio.celery.default_config import *
 
 BROKER_URL = 'django://'
 
+# pylint: disable=undefined-variable
+
 CELERY_IMPORTS += [
     'oioioi.evalmgr',
     'oioioi.problems.unpackmgr',

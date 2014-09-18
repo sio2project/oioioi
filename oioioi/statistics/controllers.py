@@ -3,7 +3,7 @@ from oioioi.contests.controllers import ContestController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.base.fields import EnumRegistry
 from oioioi.contests.utils import visible_problem_instances, rounds_times
-from oioioi.statistics.plottypes import TablePlot, XYStaticHighchartsPlot, \
+from oioioi.statistics.plottypes import TablePlot, \
         ColumnStaticHighchartsPlot, PointsToSourceLengthProblemPlot
 from oioioi.statistics.plotfunctions import points_histogram_contest, \
         submissions_histogram_contest, points_histogram_problem, \

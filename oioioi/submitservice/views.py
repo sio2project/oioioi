@@ -1,7 +1,6 @@
 # pylint: disable=W0703
 # disables: Catching too general exception Exception
 
-import json
 import os
 import random
 import string
@@ -9,19 +8,17 @@ import string
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
-from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.views.decorators.http import require_POST
+
 from oioioi.base.utils import jsonify
 from oioioi.contests.forms import SubmissionForm
-
 from oioioi.submitservice.models import SubmitServiceToken
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.contests.utils import contest_exists, has_any_submittable_problem, \
-    can_enter_contest
-from oioioi.contests.utils import visible_problem_instances
+from oioioi.contests.utils import contest_exists, can_enter_contest, \
+        visible_problem_instances
 
 
 class SubmitServiceException(Exception):
@@ -62,9 +59,8 @@ def submit_view(request, contest_id):
             file_name = task_name
         pi = match_problem(visible_problem_instances(request), file_name)
         if not pi:
-            raise SubmitServiceException('NO_SUCH_PROBLEM',
-                            ', '.join(map(lambda x: x.short_name,
-                            visible_problem_instances(request))))
+            raise SubmitServiceException('NO_SUCH_PROBLEM', ', '.join([
+                    x.short_name for x in visible_problem_instances(request)]))
 
         lang_exts = sum(
             getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values(), [])

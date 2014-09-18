@@ -109,6 +109,7 @@ class SubmissionForm(forms.Form):
             pis = problem_filter(pis)
         pi_choices = [(pi.id, unicode(pi)) for pi in pis]
 
+        # pylint: disable=non-parent-init-called
         # init form with previously sent data
         forms.Form.__init__(self, *args, **kwargs)
 

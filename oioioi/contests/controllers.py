@@ -22,8 +22,8 @@ from oioioi.contests.models import Submission, Round, UserResultForRound, \
         RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
-        is_contest_admin, is_contest_observer, can_see_personal_data, \
-        last_break_between_rounds, has_any_active_round
+        is_contest_admin, is_contest_observer, last_break_between_rounds, \
+        has_any_active_round
 from oioioi import evalmgr
 
 
