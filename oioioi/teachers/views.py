@@ -186,7 +186,7 @@ def activate_view(request, contest_id, key):
             _p, created = Participant.objects.get_or_create(
                                                 contest=request.contest,
                                                 user=request.user)
-        elif is_teacher and register_as == 'teacher':
+        elif is_teacher_registration and register_as == 'teacher':
             teacher_obj = get_object_or_404(Teacher, user=request.user)
             _ct, created = ContestTeacher.objects.get_or_create(
                                                 contest=request.contest,
