@@ -1,5 +1,3 @@
-# pylint: disable=E1003
-# Bad first argument %s given to super()
 """Each score class is represented in database as single string formatted as
    ``"class_symbol:score_data"`` where ``class_symbol`` is used for binding
    purposes (see :class:`ScoreValue`) and ``score_data`` is score in
@@ -40,6 +38,7 @@ class ScoreValue(ClassInitBase):
         """Adds subclasses' bindings."""
 
         this_class = globals().get('ScoreValue', cls)
+        # pylint: disable=bad-super-call
         super(this_class, cls).__classinit__()
 
         if this_class == cls:

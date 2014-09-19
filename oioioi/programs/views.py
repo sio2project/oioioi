@@ -1,5 +1,3 @@
-# pylint: disable=E0611
-# No name 'HtmlFormatter' in module 'pygments.formatters'
 import difflib
 import zipfile
 import os
@@ -19,6 +17,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from pygments import highlight
 from pygments.lexers import guess_lexer_for_filename
+# pylint: disable=no-name-in-module
 from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 

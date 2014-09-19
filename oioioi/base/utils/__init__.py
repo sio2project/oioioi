@@ -1,5 +1,4 @@
-# pylint: disable=E1003
-# Bad first argument %s given to super()
+# pylint: disable=bad-super-call
 import re
 import sys
 import json

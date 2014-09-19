@@ -1,5 +1,3 @@
-# pylint: disable=W0105
-# String statement has no effect
 import json
 import urllib
 from datetime import datetime
@@ -116,23 +114,21 @@ class TestPARoundTimes(TestCase):
                 datetime(2012, 10, 1, 0, 0, tzinfo=utc),
                 ]
 
-        """
-        1) results date of round 1
-        2) public results date of round 1
-        3) public results date of all rounds
-
-              ============== ==============
-        can: | see ranking  | see solutions of other participants
-              ============== ==============
-        1 -> |              |              |
-             |    False     |    False     |
-        2 -> |              |              |
-             |    True      |    False     |
-        3 -> |              |              |
-             |    True      |    True      |
-             |              |              |
-              ============== ==============
-        """
+        # 1) results date of round 1
+        # 2) public results date of round 1
+        # 3) public results date of all rounds
+        #
+        #       ============== ==============
+        # can: | see ranking  | see solutions of other participants
+        #       ============== ==============
+        # 1 -> |              |              |
+        #      |    False     |    False     |
+        # 2 -> |              |              |
+        #      |    True      |    False     |
+        # 3 -> |              |              |
+        #      |    True      |    True      |
+        #      |              |              |
+        #       ============== ==============
         expected = [[False, False], [True, False], [True, True]]
 
         for date, exp in zip(dates, expected):

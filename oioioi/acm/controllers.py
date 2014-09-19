@@ -1,5 +1,4 @@
-# pylint: disable=W0631
-# W0631 Using possibly undefined loop variable
+# pylint: disable=undefined-loop-variable
 import itertools
 import datetime
 from operator import attrgetter, itemgetter
@@ -134,7 +133,7 @@ class ACMContestController(ProgrammingContestController):
                     .submissionreport_set.get(status='ACTIVE', kind='FULL')
 
             if last_submission.status == 'OK':
-                # XXX: May not ignore submissions with admin-hacked same-date
+                # FIXME: May not ignore submissions with admin-hacked same-date
                 submissions.filter(date__gt=last_submission.date) \
                         .update(status='IGN', score=None)
         else:

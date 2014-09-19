@@ -1,6 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
-
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response, redirect, render
@@ -53,6 +50,7 @@ def force_permission_denied_view(request):
 
 
 def handler500(request):
+    # pylint: disable=broad-except
     message = '500 Internal Server Error'
 
     tb = ''

@@ -1,5 +1,4 @@
 #~*~ encoding: utf-8 ~*~
-# pylint: disable=W0102
 import re
 from datetime import datetime
 from django.test import TestCase
@@ -113,6 +112,7 @@ class TestPublicSolutions(TestCase):
             self.client.logout()
 
         # Checks categories and solutions
+        # pylint: disable=dangerous-default-value
         def check_visibility(good_ids, category='',
                         users=['test_user', 'test_user2']):
             for user in users:

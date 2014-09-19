@@ -1,5 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
 from south.modelsinspector import add_introspection_rules
@@ -35,6 +33,7 @@ class _FileDescriptor(files.FileDescriptor):
                 # fixtures, where importing a fixture multiple times does not
                 # create multiple records.
                 self.field.storage.delete(name)
+            # pylint: disable=broad-except
             except Exception:
                 pass
             name = self.field.storage.save(name, ContentFile(content))

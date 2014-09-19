@@ -1,7 +1,6 @@
-# pylint: disable=W0611
-# Unused import
 from django.conf.urls import patterns, url
 
+# pylint: disable=unused-import
 # Make sure the dashboard fragment is registered.
 import oioioi.oi.views
 

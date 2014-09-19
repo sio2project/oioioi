@@ -1,5 +1,3 @@
-# pylint: disable=E1120
-# No value passed for parameter 'cls' in function call
 from django.conf.urls import patterns, url
 from django.contrib.sites.models import RequestSite
 from django.contrib.auth.models import User

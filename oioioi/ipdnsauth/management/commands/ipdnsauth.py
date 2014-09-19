@@ -1,5 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
 from django.core.management.base import BaseCommand, CommandError
 from oioioi.ipdnsauth.models import IpToUser, DnsToUser
 from django.contrib.auth.models import User
@@ -70,6 +68,7 @@ class Command(BaseCommand):
                                         dns_name=row[1])
                 binding.full_clean()
                 binding.save()
+            # pylint: disable=broad-except
             except Exception as e:
                 self.stderr.write("Error for %s: %s\n" % (row, e))
 
@@ -86,6 +85,7 @@ class Command(BaseCommand):
                 elif module == 'dns':
                     modelMgr.get(user__username=row[0],
                                 dns_name=row[1]).delete()
+            # pylint: disable=broad-except
             except Exception as e:
                 self.stderr.write("Error for %s: %s\n" % (row, e))
 

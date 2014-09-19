@@ -1,5 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
 import copy
 import sys
 import logging
@@ -109,6 +107,7 @@ def _run_error_handlers(env, exc_info):
     try:
         for phase in error_handlers:
             env = _run_phase(env, phase, extra_kwargs=dict(exc_info=exc_info))
+    # pylint: disable=broad-except
     except Exception:
         logger.error("Exception occured in job's error handlers:\n%s",
                 pprint.pformat(env, indent=4), exc_info=True)
@@ -125,6 +124,7 @@ def _run_evaluation_postponed_handlers(async_result, saved_env):
         try:
             saved_env = _run_phase(saved_env, phase,
                     extra_kwargs=dict(async_result=async_result))
+        # pylint: disable=broad-except
         except Exception:
             # we cannot really handle the exception in any other way than
             # logging
@@ -166,7 +166,7 @@ def evalmgr_job(env):
         Returns environment (a processed copy of given environment).
     """
 
-    # pylint: disable=global-statement
+    # pylint: disable=global-statement,broad-except
     global loaded_controllers
 
     # load controllers to avoid late mix-ins to them
@@ -198,5 +198,6 @@ def evalmgr_job(env):
     # up so that celery recognizes it and stops execution of this job.
     except Ignore:
         raise
+    # pylint: disable=broad-except
     except Exception:
         return _run_error_handlers(env, sys.exc_info())

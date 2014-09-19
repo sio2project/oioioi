@@ -1,5 +1,4 @@
-# pylint: disable=W0401
-# Wildcard import
+# pylint: disable=wildcard-import
 from oioioi.default_settings import *
 
 TIME_ZONE = 'UTC'

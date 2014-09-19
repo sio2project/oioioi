@@ -55,6 +55,7 @@ class NotificationHandler(logging.StreamHandler):
                 thread_data.conn = Connection(**kwargs)
 
                 thread_data.rabbitmq_connected = True
+            # pylint: disable=broad-except
             except Exception:
                 NotificationHandler.last_connection_check = time.time()
                 logger.info("Notifications: Can't connect to RabbitMQ",

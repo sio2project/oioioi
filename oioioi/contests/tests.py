@@ -1,5 +1,4 @@
-# pylint: disable=W0223
-# Method %r is abstract in class %r but is not overridden
+# pylint: disable=abstract-method
 from datetime import datetime
 from functools import partial
 from django.core import mail

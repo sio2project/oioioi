@@ -1,5 +1,4 @@
-# pylint: disable=W0601
-# Global variable '%s' undefined at the module level
+# pylint: disable=global-variable-undefined
 import logging
 import logging.config
 import time
@@ -18,7 +17,6 @@ from oioioi.programs.models import ProgramSubmission
 
 from optparse import make_option
 from registration.models import RegistrationProfile
-
 
 def get_sio1_user(sio1_user_id):
     """Returns dict with user's (sio1_user_id) data in SIO 1"""

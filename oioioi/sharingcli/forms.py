@@ -1,5 +1,3 @@
-# pylint: disable=W0631
-# Using possibly undefined loop variable
 import json
 import urllib2
 
@@ -36,6 +34,7 @@ class RemoteProblemForm(ProblemUploadForm):
                                           "acceptable"))
 
         try:
+            # pylint: disable=undefined-loop-variable
             response = client.make_request('taskinfo', {'query': url},
                 timeout=10)
             response = json.loads(response.read())

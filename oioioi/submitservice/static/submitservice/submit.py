@@ -3,11 +3,6 @@
 # This script is intended to be run on client's machine.
 # Use this to submit your solutions to an OIOIOI server instance.
 
-# disables warning: catching too general Exception
-# pylint: disable=W0703
-# disables warning: using the global statement
-# pylint: disable=W0603
-
 import sys
 import json
 import webbrowser
@@ -141,6 +136,7 @@ def main():
 
 
 def init_config():
+    # pylint: disable=global-statement
     global configuration
     try:
         json_data = open(config_path).read()
@@ -185,10 +181,10 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
             if open_webbrowser:
                 webbrowser.open_new_tab(result_url)
         else:
-            raise Exception(error_code_map[result['error_code']] %
-                            {'data': result['error_data']})
-    except Exception, args:
-        print >> sys.stderr, "Error:", args
+            raise RuntimeError(error_code_map[result['error_code']] %
+                               {'data': result['error_data']})
+    except StandardError as e:
+        print >> sys.stderr, "Error:", e
         print >> sys.stderr, "Submission failed."
         return 1
     return 0

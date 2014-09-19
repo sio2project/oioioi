@@ -1,5 +1,3 @@
-# pylint: disable=E1103
-# Instance of 'Problem' has no 'statements' member
 import glob
 import logging
 import re
@@ -249,6 +247,7 @@ class SinolPackage(object):
             logger.warning("%s: no docdir", self.filename)
             return
 
+        # pylint: disable=maybe-no-member
         self.problem.statements.all().delete()
 
         htmlzipfile = os.path.join(docdir, self.short_name + 'zad.html.zip')

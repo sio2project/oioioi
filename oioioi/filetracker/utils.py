@@ -1,6 +1,3 @@
-# pylint: disable=W0201
-# Attribute '_size' defined outside __init__
-
 import mimetypes
 import urllib
 
@@ -24,9 +21,10 @@ class FileInFiletracker(File):
     def __init__(self, storage, name):
         File.__init__(self, None, name)
         self.storage = storage
+        self._size = None
 
     def _get_size(self):
-        if not hasattr(self, '_size'):
+        if self._size is None:
             self._size = self.storage.size(self.name)
         return self._size
     size = property(_get_size, File._set_size)

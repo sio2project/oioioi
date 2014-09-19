@@ -1,5 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
 import logging
 
 from django.conf import settings
@@ -193,6 +191,7 @@ class PackageSource(ProblemSource):
                     messages.success(request,
                             _("Package queued for processing."))
                     return self._redirect_response(request)
+                # pylint: disable=broad-except
                 except Exception, e:
                     logger.error("Error processing package", exc_info=True)
                     form._errors['__all__'] = form.error_class([smart_str(e)])

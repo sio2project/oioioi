@@ -1,14 +1,12 @@
 # coding: utf-8
-# pylint: disable=W0611
-# Unused import PAScore
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.fields import PhoneNumberField, PostalCodeField, EnumField, \
-        EnumRegistry
+from oioioi.base.fields import PostalCodeField, EnumField, EnumRegistry
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import ProblemInstance
+# pylint: disable=unused-import
 from oioioi.pa.score import PAScore  # Registers the PA score type
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])

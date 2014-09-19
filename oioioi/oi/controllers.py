@@ -1,5 +1,3 @@
-# pylint: disable=E1103
-# Instance of 'OIRegistrationForm' has no 'is_valid' member
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -60,7 +58,7 @@ class OIRegistrationController(ParticipantsController):
                 data.pop('csrfmiddlewaretoken', None)
                 request.session['oi_oiregistrationformdata'] = data
                 return redirect('add_school')
-            elif form.is_valid():
+            elif form.is_valid():  # pylint: disable=maybe-no-member
                 participant, created = Participant.objects \
                         .get_or_create(contest=self.contest, user=request.user)
                 self.handle_validated_form(request, form, participant)

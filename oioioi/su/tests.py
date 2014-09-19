@@ -1,5 +1,4 @@
-# pylint: disable=E1103
-# Instance of 'AnonymousUser' has no 'backend' member
+# pylint: disable=maybe-no-member
 import json
 
 from django.contrib.auth.models import User

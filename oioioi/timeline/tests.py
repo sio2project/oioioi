@@ -1,5 +1,3 @@
-# pylint: disable=W0102
-# Dangerous default value {} as argument
 import datetime
 
 from django.core.urlresolvers import reverse
@@ -53,6 +51,7 @@ class TestChangingDates(TestCase):
     fixtures = ['test_contest', 'test_extra_rounds', 'test_users',
                 'test_permissions', 'test_one_round_contest']
 
+    # pylint: disable=dangerous-default-value
     def _send_post(self, contest=None, data={}, user_code=403, admin_code=200,
                    contest_admin_code=200, admin_assertin=None,
                    admin_assertnotin=None):

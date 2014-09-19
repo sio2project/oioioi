@@ -1,6 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
-
 from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
@@ -67,7 +64,7 @@ class UserInfoInErrorMessage(object):
        to error message."""
 
     def process_exception(self, request, exception):
-
+        # pylint: disable=broad-except
         try:
             if not hasattr(request, 'user'):
                 return

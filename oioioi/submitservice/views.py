@@ -1,6 +1,3 @@
-# pylint: disable=W0703
-# disables: Catching too general exception Exception
-
 import os
 import random
 import string
@@ -65,7 +62,7 @@ def submit_view(request, contest_id):
         lang_exts = sum(
             getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values(), [])
         if file_extension[1:] not in lang_exts:
-            raise Exception('UNSUPPORTED_EXTENSION')
+            raise ValueError('UNSUPPORTED_EXTENSION')
 
         form = SubmissionForm(request, {
             'problem_instance_id': pi.problem_id,
@@ -84,9 +81,9 @@ def submit_view(request, contest_id):
         result = {'error_code': exception_info.args[0],
                   'error_data': exception_info.args[1]
                   if len(exception_info.args) == 2 else ''}
-    except Exception:
+    except StandardError as e:
         result = {'error_code': 'UNKNOWN_ERROR',
-                  'error_data': ''}
+                  'error_data': str(e)}
     return result
 
 

@@ -1,5 +1,3 @@
-# pylint: disable=E1102
-# self.form_class is not callable
 import urllib
 
 from django import forms
@@ -98,6 +96,7 @@ class ParticipantsController(RegistrationController):
                 instance = participant.registration_model
             except ObjectDoesNotExist:
                 pass
+        # pylint: disable=not-callable
         if request.method == 'POST':
             form = self.form_class(request.POST, instance=instance)
         else:

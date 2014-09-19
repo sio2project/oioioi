@@ -1,5 +1,3 @@
-# pylint: disable=W0231
-# __init__ method from base class 'Exception' is not called
 import logging
 import os.path
 from datetime import timedelta
@@ -26,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class AssignmentNotFound(Exception):
     def __init__(self, prize_giving, email_msg=None, report=None):
+        super(AssignmentNotFound, self).__init__()
         self.prize_giving = prize_giving
         self.email_msg = email_msg
         self.report = report

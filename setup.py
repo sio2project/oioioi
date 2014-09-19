@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# pylint: disable=C0301
-# Line too long
-
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -47,6 +44,7 @@ setup(
         "django-extensions>=1.0.0",
         "werkzeug",
 
+        # pylint: disable=line-too-long
         # Old versions have buggy coverage reports generation, raising
         # an exception like this:
         #

@@ -1,6 +1,3 @@
-# pylint: disable=W0703
-# Catching too general exception Exception
-
 """ This module contains a problem package backend interface. You should
     create a ``package.py`` file in your new app and implement your package
     backend (inheriting from
@@ -137,6 +134,7 @@ def backend_for_package(filename, original_filename=None):
             backend = get_object_by_dotted_name(backend_name)()
             if backend.identify(filename, original_filename):
                 return backend_name
+        # pylint: disable=broad-except
         except Exception:
             logger.warning('Backend %s probe failed', backend_name,
                     exc_info=True)

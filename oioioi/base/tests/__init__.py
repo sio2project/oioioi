@@ -1,7 +1,3 @@
-# pylint: disable=W0612,E1111,E1121
-# Unused variable
-# Assigning to function call which doesn't return
-# Too many positional arguments for function call
 import random
 import sys
 import os.path
@@ -452,7 +448,7 @@ class TestUtils(unittest.TestCase):
                     TestUtils.classinit_called_counter += 1
             self.assertEqual(TestUtils.classinit_called_counter, 1)
 
-            class D(C):
+            class _D(C):
                 pass
             self.assertEqual(TestUtils.classinit_called_counter, 2)
         finally:
@@ -924,6 +920,7 @@ class TestCondition(TestCase):
         self.assertEqual(314, example_view(1))
 
     def test_enforce_condition_failure_with_template(self):
+        # pylint: disable=assignment-from-no-return
         @enforce_condition(self.alwaysFalse, 'base.html')
         def example_view(request):
             pass
@@ -932,6 +929,7 @@ class TestCondition(TestCase):
         self.assertTrue(isinstance(res, TemplateResponse))
 
     def test_enforce_condition_failure_without_template(self):
+        # pylint: disable=assignment-from-no-return
         @enforce_condition(self.alwaysFalse)
         def example_view(request):
             pass

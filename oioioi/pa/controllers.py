@@ -1,5 +1,3 @@
-# pylint: disable=E1103
-# Instance of 'PARegistrationForm' has no 'is_valid' member
 from django import forms
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -55,6 +53,7 @@ class PARegistrationController(ParticipantsController):
         else:
             form = self.get_form(request, participant)
         if request.method == 'POST':
+            # pylint: disable=maybe-no-member
             if form.is_valid():
                 participant, created = Participant.objects \
                         .get_or_create(contest=self.contest, user=request.user)
