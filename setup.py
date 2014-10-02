@@ -39,12 +39,10 @@ setup(
         "linaro-django-pagination",
         # Workaround for SIO-1266
         "django-grappelli==2.4.4",
-        "django-compressor",
         "pygments",
 
         "django-debug-toolbar",
         "django-extensions>=1.0.0",
-        "django-output-validator>=1.5md1",
         "werkzeug",
 
         # Old versions have buggy coverage reports generation, raising
@@ -57,9 +55,6 @@ setup(
         "nose-capturestderr",
         "nose-html",
         "nose-profile",
-
-        "filetracker>=1.0.dev",
-        "sioworkers>=1.0.dev",
 
         "fpdf",
         "pdfminer>=20110515,<20131113",
@@ -74,6 +69,8 @@ setup(
         # We need version >= 1.5.1, becuase it has fixed this bug
         # https://github.com/celery/librabbitmq/issues/42
         "librabbitmq>=1.5.1",
+
+        # Dependencies from external sources live in requirements.txt
     ],
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
