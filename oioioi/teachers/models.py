@@ -2,8 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.deps import check_django_app_dependencies
+from oioioi.base.utils import generate_key
 from oioioi.contests.models import Contest
-from oioioi.teachers.utils import generate_key
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 

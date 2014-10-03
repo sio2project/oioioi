@@ -17,7 +17,7 @@ member_type_dependent_patterns = patterns('oioioi.teachers.views',
 contest_patterns = patterns('oioioi.teachers.views',
     url(r'^teachers/(?P<member_type>pupil|teacher)/',
         include(member_type_dependent_patterns)),
-    url(r'^join/(?P<key>[0-9a-f]{40})/$', 'activate_view',
+    url(r'^join/(?P<key>[0-9a-zA-Z-_=]+)/$', 'activate_view',
         name='teachers_activate_member'),
     # Unused in current UI implementation:
     url(r'^teachers/members/import/(?P<other_contest_id>[a-z0-9_-]+)/$',

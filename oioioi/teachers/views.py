@@ -12,6 +12,7 @@ from django.http import Http404
 from django.views.decorators.http import require_POST
 
 from oioioi.base.menu import account_menu_registry
+from oioioi.base.utils import generate_key
 from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Contest
@@ -19,7 +20,6 @@ from oioioi.participants.models import Participant
 from oioioi.teachers.models import RegistrationConfig, ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
-from oioioi.teachers.utils import generate_key
 from oioioi.base.permissions import enforce_condition, not_anonymous, \
     is_superuser, make_request_condition
 from oioioi.contests.utils import is_contest_admin, contest_exists

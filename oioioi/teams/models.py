@@ -1,12 +1,10 @@
-import hashlib
-import random
-
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from oioioi.base.fields import EnumRegistry, EnumField
+from oioioi.base.utils import generate_key
 
 from oioioi.contests.models import Contest
 
@@ -28,12 +26,8 @@ class Team(models.Model):
             self.user.first_name = self.name
             self.user.save()
         if not self.join_key:
-            self.generate_key()
+            self.join_key = generate_key()
         super(Team, self).save(*args, **kwargs)
-
-    def generate_key(self):
-        data = str(random.random()) + str(self.contest_id)
-        self.join_key = hashlib.sha1(data).hexdigest()
 
 
 class TeamMembership(models.Model):

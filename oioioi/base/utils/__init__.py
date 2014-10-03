@@ -1,7 +1,9 @@
 # pylint: disable=bad-super-call
 import re
+import os
 import sys
 import json
+import base64
 import shutil
 import tempfile
 import functools
@@ -510,6 +512,12 @@ def multiton(cls):
             i = instances[instance_name] = cls(*args, **kwargs)
         return i
     return get_instance
+
+
+def generate_key():
+    """Generate an random key, encoded in url-safe way."""
+    # 18 bytes = 144 bits of entropy, 24 bytes in base64.
+    return base64.urlsafe_b64encode(os.urandom(18))
 
 
 # User-related

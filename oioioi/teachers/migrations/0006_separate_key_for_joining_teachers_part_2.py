@@ -3,7 +3,7 @@ from south.utils import datetime_utils as datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
-from oioioi.teachers.utils import generate_key
+from oioioi.base.utils import generate_key
 
 class Migration(DataMigration):
 
