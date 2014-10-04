@@ -32,6 +32,7 @@ setup(
         "South>=0.8.3,<2.0",
         "BeautifulSoup",
         "PyYAML",
+        "python-dateutil",
         "django-nose",
         "django-registration>=1.0",
         "django-celery>=3.1.15",
