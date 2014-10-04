@@ -19,6 +19,7 @@ from oioioi.participants.models import Participant
 from oioioi.teachers.models import RegistrationConfig, ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
+from oioioi.teachers.utils import generate_key
 from oioioi.base.permissions import enforce_condition, not_anonymous, \
     is_superuser, make_request_condition
 from oioioi.contests.utils import is_contest_admin, contest_exists
@@ -168,7 +169,6 @@ def activate_view(request, contest_id, key):
 
     is_teacher_registration = False
     has_teacher_perm = request.user.has_perm('teachers.teacher')
-
     if t_key_ok:
         if has_teacher_perm:
             is_teacher_registration = True
@@ -230,9 +230,9 @@ def regenerate_key_view(request, contest_id, member_type):
             contest=request.contest)
 
     if member_type == 'teacher':
-        registration_config.teacher_key = registration_config.generate_key()
+        registration_config.teacher_key = generate_key()
     elif member_type == 'pupil':
-        registration_config.pupil_key = registration_config.generate_key()
+        registration_config.pupil_key = generate_key()
     else:
         raise Http404
 

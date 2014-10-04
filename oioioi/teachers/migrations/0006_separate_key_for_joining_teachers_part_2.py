@@ -1,46 +1,19 @@
 # -*- coding: utf-8 -*-
 from south.utils import datetime_utils as datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
-from oioioi.teachers.models import RegistrationConfig
+from oioioi.teachers.utils import generate_key
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        db.rename_column(u'teachers_registrationconfig', 'key', 'pupil_key')
-        db.rename_column(u'teachers_registrationconfig', 'is_active', 'is_active_pupil')
-
-        # Adding field 'RegistrationConfig.teacher_key', temporary allows setting as null
-        db.add_column(u'teachers_registrationconfig', 'teacher_key',
-                      self.gf('django.db.models.fields.CharField')(max_length=40, null=True))
-
-        # Adding field 'RegistrationConfig.is_active_teacher'
-        db.add_column(u'teachers_registrationconfig', 'is_active_teacher',
-                      self.gf('django.db.models.fields.BooleanField')(default=True),
-                      keep_default=False)
-
-        if not db.dry_run:
-            for p in orm.RegistrationConfig.objects.all():
-                p.teacher_key = p.generate_key()
-                p.save()
-
-        db.alter_column(u'teachers_registrationconfig', 'teacher_key',
-                      self.gf('django.db.models.fields.CharField')(max_length=40))
+        for p in orm.RegistrationConfig.objects.all():
+            p.teacher_key = generate_key()
+            p.save()
 
     def backwards(self, orm):
-        db.rename_column(u'teachers_registrationconfig', 'pupil_key', 'key')
-        db.rename_column(u'teachers_registrationconfig', 'is_active_pupil', 'is_active')
-
-
-        # Deleting field 'RegistrationConfig.teacher_key'
-        db.delete_column(u'teachers_registrationconfig', 'teacher_key')
-
-        # Deleting field 'RegistrationConfig.is_active_teacher'
-        db.delete_column(u'teachers_registrationconfig', 'is_active_teacher')
-
-
-
+        pass
 
     models = {
         u'auth.group': {
@@ -96,8 +69,8 @@ class Migration(SchemaMigration):
         u'teachers.registrationconfig': {
             'Meta': {'object_name': 'RegistrationConfig'},
             'contest': ('django.db.models.fields.related.OneToOneField', [], {'to': u"orm['contests.Contest']", 'unique': 'True', 'primary_key': 'True'}),
-            'is_active_teacher': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_active_pupil': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_active_teacher': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'pupil_key': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
             'teacher_key': ('django.db.models.fields.CharField', [], {'max_length': '40'})
         },
@@ -110,3 +83,4 @@ class Migration(SchemaMigration):
     }
 
     complete_apps = ['teachers']
+    symmetrical = True
