@@ -79,9 +79,9 @@ def _fold_registration_models_tree(object):
         current = objs.pop(0)
         objects_used.append(current)
         for field in current._meta.fields:
-                if field.rel is not None and \
-                   getattr(current, field.name) not in objects_used:
-                    objs.append(getattr(current, field.name))
+            if field.rel is not None and \
+                    getattr(current, field.name) not in objects_used:
+                objs.append(getattr(current, field.name))
 
     for obj in objects_used:
         for field in obj._meta.fields:
@@ -116,7 +116,8 @@ def serialize_participants_data(participants):
 
     data = []
     for participant in participants:
-        values = dict(map(key_value, _fold_registration_models_tree(participant)))
+        values = dict(map(key_value,
+                          _fold_registration_models_tree(participant)))
         values['username'] = participant.user.username
         values['first name'] = participant.user.first_name
         values['last name'] = participant.user.last_name

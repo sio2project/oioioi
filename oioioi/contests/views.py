@@ -311,7 +311,7 @@ def user_info_view(request, contest_id, user_id):
     if not request.user.is_superuser and (not user in rcontroller
             .filter_users_with_accessible_personal_data(User.objects.all())
                     or user.is_superuser):
-            raise PermissionDenied
+        raise PermissionDenied
 
     infolist = sorted(
             controller.get_contest_participant_info_list(request, user) +

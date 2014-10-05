@@ -522,7 +522,7 @@ class TestParticipantsDataViews(TestCase):
                           kwargs={'contest_id': contest.id})
             self.client.login(username=user.username)
 
-            response = self.client.get(reg_url)
+            self.client.get(reg_url)
             reg_data = {
                 'address': 'The Castle',
                 'postal_code': '31-337',

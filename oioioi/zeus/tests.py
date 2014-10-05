@@ -47,6 +47,7 @@ ZeusIncorrectServer = ZeusTestServer(
 
 
 class ZeusDummyServer(ZeusServer):
+    # pylint: disable=super-init-not-called
     def __init__(self, zeus_id, server_info):
         pass
 

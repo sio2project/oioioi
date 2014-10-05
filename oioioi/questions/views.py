@@ -32,6 +32,7 @@ def visible_messages(request, author=None, category=None):
     if author:
         q_expression = q_expression & Q(author=author)
     if category:
+        # pylint: disable=unpacking-non-sequence
         category_type, category_id = category
         if category_type == 'p':
             q_expression = q_expression & Q(problem_instance__id=category_id)

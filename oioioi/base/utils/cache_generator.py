@@ -26,6 +26,7 @@ class CacheGenerator(object):
         self.cache_key = cache_key
         self.cache_group = cache_group
         self.name = self.get_instance_name(cache_key, cache_group)
+        self.lock = None
 
         self._in_context = 0
 

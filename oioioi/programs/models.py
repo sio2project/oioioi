@@ -3,7 +3,6 @@ from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
 from django.db.models.signals import pre_save, post_save
-from django.contrib.auth.models import User
 from oioioi.base.fields import EnumRegistry, EnumField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.filetracker.fields import FileField

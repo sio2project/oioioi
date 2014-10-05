@@ -80,8 +80,8 @@ class TeamsMixinForContestController(object):
                         tm = TeamMembership.objects.get(user=request.user,
                                 team__contest=request.contest)
                         if user != tm.team.user:
-                            raise forms.ValidationError(_(
-                               "You can't submit a solution for another team!"))
+                            raise forms.ValidationError(_("You can't submit a"
+                                    " solution for another team!"))
                         return user
                     except TeamMembership.DoesNotExist:
                         raise forms.ValidationError(_(

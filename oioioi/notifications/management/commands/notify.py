@@ -1,7 +1,8 @@
-import string
 from optparse import make_option
+
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
+
 from oioioi.base.notification import NotificationHandler
 from oioioi.contests.models import Contest
 

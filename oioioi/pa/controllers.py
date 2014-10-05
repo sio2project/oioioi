@@ -48,6 +48,7 @@ class PARegistrationController(ParticipantsController):
         participant = self._get_participant_for_form(request)
 
         if 'pa_paregistrationformdata' in request.session:
+            # pylint: disable=not-callable
             form = self.form_class(request.session[
                                    'pa_paregistrationformdata'])
             del request.session['pa_paregistrationformdata']

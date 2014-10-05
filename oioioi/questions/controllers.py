@@ -1,7 +1,6 @@
 from django.template.loader import render_to_string
 
 from oioioi.contests.controllers import ContestController
-from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
 
 

@@ -8,7 +8,6 @@ from django.utils.timezone import utc
 from django.utils.html import strip_tags, escape
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
 
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
@@ -16,7 +15,7 @@ from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Submission, ProblemInstance, Contest
 from oioioi.contests.tests import PrivateRegistrationController
 from oioioi.programs.models import Test, ModelSolution, ProgramSubmission, \
-        TestReport, UserOutGenStatus, ReportActionsConfig
+        TestReport, ReportActionsConfig
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.sinolpack.tests import get_test_filename
 from oioioi.contests.scores import IntegerScore

@@ -47,6 +47,7 @@ class OIRegistrationController(ParticipantsController):
         participant = self._get_participant_for_form(request)
 
         if 'oi_oiregistrationformdata' in request.session:
+            # pylint: disable=not-callable
             form = self.form_class(request.session[
                                    'oi_oiregistrationformdata'])
             del request.session['oi_oiregistrationformdata']

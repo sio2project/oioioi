@@ -13,7 +13,6 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
@@ -23,7 +22,7 @@ from oioioi.contests.controllers import ContestController, \
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
-        Submission, ReportActionsConfig, UserOutGenStatus
+        Submission, UserOutGenStatus
 from oioioi.programs.utils import has_report_actions_config
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
@@ -508,12 +507,12 @@ class ProgrammingContestController(ContestController):
             return False
         config = submission.problem_instance.problem.report_actions_config
 
-        return config.can_user_generate_outs and \
-                submission.user == request.user and \
-                self.can_see_problem(request, submission.problem_instance) and \
+        return (config.can_user_generate_outs and
+                submission.user == request.user and
+                self.can_see_problem(request, submission.problem_instance) and
                 self.filter_visible_reports(request, submission,
-                    SubmissionReport.objects.filter(id=submission_report.id)) \
-                    .exists()
+                    SubmissionReport.objects.filter(id=submission_report.id))
+                    .exists())
 
     def can_see_source(self, request, submission):
         """Determines if the current user is allowed to see source
@@ -548,19 +547,19 @@ class ProgrammingContestController(ContestController):
                         self.get_supported_extra_args(submission)}))
 
     def _out_generate_status(self, request, testreport):
-            try:
-                if is_contest_admin(request) or \
-                        testreport.userout_status.visible_for_user:
-                    # making sure, that output really exists or is processing
-                    if bool(testreport.output_file) or \
-                            testreport.userout_status.status == '?':
-                        return testreport.userout_status.status
+        try:
+            if is_contest_admin(request) or \
+                    testreport.userout_status.visible_for_user:
+                # making sure, that output really exists or is processing
+                if bool(testreport.output_file) or \
+                        testreport.userout_status.status == '?':
+                    return testreport.userout_status.status
 
-            except UserOutGenStatus.DoesNotExist:
-                if bool(testreport.output_file):
-                    return 'OK'
+        except UserOutGenStatus.DoesNotExist:
+            if testreport.output_file:
+                return 'OK'
 
-            return None
+        return None
 
     def render_report(self, request, report):
         if report.kind == 'FAILURE':

@@ -15,6 +15,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse
 from django.views.decorators.http import require_POST
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
 from pygments import highlight
 from pygments.lexers import guess_lexer_for_filename
@@ -239,7 +240,7 @@ def download_user_all_output_view(request, submission_report_id):
 
     if not is_contest_admin(request):
         for report in testreports:
-            _check_generated_out_visibility_for_user(testreport)
+            _check_generated_out_visibility_for_user(report)
 
     zipfd, tmp_zip_filename = tempfile.mkstemp()
     with zipfile.ZipFile(os.fdopen(zipfd, 'wb'), 'w') as zip:

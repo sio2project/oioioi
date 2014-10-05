@@ -28,5 +28,6 @@ for fields, arg, rule in introspection_details:
                 arg,
                 rule
             )],
-            [r'^oioioi\.participants\.fields\.OneToOneBothHandsCascadingParticipantField']
+            [r'^oioioi\.participants\.fields\.'
+             'OneToOneBothHandsCascadingParticipantField']
         )

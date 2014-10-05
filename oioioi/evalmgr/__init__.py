@@ -166,6 +166,7 @@ def evalmgr_job(env):
         Returns environment (a processed copy of given environment).
     """
 
+    # pylint: disable=global-statement
     global loaded_controllers
 
     # load controllers to avoid late mix-ins to them
