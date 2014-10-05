@@ -60,6 +60,7 @@ setup(
         "pdfminer>=20110515,<20131113",
         "slate",
         "unicodecsv",
+        "shortuuid",
 
         "chardet",
 
