@@ -1,3 +1,5 @@
+from math import ceil
+
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from oioioi.contests.scores import ScoreValue, IntegerScore
@@ -72,26 +74,28 @@ def discrete_test_scorer(test, result):
 
 
 def threshold_linear_test_scorer(test, result):
-    """Full score if took less than half of limit and then decreasing to 0."""
+    """Full score if took less than half of limit and then decreasing to 1"""
     limit = test.get('exec_time_limit', 0)
     used = result.get('time_used', 0)
     status = result['result_code']
     percentage = result.get('result_percentage', 100)
-    max_score = int(percentage * test['max_score'] / 100)
+    max_score = int(ceil(percentage * test['max_score'] / 100.))
     test_max_score = IntegerScore(test['max_score'])
 
     if status != 'OK':
         return IntegerScore(0), test_max_score, status
-    elif not limit:
+    if not limit:
         return IntegerScore(max_score), test_max_score, status
 
-    if used <= limit / 2.:
-        score = max_score
-    elif used <= limit:
-        score = int(max_score * ((limit - used) / (limit / 2.)))
-    else:
+    if used > limit:
         score = 0
         status = 'TLE'
+    elif max_score == 0:
+        score = 0
+    elif used <= limit / 2.:
+        score = max_score
+    else:
+        score = 1 + int((max_score - 1) * ((limit - used) / (limit / 2.)))
 
     return IntegerScore(score), test_max_score, status
 

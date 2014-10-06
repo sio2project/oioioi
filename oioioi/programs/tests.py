@@ -463,6 +463,8 @@ class TestScorers(TestCase):
             {'result_code': 'OK', 'time_used': 75, 'result_percentage': 50}),
         ({'exec_time_limit': 100, 'max_score': 100},
             {'result_code': 'OK', 'time_used': 75, 'result_percentage': 0}),
+        ({'exec_time_limit': 100, 'max_score': 100},
+            {'result_code': 'OK', 'time_used': 99, 'result_percentage': 1}),
         )
 
     t_results_unequal_max_scores = (
@@ -506,7 +508,7 @@ class TestScorers(TestCase):
         self.assertEquals(self.t_expected_unequal_max_scores, results)
 
     def test_threshold_linear_test_scorer(self):
-        exp_scores = [100, 100, 99, 50, 0, 100, 100]
+        exp_scores = [100, 100, 99, 50, 1, 100, 100]
         exp_max_scores = [100] * len(self.t_results_ok)
         exp_statuses = ['OK'] * len(self.t_results_ok)
         expected = zip(exp_scores, exp_max_scores, exp_statuses)
@@ -515,7 +517,7 @@ class TestScorers(TestCase):
                         *zip(*self.t_results_ok))
         self.assertEquals(expected, results)
 
-        exp_scores = [99, 25, 0]
+        exp_scores = [99, 25, 0, 1]
         exp_max_scores = [100] * len(self.t_results_ok_perc)
         exp_statuses = ['OK'] * len(self.t_results_ok_perc)
         expected = zip(exp_scores, exp_max_scores, exp_statuses)
