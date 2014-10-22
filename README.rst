@@ -74,7 +74,7 @@ Ensure that required dependencies are installed:
   *texlive-lang-polish*)
 * lessc (`LESS`_ compiler, **minimum version 1.3.3**; on Ubuntu install *npm*
   and then run ``sudo npm install --global less``; can also `be installed inside
-  virtualenv`_)
+  virtualenv`_; on Ubuntu you may also need to install *node-less* and *nodejs-legacy*)
 
 and in one terminal run the Django web server::
 
