@@ -383,7 +383,8 @@ FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
 # Cache
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+        'BACKEND': 'oioioi.base.cache.DefaultCache',
+        'LOCATION': os.path.join(tempfile.gettempdir(), 'oioioi-cache')
     }
 }
 

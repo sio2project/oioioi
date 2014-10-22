@@ -254,7 +254,7 @@ ZEUS_INSTANCES = {
 #FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
 
 # Cache
-# Note that Memcached is the only supported backend.
+# To use the more efficient memcached, install it and uncomment the following:
 #CACHES = {
 #    'default': {
 #        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
