@@ -30,6 +30,7 @@ Then OIOIOI and its dependencies can be installed using the following commands::
 OIOIOI is a set of Django Applications, so you need to create a folder with
 Django settings and other deployment configuration::
 
+  cd ..
   oioioi-create-config deployment
   cd deployment
 
