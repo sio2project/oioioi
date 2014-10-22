@@ -474,11 +474,12 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
            * ``extra_args`` dictionary with ``submission_report`` object
            * ``test_results``
     """
-    if 'submission_report' not in env['extra_args']:
+    if 'submission_report_id' not in env['extra_args']:
         logger.info('No submission_report given to fill tests outputs')
         return env
 
-    submission_report = env['extra_args']['submission_report']
+    submission_report_id = env['extra_args']['submission_report_id']
+    submission_report = SubmissionReport.objects.get(id=submission_report_id)
     test_reports = TestReport.objects.filter(
                                         submission_report=submission_report)
     test_results = env.get('test_results', {})
@@ -521,11 +522,12 @@ def insert_existing_submission_link(env, **kwargs):
            * ``contest_id``
            * ``submission_id``
     """
-    if 'submission_report' not in env['extra_args']:
+    if 'submission_report_id' not in env['extra_args']:
         logger.info('No submission_report given to generate link')
         return env
 
-    submission_report = env['extra_args']['submission_report']
+    submission_report_id = env['extra_args']['submission_report_id']
+    submission_report = SubmissionReport.objects.get(id=submission_report_id)
     dst_submission = submission_report.submission
     src_submission = Submission.objects.get(id=env['submission_id'])
     href = reverse('submission', kwargs={'submission_id': dst_submission.id,

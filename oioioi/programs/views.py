@@ -360,7 +360,7 @@ def generate_user_output_view(request, testreport_id=None,
         resubmission.save()
         request.contest.controller.judge(resubmission,
                 extra_args={'tests_subset': test_ids,
-                            'submission_report': submission_report})
+                            'submission_report_id': submission_report.id})
 
     return redirect('submission', contest_id=request.contest.id,
                     submission_id=submission.id)
