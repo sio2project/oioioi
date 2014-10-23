@@ -199,7 +199,7 @@ Before setting up judging machines, you need to configure the RabbitMQ
 server to accept remote connections. This can be done by creating a
 new user account or by allowing the default *guest* account to connect
 from a remote host, by creating the configuration file
-*/etc/rabbitmq/rabbitmq.config* with the following content:
+*/etc/rabbitmq/rabbitmq.config* with the following content::
 
   [{rabbit, [{loopback_users, []}]}].
 
