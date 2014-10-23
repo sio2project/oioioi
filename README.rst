@@ -195,6 +195,17 @@ Production configuration
 Setting up judging machines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Before setting up judging machines, you need to configure the RabbitMQ
+server to accept remote connections. This can be done by creating a
+new user account or by allowing the default *guest* account to connect
+from a remote host, by creating the configuration file
+*/etc/rabbitmq/rabbitmq.config* with the following content:
+
+  [{rabbit, [{loopback_users, []}]}].
+
+and restarting the RabbitMQ server. Then on every juding machine do the
+following:
+
 #. Create a new user account for the judging processes and switch to it.
 
 #. Set up virtualenv::
@@ -208,7 +219,7 @@ Setting up judging machines
 
 #. Start the worker process::
 
-     sio-celery-worker BROKER_URL
+     sio-celery-worker amqp://guest:guest@[server]:5672//
 
    The passed argument must point to the RabbitMQ server configured on the
    server machine.
