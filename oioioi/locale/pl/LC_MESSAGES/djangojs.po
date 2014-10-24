@@ -1,92 +1,211 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
+# Translators:
+# matrach <matraszek.maciej@gmail.com>, 2014
+# matrach <matraszek.maciej@gmail.com>, 2014
+# Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
+# Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-21 18:01+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2014-10-25 12:22+0200\n"
+"PO-Revision-Date: 2014-10-25 10:12+0000\n"
+"Last-Translator: matrach <matraszek.maciej@gmail.com>\n"
+"Language-Team: Polish (http://www.transifex.com/projects/p/sio2project/"
+"language/pl/)\n"
+"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2)\n"
+"|| n%100>=20) ? 1 : 2);\n"
 
-#: clock/static/common/clocks.js:20
+#: clock/static/common/clocks.js:31
 msgid "end of the round."
 msgstr "Do zakończenia rundy"
 
-#: clock/static/common/clocks.js:22
+#: clock/static/common/clocks.js:32
+msgid "to the end"
+msgstr "do końca"
+
+#: clock/static/common/clocks.js:35
 msgid "start of the round."
 msgstr "Do rozpoczęcia rundy"
 
-#: clock/static/common/clocks.js:26
+#: clock/static/common/clocks.js:36
+msgid "to the start"
+msgstr "do rozpoczęcia"
+
+#: clock/static/common/clocks.js:41
 msgid "%(seconds)s second "
 msgid_plural "%(seconds)s seconds "
 msgstr[0] "%(seconds)s sekunda."
 msgstr[1] "%(seconds)s sekundy."
 msgstr[2] "%(seconds)s sekund."
 
-#: clock/static/common/clocks.js:31
+#: clock/static/common/clocks.js:44
+msgid "%(seconds)ss "
+msgstr "%(seconds)ss "
+
+#: clock/static/common/clocks.js:48
 msgid "%(minutes)s minute "
 msgid_plural "%(minutes)s minutes "
 msgstr[0] "%(minutes)s minuta "
 msgstr[1] "%(minutes)s minuty "
 msgstr[2] "%(minutes)s minut "
 
-#: clock/static/common/clocks.js:36
+#: clock/static/common/clocks.js:51
+msgid "%(minutes)sm "
+msgstr "%(minutes)sm "
+
+#: clock/static/common/clocks.js:55
 msgid "%(hours)s hour "
 msgid_plural "%(hours)s hours "
 msgstr[0] "%(hours)s godzina "
 msgstr[1] "%(hours)s godziny "
 msgstr[2] "%(hours)s godzin "
 
-#: clock/static/common/clocks.js:41
+#: clock/static/common/clocks.js:57
+msgid "%(hours)sh "
+msgstr "%(hours)sg "
+
+#: clock/static/common/clocks.js:61
 msgid "%(days)s day "
 msgid_plural "%(days)s days "
 msgstr[0] "%(days)s dzień "
 msgstr[1] "%(days)s dni "
 msgstr[2] "%(days)s dni "
 
-#: clock/static/common/clocks.js:47
+#: clock/static/common/clocks.js:63
+msgid "%(days)sd "
+msgstr "%(days)sd "
+
+#: clock/static/common/clocks.js:73
 msgid "%(countdown_days)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s"
 msgstr[0] "%(countdown_destination)s pozostał %(countdown_days)s"
 msgstr[1] "%(countdown_destination)s pozostały %(countdown_days)s"
 msgstr[2] "%(countdown_destination)s pozostało %(countdown_days)s"
 
-#: clock/static/common/clocks.js:54
+#: clock/static/common/clocks.js:82
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s"
 msgstr[0] "%(countdown_destination)s pozostała %(countdown_hours)s"
 msgstr[1] "%(countdown_destination)s pozostały %(countdown_hours)s"
 msgstr[2] "%(countdown_destination)s pozostało %(countdown_hours)s"
 
-#: clock/static/common/clocks.js:61
+#: clock/static/common/clocks.js:91
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s"
 msgstr[0] "%(countdown_destination)s pozostała %(countdown_minutes)s"
 msgstr[1] "%(countdown_destination)s pozostały %(countdown_minutes)s"
 msgstr[2] "%(countdown_destination)s pozostało %(countdown_minutes)s"
 
-#: clock/static/common/clocks.js:68
+#: clock/static/common/clocks.js:99
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s"
 msgstr[0] "%(countdown_destination)s pozostała %(countdown_seconds)s"
 msgstr[1] "%(countdown_destination)s pozostały %(countdown_seconds)s"
 msgstr[2] "%(countdown_destination)s pozostało %(countdown_seconds)s"
 
-#: clock/static/common/clocks.js:75
+#: clock/static/common/clocks.js:105
 msgid "The round is over!"
 msgstr "Runda zakończyła się!"
 
-#: clock/static/common/clocks.js:77
+#: clock/static/common/clocks.js:108
 msgid "The round has started!"
 msgstr "Runda rozpoczęła się!"
+
+#: clock/static/common/clocks.js:224
+msgid "Reason: Admin-time status has changed."
+msgstr "Powód: czas administratora został zmieniony."
+
+#: programs/static/common/filedrag.js:57
+msgid "Drop file here"
+msgstr "Upuść plik tutaj"
+
+#: programs/static/common/filedrag.js:95
+msgid "Drop one file."
+msgstr "Upuść dokładnie jeden plik."
+
+#: programs/static/common/filedrag.js:99
+msgid "File is empty."
+msgstr "Plik jest pusty."
+
+#: programs/static/common/filedrag.js:104
+msgid "File too big."
+msgstr "Plik jest za duży."
+
+#: programs/static/common/filedrag.js:108
+msgid "Not a text file."
+msgstr "Oczekiwano pliku tekstowego."
+
+#: questions/static/common/messages.js:132
+msgid "Expand all messages"
+msgstr "Rozwiń wszystkie pytania i ogłoszenia"
+
+#: questions/static/common/messages.js:133
+msgid "Collapse all messages"
+msgstr "Zwiń pytania i ogłoszenia"
+
+#: questions/static/common/messages.js:134
+msgid "Expand message"
+msgstr "Rozwiń"
+
+#: questions/static/common/messages.js:135
+msgid "Collapse message"
+msgstr "Zwiń"
+
+#: su/static/common/su.js:22
+msgid "Reason: User assoctiated with this session has changed."
+msgstr "Powód: użytkownik związany z tą sesją zmienił się."
+
+#: timeline/static/timeline/timeline.js:34
+msgid ""
+"Change date in a datebox by clicking the corresponding <span class=\"icon-"
+"calendar\"></span> button. You can also use the keyboard: <br> <ul>     "
+"<li><strong>TAB</strong> - go to the next datebox</li>     "
+"<li><strong>ENTER</strong> - confirm date</li>     <li><strong>ESC, CTRL+Z</"
+"strong> - reset date</li> </ul> <hr> You can filter events by clicking the "
+"vertical bar representing a round. <hr> If you want to split a date group, "
+"click the corresponding <span class=\"icon-resize-vertical\"></span> button."
+msgstr ""
+"Możesz zmieniać daty poprzez kliknięcie na <span class=\"icon-calendar\"></"
+"span>. Dostępne są również skróty klawiaturowe: <br> <ul>     "
+"<li><strong>TAB</strong> - przejdź do następnego pola</li>     "
+"<li><strong>ENTER</strong> - zapisz datę</li>     <li><strong>ESC, CTRL+Z</"
+"strong> - przywróć datę</li> </ul> <hr> Aby wyświetlić jedynie wydarzenia z "
+"konkretnej rundy, kliknij na pionowy pasek ją reprezentujący. <hr> Przycisk "
+"<span class=\"icon-resize-vertical\"></span> rozdziela grupę wydarzeń o tym "
+"samym czasie."
+
+#: timeline/static/timeline/timeline.js:52
+msgid "now"
+msgstr "teraz"
+
+#~ msgid "Delivering..."
+#~ msgstr "Dostarczanie"
+
+#~ msgid "Delivered"
+#~ msgstr "Dostarczone"
+
+#~ msgid "Taking back..."
+#~ msgstr "Cofanie…"
+
+#~ msgid "Not delivered"
+#~ msgstr "Niedostarczone"
+
+#~ msgid "First to solve"
+#~ msgstr "Pierwsze rozwiązanie"
+
+#~ msgid "No color"
+#~ msgstr "Bez koloru"
+
+#~ msgid "No connection"
+#~ msgstr "Brak połączenia z serwerem"
+
+#~ msgid "Corrupt data"
+#~ msgstr "Uszkodzone dane"

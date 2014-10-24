@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-21 18:01+0100\n"
+"POT-Creation-Date: 2014-10-25 12:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,66 +17,149 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: clock/static/common/clocks.js:20
+#: clock/static/common/clocks.js:31
 msgid "end of the round."
 msgstr ""
 
-#: clock/static/common/clocks.js:22
+#: clock/static/common/clocks.js:32
+msgid "to the end"
+msgstr ""
+
+#: clock/static/common/clocks.js:35
 msgid "start of the round."
 msgstr ""
 
-#: clock/static/common/clocks.js:26
+#: clock/static/common/clocks.js:36
+msgid "to the start"
+msgstr ""
+
+#: clock/static/common/clocks.js:41
 msgid "%(seconds)s second "
 msgid_plural "%(seconds)s seconds "
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:31
+#: clock/static/common/clocks.js:44
+msgid "%(seconds)ss "
+msgstr ""
+
+#: clock/static/common/clocks.js:48
 msgid "%(minutes)s minute "
 msgid_plural "%(minutes)s minutes "
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:36
+#: clock/static/common/clocks.js:51
+msgid "%(minutes)sm "
+msgstr ""
+
+#: clock/static/common/clocks.js:55
 msgid "%(hours)s hour "
 msgid_plural "%(hours)s hours "
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:41
+#: clock/static/common/clocks.js:57
+msgid "%(hours)sh "
+msgstr ""
+
+#: clock/static/common/clocks.js:61
 msgid "%(days)s day "
 msgid_plural "%(days)s days "
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:47
+#: clock/static/common/clocks.js:63
+msgid "%(days)sd "
+msgstr ""
+
+#: clock/static/common/clocks.js:73
 msgid "%(countdown_days)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:54
+#: clock/static/common/clocks.js:82
 msgid "%(countdown_hours)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:61
+#: clock/static/common/clocks.js:91
 msgid "%(countdown_minutes)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:68
+#: clock/static/common/clocks.js:99
 msgid "%(countdown_seconds)sleft to the %(countdown_destination)s"
 msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: clock/static/common/clocks.js:75
+#: clock/static/common/clocks.js:105
 msgid "The round is over!"
 msgstr ""
 
-#: clock/static/common/clocks.js:77
+#: clock/static/common/clocks.js:108
 msgid "The round has started!"
+msgstr ""
+
+#: clock/static/common/clocks.js:224
+msgid "Reason: Admin-time status has changed."
+msgstr ""
+
+#: programs/static/common/filedrag.js:57
+msgid "Drop file here"
+msgstr ""
+
+#: programs/static/common/filedrag.js:95
+msgid "Drop one file."
+msgstr ""
+
+#: programs/static/common/filedrag.js:99
+msgid "File is empty."
+msgstr ""
+
+#: programs/static/common/filedrag.js:104
+msgid "File too big."
+msgstr ""
+
+#: programs/static/common/filedrag.js:108
+msgid "Not a text file."
+msgstr ""
+
+#: questions/static/common/messages.js:132
+msgid "Expand all messages"
+msgstr ""
+
+#: questions/static/common/messages.js:133
+msgid "Collapse all messages"
+msgstr ""
+
+#: questions/static/common/messages.js:134
+msgid "Expand message"
+msgstr ""
+
+#: questions/static/common/messages.js:135
+msgid "Collapse message"
+msgstr ""
+
+#: su/static/common/su.js:22
+msgid "Reason: User assoctiated with this session has changed."
+msgstr ""
+
+#: timeline/static/timeline/timeline.js:34
+msgid ""
+"Change date in a datebox by clicking the corresponding <span class=\"icon-"
+"calendar\"></span> button. You can also use the keyboard: <br> <ul>     "
+"<li><strong>TAB</strong> - go to the next datebox</li>     "
+"<li><strong>ENTER</strong> - confirm date</li>     <li><strong>ESC, CTRL+Z</"
+"strong> - reset date</li> </ul> <hr> You can filter events by clicking the "
+"vertical bar representing a round. <hr> If you want to split a date group, "
+"click the corresponding <span class=\"icon-resize-vertical\"></span> button."
+msgstr ""
+
+#: timeline/static/timeline/timeline.js:52
+msgid "now"
 msgstr ""
