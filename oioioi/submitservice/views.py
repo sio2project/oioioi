@@ -65,7 +65,7 @@ def submit_view(request, contest_id):
             raise ValueError('UNSUPPORTED_EXTENSION')
 
         form = SubmissionForm(request, {
-            'problem_instance_id': pi.problem_id,
+            'problem_instance_id': pi.id,
             'user': request.user,
             'kind': 'NORMAL'
         }, request.FILES)
