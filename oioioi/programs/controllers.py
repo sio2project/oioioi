@@ -387,16 +387,18 @@ class ProgrammingContestController(ContestController):
             for line in lines:
                 md5.update(line)
             md5 = md5.hexdigest()
+            session_md5_key = 'programs_%d_md5' % \
+                    cleaned_data['problem_instance'].id
 
-            if 'programs_last_md5' in request.session and \
-                    md5 == request.session['programs_last_md5']:
-                del request.session['programs_last_md5']
+            if session_md5_key in request.session and \
+                    md5 == request.session[session_md5_key]:
+                del request.session[session_md5_key]
                 raise ValidationError(
-                    _("You have submitted the same file again."
-                    " Please resubmit if you really want "
-                    " to submit the same file"))
+                    _("You have submitted the same file for this problem "
+                      "again. Please resubmit if you really want "
+                      "to submit the same file"))
             else:
-                request.session['programs_last_md5'] = md5
+                request.session[session_md5_key] = md5
                 request.session.save()
 
         return cleaned_data

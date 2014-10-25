@@ -842,7 +842,7 @@ class SubmitFileMixin(object):
 
 class TestSubmission(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission']
+                'test_submission', 'test_extra_problem']
 
     def setUp(self):
         self.client.login(username='test_user')
@@ -877,16 +877,25 @@ class TestSubmission(TestCase, SubmitFileMixin):
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_repeated_submission_fail(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_file(contest, problem_instance)
         response = self.submit_file(contest, problem_instance)
         self.assertEqual(200, response.status_code)
         self.assertIn('Please resubmit', response.content)
 
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
+    def test_repeated_submission_different_problems(self):
+        contest = Contest.objects.get()
+        problem_instance1 = ProblemInstance.objects.get(pk=1)
+        problem_instance2 = ProblemInstance.objects.get(pk=2)
+        response = self.submit_file(contest, problem_instance1)
+        response = self.submit_file(contest, problem_instance2)
+        self._assertSubmitted(contest, response)
+
+    @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_repeated_submission_success(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_file(contest, problem_instance)
         response = self.submit_file(contest, problem_instance)
         response = self.submit_file(contest, problem_instance)
@@ -894,7 +903,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
 
     def test_simple_submission(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         round = Round.objects.get()
         round.start_date = datetime(2012, 7, 31, tzinfo=utc)
         round.end_date = datetime(2012, 8, 10, tzinfo=utc)
@@ -924,21 +933,21 @@ class TestSubmission(TestCase, SubmitFileMixin):
 
     def test_huge_submission(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_file(contest, problem_instance,
                                     file_size=102405)
         self.assertIn('File size limit exceeded.', response.content)
 
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_file(contest, problem_instance,
                                     file_size=102400)
         self._assertSubmitted(contest, response)
 
     def test_submissions_limitation(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         problem_instance.submissions_limit = 2
         problem_instance.save()
         response = self.submit_file(contest, problem_instance)
@@ -956,7 +965,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
 
     def test_extension_checking(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         self._assertUnsupportedExtension(contest, problem_instance, 'xxx', '')
         self._assertUnsupportedExtension(contest, problem_instance, 'xxx', 'e')
         self._assertUnsupportedExtension(contest, problem_instance,
@@ -967,7 +976,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
 
     def test_code_pasting(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_code(contest, problem_instance, 'some code')
         self._assertSubmitted(contest, response)
         response = self.submit_code(contest, problem_instance, 'some code', '')
@@ -984,7 +993,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_pasting_unicode_code(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_code(contest, problem_instance, unichr(12345),
                 user='test_user')
         self._assertSubmitted(contest, response)
@@ -992,7 +1001,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
     @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c']})
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
         self._assertUnsupportedExtension(contest, problem_instance,
                 'xxx', 'cpp')
         response = self.submit_file(contest, problem_instance, file_name='a.c')
