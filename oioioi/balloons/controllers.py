@@ -8,9 +8,9 @@ from oioioi.contests.models import Submission
 
 
 class BalloonsDeliveryACMControllerMixin(object):
-    def submission_judged(self, submission, rejudged):
+    def submission_judged(self, submission, rejudged=False):
         super(BalloonsDeliveryACMControllerMixin, self) \
-                .submission_judged(submission)
+                .submission_judged(submission, rejudged)
         self._create_balloon_delivery(submission)
 
     @transaction.commit_on_success
