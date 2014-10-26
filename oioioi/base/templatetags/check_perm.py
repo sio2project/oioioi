@@ -11,10 +11,15 @@ class CheckPermNode(Node):
         self.var = var
 
     def render(self, context):
-        perm = self.perm.resolve(context)
-        obj = self.obj.resolve(context)
-        user = context['user']
-        context[self.var] = user.has_perm(perm, obj)
+        try:
+            perm = self.perm.resolve(context)
+            obj = self.obj.resolve(context)
+        # pylint: disable=broad-except
+        except Exception:
+            context[self.var] = False
+        else:
+            user = context['user']
+            context[self.var] = user.has_perm(perm, obj)
         return ''
 
 
