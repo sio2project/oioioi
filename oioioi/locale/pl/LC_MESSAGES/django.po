@@ -462,7 +462,7 @@ msgid ""
 "    <p>There are no contests available to logged out users.\n"
 "    <p>Please <a href=\"%(login_link)s\">log in</a> or <a href=\"%(reg_link)s\">register</a>.\n"
 "    "
-msgstr "\n    <p>Brak konkursów dostępnych dla niezalogowanych użytkowników.\n    <p><a href=\"%(login_link)s\">Zaoguj się</a> lub <a href=\"%(reg_link)s\">zarejestruj</a>.\n    "
+msgstr "\n    <p>Brak konkursów dostępnych dla niezalogowanych użytkowników.\n    <p><a href=\"%(login_link)s\">Zaloguj się</a> lub <a href=\"%(reg_link)s\">zarejestruj</a>.\n    "
 
 #: base/templates/index-no-contests.html:29
 msgid ""
