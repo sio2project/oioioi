@@ -4,7 +4,6 @@ import dateutil.parser
 
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.core.mail import EmailMessage
 from django.core import signing
 
 from oioioi.dashboard.views import grouper
@@ -104,7 +103,5 @@ def send_submission_receipt_confirmation(request, submission):
               ' '.join(subject.strip().splitlines())
     body = render_to_string('confirmations/email_body.txt', context)
 
-    email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL,
-            [submission.user.email],
-            headers={'Reply-To': 'noreply@noreply.net'})
-    email.send()
+    request.contest.controller.send_email(subject, body,
+                [submission.user.email])

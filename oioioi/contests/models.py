@@ -46,6 +46,12 @@ class Contest(models.Model):
     default_submissions_limit = models.IntegerField(
             verbose_name=_("default submissions limit"),
             default=settings.DEFAULT_SUBMISSIONS_LIMIT, blank=True)
+    contact_email = models.EmailField(blank=True,
+            verbose_name=_("contact email"),
+            help_text=_("Address of contest owners. Sent emails related "
+                "to this contest (i.e. submission confirmations) "
+                "will have the return address set to this value. "
+                "Defaults to system admins address if left empty."))
 
     @property
     def controller(self):

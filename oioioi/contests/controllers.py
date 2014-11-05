@@ -13,6 +13,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_noop, ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins, \
         get_user_display_name
@@ -907,6 +908,24 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     def is_onsite(self):
         """Determines whether the contest is on-site."""
         return False
+
+    def send_email(self, subject, body, recipients, headers=None):
+        """Send an email about something related to this contest
+            (e.g. a submission confirmation).
+            ``From:`` is set to DEFAULT_FROM_EMAIL,
+            ``Reply-To:`` is taken from the ``Contact email`` contest setting
+                and defaults to the value of ``From:``.
+        """
+        replyto = settings.DEFAULT_FROM_EMAIL
+        if self.contest.contact_email:
+            replyto = self.contest.contact_email
+
+        final_headers = {'Reply-To': replyto}
+        if headers:
+            final_headers.update(headers)
+        email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL,
+                recipients, headers=final_headers)
+        email.send()
 
 
 class PastRoundsHiddenContestControllerMixin(object):
