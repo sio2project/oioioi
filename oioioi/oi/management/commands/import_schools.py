@@ -50,7 +50,7 @@ class Command(BaseCommand):
                   " Expected: %(col)s")
                 % {'h': ', '.join(fields), 'col': ', '.join(COLUMNS)})
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             ok = True
             all_count = 0
             created_count = 0

@@ -170,7 +170,7 @@ class PackageSource(ProblemSource):
                 try:
                     # We need to make sure that the package is saved in the
                     # database before the Celery task starts.
-                    with transaction.commit_on_success():
+                    with transaction.atomic():
                         original_filename, file_manager = \
                                 self.get_package_file(request, contest, form,
                                         existing_problem)

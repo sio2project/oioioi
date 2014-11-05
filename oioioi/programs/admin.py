@@ -47,15 +47,21 @@ class TestInline(admin.TabularInline):
         return False
 
     def input_file_link(self, instance):
-        href = reverse('oioioi.programs.views.download_input_file_view',
-                kwargs={'test_id': str(instance.id)})
-        return make_html_link(href, instance.input_file.name.split('/')[-1])
+        if instance.id is not None:
+            href = reverse('oioioi.programs.views.download_input_file_view',
+                    kwargs={'test_id': str(instance.id)})
+            return make_html_link(href,
+                                  instance.input_file.name.split('/')[-1])
+        return None
     input_file_link.short_description = _("Input file")
 
     def output_file_link(self, instance):
-        href = reverse('oioioi.programs.views.download_output_file_view',
-                kwargs={'test_id': instance.id})
-        return make_html_link(href, instance.output_file.name.split('/')[-1])
+        if instance.id is not None:
+            href = reverse('oioioi.programs.views.download_output_file_view',
+                    kwargs={'test_id': instance.id})
+            return make_html_link(href,
+                                  instance.output_file.name.split('/')[-1])
+        return None
     output_file_link.short_description = _("Output/hint file")
 
 
@@ -95,9 +101,11 @@ class OutputCheckerInline(admin.TabularInline):
         if not instance.exe_file:
             return _("No checker for this task.")
 
-        href = reverse('oioioi.programs.views.download_checker_exe_view',
-            kwargs={'checker_id': str(instance.id)})
-        return make_html_link(href, instance.exe_file.name.split('/')[-1])
+        if instance.id is not None:
+            href = reverse('oioioi.programs.views.download_checker_exe_view',
+                kwargs={'checker_id': str(instance.id)})
+            return make_html_link(href, instance.exe_file.name.split('/')[-1])
+        return None
     checker_link.short_description = _("Checker exe")
 
 

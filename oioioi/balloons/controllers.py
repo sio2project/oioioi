@@ -13,7 +13,7 @@ class BalloonsDeliveryACMControllerMixin(object):
                 .submission_judged(submission, rejudged)
         self._create_balloon_delivery(submission)
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def _create_balloon_delivery(self, submission):
         this_problem_instance = \
             Q(problem_instance=submission.problem_instance)

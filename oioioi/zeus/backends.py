@@ -183,7 +183,7 @@ class ZeusServer(object):
             raise ZeusError(res.get('error', None), code)
         return _get_key(res, 'next_seq'), _get_key(res, 'reports')
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def commit_fetch(self, seq):
         """Shall be called after calling fetch_results, if all results have
            been saved successfully.

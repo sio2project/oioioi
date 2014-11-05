@@ -686,7 +686,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         # even in the same transaction.
 
         # First: UserResultForProblem
-        with transaction.commit_on_success():
+        with transaction.atomic():
             result, created = UserResultForProblem.objects \
                 .select_for_update() \
                 .get_or_create(user=user, problem_instance=problem_instance)
@@ -694,14 +694,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             result.save()
 
         # Second: UserResultForRound
-        with transaction.commit_on_success():
+        with transaction.atomic():
             result, created = UserResultForRound.objects.select_for_update() \
                 .get_or_create(user=user, round=round)
             self.update_user_result_for_round(result)
             result.save()
 
         # Third: UserResultForContest
-        with transaction.commit_on_success():
+        with transaction.atomic():
             result, created = UserResultForContest.objects \
                     .select_for_update() \
                     .get_or_create(user=user, contest=contest)

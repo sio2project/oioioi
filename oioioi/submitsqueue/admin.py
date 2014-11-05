@@ -132,7 +132,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     colored_state.short_description = _("Status")
     colored_state.admin_order_field = 'state'
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def remove_from_queue(self, request, queryset):
         for obj in queryset:
             obj.state = 'CANCELLED'

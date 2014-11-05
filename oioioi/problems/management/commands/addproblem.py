@@ -10,7 +10,7 @@ class Command(BaseCommand):
     args = _("<filename>")
     help = _("Adds the problem from the given package to the database.")
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def handle(self, *args, **options):
         if not args:
             raise CommandError(_("Missing argument (filename)"))

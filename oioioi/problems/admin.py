@@ -58,9 +58,11 @@ class StatementInline(admin.TabularInline):
         return False
 
     def content_link(self, instance):
-        href = reverse('oioioi.problems.views.show_statement_view',
-                kwargs={'statement_id': str(instance.id)})
-        return make_html_link(href, instance.content.name)
+        if instance.id is not None:
+            href = reverse('oioioi.problems.views.show_statement_view',
+                    kwargs={'statement_id': str(instance.id)})
+            return make_html_link(href, instance.content.name)
+        return None
     content_link.short_description = _("Content file")
 
 
@@ -79,9 +81,12 @@ class AttachmentInline(admin.TabularInline):
         return True
 
     def content_link(self, instance):
-        href = reverse('oioioi.problems.views.show_problem_attachment_view',
+        if instance.id is not None:
+            href = reverse(
+                'oioioi.problems.views.show_problem_attachment_view',
                 kwargs={'attachment_id': str(instance.id)})
-        return make_html_link(href, instance.content.name)
+            return make_html_link(href, instance.content.name)
+        return None
     content_link.short_description = _("Content file")
 
 

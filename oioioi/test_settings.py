@@ -10,6 +10,7 @@ ADMINS = (
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+        'ATOMIC_REQUESTS': True,
     }
 }
 
@@ -109,3 +110,5 @@ CACHES = {
 }
 
 CONFIG_VERSION = INSTALLATION_CONFIG_VERSION
+
+STATIC_ROOT = ''

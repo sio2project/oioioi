@@ -40,8 +40,8 @@
 
 {% block title %}{{ title }} - {% blocktrans %}{{ site_name }} Admin{% endblocktrans %}{% endblock %}
 
-{% block branding %}
-    <h1 id="site-name">{% blocktrans %}{{ site_name }} Admin{% endblocktrans %}</h1>
+{% block navigation %}
+    {% include "admin/includes_grappelli/header.html" %}
 {% endblock %}
 
 {% block footer %}

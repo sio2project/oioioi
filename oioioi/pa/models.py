@@ -35,11 +35,12 @@ class PARegistration(RegistrationModel):
     t_shirt_size = models.CharField(max_length=7, choices=T_SHIRT_SIZES,
         verbose_name=_("t-shirt size"))
     newsletter = models.BooleanField(_("newsletter"), help_text=_("I want to "
-        "recieve the information about further editions of the contest."))
+        "recieve the information about further editions of the contest."),
+        default=False)
     terms_accepted = models.BooleanField(_("terms accepted"),
         help_text=_("I declare that I have read the contest rules and "
                     "the technical arrangements. I fully understand them and "
-                     "accept them unconditionally."))
+                     "accept them unconditionally."), default=False)
 
 
 division_registry = EnumRegistry()

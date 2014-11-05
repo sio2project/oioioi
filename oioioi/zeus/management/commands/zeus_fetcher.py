@@ -44,7 +44,7 @@ class Command(BaseCommand):
             logger.debug("Waiting for new results...")
             time.sleep(settings.ZEUS_RESULTS_FETCH_DELAY)
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def fetch_once(self, zeus):
         try:
             seq, received_results = zeus.fetch_results()

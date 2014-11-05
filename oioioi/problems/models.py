@@ -213,8 +213,7 @@ class ProblemPackage(models.Model):
     def save_operation_status(self):
         """Returns a context manager to be used during the unpacking process.
 
-           The code inside the ``with`` statment is executed in the
-           ``commit_on_success`` transaction mode.
+           The code inside the ``with`` statment is executed in a transaction.
 
            If the code inside the ``with`` statement executes successfully,
            the package ``status`` field is set to ``OK``.
@@ -230,6 +229,6 @@ class ProblemPackage(models.Model):
         """
         @contextmanager
         def manager():
-            with self.StatusSaver(self), transaction.commit_on_success():
+            with self.StatusSaver(self), transaction.atomic():
                 yield None
         return manager()

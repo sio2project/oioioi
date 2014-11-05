@@ -51,7 +51,7 @@ class Command(BaseCommand):
                     'header': ', '.join(header),
                     'expected': ', '.join(self.COLUMNS)})
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             BalloonsDisplay.objects.filter(contest=contest).delete()
 
             ok = True

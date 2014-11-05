@@ -8,7 +8,7 @@ from oioioi.contests.utils import can_enter_contest, contest_exists, \
 
 
 def drag_and_drop_processor(request):
-    if not hasattr(request, 'resolver_match'):
+    if request.resolver_match is None:
         return {}
 
     # here add names of named URLs (as in patterns in urls.py)

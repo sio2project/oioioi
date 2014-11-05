@@ -48,7 +48,7 @@ class AssignmentNotFound(Exception):
 
 
 @task(ignore_result=True)
-@transaction.commit_on_success
+@transaction.atomic
 def prizesmgr_job(pg_pk, version):
     prefix = "PrizeGiving finalization(id: %s, version: %s): " \
             % (pg_pk, version)

@@ -11,7 +11,7 @@ from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from django import forms
+from django.contrib.admin.options import RenameBaseModelAdminMethods
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import is_superuser
@@ -24,7 +24,7 @@ TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline
 
 
-class ModelAdminMeta(forms.MediaDefiningClass, ClassInitMeta):
+class ModelAdminMeta(RenameBaseModelAdminMethods, ClassInitMeta):
     pass
 
 

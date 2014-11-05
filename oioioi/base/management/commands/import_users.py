@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     'header': ', '.join(header),
                     'expected': ', '.join(self.COLUMNS)})
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             ok = True
             all_count = 0
             for row in reader:

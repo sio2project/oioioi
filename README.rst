@@ -341,6 +341,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
        redirect_stderr=true
        stdout_logfile={{ PROJECT_DIR }}/logs/prizesmgr.log
 
+#. * Added *ATOMIC_REQUESTS* database option to *deployment/settings.py*::
+
+       DATABASES = {
+        'default': {
+         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+         'NAME': '',                      # Or path to database file if using sqlite3.
+         'USER': '',                      # Not used with sqlite3.
+         'PASSWORD': '',                  # Not used with sqlite3.
+         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+         'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
+        }
+       }
+
 Usage
 -----
 

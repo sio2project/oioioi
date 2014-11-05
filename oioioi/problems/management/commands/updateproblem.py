@@ -11,7 +11,7 @@ class Command(BaseCommand):
     args = _("<problem_id> <filename>")
     help = _("Updates an existing problem using the given package file.")
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def handle(self, *args, **options):
         if len(args) < 2:
             raise CommandError(_("Not enough arguments"))

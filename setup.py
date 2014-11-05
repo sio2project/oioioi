@@ -24,20 +24,20 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django>=1.5,<1.6",
+        "Django>=1.6,<1.7",
         "pytz>=2013b",
         "South>=0.8.3,<2.0",
+        "sqlalchemy",
         "BeautifulSoup",
         "PyYAML",
         "python-dateutil",
         "django-nose",
-        "django-registration>=1.0",
+        "django-registration-redux",
         "django-celery>=3.1.15",
         "django-supervisor",
         "linaro-django-pagination",
         "django-compressor",
-        # Workaround for SIO-1266
-        "django-grappelli==2.4.4",
+        "django-grappelli>=2.5,<2.6",
         "pygments",
 
         "django-debug-toolbar",
@@ -86,7 +86,6 @@ setup(
         'http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.0.dev',
         'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
         'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
-        'http://bitbucket.org/mdebski/django-output-validator-1.5/get/django-1.5.zip#egg=django-output-validator-1.5md1',
     ],
 
     entry_points={

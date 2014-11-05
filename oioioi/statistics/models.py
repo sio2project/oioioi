@@ -9,7 +9,8 @@ from oioioi.contests.date_registration import date_registry
 class StatisticsConfig(models.Model):
     contest = models.OneToOneField(Contest,
                         related_name='statistics_config')
-    visible_to_users = models.BooleanField(verbose_name=_("visible to users"))
+    visible_to_users = models.BooleanField(verbose_name=_("visible to users"),
+                                           default=False)
     visibility_date = models.DateTimeField(verbose_name=_("visibility date"))
 
     class Meta(object):

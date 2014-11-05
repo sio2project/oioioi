@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 raise CommandError(_("File not found: ") + arg)
             stream = open(arg, 'r')
 
-        with transaction.commit_on_success():
+        with transaction.atomic():
             ok = True
             all_count = 0
             for line in stream:

@@ -83,7 +83,7 @@ model_solution_kinds.register('INCORRECT', _("Incorrect solution"))
 
 class ModelSolutionsManager(models.Manager):
     def recreate_model_submissions(self, problem_instance):
-        with transaction.commit_on_success():
+        with transaction.atomic():
             for model_submission in ModelProgramSubmission.objects.filter(
                     problem_instance=problem_instance):
                 model_submission.delete()
@@ -91,7 +91,7 @@ class ModelSolutionsManager(models.Manager):
             return
         controller = problem_instance.contest.controller
         for model_solution in self.filter(problem=problem_instance.problem):
-            with transaction.commit_on_success():
+            with transaction.atomic():
                 submission = ModelProgramSubmission(
                         model_solution=model_solution,
                         problem_instance=problem_instance,

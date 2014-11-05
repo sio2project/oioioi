@@ -42,6 +42,7 @@ DATABASES = {
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ATOMIC_REQUESTS': True,         # Don't touch unless you know what you're doing.
     }
 }
 
@@ -84,7 +85,7 @@ EMAIL_HOST_PASSWORD = ''
 
 # RabbitMQ server URL for distributed workers.
 #
-# Uncomment once RabbitMQ is installed. By default Django database is used,
+# Uncomment once RabbitMQ is installed. By default SQLAlchemy is used,
 # but this is unreliable and not intended for production.
 #BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 
@@ -225,28 +226,6 @@ ZEUS_INSTANCES = {
 # Complaints
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
 #COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
-
-# Validation (Debug only!)
-# Every response passes through some validator binary, result may be seen
-# at /validator/ url. Each response mimetype may be validated using different
-# validator. You must provide valiator yourself, and fill in
-# OUTPUT_VALIDATOR_VALIDATORS dict. You may for example use "HTML Tidy"
-# opensource valiator for html.
-#
-#if DEBUG:
-#    INSTALLED_APPS += ('oioioi.validator', 'output_validator')
-#
-#    MIDDLEWARE_CLASSES += (
-#        'output_validator.middleware.ValidatorMiddleware',
-#    )
-#
-#    OUTPUT_VALIDATOR_IGNORE_PATHS = [
-#        '/validator/',
-#    ]
-#
-#    OUTPUT_VALIDATOR_VALIDATORS = {
-#        'text/html': '__PATH_TO_VALIDATOR_BINARY__',
-#    }
 
 # Filelock
 # Absolute path to the directory where files used for process synchronization

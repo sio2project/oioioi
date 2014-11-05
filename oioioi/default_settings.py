@@ -12,7 +12,7 @@ djcelery.setup_loader()
 
 import oioioi
 
-INSTALLATION_CONFIG_VERSION = 3
+INSTALLATION_CONFIG_VERSION = 4
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -125,7 +125,6 @@ MIDDLEWARE_CLASSES = (
     'oioioi.su.middleware.SuAuthenticationMiddleware',
     'oioioi.base.middleware.UserInfoInErrorMessage',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'linaro_django_pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
@@ -319,7 +318,8 @@ LOGGING = {
 
 from sio.celery.default_config import *
 
-BROKER_URL = 'django://'
+BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
+                                             'celerydb.sqlite')
 
 # pylint: disable=undefined-variable
 
@@ -409,3 +409,6 @@ NOTIFICATIONS_SERVER_PORT = 7887
 
 # Balloons
 BALLOON_ACCESS_COOKIE_EXPIRES_DAYS = 7
+
+# For backwards compatibility. Should be changed in near future (see SIO-1584)
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'

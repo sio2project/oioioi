@@ -43,7 +43,7 @@ def from_csv_metadata(metadata):
     }
 
 
-@transaction.commit_on_success()
+@transaction.atomic
 def submit_job(env, kind=None, **kwargs):
     """Submits the job to Zeus for given ``kind``.
 
@@ -66,7 +66,7 @@ def submit_job(env, kind=None, **kwargs):
     return env
 
 
-@transaction.commit_on_success()
+@transaction.atomic
 def submit_testrun_job(env, **kwargs):
     """Submits the testrun job to Zeus.
 
@@ -89,7 +89,7 @@ def submit_testrun_job(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success()
+@transaction.atomic
 def save_env(env, kind=None, **kwargs):
     """Saves asynchronous job's environment in the database
        for later retrieval, clearing current recipe. This allows to submit
@@ -228,7 +228,7 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def make_zeus_testrun_report(env, **kwargs):
     """Builds entities for Zeus-testrun reports in a database.
 
@@ -275,7 +275,7 @@ def make_zeus_testrun_report(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success()
+@transaction.atomic
 def save_zeus_data(env):
     problem = Problem.objects.get(id=env['problem_id'])
     problem_data, _created = ZeusProblemData.objects \
@@ -286,7 +286,7 @@ def save_zeus_data(env):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def update_problem_tests_set(env, kind, **kwargs):
     """Creates or updates problem :class:`oioioi.programs.models.Test` objects
        basing on ``env['tests']`` dict.

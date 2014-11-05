@@ -22,14 +22,14 @@ def wait_for_submission_in_db(env, **kwargs):
        in the DB. This is a workaround for this.
     """
     for _i in xrange(WAIT_FOR_SUBMISSION_RETRIES):
-        with transaction.commit_on_success():
+        with transaction.atomic():
             if bool(Submission.objects.filter(id=env['submission_id'])):
                 break
         time.sleep(WAIT_FOR_SUBMISSION_SLEEP_SECONDS)
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def update_report_statuses(env, **kwargs):
     contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
@@ -38,7 +38,7 @@ def update_report_statuses(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def update_submission_score(env, **kwargs):
     contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
@@ -47,7 +47,7 @@ def update_submission_score(env, **kwargs):
 
 
 def update_user_results(env, **kwargs):
-    with transaction.commit_on_success():
+    with transaction.atomic():
         submission = Submission.objects.get(id=env['submission_id'])
         user = submission.user
         if not user:
@@ -64,7 +64,7 @@ def update_user_results(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def call_submission_judged(env, **kwargs):
     contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
@@ -74,7 +74,7 @@ def call_submission_judged(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def create_error_report(env, exc_info, **kwargs):
     """Builds a :class:`oioioi.contests.models.SubmissionReport` for
        an evaulation which have failed.

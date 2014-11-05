@@ -10,7 +10,7 @@ from oioioi.filetracker.client import get_client
 
 
 @_if_compiled
-@transaction.commit_on_success
+@transaction.atomic
 def make_test(env, **kwargs):
     """Creates a testcase *test* from the user input and converts it to
        evaluation environment.
@@ -67,7 +67,7 @@ def grade_submission(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def make_report(env, **kwargs):
     """Builds entities for testrun reports in a database.
 

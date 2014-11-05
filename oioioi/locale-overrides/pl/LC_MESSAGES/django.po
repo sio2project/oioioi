@@ -13,3 +13,7 @@ msgstr ""
 #, python-format
 msgid "Add another %(verbose_name)s"
 msgstr "Dodaj kolejny obiekt: %(verbose_name)s"
+
+#: tests/test_forms.py:325
+msgid "Enter a valid email address."
+msgstr "Wprowadź poprawny adres email."

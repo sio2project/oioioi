@@ -98,7 +98,7 @@ def compile(env, **kwargs):
 
 
 @_if_compiled
-@transaction.commit_on_success
+@transaction.atomic
 def collect_tests(env, **kwargs):
     """Collects tests from the database and converts them to
        evaluation environments.
@@ -381,7 +381,7 @@ def _make_base_report(env, kind):
     return submission, submission_report
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
     """Builds entities for tests results in a database.
 
@@ -464,7 +464,7 @@ def delete_executable(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def fill_outfile_in_existing_test_reports(env, **kwargs):
     """Fill output files into existing test reports that are not directly
        related to present submission. Also change status of UserOutGenStatus
@@ -512,7 +512,7 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
     return env
 
 
-@transaction.commit_on_success
+@transaction.atomic
 def insert_existing_submission_link(env, **kwargs):
     """Add comment to some existing submission with link to submission view
        of present submission.
