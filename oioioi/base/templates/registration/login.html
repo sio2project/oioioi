@@ -14,20 +14,50 @@
                     </div>
                 </div>
 
+
                 <div class="control-group">
+                    <div class="controls">
+                    {% for error in form.non_field_errors %}
+                        <div class="alert alert-error" style="padding-right: 14px;">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+
+                <div class="control-group">
+                    <div class="controls">
+                    {% for error in form.username.errors %}
+                        <div class="alert alert-error" style="padding-right: 14px; margin-bottom: 7px">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    </div>
+
                     <label for="id_username" class="control-label">{% trans "Username" %}</label>
                     <div class="controls">
                         <input id="id_username" maxlength="254" name="username" type="text" autofocus>
                     </div>
                 </div>
 
+
                 <div class="control-group">
+                    <div class="controls">
+                    {% for error in form.password.errors %}
+                        <div class="alert alert-error" style="padding-right: 14px; margin-bottom: 7px">
+                            {{ error }}
+                        </div>
+                    {% endfor %}
+                    </div>
+
                     <label for="id_password" class="control-label">{% trans "Password" %}</label>
                     <div class="controls">
                         <input id="id_password" maxlength="4096" name="password" type="password">
                         <input id="id_submit" type="submit" class="btn btn-primary" style="margin-left: 20px; width: 100px;" value="{% trans "Log in" %}">
                     </div>
                 </div>
+
 
                 <div class="control-group">
                     <div class="controls">
