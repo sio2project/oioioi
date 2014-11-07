@@ -11,6 +11,8 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
 from oioioi.submitsqueue.models import QueuedSubmit
 
+from djcelery.models import TaskState
+
 
 class UserListFilter(SimpleListFilter):
     title = _("user")
@@ -62,7 +64,7 @@ class ProblemNameListFilter(SimpleListFilter):
 class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     list_display = ['submit_id', 'colored_state', 'contest',
                     'problem_instance', 'user', 'creation_date',
-                    'celery_task_id']
+                    'celery_task_id_link']
     list_filter = ['state', ProblemNameListFilter]
     actions = ['remove_from_queue', 'delete_selected']
 
@@ -70,8 +72,8 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
         super(SystemSubmitsQueueAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
 
-    def _get_link(self, caption, app, **kwargs):
-        url = reverse(app, kwargs=kwargs)
+    def _get_link(self, caption, app, *args, **kwargs):
+        url = reverse(app, args=args, kwargs=kwargs)
         return make_html_link(url, caption)
 
     def _get_contest_id(self, instance):
@@ -79,6 +81,18 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def celery_task_id_link(self, instance):
+        task_id = instance.celery_task_id
+        try:
+            task_object_id = TaskState.objects.get(task_id=task_id).id
+            return self._get_link(task_id, 'admin:djcelery_taskstate_change',
+                                  task_object_id)
+        except TaskState.DoesNotExist:
+            return task_id
+    celery_task_id_link.allow_tags = True
+    celery_task_id_link.admin_order_field = 'celery_task_id'
+    celery_task_id_link.short_description = _("Celery task id")
 
     def submit_id(self, instance):
         res = instance.submission.id
@@ -159,7 +173,7 @@ class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
     def __init__(self, *args, **kwargs):
         super(ContestSubmitsQueueAdmin, self).__init__(*args, **kwargs)
         self.list_display = [x for x in self.list_display
-                             if x not in ('contest', 'celery_task_id')]
+                             if x not in ('contest', 'celery_task_id_link')]
         self.list_filter = self.list_filter + [UserListFilter]
 
     def has_change_permission(self, request, obj=None):
