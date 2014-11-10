@@ -7,7 +7,16 @@ from django.contrib.auth.models import User
 
 from oioioi.base.tests import fake_time, check_not_accessible
 from oioioi.contests.models import Contest
+from oioioi.programs.controllers import ProgrammingContestController
 
+
+VISIBLE_TASKS = ["zad1", "zad2"]
+HIDDEN_TASKS = ["zad3", "zad4"]
+
+
+class StatementHiderForContestController(ProgrammingContestController):
+    def default_can_see_statement(self, request, problem_instance):
+        return problem_instance.short_name in VISIBLE_TASKS
 
 
 class TestRankingViews(TestCase):
@@ -59,6 +68,20 @@ class TestRankingViews(TestCase):
             response = self.client.get(reverse('ranking',
                 kwargs={'contest_id': contest.id, 'key': '1'}))
             self.assertEqual(response.content.count('<td>Test User'), 1)
+
+        # Test visibility of links to problem statements
+        contest.controller_name = \
+            'oioioi.rankings.tests.StatementHiderForContestController'
+        contest.save()
+
+        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+            response = self.client.get(url)
+
+            for task in VISIBLE_TASKS:
+                self.assertIn(task + '</a></th>', response.content)
+
+            for task in HIDDEN_TASKS:
+                self.assertIn(task + '</th>', response.content)
 
     def test_ranking_csv_view(self):
         contest = Contest.objects.get()

@@ -16,7 +16,8 @@ from oioioi.base.utils import group_cache
 from oioioi.contests.models import ProblemInstance, UserResultForProblem, \
         Submission
 from oioioi.contests.controllers import ContestController
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
+        contest_exists, can_enter_contest
 from oioioi.filetracker.utils import make_content_disposition_header
 
 
@@ -147,7 +148,7 @@ class DefaultRankingController(RankingController):
         writer = unicodecsv.writer(response)
 
         header = [_("#"), _("Username"), _("First name"), _("Last name")]
-        for pi in data['problem_instances']:
+        for pi, dummy_statement_visible in data['problem_instances']:
             header.append(pi.get_short_name_display())
         header.append(_("Sum"))
         writer.writerow(map(force_unicode, header))
@@ -238,6 +239,17 @@ class DefaultRankingController(RankingController):
                 prev_sum = extractor(row)
             row['place'] = place
 
+    def _is_problem_statement_visible(self, request, pi):
+        controller = request.contest.controller
+        return contest_exists(request) and \
+               can_enter_contest(request) and \
+               controller.can_see_problem(request, pi) and \
+               controller.can_see_statement(request, pi)
+
+    def _get_pis_with_visibility(self, request, pis):
+        return [(pi, self._is_problem_statement_visible(request, pi))
+                for pi in pis]
+
     def serialize_ranking(self, request, key):
         rounds = list(self._rounds_for_ranking(request, key))
         pis = list(self._filter_pis_for_ranking(key,
@@ -252,6 +264,8 @@ class DefaultRankingController(RankingController):
 
         data = self._get_users_results(request, pis, results, rounds, users)
         self._assign_places(data, itemgetter('sum'))
-        return {'rows': data, 'problem_instances': pis,
+        return {'rows': data,
+                'problem_instances': self._get_pis_with_visibility(request,
+                                                                   pis),
                 'participants_on_page': getattr(settings,
                     'PARTICIPANTS_ON_PAGE', 100)}

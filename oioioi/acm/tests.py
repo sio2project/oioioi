@@ -21,10 +21,16 @@ from oioioi.contests.models import Contest
 class TestACMRanking(TestCase):
     fixtures = ['acm_test_full_contest']
 
-    def assertTaskIn(self, task, content):
+    def assertActiveTaskIn(self, task, content):
+        self.assertIn(task + '</a></th>', content)
+
+    def assertActiveTaskNotIn(self, task, content):
+        self.assertNotIn(task + '</a></th>', content)
+
+    def assertInactiveTaskIn(self, task, content):
         self.assertIn(task + '</th>', content)
 
-    def assertTaskNotIn(self, task, content):
+    def assertInactiveTaskNotIn(self, task, content):
         self.assertNotIn(task + '</th>', content)
 
     def test_fixture(self):
@@ -43,54 +49,54 @@ class TestACMRanking(TestCase):
         with fake_time(datetime(2013, 12, 13, 10, 59, tzinfo=utc)):
             response = self.client.get(url)
             for task in ['trial', 'A', 'sum', 'test']:
-                self.assertTaskNotIn(task, response.content)
+                self.assertActiveTaskNotIn(task, response.content)
 
         with fake_time(datetime(2013, 12, 13, 11, 30, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskIn('trial', response.content)
+            self.assertActiveTaskIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskNotIn(task, response.content)
+                self.assertActiveTaskNotIn(task, response.content)
 
         with fake_time(datetime(2013, 12, 13, 17, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskIn('trial', response.content)
+            self.assertInactiveTaskIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskNotIn(task, response.content)
+                self.assertInactiveTaskNotIn(task, response.content)
 
         # round 1 starts at 20:40, ends at 01:40, results are available at
         # 09:00
         with fake_time(datetime(2013, 12, 14, 20, 39, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskIn('trial', response.content)
+            self.assertInactiveTaskIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskNotIn(task, response.content)
+                self.assertInactiveTaskNotIn(task, response.content)
 
         with fake_time(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskNotIn('trial', response.content)
+            self.assertActiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskIn(task, response.content)
+                self.assertActiveTaskIn(task, response.content)
             self.assertNotIn('The ranking is frozen.', response.content)
 
         with fake_time(datetime(2013, 12, 15, 1, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskNotIn('trial', response.content)
+            self.assertActiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskIn(task, response.content)
+                self.assertActiveTaskIn(task, response.content)
             self.assertIn('The ranking is frozen.', response.content)
 
         with fake_time(datetime(2013, 12, 15, 7, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskNotIn('trial', response.content)
+            self.assertInactiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskIn(task, response.content)
+                self.assertInactiveTaskIn(task, response.content)
             self.assertIn('The ranking is frozen.', response.content)
 
         with fake_time(datetime(2013, 12, 15, 9, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertTaskNotIn('trial', response.content)
+            self.assertInactiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
-                self.assertTaskIn(task, response.content)
+                self.assertInactiveTaskIn(task, response.content)
             self.assertNotIn('The ranking is frozen.', response.content)
 
         with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
