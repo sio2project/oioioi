@@ -6,9 +6,11 @@
 # Maciej Dębski <md319428@students.mimuw.edu.pl>, 2014
 # matrach <matraszek.maciej@gmail.com>, 2013
 # welter <macio92@gmail.com>, 2013
+# matrach <matraszek.maciej@gmail.com>, 2013
 # matrach <matraszek.maciej@gmail.com>, 2013-2014
 # Maciej Dębski <md319428@students.mimuw.edu.pl>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2013-2014
+# Rafał Stefański <ravst94@gmail.com>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2013
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014
@@ -19,9 +21,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-25 12:21+0200\n"
-"PO-Revision-Date: 2014-10-25 10:27+0000\n"
-"Last-Translator: matrach <matraszek.maciej@gmail.com>\n"
+"POT-Creation-Date: 2014-11-12 16:43+0100\n"
+"PO-Revision-Date: 2014-11-12 15:36+0000\n"
+"Last-Translator: Rafał Stefański <ravst94@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -67,7 +69,7 @@ msgstr "Ranking jest zamrożony."
 #: complaints/templates/complaints/jury_email.txt:6 oireports/forms.py:80
 #: prizes/reports.py:16 prizes/reports.py:37 programs/controllers.py:322
 #: rankings/templates/rankings/default_ranking.html:13
-#: submitsqueue/admin.py:112
+#: submitsqueue/admin.py:126
 msgid "User"
 msgstr "Użytkownik"
 
@@ -93,66 +95,113 @@ msgstr "Czas"
 msgid "Strange, there is no one in this ranking..."
 msgstr "Hmm, nie ma nikogo w rankingu..."
 
-#: amppz/controllers.py:9
+#: amppz/controllers.py:11
 msgid "AMPPZ"
 msgstr "AMPPZ"
 
-#: balloons/admin.py:35
+#: balloons/admin.py:38
+#: balloons/templates/balloons/balloons-delivery-panel.html:29
+#: balloons/templates/balloons/balloons-delivery-panel.html:43
 msgid "Color"
 msgstr "Kolor"
 
-#: balloons/admin.py:52
+#: balloons/admin.py:55
 msgid "Balloons colors"
 msgstr "Kolory balonów"
 
-#: balloons/admin.py:96
+#: balloons/admin.py:99
 msgid "Balloons displays"
 msgstr "Wyświetlanie balonów"
 
-#: balloons/models.py:14 contests/admin.py:261 contests/admin.py:291
-#: contests/models.py:215 contests/models.py:273 problems/models.py:61
-#: problems/models.py:168 scoresreveal/models.py:18 submitsqueue/admin.py:41
-#: testrun/models.py:21
+#: balloons/admin.py:126
+msgid "Not yet generated"
+msgstr ""
+
+#: balloons/admin.py:128
+msgid "Access link"
+msgstr ""
+
+#: balloons/admin.py:134
+msgid "Regenerate key"
+msgstr ""
+
+#: balloons/admin.py:138
+msgid "Regeneration link"
+msgstr ""
+
+#: balloons/models.py:16 balloons/models.py:47 contests/admin.py:261
+#: contests/admin.py:291 contests/models.py:215 contests/models.py:273
+#: problems/models.py:61 problems/models.py:168 scoresreveal/models.py:18
+#: submitsqueue/admin.py:43 testrun/models.py:21
 msgid "problem"
 msgstr "zadanie"
 
-#: balloons/models.py:17
+#: balloons/models.py:19
 msgid "color"
 msgstr "kolor"
 
-#: balloons/models.py:20 balloons/models.py:21
+#: balloons/models.py:22 balloons/models.py:23
 msgid "balloons colors"
 msgstr "kolory balonów"
 
-#: balloons/models.py:30 ipdnsauth/models.py:9
+#: balloons/models.py:32 ipdnsauth/models.py:9
 msgid "IP address"
 msgstr "adres IP"
 
-#: balloons/models.py:31 contests/admin.py:265 contests/models.py:275
-#: submitsqueue/admin.py:16 teachers/models.py:12 teams/models.py:15
+#: balloons/models.py:33 balloons/models.py:45 contests/admin.py:265
+#: contests/models.py:275 submitsqueue/admin.py:18 teachers/models.py:12
+#: teams/models.py:15
 msgid "user"
 msgstr "użytkownik"
 
-#: balloons/models.py:32 contestlogo/models.py:16 contestlogo/models.py:43
-#: contests/models.py:57 contests/models.py:98 contests/models.py:147
-#: contests/models.py:212 contests/models.py:461 problems/models.py:47
-#: problems/models.py:167
+#: balloons/models.py:34 balloons/models.py:69 contestlogo/models.py:16
+#: contestlogo/models.py:43 contests/models.py:57 contests/models.py:98
+#: contests/models.py:147 contests/models.py:212 contests/models.py:461
+#: problems/models.py:47 problems/models.py:167
 msgid "contest"
 msgstr "konkurs"
 
-#: balloons/models.py:35
+#: balloons/models.py:37
 msgid "balloons display"
 msgstr "wyświetlacz balonów"
 
-#: balloons/models.py:36
+#: balloons/models.py:38
 msgid "balloons displays"
 msgstr "wyświetlacze balonów"
 
-#: balloons/views.py:35
+#: balloons/models.py:48
+msgid "delivered"
+msgstr ""
+
+#: balloons/models.py:51
+msgid "first accepted solution"
+msgstr ""
+
+#: balloons/models.py:55
+msgid "balloon delivery"
+msgstr ""
+
+#: balloons/models.py:56
+msgid "balloon deliveries"
+msgstr ""
+
+#: balloons/models.py:70
+msgid "access key"
+msgstr ""
+
+#: balloons/models.py:72
+msgid "valid until"
+msgstr ""
+
+#: balloons/models.py:75 balloons/models.py:76
+msgid "balloons delivery access data"
+msgstr ""
+
+#: balloons/views.py:60
 msgid "No IP address detected"
 msgstr "Adres IP nie został rozpoznany"
 
-#: balloons/views.py:39
+#: balloons/views.py:64
 #, python-format
 msgid "No balloons display configured for this IP: %s"
 msgstr "Brak ustawień wyświetlania balonów dla tego IP: %s"
@@ -254,6 +303,23 @@ msgstr "Przetworzono %d wpisów"
 #: participants/management/commands/import_participants.py:73
 msgid "There were some errors. Database not changed.\n"
 msgstr "Wystąpiły pewne błędy. Baza danych nie została zmieniona.\n"
+
+#: balloons/templates/balloons/balloons-delivery-panel.html:19
+msgid "AJAX Request failed"
+msgstr ""
+
+#: balloons/templates/balloons/balloons-delivery-panel.html:25
+msgid "Delivery requests"
+msgstr ""
+
+#: balloons/templates/balloons/balloons-delivery-panel.html:30
+#: balloons/templates/balloons/balloons-delivery-panel.html:44
+msgid "Team"
+msgstr ""
+
+#: balloons/templates/balloons/balloons-delivery-panel.html:39
+msgid "Recently delivered"
+msgstr ""
 
 #: base/admin.py:74
 #, python-format
@@ -799,7 +865,7 @@ msgstr "Edycja Twojego profilu"
 msgid "Please fill the form below to register."
 msgstr "Proszę wypełnić poniższy formularz zakładania konta."
 
-#: base/tests/__init__.py:107
+#: base/tests/__init__.py:108
 msgid "Testing backend"
 msgstr "Logowanie testowe"
 
@@ -941,7 +1007,7 @@ msgstr "Cześć,\n\notrzymaliśmy następującą reklamację:"
 #: prizes/templates/prizes/email_footer.txt:4
 #: questions/templates/admin/questions/change_message.html:24
 #: rankings/controllers.py:116 statistics/controllers.py:15
-#: submitsqueue/admin.py:107
+#: submitsqueue/admin.py:121
 msgid "Contest"
 msgstr "Konkurs"
 
@@ -1172,7 +1238,7 @@ msgstr "Operacje"
 #: publicsolutions/forms.py:8
 #: publicsolutions/templates/publicsolutions/publish_table.html:5
 #: publicsolutions/templates/publicsolutions/solutions_table.html:5
-#: statistics/controllers.py:16 submitsqueue/admin.py:99
+#: statistics/controllers.py:16 submitsqueue/admin.py:113
 #: testrun/templates/testrun/submission_header.html:10
 msgid "Problem"
 msgstr "Zadanie"
@@ -1187,7 +1253,7 @@ msgstr "Skrót"
 msgid "Problems"
 msgstr "Zadania"
 
-#: contests/admin.py:277 submitsqueue/admin.py:27
+#: contests/admin.py:277 submitsqueue/admin.py:29
 msgid "(None)"
 msgstr "(brak)"
 
@@ -1212,7 +1278,7 @@ msgstr "Nazwa użytkownika"
 #: contests/templates/contests/submission.html:42
 #: participants/templates/participants/participant_info.html:15
 #: problems/admin.py:242 programs/templates/programs/submission_header.html:98
-#: submitsqueue/admin.py:118
+#: submitsqueue/admin.py:132
 #: testrun/templates/testrun/submission_header.html:12
 msgid "Status"
 msgstr "Status"
@@ -2322,15 +2388,15 @@ msgstr "Szkoła jest nieaktywna."
 msgid "Terms not accepted"
 msgstr "Nie zaakceptowano regulaminu"
 
-#: oi/models.py:73 oi/models.py:109 pa/models.py:32
+#: oi/models.py:73 oi/models.py:109 pa/models.py:28
 msgid "address"
 msgstr "adres"
 
-#: oi/models.py:74 oi/models.py:110 pa/models.py:33
+#: oi/models.py:74 oi/models.py:110 pa/models.py:29
 msgid "postal code"
 msgstr "kod pocztowy"
 
-#: oi/models.py:78 oi/models.py:114 pa/models.py:34
+#: oi/models.py:78 oi/models.py:114 pa/models.py:30
 msgid "city"
 msgstr "miasto"
 
@@ -2788,11 +2854,11 @@ msgstr "Ranking A + B"
 msgid "Division B"
 msgstr "Ranking B"
 
-#: pa/models.py:29
+#: pa/models.py:32
 msgid "job or school kind"
 msgstr "rodzaj szkoły lub miejsca pracy"
 
-#: pa/models.py:31
+#: pa/models.py:34
 msgid "job or school name"
 msgstr "nazwa szkoły lub miejsca pracy"
 
@@ -3378,11 +3444,11 @@ msgstr "Nierozpoznane rozszerzenie pliku."
 msgid "This language is not allowed for selected problem."
 msgstr "Ten język nie jest dostępny dla tego zadania."
 
-#: programs/controllers.py:395
+#: programs/controllers.py:397
 msgid ""
-"You have submitted the same file again. Please resubmit if you really want  "
-"to submit the same file"
-msgstr "Próba powtórnego wysłania tego samego pliku. Wyślij jeszcze raz, aby przyjąć zgłoszenie do oceny."
+"You have submitted the same file for this problem again. Please resubmit if "
+"you really want to submit the same file"
+msgstr ""
 
 #: programs/handlers.py:535
 msgid "submission report"
@@ -3947,7 +4013,7 @@ msgid ""
 "Hello %(recipient_name)s,\n"
 "\n"
 "%(author_name)s has just asked a question to the %(contest_name)s contest."
-msgstr "Witaj %(recipient_name)s,\n\n%(author_name)s właśnie zadał pytanie w konkursie %(contest_name)s."
+msgstr "Witaj %(recipient_name)s,\n\n%(author_name)s właśnie zadał(a) pytanie w konkursie %(contest_name)s."
 
 #: questions/templates/questions/new_msg_mail_body.txt:10
 #, python-format
@@ -4368,19 +4434,23 @@ msgid ""
 "\n"
 msgstr "\n<h1>Wysyłanie rozwiązań z wiersza poleceń</h1>\n    <p>Możesz wysyłać rozwiązania również w trybie tekstowym. Teraz testowanie stanie się proste!\n        Po prostu wykonaj poniższe kroki, aby przygotować swoje środowisko:\n    </p>\n    <ul>\n        <li>Zainstaluj <b>Pythona 2.7</b></li>\n        <li>Pobierz skrypt <b><a href=\"%(script_url)s\">submit.py</a></b> i umieść go w katalogu z rozwiązaniami.</li>\n        <li>Wykonaj polecenie:<br/>\n            <code>python submit.py -u %(contest_url)s -k %(token)s -s</code><br/>\n            To polecenie zapisze na stałe konfigurację w Twoim katalogu domowym.<br/>\n            </li>\n        <li>Aby wysłać rozwiązanie, wywołać:<br/>\n            <code>python submit.py (nazwa_pliku)</code><br/>\n\n            Upewnij się, że nazwa pliku zaczyna się od trzyliterowego skrótu zadania.\n            (Np. rozwiązanie do zadania\n            <em>Podciąg (pod)</em> powinno nazywać się <b>pod.<i>roz</i></b> &mdash; gdzie <i>roz</i> jest jednym z rozpoznawanych rozszerzeń.\n            Jeśli chcesz, nazwa pliku może też zawierać sufiks w stylu\n            <b>pod1</b> &mdash; odpowiednie zadanie zostanie wybrane automatycznie.)</li>\n        <li>Możesz też ręcznie wybrać zadanie i plik:<br/>\n            <code>python submit.py -t zad plik_z_rozwiazaniem.<i>ext</i></code>\n        </li>\n        <li>Wywołaj <code>python submit.py --help</code> aby poznać wszystkie dostępne opcje i dowiedzieć się szczegółów użycia programu.</li>\n    </ul>\n <h2>\n     Żeton autoryzacyjny\n </h2>\n<p>Twój obecny żeton to: <code>%(token)s</code></p>\n <p><b>Uwaga:</b> nikt poza Tobą nie powinien mieć do niego dostępu, ponieważ umożliwiłoby to podszywanie się pod Ciebie!\n     Jeśli podejrzewasz, że ktoś mógłby go przechwycić, wygeneruj nowy.\n Oczywiście będziesz musiał ponownie skonfigurować <b>submit.py</b>.</p>\n <div><a class=\"btn btn-default\" href=\"#\" data-post-url=\"%(clear_token_url)s \">Wygeneruj nowy żeton</a>\n</div>\n"
 
-#: submitsqueue/admin.py:90
+#: submitsqueue/admin.py:95
+msgid "Celery task id"
+msgstr ""
+
+#: submitsqueue/admin.py:104
 msgid "Submission id"
 msgstr "Id zgłoszenia"
 
-#: submitsqueue/admin.py:127
+#: submitsqueue/admin.py:141
 msgid "Remove selected submissions from the queue"
 msgstr "Usuń wybrane zgłoszenia z kolejki"
 
-#: submitsqueue/admin.py:147 submitsqueue/admin.py:177
+#: submitsqueue/admin.py:161 submitsqueue/admin.py:191
 msgid "Evaluation queue"
 msgstr "Kolejka sprawdzania"
 
-#: submitsqueue/admin.py:155
+#: submitsqueue/admin.py:169
 msgid "Contest Queued Submit"
 msgstr "Kolejka zgłoszeń konkursu"
 
