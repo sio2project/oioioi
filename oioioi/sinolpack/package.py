@@ -375,7 +375,7 @@ class SinolPackage(object):
             job = env.copy()
             job['job_type'] = 'exec' if self.use_sandboxes else 'unsafe-exec'
             job['exe_file'] = env['compiled_file']
-            job['upload_to'] = True
+            job['upload_out'] = True
             job['in_file'] = django_to_filetracker_path(test.input_file)
             job['out_file'] = outname
             jobs[test.name] = job
