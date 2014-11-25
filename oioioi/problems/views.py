@@ -10,21 +10,21 @@ from django.utils.encoding import force_unicode
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import Problem, ProblemPackage
-from oioioi.problems.utils import can_change_problem
+from oioioi.problems.utils import can_admin_problem
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.contests.utils import is_contest_admin
 
 
 def show_statement_view(request, statement_id):
     statement = get_object_or_404(ProblemStatement, id=statement_id)
-    if not request.user.has_perm('problems.problem_admin', statement.problem):
+    if not can_admin_problem(request, statement.problem):
         raise PermissionDenied
     return stream_file(statement.content)
 
 
 def show_problem_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
-    if not request.user.has_perm('problems.problem_admin', attachment.problem):
+    if not can_admin_problem(request, attachment.problem):
         raise PermissionDenied
     return stream_file(attachment.content)
 
@@ -77,7 +77,7 @@ def add_or_update_problem_view(request, contest_id=None):
         if contest and not existing_problem.probleminstance_set.filter(
                 contest=contest).exists():
             raise Http404
-        if not can_change_problem(request, existing_problem):
+        if not can_admin_problem(request, existing_problem):
             raise PermissionDenied
     else:
         existing_problem = None

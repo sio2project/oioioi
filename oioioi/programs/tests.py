@@ -41,7 +41,7 @@ def extract_code(show_response):
 
 class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+                'test_permissions', 'test_submission']
 
     def test_submission_views(self):
         self.client.login(username='test_user')
@@ -93,9 +93,14 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             'submission2_id': submission.id})
         for view in ['download_input_file', 'download_output_file']:
             check_not_accessible(self, view, kwargs={'test_id': test.id})
-        self.client.login(user='test_user')
+        self.client.login(username='test_user')
         for view in ['download_input_file', 'download_output_file']:
             check_not_accessible(self, view, kwargs={'test_id': test.id})
+        self.client.login(username='test_contest_admin')
+        for view in ['download_input_file', 'download_output_file']:
+            url = reverse(view, kwargs={'test_id': test.id})
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
 
     def test_model_solutions_view(self):
         pi = ProblemInstance.objects.get()

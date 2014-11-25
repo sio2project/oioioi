@@ -40,13 +40,21 @@ class TestModels(TestCase):
 
 
 class TestProblemViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_permissions',
+                'test_full_package']
 
     def test_problem_statement_view(self):
+        #superuser
         self.client.login(username='test_admin')
         statement = ProblemStatement.objects.get()
         url = reverse('show_statement', kwargs={'statement_id': statement.id})
         response = self.client.get(url)
+        content = self.streamingContent(response)
+        self.assertTrue(content.startswith('%PDF'))
+        #contest admin
+        self.client.login(username='test_contest_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
         content = self.streamingContent(response)
         self.assertTrue(content.startswith('%PDF'))
 

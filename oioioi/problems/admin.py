@@ -22,7 +22,7 @@ from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment, ProblemPackage
-from oioioi.problems.utils import can_add_problems, can_change_problem
+from oioioi.problems.utils import can_add_problems, can_admin_problem
 from oioioi.problems.forms import ProblemStatementConfigForm
 
 
@@ -119,7 +119,7 @@ class ProblemAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return self.queryset(request).exists()
-        return can_change_problem(request, obj)
+        return can_admin_problem(request, obj)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
