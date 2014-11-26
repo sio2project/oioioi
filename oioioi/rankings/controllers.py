@@ -90,10 +90,15 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
            implementation, you should carefully inspect the code below
            and modify it as needed.
         """
+        try:
+            page_number = int(request.GET['page'])
+        except (ValueError, KeyError):
+            page_number = 1
         cache_key = ':'.join([key, str(request.user.is_superuser),
                               str(request.user.is_authenticated()),
                               str(is_contest_admin(request)),
-                              str(is_contest_observer(request))])
+                              str(is_contest_observer(request)),
+                              str(page_number)])
         return cache_key
 
 
