@@ -17,10 +17,12 @@ class PrizeGivingInline(admin.TabularInline):
         if not instance.report:
             return instance.state
 
-        href = reverse('oioioi.prizes.views.download_report_view',
-                       kwargs={'pg_id': instance.id,
-                               'contest_id': instance.contest.id})
-        return make_html_link(href, instance.state)
+        if instance.id is not None:
+            href = reverse('oioioi.prizes.views.download_report_view',
+                           kwargs={'pg_id': instance.id,
+                                   'contest_id': instance.contest.id})
+            return make_html_link(href, instance.state)
+        return None
     state_with_link.short_description = _("state")
 
     def formfield_for_choice_field(self, db_field, request, **kwargs):

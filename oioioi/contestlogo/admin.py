@@ -13,9 +13,11 @@ class ContestLogoInline(admin.TabularInline):
     exclude = ['updated_at']
 
     def logo_link(self, instance):
-        href = reverse('oioioi.contestlogo.views.logo_image_view',
-                kwargs={'contest_id': str(instance.contest.id)})
-        return make_html_link(href, instance.filename)
+        if instance.id is not None:
+            href = reverse('oioioi.contestlogo.views.logo_image_view',
+                    kwargs={'contest_id': str(instance.contest.id)})
+            return make_html_link(href, instance.filename)
+        return None
     logo_link.short_description = _("Filename")
 
 
@@ -33,10 +35,12 @@ class ContestIconInline(admin.TabularInline):
     exclude = ['updated_at']
 
     def icon_link(self, instance):
-        href = reverse('oioioi.contestlogo.views.icon_image_view',
-                kwargs={'icon_id': str(instance.id),
-                        'contest_id': str(instance.contest.id)})
-        return make_html_link(href, instance.filename)
+        if instance.id is not None:
+            href = reverse('oioioi.contestlogo.views.icon_image_view',
+                    kwargs={'icon_id': str(instance.id),
+                            'contest_id': str(instance.contest.id)})
+            return make_html_link(href, instance.filename)
+        return None
     icon_link.short_description = _("Filename")
 
 

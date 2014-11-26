@@ -64,10 +64,12 @@ class AttachmentInline(admin.TabularInline):
         return True
 
     def content_link(self, instance):
-        href = reverse('oioioi.contests.views.contest_attachment_view',
-                    kwargs={'contest_id': str(instance.contest),
-                            'attachment_id': str(instance.id)})
-        return make_html_link(href, instance.content.name)
+        if instance.id is not None:
+            href = reverse('oioioi.contests.views.contest_attachment_view',
+                        kwargs={'contest_id': str(instance.contest),
+                                'attachment_id': str(instance.id)})
+            return make_html_link(href, instance.content.name)
+        return None
     content_link.short_description = _("Content file")
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
