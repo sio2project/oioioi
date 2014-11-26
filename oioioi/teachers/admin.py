@@ -76,7 +76,7 @@ class ContestAdminMixin(object):
                 formfield_callback=partial(self.formfield_for_dbfield,
                     request=request))
 
-    def response_add(self, request, obj, post_url_continue='../%s/'):
+    def response_add(self, request, obj, post_url_continue=None):
         if request.user.is_superuser:
             return super(ContestAdminMixin, self).response_add(request, obj,
                     post_url_continue)
