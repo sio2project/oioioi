@@ -97,6 +97,9 @@ class Archive(object):
     def filenames(self):
         return self._archive.filenames()
 
+    def extracted_size(self):
+        return self._archive.extracted_size()
+
 
 class BaseArchive(object):
     """
@@ -109,6 +112,12 @@ class BaseArchive(object):
     def filenames(self):
         """
         Return a list of the filenames contained in the archive.
+        """
+        raise NotImplementedError()
+
+    def extracted_size(self):
+        """
+        Return total file size of extracted files in bytes.
         """
         raise NotImplementedError()
 
@@ -158,6 +167,12 @@ class TarArchive(BaseArchive):
     def filenames(self):
         return self._archive.getnames()
 
+    def extracted_size(self):
+        total = 0
+        for member in self._archive:
+            total += member.size
+        return total
+
     def check_files(self, to_path=None):
         BaseArchive.check_files(self, to_path)
 
@@ -172,6 +187,12 @@ class ZipArchive(BaseArchive):
     def __init__(self, file):
         # ZipFile's 'file' parameter can be path (string) or file-like obj.
         self._archive = zipfile.ZipFile(file)
+
+    def extracted_size(self):
+        total = 0
+        for member in self._archive.infolist():
+            total += member.file_size
+        return total
 
     def filenames(self):
         return [name.rstrip('/') for name in self._archive.namelist()]

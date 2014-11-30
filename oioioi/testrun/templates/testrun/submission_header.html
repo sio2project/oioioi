@@ -21,7 +21,9 @@
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
             {% if is_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
             <td>
+                {% if not input_is_zip %}
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-down"></i></button>
+                {% endif %}
                 <a class="btn" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=submission.submission.id %}"><i class="icon-download-alt"></i></a>
             </td>
         </tr>
@@ -29,7 +31,9 @@
 </table>
 
 {% block input_collapse %}
-<div id="input_data" class="collapse" data-loadurl="{% url 'get_testrun_input' contest_id=contest.id submission_id=submission.submission.id %}">
-</div>
+{% if not input_is_zip %}
+    <div id="input_data" class="collapse" data-loadurl="{% url 'get_testrun_input' contest_id=contest.id submission_id=submission.submission.id %}">
+    </div>
+{% endif %}
 {% endblock %}
 {% endblock %}

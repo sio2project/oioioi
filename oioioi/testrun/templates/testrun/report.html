@@ -28,7 +28,9 @@
             {% block tbody_tr %}
             <td class="subm_margin subm_{{ testrun_report.status }}"></td>
             <td>
+                {% if not input_is_zip %}
                 <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-up"></i></button>
+                {% endif %}
                 <a class="btn" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
             </td>
             <td class="subm_status subm_{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>

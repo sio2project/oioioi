@@ -1,9 +1,14 @@
+from zipfile import is_zipfile
+import tempfile
+import shutil
+
 from django.template.loader import render_to_string
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.files.base import ContentFile
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.utils.safestring import mark_safe
 from django.template.context import RequestContext
 
 from oioioi.programs.controllers import ProgrammingContestController, \
@@ -13,7 +18,7 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.evalmgr import extend_after_placeholder
 from oioioi.programs.models import CompilationReport
-
+from oioioi.base.utils.archive import Archive, ArchiveException
 
 class TestRunProblemControllerMixin(object):
     def fill_evaluation_environ(self, environ, **kwargs):
@@ -58,6 +63,13 @@ class TestRunContestControllerMixin(object):
     def get_testrun_input_limit(self):
         return getattr(settings, 'TESTRUN_INPUT_LIMIT', 100 * 1024)
 
+    def get_testrun_zipped_input_limit(self):
+        return getattr(settings, 'TESTRUN_ZIPPED_INPUT_LIMIT', 50 * 1024)
+
+    def get_testrun_unzipped_input_limit(self):
+        return getattr(settings, 'TESTRUN_UNZIPPED_INPUT_LIMIT',
+                       10 * 1024 * 1024)
+
     def adjust_submission_form(self, request, form):
         super(TestRunContestControllerMixin, self) \
             .adjust_submission_form(request, form)
@@ -66,18 +78,58 @@ class TestRunContestControllerMixin(object):
             return
 
         def validate_file_size(file):
-            if file.size > self.get_testrun_input_limit():
+            if (file.name.upper().endswith(".ZIP") and
+                    file.size > self.get_testrun_zipped_input_limit()):
+                raise ValidationError(
+                    _("Zipped input file size limit exceeded."))
+            elif file.size > self.get_testrun_input_limit():
                 raise ValidationError(_("Input file size limit exceeded."))
 
+        def validate_zip(file):
+            if file.name.upper().endswith(".ZIP"):
+                archive = Archive(file, '.zip')
+                if len(archive.filenames()) != 1:
+                    raise ValidationError(
+                        _("Archive should have only 1 file inside."))
+                if (archive.extracted_size() >
+                    self.get_testrun_unzipped_input_limit()):
+                    raise ValidationError(
+                        _("Uncompressed archive is too big to be"
+                          " considered safe.")
+                    )
+                # Extraction is safe, see:
+                # https://docs.python.org/2/library/zipfile.html#zipfile.ZipFile.extract
+                tmpdir = tempfile.mkdtemp()
+                try:
+                    # The simplest way to check validity
+                    # All other are kinda lazy and don't check everything
+                    archive.extract(tmpdir)
+                # Zipfile has some undocumented exception types, we shouldn't
+                # rely on those, thus we better catch all
+                except Exception:
+                    raise ValidationError(_("Archive seems to be corrupted."))
+                finally:
+                    shutil.rmtree(tmpdir)
+
         form.fields['input'] = forms.FileField(allow_empty_file=True,
-                validators=[validate_file_size], label=_("Input"),
-                help_text=_("Keep in mind that this feature does not provide"
-                            " any validation of your input or output."))
+                validators=[validate_file_size, validate_zip],
+                label=_("Input"),
+                help_text=mark_safe(_("Maximum input size is"
+                            " <strong>%(input_size)d KiB</strong> or"
+                            " <strong>%(zipped_size)d KiB</strong> zipped."
+                            " Keep in mind that this feature does not provide"
+                            " any validation of your input or output.")
+                            % {"input_size":
+                                    self.get_testrun_input_limit() / 1024,
+                                "zipped_size":
+                                    self.get_testrun_zipped_input_limit() /
+                                    1024
+                               }))
 
         form.fields['file'].help_text = _("Language is determined by the file"
                 " extension. The following are recognized: %s, but allowed"
                 " languages may vary. You can paste the code below instead of"
-                " choosing file.")
+                " choosing file.") % (', '.join(self.get_allowed_extensions()))
 
         if 'kind' in form.fields:
             form.fields['kind'].choices = [('TESTRUN', _("Test run")), ]
@@ -152,12 +204,17 @@ class TestRunContestControllerMixin(object):
             return super(TestRunContestControllerMixin, self) \
                     .render_submission(request, submission)
 
+        sbm_testrun = submission.programsubmission. \
+                      testrunprogramsubmission
+
+
         return render_to_string('testrun/submission_header.html',
             context_instance=RequestContext(request,
                 {'submission': submission_template_context(request,
-                    submission.programsubmission.testrunprogramsubmission),
+                    sbm_testrun),
                 'supported_extra_args':
-                    self.get_supported_extra_args(submission)}))
+                    self.get_supported_extra_args(submission),
+                'input_is_zip': is_zipfile(sbm_testrun.input_file)}))
 
     def _render_testrun_report(self, request, report, testrun_report,
             template='testrun/report.html'):
@@ -167,12 +224,20 @@ class TestRunContestControllerMixin(object):
         output_container_id_prefix = \
             request.is_ajax() and 'hidden_output_data_' or 'output_data_'
 
+        input_is_zip = False
+        if testrun_report:
+            input_is_zip = is_zipfile(
+                        testrun_report.submission_report.submission.
+                        programsubmission.testrunprogramsubmission.
+                        input_file)
+
         return render_to_string(template,
             context_instance=RequestContext(request, {
                 'report': report, 'score_report': score_report,
                 'compilation_report': compilation_report,
                 'testrun_report': testrun_report,
-                'output_container_id_prefix': output_container_id_prefix}))
+                'output_container_id_prefix': output_container_id_prefix,
+                'input_is_zip': input_is_zip}))
 
     def render_report(self, request, report, *args, **kwargs):
         if report.kind != 'TESTRUN':

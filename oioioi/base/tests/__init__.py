@@ -741,25 +741,38 @@ class TestRegistration(TestCase):
         self._assert_user_active()
 
 class TestArchive(unittest.TestCase):
+    good_files = ['archive.tgz', 'archive.zip']
+    bad_files = ['archive-with-symlink.tgz', 'archive-with-hardlink.tgz']
+    base_dir = os.path.join(os.path.dirname(__file__), 'files')
+
     def test_archive(self):
         tmpdir = tempfile.mkdtemp()
         a = os.path.join(tmpdir, 'a')
+        b = os.path.join(tmpdir, 'b')
         try:
-            base_dir = os.path.join(os.path.dirname(__file__), 'files')
-            for good_file in ['archive.tgz', 'archive.zip']:
-                filename = os.path.join(base_dir, good_file)
+            for good_file in self.good_files:
+                filename = os.path.join(self.base_dir, good_file)
                 archive.extract(filename, tmpdir)
                 self.assertTrue(os.path.exists(a))
+                self.assertTrue(os.path.exists(b))
                 self.assertEqual(open(a, 'rb').read().strip(), 'foo')
+                self.assertEqual(open(b, 'rb').read().strip(), 'bar')
                 os.unlink(a)
-                self.assertEqual(archive.Archive(filename).filenames(), ['a'])
-            for bad_file in ['archive-with-symlink.tgz',
-                    'archive-with-hardlink.tgz']:
+                os.unlink(b)
+                self.assertEqual(archive.Archive(filename).filenames(), ['a',
+                                                                         'b'])
+            for bad_file in self.bad_files:
                 with self.assertRaises(archive.UnsafeArchive):
-                    archive.extract(os.path.join(base_dir, bad_file), tmpdir)
+                    archive.extract(os.path.join(self.base_dir, bad_file),
+                                    tmpdir)
         finally:
             shutil.rmtree(tmpdir)
 
+    def test_size_calc(self):
+        for good_file, expected_size in zip(self.good_files, (8, 8)):
+            filename = os.path.join(self.base_dir, good_file)
+            self.assertEqual(archive.Archive(filename).extracted_size(),
+                             expected_size)
 
 class TestAdmin(TestCase):
     fixtures = ['test_users']

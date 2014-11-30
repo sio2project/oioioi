@@ -1,5 +1,6 @@
 # coding: utf-8
 from datetime import datetime
+import os
 
 from django.test import TestCase
 from django.core.urlresolvers import reverse
@@ -13,6 +14,7 @@ from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.storage import FiletrackerStorage
 from oioioi.base.tests import fake_time
+from oioioi.base.utils.archive import Archive
 
 
 class TestTestrunViews(TestCase):
@@ -109,6 +111,46 @@ class TestTestrunViews(TestCase):
         response = self.client.get(url)
         self.assertContains(response, 'TESTRUN')
         self.assertNotIn('NORMAL', response.content)
+
+    def test_archive_submission(self):
+        self.client.login(username='test_user')
+        kwargs = {'contest_id': Contest.objects.get().id}
+        url = reverse('testrun_submit', kwargs=kwargs)
+
+        base_dir = os.path.join(os.path.dirname(__file__), 'files')
+
+        testruns_before = Submission.objects.filter(kind='TESTRUN').count()
+        for bad_archive in ['over_limit.zip', 'two_files.zip', 'evil.zip']:
+            filename = os.path.join(base_dir, bad_archive)
+            with open(filename) as input_file:
+                data = {
+                    'problem_instance_id': ProblemInstance.objects.get().id,
+                    'file': ContentFile('a', name='x.cpp'),
+                    'input': input_file
+                }
+                response = self.client.post(url, data, follow=True)
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(
+                    Submission.objects.filter(kind='TESTRUN').count(),
+                    testruns_before)
+
+        with open(os.path.join(base_dir, "single_file.zip")) as input_file:
+            data = {
+                'problem_instance_id': ProblemInstance.objects.get().id,
+                'file': ContentFile('a', name='x.cpp'),
+                'input': input_file,
+            }
+            response = self.client.post(url, data, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(
+                Submission.objects.filter(kind='TESTRUN').count(),
+                testruns_before + 1)
+            submission = \
+                TestRunProgramSubmission.objects.get(pk=(testruns_before + 1))
+            self.assertEqual(submission.kind, 'TESTRUN')
+            self.assertEqual(submission.source_file.read().strip(), 'a')
+            archive = Archive(submission.input_file, '.zip')
+            self.assertEqual(len(archive.filenames()), 1)
 
     def test_code_pasting(self):
         self.client.login(username='test_user')
