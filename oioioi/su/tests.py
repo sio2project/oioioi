@@ -2,7 +2,6 @@
 import json
 
 from django.contrib.auth.models import User
-from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
@@ -90,6 +89,39 @@ class TestSwitchingUsers(TestCase):
         self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
             response.context['real_user'].backend)
 
+    def test_su_redirection(self):
+        self.client.login(username='test_admin')
+        response = self.client.post(reverse('su'), {
+            'user': 'test_user',
+            'backend': 'django.contrib.auth.backends.ModelBackend',
+        })
+        self.assertEquals(302, response.status_code)
+
+        response = self.client.get(reverse('index'), follow=True)
+        self.assertEquals(200, response.status_code)
+        self.client.post(reverse('su_reset'))
+
+        response = self.client.post(reverse('su'), {
+            'user': 'test_user',
+            'backend': 'django.contrib.auth.backends.ModelBackend',
+        })
+        self.assertEquals(302, response.status_code)
+
+        response = self.client.post(reverse('su'), {'user': 'test_admin'})
+        self.assertEquals(302, response.status_code)
+        response = self.client.post(reverse('su'), {'user': 'test_admin'})
+        self.assertEquals(403, response.status_code)
+        self.client.post(reverse('su_reset'))
+
+        response = self.client.post(reverse('su'), {
+            'user': 'test_user',
+            'backend': 'django.contrib.auth.backends.ModelBackend',
+            'next_page': reverse('su'),
+        }, follow=True)
+        self.assertEquals(200, response.status_code)
+        response = self.client.post(reverse('su'), {'user': 'test_admin'})
+        self.assertEquals(403, response.status_code)
+
     def test_inheriting_backend(self):
         test_user = User.objects.get(username='test_user')
         test_user2 = User.objects.get(username='test_user2')
@@ -119,8 +151,9 @@ class TestSwitchingUsers(TestCase):
                  'test_user3 (Test User 3)'],
                 response)
 
-        response = self.client.post(reverse('su'), {'user': 'test_user'})
-        self.assertEquals(302, response.status_code)
+        response = self.client.post(reverse('su'),
+            {'user': 'test_user'}, follow=True)
+        self.assertEquals(200, response.status_code)
         response = self.client.get(reverse('get_suable_users'),
             {'substr': 'te'})
         self.assertEquals(403, response.status_code)
