@@ -1,5 +1,6 @@
 import urllib
 
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.http import Http404, HttpResponseRedirect
@@ -55,6 +56,7 @@ def download_package_traceback_view(request, package_id):
     return stream_file(package.traceback)
 
 
+@transaction.non_atomic_requests
 def add_or_update_problem_view(request, contest_id=None):
     sources = problem_sources(request)
     if 'key' not in request.GET:

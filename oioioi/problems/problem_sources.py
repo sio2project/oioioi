@@ -185,9 +185,11 @@ class PackageSource(ProblemSource):
                                 contest.controller.fill_upload_environ(request,
                                         form, env)
                             package.save()
-                    async_result = unpackmgr_job.delay(env)
-                    ProblemPackage.objects.filter(id=package.id).update(
-                            celery_task_id=async_result.task_id)
+                        async_task = unpackmgr_job.s(env)
+                        async_result = async_task.freeze()
+                        ProblemPackage.objects.filter(id=package.id).update(
+                                celery_task_id=async_result.task_id)
+                    async_task.delay()
                     messages.success(request,
                             _("Package queued for processing."))
                     return self._redirect_response(request)
