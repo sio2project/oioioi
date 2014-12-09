@@ -9,6 +9,8 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 
+from dateutil.parser import parse as parse_date
+
 from oioioi.base.views import has_valid_username
 from oioioi.su.utils import is_under_su
 
@@ -24,7 +26,7 @@ class TimestampingMiddleware(object):
 
     def process_request(self, request):
         if 'admin_time' in request.session:
-            request.timestamp = request.session['admin_time']
+            request.timestamp = parse_date(request.session['admin_time'])
         else:
             request.timestamp = timezone.now()
 

@@ -7,6 +7,7 @@ from datetime import datetime
 import calendar
 import json
 import time
+from dateutil.parser import parse as parse_date
 
 
 class TestClock(TestCase):
@@ -62,10 +63,10 @@ class TestClock(TestCase):
     def test_admin_time(self):
         self.client.login(username='test_admin')
         session = self.client.session
-        session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc)
+        session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc).isoformat()
         session.save()
         response = self.client.get(reverse('get_status'))
         response = json.loads(response.content)
         self.assertTrue(response['is_admin_time_set'])
         self.assertEqual(response['time'],
-            calendar.timegm(session['admin_time'].timetuple()))
+            calendar.timegm(parse_date(session['admin_time']).timetuple()))

@@ -88,7 +88,8 @@ def admin_time(request, next_page=None):
             if current_admin_time.year >= 1900:
                 request.session['admin_time'] = \
                     timezone.localtime(timezone.now()). \
-                    tzinfo.localize(current_admin_time).astimezone(pytz.utc)
+                    tzinfo.localize(current_admin_time). \
+                    astimezone(pytz.utc).isoformat()
             else:
                 messages.error(request, _("Date has to be after 1900."
                     " Admin-time was not set."))

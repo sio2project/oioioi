@@ -412,6 +412,3 @@ NOTIFICATIONS_SERVER_PORT = 7887
 
 # Balloons
 BALLOON_ACCESS_COOKIE_EXPIRES_DAYS = 7
-
-# For backwards compatibility. Should be changed in near future (see SIO-1584)
-SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
