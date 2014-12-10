@@ -28,6 +28,9 @@
     </fieldset>
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" value="{% trans 'Submit' %}" />
+        {% if user.is_authenticated %}
+        <a href="/delete_account" class="btn btn-danger" style="float:right">{% trans 'Delete account' %}</a>
+        {% endif %}
     </div>
 </form>
 

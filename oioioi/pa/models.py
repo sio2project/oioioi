@@ -42,6 +42,17 @@ class PARegistration(RegistrationModel):
                     "the technical arrangements. I fully understand them and "
                      "accept them unconditionally."), default=False)
 
+    def erase_data(self):
+        self.address = 'Account deleted'
+        self.postal_code = '00-000'
+        self.city = 'Account deleted'
+        self.job = 'OTH'
+        self.job_name = 'Account deleted'
+        self.t_shirt_size = 'S'
+        self.newsletter = False
+        self.terms_accepted = False
+        self.save()
+
 
 division_registry = EnumRegistry()
 

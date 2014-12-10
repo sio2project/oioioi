@@ -10,4 +10,5 @@ urlpatterns = patterns('oioioi.base.views',
     url(r'^translate/$', 'translate_view', name='translate'),
     url(r'^admin/logout/$', 'logout_view'),
     url(r'^login/$', 'login_view', name='login'),
+    url(r'^delete_account/$', 'delete_account_view', name='delete_account'),
 )

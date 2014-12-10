@@ -17,6 +17,7 @@ check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
 participant_statuses = EnumRegistry()
 participant_statuses.register('ACTIVE', _("Active"))
 participant_statuses.register('BANNED', _("Banned"))
+participant_statuses.register('DELETED', _("Account deleted"))
 
 
 class Participant(models.Model):
@@ -44,6 +45,22 @@ class Participant(models.Model):
     def __unicode__(self):
         return unicode(self.user)
 
+    def erase_data(self):
+        """Replaces (and saves) values of every field to values suggesting
+           that the account is deleted. Purpose: delete user's private data
+           from the system.
+
+           Used only when account is being deleted by user.
+        """
+        try:
+            self.registration_model.erase_data()
+        except ObjectDoesNotExist:
+            pass
+
+        self.status = 'DELETED'
+        self.anonymous = True
+        self.save()
+
 
 class RegistrationModel(models.Model):
     participant = OneToOneBothHandsCascadingParticipantField(Participant,
@@ -51,6 +68,9 @@ class RegistrationModel(models.Model):
 
     class Meta(object):
         abstract = True
+
+    def erase_data(self):
+        pass
 
 
 @nottest

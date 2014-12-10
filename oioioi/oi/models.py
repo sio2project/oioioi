@@ -129,6 +129,19 @@ class OIRegistration(RegistrationModel):
                 {'class_type': self.get_class_type_display(),
                  'school': self.school}
 
+    def erase_data(self):
+        self.address = 'Account deleted'
+        self.postal_code = '00-000'
+        self.city = 'Account deleted'
+        self.phone = None
+        self.birthday = '1900-01-01'
+        self.birthplace = 'Account deleted'
+        self.t_shirt_size = 'S'
+        self.school = None
+        self.class_type = 'None'
+        self.terms_accepted = False
+        self.save()
+
 
 class OIOnsiteRegistration(RegistrationModel):
     number = models.IntegerField(verbose_name=_("number"))
@@ -143,3 +156,9 @@ class OIOnsiteRegistration(RegistrationModel):
         return _("%(number)s/%(region)s/%(local_number)s") % \
                 dict(number=self.number, region=self.region,
                     local_number=self.local_number)
+
+    def erase_data(self):
+        self.number = -1
+        self.region = None
+        self.local_number = -1
+        self.save()

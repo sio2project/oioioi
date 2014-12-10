@@ -129,3 +129,19 @@ def translate_view(request):
         return {'answer': ugettext(request.GET['query'])}
     else:
         raise SuspiciousOperation
+
+
+def delete_account_view(request):
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
+
+    if request.POST:
+        for participant in request.user.participant_set.all():
+            participant.erase_data()
+        request.user.is_active = False
+        request.user.save()
+        return auth_logout(request,
+                template_name='registration/delete_account_done.html')
+
+    return TemplateResponse(request,
+            'registration/delete_account_confirmation.html')
