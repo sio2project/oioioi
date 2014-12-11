@@ -266,6 +266,8 @@ FILETRACKER_LISTEN_PORT = 9999
 DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
 
+SEND_USER_ACTIVATION_EMAIL = True
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error when DEBUG=False.

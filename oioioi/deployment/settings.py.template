@@ -83,6 +83,10 @@ EMAIL_PORT = 25
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 
+# Comment to send user activation emails. Needs an SMTP server to be
+# configured above.
+SEND_USER_ACTIVATION_EMAIL = False
+
 # RabbitMQ server URL for distributed workers.
 #
 # Uncomment once RabbitMQ is installed. By default SQLAlchemy is used,

@@ -1,0 +1,16 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Registration successful' %}{% endblock %}
+
+{% block content %}
+
+<h1>{% trans 'Registration successful' %}</h1>
+
+<p>{% trans "Thank you for registering." %}</p>
+<p>
+{% trans "Your account is now active. You may go ahead and log in now." %}
+</p>
+<p><a href="{% url 'auth_login' %}">{% trans "Log in" %}</a></p>
+
+{% endblock %}

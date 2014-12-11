@@ -1,4 +1,6 @@
 from django.conf.urls import patterns, url
+from django.conf import settings
+from django.views.generic import TemplateView
 from django.contrib.sites.models import RequestSite
 from django.contrib.auth.models import User
 from registration import signals
@@ -18,13 +20,16 @@ class RegistrationView(DefaultRegistrationView):
         user = User.objects.create_user(username, email, password1)
         user.first_name = first_name
         user.last_name = last_name
-        user.is_active = False
+        user.is_active = not settings.SEND_USER_ACTIVATION_EMAIL
         user.save()
 
         registration_profile = RegistrationProfile.objects.create_profile(user)
-        registration_profile.send_activation_email(RequestSite(request))
-
         signals.user_registered.send(sender=self.__class__, user=user,
+                request=request)
+        if settings.SEND_USER_ACTIVATION_EMAIL:
+            registration_profile.send_activation_email(RequestSite(request))
+        else:
+            signals.user_activated.send(sender=self.__class__, user=user,
                 request=request)
         return user
 
@@ -33,4 +38,13 @@ urlpatterns = patterns('',
         RegistrationView.as_view(),
         name='registration_register'),
 )
+
+if not settings.SEND_USER_ACTIVATION_EMAIL:
+    urlpatterns += patterns('',
+        url(r'^register/complete/$',
+            TemplateView.as_view(template_name=
+                    'registration/registration_and_activation_complete.html'),
+                name='registration_complete'),
+    )
+
 urlpatterns += registration.backends.default.urls.urlpatterns

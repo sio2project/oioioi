@@ -705,7 +705,7 @@ class TestRegistration(TestCase):
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
 
-    def test_registration(self):
+    def _register_user(self):
         self.client.post(reverse('registration_register'), {
             'username': 'test_foo',
             'first_name': 'Foo',
@@ -714,19 +714,28 @@ class TestRegistration(TestCase):
             'password1': 'xxx',
             'password2': 'xxx',
         })
-        self.assertEqual(len(mail.outbox), 1)
-        message = mail.outbox[0]
-        del mail.outbox
-        self.assertEqual(list(message.to), ['foo@bar.com'])
-        url = re.search('^http://[^/]*(/.*)$', message.body, re.M).group(1)
 
-        # Try to activate
-        self.client.get(url)
+    def _assert_user_active(self):
         user = User.objects.get(username='test_foo')
         self.assertTrue(user.is_active)
         self.assertEqual(user.first_name, 'Foo')
         self.assertEqual(user.last_name, 'Bar')
 
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=True)
+    def test_registration_with_activation_email(self):
+        self._register_user()
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        del mail.outbox
+        self.assertEqual(list(message.to), ['foo@bar.com'])
+        url = re.search('^http://[^/]*(/.*)$', message.body, re.M).group(1)
+        self.client.get(url)
+        self._assert_user_active()
+
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=False)
+    def test_registration_without_activation_email(self):
+        self._register_user()
+        self._assert_user_active()
 
 class TestArchive(unittest.TestCase):
     def test_archive(self):
