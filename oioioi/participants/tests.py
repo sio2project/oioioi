@@ -30,7 +30,8 @@ class ParticipantsContestController(ProgrammingContestController):
 
 
 class TestParticipantsContestViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_participants_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
@@ -98,7 +99,8 @@ class TestParticipantsContestViews(TestCase):
 
 
 class TestParticipantsSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_submit_permissions(self):
         contest = Contest.objects.get()
@@ -387,8 +389,8 @@ class AnonymousContestController(OIContestController):
 
 class TestAnonymousParticipants(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_schools',
-            'test_full_package', 'test_ranking_data', 'test_extra_rounds',
-            'test_permissions']
+            'test_full_package', 'test_problem_instance', 'test_ranking_data',
+            'test_extra_rounds', 'test_permissions']
 
     def _register(self, user, anonymous=False, possible=False):
         contest = Contest.objects.get()
@@ -490,7 +492,7 @@ class TestAnonymousParticipants(TestCase):
 
 class TestParticipantsDataViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_schools']
+                'test_problem_instance', 'test_schools']
 
     def test_data_view(self):
         contest = Contest.objects.get()

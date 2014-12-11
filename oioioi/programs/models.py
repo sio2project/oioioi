@@ -1,3 +1,4 @@
+from nose.tools import nottest
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
@@ -23,6 +24,7 @@ def validate_time_limit(value):
         raise ValidationError(_("Time limit must be a positive number."))
 
 
+@nottest
 class Test(models.Model):
     problem = models.ForeignKey(Problem)
     name = models.CharField(max_length=30, verbose_name=_("name"))
@@ -203,6 +205,7 @@ def make_output_filename(instance, filename):
             submission.id, instance.submission_report.id)
 
 
+@nottest
 class TestReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)

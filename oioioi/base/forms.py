@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
@@ -23,10 +25,12 @@ class RegistrationFormWithNames(RegistrationForm):
         super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
         adjust_username_field(self)
 
-        self.fields.insert(1, 'first_name',
-                forms.CharField(label=_("First name")))
-        self.fields.insert(2, 'last_name',
-                forms.CharField(label=_("Last name")))
+        fields = self.fields.items()
+        fields[1:1] = [
+            ('first_name', forms.CharField(label=_("First name"))),
+            ('last_name', forms.CharField(label=_("Last name")))
+        ]
+        self.fields = OrderedDict(fields)
 
 
 class UserForm(forms.ModelForm):

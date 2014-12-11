@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.db import transaction, DatabaseError
 import os
 import csv
@@ -13,12 +13,15 @@ class Command(BaseCommand):
     columns_str = ', '.join(COLUMNS)
 
     args = _("<filename_or_url>")
-    help = _("Creates user accounts from a "
-             "CSV file <filename or url>, with the following columns: "
-             "%(columns)s.\n\n"
-             "Given csv file should contain a header row with columns' names "
-             "(respectively %(columns)s) separeted by commas. Following rows "
-             "should contain users' data.") % {'columns': columns_str}
+
+    @property
+    def help(self):
+        return _("Creates user accounts from a CSV file <filename or url> "
+                 "with the following columns: %(columns)s.\n\n Given csv file "
+                 "should contain a header row with columns' names "
+                 "(respectively %(columns)s) separeted by commas. Following "
+                 "rows should contain users' data.") \
+                % {'columns': self.columns_str}
 
     requires_model_validation = True
 

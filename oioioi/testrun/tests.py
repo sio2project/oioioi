@@ -17,7 +17,7 @@ from oioioi.base.tests import fake_time
 
 class TestTestrunViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_testrun']
+            'test_problem_instance', 'test_testrun']
 
     def test_status_visible(self):
         self.client.login(username='test_user')
@@ -151,7 +151,8 @@ class TestTestrunViews(TestCase):
 
 
 class TestWithNoTestruns(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_not_visible(self):
         self.client.login(username='test_user')
@@ -163,7 +164,7 @@ class TestWithNoTestruns(TestCase):
 
 class TestHandlers(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_testrun']
+            'test_problem_instance', 'test_testrun']
 
     def test_handlers(self):
         submission = TestRunProgramSubmission.objects.get(pk=1)

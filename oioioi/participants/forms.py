@@ -7,6 +7,7 @@ from oioioi.contests.models import Round
 
 class ParticipantForm(forms.ModelForm):
     class Meta(object):
+        fields = '__all__'
         model = Participant
 
     def clean_user(self):

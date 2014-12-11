@@ -2,7 +2,6 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ValidationError
 from django.core.validators import RegexValidator
-from south.modelsinspector import add_introspection_rules
 from oioioi.base.utils import get_object_by_dotted_name
 
 
@@ -74,15 +73,11 @@ class DottedNameField(models.CharField):
             raise ValidationError(_("%s is an abstract class and cannot be "
                 "used") % (value,))
 
-add_introspection_rules([
-    (
-        [DottedNameField],
-        [],
-        {
-            'superclass': ['superclass_name', {}],
-        }
-    )
-], [r'^oioioi\.base\.fields\.DottedNameField'])
+    def deconstruct(self):
+        name, path, args, kwargs = super(DottedNameField, self).deconstruct()
+        kwargs['superclass'] = self.superclass_name
+        del kwargs['max_length']
+        return name, path, args, kwargs
 
 
 class EnumRegistry(object):
@@ -132,8 +127,9 @@ class EnumField(models.CharField):
 
     def __init__(self, registry=None, *args, **kwargs):
         if registry:
-            # This is to allow south to create this field without the need to
-            # store the registry.
+            # This allows this field to be stored for migration purposes
+            # without the need to serialize an EnumRegistry object.
+            # Instead, we serialize 'max_length' and 'choices'.
             assert isinstance(registry, EnumRegistry), \
                     'Invalid registry passed to EnumField.__init__: %r' % \
                     (registry,)
@@ -145,8 +141,6 @@ class EnumField(models.CharField):
     def _generate_choices(self):
         for item in self.registry.entries:
             yield item
-
-add_introspection_rules([], [r'^oioioi\.base\.fields\.EnumField'])
 
 
 class PhoneNumberField(models.CharField):
@@ -160,7 +154,12 @@ class PhoneNumberField(models.CharField):
 
         super(PhoneNumberField, self).__init__(*args, **kwargs)
 
-add_introspection_rules([], [r'^oioioi\.base\.fields\.PhoneNumberField'])
+    def deconstruct(self):
+        name, path, args, kwargs = super(PhoneNumberField, self).deconstruct()
+        del kwargs['max_length']
+        del kwargs['validators']
+        del kwargs['help_text']
+        return name, path, args, kwargs
 
 
 class PostalCodeField(models.CharField):
@@ -173,4 +172,8 @@ class PostalCodeField(models.CharField):
 
         super(PostalCodeField, self).__init__(*args, **kwargs)
 
-add_introspection_rules([], [r'^oioioi\.base\.fields\.PostalCodeField'])
+    def deconstruct(self):
+        name, path, args, kwargs = super(PostalCodeField, self).deconstruct()
+        del kwargs['max_length']
+        del kwargs['validators']
+        return name, path, args, kwargs

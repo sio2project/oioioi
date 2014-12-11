@@ -16,7 +16,8 @@ class TestSuspendjudgeSuper(TestCase):
 
 
 class TestViews(TestSuspendjudgeSuper):
-    fixtures = ['test_users', 'test_permissions', 'test_contest']
+    fixtures = ['test_users', 'test_permissions', 'test_contest',
+            'test_full_package', 'test_problem_instance']
 
     def test_views_permissions(self):
         problem_instance = ProblemInstance.objects.get()
@@ -33,8 +34,8 @@ class TestViews(TestSuspendjudgeSuper):
 
 
 class TestSuspending(TestSuspendjudgeSuper):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-                'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission']
 
     def test_handler_presence(self):
         contest = Contest.objects.get()

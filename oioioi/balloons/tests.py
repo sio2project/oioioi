@@ -15,7 +15,8 @@ from oioioi.sinolpack.tests import get_test_filename
 
 
 class TestBalloons(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def setUp(self):
         self.contest = Contest.objects.get()

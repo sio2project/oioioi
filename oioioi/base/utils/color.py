@@ -1,9 +1,9 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-from south.modelsinspector import add_introspection_rules
 import re
 
 
@@ -28,6 +28,7 @@ class ColorWidget(forms.TextInput):
 
 class ColorField(models.CharField):
     _re = re.compile('^#[0-9a-f]{6}$')
+    default_validators = [RegexValidator(_re, 'Invalid color value.')]
 
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 7
@@ -37,11 +38,7 @@ class ColorField(models.CharField):
         kwargs['widget'] = ColorWidget
         return super(ColorField, self).formfield(**kwargs)
 
-    def to_python(self, value):
-        value = unicode(value).lower()
-        if self._re.match(value) is None:
-            raise ValidationError(_("Value '%s' is not a valid color, "
-                "expected something like #aa34bc."))
-        return value
-
-add_introspection_rules([], [r'^oioioi\.base\.utils\.color\.ColorField'])
+    def deconstruct(self):
+        name, path, args, kwargs = super(ColorField, self).deconstruct()
+        del kwargs['max_length']
+        return name, path, args, kwargs

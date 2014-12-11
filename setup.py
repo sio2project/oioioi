@@ -24,9 +24,8 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django>=1.6,<1.7",
+        "Django>=1.7,<1.8",
         "pytz>=2013b",
-        "South>=0.8.3,<2.0",
         "sqlalchemy",
         "BeautifulSoup",
         "PyYAML",
@@ -36,8 +35,8 @@ setup(
         "django-celery>=3.1.15",
         "django-supervisor",
         "linaro-django-pagination",
-        "django-compressor",
-        "django-grappelli>=2.5,<2.6",
+        "django-compressor>=1.4",
+        "django-grappelli>=2.6,<2.7",
         "pygments",
 
         "django-debug-toolbar",

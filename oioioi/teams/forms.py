@@ -8,6 +8,7 @@ from oioioi.teams.models import Team
 
 class TeamForm(forms.ModelForm):
     class Meta(object):
+        fields = '__all__'
         model = Team
 
 

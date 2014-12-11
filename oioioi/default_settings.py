@@ -156,10 +156,7 @@ COMPRESS_PRECOMPILERS = (
 )
 
 INSTALLED_APPS = (
-    # south needs to be before oioioi.base
-    # because it overrides south's syncdb command
-    'south',
-
+    'oioioi.monkeypatch',
     'oioioi.submitservice',
     'oioioi.filetracker',
     'oioioi.contests',
@@ -386,7 +383,7 @@ FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
 # Cache
 CACHES = {
     'default': {
-        'BACKEND': 'oioioi.base.cache.DefaultCache',
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
         'LOCATION': os.path.join(tempfile.gettempdir(), 'oioioi-cache')
     }
 }

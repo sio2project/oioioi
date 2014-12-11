@@ -1,277 +1,205 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import oioioi.filetracker.fields
+import oioioi.problems.models
+import oioioi.programs.models
+import oioioi.contests.fields
+import django.db.models.deletion
+import oioioi.base.fields
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'Test'
-        db.create_table('programs_test', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('problem', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['problems.Problem'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('input_file', self.gf('oioioi.filetracker.fields.FileField')(max_length=100, null=True, blank=True)),
-            ('output_file', self.gf('oioioi.filetracker.fields.FileField')(max_length=100, null=True, blank=True)),
-            ('kind', self.gf('oioioi.base.fields.EnumField')(max_length=64)),
-            ('group', self.gf('django.db.models.fields.CharField')(max_length=30, null=True, blank=True)),
-            ('time_limit', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('memory_limit', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('max_score', self.gf('django.db.models.fields.IntegerField')(default=10)),
-        ))
-        db.send_create_signal('programs', ['Test'])
+    dependencies = [
+        ('contests', '0001_initial'),
+        ('problems', '0001_initial'),
+    ]
 
-        # Adding model 'OutputChecker'
-        db.create_table('programs_outputchecker', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('problem', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['problems.Problem'], unique=True)),
-            ('exe_file', self.gf('oioioi.filetracker.fields.FileField')(max_length=100, null=True, blank=True)),
-        ))
-        db.send_create_signal('programs', ['OutputChecker'])
-
-        # Adding model 'ModelSolution'
-        db.create_table('programs_modelsolution', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('problem', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['problems.Problem'])),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('source_file', self.gf('oioioi.filetracker.fields.FileField')(max_length=100)),
-            ('kind', self.gf('oioioi.base.fields.EnumField')(max_length=64)),
-        ))
-        db.send_create_signal('programs', ['ModelSolution'])
-
-        # Adding model 'ProgramSubmission'
-        db.create_table('programs_programsubmission', (
-            ('submission_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['contests.Submission'], unique=True, primary_key=True)),
-            ('source_file', self.gf('oioioi.filetracker.fields.FileField')(max_length=100)),
-        ))
-        db.send_create_signal('programs', ['ProgramSubmission'])
-
-        # Adding model 'ModelProgramSubmission'
-        db.create_table('programs_modelprogramsubmission', (
-            ('programsubmission_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['programs.ProgramSubmission'], unique=True, primary_key=True)),
-            ('model_solution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['programs.ModelSolution'])),
-        ))
-        db.send_create_signal('programs', ['ModelProgramSubmission'])
-
-        # Adding model 'CompilationReport'
-        db.create_table('programs_compilationreport', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('submission_report', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.SubmissionReport'])),
-            ('status', self.gf('oioioi.base.fields.EnumField')(max_length=64)),
-            ('compiler_output', self.gf('django.db.models.fields.TextField')()),
-        ))
-        db.send_create_signal('programs', ['CompilationReport'])
-
-        # Adding model 'TestReport'
-        db.create_table('programs_testreport', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('submission_report', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.SubmissionReport'])),
-            ('status', self.gf('oioioi.base.fields.EnumField')(max_length=64)),
-            ('comment', self.gf('django.db.models.fields.CharField')(max_length=255, blank=True)),
-            ('score', self.gf('oioioi.contests.fields.ScoreField')(max_length=255, blank=True)),
-            ('time_used', self.gf('django.db.models.fields.IntegerField')(blank=True)),
-            ('test', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['programs.Test'], null=True, on_delete=models.SET_NULL, blank=True)),
-            ('test_name', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('test_group', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('test_time_limit', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('test_max_score', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-        ))
-        db.send_create_signal('programs', ['TestReport'])
-
-        # Adding model 'GroupReport'
-        db.create_table('programs_groupreport', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('submission_report', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contests.SubmissionReport'])),
-            ('group', self.gf('django.db.models.fields.CharField')(max_length=30)),
-            ('score', self.gf('oioioi.contests.fields.ScoreField')(max_length=255)),
-            ('status', self.gf('oioioi.base.fields.EnumField')(max_length=64)),
-        ))
-        db.send_create_signal('programs', ['GroupReport'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'Test'
-        db.delete_table('programs_test')
-
-        # Deleting model 'OutputChecker'
-        db.delete_table('programs_outputchecker')
-
-        # Deleting model 'ModelSolution'
-        db.delete_table('programs_modelsolution')
-
-        # Deleting model 'ProgramSubmission'
-        db.delete_table('programs_programsubmission')
-
-        # Deleting model 'ModelProgramSubmission'
-        db.delete_table('programs_modelprogramsubmission')
-
-        # Deleting model 'CompilationReport'
-        db.delete_table('programs_compilationreport')
-
-        # Deleting model 'TestReport'
-        db.delete_table('programs_testreport')
-
-        # Deleting model 'GroupReport'
-        db.delete_table('programs_groupreport')
-
-
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'contests.contest': {
-            'Meta': {'object_name': 'Contest'},
-            'controller_name': ('oioioi.base.fields.DottedNameField', [], {'max_length': '255', 'superclass': "'oioioi.contests.controllers.ContestController'"}),
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'})
-        },
-        'contests.probleminstance': {
-            'Meta': {'ordering': "('round', 'short_name')", 'unique_together': "(('contest', 'short_name'),)", 'object_name': 'ProblemInstance'},
-            'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Contest']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'problem': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['problems.Problem']"}),
-            'round': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Round']"}),
-            'short_name': ('django.db.models.fields.CharField', [], {'max_length': '30'})
-        },
-        'contests.round': {
-            'Meta': {'ordering': "('contest', 'start_date')", 'unique_together': "(('contest', 'name'),)", 'object_name': 'Round'},
-            'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Contest']"}),
-            'end_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'results_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
-            'start_date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'})
-        },
-        'contests.submission': {
-            'Meta': {'object_name': 'Submission'},
-            'comment': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
-            'date': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'kind': ('oioioi.base.fields.EnumField', [], {'default': "'NORMAL'", 'max_length': '64'}),
-            'problem_instance': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.ProblemInstance']"}),
-            'score': ('oioioi.contests.fields.ScoreField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
-            'status': ('oioioi.base.fields.EnumField', [], {'default': "'?'", 'max_length': '64'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
-        },
-        'contests.submissionreport': {
-            'Meta': {'unique_together': "(('submission', 'creation_date'),)", 'object_name': 'SubmissionReport'},
-            'creation_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'kind': ('oioioi.base.fields.EnumField', [], {'default': "'FINAL'", 'max_length': '64'}),
-            'status': ('oioioi.base.fields.EnumField', [], {'default': "'INACTIVE'", 'max_length': '64'}),
-            'submission': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Submission']"})
-        },
-        'problems.problem': {
-            'Meta': {'object_name': 'Problem'},
-            'contest': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.Contest']", 'null': 'True', 'blank': 'True'}),
-            'controller_name': ('oioioi.base.fields.DottedNameField', [], {'max_length': '255', 'superclass': "'oioioi.problems.controllers.ProblemController'"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'package_backend_name': ('oioioi.base.fields.DottedNameField', [], {'max_length': '255', 'null': 'True', 'superclass': "'oioioi.problems.package.ProblemPackageBackend'", 'blank': 'True'}),
-            'short_name': ('django.db.models.fields.CharField', [], {'max_length': '30'})
-        },
-        'programs.compilationreport': {
-            'Meta': {'object_name': 'CompilationReport'},
-            'compiler_output': ('django.db.models.fields.TextField', [], {}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'status': ('oioioi.base.fields.EnumField', [], {'max_length': '64'}),
-            'submission_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.SubmissionReport']"})
-        },
-        'programs.groupreport': {
-            'Meta': {'object_name': 'GroupReport'},
-            'group': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'score': ('oioioi.contests.fields.ScoreField', [], {'max_length': '255'}),
-            'status': ('oioioi.base.fields.EnumField', [], {'max_length': '64'}),
-            'submission_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.SubmissionReport']"})
-        },
-        'programs.modelprogramsubmission': {
-            'Meta': {'object_name': 'ModelProgramSubmission', '_ormbases': ['programs.ProgramSubmission']},
-            'model_solution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['programs.ModelSolution']"}),
-            'programsubmission_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['programs.ProgramSubmission']", 'unique': 'True', 'primary_key': 'True'})
-        },
-        'programs.modelsolution': {
-            'Meta': {'object_name': 'ModelSolution'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'kind': ('oioioi.base.fields.EnumField', [], {'max_length': '64'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'problem': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['problems.Problem']"}),
-            'source_file': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100'})
-        },
-        'programs.outputchecker': {
-            'Meta': {'object_name': 'OutputChecker'},
-            'exe_file': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'problem': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['problems.Problem']", 'unique': 'True'})
-        },
-        'programs.programsubmission': {
-            'Meta': {'object_name': 'ProgramSubmission', '_ormbases': ['contests.Submission']},
-            'source_file': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100'}),
-            'submission_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['contests.Submission']", 'unique': 'True', 'primary_key': 'True'})
-        },
-        'programs.test': {
-            'Meta': {'object_name': 'Test'},
-            'group': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'input_file': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'kind': ('oioioi.base.fields.EnumField', [], {'max_length': '64'}),
-            'max_score': ('django.db.models.fields.IntegerField', [], {'default': '10'}),
-            'memory_limit': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'output_file': ('oioioi.filetracker.fields.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
-            'problem': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['problems.Problem']"}),
-            'time_limit': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'})
-        },
-        'programs.testreport': {
-            'Meta': {'object_name': 'TestReport'},
-            'comment': ('django.db.models.fields.CharField', [], {'max_length': '255', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'score': ('oioioi.contests.fields.ScoreField', [], {'max_length': '255', 'blank': 'True'}),
-            'status': ('oioioi.base.fields.EnumField', [], {'max_length': '64'}),
-            'submission_report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contests.SubmissionReport']"}),
-            'test': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['programs.Test']", 'null': 'True', 'on_delete': 'models.SET_NULL', 'blank': 'True'}),
-            'test_group': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'test_max_score': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'test_name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
-            'test_time_limit': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'time_used': ('django.db.models.fields.IntegerField', [], {'blank': 'True'})
-        }
-    }
-
-    complete_apps = ['programs']
+    operations = [
+        migrations.CreateModel(
+            name='CompilationReport',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('status', oioioi.base.fields.EnumField(max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
+                ('compiler_output', models.TextField()),
+                ('submission_report', models.ForeignKey(to='contests.SubmissionReport')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='GroupReport',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('group', models.CharField(max_length=30)),
+                ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
+                ('max_score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
+                ('status', oioioi.base.fields.EnumField(max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
+                ('submission_report', models.ForeignKey(to='contests.SubmissionReport')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='LibraryProblemData',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('libname', models.CharField(help_text='Filename library should be given during compilation', max_length=30, verbose_name='libname')),
+            ],
+            options={
+                'verbose_name': 'library problem data',
+                'verbose_name_plural': 'library problem data',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ModelSolution',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=30, verbose_name='name')),
+                ('source_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, verbose_name='source')),
+                ('kind', oioioi.base.fields.EnumField(max_length=64, verbose_name='kind', choices=[(b'NORMAL', 'Model solution'), (b'SLOW', 'Slow solution'), (b'INCORRECT', 'Incorrect solution')])),
+                ('order_key', models.IntegerField(default=0)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='OutputChecker',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('exe_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, null=True, verbose_name='checker executable file', blank=True)),
+            ],
+            options={
+                'verbose_name': 'output checker',
+                'verbose_name_plural': 'output checkers',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='ProgramSubmission',
+            fields=[
+                ('submission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contests.Submission')),
+                ('source_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.programs.models.make_submission_filename)),
+                ('source_length', models.IntegerField(null=True, verbose_name='Source code length', blank=True)),
+            ],
+            options={
+            },
+            bases=('contests.submission',),
+        ),
+        migrations.CreateModel(
+            name='ModelProgramSubmission',
+            fields=[
+                ('programsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.ProgramSubmission')),
+            ],
+            options={
+            },
+            bases=('programs.programsubmission',),
+        ),
+        migrations.CreateModel(
+            name='ReportActionsConfig',
+            fields=[
+                ('problem', models.OneToOneField(related_name='report_actions_config', primary_key=True, serialize=False, to='problems.Problem', verbose_name='problem instance')),
+                ('can_user_generate_outs', models.BooleanField(default=False, verbose_name='Allow users to generate their outs on tests from visible reports.')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Test',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=30, verbose_name='name')),
+                ('input_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, null=True, verbose_name='input', blank=True)),
+                ('output_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, null=True, verbose_name='output/hint', blank=True)),
+                ('kind', oioioi.base.fields.EnumField(max_length=64, verbose_name='kind', choices=[(b'NORMAL', 'Normal test'), (b'EXAMPLE', 'Example test')])),
+                ('group', models.CharField(max_length=30, verbose_name='group')),
+                ('time_limit', models.IntegerField(null=True, verbose_name='time limit (ms)', validators=[oioioi.programs.models.validate_time_limit])),
+                ('memory_limit', models.IntegerField(null=True, verbose_name='memory limit (KiB)', blank=True)),
+                ('max_score', models.IntegerField(default=10, verbose_name='score')),
+                ('order', models.IntegerField(default=0)),
+                ('problem', models.ForeignKey(to='problems.Problem')),
+            ],
+            options={
+                'ordering': ['order'],
+                'verbose_name': 'test',
+                'verbose_name_plural': 'tests',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TestReport',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('status', oioioi.base.fields.EnumField(max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
+                ('comment', models.CharField(max_length=255, blank=True)),
+                ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
+                ('time_used', models.IntegerField(blank=True)),
+                ('output_file', oioioi.filetracker.fields.FileField(null=True, upload_to=oioioi.programs.models.make_output_filename, blank=True)),
+                ('test_name', models.CharField(max_length=30)),
+                ('test_group', models.CharField(max_length=30)),
+                ('test_time_limit', models.IntegerField(null=True, blank=True)),
+                ('test_max_score', models.IntegerField(null=True, blank=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='UserOutGenStatus',
+            fields=[
+                ('testreport', models.OneToOneField(related_name='userout_status', primary_key=True, serialize=False, to='programs.TestReport')),
+                ('status', oioioi.base.fields.EnumField(default=b'?', max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
+                ('visible_for_user', models.BooleanField(default=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='testreport',
+            name='submission_report',
+            field=models.ForeignKey(to='contests.SubmissionReport'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='testreport',
+            name='test',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, blank=True, to='programs.Test', null=True),
+            preserve_default=True,
+        ),
+        migrations.AlterUniqueTogether(
+            name='test',
+            unique_together=set([('problem', 'name')]),
+        ),
+        migrations.AddField(
+            model_name='outputchecker',
+            name='problem',
+            field=models.OneToOneField(to='problems.Problem'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='modelsolution',
+            name='problem',
+            field=models.ForeignKey(to='problems.Problem'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='modelprogramsubmission',
+            name='model_solution',
+            field=models.ForeignKey(to='programs.ModelSolution'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='libraryproblemdata',
+            name='problem',
+            field=models.OneToOneField(to='problems.Problem'),
+            preserve_default=True,
+        ),
+    ]

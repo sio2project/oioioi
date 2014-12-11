@@ -1,3 +1,4 @@
+from nose.tools import nottest
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.contrib.auth.models import User
@@ -52,6 +53,7 @@ class RegistrationModel(models.Model):
         abstract = True
 
 
+@nottest
 class TestRegistration(RegistrationModel):
     """Used only for testing"""
     name = models.CharField(max_length=255)

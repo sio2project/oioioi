@@ -68,10 +68,10 @@ class ForumAdmin(admin.ModelAdmin):
             return HttpResponseRedirect(request.get_full_path())
         return super(ForumAdmin, self).response_change(request, obj)
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         # each qs filters forum/categories/threads/posts connected with
         # this particular contest
-        qs = super(ForumAdmin, self).queryset(request)
+        qs = super(ForumAdmin, self).get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 
@@ -124,8 +124,8 @@ class CategoryAdmin(admin.ModelAdmin):
             reverse('oioioiadmin:forum_forum_change',
             args=(request.contest.forum.id,)))
 
-    def queryset(self, request):
-        qs = super(CategoryAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(CategoryAdmin, self).get_queryset(request)
         qs = qs.filter(forum=request.contest.forum)
         return qs
 
@@ -189,8 +189,8 @@ class ThreadAdmin(admin.ModelAdmin):
         return super(ThreadAdmin, self) \
             .formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def queryset(self, request):
-        qs = super(ThreadAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ThreadAdmin, self).get_queryset(request)
         qs = qs.filter(category__forum=request.contest.forum)
         return qs
 
@@ -262,8 +262,8 @@ class PostAdmin(admin.ModelAdmin):
                 % {'counter': counter})
     unreport_action.short_description = _("Dismiss reports for selected posts")
 
-    def queryset(self, request):
-        qs = super(PostAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(PostAdmin, self).get_queryset(request)
         qs = qs.filter(thread__category__forum=request.contest.forum)
         return qs
 

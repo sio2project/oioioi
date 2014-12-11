@@ -14,7 +14,7 @@ from oioioi.programs.models import ProgramSubmission
 
 class TestMetadataProving(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-        'test_submission', 'test_another_submission']
+        'test_problem_instance', 'test_submission', 'test_another_submission']
 
     def test_valid_proof(self):
         submission = ProgramSubmission.objects.get(pk=1)
@@ -46,7 +46,7 @@ class TestMetadataProving(TestCase):
 
 class TestEmailReceipt(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-        'test_submission']
+        'test_problem_instance', 'test_submission']
 
     def setUp(self):
         contest = Contest.objects.get()

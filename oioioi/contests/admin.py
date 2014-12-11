@@ -247,8 +247,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return super(ProblemInstanceAdmin, self).get_list_select_related() \
                 + ['contest', 'round', 'problem']
 
-    def queryset(self, request):
-        qs = super(ProblemInstanceAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ProblemInstanceAdmin, self).get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 
@@ -423,8 +423,8 @@ class SubmissionAdmin(admin.ModelAdmin):
                 + ['user', 'problem_instance', 'problem_instance__problem',
                    'problem_instance__contest']
 
-    def queryset(self, request):
-        queryset = super(SubmissionAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        queryset = super(SubmissionAdmin, self).get_queryset(request)
         queryset = queryset.filter(problem_instance__contest=request.contest)
         queryset = queryset.order_by('-id')
         return queryset
@@ -454,7 +454,7 @@ class RoundTimeRoundListFilter(SimpleListFilter):
     parameter_name = 'round'
 
     def lookups(self, request, model_admin):
-        qs = model_admin.queryset(request)
+        qs = model_admin.get_queryset(request)
         return Round.objects.filter(id__in=qs.values_list('round')) \
                 .values_list('id', 'name')
 
@@ -499,8 +499,8 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
-    def queryset(self, request):
-        qs = super(RoundTimeExtensionAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(RoundTimeExtensionAdmin, self).get_queryset(request)
         return qs.filter(round__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -532,8 +532,8 @@ class ContestPermissionAdmin(admin.ModelAdmin):
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
-    def queryset(self, request):
-        qs = super(ContestPermissionAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ContestPermissionAdmin, self).get_queryset(request)
         if request.contest:
             qs = qs.filter(contest=request.contest)
         return qs

@@ -118,7 +118,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         if obj is None:
-            return self.queryset(request).exists()
+            return self.get_queryset(request).exists()
         return can_admin_problem(request, obj)
 
     def has_delete_permission(self, request, obj=None):
@@ -147,8 +147,8 @@ class ProblemAdmin(admin.ModelAdmin):
                 "%s.") % (problem,))
             return self.redirect_to_list(request, problem)
 
-    def queryset(self, request):
-        queryset = super(ProblemAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        queryset = super(ProblemAdmin, self).get_queryset(request)
         combined = queryset.none()
         if request.user.has_perm('problems.problems_db_admin'):
             combined |= queryset.filter(contest__isnull=True)
@@ -314,8 +314,8 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
     list_filter = [x for x in ProblemPackageAdmin.list_filter
             if x != 'contest']
 
-    def queryset(self, request):
-        qs = super(ContestProblemPackageAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ContestProblemPackageAdmin, self).get_queryset(request)
         return qs.filter(contest=request.contest)
 
     def has_change_permission(self, request, obj=None):

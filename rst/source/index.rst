@@ -11,24 +11,24 @@ There is also some documentation on the `OIOIOI Project Documentation Site
 Architecture Overview
 ---------------------
 
-.. _Django 1.6: https://docs.djangoproject.com/en/1.6/
-.. _Django authentication: https://docs.djangoproject.com/en/1.6/topics/auth/
+.. _Django 1.7: https://docs.djangoproject.com/en/1.7/
+.. _Django authentication: https://docs.djangoproject.com/en/1.7/topics/auth/
 .. _django-registration-redux: http://django-registration-redux.readthedocs.org/en/latest/
 .. _South: http://south.readthedocs.org/en/latest/
-.. _Django file storage: https://docs.djangoproject.com/en/1.6/topics/files/
+.. _Django file storage: https://docs.djangoproject.com/en/1.7/topics/files/
 .. _Filetracker: ../../../../lib/filetracker/rst/build/html/index.html
 .. _Celery: http://docs.celeryproject.org/en/latest/index.html
 .. _djcelery: http://docs.celeryproject.org/en/latest/django/index.html
 .. _django-pagination: https://code.google.com/p/django-pagination/
 .. _django-nose: https://github.com/jbalogh/django-nose
-.. _Django i18n: https://docs.djangoproject.com/en/1.6/topics/i18n/
+.. _Django i18n: https://docs.djangoproject.com/en/1.7/topics/i18n/
 .. _Transifex: https://www.transifex.com/projects/p/sio2project/
 
-The OIOIOI source code is a standard `Django 1.6`_ project, with the following
+The OIOIOI source code is a standard `Django 1.7`_ project, with the following
 components used:
 
 * Standard `Django authentication`_
-* User registration with `django-registration`_
+* User registration with `django-registration-redux`_
 * Database migrations with `South`_
 * :doc:`Modified Django file storage </sections/filestorage>`
 

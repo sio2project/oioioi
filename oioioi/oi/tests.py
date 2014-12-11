@@ -309,7 +309,7 @@ class TestOIOnsiteRegistration(TestCase):
 
 class TestOIViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def test_contest_visibility(self):
         contest = Contest(id='visible', name='Visible Contest')
@@ -374,7 +374,8 @@ class TestOIViews(TestCase):
 
 
 class TestOIOnsiteViews(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
@@ -547,7 +548,8 @@ class TestSchoolMerging(TestCase):
 
 
 class TestOISubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -594,7 +596,8 @@ class TestOISubmit(TestCase, SubmitFileMixin):
 
 
 class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -639,7 +642,7 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
 
 class TestIgnoringCE(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission', 'test_submissions_CE']
+            'test_problem_instance', 'test_submission', 'test_submissions_CE']
 
     def _test(self, controller_name):
         contest = Contest.objects.get()

@@ -31,8 +31,8 @@ class TeamsAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
-    def queryset(self, request):
-        qs = super(TeamsAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(TeamsAdmin, self).get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 

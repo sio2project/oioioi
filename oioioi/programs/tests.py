@@ -41,7 +41,7 @@ def extract_code(show_response):
 
 class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_permissions', 'test_submission']
+            'test_problem_instance', 'test_permissions', 'test_submission']
 
     def test_submission_views(self):
         self.client.login(username='test_user')
@@ -125,7 +125,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
 
 class TestProgramsXssViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission_xss']
+            'test_problem_instance', 'test_submission_xss']
 
     def test_submission_xss_views(self):
         self.client.login(username='test_user')
@@ -169,7 +169,7 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
 
 class TestOtherSubmissions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission', 'test_submissions_CE']
+            'test_problem_instance', 'test_submission', 'test_submissions_CE']
 
     def _test_get(self, username):
         self.client.login(username=username)
@@ -191,7 +191,7 @@ class TestOtherSubmissions(TestCase):
 
 class TestNoOtherSubmissions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def _test_get(self, username):
         self.client.login(username=username)
@@ -212,7 +212,8 @@ class TestNoOtherSubmissions(TestCase):
 
 class TestDiffView(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission', 'test_another_submission']
+            'test_problem_instance', 'test_submission',
+            'test_another_submission']
 
     def test_saving_button(self):
         self.client.login(username='test_admin')
@@ -256,7 +257,7 @@ class TestDiffView(TestCase):
 
 class TestSubmissionAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def test_submissions_changelist(self):
         self.client.login(username='test_admin')
@@ -272,7 +273,8 @@ class TestSubmissionAdmin(TestCase):
 
 
 class TestSubmittingAsAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_problem_instance',
+            'test_full_package']
 
     def test_ignored_submission(self):
         self.client.login(username='test_user')
@@ -356,7 +358,7 @@ class PrivateProgrammingContestController(ProgrammingContestController):
 
 class TestSubmittingAsContestAdmin(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_permissions']
+            'test_problem_instance', 'test_permissions']
 
     def test_missing_permission(self):
         contest = Contest.objects.get()
@@ -385,7 +387,7 @@ class TestSubmittingAsContestAdmin(TestCase):
 
 class TestSubmittingAsObserver(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_permissions']
+            'test_problem_instance', 'test_permissions']
 
     def test_ignored_submission(self):
         self.client.login(username='test_observer')
@@ -420,7 +422,7 @@ class TestSubmittingAsObserver(TestCase):
 
 class TestNotifications(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_permissions', 'test_submission']
+            'test_problem_instance', 'test_permissions', 'test_submission']
 
     def test_initial_results_notification(self):
         msg_count = defaultdict(int)
@@ -598,7 +600,8 @@ class TestScorers(TestCase):
 
 class TestUserOutsGenerating(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission', 'test_another_submission']
+                'test_problem_instance', 'test_submission',
+                'test_another_submission']
 
     def test_report_after_generate(self):
         self.client.login(username='test_admin')
@@ -702,7 +705,7 @@ class TestUserOutsGenerating(TestCase):
 
 class TestAdminInOutDownload(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission']
+                'test_problem_instance', 'test_submission']
 
     def test_report_href_visibility(self):
         self.client.login(username='test_admin')

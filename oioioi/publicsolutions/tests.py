@@ -40,8 +40,8 @@ class TSolutionSimpleContestController(ProgrammingContestController):
 
 
 class TestPublicSolutions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-        'test_extra_rounds', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_extra_rounds']
 
     def setUp(self):
         contest = Contest.objects.get()

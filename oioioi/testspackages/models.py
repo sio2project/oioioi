@@ -3,6 +3,7 @@ import os
 import tempfile
 import zipfile
 
+from nose.tools import nottest
 from django.core.files import File
 from django.core.validators import RegexValidator
 from django.db import models
@@ -39,6 +40,7 @@ def _testspackage_qs_filter(qs, contest_id):
                         round_chooser=_testspackage_round_chooser,
                         qs_filter=_testspackage_qs_filter,
                         order=50)
+@nottest
 class TestsPackage(models.Model):
     problem = models.ForeignKey(Problem)
     name = models.CharField(max_length=30, verbose_name=_("file name"),

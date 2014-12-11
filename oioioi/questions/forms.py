@@ -22,9 +22,10 @@ class AddContestMessageForm(forms.ModelForm):
 
         self.request = request
 
-        if 'instance' in kwargs:
+        instance = kwargs.get('instance', None)
+        if instance is not None:
             self.fields['category'].choices = get_categories(request)
-            self.fields['category'].initial = get_category(kwargs['instance'])
+            self.fields['category'].initial = get_category(instance)
         else:
             self.fields['category'].choices = \
                     [('', '')] + get_categories(request)

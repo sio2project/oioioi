@@ -146,7 +146,7 @@ class DefaultRankingController(RankingController):
     def render_ranking_to_csv(self, request, key):
         data = self.serialize_ranking(request, key)
 
-        response = HttpResponse(mimetype='text/csv')
+        response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = \
                 make_content_disposition_header('attachment',
                     u'%s-%s-%s.csv' % (_("ranking"), request.contest.id, key))

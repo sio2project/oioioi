@@ -7,7 +7,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 class TestSubmitService(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_messages', 'test_templates', 'test_submitservice']
+                'test_problem_instance', 'test_messages', 'test_templates',
+                'test_submitservice']
 
     def test_submit(self):
         ufile = SimpleUploadedFile('file.cpp', "int main() {}")

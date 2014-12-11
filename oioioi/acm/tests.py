@@ -8,12 +8,12 @@ from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
 
 # The following tests use full-contest fixture, which may be changed this way:
-# 1. Create new database, do syncdb and migrate
+# 1. Create new database, do migrate
 # 2. ./manage.py loaddata acm_test_full_contest.json
 # 3. Login as 'test_admin' with password 'a'
 # 4. Modify something (use Time Admin and User Switching)
 # 5. ./manage.py dumpdata --format json --indent 2 --all --exclude contenttypes
-#    --exclude south --exclude django --exclude auth.permission
+#    --exclude django --exclude auth.permission
 #    --exclude sessions --exclude admin > some_file
 # 6. Copy ``some_file`` to acm/fixtures/acm_test_full_contest.json
 

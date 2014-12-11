@@ -1,6 +1,5 @@
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
-from south.modelsinspector import add_introspection_rules
 from oioioi.filetracker.filename import FiletrackerFilename
 import base64
 
@@ -75,5 +74,3 @@ class FileField(files.FileField):
         if not value:
             return 'none'
         return 'data:' + value.name + ':' + base64.b64encode(value.read())
-
-add_introspection_rules([], [r'^oioioi\.filetracker\.fields\.FileField'])

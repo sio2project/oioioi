@@ -11,6 +11,7 @@ from oioioi.oi.models import OIRegistration, PROVINCES, School, Region
 
 class RegionForm(forms.ModelForm):
     class Meta(object):
+        fields = '__all__'
         model = Region
 
     def clean_short_name(self):

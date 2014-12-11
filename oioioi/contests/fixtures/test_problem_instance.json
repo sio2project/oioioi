@@ -1,0 +1,12 @@
+[
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad1",
+      "contest": "c"
+    }
+  }
+]

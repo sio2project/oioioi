@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from south.modelsinspector import add_introspection_rules
 from oioioi.contests.scores import ScoreValue
 
 
@@ -37,5 +36,3 @@ class ScoreField(models.CharField):
         else:
             raise ValueError("ScoreField.to_python got neither ScoreValue nor "
                     "string: %r" % (value,))
-
-add_introspection_rules([], [r'^oioioi\.contests\.fields\.ScoreField'])

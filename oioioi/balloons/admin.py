@@ -37,8 +37,8 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
     color_display.allow_tags = True
     color_display.short_description = _("Color")
 
-    def queryset(self, request):
-        qs = super(ProblemBalloonsConfigAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ProblemBalloonsConfigAdmin, self).get_queryset(request)
         return qs.filter(problem_instance__contest=request.contest)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
@@ -74,8 +74,8 @@ class BalloonsDisplayAdmin(admin.ModelAdmin):
             return self.readonly_fields + ('contest',)
         return self.readonly_fields
 
-    def queryset(self, request):
-        qs = super(BalloonsDisplayAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(BalloonsDisplayAdmin, self).get_queryset(request)
         if request.contest is None:
             return qs
         return qs.filter(contest=request.contest)

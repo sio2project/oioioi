@@ -432,7 +432,8 @@ class TestSinolPackageCreator(TestCase, TestStreamingMixin):
 
 
 class TestJudging(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_judging(self):
         self.client.login(username='test_user')

@@ -16,7 +16,7 @@ from oioioi.participants.models import Participant
 
 class TestReportViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def setUp(self):
         contest = Contest.objects.get()

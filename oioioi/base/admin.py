@@ -104,12 +104,12 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
     def get_list_select_related(self):
         """Returns a list of fields passed to queryset.select_related
            By default - empty list. Override this method (instead of
-           queryset()) to pass another field to the select_related.
+           get_queryset()) to pass another field to the select_related.
         """
         return []
 
-    def queryset(self, request):
-        qs = super(ModelAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ModelAdmin, self).get_queryset(request)
         list_select_related = self.get_list_select_related()
         if list_select_related:
             return qs.select_related(*list_select_related)

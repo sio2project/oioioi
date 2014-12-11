@@ -140,8 +140,8 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     remove_from_queue.short_description = \
         _("Remove selected submissions from the queue")
 
-    def queryset(self, request):
-        qs = super(SystemSubmitsQueueAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(SystemSubmitsQueueAdmin, self).get_queryset(request)
         return qs.exclude(state='CANCELLED')
 
     def has_delete_permission(self, request, obj=None):
@@ -181,8 +181,8 @@ class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
             return False
         return is_contest_admin(request)
 
-    def queryset(self, request):
-        qs = super(ContestSubmitsQueueAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ContestSubmitsQueueAdmin, self).get_queryset(request)
         return qs.filter(submission__problem_instance__contest=request.contest)
 
 

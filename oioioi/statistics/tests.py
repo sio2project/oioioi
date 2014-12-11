@@ -17,7 +17,8 @@ from oioioi.statistics.models import StatisticsConfig
 
 
 class TestStatisticsPlotFunctions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission']
 
     def setUp(self):
         self.request = RequestFactory().request()
@@ -66,7 +67,7 @@ class TestStatisticsPlotFunctions(TestCase):
 
 class TestHighchartsOptions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission', 'test_extra_rounds']
+            'test_problem_instance', 'test_submission', 'test_extra_rounds']
 
     def setUp(self):
         self.request = RequestFactory().request()
@@ -113,7 +114,7 @@ class TestHighchartsOptions(TestCase):
 
 class TestStatisticsViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission', 'test_extra_rounds']
+            'test_problem_instance', 'test_submission', 'test_extra_rounds']
 
     def test_statistics_view(self):
         contest = Contest.objects.get()

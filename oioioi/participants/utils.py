@@ -128,7 +128,7 @@ def serialize_participants_data(participants):
 
 def render_participants_data_csv(participants, name):
     data = serialize_participants_data(participants)
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
         'attachment; filename=%s-%s.csv' % \
         (name, "personal-data")

@@ -10,7 +10,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 class TestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission']
+                'test_problem_instance', 'test_submission']
 
     def _get_admin_site(self):
         self.client.login(username='test_admin')
@@ -62,7 +62,7 @@ class AddHandlersController(ProgrammingContestController):
 
 class TestEval(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission']
+                'test_problem_instance', 'test_submission']
 
     def test_add_handlers(self):
         """Test if the proper handlers are added to the recipe."""

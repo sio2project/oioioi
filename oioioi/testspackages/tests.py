@@ -15,7 +15,8 @@ from oioioi.testspackages.models import TestsPackage
 
 
 class TestTestsPackages(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def _assertTestsInPackage(self, tests, tp):
         zipf = zipfile.ZipFile(tp.package, 'r')

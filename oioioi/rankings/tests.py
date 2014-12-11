@@ -21,7 +21,8 @@ class StatementHiderForContestController(ProgrammingContestController):
 
 class TestRankingViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission', 'test_extra_rounds', 'test_ranking_data']
+            'test_problem_instance', 'test_submission', 'test_extra_rounds',
+            'test_ranking_data']
 
     def test_ranking_view(self):
         contest = Contest.objects.get()

@@ -11,7 +11,7 @@ from oioioi.scoresreveal.models import ScoreRevealConfig
 
 class TestScoresReveal(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_multiple_submissions']
+                'test_problem_instance', 'test_multiple_submissions']
 
     def reveal_submit(self, submission_id, success=True):
         contest = Contest.objects.get()

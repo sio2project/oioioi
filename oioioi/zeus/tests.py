@@ -107,8 +107,8 @@ class ZeusJsonTest(TestCase):
 
 
 class ZeusHandlersTest(TestsUtilsMixin, TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-            'test_full_package', 'test_zeus_problem']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_zeus_problem']
 
     def _verify_metadata_decoder(self, data):
         self.assertAllIn(['name', 'group', 'max_score'], data)
@@ -271,8 +271,8 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
                                    'oioioi.zeus.tests.ZeusCorrectServer',
                                    ('zeus_fixture_server/', '', ''))})
 class TestZeusFetcher(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-            'test_full_package', 'test_zeus_problem']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_zeus_problem']
 
     def setUp(self):
         self.fetcher = zeus_fetcher.Command()

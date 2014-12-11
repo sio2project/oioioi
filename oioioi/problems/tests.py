@@ -40,8 +40,8 @@ class TestModels(TestCase):
 
 
 class TestProblemViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_permissions',
-                'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_permissions']
 
     def test_problem_statement_view(self):
         #superuser
@@ -292,7 +292,7 @@ class TestProblemUpload(TransactionTestCase):
 
 class TestProblemPackageAdminView(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_problem_packages',
-            'test_two_empty_contests']
+            'test_problem_instance', 'test_two_empty_contests']
 
     def test_links(self):
         self.client.login(username='test_admin')
@@ -318,7 +318,8 @@ class TestProblemPackageAdminView(TestCase):
 
 
 class TestProblemPackageViews(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_problem_packages']
+    fixtures = ['test_users', 'test_contest', 'test_problem_packages',
+            'test_problem_instance']
 
     def _test_package_permissions(self, is_admin=False):
         models = ['problempackage', 'contestproblempackage']

@@ -21,7 +21,7 @@ ProgrammingContestController.mix_in(TestContestControllerMixin)
 
 class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_messages', 'test_templates']
+                'test_problem_instance', 'test_messages', 'test_templates']
 
     def test_visibility(self):
         contest = Contest.objects.get()
@@ -423,7 +423,7 @@ class TestQuestions(TestCase):
 
 class TestUserInfo(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_messages', 'test_templates']
+                'test_problem_instance', 'test_messages', 'test_templates']
 
     def test_user_info_page(self):
         contest = Contest.objects.get()

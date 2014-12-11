@@ -32,6 +32,7 @@ class PackageUploadForm(ProblemUploadForm):
 
 class ProblemStatementConfigForm(forms.ModelForm):
     class Meta(object):
+        fields = '__all__'
         model = ProblemStatementConfig
         widgets = {
             'visible': forms.RadioSelect()

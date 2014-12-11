@@ -17,7 +17,8 @@ from oioioi.teams.models import TeamMembership
 
 
 class TestTeamsViews(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_permissions(self):
         contest = Contest.objects.get()
@@ -102,7 +103,8 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
 
 
 class TestTeamSubmit(TestCase, SubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_submit_file_without_team(self):
         contest = Contest.objects.get()

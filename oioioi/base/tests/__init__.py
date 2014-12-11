@@ -242,6 +242,9 @@ class TestIndexNoContest(TestCase):
         response = self.client.get('/')
         self.assertIn('navbar-login', response.content)
 
+    def tearDown(self):
+        clear_template_cache()
+
 
 class TestIndexNoContestWithOverride(TestCase):
     fixtures = ('test_users',)
@@ -1090,11 +1093,3 @@ class TestTranslate(TestCase):
         response = self.client.get(url, get_data)
         self.assertEqual(200, response.status_code)
         self.assertIn('konkurs', response.content)
-
-
-class TestDefaultCache(unittest.TestCase):
-    def test_no_default_cache_in_django_1_7(self):
-        if django.VERSION >= (1, 7):
-            self.fail("Replace oioioi.base.cache.DefaultCache with "
-                    "django.core.cache.backends.filebased.FileBasedCache "
-                    "after migration to Django >= 1.7")

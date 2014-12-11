@@ -83,7 +83,8 @@ class OISubmitFileMixin(object):
 
 
 class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def setUp(self):
         self.client.login(username='test_user')

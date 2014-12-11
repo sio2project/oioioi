@@ -33,8 +33,8 @@ class MessageAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
-    def queryset(self, request):
-        queryset = super(MessageAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        queryset = super(MessageAdmin, self).get_queryset(request)
         queryset = queryset.filter(contest=request.contest)
         return queryset
 
@@ -166,8 +166,8 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
 
-    def queryset(self, request):
-        queryset = super(ReplyTemplateAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        queryset = super(ReplyTemplateAdmin, self).get_queryset(request)
         if not is_superuser(request):
             queryset = queryset.filter(contest=request.contest)
         return queryset

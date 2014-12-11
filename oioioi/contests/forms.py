@@ -37,8 +37,8 @@ class SimpleContestForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SimpleContestForm, self).__init__(*args, **kwargs)
-        if 'instance' in kwargs:
-            instance = kwargs['instance']
+        instance = kwargs.get('instance', None)
+        if instance is not None:
             rounds = instance.round_set.all()
             if len(rounds) > 1:
                 raise ValueError("SimpleContestForm does not support contests "

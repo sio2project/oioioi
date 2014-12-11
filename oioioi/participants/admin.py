@@ -69,8 +69,8 @@ class ParticipantAdmin(admin.ModelAdmin):
             return ld + ['anonymous']
         return ld
 
-    def queryset(self, request):
-        qs = super(ParticipantAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        qs = super(ParticipantAdmin, self).get_queryset(request)
         qs = qs.filter(contest=request.contest)
         return qs
 

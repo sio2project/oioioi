@@ -7,6 +7,7 @@ from oioioi.prizes.models import Prize, PrizeGiving
 
 class PrizeGivingForm(forms.ModelForm):
     class Meta(object):
+        fields = '__all__'
         model = PrizeGiving
 
     redo = forms.BooleanField(label=_("redo"), required=False)

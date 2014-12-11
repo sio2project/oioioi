@@ -44,7 +44,6 @@ In case of using PostgreSQL, install Psycopg2::
 
 Finally initialize the database::
 
-  ./manage.py syncdb
   ./manage.py migrate
 
 We use PostgreSQL.
@@ -97,8 +96,7 @@ and in the other the evaluation daemons::
 The *supervisor* process monitors all processes needed by OIOIOI, except the
 web server. It has `many nice features`_.
 
-Finally, if you didn't create an administrator account when running *syncdb*,
-you can do it now::
+You can create an administrator account by running::
 
   ./manage.py createsuperuser
 
@@ -274,12 +272,72 @@ Make sure you are in the *deployment* folder and the virtualenv is activated.
 Then run::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
-  ./manage.py syncdb
   ./manage.py migrate
   ./manage.py collectstatic
   ./manage.py supervisor restart all
 
 and restart the judging machines.
+
+Upgrading from an old version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you're getting the "Upgrading from an old version" message when trying to
+sync the database, that means you had an old version of OIOIOI that was based
+on version 1.6 or 1.5 of the Django framework. Django 1.7 introduces a new
+migration system which requires a more complicated upgrade process.
+
+IMPORTANT: BACKUP YOUR DATABASE BEFORE DOING THE NEXT STEP.
+
+In the typical situation where you didn't create any custom migrations
+we've automated the process for you: make sure your database settings
+are valid and run::
+
+  ./manage.py upgrade_to_17
+
+That's all. If you have your own custom changes though and they are
+incompatible with our script or you want to understand what happens,
+the following needs to be done:
+
+#. Install Django 1.6 and South and place all of the old migrations in proper
+   directories. The easiest way is to 'git checkout' the last commit
+   before the 1.7 commit and do 'pip install -r requirements.txt'. If you have
+   custom changes in your OIOIOI directory and they conflict with our changes,
+   you'll have to merge them yourself.
+   For our automatic script we use a temporary virtualenv and a package
+   containing all the necessary files to run the old migrations.
+
+#. Now enable all aplications you have ever used (in the INSTALLED_APPS
+   setting) and run ./manage.py migrate. If you don't know which applications
+   you've used in the past, just enable them all and run ./manage.py syncdb
+   and then ./manage.py migrate. Our script does that.
+   If you have your own custom migrations they could be conflicting with
+   ours. You'll have to solve these conflicts yourself.
+
+#. Get the newest OIOIOI, install the needed packages and remove all of the old
+   migrations. Again, the easiest way is to 'git checkout' the last commit
+   and do 'pip install -r requirements.txt'.
+
+#. Migrate all the new Django 1.7 migrations. The necessary changes are already
+   in the database and in most cases Django will detect this by faking the
+   migrations - marking them as applied without actually applying them.
+   However some migrations need to be explicitly told to be faked. The commands
+   that need to be run in the typical case are::
+
+     ./manage.py migrate 0002 --fake balloons
+     ./manage.py migrate 0002 --fake complaints
+     ./manage.py migrate 0002 --fake contestexcl
+     ./manage.py migrate 0002 --fake contestlogo
+     ./manage.py migrate 0002 --fake contests
+     ./manage.py migrate
+
+   assuming that these applications are in INSTALLED_APPS.
+   If you've had your own custom migrations before and they introduced
+   circular dependency loops on foreign keys in different applications than
+   those mentioned above, you also have to run the ./manage.py migrate --fake
+   command for them as well.
+
+#. Run ./manage.py collectstatic and start the supervisor, your judging
+   machines and the server.
 
 Changes in the deployment directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

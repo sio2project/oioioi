@@ -11,7 +11,8 @@ from oioioi.timeline.views import _get_date_id
 
 
 class TestTimelineView(TestCase):
-    fixtures = ['test_contest', 'test_extra_rounds', 'test_users']
+    fixtures = ['test_contest', 'test_full_package', 'test_problem_instance',
+            'test_extra_rounds', 'test_users']
 
     def test_response(self):
         contest = Contest.objects.get()
@@ -48,8 +49,8 @@ class TestTimelineView(TestCase):
 
 
 class TestChangingDates(TestCase):
-    fixtures = ['test_contest', 'test_extra_rounds', 'test_users',
-                'test_permissions', 'test_one_round_contest']
+    fixtures = ['test_contest', 'test_full_package', 'test_extra_rounds',
+            'test_users', 'test_permissions', 'test_one_round_contest']
 
     # pylint: disable=dangerous-default-value
     def _send_post(self, contest=None, data={}, user_code=403, admin_code=200,

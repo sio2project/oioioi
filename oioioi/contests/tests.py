@@ -53,7 +53,7 @@ class TestModels(TestCase):
 
 class TestScores(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def test_integer_score(self):
         s1 = IntegerScore(1)
@@ -135,7 +135,8 @@ class TestCurrentContest(TestCase):
 
 
 class TestContestController(TestCase):
-    fixtures = ['test_contest', 'test_extra_rounds']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_extra_rounds']
 
     def test_order_rounds_by_focus(self):
         contest = Contest.objects.get()
@@ -214,7 +215,7 @@ PastRoundsHiddenContestController.mix_in(
 
 class TestContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def test_recent_contests_list(self):
         contest = Contest.objects.get()
@@ -310,8 +311,9 @@ class TestContestViews(TestCase):
 
 
 class TestManyRounds(TestsUtilsMixin, TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-            'test_full_package', 'test_extra_rounds', 'test_permissions']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_extra_rounds',
+            'test_permissions']
 
     def test_problems_visibility(self):
         contest = Contest.objects.get()
@@ -461,7 +463,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
 class TestMultilingualStatements(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_extra_statements']
+            'test_problem_instance', 'test_extra_statements']
 
     def test_multilingual_statements(self):
         pi = ProblemInstance.objects.get()
@@ -492,7 +494,8 @@ class ContestWithoutStatementsController(ProgrammingContestController):
 
 
 class TestStatementsVisibility(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_controller(self):
         contest = Contest.objects.get()
@@ -570,7 +573,7 @@ class BrokenContestController(ProgrammingContestController):
 
 class TestRejudgeAndFailure(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_submission']
+            'test_problem_instance', 'test_submission']
 
     def test_rejudge_request(self):
         contest = Contest.objects.get()
@@ -737,7 +740,8 @@ class TestContestAdmin(TestCase):
 
 
 class TestAttachments(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_attachments(self):
         contest = Contest.objects.get()
@@ -842,7 +846,8 @@ class SubmitFileMixin(object):
 
 class TestSubmission(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_submission', 'test_extra_problem']
+                'test_problem_instance', 'test_submission',
+                'test_extra_problem']
 
     def setUp(self):
         self.client.login(username='test_user')
@@ -1010,7 +1015,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_extra_rounds']
+            'test_problem_instance', 'test_extra_rounds']
 
     def test_round_extension(self):
         contest = Contest.objects.get()
@@ -1086,8 +1091,8 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
 
 
 class TestPermissions(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submissions',
-            'test_permissions']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submissions', 'test_permissions']
 
     def get_fake_request_factory(self, contest=None):
         factory = RequestFactory()
@@ -1175,7 +1180,7 @@ class TestPermissions(TestCase):
 
 class TestSubmissionChangeKind(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_multiple_submissions']
+                'test_problem_instance', 'test_multiple_submissions']
 
     def setUp(self):
         self.client.login(username='test_admin')
@@ -1213,7 +1218,8 @@ class TestSubmissionChangeKind(TestCase):
 
 
 class TestSubmitSelectOneProblem(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     def test_problems_list(self):
         self.client.login(username='test_user2')
@@ -1228,7 +1234,7 @@ class TestSubmitSelectOneProblem(TestCase):
 
 class TestSubmitSelectManyProblems(TestCase):
     fixtures = ['test_users', 'test_extra_problem', 'test_contest',
-             'test_full_package']
+             'test_full_package', 'test_problem_instance']
 
     def test_problems_list(self):
         self.client.login(username='test_user2')
@@ -1340,7 +1346,7 @@ class TestContestLinks(TestCase):
 
 
 class TestPersonalDataUser(TestCase):
-    fixtures = ['test_permissions']
+    fixtures = ['test_contest', 'test_permissions']
 
     def testUser(self):
         self.client.login(username='test_personal_data_user')
@@ -1348,8 +1354,8 @@ class TestPersonalDataUser(TestCase):
 
 
 class TestUserInfo(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_submission',
-                'test_full_package']
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission']
 
     def test_user_info_page(self):
         contest = Contest.objects.get()

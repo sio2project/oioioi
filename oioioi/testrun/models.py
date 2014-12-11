@@ -1,3 +1,4 @@
+from nose.tools import nottest
 from django.db import models
 from oioioi.contests.models import submission_kinds, SubmissionReport, \
     submission_statuses, submission_report_kinds
@@ -12,6 +13,7 @@ submission_kinds.register('TESTRUN', _("Test run"))
 submission_report_kinds.register('TESTRUN', _("Test run report"))
 
 
+@nottest
 class TestRunConfig(models.Model):
     """Represents a test run config for problem.
 
@@ -38,6 +40,7 @@ def make_custom_input_filename(instance, filename):
             instance.id)
 
 
+@nottest
 class TestRunProgramSubmission(ProgramSubmission):
     input_file = FileField(upload_to=make_custom_input_filename)
 
@@ -50,6 +53,7 @@ def make_custom_output_filename(instance, filename):
             submission.id, instance.submission_report.id)
 
 
+@nottest
 class TestRunReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)

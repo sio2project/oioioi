@@ -18,8 +18,6 @@ DATABASES = {
 INSTALLED_APPS = (
     'oioioi.contestlogo',
     'oioioi.teachers',
-    'oioioi.dashboard',
-    'oioioi.clock',
     'oioioi.ipdnsauth',
     'oioioi.participants',
     'oioioi.oi',
@@ -66,7 +64,6 @@ MIDDLEWARE_CLASSES += (
 TESTS = True
 
 NOSE_PLUGINS = [
-    'oioioi.base.tests.nose_plugins.DisableSouthDebugMessages',
     'oioioi.base.tests.nose_plugins.ClearCache',
 ]
 
