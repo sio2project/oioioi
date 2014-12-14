@@ -204,8 +204,11 @@ class ACMRankingController(DefaultRankingController):
                 if not rtimes.is_future(request.timestamp):
                     yield round
 
+    def can_search_for_users(self):
+        return False
+
     def render_ranking(self, request, key):
-        data = self.serialize_ranking(request, key)
+        data = self.get_serialized_ranking(request, key)
         return render_to_string('acm/acm_ranking.html',
                 context_instance=RequestContext(request, data))
 

@@ -7,16 +7,22 @@
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 <h2>{% trans "Ranking" %}</h2>
-{% if is_admin %}
 <div class="corner-icons">
+{% if is_admin %}
     {% if key %}
     <a class="btn btn-small" href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
         <i class="icon-download"></i>
         <span class="toolbar-button-text">{% trans "Export to CSV" %}</span>
     </a>
     {% endif %}
-</div>
 {% endif %}
+{% if form and user.is_authenticated and not is_admin %}
+    <a class="btn btn-small" href="{% url 'ranking' contest_id=contest.id key=key %}?user={{ request.user.username }}">
+        <i class="icon-search"></i>
+        <span class="toolbar-button-text">{% trans "Find my place" %}</span>
+    </a>
+{% endif %}
+</div>
 
 {% if choices|length > 1 %}
 <div>
@@ -26,6 +32,37 @@
         {% endfor %}
     </ul>
 </div>
+{% endif %}
+
+{% if form %}
+    {% if is_admin %}
+    <div class="search-for-user">
+        <form class="form-horizontal">
+            <div class="control-group {% if form.user.errors %}error{% endif %}">
+                <label for="{{ form.user.auto_id }}" class="control-label">{{ form.user.label }}</label>
+                <div class="controls">
+                    {{ form.user }}
+                    <button class="btn" type="submit">{% trans "Find" %}</button>
+                    {% for error in form.user.errors %}
+                    <span class="help-inline">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+    <script>
+    $(document).ready(function() {
+        var row = $('#ranking_row_' + location.hash.substr(1));
+        if(row.length) {
+            $('html, body').animate({
+                scrollTop: row.offset().top - $(window).height() / 2
+            }, 500, function() {
+                row.addClass('highlighted');
+            });
+        }
+    });
+    </script>
 {% endif %}
 
 {{ ranking }}

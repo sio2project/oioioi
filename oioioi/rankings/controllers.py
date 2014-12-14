@@ -20,6 +20,8 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         contest_exists, can_enter_contest
 from oioioi.filetracker.utils import make_content_disposition_header
 
+from oioioi.base.utils.cache_generator import CacheGenerator
+
 
 CONTEST_RANKING_KEY = 'c'
 
@@ -55,20 +57,59 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         raise NotImplementedError
 
+    def can_search_for_users(self):
+        """Determines if in this ranking, searching for users is enabled."""
+        return False
+
+    def find_user_position(self, user, request, key):
+        """Returns user's position in the ranking.
+           User should be an object of class User, not a string with username.
+
+           If user is not in the ranking, None is returned.
+        """
+        raise NotImplementedError
+
+    def get_rendered_ranking(self, request, key):
+        """Wraps :meth:`render_ranking` method, caching its results."""
+        ranking_cache_group = self.get_cache_group(self.contest.id)
+        ranking_cache_key = self.get_cache_key(request, key,
+                                               request.GET.get('page', 1))
+
+        with CacheGenerator(ranking_cache_key, ranking_cache_group) as cg:
+            f = (lambda: self.render_ranking(request, key))
+            html = cg.get_cached_obj(f, settings.RANKING_CACHE_TIMEOUT)
+
+        return html
+
     def render_ranking(self, request, key):
         raise NotImplementedError
 
     def render_ranking_to_csv(self, request, key):
         raise NotImplementedError
 
+    def get_serialized_ranking(self, request, key):
+        """Wraps :meth:`serialize_ranking` method, caching its results."""
+        ranking_cache_group = self.get_cache_group(self.contest.id)
+        ranking_cache_key = self.get_cache_key(request, key)
+
+        with CacheGenerator(ranking_cache_key, ranking_cache_group) as cg:
+            generate_data = (lambda: self.serialize_ranking(request, key))
+            ranking_data = cg.get_cached_obj(generate_data,
+                                             settings.RANKING_CACHE_TIMEOUT)
+        return ranking_data
+
     def serialize_ranking(self, request, key):
+        """Returns some data (representing ranking).
+           This data will be used by :meth:`render_ranking`
+           to generate the html code.
+        """
         raise NotImplementedError
 
     def get_cache_group(self, contest_id):
         """Returns a group key to be used with group_cache."""
         return 'ranking_%s' % str(contest_id)
 
-    def get_cache_key(self, request, key):
+    def get_cache_key(self, request, key, page=None):
         """Returns a cache key to be used with group_cache.
 
            When caching is enabled, every ranking is cached under a
@@ -89,16 +130,25 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
            display the ranking differs significantly from the default
            implementation, you should carefully inspect the code below
            and modify it as needed.
+
+           The html code of each page of the ranking is cached separately.
+           Also, the whole ranking is cached as an object.
+           :param page specifies the page to be cached.
+           If page=None then this method returns the cache_key for whole
+           ranking.
         """
-        try:
-            page_number = int(request.GET['page'])
-        except (ValueError, KeyError):
-            page_number = 1
+
+        if page is not None:
+            try:
+                page = int(page)
+            except ValueError:
+                page = 1
+
         cache_key = ':'.join([key, str(request.user.is_superuser),
                               str(request.user.is_authenticated()),
                               str(is_contest_admin(request)),
                               str(is_contest_observer(request)),
-                              str(page_number)])
+                              str(page)])
         return cache_key
 
 
@@ -130,8 +180,20 @@ class DefaultRankingController(RankingController):
             return rankings[:1]
         return rankings
 
+    def can_search_for_users(self):
+        return True
+
+    def find_user_position(self, user, request, key):
+        data = self.get_serialized_ranking(request, key)
+        rows = data['rows']
+        for i, row in enumerate(rows):
+            if row['user'] == user:
+                return i + 1
+        # User not found
+        return None
+
     def render_ranking(self, request, key):
-        data = self.serialize_ranking(request, key)
+        data = self.get_serialized_ranking(request, key)
         return render_to_string('rankings/default_ranking.html',
                 context_instance=RequestContext(request, data))
 

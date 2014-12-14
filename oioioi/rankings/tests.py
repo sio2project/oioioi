@@ -1,12 +1,16 @@
 from datetime import datetime
 
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
+from django.http import QueryDict
+from django.conf import settings
 
 from oioioi.base.tests import fake_time, check_not_accessible
-from oioioi.contests.models import Contest
+from oioioi.contests.models import Contest, UserResultForProblem, \
+        ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -22,7 +26,98 @@ class StatementHiderForContestController(ProgrammingContestController):
 class TestRankingViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance', 'test_submission', 'test_extra_rounds',
-            'test_ranking_data']
+            'test_ranking_data', 'test_permissions']
+
+    @override_settings(PARTICIPANTS_ON_PAGE=10)
+    def test_find_user(self):
+        number_of_users = 100  # this test will create that number of users
+        per_page = settings.PARTICIPANTS_ON_PAGE
+        contest = Contest.objects.get()
+        pis = ProblemInstance.objects.get(id=1)
+
+        UserResultForProblem.objects.all().delete()
+
+        # Creates user and adds him a score for problem pis
+        def create_score(username, score):
+            user = User.objects.create_user(username, username + '@example.pl',
+                                            username)
+            result = UserResultForProblem()
+            result.user = user
+            result.problem_instance = pis
+            result.status = 'OK'
+            result.score = 'int:%s' % score
+            result.save()
+            return user
+
+        # Recently created users
+        users = []
+
+        # Create all users with scores 0..number_of_users-1
+        for i in xrange(number_of_users):
+            users.append(create_score('find_user_generated%s' % i, i))
+
+        self.client.login(username='test_contest_admin')
+
+        url = reverse('ranking', kwargs={'contest_id': contest.id,
+                                         'key': pis.round.id})
+
+        def get_url_for_user(username):
+            get = QueryDict('', mutable=True)
+            get['user'] = username
+            get['page'] = 1
+            return url + '?' + get.urlencode()
+
+        def get_url_found_user(user, page):
+            get = QueryDict('', mutable=True)
+            get['page'] = page
+            return url + '?' + get.urlencode() + '#' + str(user.id)
+
+        user_not_in_ranking = User.objects.get(username='test_user')
+        response = self.client.get(
+                get_url_for_user(user_not_in_ranking.username))
+        self.assertIn('User is not in the ranking.', response.content)
+
+        response = self.client.get(get_url_for_user('not_existing_username'))
+        self.assertIn('User not found', response.content)
+
+        # Contest admin shouldn't see 'Find my position' button
+        self.assertNotIn('<span class="toolbar-button-text">' +
+                         'Find my place</span>', response.content)
+
+        for i in xrange(number_of_users):
+            user = users[i]
+            response = self.client.get(get_url_for_user(user.username))
+            # On which page should the user be?
+            page = ((number_of_users - 1 - i) // per_page) + 1
+            self.assertRedirects(response, get_url_found_user(user, page))
+
+        # Login as someone who is in the ranking
+        user_num = 34
+        self.client.login(username=users[user_num].username)
+        response = self.client.get(
+                get_url_for_user(user_not_in_ranking.username))
+        self.assertNotIn('User is not in the ranking.', response.content)
+        # Normal user shouldn't see the form
+        self.assertNotIn('<div class="search-for-user">', response.content)
+        # Normal user should see 'Find my position' button
+        self.assertIn('<span class="toolbar-button-text">' +
+                      'Find my place</span>', response.content)
+
+        # Test if users[0] can find himself
+        response = self.client.get(get_url_for_user(users[user_num].username))
+        page = ((number_of_users - user_num) // per_page) + 1
+        self.assertRedirects(response, get_url_found_user(users[user_num],
+                                                          page))
+
+        for i in xrange(number_of_users):
+            if i == user_num:
+                continue
+            user = users[i]
+            response = self.client.get(get_url_for_user(user.username))
+            # Checking if user wasn't redirected (is on page 1)
+            # User with the highest score should be visible
+            self.assertIn('<tr id="ranking_row_%s">' % users[-1].id,
+                          response.content)
 
     def test_ranking_view(self):
         contest = Contest.objects.get()
