@@ -54,8 +54,21 @@ directory::
 
   ./manage.py collectstatic
 
+You'll also need lessc (a `LESS`_ compiler, **minimum version 1.3.3**).
+First you need to install node.js with npm as described in `their documentation`_,
+then install less; either globally as root::
+
+    sudo npm install less
+
+or locally inside virtualenv::
+
+    cd ../venv/
+    npm --prefix . --global install less
+
 .. _virtualenv: http://www.virtualenv.org/en/latest/index.html
 .. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+.. _LESS: http://lesscss.org/
+.. _their documentation: https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
 
 Simple configuration
 ~~~~~~~~~~~~~~~~~~~~
@@ -72,9 +85,6 @@ Ensure that required dependencies are installed:
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
   *texlive-lang-polish*)
-* lessc (`LESS`_ compiler, **minimum version 1.3.3**; on Ubuntu install *npm*
-  and then run ``sudo npm install --global less``; can also `be installed inside
-  virtualenv`_; on Ubuntu you may also need to install *node-less* and *nodejs-legacy*)
 
 and in one terminal run the Django web server::
 
@@ -99,9 +109,7 @@ another locale to the command::
 
 Now you're ready to access the site at *http://localhost:8000*.
 
-.. _LESS: http://lesscss.org/
 .. _many nice features: https://github.com/rfk/django-supervisor#usage
-.. _be installed inside virtualenv: http://pastebin.com/u8nSj0yS
 
 Production configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~
