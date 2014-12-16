@@ -9,7 +9,7 @@ from django.utils.timezone import utc
 from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest
 from oioioi.statistics.plotfunctions import histogram, \
-                                            points_to_source_length_problem
+                points_to_source_length_problem, test_scores
 from oioioi.contests.models import ProblemInstance
 from oioioi.statistics.controllers import statistics_categories, \
                                           statistics_plot_kinds
@@ -63,6 +63,15 @@ class TestStatisticsPlotFunctions(TestCase):
         plot = points_to_source_length_problem(self.request, pi)
         self.assertEqual(len(plot['series']), 1)
         self.assertSizes(plot['data'], [1, 1, 3])
+
+    def test_test_scores(self):
+        pi = ProblemInstance.objects.get(short_name='zad1')
+        plot = test_scores(self.request, pi)
+        self.assertEqual(len(plot['series']), 4)
+        self.assertEqual(len(plot['series']), len(plot['data']))
+        self.assertEqual(len(plot['keys']), 3)
+        self.assertIn('OK', plot['keys'])
+        self.assertIn('WA', plot['keys'])
 
 
 class TestHighchartsOptions(TestCase):

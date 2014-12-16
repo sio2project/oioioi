@@ -7,7 +7,7 @@ from oioioi.statistics.plottypes import TablePlot, \
         ColumnStaticHighchartsPlot, PointsToSourceLengthProblemPlot
 from oioioi.statistics.plotfunctions import points_histogram_contest, \
         submissions_histogram_contest, points_histogram_problem, \
-        points_to_source_length_problem
+        points_to_source_length_problem, test_scores
 from oioioi.statistics.models import StatisticsConfig
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 
@@ -26,6 +26,8 @@ statistics_plot_kinds.register('POINTS_TABLE_PROBLEM',
     (points_histogram_problem, TablePlot()))
 statistics_plot_kinds.register('POINTS_TO_SOURCE_LENGTH_PROBLEM',
     (points_to_source_length_problem, PointsToSourceLengthProblemPlot()))
+statistics_plot_kinds.register('TEST_SCORES_TABLE_PROBLEM',
+    (test_scores, TablePlot()))
 
 
 class StatisticsMixinForContestController(object):
@@ -191,6 +193,9 @@ class StatisticsMixinForProgrammingContestController(object):
                 statistics_plot_kinds['POINTS_TABLE_PROBLEM'], object))
             result.append((
                 statistics_plot_kinds['POINTS_TO_SOURCE_LENGTH_PROBLEM'],
+                object))
+            result.append((
+                statistics_plot_kinds['TEST_SCORES_TABLE_PROBLEM'],
                 object))
         return result
 

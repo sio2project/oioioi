@@ -1,0 +1,11 @@
+.table {
+    margin: 0 auto;
+}
+
+/* Attributes grabbed from Highcharts plots. */
+.table caption {
+    font-size: 16px;
+    color: #274B6D;
+    font-family: "Lucida Grande","Lucida Sans Unicode",Verdana,
+                 Arial,Helvetica,sans-serif;
+}

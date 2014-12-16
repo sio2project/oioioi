@@ -3,6 +3,7 @@ from itertools import groupby
 from operator import itemgetter
 from collections import defaultdict
 
+from nose.tools import nottest
 from django.utils.translation import ugettext as _
 from django.db.models import Count
 from django.core.urlresolvers import reverse
@@ -11,7 +12,7 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.contests.models import Submission, \
         UserResultForProblem, UserResultForContest
 from oioioi.contests.scores import IntegerScore
-from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.models import ProgramSubmission, TestReport
 
 
 def int_score(score):
@@ -168,4 +169,31 @@ def points_to_source_length_problem(request, problem):
         },
         'series': [problem.short_name],
         'series_extra_options': [{'color': 'rgba(47, 126, 216, 0.5)'}],
+    }
+
+
+@nottest
+def test_scores(request, problem):
+    # Why .order_by()? Just in case. More in the following link:
+    # https://docs.djangoproject.com/en/dev/topics/db/
+    #       aggregation/#interaction-with-default-ordering-or-order-by
+    agg = TestReport.objects.filter(
+        submission_report__userresultforproblem__problem_instance=problem) \
+        .values('test', 'test__order', 'test_name', 'status') \
+        .annotate(status_count=Count('status')).order_by()
+
+    statuses = sorted(set(a['status'] for a in agg))
+    tests = set((a['test'], a['test_name'], a['test__order']) for a in agg)
+    tests = sorted(tests, key=lambda x: (x[2], x[1]))
+
+    d = defaultdict(int)
+    for a in agg:
+        d[(a['status'], a['test'])] = a['status_count']
+    data = [[d[(st, test)] for st in statuses] for test, _x, _x in tests]
+
+    return {
+        'plot_name': _('Test scores'),
+        'data': data,
+        'keys': statuses,
+        'series': [test_name for _x, test_name, _x in tests]
     }
