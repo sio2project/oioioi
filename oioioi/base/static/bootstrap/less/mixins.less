@@ -1,4 +1,4 @@
-//
+
 // Mixins
 // --------------------------------------------------
 
@@ -571,6 +571,9 @@
 
 // The Grid
 #grid {
+  .core_span (@gridColumnWidth, @gridGutterWidth,  @columns) {
+    width: (@gridColumnWidth * @columns) + (@gridGutterWidth * (@columns - 1));
+  }
 
   .core (@gridColumnWidth, @gridGutterWidth) {
 

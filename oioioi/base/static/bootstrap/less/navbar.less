@@ -196,7 +196,7 @@
 .navbar-static-top .container,
 .navbar-fixed-top .container,
 .navbar-fixed-bottom .container {
-  #grid > .core > .span(@gridColumns);
+  #grid > .core_span(@gridColumnWidth, @gridGutterWidth, @gridColumns);
 }
 
 // Fixed to top
@@ -495,3 +495,4 @@
   }
 
 }
+
