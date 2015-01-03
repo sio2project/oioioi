@@ -156,7 +156,6 @@ COMPRESS_PRECOMPILERS = (
 )
 
 INSTALLED_APPS = (
-    'oioioi.monkeypatch',
     'oioioi.submitservice',
     'oioioi.filetracker',
     'oioioi.contests',

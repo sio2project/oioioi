@@ -24,7 +24,7 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django>=1.7,<1.8",
+        "Django>=1.7.2,<1.8",
         "pytz>=2013b",
         "sqlalchemy",
         "BeautifulSoup",
