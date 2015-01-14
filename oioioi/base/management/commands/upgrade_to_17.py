@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 "WHERE migration = '0002_final_south_migration'"
         with connection.cursor() as cursor:
             cursor.execute(query)
-            if cursor.rowcount != 0:
+            if len(cursor.fetchall()) != 0:
                 self.stderr.write("Already upgraded.")
                 return
 

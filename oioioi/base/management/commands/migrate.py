@@ -28,7 +28,7 @@ class Command(migrate.Command):
                     "WHERE migration = '0002_final_south_migration'"
             with connection.cursor() as cursor:
                 cursor.execute(query)
-                if cursor.rowcount == 0:
+                if len(cursor.fetchall()) == 0:
                     self.stderr.write("It looks like you're upgrading from "
                                       "an old version of OIOIOI that was "
                                       "based on version 1.5 or 1.6 of the "
