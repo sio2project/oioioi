@@ -323,11 +323,11 @@ the following needs to be done:
    However some migrations need to be explicitly told to be faked. The commands
    that need to be run in the typical case are::
 
-     ./manage.py migrate 0002 --fake balloons
-     ./manage.py migrate 0002 --fake complaints
-     ./manage.py migrate 0002 --fake contestexcl
-     ./manage.py migrate 0002 --fake contestlogo
-     ./manage.py migrate 0002 --fake contests
+     ./manage.py migrate --fake balloons 0002
+     ./manage.py migrate --fake complaints 0002
+     ./manage.py migrate --fake contestexcl 0002
+     ./manage.py migrate --fake contestlogo 0002
+     ./manage.py migrate --fake contests 0002
      ./manage.py migrate
 
    assuming that these applications are in INSTALLED_APPS.
