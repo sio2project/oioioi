@@ -7,14 +7,15 @@
 # matrach <matraszek.maciej@gmail.com>, 2014
 # matrach <matraszek.maciej@gmail.com>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
+# Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-11-12 16:43+0100\n"
-"PO-Revision-Date: 2014-10-25 17:10+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2015-02-09 17:07+0100\n"
+"PO-Revision-Date: 2015-02-09 17:17+0000\n"
+"Last-Translator: Olaf Tomalka <olaf.tomalka@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/projects/p/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,35 +25,35 @@ msgstr ""
 
 #: balloons/static/balloons/delivery_panel.js:5
 msgid "Delivering..."
-msgstr ""
+msgstr "Dostarczam..."
 
 #: balloons/static/balloons/delivery_panel.js:6
 msgid "Delivered"
-msgstr ""
+msgstr "Dostarczone"
 
 #: balloons/static/balloons/delivery_panel.js:8
 msgid "Taking back..."
-msgstr ""
+msgstr "Zabieram..."
 
 #: balloons/static/balloons/delivery_panel.js:9
 msgid "Not delivered"
-msgstr ""
+msgstr "Nie dostarczone"
 
 #: balloons/static/balloons/delivery_panel.js:11
 msgid "First to solve"
-msgstr ""
+msgstr "Pierwsze rozwiązanie"
 
 #: balloons/static/balloons/delivery_panel.js:20
 msgid "No color"
-msgstr ""
+msgstr "Bez koloru"
 
 #: balloons/static/balloons/delivery_panel.js:55
 msgid "No connection"
-msgstr ""
+msgstr "Brak połączenia z serwerem"
 
 #: balloons/static/balloons/delivery_panel.js:69
 msgid "Corrupt data"
-msgstr ""
+msgstr "Uszkodzone dane"
 
 #: clock/static/common/clocks.js:31
 msgid "end of the round."
