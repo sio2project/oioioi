@@ -116,6 +116,25 @@ class ColumnStaticHighchartsPlot(StaticHighchartsPlot):
         options['xAxis']['categories'] = data['keys']
         return options
 
+class BarPercentStaticHighchartsPlot(StaticHighchartsPlot):
+    """Uses the following extra keys from :param data: :
+
+       ``keys`` list of rows names
+    """
+    def highcharts_options(self, data):
+        options = super(BarPercentStaticHighchartsPlot, self) \
+            .highcharts_options(data)
+        options['chart']['type'] = 'bar'
+        options['chart']['height'] = 20 * len(data['keys']) + 120
+        options['plotOptions']['series'] = {
+            'stacking': 'percent',
+            'pointPadding': 0.2,
+            'pointWidth': 15,
+            'borderWidth': 0,
+        }
+        options['xAxis']['categories'] = data['keys']
+        return options
+
 
 class XYStaticHighchartsPlot(StaticHighchartsPlot):
     def highcharts_options(self, data):

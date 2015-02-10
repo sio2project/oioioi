@@ -189,11 +189,11 @@ def test_scores(request, problem):
     d = defaultdict(int)
     for a in agg:
         d[(a['status'], a['test'])] = a['status_count']
-    data = [[d[(st, test)] for st in statuses] for test, _x, _x in tests]
+    data = [[d[(st, test)] for test, _x, _x in tests] for st in statuses]
 
     return {
         'plot_name': _('Test scores'),
         'data': data,
-        'keys': statuses,
-        'series': [test_name for _x, test_name, _x in tests]
+        'keys': [test_name for _x, test_name, _x in tests],
+        'series': statuses,
     }

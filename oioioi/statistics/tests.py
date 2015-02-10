@@ -67,11 +67,11 @@ class TestStatisticsPlotFunctions(TestCase):
     def test_test_scores(self):
         pi = ProblemInstance.objects.get(short_name='zad1')
         plot = test_scores(self.request, pi)
-        self.assertEqual(len(plot['series']), 4)
+        self.assertEqual(len(plot['series']), 3)
         self.assertEqual(len(plot['series']), len(plot['data']))
-        self.assertEqual(len(plot['keys']), 3)
-        self.assertIn('OK', plot['keys'])
-        self.assertIn('WA', plot['keys'])
+        self.assertEqual(len(plot['keys']), 4)
+        self.assertIn('OK', plot['series'])
+        self.assertIn('WA', plot['series'])
 
 
 class TestHighchartsOptions(TestCase):
