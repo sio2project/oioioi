@@ -27,13 +27,13 @@ def latex_escape(x):
         ('$', '\\$'),
         ('%', '\\%'),
         ('_', '\\_'),
-        ('<', '\\textless'),
-        ('>', '\\textgreater'),
-        ('&', '\\ampersand'),
-        ('~', '\\textasciitilde'),
-        ('^', '\\textasciicircum'),
-        ('"', '\\doublequote'),
-        ('\'', '\\singlequote'),
+        ('<', '\\textless{}'),
+        ('>', '\\textgreater{}'),
+        ('&', '\\ampersand{}'),
+        ('~', '\\textasciitilde{}'),
+        ('^', '\\textasciicircum{}'),
+        ('"', '\\doublequote{}'),
+        ('\'', '\\singlequote{}'),
     ]
 
     for key, value in repls:
