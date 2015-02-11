@@ -132,17 +132,25 @@ def _serialize_report(user, problem_instances, test_groups):
                 'report': group_reports[group_name]})
 
         problem_score = None
+        max_problem_score = None
         for group in groups:
             group_score = group['report'].score
+            group_max_score = group['report'].max_score
+
             if problem_score is None:
                 problem_score = group_score
             elif group_score is not None:
                 problem_score += group_score
 
+            if max_problem_score is None:
+                max_problem_score = group_max_score
+            elif group_max_score is not None:
+                max_problem_score += group_max_score
+
         resultsets.append(dict(
             result=r,
             score=problem_score,
-            max_score=submission_report.score_report.max_score,
+            max_score=max_problem_score,
             compilation_report=compilation_report,
             groups=groups,
             code=source_file.read(),
