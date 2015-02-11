@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
 from oioioi.contests.models import FailureReport, Contest
+from oioioi.programs.models import TestReport
 
 
 class Command(BaseCommand):
@@ -19,28 +20,47 @@ class Command(BaseCommand):
             c = Contest.objects.get(id=args[0])
 
         frs = FailureReport.objects.filter(submission_report__status='ACTIVE')
+        trs = TestReport.objects.filter(status='SE',
+                                        submission_report__status='ACTIVE')
 
         if c is not None:
             kwargs = {'submission_report__submission'
                       '__problem_instance__contest': c}
             frs = frs.filter(**kwargs)
+            trs = trs.filter(**kwargs)
+
+        trs.exclude(submission_report__id__in=[
+                fr.submission_report.id for fr in frs])
 
         frs.select_related('submission_report',
                            'submission_report__submission',
                            'submission_report__submission__problem_instance')
 
-        out = []
+
+        frs_out, trs_out = [], []
 
         for fr in frs:
+            row = []
             sub = fr.submission_report.submission
             pi = sub.problem_instance
-            row = []
             if c is None:
                 row.append(pi.contest_id)
             row += [sub.id, sub.user, pi.short_name]
-            out.append(row)
+            frs_out.append(row)
 
-        self.pprint(out)
+        for tr in trs:
+            row = []
+            sub = tr.submission_report.submission
+            pi = sub.problem_instance
+            if c is None:
+                row.append(pi.contest_id)
+            row += [sub.id, tr.test_name, sub.user, pi.short_name]
+            trs_out.append(row)
+
+        print _("========== Whole submissions ==========")
+        self.pprint(frs_out)
+        print _("========== Single tests ==========")
+        self.pprint(trs_out)
 
     def pprint(self, rows):
         if not rows:
