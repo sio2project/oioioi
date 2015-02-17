@@ -156,3 +156,6 @@ class IntegerScore(ScoreValue):
 
     def _to_repr(self):
         return '%019d' % self.value
+
+    def to_int(self):
+        return self.value

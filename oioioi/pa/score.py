@@ -87,3 +87,6 @@ class PAScore(ScoreValue):
 
     def _to_repr(self):
         return '%s;%s' % (self.points._to_repr(), self.distribution._to_repr())
+
+    def to_int(self):
+        return self.points.to_int()

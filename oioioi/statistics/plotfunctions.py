@@ -10,13 +10,13 @@ from django.core.urlresolvers import reverse
 
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.contests.models import Submission, \
-        UserResultForProblem, UserResultForContest
-from oioioi.contests.scores import IntegerScore
+        UserResultForProblem, UserResultForContest, ScoreReport
 from oioioi.programs.models import ProgramSubmission, TestReport
 
 
-def int_score(score):
-    return score.value if isinstance(score, IntegerScore) else 0
+def int_score(score, default=0):
+    return score.to_int() if callable(getattr(score, 'to_int', None)) \
+            else default
 
 
 def histogram(values, num_buckets=10, max_result=None):
@@ -57,12 +57,7 @@ def histogram(values, num_buckets=10, max_result=None):
 def results_histogram_for_queryset(request, qs, max_score=None):
     scores = [int_score(r.score) for r in qs]
 
-    # Only IntegerScore can be used with the histogram.
-    if isinstance(max_score, IntegerScore):
-        max_score = max_score.value
-    else:
-        max_score = None
-
+    max_score = int_score(max_score, None)
     keys_left, data = histogram(scores, max_result=max_score)
 
     keys = ['[%d;%d)' % p for p in zip(keys_left[:-1], keys_left[1:])]
@@ -158,11 +153,23 @@ def points_to_source_length_problem(request, problem):
 
     data = sorted(data)
 
+    # Assumes that max_score is exactly the same for each submission
+    max_score = None
+    if submissions:
+        score_reports = ScoreReport.objects.filter(
+                submission_report__submission__in=submissions,
+                submission_report__status='ACTIVE',
+                submission_report__kind__in=('NORMAL', 'FULL'))
+        if score_reports:
+            max_score = score_reports.latest('id').max_score
+    max_score = int_score(max_score, 0)
+
     return {
         'plot_name': _("Points vs source length scatter"),
         'data': [data],
         'x_min': 0,
         'y_min': 0,
+        'y_max': max_score,
         'titles': {
             'xAxis': _("Source length (bytes)"),
             'yAxis': _("Points"),

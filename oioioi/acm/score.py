@@ -44,6 +44,9 @@ class BinaryScore(ScoreValue):
         else:
             return _("Rejected")
 
+    def to_int(self):
+        return int(self.accepted)
+
 
 class ACMScore(ScoreValue):
     """ACM style score consisting of number of solved problems, total time
@@ -143,3 +146,6 @@ class ACMScore(ScoreValue):
             return self.time_passed + self.penalties_count * self.penalty_time
         else:
             return 0
+
+    def to_int(self):
+        return self.problems_solved

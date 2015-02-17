@@ -140,6 +140,7 @@ class XYStaticHighchartsPlot(StaticHighchartsPlot):
     def highcharts_options(self, data):
         options = super(XYStaticHighchartsPlot, self).highcharts_options(data)
         options['chart'].update({'type': 'scatter', 'zoomType': 'xy'})
+        options['yAxis'].update({'allowDecimals': False})
         options['plotOptions']['scatter'] = {
             'marker': {'radius': 5, 'states': {'hover':
                     {'enabled': True, 'lineColor': 'rgb(100,100,100)'}
