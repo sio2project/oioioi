@@ -30,7 +30,7 @@ setup(
         "BeautifulSoup",
         "PyYAML",
         "python-dateutil",
-        "django-nose",
+        "django-nose>=1.3",
         "django-registration-redux",
         "django-celery>=3.1.15",
         "django-supervisor",
