@@ -666,6 +666,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         scores = UserResultForRound.objects \
                 .filter(user=result.user) \
                 .filter(round__contest=result.contest) \
+                .filter(round__is_trial=False) \
                 .values_list('score', flat=True)
         result.score = self._sum_scores(map(ScoreValue.deserialize, scores))
 
