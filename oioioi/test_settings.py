@@ -112,3 +112,9 @@ CACHES = {
 CONFIG_VERSION = INSTALLATION_CONFIG_VERSION
 
 STATIC_ROOT = ''
+
+# Do not print migrations DEBUG to console.
+LOGGING['loggers']['django.db.backends.schema'] = {
+    'handlers': ['console'],
+    'level': 'INFO',
+}
