@@ -33,6 +33,7 @@ from oioioi.contests.utils import visible_contests, can_enter_contest, \
         get_submission_or_error, is_contest_observer
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
+from oioioi.problems.utils import query_statement, query_zip
 
 
 def select_contest_view(request):
@@ -73,27 +74,12 @@ def problem_statement_view(request, contest_id, problem_instance):
             not controller.can_see_statement(request, pi):
         raise PermissionDenied
 
-    statements = ProblemStatement.objects.filter(problem=pi.problem)
-    if not statements:
+    statement = query_statement(pi.problem)
+
+    if not statement:
         return TemplateResponse(request, 'contests/no_problem_statement.html',
                     {'problem_instance': pi})
 
-    lang_prefs = [translation.get_language()] + ['', None] + \
-            [l[0] for l in settings.LANGUAGES]
-    ext_prefs = ['.zip', '.pdf', '.ps', '.html', '.txt']
-
-    def sort_key(statement):
-        try:
-            lang_pref = lang_prefs.index(statement.language)
-        except ValueError:
-            lang_pref = sys.maxint
-        try:
-            ext_pref = (ext_prefs.index(statement.extension), '')
-        except ValueError:
-            ext_pref = (sys.maxint, statement.extension)
-        return lang_pref, ext_pref
-
-    statement = sorted(statements, key=sort_key)[0]
     if statement.extension == '.zip':
         return redirect('problem_statement_zip_index', contest_id=contest_id,
             problem_instance=problem_instance, statement_id=statement.id)
@@ -127,20 +113,7 @@ def problem_statement_zip_view(request, contest_id, problem_instance,
             not controller.can_see_statement(request, pi):
         raise PermissionDenied
 
-    if statement.extension != '.zip':
-        raise SuspiciousOperation
-
-    zip = zipfile.ZipFile(statement.content)
-    try:
-        info = zip.getinfo(path)
-    except KeyError:
-        raise Http404
-
-    content_type = mimetypes.guess_type(path)[0] or \
-        'application/octet-stream'
-    response = HttpResponse(zip.read(path), content_type=content_type)
-    response['Content-Length'] = info.file_size
-    return response
+    return query_zip(statement, path)
 
 
 @menu_registry.register_decorator(_("Submit"), lambda request:

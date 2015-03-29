@@ -314,7 +314,7 @@ class TestSubmittingAsAdmin(TestCase):
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('(Ignored)', response.content)
+        self.assertIn('Ignored', response.content)
 
     def test_submitting_as_self(self):
         self.client.login(username='test_admin')
@@ -419,7 +419,7 @@ class TestSubmittingAsObserver(TestCase):
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('(Ignored)', response.content)
+        self.assertIn('Ignored', response.content)
 
 
 class TestNotifications(TestCase):

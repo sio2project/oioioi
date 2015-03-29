@@ -4,7 +4,10 @@
         <tr>
             <th></th>
             <th style="min-width: 150px">{% trans "Submission time" %}</th>
+            {% if not inside_problem_view %}
             <th style="min-width: 120px">{% trans "Problem" %}</th>
+            {% endif %}
+            <th style="min-width: 150px">{% trans "Kind" %}</th>
             <th style="min-width: 200px">{% trans "Status" %}</th>
             {% if show_scores %}
             <th style="min-width: 60px">{% trans "Score" %}</th>
@@ -18,7 +21,10 @@
         <tr class="subm_kind_{{ record.submission.kind }}">
             <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"></td>
             <td><a href="{{ link }}">{{ record.submission.get_date_display }}</a></td>
-            <td>{{ record.submission.problem_instance }}{% if record.submission.kind != 'NORMAL' %} ({{ record.submission.get_kind_display }}){% endif %}</td>
+            {% if not inside_problem_view %}
+            <td>{{ record.submission.problem_instance }}</td>
+            {% endif %}
+            <td>{{ record.submission.get_kind_display }}</td>
             <td class="subm_status {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}">{% if record.can_see_status %}{{ record.submission.get_status_display }}{% endif %}</td>
             {% if show_scores %}
             <td>{% if record.can_see_score %}{{ record.submission.get_score_display|default_if_none:'' }}{% endif %}</td>

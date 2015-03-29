@@ -8,11 +8,13 @@ import shutil
 import tempfile
 import functools
 import weakref
+import urllib
 from contextlib import contextmanager
 
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms.util import flatatt
 from django.template import Template, Context
+from django.template.response import TemplateResponse
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
@@ -397,6 +399,62 @@ def make_navbar_badge(link, text):
     template = Template('<li><a href="{{ link }}"><span class="label '
             'label-important">{{ text }}</span></a></li>')
     return template.render(Context({'link': link, 'text': text}))
+
+
+# Creating views
+
+
+def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
+    """A framework for building pages that are split into tabs.
+
+        The current tab is picked using the 'key' GET parameter.
+        The given template is rendered using the given context, which is
+        extended by 'current_tab', representing the opened tab, 'tabs',
+        a set of 'obj' and 'link' pairs for each existing tab, where 'obj'
+        represents the tab and 'link' is a link to the tab's page,
+        and 'content', the tab's rendered content.
+
+        :param request: a HttpRequest object given to the view
+        :param template: the rendered template
+        :param context: additional context to be passed to the template
+        :param tabs: an iterable of tabs. Each tab must have a unique 'key'
+                attribute that will be used to create an URL to the tab
+                and a 'view' attribute returning either HttpResponseRedirect,
+                TemplateResponse or rendered html.
+        :param tab_kwargs: a dict to be passed as kwargs to each tab's view
+        :param link_builder: a function which receives a tab and returns
+                a link to the tab. It should contain a proper path
+                and the appropriate 'key' parameter.
+    """
+    if 'key' not in request.GET:
+        qs = request.GET.dict()
+        qs['key'] = next(iter(tabs)).key
+        return HttpResponseRedirect(request.path + '?' + urllib.urlencode(qs))
+    key = request.GET['key']
+    for tab in tabs:
+        if tab.key == key:
+            current_tab = tab
+            break
+    else:
+        raise Http404
+
+    response = current_tab.view(request, **tab_kwargs)
+    if isinstance(response, HttpResponseRedirect):
+        return response
+
+    if isinstance(response, TemplateResponse):
+        content = response.render().content
+    else:
+        content = response
+
+    tabs_context = [{'obj': tab, 'link': link_builder(tab)}
+                    for tab in tabs]
+    context.update({
+        'current_tab': current_tab,
+        'tabs': tabs_context,
+        'content': mark_safe(force_unicode(content))
+    })
+    return TemplateResponse(request, template, context)
 
 
 # Other utils

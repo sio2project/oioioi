@@ -3,7 +3,9 @@ from collections import OrderedDict
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.contests.models import ProblemStatementConfig
+from oioioi.problems.models import ProblemSite
 
 
 class ProblemUploadForm(forms.Form):
@@ -40,4 +42,13 @@ class ProblemStatementConfigForm(forms.ModelForm):
         model = ProblemStatementConfig
         widgets = {
             'visible': forms.RadioSelect()
+        }
+
+
+class ProblemSiteForm(forms.ModelForm):
+    class Meta(object):
+        fields = ['url_key']
+        model = ProblemSite
+        widgets = {
+            'url_key': TextInputWithGenerate()
         }

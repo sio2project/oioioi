@@ -978,6 +978,7 @@ msgstr ""
 
 #: complaints/templates/complaints/jury_email.txt:8 contests/admin.py:440
 #: contests/admin.py:444 dashboard/templates/dashboard/submissions.html:3
+#: problems/problem_site.py:88
 msgid "Submissions"
 msgstr ""
 
@@ -1630,6 +1631,7 @@ msgstr ""
 
 #: contests/views.py:243 contests/templates/contests/files.html:6
 #: contests/templates/contests/files.html:9
+#: problems/problem_site.py:72
 msgid "Files"
 msgstr ""
 
@@ -1676,47 +1678,13 @@ msgstr ""
 msgid "Add file"
 msgstr ""
 
-#: contests/templates/contests/files.html:30
-#: forum/templates/forum/category.html:6
-#: forum/templates/forum/category.html:10 forum/templates/forum/forum.html:39
-#: forum/templates/forum/thread_add.html:5 questions/forms.py:15
-#: questions/forms.py:94 questions/templates/questions/list_table.html:10
-msgid "Category"
-msgstr ""
-
-#: contests/templates/contests/files.html:32 printing/forms.py:19
-#: programs/controllers.py:279
-#: testspackages/templates/testspackages/tests.html:17
-msgid "File"
-msgstr ""
-
-#: contests/templates/contests/files.html:33
-#: testspackages/templates/testspackages/tests.html:18
-msgid "Description"
-msgstr ""
-
-#: contests/templates/contests/files.html:52
-msgid "No files are available."
-msgstr ""
-
 #: contests/templates/contests/html_statement.html:4
 #: contests/templates/contests/no_problem_statement.html:4
 msgid "Problem statement"
 msgstr ""
 
-#: contests/templates/contests/my_submissions.html:27
-msgid "You have not submitted anything yet."
-msgstr ""
-
 #: contests/templates/contests/my_submissions_table.html:6
 msgid "Submission time"
-msgstr ""
-
-#: contests/templates/contests/no_problem_statement.html:9
-msgid ""
-"<p>Oops, problem statement is not available online.\n"
-"    <p>Please ask the organizers to provide it in some other way.\n"
-"    "
 msgstr ""
 
 #: contests/templates/contests/nothing_to_submit.html:4
@@ -3187,6 +3155,14 @@ msgstr ""
 msgid "problem packages"
 msgstr ""
 
+#: problems/models.py:250
+msgid "problem site"
+msgstr ""
+
+#: problems/models.py:251
+msgid "problem sites"
+msgstr ""
+
 #: problems/problem_sources.py:73
 msgid "Upload package"
 msgstr ""
@@ -3274,6 +3250,52 @@ msgstr ""
 #: problems/templates/problems/add_or_update.html:7
 #, python-format
 msgid "Update problem %(name)s"
+msgstr ""
+
+#: problems/templates/problems/no_problem_statement.html:4
+msgid ""
+"<p>Oops, problem statement is not available online.\n"
+"    <p>Please ask the organizers to provide it in some other way.\n"
+"    "
+msgstr ""
+
+#: problems/templates/problems/external_statement.html:4
+msgid "You can view the problem's statement by clicking <a href=\"%(statement_url)s\"><b>here</b></a>."
+msgstr ""
+
+#: problems/templates/problems/statement_and_submit.html:6
+msgid "To submit solutions visit the appropriate contest's <a href=\"%(submit_url)s\">submission page</a>."
+msgstr ""
+
+#: problems/templates/problems/files.html:11
+#: forum/templates/forum/category.html:6
+#: forum/templates/forum/category.html:10 forum/templates/forum/forum.html:39
+#: forum/templates/forum/thread_add.html:5 questions/forms.py:15
+#: questions/forms.py:94 questions/templates/questions/list_table.html:10
+msgid "Category"
+msgstr ""
+
+#: problems/templates/problems/files.html:13 printing/forms.py:19
+#: programs/controllers.py:279
+#: testspackages/templates/testspackages/tests.html:17
+msgid "File"
+msgstr ""
+
+#: problems/templates/problems/files.html:14
+#: testspackages/templates/testspackages/tests.html:18
+msgid "Description"
+msgstr ""
+
+#: problems/templates/problems/files.html:33
+msgid "No files are available."
+msgstr ""
+
+#: problems/templates/problems/submissions.html:12
+msgid "You have not submitted anything yet."
+msgstr ""
+
+#: problems/problem_site:py:50
+msgid "Problem statement/Submit solution"
 msgstr ""
 
 #: programs/admin.py:56

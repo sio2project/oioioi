@@ -1,0 +1,31 @@
+{% extends "problems/problemset/base.html" %}
+{% load i18n %}
+
+{% block main_content %}
+<h2 class="text-right">{{ problem }}</h2>
+
+{% if user == problem.author %}
+<p>
+    <a>Edit me!</a>
+</p>
+{% endif %}
+
+{% if select_problem_src %}
+<a href="{{ select_problem_src }}?problem_hash={{ problem.id }}">
+    Select me!
+</a>
+{% endif %}
+
+<div class="tabbable text-left">
+    <ul class="nav nav-tabs">
+        {% for tab in tabs %}
+        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
+            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <div class="tab-content">
+        {{ content }}
+    </div>
+</div>
+{% endblock %}

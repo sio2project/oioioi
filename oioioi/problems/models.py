@@ -235,3 +235,20 @@ class ProblemPackage(models.Model):
             with self.StatusSaver(self), transaction.atomic():
                 yield None
         return manager()
+
+
+class ProblemSite(models.Model):
+    """Represents a global problem site.
+
+       Contains configuration  necessary to view and submit solutions
+       to a :class:`~oioioi.problems.models.Problem`.
+    """
+    problem = models.OneToOneField(Problem)
+    url_key = models.CharField(max_length=40, unique=True)
+
+    def __unicode__(self):
+        return unicode(self.problem)
+
+    class Meta(object):
+        verbose_name = _("problem site")
+        verbose_name_plural = _("problem sites")

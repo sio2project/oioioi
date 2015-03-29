@@ -1041,6 +1041,7 @@ msgstr "Uczestnictwo"
 
 #: complaints/templates/complaints/jury_email.txt:8 contests/admin.py:443
 #: contests/admin.py:447 dashboard/templates/dashboard/submissions.html:3
+#: problems/problem_site.py:88
 msgid "Submissions"
 msgstr "Zgłoszenia"
 
@@ -1722,6 +1723,7 @@ msgstr "%(kind)s nie jest poprawnym rodzajem, jaki może przyjąć zgłoszenie %
 
 #: contests/views.py:243 contests/templates/contests/files.html:6
 #: contests/templates/contests/files.html:9
+#: problems/problem_site.py:72
 msgid "Files"
 msgstr "Pliki"
 
@@ -1768,48 +1770,14 @@ msgstr "Końcowy zbiór danych (<code>recipe</code> oraz\n<code>error_handlers</
 msgid "Add file"
 msgstr "Dodaj plik"
 
-#: contests/templates/contests/files.html:30
-#: forum/templates/forum/category.html:6
-#: forum/templates/forum/category.html:10 forum/templates/forum/forum.html:39
-#: forum/templates/forum/thread_add.html:5 questions/forms.py:15
-#: questions/forms.py:95 questions/templates/questions/list_table.html:10
-msgid "Category"
-msgstr "Kategoria"
-
-#: contests/templates/contests/files.html:32 printing/forms.py:19
-#: programs/controllers.py:279
-#: testspackages/templates/testspackages/tests.html:17
-msgid "File"
-msgstr "Plik"
-
-#: contests/templates/contests/files.html:33
-#: testspackages/templates/testspackages/tests.html:18
-msgid "Description"
-msgstr "Opis"
-
-#: contests/templates/contests/files.html:52
-msgid "No files are available."
-msgstr "Żadne pliki nie są dostępne."
-
 #: contests/templates/contests/html_statement.html:4
 #: contests/templates/contests/no_problem_statement.html:4
 msgid "Problem statement"
 msgstr "Treść zadania"
 
-#: contests/templates/contests/my_submissions.html:27
-msgid "You have not submitted anything yet."
-msgstr "Brak nadesłanych rozwiązań."
-
 #: contests/templates/contests/my_submissions_table.html:6
 msgid "Submission time"
 msgstr "Czas zgłoszenia"
-
-#: contests/templates/contests/no_problem_statement.html:9
-msgid ""
-"<p>Oops, problem statement is not available online.\n"
-"    <p>Please ask the organizers to provide it in some other way.\n"
-"    "
-msgstr "<p>Ups, treść zadania nie jest dostępna online.\n    <p>Poproś organizatorów o udostępnienie jej w jakiejś innej formie."
 
 #: contests/templates/contests/nothing_to_submit.html:4
 msgid "No problems available"
@@ -3306,6 +3274,14 @@ msgstr "paczka do zadania"
 msgid "problem packages"
 msgstr "paczki do zadań"
 
+#: problems/models.py:250
+msgid "problem site"
+msgstr "strona zadania"
+
+#: problems/models.py:251
+msgid "problem sites"
+msgstr "strony zadań"
+
 #: problems/problem_sources.py:73
 msgid "Upload package"
 msgstr "Wgrywanie paczki"
@@ -3395,6 +3371,52 @@ msgstr "Dodawanie/edycja zadania"
 #, python-format
 msgid "Update problem %(name)s"
 msgstr "Aktualizacja zadania %(name)s"
+
+#: problems/templates/problems/no_problem_statement.html:4
+msgid ""
+"<p>Oops, problem statement is not available online.\n"
+"    <p>Please ask the organizers to provide it in some other way.\n"
+"    "
+msgstr "<p>Ups, treść zadania nie jest dostępna online.\n    <p>Poproś organizatorów o udostępnienie jej w jakiejś innej formie."
+
+#: problems/templates/problems/external_statement.html:4
+msgid "You can view the problem's statement by clicking <a href=\"%(statement_url)s\"><b>here</b></a>."
+msgstr "Możesz zobaczyć treść zadania klikając <a href=\"%(statement_url)s\"><b>tutaj</b></a>."
+
+#: problems/templates/problems/statement_and_submit.html:6
+msgid "To submit solutions visit the appropriate contest's <a href=\"%(submit_url)s\">submission page</a>."
+msgstr "Aby wysyłać zgłoszenia, odwiedź <a href=\"%(submit_url)s\">stronę wysyłania</a> odpowiedniego konkursu."
+
+#: problems/templates/problems/files.html:11
+#: forum/templates/forum/category.html:6
+#: forum/templates/forum/category.html:10 forum/templates/forum/forum.html:39
+#: forum/templates/forum/thread_add.html:5 questions/forms.py:15
+#: questions/forms.py:95 questions/templates/questions/list_table.html:10
+msgid "Category"
+msgstr "Kategoria"
+
+#: problems/templates/problems/files.html:13 printing/forms.py:19
+#: programs/controllers.py:279
+#: testspackages/templates/testspackages/tests.html:17
+msgid "File"
+msgstr "Plik"
+
+#: problems/templates/problems/files.html:14
+#: testspackages/templates/testspackages/tests.html:18
+msgid "Description"
+msgstr "Opis"
+
+#: problems/templates/problems/files.html:33
+msgid "No files are available."
+msgstr "Żadne pliki nie są dostępne."
+
+#: problems/templates/problems/submissions.html:12
+msgid "You have not submitted anything yet."
+msgstr "Brak nadesłanych rozwiązań."
+
+#: problems/problem_site:py:50
+msgid "Problem statement/Submit solution"
+msgstr "Treść zadania/Zgłoś rozwiązanie"
 
 #: programs/admin.py:56
 msgid "Input file"

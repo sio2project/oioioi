@@ -19,7 +19,7 @@ from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
 from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
-from oioioi.base.utils import jsonify
+from oioioi.base.utils import jsonify, generate_key
 from oioioi.base.menu import account_menu_registry
 import traceback
 
@@ -145,3 +145,7 @@ def delete_account_view(request):
 
     return TemplateResponse(request,
             'registration/delete_account_confirmation.html')
+
+
+def generate_key_view(request):
+    return HttpResponse(generate_key())

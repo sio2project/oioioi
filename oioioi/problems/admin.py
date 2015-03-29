@@ -21,9 +21,9 @@ from oioioi.contests.admin import ContestAdmin
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment, ProblemPackage
+        ProblemAttachment, ProblemPackage, ProblemSite
 from oioioi.problems.utils import can_add_problems, can_admin_problem
-from oioioi.problems.forms import ProblemStatementConfigForm
+from oioioi.problems.forms import ProblemStatementConfigForm, ProblemSiteForm
 
 
 logger = logging.getLogger(__name__)
@@ -106,8 +106,14 @@ class ProblemInstanceInline(admin.StackedInline):
         return False
 
 
+class ProblemSiteInline(admin.StackedInline):
+    model = ProblemSite
+    form = ProblemSiteForm
+
+
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [StatementInline, AttachmentInline, ProblemInstanceInline]
+    inlines = [StatementInline, AttachmentInline, ProblemInstanceInline,
+               ProblemSiteInline]
     readonly_fields = ['name', 'short_name', 'controller_name',
             'package_backend_name']
     exclude = ['contest']

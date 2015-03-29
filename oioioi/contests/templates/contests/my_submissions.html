@@ -17,16 +17,5 @@
 </div>
 {{ header }}
 
-{% if submissions %}
-<div class="paginated-list">
-{% autopaginate submissions submissions_on_page %}
-{% paginate %}
-{% include "contests/my_submissions_table.html" %}
-{% paginate %}
-</div>
-{% else %}
-<div class="empty-space-filler">
-    {% blocktrans %}You have not submitted anything yet.{% endblocktrans %}
-</div>
-{% endif %}
+{% include "problems/submissions.html" %}
 {% endblock %}

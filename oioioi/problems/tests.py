@@ -6,6 +6,7 @@ from django.test import TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+from django.http import HttpResponse
 from django import forms
 
 from oioioi.base.tests import check_not_accessible
@@ -15,7 +16,8 @@ from oioioi.problems.controllers import ProblemController
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage, \
-        make_problem_filename
+        ProblemAttachment, make_problem_filename
+from oioioi.problems.problem_site import problem_site_tab
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -382,3 +384,97 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         self._test_package_permissions()
         self.client.login(username='test_admin')
         self._test_package_permissions(is_admin=True)
+
+
+class TestProblemSite(TestCase, TestStreamingMixin):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_problem_site']
+
+    def _get_site_urls(self):
+        url = reverse('problem_site', kwargs={'site_key': '123'})
+        url_statement = url + "?key=statement"
+        url_files = url + "?key=files"
+        url_submissions = url + "?key=submissions"
+        return {'site': url,
+                'statement': url_statement,
+                'files': url_files,
+                'submissions': url_submissions}
+
+    def _create_PA(self):
+        problem = Problem.objects.get()
+        pa = ProblemAttachment(problem=problem,
+                description='problem-attachment',
+                content=ContentFile('content-of-probatt', name='probatt.txt'))
+        pa.save()
+
+    def test_default_tabs(self):
+        urls = self._get_site_urls()
+        response = self.client.get(urls['site'])
+        self.assertRedirects(response, urls['statement'])
+        response = self.client.get(urls['statement'])
+        for url in urls.values():
+            self.assertContains(response, url)
+
+    def test_statement_tab(self):
+        url_external_stmt = reverse('problem_site_external_statement',
+                kwargs={'site_key': '123'})
+        response = self.client.get(self._get_site_urls()['statement'])
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, url_external_stmt)
+
+        contest = Contest.objects.get()
+        url_submit = reverse('submit', kwargs={'contest_id': contest.id})
+        self.assertContains(response, url_submit)
+
+    def test_files_tab(self):
+        url = self._get_site_urls()['files']
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count('<tr'), 0)
+
+        self._create_PA()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count('<tr'), 2)
+        url_attachment = reverse('problem_site_external_attachment',
+                kwargs={'site_key': '123', 'attachment_id': 1})
+        self.assertContains(response, url_attachment)
+
+    def test_submissions_tab(self):
+        url = self._get_site_urls()['submissions']
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count('<tr'), 0)
+        self.client.login(username='test_user')
+        self.assertEqual(response.status_code, 200)
+        response = self.client.get(url)
+        self.assertEqual(response.content.count('<tr'), 2)
+
+    def test_add_new_tab(self):
+        tab_title = 'Test tab'
+        tab_contents = 'Hello from test tab'
+
+        @problem_site_tab(tab_title, key='testtab')
+        def problem_site_test(request, problem):
+            return HttpResponse(tab_contents)
+
+        url = self._get_site_urls()['site'] + '?key=testtab'
+        response = self.client.get(url)
+        self.assertContains(response, tab_title)
+        self.assertContains(response, tab_contents)
+
+    def test_external_statement_view(self):
+        url_external_stmt = reverse('problem_site_external_statement',
+                kwargs={'site_key': '123'})
+        response = self.client.get(url_external_stmt)
+        self.assertEqual(response.status_code, 200)
+        content = self.streamingContent(response)
+        self.assertTrue(content.startswith('%PDF'))
+
+    def test_external_attachment_view(self):
+        self._create_PA()
+        url_external_attmt = reverse('problem_site_external_attachment',
+                kwargs={'site_key': '123', 'attachment_id': 1})
+        response = self.client.get(url_external_attmt)
+        self.assertStreamingEqual(response, 'content-of-probatt')

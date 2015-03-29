@@ -5,9 +5,5 @@
 
 {% block content %}
 <h2>{{ problem_instance }}</h2>
-<div class="empty-space-filler">
-    {% blocktrans %}<p>Oops, problem statement is not available online.
-    <p>Please ask the organizers to provide it in some other way.
-    {% endblocktrans %}
-</div>
+{% include "problems/no_problem_statement.html" %}
 {% endblock %}

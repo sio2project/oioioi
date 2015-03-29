@@ -19,37 +19,5 @@
     </ul>
 </div>
 {% endif %}
-{% if files %}
-<div class="paginated-list">
-{% autopaginate files files_on_page %}
-{% paginate %}
-<table class="table auto-width row-links">
-    <thead>
-        <tr>
-            {% if add_category_field %}
-            <th style="min-width: 100px">{% trans "Category" %}</th>
-            {% endif %}
-            <th style="min-width: 100px">{% trans "File" %}</th>
-            <th style="min-width: 300px">{% trans "Description" %}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for file in files %}
-        <tr>
-            {% if add_category_field %}
-            <td>{{ file.category }}</td>
-            {% endif %}
-            <td><a href="{{ file.link }}">{{ file.name }}</a></td>
-            <td>{{ file.description }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% paginate %}
-</div>
-{% else %}
-<div class="empty-space-filler">
-    {% blocktrans %}No files are available.{% endblocktrans %}
-</div>
-{% endif %}
+{% include "problems/files.html" %}
 {% endblock %}
