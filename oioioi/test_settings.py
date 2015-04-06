@@ -48,6 +48,7 @@ INSTALLED_APPS = (
     'oioioi.notifications',
     'oioioi.prizes',
     'oioioi.mailsubmit',
+    'oioioi.gamification',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (
