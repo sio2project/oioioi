@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,8 +16,10 @@ class ProblemUploadForm(forms.Form):
         if contest and not existing_problem:
             choices = [(r.id, r.name) for r in contest.round_set.all()]
             if len(choices) >= 2:
-                self.fields.insert(0, 'round_id', forms.ChoiceField(choices,
-                        label=_("Round")))
+                fields = self.fields.items()
+                fields[0:0] = [('round_id', forms.ChoiceField(choices,
+                        label=_("Round")))]
+                self.fields = OrderedDict(fields)
             elif len(choices) == 1:
                 self.round_id = choices[0][0]
 
