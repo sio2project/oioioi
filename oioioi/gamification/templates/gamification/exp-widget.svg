@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="{{ diameter }}" height="{{ diameter }}" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <ellipse rx="50%" ry="50%" cx="50%" cy="50%" class="expBackground" />
+    <path d="M{{ outer_radius }} {{ outer_radius }}v-{{ outer_radius }}a{{ arc_parameters }}Z" class="expBar" />
+    {% if size == 'big' %}
+        <ellipse rx="{{ inner_radius }}" ry="{{ inner_radius }}" cx="50%" cy="50%" class="innerCircle" />
+    {% endif %}
+    <text x="50%" y="50%" dy=".35em" class="levelText {{ size }}">{{ level }}</text>
+</svg>

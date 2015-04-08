@@ -1,0 +1,30 @@
+{% extends "base-with-menu.html" %}
+{% load i18n all_with_prefix gamification_widgets compress %}
+
+{% block title %}{% trans "User" %}: {{ shown_user }}{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+{% compress css %}
+<link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}gamification/less/profile.less">
+<link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}gamification/less/widgets.less">
+{% endcompress %}
+{% endblock %}
+
+{% block content %}
+<div id="user-info-top" class="well">
+    <div id="experience-widget">
+        {% experience_widget_big shown_user %}
+    </div>
+    <div class="info">
+        <h2>{{ shown_user }}</h2>
+        <h4>{% trans "Level" %}: {{ exp.current_level }}</h4>
+        <h4>{% trans "Experience" %}: {{ exp_percentage }}%</h4>
+    </div>
+</div>
+{% for section in sections %}
+<div class="infoPanel well">
+    {{ section|safe }}
+</div>
+{% endfor %}
+{% endblock %}

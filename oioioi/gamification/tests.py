@@ -1,9 +1,14 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from experience import DBCachedByKeyExperienceSource, Experience,\
-    ExperienceSource
-from constants import ExpMultiplier, ExpBase, SoftCapLevel, LinearMultiplier
-from friends import UserFriends
+from django.core.urlresolvers import reverse
+from oioioi.base.menu import OrderedRegistry
+
+from oioioi.gamification.constants import ExpMultiplier, ExpBase,\
+    SoftCapLevel, LinearMultiplier
+from oioioi.gamification.experience import DBCachedByKeyExperienceSource,\
+    Experience, ExperienceSource
+from oioioi.gamification.friends import UserFriends
+from oioioi.gamification.profile import profile_section, profile_registry
 
 
 class TestExperienceModule(TestCase):
@@ -281,3 +286,77 @@ class TestFriends(TestCase):
         # Removing non-friend
         with self.assertRaises(ValueError):
             friends1.remove_friend(u2)
+
+
+class TestProfileView(TestCase):
+    fixtures = ['test_users.json']
+
+    def test_experience_counter(self):
+        url = reverse('view_current_profile')
+        url_other = reverse('view_profile', args=['test_user2'])
+
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertIn('0</text>', response.content)
+        self.assertIn('Level: 0', response.content)
+        self.assertIn('0%', response.content)
+
+        response = self.client.get(url_other)
+        self.assertIn('0</text>', response.content)
+        self.assertIn('Level: 0', response.content)
+        self.assertIn('0%', response.content)
+
+        exp_to_lvl = Experience.exp_to_lvl
+
+        class TrivialSource(ExperienceSource):
+            def get_experience(self, user):
+                if user.username == 'test_user':
+                    return exp_to_lvl(1) + 10
+                else:
+                    return exp_to_lvl(1) + exp_to_lvl(2) + 10
+
+            def force_recalculate(self, user):
+                pass
+
+        try:
+            Experience.add_experience_source(TrivialSource())
+            response = self.client.get(url)
+            self.assertIn('1</text>', response.content)
+            self.assertIn('Level: 1', response.content)
+            self.assertIn('Experience: %d%%' % (100 * 10 / exp_to_lvl(2)),
+                          response.content)
+
+            response = self.client.get(url_other)
+            self.assertIn('2</text>', response.content)
+            self.assertIn('Level: 2', response.content)
+            self.assertIn('Experience: %d%%' % (100 * 10 / exp_to_lvl(3)),
+                          response.content)
+        finally:
+            Experience.clear_experience_sources()
+
+
+class TestProfileTabs(TestCase):
+    fixtures = ['test_users.json']
+
+    def setUp(self):
+        # pylint: disable=global-statement
+        global profile_registry
+        self.profile_backup = profile_registry
+        profile_registry = OrderedRegistry()
+
+    def tearDown(self):
+        # pylint: disable=global-statement
+        global profile_registry
+        profile_registry = self.profile_backup
+
+    def test_tabs(self):
+        tab_content = '<b>Hello, world!</b>'
+
+        @profile_section(0)
+        def dummy_section(request, shown_user):
+            return tab_content
+
+        url = reverse('view_current_profile')
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertIn(tab_content, response.content)
