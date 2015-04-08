@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from experience import DBCachedByKeyExperienceSource, Experience,\
     ExperienceSource
 from constants import ExpMultiplier, ExpBase, SoftCapLevel, LinearMultiplier
+from friends import UserFriends
 
 
 class TestExperienceModule(TestCase):
@@ -156,3 +157,127 @@ class TestExperienceModule(TestCase):
 
         finally:
             Experience.clear_experience_sources()
+
+
+class TestFriends(TestCase):
+    fixtures = ['test_users.json']
+
+    def areFriends(self, u1, u2):
+        friends1 = UserFriends(u1)
+        friends2 = UserFriends(u2)
+
+        result_a = friends1.is_friends_with(u2)
+        result_b = friends2.is_friends_with(u1)
+        self.assertEquals(result_a, result_b)
+        self.assertEquals(result_a,
+             u1 in friends2.friends.select_related('user').all())
+        self.assertEquals(result_a,
+             u2 in friends1.friends.select_related('user').all())
+
+        return result_a
+
+    def assertFriends(self, user_a, user_b):
+        self.assertTrue(self.areFriends(user_a, user_b))
+
+    def assertNotFriends(self, user_a, user_b):
+        self.assertFalse(self.areFriends(user_a, user_b))
+
+    def get_basic_variables(self):
+        test_user1 = User.objects.get(username='test_user')
+        test_user2 = User.objects.get(username='test_user2')
+
+        user_friends1 = UserFriends(test_user1)
+        user_friends2 = UserFriends(test_user2)
+
+        return test_user1, test_user2, user_friends1, user_friends2
+
+    def test_basic(self):
+        u1, u2, _, _ = self.get_basic_variables()
+        self.assertNotFriends(u1, u2)
+
+    def test_accepting(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+
+        friends1.send_friendship_request(u2)
+        self.assertNotFriends(u1, u2)
+        self.assertIn(u2,
+             [x.recipient.user for x in friends1.my_requests.all()])
+        self.assertIn(u1,
+             [x.sender.user for x in friends2.requests_for_me.all()])
+
+        request = friends1.my_requests.get()
+        friends2.accept_friendship_request(request)
+        self.assertFriends(u1, u2)
+
+    def test_refusing(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+
+        friends1.send_friendship_request(u2)
+        request = friends2.requests_for_me.get()
+
+        friends2.refuse_friendship_request(request)
+        self.assertNotFriends(u1, u2)
+        self.assertNotIn(u2,
+             [x.recipient_user for x in friends1.my_requests.all()])
+        self.assertNotIn(u1,
+             [x.sender_user for x in friends2.requests_for_me.all()])
+
+    def test_automatic_accepting(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+
+        friends1.send_friendship_request(u2)
+        friends2.send_friendship_request(u1)
+        self.assertFalse(friends1.my_requests.exists())
+        self.assertFalse(friends2.my_requests.exists())
+        self.assertFalse(friends1.requests_for_me.exists())
+        self.assertFalse(friends2.requests_for_me.exists())
+        self.assertFriends(u1, u2)
+
+    def add_friends(self, u1, u2, friends1, friends2):
+        friends1.send_friendship_request(u2)
+        friends2.send_friendship_request(u1)
+        self.assertFriends(u1, u2)
+
+    def test_removing(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+
+        self.add_friends(u1, u2, friends1, friends2)
+        friends1.remove_friend(u2)
+        self.assertNotFriends(u1, u2)
+
+        self.add_friends(u1, u2, friends1, friends2)
+        friends2.remove_friend(u1)
+        self.assertNotFriends(u1, u2)
+
+    def test_errors(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+
+        # Self-request
+        with self.assertRaises(ValueError):
+            friends1.send_friendship_request(u1)
+
+        # Duplicated request
+        friends1.send_friendship_request(u2)
+        with self.assertRaises(ValueError):
+            friends1.send_friendship_request(u2)
+
+        # Request to existing friend
+        friends2.send_friendship_request(u1)
+        with self.assertRaises(ValueError):
+            friends1.send_friendship_request(u2)
+
+        friends1.remove_friend(u2)
+
+        # Accepting/refusing invalid request
+        friends1.send_friendship_request(u2)
+        request = friends1.my_requests.get()
+
+        with self.assertRaises(ValueError):
+            friends1.accept_friendship_request(request)
+
+        with self.assertRaises(ValueError):
+            friends1.refuse_friendship_request(request)
+
+        # Removing non-friend
+        with self.assertRaises(ValueError):
+            friends1.remove_friend(u2)
