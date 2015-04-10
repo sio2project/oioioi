@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.dispatch import receiver
 from oioioi.base.menu import OrderedRegistry
 
 from oioioi.gamification.experience import DBCachedByKeyExperienceSource, \
@@ -8,7 +9,9 @@ from oioioi.gamification.experience import DBCachedByKeyExperienceSource, \
 from oioioi.gamification.constants import ExpMultiplier, ExpBase, \
     SoftCapLevel, LinearMultiplier, CODE_SHARING_FRIENDS_ENABLED,\
     CODE_SHARING_PREFERENCES_DEFAULT
-from oioioi.gamification.friends import UserFriends
+from oioioi.gamification.friends import UserFriends, FriendshipRequest,\
+    FriendshipRequestSent, FriendshipRequestAccepted,\
+    FriendshipRequestRefused, FriendshipEnded
 from oioioi.gamification.profile import profile_section, profile_registry
 from oioioi.gamification.controllers import CodeSharingController
 from oioioi.problems.models import Problem
@@ -214,6 +217,28 @@ class TestFriends(TestCase):
     def assertNotFriends(self, user_a, user_b):
         self.assertFalse(self.areFriends(user_a, user_b))
 
+    def isRequestSent(self, sender, recipient):
+        friends_sender = UserFriends(sender)
+        friends_recipient = UserFriends(recipient)
+
+        result_a = friends_sender.sent_request_to(recipient)
+        result_b = friends_recipient.has_request_from(sender)
+        self.assertEquals(result_a, result_b)
+        self.assertEquals(result_a,
+             recipient in
+             [x.recipient.user for x in friends_sender.my_requests.all()])
+        self.assertEquals(result_a,
+             sender in
+             [x.sender.user for x in friends_recipient.requests_for_me.all()])
+
+        return result_a
+
+    def assertRequestSent(self, sender, recipient):
+        self.assertTrue(self.isRequestSent(sender, recipient))
+
+    def assertRequestNotSent(self, sender, recipient):
+        self.assertFalse(self.isRequestSent(sender, recipient))
+
     def get_basic_variables(self):
         test_user1 = User.objects.get(username='test_user')
         test_user2 = User.objects.get(username='test_user2')
@@ -226,49 +251,39 @@ class TestFriends(TestCase):
     def test_basic(self):
         u1, u2, _, _ = self.get_basic_variables()
         self.assertNotFriends(u1, u2)
+        self.assertRequestNotSent(u1, u2)
 
     def test_accepting(self):
         u1, u2, friends1, friends2 = self.get_basic_variables()
 
         friends1.send_friendship_request(u2)
         self.assertNotFriends(u1, u2)
-        self.assertIn(u2,
-             [x.recipient.user for x in friends1.my_requests.all()])
-        self.assertIn(u1,
-             [x.sender.user for x in friends2.requests_for_me.all()])
+        self.assertRequestSent(u1, u2)
 
-        request = friends1.my_requests.get()
+        request = friends1.my_request_for(u2)
         friends2.accept_friendship_request(request)
         self.assertFriends(u1, u2)
+        self.assertRequestNotSent(u1, u2)
 
     def test_refusing(self):
         u1, u2, friends1, friends2 = self.get_basic_variables()
 
         friends1.send_friendship_request(u2)
-        request = friends2.requests_for_me.get()
+        request = friends2.request_from(u1)
 
         friends2.refuse_friendship_request(request)
         self.assertNotFriends(u1, u2)
-        self.assertNotIn(u2,
-             [x.recipient_user for x in friends1.my_requests.all()])
-        self.assertNotIn(u1,
-             [x.sender_user for x in friends2.requests_for_me.all()])
-
-    def test_automatic_accepting(self):
-        u1, u2, friends1, friends2 = self.get_basic_variables()
-
-        friends1.send_friendship_request(u2)
-        friends2.send_friendship_request(u1)
-        self.assertFalse(friends1.my_requests.exists())
-        self.assertFalse(friends2.my_requests.exists())
-        self.assertFalse(friends1.requests_for_me.exists())
-        self.assertFalse(friends2.requests_for_me.exists())
-        self.assertFriends(u1, u2)
+        self.assertRequestNotSent(u1, u2)
 
     def add_friends(self, u1, u2, friends1, friends2):
         friends1.send_friendship_request(u2)
         friends2.send_friendship_request(u1)
+        self.assertRequestNotSent(u1, u2)
         self.assertFriends(u1, u2)
+
+    def test_automatic_accepting(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+        self.add_friends(u1, u2, friends1, friends2)
 
     def test_removing(self):
         u1, u2, friends1, friends2 = self.get_basic_variables()
@@ -302,7 +317,7 @@ class TestFriends(TestCase):
 
         # Accepting/refusing invalid request
         friends1.send_friendship_request(u2)
-        request = friends1.my_requests.get()
+        request = friends1.my_request_for(u2)
 
         with self.assertRaises(ValueError):
             friends1.accept_friendship_request(request)
@@ -313,6 +328,57 @@ class TestFriends(TestCase):
         # Removing non-friend
         with self.assertRaises(ValueError):
             friends1.remove_friend(u2)
+
+        # Getting nonexistent requests
+        friends2.refuse_friendship_request(request)
+        with self.assertRaises(FriendshipRequest.DoesNotExist):
+            friends1.my_request_for(u2)
+
+        with self.assertRaises(FriendshipRequest.DoesNotExist):
+            friends1.request_from(u2)
+
+    def test_signals(self):
+        sent_log = []
+        accepted_log = []
+        refused_log = []
+        ended_log = []
+
+        # pylint: disable=W0612
+        @receiver(FriendshipRequestSent)
+        def handle_sent(sender, recipient, **kwargs):
+            sent_log.append((sender, recipient))
+
+        @receiver(FriendshipRequestAccepted)
+        def handle_accepted(sender, recipient, **kwargs):
+            accepted_log.append((sender, recipient))
+
+        @receiver(FriendshipRequestRefused)
+        def handle_refused_log(sender, recipient, **kwargs):
+            refused_log.append((sender, recipient))
+
+        @receiver(FriendshipEnded)
+        def handle_ended_log(sender, recipient, **kwargs):
+            ended_log.append((sender, recipient))
+
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+        # Send, accept & end friendship usually
+        friends1.send_friendship_request(u2)
+        friends2.accept_friendship_request(friends2.request_from(u1))
+        friends1.remove_friend(u2)
+
+        # Send request, accept friendship by double request, then end
+        friends2.send_friendship_request(u1)
+        friends1.send_friendship_request(u2)
+        friends2.remove_friend(u1)
+
+        # Send & refuse
+        friends1.send_friendship_request(u2)
+        friends2.refuse_friendship_request(friends2.request_from(u1))
+
+        self.assertEquals(sent_log, [(u1, u2), (u2, u1), (u1, u2)])
+        self.assertEquals(accepted_log, [(u2, u1), (u1, u2)])
+        self.assertEquals(refused_log, [(u2, u1)])
+        self.assertEquals(ended_log, [(u1, u2), (u2, u1)])
 
 
 class TestProfileView(TestCase):

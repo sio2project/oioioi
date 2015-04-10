@@ -1,6 +1,16 @@
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.dispatch import Signal
 from oioioi.gamification.models import FriendProxy, FriendshipRequest
+
+
+# "sender" is the user performing action, "recipient" is the user
+# on which the action is performed (e.g. sender=user1 accepts friendship
+# from recipient=user2)
+FriendshipRequestSent = Signal(providing_args=['sender', 'recipient'])
+FriendshipRequestAccepted = Signal(providing_args=['sender', 'recipient'])
+FriendshipRequestRefused = Signal(providing_args=['sender', 'recipient'])
+FriendshipEnded = Signal(providing_args=['sender', 'recipient'])
 
 
 class UserFriends(object):
@@ -40,6 +50,8 @@ class UserFriends(object):
             if not created:
                 raise ValueError("Friendship request already sent")
 
+            FriendshipRequestSent.send(sender=self._user, recipient=user)
+
     @transaction.atomic
     def accept_friendship_request(self, request):
         """ Accepts a friendship request directed towards the user.
@@ -53,6 +65,9 @@ class UserFriends(object):
         request.delete()
         self._add_friend(request.sender.user)
 
+        FriendshipRequestAccepted.send(sender=request.recipient.user,
+                                       recipient=request.sender.user)
+
     def refuse_friendship_request(self, request):
         """ Refuses a friendship request directed towards the user.
 
@@ -62,17 +77,21 @@ class UserFriends(object):
             raise ValueError("User is not the request's recipient")
 
         request.delete()
+        FriendshipRequestRefused.send(sender=request.recipient.user,
+                                      recipient=request.sender.user)
 
     def remove_friend(self, user):
         """ Removes a friendship between this and the specified user.
 
             Throws ValueError if the users are not friends.
         """
-        other_proxy = UserFriends(user)._proxy
-        if not self._proxy.friends.filter(pk=other_proxy.pk).exists():
+        if not self.is_friends_with(user):
             raise ValueError("Users are not friends")
 
+        other_proxy = UserFriends(user)._proxy
         self._proxy.friends.remove(other_proxy)
+
+        FriendshipEnded.send(sender=self._user, recipient=user)
 
     def is_friends_with(self, user):
         """Returns if this and the given user are friends."""
@@ -85,10 +104,32 @@ class UserFriends(object):
         """
         return self._proxy.sent_requests
 
+    def my_request_for(self, recipient):
+        """ Returns a request from this user to the recipient.
+
+            If it does not exist, it throws FriendshipRequest.DoesNotExist.
+        """
+        return self.my_requests.get(recipient__user=recipient)
+
+    def sent_request_to(self, recipient):
+        """Returns if this user has sent a request for the recipient."""
+        return self.my_requests.filter(recipient__user=recipient).exists()
+
     @property
     def requests_for_me(self):
         """Queryset of unresolved requests sent to this user."""
         return self._proxy.incoming_requests
+
+    def request_from(self, sender):
+        """ Returns a request from the sender to this user.
+
+            If it does not exist, it throws FriendshipRequest.DoesNotExist.
+        """
+        return self.requests_for_me.get(sender__user=sender)
+
+    def has_request_from(self, sender):
+        """Returns if this user has an incoming request from the sender."""
+        return self.requests_for_me.filter(sender__user=sender).exists()
 
     @property
     def friends(self):
