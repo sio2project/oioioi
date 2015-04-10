@@ -429,6 +429,60 @@ class TestProfileView(TestCase):
         finally:
             Experience.clear_experience_sources()
 
+    def test_friendship_actions(self):
+        test_user1 = User.objects.get(username='test_user')
+        test_user2 = User.objects.get(username='test_user2')
+
+        friends = UserFriends(test_user1)
+
+        # Sending request
+        self.client.login(username='test_user')
+        self.client.post(reverse('send_friendship_request',
+                args=['test_user2']))
+        self.assertTrue(friends.sent_request_to(test_user2))
+
+        # Accepting request
+        self.client.login(username='test_user2')
+        self.client.post(reverse('accept_friendship_request',
+                args=['test_user']))
+        self.assertTrue(friends.is_friends_with(test_user2))
+
+        # Ending friendship
+        self.client.post(reverse('remove_friend',
+                args=['test_user']))
+        self.assertFalse(friends.is_friends_with(test_user2))
+
+        # Refusing request
+        self.client.post(reverse('send_friendship_request',
+                args=['test_user']))
+        self.client.login(username='test_user')
+        self.client.post(reverse('refuse_friendship_request',
+                args=['test_user2']))
+        self.assertFalse(friends.has_request_from(test_user2))
+
+    def test_friends_list(self):
+        test_user1 = User.objects.get(username='test_user')
+        test_user2 = User.objects.get(username='test_user2')
+
+        url = reverse('view_current_profile')
+        user_text = 'test_user2</h2></a>'
+
+        # Check user profile
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertNotIn(user_text, response.content)
+
+        UserFriends(test_user1).send_friendship_request(test_user2)
+        UserFriends(test_user2).send_friendship_request(test_user1)
+
+        response = self.client.get(url)
+        self.assertIn(user_text, response.content)
+
+        # Check visibility from outside
+        self.client.login(username='test_user2')
+        response = self.client.get(reverse('view_profile', args=['test_user']))
+        self.assertNotIn(user_text, response.content)
+
 
 class TestProfileTabs(TestCase):
     fixtures = ['test_users.json']

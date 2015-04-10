@@ -1,0 +1,8 @@
+{% load i18n %}
+<h2 class="page-header">{% trans "Find user" %}</h2>
+<div class="alert alert-error hidden">{% blocktrans %}User "<span></span>" does not exist.{% endblocktrans %}</div>
+<form id="invite-friends-form" data-check-url="{% url 'check_user_exists' %}" class="form-inline">
+    <label for="username">{% trans "Username" %}:</label>
+    <input type="text" name="username" maxlength="30"/>
+    <button>{% trans "Submit" %}</button>
+</form>

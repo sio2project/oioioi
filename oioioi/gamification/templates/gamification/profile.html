@@ -3,6 +3,11 @@
 
 {% block title %}{% trans "User" %}: {{ shown_user }}{% endblock %}
 
+{% block scripts %}
+{{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}gamification/js/profile.js"></script>
+{% endblock %}
+
 {% block styles %}
 {{ block.super }}
 {% compress css %}
@@ -12,19 +17,47 @@
 {% endblock %}
 
 {% block content %}
-<div id="user-info-top" class="well">
+<div id="user-info-top">
     <div id="experience-widget">
         {% experience_widget_big shown_user %}
     </div>
-    <div class="info">
+    <div class="info pull-left">
         <h2>{{ shown_user }}</h2>
         <h4>{% trans "Level" %}: {{ exp.current_level }}</h4>
         <h4>{% trans "Experience" %}: {{ exp_percentage }}%</h4>
     </div>
+    {% if user != shown_user %}
+        <div id="friend-status" class="pull-right">
+            {% if is_my_friend %}
+                {% blocktrans %}You and {{ shown_user }} are friends.{% endblocktrans %}
+                <form action="{% url 'remove_friend' username=shown_user %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Remove friend" %}</button>
+                </form>
+            {% elif pending_incoming_friendship_request %}
+                {% blocktrans %}{{ shown_user }} wants to be your friend.{% endblocktrans %}
+                <form action="{% url 'accept_friendship_request' username=shown_user %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">{% trans "Accept" %}</button>
+                </form>
+                <form action="{% url 'refuse_friendship_request' username=shown_user %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">{% trans "Refuse" %}</button>
+                </form>
+            {% elif sent_friendship_request %}
+                <small>{% blocktrans %}You have sent {{ shown_user }} a friendship request.{% endblocktrans %}</small>
+            {% else %}
+                <form action="{% url 'send_friendship_request' username=shown_user %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">{% trans "Send friendship request" %}</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 {% for section in sections %}
-<div class="infoPanel well">
-    {{ section|safe }}
-</div>
+{% if section %}
+{{ section|safe }}
+{% endif %}
 {% endfor %}
 {% endblock %}
