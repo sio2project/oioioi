@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.dispatch import receiver
 from oioioi.base.menu import OrderedRegistry
+from oioioi.base.notification import NotificationHandler
 
 from oioioi.gamification.experience import DBCachedByKeyExperienceSource, \
     Experience, ExperienceSource
@@ -381,6 +382,47 @@ class TestFriends(TestCase):
         self.assertEquals(accepted_log, [(u2, u1), (u1, u2)])
         self.assertEquals(refused_log, [(u2, u1)])
         self.assertEquals(ended_log, [(u1, u2), (u2, u1)])
+
+    def test_notifications(self):
+        u1, u2, friends1, friends2 = self.get_basic_variables()
+
+        notification_log = []
+
+        @classmethod
+        def fake_send_notification(cls, user, notification_type,
+                    message, arguments):
+
+            if notification_type == 'friends':
+                self.assertIn('sender', arguments)
+
+                notification_log.append((arguments['sender'], user,
+                        message))
+
+        def checkEntry(sender, recipient, text_fragment, entry):
+            self.assertEquals(sender.username, entry[0])
+            self.assertEquals(recipient, entry[1])
+            self.assertIn(text_fragment, entry[2])
+
+        send_notification_backup = NotificationHandler.send_notification
+        NotificationHandler.send_notification = fake_send_notification
+
+        try:
+            friends1.send_friendship_request(u2)
+            friends2.accept_friendship_request(friends2.request_from(u1))
+            friends1.remove_friend(u2)
+
+            friends2.send_friendship_request(u1)
+            friends1.refuse_friendship_request(friends1.request_from(u2))
+
+            self.assertEquals(len(notification_log), 5)
+            checkEntry(u1, u2, 'sent', notification_log[0])
+            checkEntry(u2, u1, 'accepted', notification_log[1])
+            checkEntry(u1, u2, 'no longer wants', notification_log[2])
+            checkEntry(u2, u1, 'sent', notification_log[3])
+            checkEntry(u1, u2, 'refused', notification_log[4])
+
+        finally:
+            NotificationHandler.send_notification = send_notification_backup
 
 
 class TestProfileView(TestCase):

@@ -1,6 +1,8 @@
+import logging
+
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.dispatch import Signal
+from django.dispatch import receiver, Signal
 from oioioi.gamification.models import FriendProxy, FriendshipRequest
 
 
@@ -11,6 +13,8 @@ FriendshipRequestSent = Signal(providing_args=['sender', 'recipient'])
 FriendshipRequestAccepted = Signal(providing_args=['sender', 'recipient'])
 FriendshipRequestRefused = Signal(providing_args=['sender', 'recipient'])
 FriendshipEnded = Signal(providing_args=['sender', 'recipient'])
+
+logger = logging.getLogger(__name__)
 
 
 class UserFriends(object):
@@ -135,3 +139,40 @@ class UserFriends(object):
     def friends(self):
         """Queryset of friends of this user."""
         return User.objects.filter(friendproxy__friends=self._proxy)
+
+
+def base_notification_handler(sender, recipient, type, text):
+    logger.info(text,
+                {'sender': sender, 'recipient': recipient},
+                extra={'notification': 'friends',
+                       'type': type,
+                       'sender': sender,
+                       'recipient': recipient})
+
+
+@receiver(FriendshipRequestSent, dispatch_uid='friendship_notification')
+def friendship_request_sent_notification(sender, recipient, **kwargs):
+    base_notification_handler(sender, recipient, 'sent',
+                              'User %(sender)s sent a '
+                              'friendship request to %(recipient)s.')
+
+
+@receiver(FriendshipRequestAccepted, dispatch_uid='friendship_notification')
+def friendship_request_accepted_notification(sender, recipient, **kwargs):
+    base_notification_handler(sender, recipient, 'accepted',
+                              'User %(sender)s accepted '
+                              'friendship request from %(recipient)s.')
+
+
+@receiver(FriendshipRequestRefused, dispatch_uid='friendship_notification')
+def friendship_request_refused_notification(sender, recipient, **kwargs):
+    base_notification_handler(sender, recipient, 'refused',
+                              'User %(sender)s refused '
+                              'friendship request from %(recipient)s.')
+
+
+@receiver(FriendshipEnded, dispatch_uid='friendship_notification')
+def friendship_ended_notification(sender, recipient, **kwargs):
+    base_notification_handler(sender, recipient, 'ended',
+                              'User %(sender)s ended '
+                              'friendship with %(recipient)s.')
