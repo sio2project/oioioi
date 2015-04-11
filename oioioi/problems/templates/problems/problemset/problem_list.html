@@ -1,0 +1,52 @@
+{% extends "problems/problemset/base.html" %}
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block main_content %}
+<h1>{{ page_title }}</h1>
+
+{% if problems %}
+
+<div class="paginated-list span8 offset2">
+    {% autopaginate problems 20 %}
+    {% paginate %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 100px">{% trans "ID" %}</th>
+                <th>{% trans "Name" %}</th>
+
+                {% if select_problem_src %}
+                <th>{% trans "Select problem" %}</tr>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for problem in problems %}
+            <tr>
+                <td>{{ problem.short_name }}</td>
+                <td><a
+                href="{% url 'problem_page' problem.id %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                    {{ problem.name }}
+                </a></td>
+
+                {% if select_problem_src %}
+                <td><a href="{{ select_problem_src }}?problem_hash={{ problem.id }}">
+                    {% trans "Select me!" %}
+                </a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% paginate %}
+</div>
+
+{% else %}
+
+<div class="empty-space-filler">
+    <p>{% trans 'There are no problems here :(' %}</p>
+</div>
+{% endif %}
+
+{% endblock %}

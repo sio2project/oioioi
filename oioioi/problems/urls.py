@@ -18,4 +18,11 @@ urlpatterns = patterns('oioioi.problems.views',
     url(r'^problems/add$', 'add_or_update_problem_view',
         name='add_or_update_problem'),
     url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
+
+    url(r'^problemset/$', 'problemset_main_view', name='problemset_main'),
+    url(r'^problemset/myproblems/$', 'problemset_my_problems_view',
+        name='problemset_my_problems'),
+    # to be changed when hashes will appear
+    url(r'^problemset/problem/(?P<problem_hash>[0-9]+)/$', 'problem_page_view',
+        name='problem_page'),
 )

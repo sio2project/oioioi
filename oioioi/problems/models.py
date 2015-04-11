@@ -45,6 +45,9 @@ class Problem(models.Model):
         verbose_name=_("type"))
     contest = models.ForeignKey('contests.Contest', null=True, blank=True,
         verbose_name=_("contest"))
+    author = models.ForeignKey(User, null=True, blank=True,
+        verbose_name=_("author"))
+    is_public = models.BooleanField(default=False, verbose_name=_("is public"))
     package_backend_name = \
             DottedNameField('oioioi.problems.package.ProblemPackageBackend',
                     null=True, blank=True, verbose_name=_("package type"))

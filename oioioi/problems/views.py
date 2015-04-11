@@ -7,6 +7,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext as _
 
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.filetracker.utils import stream_file
@@ -113,3 +114,38 @@ def add_or_update_problem_view(request, contest_id=None):
         'existing_problem': existing_problem,
     }
     return TemplateResponse(request, 'problems/add_or_update.html', context)
+
+
+def problemset_main_view(request):
+    request.contest = None
+    problems = Problem.objects.filter(is_public=True)
+
+    return TemplateResponse(request,
+       'problems/problemset/problem_list.html',
+      {'problems': problems,
+       'page_title':
+          _("Welcome to problemset, the place, where all the problems are."),
+       'select_problem_src': request.GET.get('select_problem_src')})
+
+
+def problemset_my_problems_view(request):
+    request.contest = None
+    problems = Problem.objects.filter(author=request.user)
+
+    return TemplateResponse(request,
+         'problems/problemset/problem_list.html',
+         {'problems': problems,
+          'page_title': _("My problems"),
+          'select_problem_src': request.GET.get('select_problem_src')})
+
+
+def problem_page_view(request, problem_hash):
+    request.contest = None
+
+    # to be changed when hashes will appear!
+    problem = Problem.objects.filter(id=problem_hash)[0]
+
+    return TemplateResponse(request,
+         'problems/problemset/problem_page.html',
+         {'problem': problem,
+          'select_problem_src': request.GET.get('select_problem_src')})

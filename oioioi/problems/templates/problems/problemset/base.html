@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+Problemset
+{% endblock %}
+
+{% block container-class %}
+{% endblock %}
+
+
+{% block body %}
+<div class="row-fluid top-row" style="
+    margin-top: 40px;
+    padding-top: 23px;
+">
+    <nav class="navbar navbar-inner" style="
+        margin-right: 20px;
+        margin-left: 20px;
+    ">
+        <div class="span9">
+            <a class="brand" style="color: #333333"
+                href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+                {% endif %}">
+                Problemset
+            </a>
+            <ul class="nav navbar-nav">
+                {% if user.is_authenticated %}
+                <li><a
+                href="{% url 'problemset_my_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+                {% endif %}">
+                    My problems
+                </a></li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="span3 pagination-centered">
+            <div style="padding-top: 9px;">
+                There will be a searcher here.
+            </div>
+        </div>
+
+    </nav>
+</div>
+<div class="container">
+    <div class="row-fluid">
+        <div class="main-content pagination-centered">
+        {% block main_content %}
+        {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
