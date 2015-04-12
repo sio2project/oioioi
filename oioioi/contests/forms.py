@@ -180,8 +180,9 @@ class TestsSelectionForm(forms.Form):
     def __init__(self, request, queryset, pis_count, uses_is_active, *args,
                  **kwargs):
         super(TestsSelectionForm, self).__init__(*args, **kwargs)
-        problem = queryset[0].problem
-        tests = Test.objects.filter(problem=problem, is_active=True)
+        problem_instance = queryset[0].problem_instance
+        tests = Test.objects.filter(problem_instance=problem_instance,
+                is_active=True)
 
         widget = forms.RadioSelect(
             attrs={'onChange': 'rejudgeTypeOnChange(this)'})

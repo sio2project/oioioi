@@ -26,7 +26,7 @@ def validate_time_limit(value):
 
 @nottest
 class Test(models.Model):
-    problem = models.ForeignKey(Problem)
+    problem_instance = models.ForeignKey(ProblemInstance)
     name = models.CharField(max_length=30, verbose_name=_("name"))
     input_file = FileField(upload_to=make_problem_filename,
             verbose_name=_("input"), null=True, blank=True)
@@ -43,6 +43,10 @@ class Test(models.Model):
     order = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
+    @property
+    def problem(self):
+        return self.problem_instance.problem
+
     def __unicode__(self):
         return self.name
 
@@ -50,7 +54,7 @@ class Test(models.Model):
         ordering = ['order']
         verbose_name = _("test")
         verbose_name_plural = _("tests")
-        unique_together = ('problem', 'name')
+        unique_together = ('problem_instance', 'name')
 
 
 class OutputChecker(models.Model):

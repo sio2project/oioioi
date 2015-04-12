@@ -49,7 +49,7 @@ class TestTimelineView(TestCase):
 
 
 class TestChangingDates(TestCase):
-    fixtures = ['test_contest', 'test_full_package', 'test_extra_rounds',
+    fixtures = ['test_contest', 'test_empty_package', 'test_extra_rounds',
             'test_users', 'test_permissions', 'test_one_round_contest']
 
     # pylint: disable=dangerous-default-value

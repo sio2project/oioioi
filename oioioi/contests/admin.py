@@ -205,7 +205,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                         urllib.urlencode({'came_from': came_from})
 
     def probleminstance_change_link_name(self):
-        return _("Move/rename")
+        return _("Edit problem instance")
 
     def inline_actions(self, instance):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
@@ -455,7 +455,7 @@ class SubmissionAdmin(admin.ModelAdmin):
                                                 'pis_count': pis_count})
         uses_is_active = False
         for pi in pis:
-            if Test.objects.filter(problem=pi.problem,
+            if Test.objects.filter(problem_instance=pi,
                                    is_active=False) \
                            .exists():
                 uses_is_active = True

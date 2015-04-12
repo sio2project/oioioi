@@ -136,12 +136,17 @@ class LibraryProblemDataAdminMixin(object):
 class ProgrammingProblemAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
-        self.inlines = self.inlines + [TestInline, ReportActionsConfigInline,
+        self.inlines = self.inlines + [ReportActionsConfigInline,
                                        OutputCheckerInline,
                                        LibraryProblemDataInline]
 
 
 class ProgrammingProblemInstanceAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(ProgrammingProblemInstanceAdminMixin, self). \
+                __init__(*args, **kwargs)
+        self.inlines = self.inlines + [TestInline]
+
     def _is_partial_score(self, test_report):
         if not test_report:
             return False
@@ -182,7 +187,7 @@ class ProgrammingProblemInstanceAdminMixin(object):
                 .order_by('model_solution__order_key') \
                 .select_related('model_solution') \
                 .all()
-        tests = problem_instance.problem.test_set \
+        tests = problem_instance.test_set \
                 .order_by('order', 'group', 'name').all()
 
         group_results = defaultdict(lambda: defaultdict(lambda: None))

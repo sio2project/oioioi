@@ -215,7 +215,8 @@ class ProblemStatementConfig(models.Model):
 
 
 class ProblemInstance(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
+            null=True, blank=True)
     round = models.ForeignKey(Round, verbose_name=_("round"), null=True,
             blank=True)
     problem = models.ForeignKey(Problem, verbose_name=_("problem"))

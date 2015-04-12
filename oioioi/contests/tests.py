@@ -1435,3 +1435,18 @@ class TestUserInfo(TestCase):
         self.assertIn("<h4>User's round time extensions:</h4>",
                       response.content)
         self.assertIn("Extra time: 20", response.content)
+
+
+class TestProblemInstanceView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_permissions']
+
+    def test_admin_change_view(self):
+        self.client.login(username='test_admin')
+        problem_instance = Problem.objects.all()[0]
+        url = reverse('oioioiadmin:contests_probleminstance_change',
+                args=(problem_instance.id,))
+        response = self.client.get(url)
+        elements_to_find = ['0', '1a', '1b', '1ocen', '2', 'Example', 'Normal']
+        for element in elements_to_find:
+            self.assertIn(element, response.content)

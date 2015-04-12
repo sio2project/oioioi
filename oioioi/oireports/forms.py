@@ -48,7 +48,7 @@ def _testgroups(request):
                 'short_name': pi.short_name,
                 'testgroups': []
             }
-            for test in Test.objects.filter(problem=pi.problem):
+            for test in Test.objects.filter(problem_instance=pi):
                 if test.group not in task['testgroups']:
                     task['testgroups'].append(test.group)
             res['tasks'].append(task)

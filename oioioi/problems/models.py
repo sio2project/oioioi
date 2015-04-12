@@ -17,16 +17,21 @@ from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.filetracker.fields import FileField
 
+import oioioi.contests.models
+
 
 logger = logging.getLogger(__name__)
 
 
 def make_problem_filename(instance, filename):
     if not isinstance(instance, Problem):
-        assert hasattr(instance, 'problem'), 'problem_file_generator used ' \
-                'on object %r which does not have \'problem\' attribute' \
-                % (instance,)
-        instance = getattr(instance, 'problem')
+        try:
+            instance = instance.problem
+        except AttributeError:
+            assert hasattr(instance, 'problem'), \
+                    'problem_file_generator used ' \
+                    'on object %r which does not have \'problem\' attribute' \
+                    % (instance,)
     return 'problems/%d/%s' % (instance.id,
             get_valid_filename(os.path.basename(filename)))
 
@@ -36,6 +41,13 @@ class Problem(models.Model):
 
        Instances of :class:`Problem` do not represent problems in contests,
        see :class:`oioioi.contests.models.ProblemInstance` for those.
+
+       Each :class:`Problem` has associated main
+       :class:`oioioi.contests.models.ProblemInstance`,
+       called main_problem_instance:
+       1) It is not assigned to any contest.
+       2) It allows sending submissions aside from contests.
+       3) It is a base to create another instances.
     """
     name = models.CharField(max_length=255, verbose_name=_("full name"))
     short_name = models.CharField(max_length=30,
@@ -52,6 +64,16 @@ class Problem(models.Model):
             DottedNameField('oioioi.problems.package.ProblemPackageBackend',
                     null=True, blank=True, verbose_name=_("package type"))
 
+    # main_problem_instance:
+    # null=True, because there is a cyclic dependency
+    # and during creation of any Problem, main_problem_instance
+    # must be temporarily set to Null
+    # (ProblemInstance has ForeignKey to Problem
+    #  and Problem has ForeignKey to ProblemInstance)
+    main_problem_instance = models.ForeignKey('contests.ProblemInstance',
+            null=True, blank=False, verbose_name=_("main problem instance"),
+            related_name='main_problem_instance')
+
     @property
     def controller(self):
         return get_object_by_dotted_name(self.controller_name)(self)
@@ -59,6 +81,22 @@ class Problem(models.Model):
     @property
     def package_backend(self):
         return get_object_by_dotted_name(self.package_backend_name)()
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        """Creates a new :class:`Problem` object, with associated
+           main_problem_instance.
+
+           After the call, the :class:`Problem` and the
+           :class:`ProblemInstance` objects will be saved in the database.
+        """
+        problem = cls(*args, **kwargs)
+        problem.save()
+        pi = oioioi.contests.models.ProblemInstance(problem=problem)
+        pi.save()
+        problem.main_problem_instance = pi
+        problem.save()
+        return problem
 
     class Meta(object):
         verbose_name = _("problem")

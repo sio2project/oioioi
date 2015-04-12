@@ -106,7 +106,7 @@ def collect_tests(env, **kwargs):
        evaluation environments.
 
        Used ``environ`` keys:
-         * ``problem_id``
+         * ``problem_instance_id``
 
        Produced ``environ`` keys:
           * ``tests``: a dictionary mapping test names to test envs
@@ -119,10 +119,10 @@ def collect_tests(env, **kwargs):
                                                                     .values()
     else:
         tests = Test.objects.filter(
-            problem__id=env['problem_id'],
+            problem_instance__id=env['problem_instance_id'],
             is_active=True)
 
-    problem = env['problem_id']
+    problem_instance = env['problem_instance_id']
     if env['is_rejudge']:
         submission = env['submission_id']
         rejudge_type = env['extra_args'].setdefault('rejudge_type', 'FULL')
@@ -134,12 +134,12 @@ def collect_tests(env, **kwargs):
         if rejudge_type == 'NEW':
             tests_to_judge = [t.name for t in
                               Test.objects.filter(
-                                  problem__id=problem,
+                                  problem_instance__id=problem_instance,
                                   is_active=True)
                               .exclude(name__in=tests_used)]
         elif rejudge_type == 'JUDGED':
             tests = Test.objects.filter(
-                problem__id=problem,
+                problem_instance__id=problem_instance,
                 name__in=tests_used)
             tests_to_judge = [t for t in tests_to_judge if t in tests_used]
         elif rejudge_type == 'FULL':

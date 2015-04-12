@@ -2,9 +2,10 @@ from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.problems.models import Problem
 
 
-def create_problem_instance(env):
-    """Creates a :class:`~oioioi.contests.models.ProblemInstance` for the
-       processed :class:`~oioioi.problems.models.Problem`.
+def update_main_problem_instance(env):
+    """Updates :class:`~oioioi.contests.models.ProblemInstance` for the
+       processed :class:`~oioioi.problems.models.Problem`
+       (assigns correct contest and round).
 
        Used ``env`` keys:
          ``problem_id``: id of the processed
@@ -19,14 +20,10 @@ def create_problem_instance(env):
     """
     problem = Problem.objects.get(id=env['problem_id'])
     if env.get('contest_id', None):
-        contest = Contest.objects.get(id=env['contest_id'])
-        pi, created = ProblemInstance.objects.get_or_create(
-                problem=problem, contest=contest)
-        if created:
-            pi.submissions_limit = contest.default_submissions_limit
-            pi.save()
+        pi = problem.main_problem_instance
+        pi.contest = Contest.objects.get(id=env['contest_id'])
         if env.get('round_id', None) and not pi.round:
             pi.round = Round.objects.get(id=env['round_id'])
-            pi.save()
+        pi.save()
         env['problem_instance_id'] = pi.id
     return env

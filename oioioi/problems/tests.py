@@ -86,8 +86,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         url = reverse('oioioiadmin:problems_problem_change',
                 args=(problem.id,))
         response = self.client.get(url)
-        elements_to_find = ['Sum', 'sum', '0', '1a', '1b', '1ocen', '2',
-                'Example', 'Normal']
+        elements_to_find = ['Sum', 'sum']
         for element in elements_to_find:
             self.assertIn(element, response.content)
 
@@ -138,7 +137,7 @@ class DummyPackageBackend(ProblemPackageBackend):
 
     def unpack(self, env):
         pp = ProblemPackage.objects.get(id=env['package_id'])
-        p = Problem.objects.create(name='foo', short_name='bar',
+        p = Problem.create(name='foo', short_name='bar',
                 controller_name=
                         'oioioi.problems.controllers.ProblemController')
         env['problem_id'] = p.id

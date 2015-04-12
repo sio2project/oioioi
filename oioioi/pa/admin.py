@@ -46,6 +46,4 @@ class PAProblemInstanceAdminMixin(object):
         super(PAProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [PAProblemInstanceInline]
 
-    def probleminstance_change_link_name(self):
-        return _("Move/rename/change division")
 ProblemInstanceAdmin.mix_in(PAProblemInstanceAdminMixin)

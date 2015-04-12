@@ -753,7 +753,7 @@ class TestRejudge(TestCase, SubmitFileMixin):
         contest.save()
 
         pi = ProblemInstance.objects.get(id=1)
-        all_tests = Test.objects.filter(problem=pi.problem)
+        all_tests = Test.objects.filter(problem_instance=pi)
 
         self._set_active_tests(submit_active_tests, all_tests)
 

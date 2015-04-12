@@ -131,7 +131,8 @@ class TestSinolPackage(TestCase):
     def _check_no_ingen_package(self, problem, doc=True):
         self.assertEqual(problem.short_name, 'test')
 
-        tests = Test.objects.filter(problem=problem)
+        tests = Test.objects.filter(
+                problem_instance=problem.main_problem_instance)
         t0 = tests.get(name='0')
         self.assertEqual(t0.input_file.read(), '0 0\n')
         self.assertEqual(t0.output_file.read(), '0\n')
@@ -190,7 +191,8 @@ class TestSinolPackage(TestCase):
         else:
             self.assertEqual(problem.name, u'sum')
 
-        tests = Test.objects.filter(problem=problem)
+        tests = Test.objects.filter(
+                problem_instance=problem.main_problem_instance)
         t0 = tests.get(name='0')
         self.assertEqual(t0.input_file.read(), '1 2\n')
         self.assertEqual(t0.output_file.read(), '3\n')
@@ -242,7 +244,8 @@ class TestSinolPackage(TestCase):
         self.assertEqual(model_solutions.count(), 4)
         self.assertEqual(list(model_solutions), [sol, sol1, sols1, solb0])
 
-        tests = Test.objects.filter(problem=problem)
+        tests = Test.objects.filter(
+                problem_instance=problem.main_problem_instance)
 
     @attr('slow')
     @both_configurations
@@ -266,7 +269,8 @@ class TestSinolPackage(TestCase):
 
         self.assertEqual(problem.name, u'arc')
 
-        tests = Test.objects.filter(problem=problem)
+        tests = Test.objects.filter(
+            problem_instance=problem.main_problem_instance)
 
         t0 = tests.get(name='0')
         self.assertEqual(t0.input_file.read(), '3\n12\n5\n8\n3\n15\n8\n0\n')
@@ -347,14 +351,15 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(ProblemInstance.objects.count(), 1)
 
         # Delete tests and check if re-uploading will fix it.
-        problem = Problem.objects.get()
-        num_tests = problem.test_set.count()
-        for test in problem.test_set.all():
+        problem_instance = Problem.objects.get().main_problem_instance
+        num_tests = problem_instance.test_set.count()
+        for test in problem_instance.test_set.all():
             test.delete()
-        problem.save()
+        problem_instance.save()
         url = reverse('add_or_update_contest_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'problem': problem.id})
+                        urllib.urlencode({
+                                'problem': problem_instance.problem.id})
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
@@ -363,12 +368,12 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)
         self.assertEqual(response.status_code, 200)
-        problem = Problem.objects.get()
-        self.assertEqual(problem.test_set.count(), num_tests)
+        problem_instance = Problem.objects.get().main_problem_instance
+        self.assertEqual(problem_instance.test_set.count(), num_tests)
 
         response = self.client.get(
                 reverse('oioioiadmin:problems_problem_download',
-                    args=(problem.id,)))
+                    args=(problem_instance.problem.id,)))
         self.assertStreamingEqual(response, open(filename, 'rb').read())
 
     @both_configurations
@@ -398,7 +403,8 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
 
 
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_full_package']
+    fixtures = ['test_users', 'test_full_package',
+            'test_problem_instance_with_no_contest']
 
     def test_sinol_package_creator(self):
         problem = Problem.objects.get()

@@ -147,7 +147,7 @@ class PackageSource(ProblemSource):
         package.save()
         env = {}
         env['post_upload_handlers'] = \
-                ['oioioi.problems.handlers.create_problem_instance']
+                ['oioioi.problems.handlers.update_main_problem_instance']
         env['backend_name'] = backend_name
         env['package_id'] = package.id
         env['round_id'] = form.cleaned_data.get('round_id', None)

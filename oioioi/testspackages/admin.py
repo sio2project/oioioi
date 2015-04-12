@@ -25,8 +25,10 @@ class TestsPackageInline(admin.TabularInline):
                 request, obj, **kwargs)
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
+        # It should filter tests from main_problem_instance
         if db_field.name == 'tests' and getattr(self, 'problem', None):
-            kwargs['queryset'] = Test.objects.filter(problem=self.problem)
+            kwargs['queryset'] = Test.objects.filter(
+                    problem_instance=self.problem.main_problem_instance)
         return super(TestsPackageInline, self).formfield_for_manytomany(
                 db_field, request, **kwargs)
 

@@ -80,6 +80,7 @@ class SinolPackage(object):
         self.archive = Archive(path, ext)
         self.config = None
         self.problem = None
+        self.main_problem_instance = None
         self.rootdir = None
         self.short_name = None
         self.env = None
@@ -410,7 +411,8 @@ class SinolPackage(object):
             logger.info("%s: inwer success", self.filename)
 
     def _assign_scores(self, scored_groups, total_score):
-        Test.objects.filter(problem=self.problem).update(max_score=0)
+        Test.objects.filter(problem_instance=self.main_problem_instance) \
+                .update(max_score=0)
         num_groups = len(scored_groups)
         group_score = total_score / num_groups
         extra_score_groups = sorted(scored_groups, key=naturalsort_key)[
@@ -419,8 +421,8 @@ class SinolPackage(object):
             score = group_score
             if group in extra_score_groups:
                 score += 1
-            Test.objects.filter(problem=self.problem, group=group) \
-                    .update(max_score=score)
+            Test.objects.filter(problem_instance=self.main_problem_instance,
+                    group=group).update(max_score=score)
 
     def _process_test(self, test, order, names_re, indir, outdir,
             collected_ins, scored_groups, outs_to_make):
@@ -438,7 +440,7 @@ class SinolPackage(object):
         suffix = match.group(4)      # ocen
 
         instance, created = Test.objects.get_or_create(
-                problem=self.problem, name=name)
+                problem_instance=self.main_problem_instance, name=name)
 
         inname_base = basename + '.in'
         inname = os.path.join(indir, inname_base)
@@ -538,7 +540,8 @@ class SinolPackage(object):
                 raise ProblemPackageError(e.messages[0])
 
         # Delete nonexistent tests
-        for test in Test.objects.filter(problem=self.problem) \
+        for test in Test.objects.filter(
+                problem_instance=self.main_problem_instance) \
                 .exclude(id__in=[instance.id for instance in created_tests]):
             logger.info("%s: deleting test %s", self.filename, test.name)
             test.delete()
@@ -659,6 +662,7 @@ class SinolPackage(object):
         existing_problem = self.package.problem
         if existing_problem:
             self.problem = existing_problem
+            self.main_problem_instance = self.problem.main_problem_instance
             if existing_problem.short_name != self.short_name:
                 raise ProblemPackageError(_("Tried to replace problem "
                     "'%(oldname)s' with '%(newname)s'. For safety, changing "
@@ -666,11 +670,12 @@ class SinolPackage(object):
                     dict(oldname=existing_problem.short_name,
                         newname=self.short_name))
         else:
-            self.problem = Problem(
+            self.problem = Problem.create(
                     name=self.short_name,
                     short_name=self.short_name,
                     controller_name=self.controller_name,
                     contest=self.package.contest)
+            self.main_problem_instance = self.problem.main_problem_instance
 
         self.problem.package_backend_name = self.package_backend_name
         self.problem.save()
@@ -721,7 +726,9 @@ class SinolPackageCreator(object):
             self._pack_django_file(statement.content, filename)
 
     def _pack_tests(self):
-        for test in Test.objects.filter(problem=self.problem):
+        # Takes tests from main_problem_instance
+        for test in Test.objects.filter(
+                problem_instance=self.problem.main_problem_instance):
             basename = '%s%s' % (self.short_name, test.name)
             self._pack_django_file(test.input_file,
                     os.path.join(self.short_name, 'in', basename + '.in'))

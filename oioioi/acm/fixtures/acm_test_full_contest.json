@@ -631,6 +631,7 @@
   "pk": 1, 
   "model": "problems.problem", 
   "fields": {
+    "main_problem_instance": 1,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
     "contest": "acm", 
     "name": "test", 
@@ -642,6 +643,7 @@
   "pk": 2, 
   "model": "problems.problem", 
   "fields": {
+    "main_problem_instance": 2,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
     "contest": "acm", 
     "name": "Sum\u017cyce", 
@@ -653,6 +655,7 @@
   "pk": 3, 
   "model": "problems.problem", 
   "fields": {
+    "main_problem_instance": 3,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
     "contest": "acm", 
     "name": "Apples", 
@@ -664,6 +667,7 @@
   "pk": 4, 
   "model": "problems.problem", 
   "fields": {
+    "main_problem_instance": 4,
     "package_backend_name": "oioioi.sinolpack.package.SinolPackageBackend", 
     "contest": "acm", 
     "name": "test", 
@@ -682,7 +686,7 @@
     "input_file": "data:problems/1/test0_1.in:MCAwCg==", 
     "output_file": "data:problems/1/test0_1.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 1, 
+    "problem_instance": 1,
     "max_score": 0, 
     "order": 0
   }
@@ -698,7 +702,7 @@
     "input_file": "data:problems/1/test1a_1.in:MCAwCg==", 
     "output_file": "data:problems/1/test1a_1.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 1, 
+    "problem_instance": 1,
     "max_score": 100, 
     "order": 1
   }
@@ -714,7 +718,7 @@
     "input_file": "data:problems/1/test1b_1.in:MCAwCg==", 
     "output_file": "data:problems/1/test1b_1.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 1, 
+    "problem_instance": 1,
     "max_score": 100, 
     "order": 2
   }
@@ -730,7 +734,7 @@
     "input_file": "data:problems/2/sum0_1.in:MSAyCg==", 
     "output_file": "data:problems/2/sum0_1.out:Mwo=", 
     "memory_limit": 133000, 
-    "problem": 2, 
+    "problem_instance": 2,
     "max_score": 0, 
     "order": 1
   }
@@ -746,7 +750,7 @@
     "input_file": "data:problems/2/sum1a_1.in:MiAzCg==", 
     "output_file": "data:problems/2/sum1a_1.out:NQo=", 
     "memory_limit": 133000, 
-    "problem": 2, 
+    "problem_instance": 2,
     "max_score": 33, 
     "order": 2
   }
@@ -762,7 +766,7 @@
     "input_file": "data:problems/2/sum1b_1.in:MTAwIDM0Mgo=", 
     "output_file": "data:problems/2/sum1b_1.out:NDQyCg==", 
     "memory_limit": 133000, 
-    "problem": 2, 
+    "problem_instance": 2,
     "max_score": 33, 
     "order": 3
   }
@@ -778,7 +782,7 @@
     "input_file": "data:problems/2/sum1ocen_1.in:MjgzNyA0NTcwCg==", 
     "output_file": "data:problems/2/sum1ocen_1.out:NzQwNwo=", 
     "memory_limit": 133000, 
-    "problem": 2, 
+    "problem_instance": 2,
     "max_score": 0, 
     "order": 4
   }
@@ -794,7 +798,7 @@
     "input_file": "data:problems/2/sum2_1.in:NDk3MiA5NDU5Cg==", 
     "output_file": "data:problems/2/sum2_1.out:MTQ0MzEK", 
     "memory_limit": 133000, 
-    "problem": 2, 
+    "problem_instance": 2,
     "max_score": 33, 
     "order": 5
   }
@@ -810,7 +814,7 @@
     "input_file": "data:problems/2/sum3_1.in:NTYxNyA0NzU5Cg==", 
     "output_file": "data:problems/2/sum3_1.out:MTAzNzYK", 
     "memory_limit": 133000, 
-    "problem": 2, 
+    "problem_instance": 2,
     "max_score": 34, 
     "order": 6
   }
@@ -826,7 +830,7 @@
     "input_file": "data:problems/3/A0.in:MCAwCg==", 
     "output_file": "data:problems/3/A0.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 3, 
+    "problem_instance": 3,
     "max_score": 0, 
     "order": 0
   }
@@ -842,7 +846,7 @@
     "input_file": "data:problems/3/A1a.in:MCAwCg==", 
     "output_file": "data:problems/3/A1a.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 3, 
+    "problem_instance": 3,
     "max_score": 100, 
     "order": 1
   }
@@ -858,7 +862,7 @@
     "input_file": "data:problems/3/A1b.in:MCAwCg==", 
     "output_file": "data:problems/3/A1b.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 3, 
+    "problem_instance": 3,
     "max_score": 100, 
     "order": 2
   }
@@ -874,7 +878,7 @@
     "input_file": "data:problems/4/test0_1.in:MCAwCg==", 
     "output_file": "data:problems/4/test0_1.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 4, 
+    "problem_instance": 4,
     "max_score": 0, 
     "order": 0
   }
@@ -890,7 +894,7 @@
     "input_file": "data:problems/4/test1a_1.in:MCAwCg==", 
     "output_file": "data:problems/4/test1a_1.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 4, 
+    "problem_instance": 4,
     "max_score": 100, 
     "order": 1
   }
@@ -906,7 +910,7 @@
     "input_file": "data:problems/4/test1b_1.in:MCAwCg==", 
     "output_file": "data:problems/4/test1b_1.out:MAo=", 
     "memory_limit": 66000, 
-    "problem": 4, 
+    "problem_instance": 4,
     "max_score": 100, 
     "order": 2
   }
@@ -3877,7 +3881,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": null, 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "score": null, 
     "submission_report": null, 
     "user": 1
@@ -3888,7 +3892,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "score": "ACM:00000000019999998317:0000000001:0000000483:0000000001", 
     "submission_report": 10, 
     "user": 2
@@ -3899,7 +3903,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "score": "ACM:00000000019999999592:0000000001:0000000408:0000000000", 
     "submission_report": 8, 
     "user": 3
@@ -3910,7 +3914,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "score": "ACM:00000000019999993205:0000000001:0000004395:0000000002", 
     "submission_report": 15, 
     "user": 3
@@ -3921,7 +3925,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "score": "ACM:00000000019999995605:0000000001:0000004395:0000000000", 
     "submission_report": 16, 
     "user": 2
@@ -3932,7 +3936,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "score": "ACM:00000000019999985540:0000000001:0000014460:0000000000", 
     "submission_report": 19, 
     "user": 3
@@ -3943,7 +3947,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "score": "ACM:00000000019999982060:0000000001:0000017940:0000000000", 
     "submission_report": 20, 
     "user": 4
@@ -3954,7 +3958,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "score": "ACM:00000000019999984400:0000000001:0000015600:0000000000", 
     "submission_report": 21, 
     "user": 4
@@ -3965,7 +3969,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "score": "ACM:00000000010000000000:0000000000:0000006900:0000000002", 
     "submission_report": 23, 
     "user": 2
@@ -3976,7 +3980,7 @@
   "model": "contests.userresultforproblem", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 4, 
+    "problem_instance": 4,
     "score": "ACM:00000000019999993400:0000000001:0000005400:0000000001", 
     "submission_report": 27, 
     "user": 2
@@ -3987,7 +3991,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4000,7 +4004,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4013,7 +4017,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "CE", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "IGNORED", 
     "comment": "", 
     "score": null, 
@@ -4026,7 +4030,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "CE", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "IGNORED", 
     "comment": "", 
     "score": null, 
@@ -4039,7 +4043,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4052,7 +4056,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4065,7 +4069,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4078,7 +4082,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4091,7 +4095,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4104,7 +4108,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4117,7 +4121,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4130,7 +4134,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4143,7 +4147,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "MLE", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4156,7 +4160,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4169,7 +4173,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4182,7 +4186,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4195,7 +4199,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "IGN", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "NORMAL", 
     "comment": "", 
     "score": null, 
@@ -4208,7 +4212,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "IGN", 
-    "problem_instance": 1, 
+    "problem_instance": 1,
     "kind": "NORMAL", 
     "comment": "", 
     "score": null, 
@@ -4221,7 +4225,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4234,7 +4238,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4247,7 +4251,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 2, 
+    "problem_instance": 2,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4260,7 +4264,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4273,7 +4277,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4286,7 +4290,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "CE", 
-    "problem_instance": 3, 
+    "problem_instance": 3,
     "kind": "NORMAL", 
     "comment": "", 
     "score": null, 
@@ -4299,7 +4303,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 4, 
+    "problem_instance": 4,
     "kind": "IGNORED", 
     "comment": "", 
     "score": "bool:accepted", 
@@ -4312,7 +4316,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "WA", 
-    "problem_instance": 4, 
+    "problem_instance": 4,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:rejected", 
@@ -4325,7 +4329,7 @@
   "model": "contests.submission", 
   "fields": {
     "status": "OK", 
-    "problem_instance": 4, 
+    "problem_instance": 4,
     "kind": "NORMAL", 
     "comment": "", 
     "score": "bool:accepted", 
