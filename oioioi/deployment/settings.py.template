@@ -223,6 +223,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.icon_processor',
 #    'oioioi.avatar.processors.gravatar',
 #    'oioioi.notifications.processors.notification_processor',
+#    'oioioi.gamification.processors.miniprofile_processor',
 )
 
 MIDDLEWARE_CLASSES += (

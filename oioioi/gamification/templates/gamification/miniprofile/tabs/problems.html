@@ -1,0 +1,20 @@
+{% load i18n %}
+{% if submissions %}
+<ul class="nav nav-pills nav-stacked">
+    {% for submission in submissions %}
+    <li>
+        {% url 'problem_site' site_key=submission.problem.problemsite.url_key as problem_site %}
+        {% if problem_site %}
+        <a href="{{ problem_site }}" title="{{ submission.problem.name }}">
+        {% endif %}
+            <h2 class="ellipsis">{{ submission.problem.name }}</h2>
+            <small class="ellipsis">{% blocktrans with user=submission.user %}(solved by {{ user }}){% endblocktrans %}</small>
+        {% if problem_site %}
+        </a>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="text-center">{% trans "Your friends didn't solve any problems." %}</p>
+{% endif %}
