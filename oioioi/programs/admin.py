@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
+from django.http import Http404
 
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import ProblemInstance
@@ -151,6 +152,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
     def model_solutions_view(self, request, problem_instance_id):
         problem_instance = self.get_object(request,
                 unquote(problem_instance_id))
+        if problem_instance is None:
+            raise Http404
         contest = problem_instance.contest
         if not request.user.has_perm('contests.contest_admin', contest):
             raise PermissionDenied
