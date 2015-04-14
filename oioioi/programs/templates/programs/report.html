@@ -48,7 +48,7 @@
                         </div>
                     </td>
                     <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
-                    <td>{{ test.time_used|runtimeformat }}/{{ test.test_time_limit|runtimeformat }}</td>
+                    <td>{% if is_admin or test.status != 'TLE' %}{{ test.time_used|runtimeformat }}{% else %}-.--s{% endif %}/{{ test.test_time_limit|runtimeformat }}</td>
                     {% if show_scores and forloop.first %}
                         <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ group.report.max_score }}{% endif %}</td>
                     {% endif %}
