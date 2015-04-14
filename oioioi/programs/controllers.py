@@ -18,7 +18,8 @@ from django.contrib.auth.models import User
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
-from oioioi.problems.utils import is_problem_author
+from oioioi.problems.utils import is_problem_author, \
+        can_see_submission_without_contest
 from oioioi.contests.controllers import ContestController, \
         submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
@@ -581,6 +582,9 @@ class ProgrammingProblemController(ProblemController):
         """
         problem = submission_report.submission.problem_instance.problem
         return is_problem_author(request, problem)
+
+    def can_see_source(self, request, submission):
+        return can_see_submission_without_contest(request, submission)
 
     def can_see_test_comments(self, request, submissionreport):
         return True

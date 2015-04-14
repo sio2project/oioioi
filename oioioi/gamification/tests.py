@@ -556,7 +556,9 @@ class TestProfileTabs(TestCase):
 class TestCodeSharingFriends(TestCase):
     fixtures = ['gamification_users.json', 'test_friendships.json',
                 'test_allowsharingprefs.json', 'gamification_problems.json',
-                'gamification_submissions.json']
+                'gamification_submissions.json',
+                'test_submission_source.json',
+                'gamification_problem_without_contest.json']
 
     def ensure_enabled(self):
         self.assertTrue(
@@ -621,6 +623,27 @@ class TestCodeSharingFriends(TestCase):
         self.assertEquals(
             list(controller.shared_with_me(problem, user4).all()),
             [])
+
+    def test_is_shared_visible(self):
+        def check_submission(submission_id, view_name):
+            submission = Submission.objects.get(pk=submission_id)
+
+            kwargs = {'submission_id': submission.id}
+            if submission.problem_instance.contest is not None:
+                kwargs['contest_id'] = submission.problem_instance.contest.id
+            url = reverse(view_name, kwargs=kwargs)
+
+            # 2 & 4 are friends, 1 & 4 are not
+            self.client.login(username='test_user')
+            response = self.client.get(url)
+            self.assertEquals(response.status_code, 403)
+
+            self.client.login(username='test_user2')
+            response = self.client.get(url)
+            self.assertEquals(response.status_code, 200)
+
+        check_submission(1, 'show_submission_source')
+        check_submission(2, 'show_submission_source_without_contest')
 
 
 class DifficultyTest(TestCase):

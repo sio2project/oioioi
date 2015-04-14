@@ -7,6 +7,8 @@ from oioioi.gamification.models import CodeSharingSettings
 from oioioi.base.preferences import PreferencesSaved, PreferencesFactory
 from oioioi.contests.models import Submission
 from oioioi.problems.models import Problem
+from oioioi.programs.controllers import ProgrammingContestController, \
+    ProgrammingProblemController
 from oioioi.gamification.constants import CODE_SHARING_FRIENDS_ENABLED,\
     CODE_SHARING_PREFERENCES_DEFAULT, SuggestLvl2From, SuggestLvl3From, \
     SuggestLvl4From, SuggestLvl5From
@@ -14,7 +16,6 @@ from oioioi.problems.controllers import ProblemController
 from oioioi.gamification.experience import Experience
 from oioioi.gamification.difficulty import _update_problem_difficulty,\
     get_problems_by_difficulty, DIFFICULTY
-
 
 class CodeSharingController(ObjectWithMixins):
     """When viewing a programming problem, we want to compare our code with our
@@ -28,14 +29,24 @@ class CodeSharingController(ObjectWithMixins):
     """
 
     def can_see_code(self, task, user_requester, user_sharing):
-        """This functions returns a bool indicating whether the requester can
+        """This function returns a bool indicating whether the requester can
            see code of sharer for the task.
         """
         return False
 
     def shared_with_me(self, task, user):
-        """This functions returns a queryset of all the possible codes the
+        """This function returns a queryset of all the possible codes the
            user can see for the provided task.
+        """
+        all_shared = self.all_shared_with_me(user)
+        return all_shared.filter(
+            submissionreport__userresultforproblem__problem_instance__problem=
+                task
+        )
+
+    def all_shared_with_me(self, user):
+        """This function returns a queryset of all the possible codes the
+           user can see.
         """
         return Submission.objects.none()
 
@@ -75,7 +86,7 @@ class CodeSharingFriendsController(ObjectWithMixins):
         return (CodeSharingSettings.objects.sharing_allowed(user_sharing) and
                 self._has_submission(task, user_sharing))
 
-    def shared_with_me(self, task, user):
+    def all_shared_with_me(self, user):
         allowed_sharing = UserFriends(user).friends
         if CODE_SHARING_PREFERENCES_DEFAULT is True:
             allowed_sharing = allowed_sharing.exclude(
@@ -86,9 +97,7 @@ class CodeSharingFriendsController(ObjectWithMixins):
                 codesharingsettings__code_share_allowed=True
             )
         result = Submission.objects.filter(
-            submissionreport__userresultforproblem__user__in=allowed_sharing,
-            submissionreport__userresultforproblem__problem_instance__problem=
-                task
+            submissionreport__userresultforproblem__user__in=allowed_sharing
         )
         return result
 
@@ -100,6 +109,36 @@ class CodeSharingFriendsController(ObjectWithMixins):
 
 if CODE_SHARING_FRIENDS_ENABLED:
     CodeSharingFriendsController.set_up()
+
+
+class CodeSharingProgramControllerMixin(object):
+    """A mixin allowing users to see shared submissions' contents.
+    """
+    def can_see_source(self, request, submission):
+        prev = super(CodeSharingProgramControllerMixin, self) \
+                .can_see_source(request, submission)
+
+        return prev or CodeSharingController().can_see_code(
+                submission.problem, request.user, submission.user)
+
+ProgrammingProblemController.mix_in(CodeSharingProgramControllerMixin)
+
+
+class CodeSharingContestControllerMixin(object):
+    """A mixin allowing users to see shared submissions' contents.
+    """
+    def filter_visible_sources(self, request, queryset):
+        prev = super(CodeSharingContestControllerMixin, self) \
+                .filter_visible_sources(request, queryset)
+
+        if not request.user.is_authenticated():
+            return prev
+
+        shared = CodeSharingController().all_shared_with_me(request.user)
+        return prev | queryset.filter(id__in=shared)
+
+
+ProgrammingContestController.mix_in(CodeSharingContestControllerMixin)
 
 
 class TaskSuggestionController(ObjectWithMixins):

@@ -3,7 +3,7 @@ import sys
 import zipfile
 
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import SuspiciousOperation, PermissionDenied
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import translation
@@ -90,6 +90,17 @@ def get_submission_without_contest(request, submission_id):
     if not can_see_submission_without_contest(request, submission):
         raise Http404
     return submission
+
+
+def get_submission_source_file_without_contest_or_error(request,
+                                                        submission_id):
+    submission = get_object_or_404(Submission, id=submission_id) \
+            .programsubmission
+    assert submission.problem_instance.contest is None
+    controller = submission.problem_instance.controller
+    if not controller.can_see_source(request, submission):
+        raise PermissionDenied
+    return submission.source_file
 
 
 def update_tests_from_main_pi(problem_instance):

@@ -30,7 +30,8 @@ from oioioi.contests.utils import contest_exists, can_enter_contest, \
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem, \
-        get_submission_without_contest
+        get_submission_without_contest, \
+        get_submission_source_file_without_contest_or_error
 
 # Workaround for race condition in fnmatchcase which is used by pygments
 import fnmatch
@@ -82,11 +83,12 @@ def show_submission_source_view(request, submission_id):
 
 
 def show_submission_source_without_contest_view(request, submission_id):
-    submission = get_submission_without_contest(request, submission_id)
+    source_file = get_submission_source_file_without_contest_or_error(
+            request, submission_id)
     download_url = reverse('download_submission_source',
             kwargs={'submission_id': submission_id})
     return show_submission_source_view_unsafe(request, submission_id,
-                                      submission.source_file, download_url)
+                                              source_file, download_url)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -99,7 +101,8 @@ def save_diff_id_view(request, submission_id):
 
 def save_diff_id_without_contest_view(request, submission_id):
     # Verify user's access to the submission
-    get_submission_without_contest(request, submission_id)
+    get_submission_source_file_without_contest_or_error(request,
+                                                        submission_id)
     request.session['saved_diff_id'] = submission_id
     return HttpResponse()
 
@@ -192,17 +195,15 @@ def source_diff_view(request, submission1_id, submission2_id):
 def source_diff_without_contest_view(request, submission1_id, submission2_id):
     if request.session.get('saved_diff_id'):
         request.session.pop('saved_diff_id')
-    submission1 = get_submission_without_contest(request, submission1_id)
-    submission2 = get_submission_without_contest(request, submission2_id)
-    source1 = submission1.programsubmission.source_file.read()
-    source2 = submission2.programsubmission.source_file.read()
+    source1 = get_submission_source_file_without_contest_or_error(
+        request, submission1_id).read()
+    source2 = get_submission_source_file_without_contest_or_error(
+        request, submission2_id).read()
 
     download_url1 = reverse('download_submission_source_without_contest',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission1_id})
+            kwargs={'submission_id': submission1_id})
     download_url2 = reverse('download_submission_source_without_contest',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission2_id})
+            kwargs={'submission_id': submission2_id})
 
     reverse_diff_url = reverse('source_diff_without_contest', kwargs={
                  'submission1_id': submission2_id,
@@ -214,8 +215,9 @@ def source_diff_without_contest_view(request, submission1_id, submission2_id):
 
 
 def download_submission_source_without_contest_view(request, submission_id):
-    submission = get_submission_without_contest(request, submission_id)
-    return stream_file(submission.source_file)
+    source_file = get_submission_source_file_without_contest_or_error(
+        request, submission_id)
+    return stream_file(source_file)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
