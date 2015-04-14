@@ -1,0 +1,11 @@
+{% extends "simple-centered-wide.html" %}
+{% load i18n %}
+
+{% block content %}
+    <p>{% trans "Do you really want to delete your portal?" %}</p>
+    <form method="post" action="">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary" name="confirmation" value="">{% trans "Yes" %}</button>
+        <button type="submit" class="btn btn-primary">{% trans "No" %}</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "simple-centered-wide.html" %}
+{% load i18n portal_url %}
+
+{% block title %}{{ owner.username }}{% trans "'s portal" %} &gt; {{ path_node_names|join:" > " }}{% endblock %}
+
+{% block content %}
+    {% if can_edit %}
+        <div class="pull-right">
+            <a href="{% portal_url username=owner.username path=portal_path %}" class="btn btn-primary">{% trans "Show node" %}</a>
+            <a href="{% portal_url action='edit' username=owner.username path=portal_path %}" class="btn btn-primary">{% trans "Edit node" %}</a>
+            <a href="{% portal_url action='add' username=owner.username path=portal_path %}" class="btn btn-primary">{% trans "Add child node" %}</a>
+            {% if not node.is_root_node %}
+                <a href="{% portal_url action='delete' username=owner.username path=portal_path %}" class="btn btn-danger">{% trans "Delete node" %}</a>
+            {% endif %}
+            <a href="{% portal_url action='manage_portal' username=owner.username %}"  class="btn btn-primary">{% trans "Manage portal" %}</a>
+        </div>
+        <div class="clearfix"></div>
+        <hr class="divider">
+    {% endif %}
+    <div>
+        {% block panel %}
+        {% endblock %}
+    </div>
+{% endblock %}

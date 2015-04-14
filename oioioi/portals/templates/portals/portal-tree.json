@@ -1,0 +1,1 @@
+{% load mptt_tags %}[{% recursetree nodes %}{"id":{{ node.pk }},"short_name":"{{ node.short_name|escapejs }}","label":"{{ node.full_name|escapejs }}","children":[{{ children }}]}{% endrecursetree %}]

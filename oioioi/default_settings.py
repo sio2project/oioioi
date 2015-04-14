@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'compressor',
     'linaro_django_pagination',
+    'mptt',
 
     'django.contrib.admin',
     'django.contrib.admindocs',

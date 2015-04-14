@@ -65,6 +65,8 @@ setup(
 
         "django-gravatar2",
 
+        "django-mptt",
+
         # A library required by AMQP, used in notifications system.
         # We need version >= 1.5.1, becuase it has fixed this bug
         # https://github.com/celery/librabbitmq/issues/42

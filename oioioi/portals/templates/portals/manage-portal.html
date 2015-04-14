@@ -1,0 +1,56 @@
+{% extends "simple-centered-wide.html" %}
+{% load i18n mptt_tags portal_url %}
+
+{% block title %}{{ owner.username }}{% trans "'s portal" %}{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}portals/tree.jquery.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $('#tree').tree({
+                autoOpen: true,
+                dragAndDrop: true,
+                onCanMove: function(node) {
+                    return !!node.parent.parent;
+                },
+                onCanMoveTo: function(node, target, position) {
+                    return target.getLevel() > 1 || position == 'inside';
+                },
+                onCreateLi: function(node, li) {
+                    var path = '';
+                    while(node.parent && node.parent.parent) {
+                        path = node.short_name + '/' + path;
+                        node = node.parent;
+                    }
+                    var links = ' <a href="{% portal_url username=owner.username path='__PATH__' %}">{% trans 'show' %}</a>';
+                    links = links.replace(/__PATH__/g, path);
+                    li.find('.jqtree-title').after(links);
+                }
+            }).bind('tree.move', function(event) {
+                $.ajax('{% url 'move_node' %}', {
+                    data: {
+                        node: event.move_info.moved_node.id,
+                        target: event.move_info.target_node.id,
+                        position: event.move_info.position
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_URL }}portals/jqtree.css">
+{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Manage portal" %}</h2>
+    <div id="tree" data-url="{% portal_url action='portal_tree_json' username=owner.username %}">
+    </div>
+    <hr class="divider">
+    <div class="pull-right">
+        <a href="{% portal_url action='delete_portal' username=owner.username %}" class="btn btn-danger">{% trans "Delete portal" %}</a>
+    </div>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "simple-centered-wide.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Portal creation" %}{% endblock %}
+
+{% block content %}
+    <p>{% trans "You do not have a portal yet. Do you want to create one?" %}</p>
+    <form method="post" action="">
+         {% csrf_token %}
+         <button type="submit" class="btn btn-primary" name="confirmation" value    ="">{% trans "Yes" %}</button>
+         <button type="submit" class="btn btn-primary">{% trans "No" %}</button>
+    </form>
+{% endblock %}

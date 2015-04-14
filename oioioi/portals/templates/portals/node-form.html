@@ -1,0 +1,15 @@
+{% extends "portals/base-node.html" %}
+{% load i18n %}
+
+{% block panel %}
+    <h2>{% block form_header %}{% endblock %}</h2>
+    <form method="post" action="" class="form-horizontal">
+        {% csrf_token %}
+        <fieldset>
+            {% include 'ingredients/form.html' %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+            </div>
+        </fieldset>
+    </form>
+{% endblock %}

@@ -1,0 +1,74 @@
+[
+    {
+        "fields": {
+            "rght": 6,
+            "panel_code": "a05e",
+            "short_name": "",
+            "parent": null,
+            "level": 0,
+            "lft": 1,
+            "full_name": "Root",
+            "tree_id": 1
+        },
+        "model": "portals.node",
+        "pk": 1
+    },
+    {
+        "fields": {  
+            "rght": 3,
+            "panel_code": "b864",
+            "short_name": "child1",
+            "parent": 1,
+            "level": 1,
+            "lft": 2,
+            "full_name": "Child 1",
+            "tree_id": 1
+        },
+        "model": "portals.node",
+        "pk": 2
+    },
+    {  
+        "fields": {  
+            "rght": 2,
+            "panel_code": "8530",
+            "short_name": "",
+            "parent": null,
+            "level": 0,
+            "lft": 1,
+            "full_name": "Root",
+            "tree_id": 2
+        },
+        "model": "portals.node",
+        "pk": 3
+    },
+    {  
+        "fields": {  
+            "rght": 5,
+            "panel_code": "d61a",
+            "short_name": "child2",
+            "parent": 1,
+            "level": 1,
+            "lft": 4,
+            "full_name": "Child 2",
+            "tree_id": 1
+        },
+        "model": "portals.node",
+        "pk": 4
+    },
+    {  
+        "fields": {  
+            "owner": 1001,
+            "root": 1
+        },
+        "model": "portals.portal",
+        "pk": 1
+    },
+    {  
+        "fields": {  
+            "owner": 1002,
+            "root": 3
+        },
+        "model": "portals.portal",
+        "pk": 2
+    }
+]
