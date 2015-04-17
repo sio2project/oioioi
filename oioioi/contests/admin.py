@@ -405,14 +405,9 @@ class SubmissionAdmin(admin.ModelAdmin):
     def user_login(self, instance):
         if not instance.user:
             return ''
-        return make_html_link(
-                reverse('user_info', kwargs={
-                        'contest_id': instance.problem_instance.contest.id,
-                        'user_id': instance.user.id}),
-                instance.user.username)
+        return instance.user.username
     user_login.short_description = _("Login")
     user_login.admin_order_field = 'user__username'
-    user_login.allow_tags = True
 
     def user_full_name(self, instance):
         if not instance.user:

@@ -103,7 +103,15 @@
     </thead>
     <tbody>
         <tr>
-            {% if is_admin %}<td>{{ submission.submission.user.get_full_name }}</td>{% endif %}
+            {% if is_admin %}
+            <td>
+                {% if submission.submission.user %}
+                <a href="{% url 'user_info' contest.id submission.submission.user_id %}">{{ submission.submission.user.get_full_name }}</a>
+                {% else %}
+                {{ submission.submission.user.get_full_name }}
+                {% endif %}
+            </td>
+            {% endif %}
             <td>{{ submission.submission.problem_instance }}</td>
             <td>{{ submission.submission.get_date_display }}</td>
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
