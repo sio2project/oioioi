@@ -54,14 +54,37 @@ class TestExperienceModule(TestCase):
 
     def test_experience_basic(self):
         # Yeah I guess not that much testing can be done here
-        self.assertEquals(Experience.exp_to_lvl(-1), 0)
-        self.assertEquals(Experience.exp_to_lvl(0), 0)
+        self.assertRaises(ValueError, Experience.exp_to_lvl, -1)
+        self.assertRaises(ValueError, Experience.exp_to_lvl, 0)
         self.assertEquals(Experience.exp_to_lvl(1), ExpMultiplier)
         self.assertEquals(Experience.exp_to_lvl(2), ExpBase*ExpMultiplier)
         self.assertEquals(
             Experience.exp_to_lvl(SoftCapLevel + 1),
             Experience.exp_to_lvl(SoftCapLevel) + LinearMultiplier
         )
+
+    def test_experience_from_pair(self):
+        test_user = User.objects.get(username='test_user')
+
+        experience = Experience(level=0, experience=ExpMultiplier+2)
+        self.assertEquals(experience.level_exp_tuple, (1, 2))
+        self.assertEquals(experience.current_level, 1)
+        self.assertEquals(experience.current_experience, 2)
+        self.assertRaises(ValueError, experience.force_recalculate)
+
+        experience2 = Experience(level=0, experience=ExpMultiplier-1)
+        self.assertEquals(experience2.level_exp_tuple, (0, ExpMultiplier-1))
+
+        self.assertRaises(ValueError, Experience,
+                          user=test_user,
+                          level=1)
+        self.assertRaises(ValueError, Experience,
+                          user=test_user,
+                          experience=1)
+        self.assertRaises(ValueError, Experience,
+                          user=test_user,
+                          level=1,
+                          experience=1)
 
     def test_experience_with_sources(self):
         class TestSource(ExperienceSource):
