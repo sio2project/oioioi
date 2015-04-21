@@ -40,7 +40,6 @@ class TestModels(TestCase):
         self.assertEqual(make_problem_filename(ps, 'a/hej.txt'),
                 'problems/12/hej.txt')
 
-
 class TestProblemViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance', 'test_permissions']
@@ -478,3 +477,22 @@ class TestProblemSite(TestCase, TestStreamingMixin):
                 kwargs={'site_key': '123', 'attachment_id': 1})
         response = self.client.get(url_external_attmt)
         self.assertStreamingEqual(response, 'content-of-probatt')
+
+
+class TestProblemsetPage(TestCase):
+    fixtures = ['test_users', 'test_problemset_author_problems']
+
+    def test_database(self):
+        self.client.login(username='test_user')
+        url = reverse('oioioi.problems.views.problemset_main_view')
+        response = self.client.post(url)
+        public_problems = Problem.objects.filter(is_public=True)
+        for problem in public_problems:
+            self.assertIn(str(problem.name), str(response.content))
+
+        url = reverse('oioioi.problems.views.problemset_my_problems_view')
+        response = self.client.post(url)
+        author_user = User.objects.filter(username='test_user')
+        author_problems = Problem.objects.filter(author=author_user)
+        for problem in author_problems:
+            self.assertIn(str(problem.name), str(response.content))

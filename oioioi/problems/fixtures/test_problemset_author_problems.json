@@ -1,0 +1,80 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Public with author",
+      "contest": null,
+      "author": 1001,
+      "short_name": "pba",
+      "is_public": true,
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Private with author",
+      "contest": null,
+      "author":1001,
+      "short_name": "pra",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Public alone",
+      "contest": null,
+      "short_name": "pub",
+      "author":1002,
+      "is_public": true,
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Private alone",
+      "contest": null,
+      "author":1002,
+      "short_name": "priv",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "pub_with_author"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "priv_with_author"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "pub_alone"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 4,
+      "url_key": "priv_alone"
+    }
+  }
+]
