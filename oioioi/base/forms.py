@@ -9,7 +9,7 @@ from registration.forms import RegistrationForm
 
 from oioioi.base.utils.validators import ValidationError
 from oioioi.base.utils.user import USERNAME_REGEX
-
+from oioioi.base.preferences import PreferencesSaved
 
 def adjust_username_field(form):
     help_text = \
@@ -40,10 +40,15 @@ class UserForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.allow_login_change = kwargs.pop('allow_login_change', False)
+        extra = kwargs.pop('extra', {})
+
         super(UserForm, self).__init__(*args, **kwargs)
+
         adjust_username_field(self)
         if not self.allow_login_change:
             self.fields['username'].widget.attrs.update(readonly=True)
+
+        self.fields.update(extra)
 
     def clean_username(self):
         instance = getattr(self, 'instance', None)
@@ -53,6 +58,12 @@ class UserForm(forms.ModelForm):
             return instance.username
         else:
             return self.cleaned_data['username']
+
+    def save(self, *args, **kwargs):
+        instance = super(UserForm, self).save(*args, **kwargs)
+        PreferencesSaved.send(self)
+        return instance
+
 
 
 class OioioiUserCreationForm(UserCreationForm):

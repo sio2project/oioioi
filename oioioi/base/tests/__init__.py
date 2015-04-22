@@ -32,6 +32,7 @@ from django.utils.importlib import import_module
 from django.core.handlers.wsgi import WSGIRequest
 from django.core.cache import cache
 from django.template.loaders.cached import Loader as CachedLoader
+from django.forms.fields import CharField, IntegerField
 
 from oioioi.base import utils
 from oioioi.base.permissions import is_superuser, Condition, make_condition, \
@@ -47,6 +48,7 @@ from oioioi.contests.utils import is_contest_admin
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.middleware import UserInfoInErrorMessage
 from oioioi.base.views import ForcedError, handler500
+from oioioi.base.preferences import PreferencesFactory, PreferencesSaved
 
 
 if not getattr(settings, 'TESTS', False):
@@ -858,6 +860,46 @@ class TestBaseViews(TestCase):
         self.assertEqual(User.objects.filter(username='changed_user')
                 .count(), 0)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+
+    def test_profile_dynamic_fields(self):
+        def callback_func(sender, **kwargs):
+            self.assertEquals(sender.cleaned_data['dog'], 'Janusz')
+            self.assertEquals(sender.cleaned_data['answer'], 42)
+
+        try:
+            PreferencesFactory.add_field(
+                'dog',
+                CharField,
+                lambda n, u: 'Andrzej',
+                label='Doggy'
+            )
+            PreferencesFactory.add_field(
+                'answer',
+                IntegerField,
+                lambda n, u: 72,
+                label="The answer to everything"
+            )
+            PreferencesSaved.connect(callback_func)
+
+            self.client.login(username='test_user')
+            url = reverse('edit_profile')
+
+            response = self.client.get(url)
+
+            for text in ['Doggy', 'Andrzej', '72', 'The answer to everything']:
+                self.assertIn(text, response.content)
+
+            data = {'username': 'test_user', 'first_name': 'fn',
+                    'last_name': 'ln', 'email': 'foo@bar.com',
+                    'dog': 'Janusz', 'answer': '42'}
+            self.client.post(url, data, follow=True)
+            # callback_func should be called already
+        finally:
+            PreferencesSaved.disconnect(callback_func)
+            PreferencesFactory.clear_all_fields()
+
+
+
 
 
 class TestBackendMiddleware(TestCase):

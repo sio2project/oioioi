@@ -21,6 +21,7 @@ from oioioi.contests.views import default_contest_view
 from oioioi.base.forms import UserForm
 from oioioi.base.utils import jsonify, generate_key
 from oioioi.base.menu import account_menu_registry
+from oioioi.base.preferences import PreferencesFactory
 import traceback
 
 account_menu_registry.register('change_password', _("Change password"),
@@ -92,14 +93,19 @@ def handler403(request):
 @enforce_condition(not_anonymous)
 def edit_profile_view(request):
     if request.method == 'POST':
-        form = UserForm(request.POST, instance=request.user,
-                allow_login_change=not has_valid_username(request.user))
+        form = PreferencesFactory().create_form(
+            request.user,
+            request.POST,
+            allow_login_change=not has_valid_username(request.user)
+        )
         if form.is_valid():
             form.save()
             return redirect(index_view)
     else:
-        form = UserForm(instance=request.user, allow_login_change=not
-                has_valid_username(request.user))
+        form = PreferencesFactory().create_form(
+            request.user,
+            allow_login_change=not has_valid_username(request.user)
+        )
     return TemplateResponse(request, 'registration/registration_form.html',
             {'form': form})
 
