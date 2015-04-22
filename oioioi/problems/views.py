@@ -104,7 +104,8 @@ def add_or_update_problem_view(request, contest_id=None):
 
 
 def problemset_main_view(request):
-    problems = Problem.objects.filter(is_public=True)
+    problems = Problem.objects.filter(is_public=True,
+            problemsite__isnull=False)
 
     return TemplateResponse(request,
        'problems/problemset/problem_list.html',
@@ -115,7 +116,8 @@ def problemset_main_view(request):
 
 
 def problemset_my_problems_view(request):
-    problems = Problem.objects.filter(author=request.user)
+    problems = Problem.objects.filter(author=request.user,
+            problemsite__isnull=False)
 
     return TemplateResponse(request,
          'problems/problemset/problem_list.html',

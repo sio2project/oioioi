@@ -26,7 +26,7 @@
             <tr>
                 <td>{{ problem.short_name }}</td>
                 <td><a
-                href="{% url 'problem_page' problem.id %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                href="{% url 'problem_site' site_key=problem.problemsite.url_key %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
                     {{ problem.name }}
                 </a></td>
 
