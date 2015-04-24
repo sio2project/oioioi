@@ -31,6 +31,7 @@ def make_test(env, **kwargs):
     test_env['in_file'] = django_to_filetracker_path(submission.input_file)
     test_env['out_file'] = '/testruns/%s/%d/%s-out' \
             % (env['contest_id'], env['submission_id'], env['job_id'])
+    test_env['to_judge'] = True
     if config.time_limit:
         test_env['exec_time_limit'] = config.time_limit
     if config.memory_limit:
