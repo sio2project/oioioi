@@ -44,6 +44,10 @@ class ZeusProblemController(ProgrammingProblemController):
                     ('initial_save_async_job',
                         'oioioi.zeus.handlers.save_env',
                         dict(kind='INITIAL')),
+                    ('dump',
+                        'oioioi.evalmgr.handlers.dump_env',
+                        dict(message="AFTER INITIAL")),
+
 
                     # current job ends here, the following will be asynchronous
                     ('mark_submission_in_progress',
@@ -83,6 +87,9 @@ class ZeusProblemController(ProgrammingProblemController):
                     ('final_save_async_job',
                         'oioioi.zeus.handlers.save_env',
                         dict(kind='NORMAL')),
+                    ('dump',
+                        'oioioi.evalmgr.handlers.dump_env',
+                        dict(message="AFTER NORMAL")),
 
                     # current job ends here, the following will be asynchronous
                     ('mark_submission_in_progress',
