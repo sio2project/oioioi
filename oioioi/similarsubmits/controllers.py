@@ -62,7 +62,7 @@ class SimilarityDisqualificationMixin(object):
 
     def filter_visible_sources(self, request, queryset):
         prev = super(SimilarityDisqualificationMixin, self) \
-                .filter_visible_sources(request, queryset)
+                .filter_visible_sources(request, queryset).distinct()
 
         if not request.user.is_authenticated():
             return prev
@@ -71,7 +71,7 @@ class SimilarityDisqualificationMixin(object):
         # Do not split this filter as it spans many-to-many relationship
         similar = queryset.filter(
             similarities__group__submissions__submission__user=request.user,
-            similarities__group__submissions__guilty=True)
+            similarities__group__submissions__guilty=True).distinct()
         return (prev | similar).distinct()
 
     def _render_disqualification_reason(self, request, submission):
