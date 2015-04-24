@@ -134,3 +134,9 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             'contests': contests_data,
             'username': request.user.username
         }
+
+# This import causes adding all mixins to ExclusiveContestMiddleware.
+# This is needed as middlewares are instantiated before importing
+# INSTALLED_APPS, so mixins would be late.
+# pylint: disable=unused-import
+import oioioi.participants
