@@ -13,10 +13,11 @@ if settings.ONLY_DEFAULT_CONTEST:
     if settings.DEFAULT_CONTEST is None:
         raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST is set, while no "
                                    "DEFAULT_CONTEST is set")
-    if not Contest.objects.filter(id=settings.DEFAULT_CONTEST).exists():
-        raise ImproperlyConfigured("ONLY_DEFAULT_CONTEST is set, while the "
-                                   "DEFAULT_CONTEST - %s - does not exist."
-                                   % settings.DEFAULT_CONTEST)
+
+    # Models are imported on initialization and it is not possible
+    # to use one then. That's why we cannot check here
+    # whether the DEFAULT_CONTEST exists. Instead we are satisfied
+    # with error 500 information if it doesn't exist.
 
 
 class ExclusivenessConfigManager(models.Manager):
