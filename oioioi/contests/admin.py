@@ -69,7 +69,7 @@ class AttachmentInline(admin.TabularInline):
     def content_link(self, instance):
         if instance.id is not None:
             href = reverse('oioioi.contests.views.contest_attachment_view',
-                        kwargs={'contest_id': str(instance.contest),
+                        kwargs={'contest_id': str(instance.contest.id),
                                 'attachment_id': str(instance.id)})
             return make_html_link(href, instance.content.name)
         return None
