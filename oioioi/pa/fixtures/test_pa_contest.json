@@ -241,7 +241,8 @@
       "status": "OK",
       "problem_instance": 5,
       "score": "PA:0000000000000000000;00000:00000:00000:00000:00000:00000:00000:00000:00000:00000",
-      "user": 1002
+      "user": 1002,
+      "submission_report": 1
     }
   },
   {
@@ -382,6 +383,16 @@
       "score": "int:000000000000000000",
       "user": 1002,
       "date": "2011-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.submissionreport",
+    "fields": {
+      "submission": 10,
+      "creation_date": "2011-06-03T22:07:07.516Z",
+      "kind": "FINAL",
+      "status": "ACTIVE"
     }
   },
   {

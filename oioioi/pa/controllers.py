@@ -110,7 +110,8 @@ class PAContestController(ProgrammingContestController):
         return all_public_results_visible(request)
 
     def solutions_must_be_public(self, qs):
-        return qs
+        return qs.filter(user__isnull=False, user__is_superuser=False,
+                         submissionreport__userresultforproblem__isnull=False)
 
     def adjust_upload_form(self, request, existing_problem, form):
         super(PAContestController, self).adjust_upload_form(request,

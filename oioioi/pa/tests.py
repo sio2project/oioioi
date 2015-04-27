@@ -86,7 +86,10 @@ class TestPARoundTimes(TestCase):
     def test_round_states(self):
         contest = Contest.objects.get()
         controller = contest.controller
-        not_my_submission = Submission.objects.get(id=6)
+
+        not_last_submission = Submission.objects.get(id=6)
+        # user's last submission
+        not_my_submission = Submission.objects.get(id=10)
         user = User.objects.get(username='test_user')
 
         def check_round_state(date, expected):
@@ -107,6 +110,9 @@ class TestPARoundTimes(TestCase):
 
             self.assertEquals(expected[1],
                     controller.can_see_source(request, not_my_submission))
+
+            self.assertEquals(False,
+                    controller.can_see_source(request, not_last_submission))
 
         dates = [
                 datetime(2012, 6, 1, 0, 0, tzinfo=utc),
@@ -129,7 +135,9 @@ class TestPARoundTimes(TestCase):
         #      |    True      |    True      |
         #      |              |              |
         #       ============== ==============
-        expected = [[False, False], [True, False], [True, True]]
+        expected = [[False, False],
+                    [True, False],
+                    [True, True]]
 
         for date, exp in zip(dates, expected):
             check_round_state(date, exp)
