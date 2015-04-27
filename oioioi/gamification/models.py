@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from oioioi.gamification.constants import CODE_SHARING_PREFERENCES_DEFAULT
 
 
 class CachedExperienceSourceID(models.Model):
@@ -28,3 +29,19 @@ class FriendshipRequest(models.Model):
 
     class Meta(object):
         unique_together = ('sender', 'recipient')
+
+
+class CodeSharingSettingsManager(models.Manager):
+    def sharing_allowed(self, user):
+        return self.get_or_create(
+            user=user,
+            defaults={'code_share_allowed': CODE_SHARING_PREFERENCES_DEFAULT}
+        )[0].code_share_allowed
+
+
+class CodeSharingSettings(models.Model):
+    user = models.OneToOneField(User, unique=True, null=False, blank=False)
+    code_share_allowed = models.BooleanField(null=False, blank=False,
+                                             default=False)
+
+    objects = CodeSharingSettingsManager()

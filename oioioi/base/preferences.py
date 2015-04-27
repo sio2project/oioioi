@@ -65,7 +65,9 @@ class PreferencesFactory(object):
            the oioioi.base.forms.UserForm form's __init__ (instance though will
            be provided for you)
         """
-        PreferencesFactory._additional_fields.sort(key=lambda o: o["order"])
+        PreferencesFactory._additional_fields.sort(
+            key=lambda o: (o["order"], o["name"])
+        )
         extra_fields = OrderedDict()
         field_values = {}
         for field in PreferencesFactory._additional_fields:

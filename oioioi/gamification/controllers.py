@@ -1,5 +1,14 @@
+from django.forms.fields import BooleanField
+from django.db import transaction
+from django.utils.translation import ugettext as _
 from oioioi.base.utils import ObjectWithMixins
-from oioioi.base.permissions import make_condition
+from oioioi.gamification.friends import UserFriends
+from oioioi.gamification.models import CodeSharingSettings
+from oioioi.base.preferences import PreferencesSaved, PreferencesFactory
+from oioioi.contests.models import Submission
+from oioioi.gamification.constants import CODE_SHARING_FRIENDS_ENABLED,\
+    CODE_SHARING_PREFERENCES_DEFAULT
+
 
 
 class CodeSharingController(ObjectWithMixins):
@@ -8,21 +17,84 @@ class CodeSharingController(ObjectWithMixins):
        and a list of visible codes for us. If in the future we want to have
        different permissions for accessing code than just friends,
        this controller can be extended with mixins.
-       Actually implementing friends-based permissions are done in other class
-       - this is because we might not want to use friends at all and skip that.
+       Actually implementing friends-based permissions are done in other
+       class - this is because we might not want to use friends at all and
+       skip that.
     """
 
     def can_see_code(self, task, user_requester, user_sharing):
         """This functions returns a bool indicating whether the requester can
-           see code of sharer for the task
+           see code of sharer for the task.
         """
-        pass
+        return False
 
     def shared_with_me(self, task, user):
-        """This functions returns a list of all the possible codes the user can
-           see for the provided task
+        """This functions returns a queryset of all the possible codes the
+           user can see for the provided task.
         """
-        pass
+        return Submission.objects.none()
+
+
+class CodeSharingFriendsController(ObjectWithMixins):
+    """Code sharing is allowed for friends who set the required field in
+       preferences.
+    """
+
+    @staticmethod
+    def set_up():
+        def preferences_value_callback(field_name, user):
+            return CodeSharingSettings.objects.sharing_allowed(user)
+
+        @transaction.atomic
+        def on_preferences_saved(sender, **kwargs):
+            obj, created = CodeSharingSettings.get_or_create(
+                user=sender.user
+            )
+            obj.code_share_allowed = sender.cleaned_data['code_sharing']
+            obj.save()
+
+        CodeSharingController.mix_in(CodeSharingFriendsController)
+        PreferencesFactory.add_field(
+            'code_sharing',
+            BooleanField,
+            preferences_value_callback,
+            label=_("Whether to allow your friends to see your problem "
+                    "solutions"),
+            required=False
+        )
+        PreferencesSaved.connect(on_preferences_saved)
+
+    def can_see_code(self, task, user_requester, user_sharing):
+        if not UserFriends(user_requester).is_friends_with(user_sharing):
+            return False
+        return (CodeSharingSettings.objects.sharing_allowed(user_sharing) and
+                self._has_submission(task, user_sharing))
+
+    def shared_with_me(self, task, user):
+        allowed_sharing = UserFriends(user).friends
+        if CODE_SHARING_PREFERENCES_DEFAULT is True:
+            allowed_sharing = allowed_sharing.exclude(
+                codesharingsettings__code_share_allowed=False
+            )
+        else:  # is False
+            allowed_sharing = allowed_sharing.filter(
+                codesharingsettings__code_share_allowed=True
+            )
+        result = Submission.objects.filter(
+            submissionreport__userresultforproblem__user__in=allowed_sharing,
+            submissionreport__userresultforproblem__problem_instance__problem=
+                task
+        )
+        return result
+
+    def _has_submission(self, task, user):
+        return Submission.objects.filter(
+            problem_instance__problem=task,
+            user=user
+        ).exists()
+
+if CODE_SHARING_FRIENDS_ENABLED:
+    CodeSharingFriendsController.set_up()
 
 
 class TaskSuggestionController(ObjectWithMixins):

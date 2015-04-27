@@ -1,0 +1,26 @@
+[
+  {
+    "pk": 1,
+    "model": "gamification.codesharingsettings",
+    "fields": {
+      "user": 1003,
+      "code_share_allowed": true
+    }
+  },
+  {
+    "pk": 2,
+    "model": "gamification.codesharingsettings",
+    "fields": {
+      "user": 1001,
+      "code_share_allowed": false
+    }
+  },
+  {
+    "pk": 3,
+    "model": "gamification.codesharingsettings",
+    "fields": {
+      "user": 1004,
+      "code_share_allowed": true
+    }
+  }
+]

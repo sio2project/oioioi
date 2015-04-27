@@ -3,16 +3,20 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from oioioi.base.menu import OrderedRegistry
 
-from oioioi.gamification.constants import ExpMultiplier, ExpBase,\
-    SoftCapLevel, LinearMultiplier
-from oioioi.gamification.experience import DBCachedByKeyExperienceSource,\
+from oioioi.gamification.experience import DBCachedByKeyExperienceSource, \
     Experience, ExperienceSource
+from oioioi.gamification.constants import ExpMultiplier, ExpBase, \
+    SoftCapLevel, LinearMultiplier, CODE_SHARING_FRIENDS_ENABLED,\
+    CODE_SHARING_PREFERENCES_DEFAULT
 from oioioi.gamification.friends import UserFriends
 from oioioi.gamification.profile import profile_section, profile_registry
+from oioioi.gamification.controllers import CodeSharingController
+from oioioi.problems.models import Problem
+from oioioi.contests.models import Submission
 
 
 class TestExperienceModule(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['gamification_users.json']
 
     def test_caching_experience_source(self):
         test_user = User.objects.get(username='test_user')
@@ -188,7 +192,7 @@ class TestExperienceModule(TestCase):
 
 
 class TestFriends(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['gamification_users.json']
 
     def areFriends(self, u1, u2):
         friends1 = UserFriends(u1)
@@ -383,3 +387,72 @@ class TestProfileTabs(TestCase):
         self.client.login(username='test_user')
         response = self.client.get(url)
         self.assertIn(tab_content, response.content)
+
+
+class TestCodeSharingFriends(TestCase):
+    fixtures = ['gamification_users.json', 'test_friendships.json',
+                'test_allowsharingprefs.json', 'test_submissions.json']
+
+    def ensure_enabled(self):
+        self.assertTrue(
+            CODE_SHARING_FRIENDS_ENABLED,
+            'Can\'t check friend\'s code sharing if they aren\'t enabled'
+        )
+
+    def setUp(self):
+        self.ensure_enabled()
+        # pylint: disable=global-statement
+        global CODE_SHARING_PREFERENCES_DEFAULT
+        self._old_sharing = CODE_SHARING_PREFERENCES_DEFAULT
+        CODE_SHARING_PREFERENCES_DEFAULT = False
+
+    def tearDown(self):
+        # pylint: disable=global-statement
+        global CODE_SHARING_PREFERENCES_DEFAULT
+        CODE_SHARING_PREFERENCES_DEFAULT = self._old_sharing
+
+    def test_cansee(self):
+        controller = CodeSharingController()
+        user1 = User.objects.get(pk=1001)
+        user2 = User.objects.get(pk=1002)
+        user3 = User.objects.get(pk=1003)
+        user4 = User.objects.get(pk=1004)
+        problem = Problem.objects.get(pk=1)
+        # user2 doesn't allow code sharing (no row in model, defaults to false)
+        self.assertFalse(controller.can_see_code(problem, user1, user2))
+        # user1 doesn't allow code sharing (disabled option in preferences)
+        self.assertFalse(controller.can_see_code(problem, user2, user1))
+        # user1 and user3 are not friends
+        self.assertFalse(controller.can_see_code(problem, user1, user3))
+        # user3 doesn't have submissions
+        self.assertFalse(controller.can_see_code(problem, user2, user3))
+        # user2 doesn't allow code sharing (no row in model, defaults to false)
+        self.assertFalse(controller.can_see_code(problem, user3, user2))
+        #
+        # [!!!] Everything in order
+        #
+        self.assertTrue(controller.can_see_code(problem, user3, user4))
+        self.assertTrue(controller.can_see_code(problem, user2, user4))
+        # No submission
+        self.assertFalse(controller.can_see_code(problem, user4, user3))
+        # Not friends
+        self.assertFalse(controller.can_see_code(problem, user1, user4))
+        # Not allowed
+        self.assertFalse(controller.can_see_code(problem, user4, user2))
+
+    def test_sharedwithme(self):
+        controller = CodeSharingController()
+        problem = Problem.objects.get(pk=1)
+        user1 = User.objects.get(pk=1001)
+        user2 = User.objects.get(pk=1002)
+        user4 = User.objects.get(pk=1004)
+        user4_submission = Submission.objects.get(pk=1)
+        self.assertEquals(
+            list(controller.shared_with_me(problem, user1).all()),
+            [])
+        self.assertEquals(
+            list(controller.shared_with_me(problem, user2).all()),
+            [user4_submission])
+        self.assertEquals(
+            list(controller.shared_with_me(problem, user4).all()),
+            [])

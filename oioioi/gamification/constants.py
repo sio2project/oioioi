@@ -1,7 +1,7 @@
 # WARNING: If you change anything here at all, whole level calculations will go
 #          down the toilet, probably Experience.force_recalculate_all() should
-#          fix your problems then
-# Also unit tests are written for set constants, will fail if changed
+#          fix your problems then, generally changing this file while
+#          already deployed might make you unhappy
 
 # Before soft cap the level calculations will be done using exponential formula,
 # afterwards -> linear
@@ -31,3 +31,7 @@ SuggestLvl2From = 5
 SuggestLvl3From = 10
 SuggestLvl4From = 15
 SuggestLvl5From = 18
+
+# Set this to false if you want to roll your own CodeSharingController
+CODE_SHARING_FRIENDS_ENABLED = True
+CODE_SHARING_PREFERENCES_DEFAULT = True

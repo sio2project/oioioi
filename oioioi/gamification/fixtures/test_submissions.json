@@ -1,0 +1,71 @@
+[
+  {
+    "pk": "c",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ",
+      "contest": "c",
+      "short_name": "xyz",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "c",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad1",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000042",
+      "user": 1004,
+      "date": "2012-12-15T21:02:01.516Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.submissionreport",
+    "fields": {
+      "submission": 1,
+      "creation_date": "2012-12-15T21:02:01.516Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.userresultforproblem",
+    "fields": {
+      "user": 1004,
+      "problem_instance": 1,
+      "submission_report": 1
+    }
+  }
+]
