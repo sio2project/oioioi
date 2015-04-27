@@ -5,7 +5,7 @@
 <table class="{% block table-classes %}table auto-width row-links{% endblock %}">
     <thead>
         <tr>
-            {% if is_admin and not hide_author %}<th style="min-width: 130px">{% trans "Author" %}</th>{% endif %}
+            {% if not hide_author %}<th style="min-width: 130px">{% trans "Author" %}</th>{% endif %}
             <th style="min-width: 120px">{% trans "Date" %}</th>
             <th style="min-width: 80px">{% trans "Category" %}</th>
             <th style="min-width: 350px">
