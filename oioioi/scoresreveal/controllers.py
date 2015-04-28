@@ -67,7 +67,8 @@ class ScoresRevealContestControllerMixin(object):
             return False, _("Only author can reveal the submission score.")
         if self.is_scores_reveals_limit_reached(request.user, pi):
             return False, _("You have already reached the reveals limit.")
-        if self.is_scores_reveals_disabled(request, pi):
+
+        if self.is_scores_reveals_disabled(request, submission):
             minutes_disabled = self.get_scores_reveals_disable_time(
                 submission.problem_instance)
             return False, \
@@ -94,13 +95,14 @@ class ScoresRevealContestControllerMixin(object):
 
         return True, None
 
-    def is_scores_reveals_disabled(self, request, problem_instance):
+    def is_scores_reveals_disabled(self, request, submission):
+        problem_instance = submission.problem_instance
         disable_time = self.get_scores_reveals_disable_time(problem_instance) \
             or 0
         round = problem_instance.round
 
         rtimes = self.get_round_times(request, round)
-        return rtimes.is_past(request.timestamp +
+        return rtimes.is_past(submission.date +
                               timedelta(minutes=disable_time)) \
             and rtimes.is_active(request.timestamp)
 

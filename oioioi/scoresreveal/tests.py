@@ -4,7 +4,8 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.utils.timezone import utc
 from oioioi.base.tests import fake_time
-from oioioi.contests.models import Contest, Round, RoundTimeExtension
+from oioioi.contests.models import Contest, Round, RoundTimeExtension, \
+        Submission
 from oioioi.problems.models import Problem
 from oioioi.scoresreveal.models import ScoreRevealConfig
 
@@ -60,7 +61,12 @@ class TestScoresReveal(TestCase):
     def test_disable_time(self):
         contest = Contest.objects.get()
 
-        with fake_time(datetime(2012, 8, 9, 23, 15, tzinfo=utc)):
+        date = datetime(2012, 8, 9, 23, 15, tzinfo=utc)
+        with fake_time(date):
+            submission = Submission.objects.get(pk=1)
+            submission.date = date
+            submission.save()
+
             kwargs = {'contest_id': contest.id, 'submission_id': 1}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
