@@ -572,6 +572,9 @@ class ProgrammingContestController(ContestController):
 
         return None
 
+    def can_see_test_comments(self, request, submissionreport):
+        return True
+
     def render_report(self, request, report):
         if report.kind == 'FAILURE':
             return ContestController.render_report(self, request,
@@ -587,6 +590,7 @@ class ProgrammingContestController(ContestController):
         group_reports = dict((g.group, g) for g in group_reports)
 
         allow_download_out = self.can_generate_user_out(request, report)
+        allow_test_comments = self.can_see_test_comments(request, report)
         all_outs_generated = allow_download_out
 
         groups = []
@@ -606,6 +610,7 @@ class ProgrammingContestController(ContestController):
                         'compilation_report': compilation_report,
                         'groups': groups, 'show_scores': show_scores,
                         'allow_download_out': allow_download_out,
+                        'allow_test_comments': allow_test_comments,
                         'all_outs_generated': all_outs_generated,
                         'is_admin': is_contest_admin(request)}))
 

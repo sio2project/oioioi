@@ -207,6 +207,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
     description = _("Baltic Olympiad in Informatics")
     create_forum = False
 
+    def can_see_test_comments(self, request, submissionreport):
+        return is_contest_admin(request)
+
     def reveal_score(self, request, submission):
         super(BOIOnsiteContestController, self).reveal_score(request,
                 submission)

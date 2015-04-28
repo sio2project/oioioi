@@ -74,7 +74,7 @@
     <ul>
         {% for group in groups %}
             {% for test in group.tests %}
-                {% if test.comment or test.get_status_display != 'OK' and allow_download_out and test.test %}
+                {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
                 <li>
                     <span class="id">{{ test.test_name }}</span>
                     {% if allow_download_out and test.test %}
@@ -86,7 +86,9 @@
                             <a class="id" href="#" data-post-url="{% url 'generate_user_output' testreport_id=test.id %}" title="{% trans "Generate user output for this test" %}">[generate out]</a>
                         {% endif %}
                     {% endif %}
+                    {% if allow_test_comments %}
                     <span class="test">{{ test.comment }}</span>
+                    {% endif %}
                 </li>
                 {% endif %}
             {% endfor %}
