@@ -207,9 +207,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
     create_forum = False
 
     def reveal_score(self, request, submission):
-        created = super.reveal_score(request, submission)
+        super(BOIOnsiteContestController, self).reveal_score(request,
+                submission)
         self.update_user_results(submission.user, submission.problem_instance)
-        return created
 
     def update_user_result_for_problem(self, result):
         try:
@@ -220,24 +220,23 @@ class BOIOnsiteContestController(OIOnsiteContestController):
                 .exclude(status='CE') \
                 .filter(kind='NORMAL')
 
-            latest = submissions.latest()
-            choosen_submission = latest
+            chosen_submission = submissions.latest()
 
             revealed = submissions.filter(revealed__isnull=False)
             if revealed:
                 max_revealed = revealed.order_by('-score')[0]
                 if max_revealed.score > latest.score:
-                    choosen_submission = max_revealed
+                    chosen_submission = max_revealed
 
             try:
                 report = SubmissionReport.objects.get(
-                        submission=choosen_submission, status='ACTIVE',
+                        submission=chosen_submission, status='ACTIVE',
                         kind='NORMAL')
             except SubmissionReport.DoesNotExist:
                 report = None
 
-            result.score = choosen_submission.score
-            result.status = choosen_submission.status
+            result.score = chosen_submission.score
+            result.status = chosen_submission.status
             result.submission_report = report
         except Submission.DoesNotExist:
             result.score = None

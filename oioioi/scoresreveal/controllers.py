@@ -36,9 +36,7 @@ class ScoresRevealContestControllerMixin(object):
         assert has_scores_reveal(submission.problem)
         assert self.can_reveal(request, submission)[0]
 
-        _obj, created = ScoreReveal.objects.get_or_create(submission=
-                                                          submission)
-        return created
+        ScoreReveal.objects.get_or_create(submission=submission)
 
     def get_revealed_submissions(self, user, problem_instance):
         return Submission.objects.filter(user=user,
