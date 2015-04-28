@@ -28,24 +28,26 @@ $(function() {
             }, 400);
         }, function() {
             a.removeClass('hover');
-
             clearTimeout(inTimeout);
-            self.stop(true).animate({
-                left: '0',
-                opacity: 0
-            }, animationDuration);
-            outTimeout = setTimeout(function() {
-                self.css('display', 'none');
-            }, animationDuration);
 
-            chevron.stop(true, true);
-            $({deg: orientation}).animate({deg: 0}, {
-                step: function(now) {
-                    chevron.css({transform: 'rotate(' + now + 'deg)'});
-                    orientation = now;
-                },
-                duration: animationDuration
-            });
+            outTimeout = setTimeout(function() {
+                self.stop(true).animate({
+                    left: '0',
+                    opacity: 0
+                }, animationDuration);
+                outTimeout = setTimeout(function() {
+                    self.css('display', 'none');
+                }, animationDuration);
+
+                chevron.stop(true, true);
+                $({deg: orientation}).animate({deg: 0}, {
+                    step: function(now) {
+                        chevron.css({transform: 'rotate(' + now + 'deg)'});
+                        orientation = now;
+                    },
+                    duration: animationDuration
+                });
+            }, 400);
         });
 
         var url = a.attr('href');

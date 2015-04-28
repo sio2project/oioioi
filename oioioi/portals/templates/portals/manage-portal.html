@@ -11,22 +11,39 @@
             $('#tree').tree({
                 autoOpen: true,
                 dragAndDrop: true,
+                selectable: false,
                 onCanMove: function(node) {
                     return !!node.parent.parent;
                 },
                 onCanMoveTo: function(node, target, position) {
-                    return target.getLevel() > 1 || position == 'inside';
-                },
-                onCreateLi: function(node, li) {
-                    var path = '';
-                    while(node.parent && node.parent.parent) {
-                        path = node.short_name + '/' + path;
-                        node = node.parent;
-                    }
-                    var links = ' <a href="{% portal_url username=owner.username path='__PATH__' %}">{% trans 'show' %}</a>';
-                    links = links.replace(/__PATH__/g, path);
-                    li.find('.jqtree-title').after(links);
+                    var newParent;
+                    if(position == 'inside')
+                        newParent = target;
+                    else
+                        newParent = target.parent;
+
+                    if(!newParent.parent)
+                        return false;
+
+                    if(newParent == node.parent)
+                        return true;
+
+                    for(var i = 0; i < newParent.children.length; ++i)
+                        if(newParent.children[i].short_name == node.short_name)
+                            return false;
+
+                    return true;
                 }
+            }).bind('tree.click', function(event) {
+                var path = '';
+                node = event.node;
+                while(node.parent && node.parent.parent) {
+                    path = node.short_name + '/' + path;
+                    node = node.parent;
+                }
+                var url = '{% portal_url portal=portal path='__PATH__' %}';
+                url = url.replace(/__PATH__/g, path);
+                window.location.href = url;
             }).bind('tree.move', function(event) {
                 $.ajax('{% url 'move_node' %}', {
                     data: {
@@ -43,14 +60,20 @@
 {% block styles %}
     {{ block.super }}
     <link rel="stylesheet" href="{{ STATIC_URL }}portals/jqtree.css">
+    <style type="text/css">
+        .jqtree-element {
+            display: inline-block;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
     <h2>{% trans "Manage portal" %}</h2>
-    <div id="tree" data-url="{% portal_url action='portal_tree_json' username=owner.username %}">
+    <p>{% trans "Drag and drop nodes to reorganize the portal structure." %}</p>
+    <div id="tree" data-url="{% portal_url portal=portal action='portal_tree_json' %}">
     </div>
     <hr class="divider">
     <div class="pull-right">
-        <a href="{% portal_url action='delete_portal' username=owner.username %}" class="btn btn-danger">{% trans "Delete portal" %}</a>
+        <a href="{% portal_url portal=portal action='delete_portal' %}" class="btn btn-danger">{% trans "Delete portal" %}</a>
     </div>
 {% endblock %}

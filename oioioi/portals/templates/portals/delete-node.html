@@ -2,10 +2,10 @@
 {% load i18n %}
 
 {% block panel %}
-<p>
-    {% trans "Are you sure you want to delete the following node:" %} <strong>{{ current_node.full_name }}</strong>?
-    {% trans "Its descendants will be deleted as well. This cannot be undone." %}
-</p>
+    <p>
+        {% trans "Are you sure you want to delete the following node:" %} <strong>{{ current_node.full_name }}</strong>?
+        {% trans "Its descendants will be deleted as well. This cannot be undone." %}
+    </p>
     <form method="post" action="">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary" name="confirmation" value="">{% trans "Yes" %}</button>

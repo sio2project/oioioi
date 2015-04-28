@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
+from oioioi.base.permissions import make_request_condition
 
 
 def join_paths(path1, path2):
@@ -17,37 +17,26 @@ def parent_path(path):
     return '/'.join(path.split('/')[:-1])
 
 
-def portal_url(username, path='', action='show'):
-    url = reverse('portal', kwargs={'username': username,
-                                    'portal_path': path})
-    if action != 'show':
-        url += '?action=' + action
-    return url
-
-
-def can_edit_portal(user, portal):
-    return user.is_superuser or user == portal.owner
-
-
-def get_node_context(request, username, portal_path):
-    portal_path = portal_path.strip('/')
-    path_list = portal_path.split('/') if portal_path else []
+def resolve_path(portal, path):
+    path = path.strip('/')
+    path = path.split('/') if path else []
 
     try:
-        owner = User.objects.get(username=username)
-        portal = owner.portal
         node = portal.root
-        for node_name in path_list:
+        for node_name in path:
             node = node.get_children().get(short_name=node_name)
     except ObjectDoesNotExist:
         raise Http404
 
-    return {'current_node': node, 'owner': owner,
-            'can_edit': can_edit_portal(request.user, portal)}
+    return node
 
 
-def get_edit_node_context(request, username, portal_path):
-    context = get_node_context(request, username, portal_path)
-    if not context['can_edit']:
-        raise PermissionDenied
-    return context
+@make_request_condition
+def is_portal_admin(request):
+    user = request.user
+    return user.is_superuser or user == request.portal.owner
+
+
+@make_request_condition
+def current_node_is_root(request):
+    return request.current_node.is_root_node()

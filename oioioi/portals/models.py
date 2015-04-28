@@ -9,9 +9,11 @@ from oioioi.portals.utils import join_paths
 
 
 class Node(MPTTModel):
-    full_name = models.CharField(max_length=256, verbose_name=_("full name"),
+    full_name = models.CharField(max_length=32, verbose_name=_("full name"),
+                                 help_text=_("Shown in the navigation menu."),
                                  validators=[validate_whitespaces])
     short_name = models.CharField(max_length=32, verbose_name=_("short name"),
+                                  help_text=_("Shown in the URL."),
                                   validators=[validate_db_string_id])
     parent = TreeForeignKey('self', null=True, blank=False,
                             related_name='children', verbose_name=_("parent"))

@@ -23,6 +23,12 @@
             }
         }
 
+        &:only-child {
+            &, > a {
+                .border-radius(6px);
+            }
+        }
+
         > a {
             padding: 5px 14px;
         }
@@ -76,6 +82,11 @@
             }
         }
     }
+
+    a {
+        white-space: nowrap;
+        overflow: hidden;
+    }
 }
 
 .portal-menu-siblings {
@@ -108,4 +119,8 @@
             padding-left: 28px;
         }
     }
+}
+
+.portal-admin-menu {
+    margin-bottom: 0;
 }

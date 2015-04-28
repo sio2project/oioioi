@@ -1,12 +1,10 @@
 from django.test import TestCase
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
 from django.test.utils import override_settings
-
-from oioioi.portals.models import Portal, Node
-from oioioi.portals.utils import portal_url
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.current_contest import ContestMode
+from oioioi.portals.models import Portal, Node
+from oioioi.portals.actions import portal_url
 
 
 def get_portal():
@@ -14,7 +12,32 @@ def get_portal():
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
-class TestModels(TestCase):
+class TestPortalUtils(TestCase):
+    fixtures = ['test_users', 'test_portals']
+
+    def test_portal_url(self):
+        portal = get_portal()
+        root = portal.root
+        child1 = root.children.get(short_name='child1')
+
+        url = '/users/test_user/portal/'
+        self.assertEqual(portal_url(portal=portal), url)
+        self.assertEqual(portal_url(portal=portal, path=''), url)
+        self.assertEqual(portal_url(node=root), url)
+
+        url = '/users/test_user/portal/child1'
+        self.assertEqual(portal_url(portal=portal, path='child1'), url)
+        self.assertEqual(portal_url(node=child1), url)
+        self.assertEqual(portal_url(node=child1, action='show_node'), url)
+        self.assertEqual(portal_url(node=child1, action='edit_node'),
+                         url + '?action=edit_node')
+
+        url = '/users/test_user/portal/?action=manage_portal'
+        self.assertEqual(portal_url(portal=portal, action='manage_portal'),
+                         url)
+
+
+class TestPortalModels(TestCase):
     fixtures = ['test_users', 'test_portals']
 
     def test_get_siblings(self):
@@ -83,6 +106,9 @@ class TestModels(TestCase):
 class TestPortalViews(TestCase):
     fixtures = ['test_users', 'test_portals']
 
+    def get_portal(self):
+        return Portal.objects.get(owner__username='test_user')
+
     def test_admin_buttons(self):
         show = _("Show node")
         edit = _("Edit node")
@@ -98,7 +124,8 @@ class TestPortalViews(TestCase):
             else:
                 self.client.logout()
 
-            response = self.client.get(portal_url('test_user', path))
+            response = self.client.get(portal_url(portal=get_portal(),
+                                                  path=path))
             for button in buttons:
                 self.assertContains(response, button)
             for button in all - buttons:
@@ -111,10 +138,11 @@ class TestPortalViews(TestCase):
         assertAdminButtons('test_admin', 'child1', all)
 
     def test_show_node_view(self):
-        response = self.client.get(portal_url('test_user'))
+        response = self.client.get(portal_url(portal=get_portal()))
         self.assertContains(response, 'a05e')
 
-        response = self.client.get(portal_url('test_user', 'child1'))
+        response = self.client.get(portal_url(portal=get_portal(),
+                                              path='child1'))
         self.assertContains(response, 'b864')
 
     def test_admin_access(self):
@@ -135,34 +163,59 @@ class TestPortalViews(TestCase):
             response = self.client.get(url)
             self.assertEquals(response.status_code, 200)
 
-        for action in ('edit', 'add', 'delete'):
-            assertAdminAccess(portal_url('test_user', 'child1', action))
+        for action in ('edit_node', 'add_node', 'delete_node'):
+            assertAdminAccess(portal_url(portal=get_portal(),
+                                         path='child1', action=action))
 
-        for action in ('manage_portal', 'portal_tree_json',
-                          'delete_portal'):
-            assertAdminAccess(portal_url('test_user', action=action))
+        for action in ('manage_portal', 'portal_tree_json', 'delete_portal'):
+            assertAdminAccess(portal_url(portal=get_portal(),
+                                         action=action))
 
     def test_edit_node_view(self):
         self.client.login(username='test_user')
-        response = self.client.post(portal_url('test_user', '', 'edit'),
+
+        node = get_portal().root.children.get(short_name='child2')
+        response = self.client.post(portal_url(node=node,
+                                               action='edit_node'),
+                                    data={'full_name': '81dc',
+                                          'short_name': 'child1',
+                                          'panel_code': 'e10a'})
+        self.assertEqual(response.status_code, 200)
+        root = get_portal().root
+        self.assertQuerysetEqual(root.get_children(),
+                                 ['<Node: Child 1>', '<Node: Child 2>'])
+
+        response = self.client.post(portal_url(portal=get_portal(),
+                                               action='edit_node'),
                                     data={'full_name': 'b40d',
                                           'panel_code': 'e23f'})
-        self.assertRedirects(response, portal_url('test_user', '', 'edit'))
-        node = User.objects.get(username='test_user').portal.root
+        self.assertRedirects(response, portal_url(portal=get_portal()))
+        node = get_portal().root
         self.assertEqual(node.full_name, 'b40d')
         self.assertEqual(node.panel_code, 'e23f')
 
     def test_add_node_view(self):
         self.client.login(username='test_user')
-        response = self.client.post(portal_url('test_user', 'child1', 'add'),
+
+        root = get_portal().root
+        response = self.client.post(portal_url(node=root,
+                                               action='add_node'),
+                                    data={'full_name': '3e4a',
+                                          'short_name': 'child1',
+                                          'panel_code': '5ac3'})
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(root.get_children(),
+                                 ['<Node: Child 1>', '<Node: Child 2>'])
+
+        response = self.client.post(portal_url(portal=get_portal(),
+                                               path='child1',
+                                               action='add_node'),
                                     data={'short_name': 'grandchild1',
                                           'full_name': 'bead',
                                           'panel_code': 'acb8'})
-        self.assertRedirects(response, portal_url('test_user',
-                                                  'child1/grandchild1',
-                                                  'edit'))
-        node = User.objects.get(username='test_user') \
-                .portal.root.children.get(short_name='child1')
+        self.assertRedirects(response, portal_url(portal=get_portal(),
+                                                  path='child1/grandchild1'))
+        node = get_portal().root.children.get(short_name='child1')
         self.assertEqual(node.children.count(), 1)
         node = node.children.get()
         self.assertEqual(node.short_name, 'grandchild1')
@@ -172,22 +225,24 @@ class TestPortalViews(TestCase):
     def test_delete_node_view(self):
         self.client.login(username='test_user')
 
-        response = self.client.post(portal_url('test_user', 'child1',
-                                               'delete'))
-        self.assertRedirects(response, portal_url('test_user', 'child1'))
+        response = self.client.post(portal_url(portal=get_portal(),
+                                              path='child1',
+                                              action='delete_node'))
+        self.assertRedirects(response, portal_url(portal=get_portal(),
+                                                  path='child1'))
 
-        response = self.client.post(portal_url('test_user', 'child1',
-                                               'delete'),
+        response = self.client.post(portal_url(portal=get_portal(),
+                                               path='child1',
+                                               action='delete_node'),
                                     data={'confirmation': ''})
-        self.assertRedirects(response, portal_url('test_user', ''))
+        self.assertRedirects(response, portal_url(portal=get_portal()))
 
-        node = User.objects.get(username='test_user').portal.root
-        self.assertEqual(node.children.count(), 1)
-        self.assertEqual(node.children.get().short_name, 'child2')
+        node = get_portal().root
+        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'])
 
     def test_portal_tree_json_view(self):
         self.client.login(username='test_user')
-        response = self.client.get(portal_url('test_user',
+        response = self.client.get(portal_url(portal=get_portal(),
                                               action='portal_tree_json'))
         self.assertJSONEqual(response.content, '''
                 [
@@ -225,36 +280,34 @@ class TestPortalViews(TestCase):
                                              'position': position})
             self.assertEqual(response.status_code, status_code)
 
-        assertMoveStatus('test_user', 2, 4, 'blahblah', 404)
-        assertMoveStatus('test_user', 2, 999, 'inside', 404)
-        assertMoveStatus(None, 2, 3, 'inside', 403)
-        assertMoveStatus('test_user2', 2, 4, 'inside', 403)
-        assertMoveStatus('test_user', 2, 1, 'before', 404)
-        assertMoveStatus('test_user', 999, 4, 'inside', 404)
-        assertMoveStatus('test_user', 2, 3, 'inside', 403)
-        assertMoveStatus('test_admin', 2, 3, 'inside', 403)
-        assertMoveStatus('test_user', 1, 2, 'inside', 404)
-        assertMoveStatus('test_user', 1, 2, 'after', 404)
+        assertMoveStatus('test_user', 2, 4, 'blahblah', 400)
+        assertMoveStatus('test_user', 2, 999, 'inside', 400)
+        assertMoveStatus(None, 2, 3, 'inside', 400)
+        assertMoveStatus('test_user2', 2, 4, 'inside', 400)
+        assertMoveStatus('test_user', 2, 1, 'before', 400)
+        assertMoveStatus('test_user', 999, 4, 'inside', 400)
+        assertMoveStatus('test_user', 2, 3, 'inside', 400)
+        assertMoveStatus('test_admin', 2, 3, 'inside', 400)
+        assertMoveStatus('test_user', 1, 2, 'inside', 400)
+        assertMoveStatus('test_user', 1, 2, 'after', 400)
 
         assertMoveStatus('test_user', 2, 4, 'inside', 200)
-        node = User.objects.get(username='test_user').portal.root
-        self.assertEqual(node.children.count(), 1)
+        node = get_portal().root
+        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'])
         node = node.children.get()
-        self.assertEqual(node.short_name, 'child2')
-        self.assertEqual(node.children.count(), 1)
+        self.assertQuerysetEqual(node.get_children(), ['<Node: Child 1>'])
         node = node.children.get()
-        self.assertEqual(node.children.count(), 0)
-        self.assertEqual(node.short_name, 'child1')
+        self.assertQuerysetEqual(node.get_children(), [])
 
     def test_delete_portal_view(self):
         self.client.login(username='test_user')
 
-        response = self.client.post(portal_url('test_user',
+        response = self.client.post(portal_url(portal=get_portal(),
                                                action='delete_portal'))
-        self.assertRedirects(response, portal_url('test_user',
+        self.assertRedirects(response, portal_url(portal=get_portal(),
                                                   action='manage_portal'))
 
-        response = self.client.post(portal_url('test_user',
+        response = self.client.post(portal_url(portal=get_portal(),
                                                action='delete_portal'),
                                     data={'confirmation': ''})
         self.assertRedirects(response, '/')

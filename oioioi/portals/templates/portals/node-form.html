@@ -1,6 +1,21 @@
 {% extends "portals/base-node.html" %}
 {% load i18n %}
 
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/urlify.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            var short_name = $('#id_short_name');
+            if(short_name.length) {
+                $('#id_full_name').keyup(function() {
+                    short_name.val(URLify($(this).val()));
+                });
+            }
+        });
+    </script>
+{% endblock %}
+
 {% block panel %}
     <h2>{% block form_header %}{% endblock %}</h2>
     <form method="post" action="" class="form-horizontal">
