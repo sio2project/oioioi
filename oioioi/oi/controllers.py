@@ -226,7 +226,7 @@ class BOIOnsiteContestController(OIOnsiteContestController):
             revealed = submissions.filter(revealed__isnull=False)
             if revealed:
                 max_revealed = revealed.order_by('-score')[0]
-                if max_revealed.score > latest.score:
+                if max_revealed.score > chosen_submission.score:
                     chosen_submission = max_revealed
 
             try:
