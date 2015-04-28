@@ -6,6 +6,75 @@ from oioioi.portals.models import Portal, Node
 from oioioi.portals.utils import portal_url
 
 
+def get_portal():
+    return Portal.objects.get(owner__username='test_user')
+
+
+class TestModels(TestCase):
+    fixtures = ['test_users', 'test_portals']
+
+    def test_get_siblings(self):
+        node = get_portal().root
+        self.assertQuerysetEqual(node.get_siblings(), [])
+        self.assertQuerysetEqual(node.get_siblings(include_self=True),
+                                 ['<Node: Root>'])
+
+        node = node.children.get(short_name='child1')
+        self.assertQuerysetEqual(node.get_siblings(),
+                                 ['<Node: Child 2>'])
+        self.assertQuerysetEqual(node.get_siblings(include_self=True),
+                                 ['<Node: Child 1>', '<Node: Child 2>'])
+
+    def test_get_ancestors_including_self(self):
+        node = get_portal().root
+        self.assertQuerysetEqual(node.get_ancestors_including_self(),
+                                 ['<Node: Root>'])
+
+        node = node.children.get(short_name='child1')
+        self.assertQuerysetEqual(node.get_ancestors_including_self(),
+                                 ['<Node: Root>', '<Node: Child 1>'])
+
+    def test_get_siblings_including_self(self):
+        node = get_portal().root
+        self.assertQuerysetEqual(node.get_siblings_including_self(),
+                                 ['<Node: Root>'])
+
+        node = node.children.get(short_name='child1')
+        self.assertQuerysetEqual(node.get_siblings_including_self(),
+                                 ['<Node: Child 1>', '<Node: Child 2>'])
+
+    def test_get_path(self):
+        root = get_portal().root
+        self.assertEqual(root.get_path(), '')
+
+        child1 = root.children.get(short_name='child1')
+        self.assertEqual(child1.get_path(), 'child1')
+
+        child1.short_name = 'child123'
+        child1.save()
+        self.assertEqual(child1.get_path(), 'child123')
+
+        child2 = root.children.get(short_name='child2')
+        self.assertEqual(child2.get_path(), 'child2')
+
+        grandchild = Node.objects.create(parent=child1, full_name='',
+                                         short_name='grandchild',
+                                         panel_code='')
+        self.assertEqual(grandchild.get_path(), 'child123/grandchild')
+
+        grandchild.parent = child2
+        grandchild.save()
+        self.assertEqual(grandchild.get_path(), 'child2/grandchild')
+
+        child2.short_name = 'child234'
+        child2.save()
+        self.assertEqual(grandchild.get_path(), 'child234/grandchild')
+
+        child2.parent = child1
+        child2.save()
+        self.assertEqual(grandchild.get_path(), 'child123/child234/grandchild')
+
+
 class TestPortalViews(TestCase):
     fixtures = ['test_users', 'test_portals']
 

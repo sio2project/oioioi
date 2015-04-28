@@ -1,0 +1,111 @@
+@import "../bootstrap/less/variables.less";
+@import "../bootstrap/less/mixins.less";
+
+.portal-menu-high {
+    padding: 0;
+    background-color: #fff;
+    .border-radius(6px);
+    .box-shadow(0 1px 4px rgba(0, 0, 0, 0.065));
+
+    > li {
+        border: 1px solid #ccc;
+        margin: 0 0 -1px;
+
+        &:first-child {
+            &, > a {
+                .border-radius(6px 6px 0 0);
+            }
+        }
+
+        &:last-child {
+            &, > a {
+                .border-radius(0 0 6px 6px);
+            }
+        }
+
+        > a {
+            padding: 5px 14px;
+        }
+    }
+}
+
+.portal-menu-path {
+    &, ul {
+        > li:not(.active) > a {
+            color: @linkColor;
+
+            &:hover,
+            &.hover {
+                background-image: none;
+                background-color: #e0e0e0;
+                color: @linkColorHover;
+            }
+        }
+    }
+
+    > li {
+        > a {
+            margin: 0;
+
+            &:hover, &.hover {
+                > .icon-chevron-down {
+                    opacity: 0.5;
+                }
+            }
+
+            .icon-chevron-down {
+                float: right;
+                margin-top: 2px;
+                margin-right: -6px;
+                opacity: 0.25;
+            }
+        }
+
+        &.active > a {
+            position: relative;
+            padding: 6px 15px 5px 15px;
+            margin: -1px -1px 0 -1px;
+            border: 0;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+            .box-shadow(inset 1px 0 0 rgba(0, 0, 0, 0.1));
+
+            > .icon-chevron-down,
+            &:hover > .icon-chevron-down,
+            &.hover > .icon-chevron-down {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+.portal-menu-siblings {
+    z-index: -1;
+    opacity: 0;
+    left: 0;
+    border: none;
+
+    > li > a {
+        color: @linkColor;
+    }
+
+    > li > a:hover {
+        padding: 6px 14px 5px 14px;
+        margin: -1px 0 0 0;
+    }
+}
+
+.portal-menu-low {
+    background-color: #eee;
+
+    > ul > li {
+        &:last-child {
+            &, > a {
+                .border-radius(0 0 6px 6px);
+            }
+        }
+
+        > a {
+            padding-left: 28px;
+        }
+    }
+}

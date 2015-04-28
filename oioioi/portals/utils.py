@@ -37,15 +37,12 @@ def get_node_context(request, username, portal_path):
         owner = User.objects.get(username=username)
         portal = owner.portal
         node = portal.root
-        path_node_names = [node.full_name]
         for node_name in path_list:
             node = node.get_children().get(short_name=node_name)
-            path_node_names.append(node.full_name)
     except ObjectDoesNotExist:
         raise Http404
 
-    return {'node': node, 'owner': owner, 'portal_path': portal_path,
-            'path_node_names': path_node_names,
+    return {'current_node': node, 'owner': owner,
             'can_edit': can_edit_portal(request.user, portal)}
 
 

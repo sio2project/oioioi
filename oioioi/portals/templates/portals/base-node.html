@@ -1,16 +1,50 @@
-{% extends "simple-centered-wide.html" %}
-{% load i18n portal_url %}
+{% extends "base-with-menu.html" %}
+{% load i18n mptt_tags portal_url %}
 
-{% block title %}{{ owner.username }}{% trans "'s portal" %} &gt; {{ path_node_names|join:" > " }}{% endblock %}
+{% block title %}{{ current_node.full_name }}{% endblock %}
+
+{% block menu %}
+    <ul class="nav nav-list portal-menu-high portal-menu-path">
+        {% for node in current_node.get_ancestors_including_self %}
+            {% if not node.is_leaf_node %}
+            <li class="{% if node == current_node %}active{% endif %} {% if node.get_siblings %}dropdown{% endif %}">
+                <a href="{% portal_url username=owner.username path=node.get_path %}"{% if node.get_siblings %} class="dropdown-toggle"{% endif %}>
+                    <i class="icon-chevron-down"></i>{{ node.full_name }}
+                </a>
+                {% if node.get_siblings %}
+                    <ul class="dropdown-menu portal-menu-high portal-menu-siblings">
+                        {% for sibling in node.get_siblings_including_self %}
+                            <li><a href="{% portal_url username=owner.username path=sibling.get_path %}">{{ sibling.full_name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </li>
+            {% endif %}
+        {% endfor %}
+        <li class="portal-menu-low">
+            <ul class="nav nav-list">
+                {% if not current_node.is_leaf_node %}
+                    {% for node in current_node.get_children %}
+                        <li><a href="{% portal_url username=owner.username path=node.get_path %}">{{ node.full_name }}</a></li>
+                    {% endfor %}
+                {% else %}
+                    {% for node in current_node.get_siblings_including_self %}
+                        <li{% if node == current_node %} class="active"{% endif %}><a href="{% portal_url username=owner.username path=node.get_path %}">{{ node.full_name }}</a></li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </li>
+    </ul>
+{% endblock %}
 
 {% block content %}
     {% if can_edit %}
         <div class="pull-right">
-            <a href="{% portal_url username=owner.username path=portal_path %}" class="btn btn-primary">{% trans "Show node" %}</a>
-            <a href="{% portal_url action='edit' username=owner.username path=portal_path %}" class="btn btn-primary">{% trans "Edit node" %}</a>
-            <a href="{% portal_url action='add' username=owner.username path=portal_path %}" class="btn btn-primary">{% trans "Add child node" %}</a>
-            {% if not node.is_root_node %}
-                <a href="{% portal_url action='delete' username=owner.username path=portal_path %}" class="btn btn-danger">{% trans "Delete node" %}</a>
+            <a href="{% portal_url username=owner.username path=current_node.get_path %}" class="btn btn-primary">{% trans "Show node" %}</a>
+            <a href="{% portal_url action='edit' username=owner.username path=current_node.get_path %}" class="btn btn-primary">{% trans "Edit node" %}</a>
+            <a href="{% portal_url action='add' username=owner.username path=current_node.get_path %}" class="btn btn-primary">{% trans "Add child node" %}</a>
+            {% if not current_node.is_root_node %}
+                <a href="{% portal_url action='delete' username=owner.username path=current_node.get_path %}" class="btn btn-danger">{% trans "Delete node" %}</a>
             {% endif %}
             <a href="{% portal_url action='manage_portal' username=owner.username %}"  class="btn btn-primary">{% trans "Manage portal" %}</a>
         </div>

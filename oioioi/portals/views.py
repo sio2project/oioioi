@@ -62,9 +62,9 @@ def edit_node_view(request, username, portal_path):
     context = get_edit_node_context(request, username, portal_path)
 
     if request.method != 'POST':
-        form = NodeForm(instance=context['node'])
+        form = NodeForm(instance=context['current_node'])
     else:
-        form = NodeForm(request.POST, instance=context['node'])
+        form = NodeForm(request.POST, instance=context['current_node'])
         if form.is_valid():
             node = form.save()
             return redirect(portal_url(username,
@@ -80,9 +80,9 @@ def add_node_view(request, username, portal_path):
     context = get_edit_node_context(request, username, portal_path)
 
     if request.method != 'POST':
-        form = NodeForm(initial={'parent': context['node']})
+        form = NodeForm(initial={'parent': context['current_node']})
     else:
-        instance = Node(parent=context['node'])
+        instance = Node(parent=context['current_node'])
         form = NodeForm(request.POST, instance=instance)
         if form.is_valid():
             node = form.save()
@@ -97,18 +97,18 @@ def add_node_view(request, username, portal_path):
 
 def delete_node_view(request, username, portal_path):
     context = get_edit_node_context(request, username, portal_path)
-    if context['node'].is_root_node():
+    if context['current_node'].is_root_node():
         raise Http404
 
     if request.method != 'POST':
         return render(request, 'portals/delete-node.html', context)
     else:
         if 'confirmation' in request.POST:
-            context['node'].delete()
+            context['current_node'].delete()
             return redirect(portal_url(username,
-                                       parent_path(context['portal_path'])))
+                                       parent_path(portal_path)))
         else:
-            return redirect(portal_url(username, context['portal_path']))
+            return redirect(portal_url(username, portal_path))
 
 
 def manage_portal_view(request, username):
