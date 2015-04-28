@@ -16,6 +16,7 @@ from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIRegistration, OIOnsiteRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
+from oioioi.scoresreveal.utils import is_revealed
 
 
 class OIRegistrationController(ParticipantsController):
@@ -242,3 +243,10 @@ class BOIOnsiteContestController(OIOnsiteContestController):
             result.score = None
             result.status = None
             result.submission_report = None
+
+    def get_visible_reports_kinds(self, request, submission):
+        if is_revealed(submission) or \
+                self.results_visible(request, submission):
+            return ['USER_OUTS', 'INITIAL', 'NORMAL']
+        else:
+            return ['USER_OUTS', 'INITIAL']
