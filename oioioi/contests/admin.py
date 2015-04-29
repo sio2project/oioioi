@@ -6,7 +6,7 @@ from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.util import unquote, quote
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
@@ -284,13 +284,14 @@ class UserListFilter(SimpleListFilter):
         return users
 
     def queryset(self, request, queryset):
-        if self.value():
-            if self.value() != 'None':
-                return queryset.filter(user=self.value())
-            else:
-                return queryset.filter(user=None)
-        else:
+        if not self.value():
             return queryset
+        if self.value() == 'None':
+            return queryset.filter(user=None)
+        if self.value().isdigit():
+            return queryset.filter(user=self.value())
+
+        raise Http404("Incorrect user filter")
 
 
 class ProblemNameListFilter(SimpleListFilter):
