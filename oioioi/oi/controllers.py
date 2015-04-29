@@ -254,6 +254,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
         else:
             return ['USER_OUTS', 'INITIAL']
 
+    def can_print_files(self, request):
+        return True
+
     def fill_evaluation_environ(self, environ, submission):
         super(BOIOnsiteContestController, self) \
                 .fill_evaluation_environ(environ, submission)
