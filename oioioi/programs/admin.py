@@ -163,7 +163,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
             'submission_report__submission__problem_instance':
                 problem_instance,
             'submission_report__submission__programsubmission'
-                    '__modelprogramsubmission__isnull': False
+                    '__modelprogramsubmission__isnull': False,
+            'submission_report__status': 'ACTIVE',
         }
         test_reports = TestReport.objects.filter(**filter_kwargs) \
                 .select_related()
@@ -171,7 +172,8 @@ class ProgrammingProblemInstanceAdminMixin(object):
             'submission_report__submission__problem_instance':
                 problem_instance,
             'submission_report__submission__programsubmission'
-                    '__modelprogramsubmission__isnull': False
+                    '__modelprogramsubmission__isnull': False,
+            'submission_report__status': 'ACTIVE',
         }
         group_reports = GroupReport.objects.filter(**filter_kwargs) \
                 .select_related()
