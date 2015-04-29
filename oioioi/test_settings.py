@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'oioioi.mailsubmit',
     'oioioi.gamification',
     'oioioi.portals',
+    'oioioi.workers',
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

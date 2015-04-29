@@ -9,6 +9,7 @@ from celery.exceptions import Ignore
 
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.base.utils.loaders import load_modules
+from oioioi.sioworkers.jobs import send_async_jobs
 
 
 logger = logging.getLogger(__name__)
@@ -189,7 +190,9 @@ def evalmgr_job(env):
             phase = recipe[0]
             env['recipe'] = recipe[1:]
             env = _run_phase(env, phase)
-
+            if 'workers_jobs' in env:
+                send_async_jobs(env)
+                break
         return env
 
     # Throwing up celery.exceptions.Ignore is necessary for our custom revoke

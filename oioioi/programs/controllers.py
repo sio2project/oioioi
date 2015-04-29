@@ -73,6 +73,8 @@ class ProgrammingProblemController(ProblemController):
         environ['recipe'] = [
                 ('compile',
                     'oioioi.programs.handlers.compile'),
+                ('compile_end',
+                    'oioioi.programs.handlers.compile_end'),
 
                 recipe_placeholder('after_compile'),
 
@@ -102,6 +104,8 @@ class ProgrammingProblemController(ProblemController):
                     ('initial_run_tests',
                         'oioioi.programs.handlers.run_tests',
                         dict(kind='EXAMPLE')),
+                    ('initial_run_tests_end',
+                        'oioioi.programs.handlers.run_tests_end'),
                     ('initial_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
                     ('initial_grade_groups',
@@ -121,6 +125,8 @@ class ProgrammingProblemController(ProblemController):
                     ('userout_run_tests',
                         'oioioi.programs.handlers.run_tests',
                         dict(kind=None)),
+                    ('userout_run_tests',
+                        'oioioi.programs.handlers.run_tests_end'),
                     ('userout_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
                     ('userout_grade_groups',
@@ -148,6 +154,8 @@ class ProgrammingProblemController(ProblemController):
                     ('final_run_tests',
                         'oioioi.programs.handlers.run_tests',
                         dict(kind='NORMAL')),
+                    ('final_run_tests_end',
+                        'oioioi.programs.handlers.run_tests_end'),
                     ('final_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
                     ('final_grade_groups',
@@ -164,6 +172,8 @@ class ProgrammingProblemController(ProblemController):
                 [
                     ('hidden_run_tests',
                         'oioioi.programs.handlers.run_tests'),
+                    ('hidden_run_tests_end',
+                        'oioioi.programs.handlers.run_tests_end'),
                     ('hidden_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
                     ('hidden_grade_groups',
@@ -182,6 +192,8 @@ class ProgrammingProblemController(ProblemController):
                 [
                     ('full_run_tests',
                         'oioioi.programs.handlers.run_tests'),
+                    ('full_run_tests',
+                        'oioioi.programs.handlers.run_tests_end'),
                     ('full_grade_tests',
                         'oioioi.programs.handlers.grade_tests'),
                     ('full_grade_groups',

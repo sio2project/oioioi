@@ -89,9 +89,12 @@ def compile(env, **kwargs):
     compilation_job['out_file'] = _make_filename(env, 'exe')
     if 'language' in env and 'compiler' not in env:
         compilation_job['compiler'] = 'default-' + env['language']
+    env['workers_jobs'] = {'compile': compilation_job}
+    return env
 
-    new_env = run_sioworkers_job(compilation_job)
 
+def compile_end(env, **kwargs):
+    new_env = env['workers_job.results']['compile']
     env['compiled_file'] = new_env.get('out_file')
     env['compilation_message'] = new_env.get('compiler_output', '')
     env['compilation_result'] = new_env.get('result_code', 'CE')
@@ -215,7 +218,6 @@ def run_tests(env, kind=None, **kwargs):
 
            If the dictionary already exists, new test results are appended.
     """
-
     jobs = dict()
     not_to_judge = []
     for test_name, test_env in env['tests'].iteritems():
@@ -236,7 +238,17 @@ def run_tests(env, kind=None, **kwargs):
             job['upload_out'] = True
         jobs[test_name] = job
     extra_args = env.get('sioworkers_extra_args', {}).get(kind, {})
-    jobs = run_sioworkers_jobs(jobs, **extra_args)
+    env['workers_jobs'] = jobs
+    env['workers_jobs.extra_args'] = extra_args
+    env['workers_jobs.not_to_judge'] = not_to_judge
+    return env
+
+
+@_if_compiled
+def run_tests_end(env, **kwargs):
+    not_to_judge = env['workers_jobs.not_to_judge']
+    del env['workers_jobs.not_to_judge']
+    jobs = env['workers_job.results']
     env.setdefault('test_results', {})
     for test_name, result in jobs.iteritems():
         env['test_results'].setdefault(test_name, {}).update(result)

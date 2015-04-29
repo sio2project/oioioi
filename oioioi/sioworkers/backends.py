@@ -1,5 +1,7 @@
 import sio.workers.runner
 import sio.celery.job
+import oioioi
+
 
 # This is a workaround for SIO-915. We assume that other parts of OIOIOI code
 # do not rely on particular directory being the current directory. Without
@@ -26,6 +28,15 @@ class LocalBackend(object):
             results[key] = self.run_job(value, **kwargs)
         return results
 
+    def send_async_jobs(self, env, **kwargs):
+        res = self.run_jobs(env['workers_jobs'],
+            **(env.get('workers_jobs.extra_args', dict())))
+        env['workers_job.results'] = res
+        del env["workers_jobs"]
+        if 'workers_jobs.extra_args' in env:
+            del env['workers_jobs.extra_args']
+        oioioi.evalmgr.evalmgr_job.delay(env)
+
 
 class CeleryBackend(object):
     """A backend which uses Celery for sioworkers jobs."""
@@ -45,3 +56,11 @@ class CeleryBackend(object):
         for key, async_job in async_jobs.iteritems():
             results[key] = async_job.get()
         return results
+
+    def send_async_jobs(self, env, **kwargs):
+        res = self.run_jobs(env['workers_jobs'],
+            **env['workers_jobs.extra_args'])
+        env['workers_job.results'] = res
+        del env["workers_jobs"]
+        del env['workers_jobs.extra_args']
+        oioioi.evalmgr.evalmgr_job.delay(env)

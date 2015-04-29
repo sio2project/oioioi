@@ -32,6 +32,8 @@ class TestRunProblemControllerMixin(object):
                     'oioioi.testrun.handlers.make_test'),
                 ('run_tests',
                     'oioioi.programs.handlers.run_tests',),
+                ('run_tests_end',
+                    'oioioi.programs.handlers.run_tests_end'),
                 ('grade_submission',
                     'oioioi.testrun.handlers.grade_submission'),
                 ('make_report',

@@ -12,3 +12,7 @@ def run_sioworkers_job(job, **kwargs):
 
 def run_sioworkers_jobs(dict_of_jobs, **kwargs):
     return _get_backend().run_jobs(dict_of_jobs, **kwargs)
+
+
+def send_async_jobs(dict_of_jobs, **kwargs):
+    return _get_backend().send_async_jobs(dict_of_jobs, **kwargs)
