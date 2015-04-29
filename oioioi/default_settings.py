@@ -282,9 +282,10 @@ LOGGING = {
         }
     },
     'formatters': {
-        'date_and_level': {
-            'format': '[%(asctime)s %(levelname)s] %(message)s',
-        },
+            'date_and_level': {
+                'format': '[%(asctime)s %(levelname)s %(process)d:%(thread)d]'
+                          ' %(message)s',
+            },
     },
     'handlers': {
         'console': {

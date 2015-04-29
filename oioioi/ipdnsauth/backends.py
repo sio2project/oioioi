@@ -1,8 +1,12 @@
 import socket
+import logging
 
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
+
+logger = logging.getLogger(__name__)
 
 
 class IpDnsBackend(ModelBackend):
@@ -35,8 +39,12 @@ class IpDnsBackend(ModelBackend):
     def _resolve_hostname(self, ip):
         if ip:
             try:
-                return socket.gethostbyaddr(ip)[0]
+                logger.info("DNS Q %s", ip)
+                name = socket.gethostbyaddr(ip)[0]
+                logger.info("DNS + %s -> %s.", ip, name)
+                return name
             except socket.herror:
+                logger.info("DNS - %s", ip)
                 pass
 
         return None
