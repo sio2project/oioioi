@@ -257,6 +257,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
     def can_print_files(self, request):
         return True
 
+    def default_contesticons_urls(self):
+        return []
+
     def fill_evaluation_environ(self, environ, submission):
         super(BOIOnsiteContestController, self) \
                 .fill_evaluation_environ(environ, submission)
