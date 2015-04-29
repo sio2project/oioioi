@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ungettext
 from django.utils.functional import lazy
+from django.conf import settings
 
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
@@ -32,3 +33,7 @@ def dangling_problems_processor(request):
                 count) % {'count': count}
         return make_navbar_badge(link, text)
     return {'extra_navbar_right_dangling_problems': lazy(generator, unicode)()}
+
+
+def problemset_link_visible_processor(request):
+    return {'is_problemset_link_visible': settings.PROBLEMSET_LINK_VISIBLE}

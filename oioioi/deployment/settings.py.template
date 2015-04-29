@@ -188,6 +188,9 @@ INSTALLED_APPS = (
 #    'oioioi.portals',
 ) + INSTALLED_APPS
 
+# Set to True to show the link to the problemset with contests on navbar.
+PROBLEMSET_LINK_VISIBLE = True
+
 TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.logo_processor',
 #    'oioioi.contestlogo.processors.icon_processor',

@@ -90,6 +90,8 @@ if not DEBUG:
         ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
     )
 
+PROBLEMSET_LINK_VISIBLE = True
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',
@@ -108,6 +110,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.contests.processors.register_recent_contests',
     'oioioi.contestexcl.processors.register_contest_exclusive',
     'oioioi.problems.processors.dangling_problems_processor',
+    'oioioi.problems.processors.problemset_link_visible_processor',
     'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
     'oioioi.status.processors.status_processor',

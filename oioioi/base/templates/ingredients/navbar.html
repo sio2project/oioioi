@@ -30,8 +30,10 @@
                         <li><a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create a new contest" %}</a></li>
                         {% endif %}
 
+                        {% if is_problemset_link_visible %}
                         <li class="divider"></li>
                         <li><a href="{% url 'problemset_main' %}">{% trans "Problemset" %}</a></li>
+                        {% endif %}
                     </ul>
                     </li>
                     {% endif %}
