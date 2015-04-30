@@ -6,7 +6,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.controllers import PastRoundsHiddenContestControllerMixin
+from oioioi.contests.controllers import PublicContestRegistrationController, \
+        PastRoundsHiddenContestControllerMixin
 from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_see_personal_data
@@ -262,6 +263,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
     def can_see_ranking(self, request):
         return True
 
+    def default_contestlogo_url(self):
+        return None
+
     def default_contesticons_urls(self):
         return []
 
@@ -270,3 +274,17 @@ class BOIOnsiteContestController(OIOnsiteContestController):
                 .fill_evaluation_environ(environ, submission)
 
         environ['test_scorer'] = 'oioioi.programs.utils.discrete_test_scorer'
+
+
+class BOIOnlineContestController(BOIOnsiteContestController):
+    description = _("Baltic Olympiad in Informatics - online")
+    create_forum = False
+
+    def registration_controller(self):
+        return PublicContestRegistrationController(self.contest)
+
+    def is_onsite(self):
+        return False
+
+    def can_see_ranking(self, request):
+        return True
