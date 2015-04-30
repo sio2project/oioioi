@@ -208,7 +208,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
     create_forum = False
 
     def can_see_test_comments(self, request, submissionreport):
-        return is_contest_admin(request)
+        submission = submissionreport.submission
+        return is_contest_admin(request) or \
+                self.results_visible(request, submission)
 
     def reveal_score(self, request, submission):
         super(BOIOnsiteContestController, self).reveal_score(request,
@@ -255,6 +257,9 @@ class BOIOnsiteContestController(OIOnsiteContestController):
             return ['USER_OUTS', 'INITIAL']
 
     def can_print_files(self, request):
+        return True
+
+    def can_see_ranking(self, request):
         return True
 
     def default_contesticons_urls(self):
