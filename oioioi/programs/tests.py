@@ -554,7 +554,7 @@ class TestScorers(TestCase):
         results = map(utils.threshold_linear_test_scorer,
                         *zip(*self.t_results_ok[:4]))
         dicts = [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st) for sc, msc, st in results]
+                status=st, order=i) for i, (sc, msc, st) in enumerate(results)]
         return dict(zip(xrange(len(dicts)), dicts))
 
     @memoized_property
@@ -563,7 +563,8 @@ class TestScorers(TestCase):
                         *zip(*self.t_results_wrong))
         dicts = self.g_results_ok.values()
         dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st) for sc, msc, st in results]
+                status=st, order=(i + 10))
+                for i, (sc, msc, st) in enumerate(results)]
         return dict(zip(xrange(len(dicts)), dicts))
 
     @memoized_property
@@ -572,7 +573,8 @@ class TestScorers(TestCase):
                         *zip(*self.t_results_unequal_max_scores))
         dicts = self.g_results_wrong.values()
         dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
-                status=st) for sc, msc, st in results]
+                status=st, order=(i + 20))
+                for i, (sc, msc, st) in enumerate(results)]
         return dict(zip(xrange(len(dicts)), dicts))
 
     def test_min_group_scorer(self):

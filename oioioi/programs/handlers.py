@@ -156,6 +156,7 @@ def collect_tests(env, **kwargs):
         test_env['kind'] = test.kind
         test_env['group'] = test.group or test.name
         test_env['max_score'] = test.max_score
+        test_env['order'] = test.order
         if test.time_limit:
             test_env['exec_time_limit'] = test.time_limit
         if test.memory_limit:
@@ -240,7 +241,8 @@ def run_tests(env, kind=None, **kwargs):
     for test_name, result in jobs.iteritems():
         env['test_results'].setdefault(test_name, {}).update(result)
     for test_name in not_to_judge:
-        env['test_results'].setdefault(test_name, {})
+        env['test_results'].setdefault(test_name, {}) \
+                .update(env['tests'][test_name])
     return env
 
 

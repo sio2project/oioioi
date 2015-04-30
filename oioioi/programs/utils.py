@@ -1,4 +1,5 @@
 from math import ceil
+from operator import itemgetter
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
@@ -61,8 +62,10 @@ def min_group_scorer(test_results):
     if max_score != max(max_scores):
         raise UnequalMaxScores("Tests in one group cannot "
                 "have different max scores.")
+
+    sorted_results = sorted(test_results.values(), key=itemgetter('order'))
     status = aggregate_statuses([result['status']
-        for result in test_results.itervalues()])
+        for result in sorted_results])
 
     return score, max_score, status
 
