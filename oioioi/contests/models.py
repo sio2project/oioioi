@@ -316,6 +316,16 @@ class Submission(models.Model):
         return self.problem_instance.contest.controller \
                 .render_submission_score(self)
 
+    def __unicode__(self):
+        return "Submission(%d, %s, %s, %s, %s, %s)" % (
+                self.id,
+                self.problem_instance.problem.name,
+                self.user.username if self.user else None,
+                self.date,
+                self.kind,
+                self.status
+        )
+
 submission_report_kinds = EnumRegistry()
 submission_report_kinds.register('FINAL', _("Final report"))
 submission_report_kinds.register('FAILURE', _("Evaluation failure report"))
