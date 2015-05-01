@@ -356,7 +356,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         for test in problem_instance.test_set.all():
             test.delete()
         problem_instance.save()
-        url = reverse('add_or_update_contest_problem',
+        url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         urllib.urlencode({
                                 'problem': problem_instance.problem.id})

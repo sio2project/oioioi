@@ -14,6 +14,7 @@ class TestViews(TestCase):
 
     def _get_admin_site(self):
         self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         show_response = self.client.get(reverse(
                 'oioioiadmin:submitsqueue_queuedsubmit_changelist'))
         self.assertEqual(show_response.status_code, 200)

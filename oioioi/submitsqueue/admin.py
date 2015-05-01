@@ -7,6 +7,7 @@ from django.db import transaction
 from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link
+from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
 from oioioi.submitsqueue.models import QueuedSubmit
@@ -186,7 +187,7 @@ class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
         return qs.filter(submission__problem_instance__contest=request.contest)
 
 
-admin.site.register(ContestQueuedSubmit, ContestSubmitsQueueAdmin)
+contest_site.contest_register(ContestQueuedSubmit, ContestSubmitsQueueAdmin)
 contest_admin_menu_registry.register('queuedsubmit_admin',
         _("Evaluation queue"), lambda request: reverse(
             'oioioiadmin:submitsqueue_contestqueuedsubmit_changelist'),

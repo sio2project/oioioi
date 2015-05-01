@@ -7,7 +7,7 @@ from oioioi.balloons.models import ProblemBalloonsConfig, \
         BalloonsDisplay, BalloonsDeliveryAccessData
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import ProblemInstance, Contest
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
@@ -50,7 +50,8 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
         return super(ProblemBalloonsConfigAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 
-admin.site.register(ProblemBalloonsConfig, ProblemBalloonsConfigAdmin)
+contest_site.contest_register(ProblemBalloonsConfig,
+        ProblemBalloonsConfigAdmin)
 contest_admin_menu_registry.register('problemballoonsconfig_admin',
         _("Balloons colors"), lambda request:
         reverse('oioioiadmin:balloons_problemballoonsconfig_changelist'),

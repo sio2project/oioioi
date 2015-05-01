@@ -7,6 +7,7 @@ from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.forum.models import Category, Forum, Thread, Post
+from oioioi.contests.admin import contest_site
 from oioioi.contests.utils import is_contest_admin
 
 
@@ -17,7 +18,6 @@ def make_list_elem(elem, text=None):
 
 
 def get_permission(self, request):
-    # if forum exists returns std_perm - is_contest_admin, otherwise - False
     try:
         _f = request.contest.forum
         return is_contest_admin(request)
@@ -267,7 +267,7 @@ class PostAdmin(admin.ModelAdmin):
         qs = qs.filter(thread__category__forum=request.contest.forum)
         return qs
 
-admin.site.register(Forum, ForumAdmin)
-admin.site.register(Category, CategoryAdmin)
-admin.site.register(Thread, ThreadAdmin)
-admin.site.register(Post, PostAdmin)
+contest_site.contest_register(Forum, ForumAdmin)
+contest_site.contest_register(Category, CategoryAdmin)
+contest_site.contest_register(Thread, ThreadAdmin)
+contest_site.contest_register(Post, PostAdmin)

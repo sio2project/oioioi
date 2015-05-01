@@ -344,6 +344,7 @@ class TestQuestions(TestCase):
         r = pi.round
         q = Message.objects.get(topic="problem-question")
         a1, a2 = Message.objects.filter(top_reference=q)
+        self.client.get('/c/c/')  # 'c' becomes the current contest
 
         def change_category(msg, cat):
             url = reverse('oioioiadmin:questions_message_change',
@@ -384,6 +385,8 @@ class TestQuestions(TestCase):
 
     def test_change_denied(self):
         self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         msg = Message.objects.filter(author__username='test_admin')[0]
         url = reverse('oioioiadmin:questions_message_change',
                       args=(msg.id,))
@@ -414,7 +417,7 @@ class TestQuestions(TestCase):
     def test_check_new_messages(self):
         self.client.login(username='test_user')
         url = reverse('check_new_messages',
-                      args=("c", 2))
+                kwargs={'contest_id': 'c', 'topic_id': 2})
         resp = self.client.get(url, {'timestamp': 1347000000})
         data = json.loads(resp.content)['messages']
 

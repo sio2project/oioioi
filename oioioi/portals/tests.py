@@ -2,14 +2,18 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.test.utils import override_settings
+
 from oioioi.portals.models import Portal, Node
 from oioioi.portals.utils import portal_url
+from oioioi.contests.current_contest import ContestMode
 
 
 def get_portal():
     return Portal.objects.get(owner__username='test_user')
 
 
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestModels(TestCase):
     fixtures = ['test_users', 'test_portals']
 
@@ -75,6 +79,7 @@ class TestModels(TestCase):
         self.assertEqual(grandchild.get_path(), 'child123/child234/grandchild')
 
 
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestPortalViews(TestCase):
     fixtures = ['test_users', 'test_portals']
 

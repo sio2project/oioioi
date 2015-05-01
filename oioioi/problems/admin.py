@@ -17,7 +17,7 @@ from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.permissions import make_request_condition, is_superuser
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
@@ -137,7 +137,7 @@ class ProblemAdmin(admin.ModelAdmin):
             return redirect('oioioiadmin:problems_problem_changelist')
 
     def add_view(self, request, form_url='', extra_context=None):
-        return redirect('add_or_update_contest_problem',
+        return redirect('add_or_update_problem',
                 contest_id=request.contest.id)
 
     def download_view(self, request, object_id):
@@ -341,7 +341,8 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
             del actions['delete_selected']
         return actions
 
-admin.site.register(ContestProblemPackage, ContestProblemPackageAdmin)
+contest_site.contest_register(ContestProblemPackage,
+        ContestProblemPackageAdmin)
 contest_admin_menu_registry.register('problempackage_change',
         _("Problem packages"),
         lambda request:

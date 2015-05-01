@@ -9,7 +9,3 @@ contest_patterns = patterns('oioioi.teams.views',
     url(r'^team/create/$', 'create_team_view', name='create_team'),
     url(r'^team/quit/$', 'quit_team_view', name='quit_team'),
 )
-
-urlpatterns = patterns('oioioi.teams.views',
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
-)

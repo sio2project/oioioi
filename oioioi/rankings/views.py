@@ -23,7 +23,7 @@ def has_any_ranking_visible(request):
 
 @enforce_condition(contest_exists & can_enter_contest & is_contest_admin)
 @enforce_condition(has_any_ranking_visible)
-def get_users_in_ranking_view(request, contest_id):
+def get_users_in_ranking_view(request):
     queryset = Submission.objects
     return get_user_hints_view(request, 'substr', queryset, 'user')
 
@@ -34,7 +34,7 @@ def get_users_in_ranking_view(request, contest_id):
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(has_any_ranking_visible,
                    template='rankings/no_rankings.html')
-def ranking_view(request, contest_id, key=None):
+def ranking_view(request, key=None):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
     if key is None:
@@ -103,7 +103,7 @@ def ranking_view(request, contest_id, key=None):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def ranking_csv_view(request, contest_id, key):
+def ranking_csv_view(request, key):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
     if not choices or key not in zip(*choices)[0]:

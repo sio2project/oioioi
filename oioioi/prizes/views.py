@@ -30,7 +30,7 @@ def any_prize_awarded(request):
     order=990)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(any_prize_awarded & prizes_visible)
-def prizes_view(request, contest_id, key=None):
+def prizes_view(request, key=None):
     givings = request.contest.prizegiving_set \
             .filter(state='SUCCESS', prize__prizeforuser__isnull=False) \
             .distinct()
@@ -58,7 +58,7 @@ def prizes_view(request, contest_id, key=None):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def download_report_view(request, contest_id, pg_id):
+def download_report_view(request, pg_id):
     pg = get_object_or_404(PrizeGiving, id=pg_id)
     if not pg.report:
         raise Http404

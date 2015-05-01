@@ -14,7 +14,3 @@ contest_patterns = patterns('oioioi.questions.views',
     url(r'^questions/check_new_messages/(?P<topic_id>\d+)/$',
         'check_new_messages_view', name='check_new_messages'),
 )
-
-urlpatterns = patterns('oioioi.contests.views',
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
-)

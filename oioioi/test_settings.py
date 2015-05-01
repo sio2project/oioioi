@@ -68,8 +68,12 @@ MIDDLEWARE_CLASSES += (
 
 TESTS = True
 
+NOSE_ARGS += (
+    '--with-clearcc',
+)
 NOSE_PLUGINS = [
     'oioioi.base.tests.nose_plugins.ClearCache',
+    'oioioi.contests.tests.nose_plugins.ClearCurrentContest',
 ]
 
 SECRET_KEY = 'no_secret'

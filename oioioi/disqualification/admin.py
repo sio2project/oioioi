@@ -4,6 +4,7 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
+from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import is_contest_admin
@@ -84,7 +85,7 @@ class DisqualificationAdmin(admin.ModelAdmin):
             .order_by('-id')
 
 
-admin.site.register(Disqualification, DisqualificationAdmin)
+contest_site.contest_register(Disqualification, DisqualificationAdmin)
 contest_admin_menu_registry.register('disqualification_admin',
     _("Custom disqualification"), lambda request:
     reverse('oioioiadmin:disqualification_disqualification_changelist'),

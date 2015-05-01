@@ -11,6 +11,7 @@ from django import forms
 
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.contests.current_contest import ContestMode
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.problem_sources import UploadedPackageSource
@@ -48,7 +49,10 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         #superuser
         self.client.login(username='test_admin')
         statement = ProblemStatement.objects.get()
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('show_statement', kwargs={'statement_id': statement.id})
+
         response = self.client.get(url)
         content = self.streamingContent(response)
         self.assertTrue(content.startswith('%PDF'))
@@ -65,7 +69,10 @@ class TestProblemViews(TestCase, TestStreamingMixin):
 
     def test_admin_changelist_view(self):
         self.client.login(username='test_admin')
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_changelist')
+
         response = self.client.get(url)
         self.assertContains(response, 'Sum')
 
@@ -83,8 +90,11 @@ class TestProblemViews(TestCase, TestStreamingMixin):
     def test_admin_change_view(self):
         self.client.login(username='test_admin')
         problem = Problem.objects.get()
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_change',
                 args=(problem.id,))
+
         response = self.client.get(url)
         elements_to_find = ['Sum', 'sum']
         for element in elements_to_find:
@@ -93,8 +103,10 @@ class TestProblemViews(TestCase, TestStreamingMixin):
     def test_admin_delete_view(self):
         self.client.login(username='test_admin')
         problem = Problem.objects.get()
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_delete',
                 args=(problem.id,))
+
         self.client.post(url, {'post': 'yes'})
         self.assertEqual(Problem.objects.count(), 0)
 
@@ -105,7 +117,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         check_not_accessible(self, 'oioioiadmin:problems_problem_add',
                 data={'package_file': open(__file__, 'rb'),
                       'contest_id': contest.id})
-        check_not_accessible(self, 'add_or_update_contest_problem',
+        check_not_accessible(self, 'add_or_update_problem',
                 kwargs={'contest_id': contest.id}, qs={'problem': problem.id})
         check_not_accessible(self, 'oioioiadmin:problems_problem_download',
                 args=(problem.id,))
@@ -276,7 +288,7 @@ class TestProblemUpload(TransactionTestCase):
         contest.default_submissions_limit += 100
         contest.save()
 
-        url = reverse('add_or_update_contest_problem',
+        url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         urllib.urlencode({'problem': problem.id})
         response = self.client.get(url, follow=True)
@@ -296,9 +308,9 @@ class TestProblemPackageAdminView(TestCase):
 
     def test_links(self):
         self.client.login(username='test_admin')
-        url = reverse('oioioiadmin:problems_problempackage_changelist')
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:problems_problempackage_changelist')
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -307,6 +319,7 @@ class TestProblemPackageAdminView(TestCase):
         self.assertIn('Model solutions', response.content)
 
         self.client.get('/c/c1/')  # 'c1' becomes the current contest
+        url = reverse('oioioiadmin:problems_problempackage_changelist')
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -342,7 +355,10 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
     def test_admin_changelist_view(self):
         self.client.login(username='test_admin')
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problempackage_changelist')
+
         response = self.client.get(url)
         self.assertContains(response, 'XYZ')
 
@@ -351,8 +367,11 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package.package_file = ContentFile('eloziom', name='foo')
         package.save()
         self.client.login(username='test_admin')
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioi.problems.views.download_problem_package_view',
                 kwargs={'package_id': str(package.id)})
+
         response = self.client.get(url)
         content = self.streamingContent(response)
         self.assertEqual(content, 'eloziom')
@@ -362,8 +381,10 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package.traceback = ContentFile('eloziom', name='foo')
         package.save()
         self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioi.problems.views.download_package_traceback_view',
                 kwargs={'package_id': str(package.id)})
+
         response = self.client.get(url)
         content = self.streamingContent(response)
         self.assertEqual(content, 'eloziom')
@@ -384,6 +405,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         self._test_package_permissions(is_admin=True)
 
 
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestProblemSite(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance', 'test_submission', 'test_problem_site']

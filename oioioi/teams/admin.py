@@ -3,7 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.teams.forms import TeamForm
 from oioioi.teams.models import Team, TeamMembership, TeamsConfig
 from oioioi.teams.utils import teams_enabled
@@ -41,7 +41,7 @@ class TeamsAdmin(admin.ModelAdmin):
         obj.save()
 
 
-admin.site.register(Team, TeamsAdmin)
+contest_site.contest_register(Team, TeamsAdmin)
 contest_admin_menu_registry.register('teams', _("Teams"),
     lambda request: reverse('oioioiadmin:teams_team_changelist'),
     condition=teams_enabled, order=30)

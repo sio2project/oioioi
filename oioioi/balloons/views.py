@@ -85,7 +85,7 @@ def balloons_body_view(request):
 
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
-def balloons_regenerate_delivery_key_view(request, contest_id):
+def balloons_regenerate_delivery_key_view(request):
     contest = get_object_or_404(Contest, id=request.contest.id)
     access_data = BalloonsDeliveryAccessData.objects \
         .get_or_create(contest=contest)[0]
@@ -97,7 +97,7 @@ def balloons_regenerate_delivery_key_view(request, contest_id):
                     quote(request.contest.id))
 
 
-def balloons_access_cookie_view(request, contest_id, access_key):
+def balloons_access_cookie_view(request, access_key):
     access_data = get_object_or_404(
         BalloonsDeliveryAccessData,
         contest_id=request.contest.id,
@@ -117,13 +117,13 @@ def balloons_access_cookie_view(request, contest_id, access_key):
 
 
 @enforce_condition(has_balloons_cookie, login_redirect=False)
-def balloons_delivery_panel_view(request, contest_id):
+def balloons_delivery_panel_view(request):
     return TemplateResponse(request, 'balloons/balloons-delivery-panel.html')
 
 
 @jsonify
 @enforce_condition(has_balloons_cookie, login_redirect=False)
-def get_new_balloon_requests_view(request, contest_id):
+def get_new_balloon_requests_view(request):
     try:
         last_id = int(request.GET['last_id'])
     except KeyError:
@@ -156,7 +156,7 @@ def get_new_balloon_requests_view(request, contest_id):
 @jsonify
 @enforce_condition(has_balloons_cookie, login_redirect=False)
 @require_POST
-def set_balloon_delivered_view(request, contest_id):
+def set_balloon_delivered_view(request):
     try:
         new_delivered = request.POST['new_delivered'] == 'True'
         old_delivered = not new_delivered

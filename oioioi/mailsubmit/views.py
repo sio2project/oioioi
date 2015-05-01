@@ -27,7 +27,7 @@ from oioioi.mailsubmit.utils import is_mailsubmit_allowed, \
     order=300)
 @enforce_condition(contest_exists & can_enter_contest & is_mailsubmit_allowed
     & has_any_visible_problem_instance & has_any_mailsubmittable_problem)
-def mailsubmit_view(request, contest_id):
+def mailsubmit_view(request):
     if request.method == 'POST':
         form = MailSubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
@@ -52,7 +52,7 @@ def mailsubmit_view(request, contest_id):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def accept_mailsubmission_view(request, contest_id, mailsubmission_id='',
+def accept_mailsubmission_view(request, mailsubmission_id='',
                                mailsubmission_hash=''):
     if request.method == 'POST':
         form = AcceptMailSubmissionForm(request, request.POST)
@@ -65,7 +65,7 @@ def accept_mailsubmission_view(request, contest_id, mailsubmission_id='',
                 accept_mail_submission(request, mailsubmission)
                 messages.success(request, _("Postal submission accepted"))
             return redirect('accept_mailsubmission_default',
-                            contest_id=contest_id)
+                            contest_id=request.contest.id)
     else:
         form = AcceptMailSubmissionForm(request, initial={
                 'mailsubmission_id': mailsubmission_id,

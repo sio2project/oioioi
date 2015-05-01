@@ -20,7 +20,7 @@ from oioioi.publicsolutions.models import VoluntarySolutionPublication
         kwargs={'contest_id': request.contest.id}), order=1000)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(any_round_public)
-def list_solutions_view(request, contest_id):
+def list_solutions_view(request):
     form = FilterPublicSolutionsForm(request, request.GET)
 
     category = None
@@ -47,7 +47,7 @@ def list_solutions_view(request, contest_id):
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(any_round_public)
-def publish_solutions_view(request, contest_id):
+def publish_solutions_view(request):
     subs = get_may_be_published_solutions_for_user(request) \
            .order_by('problem_instance', 'date')
 
@@ -62,23 +62,23 @@ def publish_solutions_view(request, contest_id):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(any_round_public & solution_may_be_published)
 @require_POST
-def publish_solution_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def publish_solution_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id)
 
     _pub, _created = VoluntarySolutionPublication.objects \
         .get_or_create(submission=submission)
 
-    return redirect('publish_solutions', contest_id=contest_id)
+    return redirect('publish_solutions', contest_id=request.contest.id)
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(any_round_public & solution_may_be_published)
 @require_POST
-def unpublish_solution_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def unpublish_solution_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id)
 
     pub, _created = VoluntarySolutionPublication.objects \
             .get_or_create(submission=submission)
 
     pub.delete()
-    return redirect('publish_solutions', contest_id=contest_id)
+    return redirect('publish_solutions', contest_id=request.contest.id)

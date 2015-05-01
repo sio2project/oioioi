@@ -60,6 +60,7 @@ setup(
         "slate",
         "unicodecsv",
         "shortuuid",
+        'enum34',
 
         "chardet",
 

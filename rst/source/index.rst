@@ -14,7 +14,6 @@ Architecture Overview
 .. _Django 1.7: https://docs.djangoproject.com/en/1.7/
 .. _Django authentication: https://docs.djangoproject.com/en/1.7/topics/auth/
 .. _django-registration-redux: http://django-registration-redux.readthedocs.org/en/latest/
-.. _South: http://south.readthedocs.org/en/latest/
 .. _Django file storage: https://docs.djangoproject.com/en/1.7/topics/files/
 .. _Filetracker: ../../../../lib/filetracker/rst/build/html/index.html
 .. _Celery: http://docs.celeryproject.org/en/latest/index.html
@@ -29,7 +28,6 @@ components used:
 
 * Standard `Django authentication`_
 * User registration with `django-registration-redux`_
-* Database migrations with `South`_
 * :doc:`Modified Django file storage </sections/filestorage>`
 
   * custom storage class :class:`~oioioi.filetracker.storage.FileTrackerStorage`

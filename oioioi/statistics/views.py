@@ -43,8 +43,7 @@ def links(request):
         order=100)
 @enforce_condition(contest_exists & can_enter_contest & can_see_stats
                    & any_statistics_avaiable)
-def statistics_view(request, contest_id,
-                    category=statistics_categories['CONTEST'][1],
+def statistics_view(request, category=statistics_categories['CONTEST'][1],
                     object_name=''):
     controller = request.contest.controller
 

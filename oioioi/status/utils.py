@@ -10,13 +10,10 @@ def get_status(request):
         'is_superuser': is_superuser(request),
         'user': request.user.username,
         'sync_time': 300000,  # in ms
+        'status_url': reverse('get_status'),
     }
     if getattr(request, 'contest', None) is not None:
         response['contest_id'] = request.contest.id
-        response['status_url'] = reverse('get_contest_status',
-                kwargs={'contest_id': request.contest.id})
-    else:
-        response['status_url'] = reverse('get_status')
 
     # FIXME: Django doesn't load all 'views.py' in some cases, which may cause
     # FIXME: status_registry being not yet populated

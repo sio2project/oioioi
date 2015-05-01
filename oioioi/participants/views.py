@@ -30,14 +30,14 @@ account_menu_registry.register('participants_edit_registration',
 
 
 @enforce_condition(not_anonymous & contest_exists & contest_has_participants)
-def registration_view(request, contest_id):
+def registration_view(request):
     rcontroller = request.contest.controller.registration_controller()
     return rcontroller.registration_view(request)
 
 
 @enforce_condition(not_anonymous & contest_exists & contest_has_participants
                    & can_unregister)
-def unregistration_view(request, contest_id):
+def unregistration_view(request):
     if request.method == 'POST':
         participant = get_object_or_404(Participant, contest=request.contest,
                 user=request.user)
@@ -58,7 +58,7 @@ def unregistration_view(request, contest_id):
         order=100)
 @enforce_condition(not_anonymous & contest_exists & contest_has_participants &
                    can_see_personal_data)
-def participants_data(request, contest_id):
+def participants_data(request):
     context = serialize_participants_data(
             Participant.objects.filter(contest=request.contest))
     return TemplateResponse(request, 'participants/data.html', context)
@@ -66,6 +66,7 @@ def participants_data(request, contest_id):
 
 @enforce_condition(not_anonymous & contest_exists & contest_has_participants &
                    can_see_personal_data)
-def participants_data_csv(request, contest_id):
+def participants_data_csv(request):
     return render_participants_data_csv(
-            Participant.objects.filter(contest=request.contest), contest_id)
+            Participant.objects.filter(contest=request.contest),
+                    request.contest.id)

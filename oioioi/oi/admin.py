@@ -10,7 +10,7 @@ from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.contests.admin import SubmissionAdmin
+from oioioi.contests.admin import SubmissionAdmin, contest_site
 from oioioi.participants.admin import ParticipantAdmin
 from oioioi.oi.models import Region, School, OIRegistration, \
                                 OIOnsiteRegistration
@@ -60,7 +60,7 @@ class RegionAdmin(admin.ModelAdmin):
             return form
         return form_wrapper
 
-admin.site.register(Region, RegionAdmin)
+contest_site.contest_register(Region, RegionAdmin)
 contest_admin_menu_registry.register('regions', _("Regions"),
     lambda request: reverse('oioioiadmin:oi_region_changelist'),
     condition=is_onsite_contest, order=21)

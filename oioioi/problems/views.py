@@ -68,8 +68,8 @@ def download_package_traceback_view(request, package_id):
 
 
 @transaction.non_atomic_requests
-def add_or_update_problem_view(request, contest_id=None):
-    contest = contest_id and request.contest
+def add_or_update_problem_view(request):
+    contest = request.contest
 
     if 'problem' in request.GET:
         existing_problem = \
@@ -82,7 +82,7 @@ def add_or_update_problem_view(request, contest_id=None):
     else:
         existing_problem = None
         if not request.user.has_perm('problems.problems_db_admin'):
-            if not contest_id:
+            if not contest:
                 raise PermissionDenied
             if not is_contest_admin(request):
                 raise PermissionDenied

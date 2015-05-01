@@ -8,7 +8,3 @@ contest_patterns = patterns('oioioi.rankings.views',
     url(r'^ranking/(?P<key>[a-z0-9_-]+)/csv/$', 'ranking_csv_view',
             name='ranking_csv'),
 )
-
-urlpatterns = patterns('oioioi.rankings.views',
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
-)

@@ -38,7 +38,6 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
           an error message is displayed and an e-mail describing the situation
           is sent to the administrators.
     """
-
     def process_view(self, request, view_func,
                      view_args, view_kwargs, selector=None):
 
@@ -70,8 +69,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
                     'contestexcl/exclusive_contests_error.html')
         elif len(qs) == 1:
             contest = qs[0]
-            activate_contest(request, contest)
-            if view_kwargs.get('contest_id', contest.id) != contest.id:
+            if request.contest != contest:
                 if request.is_ajax():
                     raise PermissionDenied
                 else:

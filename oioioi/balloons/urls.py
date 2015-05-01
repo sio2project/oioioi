@@ -18,5 +18,4 @@ urlpatterns = patterns('oioioi.balloons.views',
         name='balloon_svg'),
     url(r'^balloons/$', 'balloons_view', name='balloons'),
     url(r'^balloons/body/$', 'balloons_body_view', name='balloons_body'),
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
 )

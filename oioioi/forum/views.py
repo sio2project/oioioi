@@ -26,7 +26,7 @@ from oioioi.forum.utils import forum_exists_and_visible, is_proper_forum, \
     order=50)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
-def forum_view(request, contest_id):
+def forum_view(request):
     msgs = get_msgs(request)
     category_set = request.contest.forum.category_set \
         .prefetch_related('thread_set', 'thread_set__post_set') \
@@ -39,7 +39,7 @@ def forum_view(request, contest_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
-def category_view(request, contest_id, category_id):
+def category_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     msgs = get_msgs(request)
     threads = category.thread_set \
@@ -54,7 +54,7 @@ def category_view(request, contest_id, category_id):
 
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
-def thread_view(request, contest_id, category_id, thread_id):
+def thread_view(request, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
     forum, lock = request.contest.forum, forum_is_locked(request)
     msgs = get_msgs(request)
@@ -69,7 +69,7 @@ def thread_view(request, contest_id, category_id, thread_id):
                 instance.thread = thread
                 instance.add_date = request.timestamp
                 instance.save()
-                return redirect('forum_thread', contest_id=contest_id,
+                return redirect('forum_thread', contest_id=request.contest.id,
                                 category_id=category.id,
                                 thread_id=thread.id)
         else:
@@ -87,7 +87,7 @@ def thread_view(request, contest_id, category_id, thread_id):
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
-def thread_add_view(request, contest_id, category_id):
+def thread_add_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     msgs = get_msgs(request)
     if request.method == 'POST':
@@ -103,7 +103,7 @@ def thread_add_view(request, contest_id, category_id):
                 inst_post.thread = instance
                 inst_post.add_date = request.timestamp
                 inst_post.save()
-                return redirect('forum_thread', contest_id=contest_id,
+                return redirect('forum_thread', contest_id=request.contest.id,
                                 category_id=category.id,
                                 thread_id=instance.id)
     else:
@@ -116,7 +116,7 @@ def thread_add_view(request, contest_id, category_id):
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
-def edit_post_view(request, contest_id, category_id, thread_id, post_id):
+def edit_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     msgs = get_msgs(request)
     is_admin = is_contest_admin(request)
@@ -128,7 +128,7 @@ def edit_post_view(request, contest_id, category_id, thread_id, post_id):
             instance = form.save(commit=False)
             instance.last_edit_date = request.timestamp
             instance.save()
-            return redirect('forum_thread', contest_id=contest_id,
+            return redirect('forum_thread', contest_id=request.contest.id,
                             category_id=category.id,
                             thread_id=thread.id)
     else:
@@ -141,7 +141,7 @@ def edit_post_view(request, contest_id, category_id, thread_id, post_id):
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
-def delete_post_view(request, contest_id, category_id, thread_id, post_id):
+def delete_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     is_admin = is_contest_admin(request)
     if not is_admin and \
@@ -162,62 +162,63 @@ def delete_post_view(request, contest_id, category_id, thread_id, post_id):
 
             if not thread.post_set.exists():
                 thread.delete()
-                return redirect('forum_category', contest_id=contest_id,
+                return redirect('forum_category',
+                                contest_id=request.contest.id,
                                 category_id=category.id)
-    return redirect('forum_thread', contest_id=contest_id,
+    return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
-def report_post_view(request, contest_id, category_id, thread_id, post_id):
+def report_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.reported = True
     post.save()
-    return redirect('forum_thread', contest_id=contest_id,
+    return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
-def unreport_post_view(request, contest_id, category_id, thread_id, post_id):
+def unreport_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.reported = False
     post.save()
-    return redirect('forum_thread', contest_id=contest_id,
+    return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
-def hide_post_view(request, contest_id, category_id, thread_id, post_id):
+def hide_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.hidden = True
     post.reported = False
     post.save()
-    return redirect('forum_thread', contest_id=contest_id,
+    return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
-def show_post_view(request, contest_id, category_id, thread_id, post_id):
+def show_post_view(request, category_id, thread_id, post_id):
     # Admin shows reported/hidden post again
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.hidden = False
     post.save()
-    return redirect('forum_thread', contest_id=contest_id,
+    return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
 @require_POST
-def delete_thread_view(request, contest_id, category_id, thread_id):
+def delete_thread_view(request, category_id, thread_id):
     category, thread = get_forum_ct(category_id, thread_id)
     choice = confirmation_view(request, 'forum/confirm_delete.html',
                                {'elem': thread})
@@ -225,14 +226,14 @@ def delete_thread_view(request, contest_id, category_id, thread_id):
         return choice
     if choice:
         thread.delete()
-    return redirect('forum_category', contest_id=contest_id,
+    return redirect('forum_category', contest_id=request.contest.id,
                     category_id=category.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum & is_not_locked)
 @require_POST
-def delete_category_view(request, contest_id, category_id):
+def delete_category_view(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     choice = confirmation_view(request, 'forum/confirm_delete.html',
                                {'elem': category})
@@ -240,25 +241,25 @@ def delete_category_view(request, contest_id, category_id):
         return choice
     if choice:
         category.delete()
-    return redirect('forum', contest_id=contest_id)
+    return redirect('forum', contest_id=request.contest.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_not_locked)
 @require_POST
-def lock_forum_view(request, contest_id):
+def lock_forum_view(request):
     forum = request.contest.forum
     forum.lock_date = request.timestamp
     if forum.unlock_date and forum.unlock_date <= forum.lock_date:
         forum.unlock_date = None
     forum.save()
-    return redirect('forum', contest_id=contest_id)
+    return redirect('forum', contest_id=request.contest.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible)
 @require_POST
-def unlock_forum_view(request, contest_id):
+def unlock_forum_view(request):
     # Unlocking forum clears both lock & unlock dates, just like forum was
     # never meant to be locked. If admin changes his mind, he will
     # lock it again or set auto-locking in admin panel
@@ -266,4 +267,4 @@ def unlock_forum_view(request, contest_id):
     forum.unlock_date = None
     forum.lock_date = None
     forum.save()
-    return redirect('forum', contest_id=contest_id)
+    return redirect('forum', contest_id=request.contest.id)

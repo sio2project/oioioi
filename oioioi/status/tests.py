@@ -23,8 +23,7 @@ class TestContestStatus(TestCase):
 
     def test_generating_status(self):
         contest = Contest.objects.get()
-        url = reverse('get_contest_status',
-            kwargs={'contest_id': contest.id})
+        url = reverse('get_status', kwargs={'contest_id': contest.id})
 
         self.client.login(username='test_user')
         response = self.client.get(url)

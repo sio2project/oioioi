@@ -1,6 +1,6 @@
 from django.forms.fields import BooleanField
 from django.db import transaction
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils import ObjectWithMixins
 from oioioi.gamification.friends import UserFriends
 from oioioi.gamification.models import CodeSharingSettings

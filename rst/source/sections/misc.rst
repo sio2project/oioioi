@@ -22,10 +22,16 @@ Usage of ``timezone.now()`` is highly discouraged.
 
 .. autoclass:: oioioi.base.middleware.TimestampingMiddleware
 
-Remembering the current contest
+Current contest mechanism
 -------------------------------
 
 .. autoclass:: oioioi.contests.middleware.CurrentContestMiddleware
+
+.. autofunction:: oioioi.contests.current_contest.reverse
+
+.. autofunction:: oioioi.contests.urls.make_patterns
+
+.. autodata:: oioioi.contests.admin.contest_site
 
 .. autofunction:: oioioi.contests.processors.register_current_contest
 

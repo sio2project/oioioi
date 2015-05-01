@@ -11,6 +11,7 @@ import djcelery
 djcelery.setup_loader()
 
 import oioioi
+from oioioi.contests.current_contest import ContestMode
 
 INSTALLATION_CONFIG_VERSION = 4
 
@@ -265,6 +266,8 @@ FILETRACKER_LISTEN_PORT = 9999
 
 DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
+
+CONTEST_MODE = ContestMode.contest_if_possible
 
 SEND_USER_ACTIVATION_EMAIL = True
 

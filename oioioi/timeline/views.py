@@ -46,8 +46,8 @@ def _translate_field(field, obj):
 @contest_admin_menu_registry.register_decorator(_("Timeline"), lambda request:
         reverse('timeline_view', kwargs={'contest_id': request.contest.id}))
 @enforce_condition(contest_exists & is_contest_admin)
-def timeline_view(request, contest_id):
-    registry = date_registry.tolist(contest_id)
+def timeline_view(request):
+    registry = date_registry.tolist(request.contest.id)
     group_registry = _make_group_registry(registry)
 
     for item in registry:

@@ -22,7 +22,7 @@ from oioioi.testrun.utils import has_any_testrun_problem, \
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(has_any_testrun_problem,
                    template='testrun/no_testrun_problems.html')
-def testrun_submit_view(request, contest_id):
+def testrun_submit_view(request):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES,
                 kind='TESTRUN',
@@ -30,7 +30,7 @@ def testrun_submit_view(request, contest_id):
         if form.is_valid():
             request.contest.controller.create_testrun(request,
                     form.cleaned_data['problem_instance'], form.cleaned_data)
-            return redirect('my_submissions', contest_id=contest_id)
+            return redirect('my_submissions', contest_id=request.contest.id)
     else:
         form = SubmissionForm(request, kind='TESTRUN',
                               problem_filter=filter_testrun_problem_instances)
@@ -54,8 +54,8 @@ def get_testrun_report_or_404(request, submission, testrun_report_id=None,
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def show_input_file_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+def show_input_file_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id,
                                          TestRunProgramSubmission)
     data = submission.input_file.read(get_preview_size_limit())
     data, decode_error = decode_str(data)
@@ -73,16 +73,16 @@ def show_input_file_view(request, contest_id, submission_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def download_input_file_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+def download_input_file_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id,
                                          TestRunProgramSubmission)
     return stream_file(submission.input_file, name='input.in')
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def show_output_file_view(request, contest_id, submission_id,
+def show_output_file_view(request, submission_id,
                           testrun_report_id=None):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+    submission = get_submission_or_error(request, submission_id,
                                          TestRunProgramSubmission)
     result = get_testrun_report_or_404(request, submission, testrun_report_id)
     data = result.output_file.read(get_preview_size_limit())
@@ -101,9 +101,9 @@ def show_output_file_view(request, contest_id, submission_id,
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def download_output_file_view(request, contest_id, submission_id,
+def download_output_file_view(request, submission_id,
                               testrun_report_id=None):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+    submission = get_submission_or_error(request, submission_id,
                                          TestRunProgramSubmission)
     result = get_testrun_report_or_404(request, submission, testrun_report_id)
     return stream_file(result.output_file, name='output.out')

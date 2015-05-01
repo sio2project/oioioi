@@ -14,7 +14,7 @@ from oioioi.similarsubmits.utils import is_correct_submissionssimilarity
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def bulk_add_similarities_view(request, contest_id):
+def bulk_add_similarities_view(request):
     if request.method == 'POST':
         form = BulkAddSubmissionsSimilarityForm(request, request.POST)
         if form.is_valid():
@@ -58,7 +58,7 @@ def bulk_add_similarities_view(request, contest_id):
 @require_POST
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(is_correct_submissionssimilarity)
-def mark_guilty_view(request, contest_id, entry_id):
+def mark_guilty_view(request, entry_id):
     entry = get_object_or_404(SubmissionsSimilarityEntry, id=entry_id)
 
     if entry.submission.kind == 'IGNORED_HIDDEN':
@@ -70,15 +70,15 @@ def mark_guilty_view(request, contest_id, entry_id):
         entry.save()
 
     return redirect('submission',
-            contest_id=contest_id, submission_id=entry.submission_id)
+            contest_id=request.contest.id, submission_id=entry.submission_id)
 
 
 @require_POST
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(is_correct_submissionssimilarity)
-def mark_not_guilty_view(request, contest_id, entry_id):
+def mark_not_guilty_view(request, entry_id):
     entry = get_object_or_404(SubmissionsSimilarityEntry, id=entry_id)
     entry.guilty = False
     entry.save()
     return redirect('submission',
-        contest_id=contest_id, submission_id=entry.submission_id)
+        contest_id=request.contest.id, submission_id=entry.submission_id)

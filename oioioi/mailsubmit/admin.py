@@ -3,7 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import ContestAdmin, ProblemNameListFilter
+from oioioi.contests.admin import ContestAdmin, ProblemNameListFilter, \
+        contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
 from oioioi.mailsubmit.models import MailSubmissionConfig, MailSubmission
@@ -101,7 +102,7 @@ class MailSubmissionAdmin(admin.ModelAdmin):
         return super(MailSubmissionAdmin, self) \
                 .changelist_view(request, extra_context=extra_context)
 
-admin.site.register(MailSubmission, MailSubmissionAdmin)
+contest_site.contest_register(MailSubmission, MailSubmissionAdmin)
 
 contest_admin_menu_registry.register('mail_submissions_admin',
         _("Postal submissions"), lambda request:

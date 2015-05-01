@@ -73,6 +73,8 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
 
     def test_test_views(self):
         self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         test = Test.objects.get(name='0')
         kwargs = {'test_id': test.id}
         response = self.client.get(reverse('download_input_file',
@@ -107,8 +109,11 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
     def test_model_solutions_view(self):
         pi = ProblemInstance.objects.get()
         ModelSolution.objects.recreate_model_submissions(pi)
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_probleminstance_models',
                 args=(pi.id,))
+
         self.client.login(username='test_admin')
         response = self.client.get(url)
         for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<',
@@ -265,7 +270,10 @@ class TestSubmissionAdmin(TestCase):
         self.client.login(username='test_admin')
         pi = ProblemInstance.objects.get()
         ModelSolution.objects.recreate_model_submissions(pi)
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_submission_changelist')
+
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('(sum.c)', response.content)
@@ -674,6 +682,8 @@ class TestUserOutsGenerating(TestCase):
 
     def test_generate_and_download_user_permission(self):
         self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         submission = ProgramSubmission.objects.get(pk=1)
         gen_url = reverse('generate_user_output', kwargs={'testreport_id': 5})
         down_one_url = reverse('download_user_output',

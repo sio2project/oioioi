@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
-from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import Contest, ContestPermission
 from oioioi.contests.utils import is_contest_admin
 from oioioi.questions.forms import ChangeContestMessageForm
@@ -75,7 +75,7 @@ class MessageAdmin(admin.ModelAdmin):
         super(MessageAdmin, self).response_delete(request)
         return redirect('contest_messages', contest_id=request.contest.id)
 
-admin.site.register(Message, MessageAdmin)
+contest_site.contest_register(Message, MessageAdmin)
 
 
 class MessageNotifierConfigInline(admin.TabularInline):
@@ -172,4 +172,4 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
             queryset = queryset.filter(contest=request.contest)
         return queryset
 
-admin.site.register(ReplyTemplate, ReplyTemplateAdmin)
+contest_site.contest_register(ReplyTemplate, ReplyTemplateAdmin)

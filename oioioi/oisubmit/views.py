@@ -20,7 +20,7 @@ def oisubmit_response(error_occured, comment):
 
 @csrf_exempt
 @enforce_condition(contest_exists & can_enter_contest)
-def oisubmit_view(request, contest_id):
+def oisubmit_view(request):
     if request.method == 'POST':
         form = OISubmitSubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():

@@ -9,7 +9,7 @@ from oioioi.base.utils import jsonify, allow_cross_origin
 
 @allow_cross_origin
 @jsonify
-def ctimes_view(request, contest_id=None):
+def ctimes_view(request):
     now = request.timestamp
     contest = request.contest
     if contest is None:

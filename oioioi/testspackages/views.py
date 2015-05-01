@@ -35,11 +35,11 @@ def is_any_tests_package_visible(request):
         order=350)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(is_any_tests_package_visible)
-def tests_view(request, contest_id):
+def tests_view(request):
     tests = []
     for tp in visible_tests_packages(request):
         t = {'name': os.path.basename(tp.name) + '.zip',
-             'link': reverse('test', kwargs={'contest_id': contest_id,
+             'link': reverse('test', kwargs={'contest_id': request.contest.id,
                                              'package_id': tp.id}),
              'description': tp.description}
         tests.append(t)
@@ -49,7 +49,7 @@ def tests_view(request, contest_id):
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-def test_view(request, contest_id, package_id):
+def test_view(request, package_id):
     tp = get_object_or_404(TestsPackage, id=package_id)
     if not is_contest_admin(request) and not tp.is_visible(request.timestamp):
         raise PermissionDenied

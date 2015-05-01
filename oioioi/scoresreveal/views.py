@@ -11,8 +11,8 @@ from oioioi.scoresreveal.utils import has_scores_reveal
 
 @enforce_condition(contest_exists & can_enter_contest)
 @require_POST
-def score_reveal_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def score_reveal_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id)
     controller = request.contest.controller
     if not has_scores_reveal(submission.problem):
         raise Http404

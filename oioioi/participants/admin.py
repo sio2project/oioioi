@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
-from oioioi.contests.admin import RoundTimeExtensionAdmin
+from oioioi.contests.admin import RoundTimeExtensionAdmin, contest_site
 from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
@@ -186,7 +186,7 @@ class ContestDependentParticipantAdmin(admin.InstanceDependentAdmin):
     def _model_admin_for_instance(self, request, instance=None):
         raise NotImplementedError
 
-admin.site.register(Participant, ContestDependentParticipantAdmin)
+contest_site.contest_register(Participant, ContestDependentParticipantAdmin)
 contest_admin_menu_registry.register('participants', _("Participants"),
     lambda request: reverse('oioioiadmin:participants_participant_changelist'),
     condition=has_participants_admin, order=30)

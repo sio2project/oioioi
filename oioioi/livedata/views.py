@@ -24,17 +24,17 @@ def can_see_livedata(request):
 
 def cache_unless_admin_or_observer(view):
     @functools.wraps(view)
-    def inner(request, contest_id, round_id):
+    def inner(request, round_id):
         should_cache = not is_contest_admin(request) and \
                        not is_contest_observer(request)
         if not should_cache:
-            return view(request, contest_id, round_id)
+            return view(request, round_id)
 
         cache = get_cache('default')
-        cache_key = '%s/%s/%s' % (view.__name__, contest_id, round_id)
+        cache_key = '%s/%s/%s' % (view.__name__, request.contest.id, round_id)
         result = cache.get(cache_key)
         if result is None:
-            result = view(request, contest_id, round_id)
+            result = view(request, round_id)
             assert isinstance(result, HttpResponse)
             cache.set(cache_key,
                     {'content': unicode(result.content),
@@ -51,7 +51,7 @@ def cache_unless_admin_or_observer(view):
 @enforce_condition(contest_exists & can_see_livedata)
 @cache_unless_admin_or_observer
 @jsonify
-def livedata_teams_view(request, contest_id, round_id):
+def livedata_teams_view(request, round_id):
     return [{
         'id': participant.user.id,
         'login': participant.user.username,
@@ -63,7 +63,7 @@ def livedata_teams_view(request, contest_id, round_id):
 @enforce_condition(contest_exists & can_see_livedata)
 @cache_unless_admin_or_observer
 @jsonify
-def livedata_tasks_view(request, contest_id, round_id):
+def livedata_tasks_view(request, round_id):
     round = get_object_or_404(request.contest.round_set.all(), pk=round_id)
     pis = round.probleminstance_set.all()
 
@@ -78,9 +78,9 @@ def livedata_tasks_view(request, contest_id, round_id):
 @enforce_condition(contest_exists & can_see_livedata)
 @cache_unless_admin_or_observer
 @jsonify
-def livedata_events_view(request, contest_id, round_id):
+def livedata_events_view(request, round_id):
     user_is_participant = \
-        Q(submission__user__participant__contest_id=contest_id,
+        Q(submission__user__participant__contest_id=request.contest.id,
           submission__user__participant__status='ACTIVE')
     submission_ignored = Q(submission__kind='IGNORED')
 

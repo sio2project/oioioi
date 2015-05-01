@@ -16,12 +16,12 @@ def stream_if_changed(request, image_object):
 
 
 @cache_control(max_age=1200)
-def logo_image_view(request, contest_id):
-    logo = get_object_or_404(ContestLogo, contest=contest_id)
+def logo_image_view(request):
+    logo = get_object_or_404(ContestLogo, contest=request.contest.id)
     return stream_if_changed(request, logo)
 
 
 @cache_control(max_age=1200)
-def icon_image_view(request, contest_id, icon_id):
+def icon_image_view(request, icon_id):
     icon = get_object_or_404(ContestIcon, id=icon_id)
     return stream_if_changed(request, icon)

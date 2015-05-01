@@ -41,7 +41,7 @@ def _users_in_contest(request, region=None):
     order=440)
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(has_any_rounds, 'oireports/no_reports.html')
-def oireports_view(request, contest_id):
+def oireports_view(request):
     if request.method == 'POST':
         form = OIReportForm(request, request.POST)
 
@@ -238,7 +238,7 @@ def generate_xmlreport(request, report_form):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def get_report_users_view(request, contest_id):
+def get_report_users_view(request):
     queryset = Submission.objects.filter(
             problem_instance__contest=request.contest)
     return get_user_hints_view(request, 'substr', queryset, 'user')

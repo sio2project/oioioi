@@ -31,6 +31,7 @@ forum_patterns = patterns('oioioi.forum.views',
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/$',
         'show_post_view', name='forum_post_show'),
 )
-urlpatterns = patterns('oioioi.forum.views',
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/forum/', include(forum_patterns)),
+
+contest_patterns = patterns('oioioi.forum.views',
+    url(r'^forum/', include(forum_patterns)),
 )

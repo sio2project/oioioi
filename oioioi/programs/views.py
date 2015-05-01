@@ -39,8 +39,8 @@ fnmatch._MAXCACHE = sys.maxint
 logger = logging.getLogger(__name__)
 
 @enforce_condition(contest_exists & can_enter_contest)
-def show_submission_source_view(request, contest_id, submission_id):
-    source_file = get_submission_source_file_or_error(request, contest_id,
+def show_submission_source_view(request, submission_id):
+    source_file = get_submission_source_file_or_error(request,
             submission_id)
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
@@ -73,20 +73,20 @@ def show_submission_source_view(request, contest_id, submission_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def save_diff_id_view(request, contest_id, submission_id):
+def save_diff_id_view(request, submission_id):
     # Verify user's access to the submission
-    get_submission_source_file_or_error(request, contest_id, submission_id)
+    get_submission_source_file_or_error(request, submission_id)
     request.session['saved_diff_id'] = submission_id
     return HttpResponse()
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def source_diff_view(request, contest_id, submission1_id, submission2_id):
+def source_diff_view(request, submission1_id, submission2_id):
     if request.session.get('saved_diff_id'):
         request.session.pop('saved_diff_id')
-    source1 = get_submission_source_file_or_error(request, contest_id,
+    source1 = get_submission_source_file_or_error(request,
         submission1_id).read()
-    source2 = get_submission_source_file_or_error(request, contest_id,
+    source2 = get_submission_source_file_or_error(request,
         submission2_id).read()
 
     source1, decode_error1 = decode_str(source1)
@@ -150,14 +150,14 @@ def source_diff_view(request, contest_id, submission1_id, submission2_id):
              'submission1_id': submission1_id,
              'submission2_id': submission2_id,
              'reverse_diff_url': reverse('source_diff', kwargs={
-                 'contest_id': contest_id,
+                 'contest_id': request.contest.id,
                  'submission1_id': submission2_id,
                  'submission2_id': submission1_id})})
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def download_submission_source_view(request, contest_id, submission_id):
-    source_file = get_submission_source_file_or_error(request, contest_id,
+def download_submission_source_view(request, submission_id):
+    source_file = get_submission_source_file_or_error(request,
         submission_id)
     return stream_file(source_file)
 
@@ -347,7 +347,7 @@ def generate_user_output_view(request, testreport_id=None,
 
     # creating re-submission with appropriate tests
     s_id = submission_report.submission.id
-    submission = get_submission_or_error(request, request.contest.id, s_id,
+    submission = get_submission_or_error(request, s_id,
                                          submission_class=ProgramSubmission)
     if test_ids:
         # Note that submission comment should not be copied to re-submission!

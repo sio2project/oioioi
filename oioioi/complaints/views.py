@@ -97,7 +97,7 @@ def notify_jury(request, body, message_id, ref_id):
     message.send()
 
 
-def complaint_sent(request, contest_id):
+def complaint_sent(request):
     return TemplateResponse(request, 'complaints/complaint_sent.html',
         {'complaints_email': settings.COMPLAINTS_EMAIL})
 
@@ -106,7 +106,7 @@ def complaint_sent(request, contest_id):
         reverse('add_complaint', kwargs={'contest_id': request.contest.id}),
     order=400)
 @enforce_condition(contest_exists & can_enter_contest & can_make_complaint)
-def add_complaint_view(request, contest_id):
+def add_complaint_view(request):
     if not hasattr(settings, 'COMPLAINTS_EMAIL') \
             or not hasattr(settings, 'COMPLAINTS_SUBJECT_PREFIX'):
         raise ImproperlyConfigured('The oioioi.complaints module needs '
@@ -121,7 +121,7 @@ def add_complaint_view(request, contest_id):
                 jury_id, complainer_id)
             notify_complainer(request, form.cleaned_data['complaint'],
                 complainer_id, jury_id)
-            return redirect('complaint_sent', contest_id=contest_id)
+            return redirect('complaint_sent', contest_id=request.contest.id)
     else:
         form = AddComplaintForm()
     return TemplateResponse(request, 'complaints/make.html', {'form': form})

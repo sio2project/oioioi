@@ -5,13 +5,16 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
 
 from oioioi.su import SU_UID_SESSION_KEY, SU_BACKEND_SESSION_KEY
 from oioioi.su.utils import get_user, su_to_user
+from oioioi.contests.current_contest import ContestMode
 
 
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestSwitchingUsers(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users']
 
     def test_switching_users(self):
         test_user = User.objects.get(username='test_user')

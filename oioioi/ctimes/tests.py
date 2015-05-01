@@ -55,7 +55,6 @@ class TestCtimes(TestCase):
     def test_ctimes_order(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c1'})
         self.client.get(url)
-        url = reverse('ctimes2')
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response, self.round2_result)
@@ -69,6 +68,8 @@ class TestCtimes(TestCase):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response['status'], 'NO_ROUND')
         Contest.objects.all().delete()
+        self.client.get('/')  # removes current contest
+        url = reverse('ctimes')
         with fake_time(datetime(2013, 12, 11, 5, 0, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response['status'], 'NO_CONTEST')
@@ -105,9 +106,9 @@ class TestCtimes(TestCase):
             self.assertEqual(response, self.round1p_result)
 
     def test_ctimes_no_contest_id(self):
-        url = reverse('ctimes2')
+        url = reverse('ctimes')
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = json.loads(self.client.get(url, follow=True).content)
             self.assertEqual(response, self.round1p_result)
 
     def test_ctimes_no_end(self):

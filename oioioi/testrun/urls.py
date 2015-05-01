@@ -16,7 +16,3 @@ contest_patterns = patterns('oioioi.testrun.views',
             r'(?P<testrun_report_id>\d+)/download/$',
         'download_output_file_view', name='download_specific_testrun_output'),
 )
-
-urlpatterns = patterns('oioioi.testrun.views',
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
-)

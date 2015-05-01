@@ -27,6 +27,8 @@ class TestViews(TestSuspendjudgeSuper):
         views = ['suspend_all', 'resume_and_rejudge', 'suspend_all_but_init',
                  'resume_and_clear']
 
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         for login in login_codes:
             for view in views:
                 response = self._empty_post(login, view, problem_instance)
@@ -58,6 +60,8 @@ class TestSuspending(TestSuspendjudgeSuper):
 
     def test_handler(self):
         problem_instance = ProblemInstance.objects.get()
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
 
         self._empty_post('test_admin', 'suspend_all', problem_instance)
         env = {'problem_instance_id': problem_instance.id, 'job_id': 'dummy',

@@ -3,6 +3,7 @@ import urllib
 
 from django.conf.urls import patterns
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
+from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.util import unquote, quote
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
@@ -22,7 +23,57 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, ContestAttachment, RoundTimeExtension, ContestPermission, \
         submission_kinds, ContestLink, SubmissionReport
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.current_contest import set_cc_id
 from oioioi.programs.models import Test, TestReport
+
+
+class ContestProxyAdminSite(admin.AdminSite):
+    def __init__(self, orig):
+        super(ContestProxyAdminSite, self).__init__(orig.name, orig.app_name)
+        self._orig = orig
+
+    def register(self, model_or_iterable, admin_class=None, **options):
+        self._orig.register(model_or_iterable, admin_class, **options)
+
+    def unregister(self, model_or_iterable):
+        self._orig.unregister(model_or_iterable)
+        try:
+            super(ContestProxyAdminSite, self).unregister(model_or_iterable)
+        except NotRegistered:
+            pass
+
+    def contest_register(self, model_or_iterable, admin_class=None, **options):
+        super(ContestProxyAdminSite, self).register(model_or_iterable,
+                admin_class, **options)
+
+    def contest_unregister(self, model_or_iterable):
+        super(ContestProxyAdminSite, self).unregister(model_or_iterable)
+
+    def get_urls(self):
+        self._registry.update(self._orig._registry)
+        return super(ContestProxyAdminSite, self).get_urls()
+
+    def index(self, request, extra_context=None):
+        if request.contest:
+            return super(ContestProxyAdminSite, self).\
+                    index(request, extra_context)
+        return self._orig.index(request, extra_context)
+
+    def app_index(self, request, app_label, extra_context=None):
+        if request.contest:
+            return super(ContestProxyAdminSite, self).\
+                    app_index(request, app_label, extra_context)
+        return self._orig.app_index(request, app_label, extra_context)
+
+
+#: Every contest-dependent model admin should be registered in this site
+#: using the ``contest_register`` method. You can also register non-dependent
+#: model admins like you would normally do using the ``register`` method.
+#: Model admins registered using the ``contest_register`` method "don't exist"
+#: when there is no active contest, that is, they can only be accessed
+#: by a contest-prefixed URL and they don't show up in ``/admin/`` (but they
+#: do in ``/c/<contest_id>/admin/``).
+contest_site = ContestProxyAdminSite(admin.site)
 
 
 class RoundInline(admin.StackedInline):
@@ -148,11 +199,23 @@ class ContestAdmin(admin.ModelAdmin):
     def response_add(self, request, obj, post_url_continue=None):
         default_redirection = super(ContestAdmin, self).response_add(request,
                 obj, post_url_continue)
-        request.session['contest_id'] = obj.id
         if '_continue' in request.POST or '_addanother' in request.POST:
             return default_redirection
         else:
             return redirect('default_contest_view', contest_id=obj.id)
+
+    def response_delete(self, request):
+        set_cc_id(None)
+        return super(ContestAdmin, self).response_delete(request)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        # The contest's edit view uses request.contest, so editing a contest
+        # when a different contest is active would produce weird results.
+        if not request.contest or request.contest.id != object_id:
+            return redirect('oioioiadmin:contests_contest_change',
+                    object_id, contest_id=object_id)
+        return super(ContestAdmin, self).change_view(request,
+                object_id, form_url, extra_context)
 
 
 class BaseContestAdmin(admin.MixinsAdmin):
@@ -164,7 +227,7 @@ class BaseContestAdmin(admin.MixinsAdmin):
             return controller.mixins_for_admin() + \
                     controller.registration_controller().mixins_for_admin()
 
-admin.site.register(Contest, BaseContestAdmin)
+contest_site.register(Contest, BaseContestAdmin)
 
 contest_admin_menu_registry.register('contest_change', _("Settings"),
         lambda request: reverse('oioioiadmin:contests_contest_change',
@@ -194,7 +257,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                         urllib.urlencode({'came_from': came_from})
 
     def _problem_reupload_href(self, instance):
-        return reverse('add_or_update_contest_problem',
+        return reverse('add_or_update_problem',
                 kwargs={'contest_id': instance.contest.id}) + '?' + \
                         urllib.urlencode({'problem': instance.problem.id})
 
@@ -255,7 +318,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         qs = qs.filter(contest=request.contest)
         return qs
 
-admin.site.register(ProblemInstance, ProblemInstanceAdmin)
+contest_site.contest_register(ProblemInstance, ProblemInstanceAdmin)
 
 contest_admin_menu_registry.register('problems_change',
         _("Problems"), lambda request:
@@ -496,7 +559,7 @@ class SubmissionAdmin(admin.ModelAdmin):
         return redirect('submission', contest_id=request.contest.id,
             submission_id=unquote(object_id))
 
-admin.site.register(Submission, SubmissionAdmin)
+contest_site.contest_register(Submission, SubmissionAdmin)
 
 contest_admin_menu_registry.register('submissions_admin', _("Submissions"),
         lambda request: reverse('oioioiadmin:contests_submission_changelist'),
@@ -571,7 +634,7 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
         return super(RoundTimeExtensionAdmin, self).get_list_select_related() \
                 + ['user', 'round__contest']
 
-admin.site.register(RoundTimeExtension, RoundTimeExtensionAdmin)
+contest_site.contest_register(RoundTimeExtension, RoundTimeExtensionAdmin)
 contest_admin_menu_registry.register('roundtimeextension_admin',
         _("Round extensions"), lambda request:
         reverse('oioioiadmin:contests_roundtimeextension_changelist'),
@@ -606,7 +669,7 @@ class ContestPermissionAdmin(admin.ModelAdmin):
         return super(ContestPermissionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 
-admin.site.register(ContestPermission, ContestPermissionAdmin)
+contest_site.register(ContestPermission, ContestPermissionAdmin)
 admin.system_admin_menu_registry.register('contestspermission_admin',
         _("Contest rights"), lambda request:
         reverse('oioioiadmin:contests_contestpermission_changelist'),

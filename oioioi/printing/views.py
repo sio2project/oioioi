@@ -22,7 +22,7 @@ def can_print_files(request):
 @enforce_condition(can_print_files)
 @enforce_condition(has_any_submittable_problem,
                    template='printing/nothing_to_print.html')
-def print_view(request, contest_id):
+def print_view(request):
     error_message = None
     success_message = None
 

@@ -43,16 +43,15 @@ def select_contest_view(request):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def default_contest_view(request, contest_id):
+def default_contest_view(request):
     url = request.contest.controller.default_view(request)
     return HttpResponseRedirect(url)
 
 
 @menu_registry.register_decorator(_("Problems"), lambda request:
-        reverse('problems_list', kwargs={'contest_id': request.contest.id}),
-    order=100)
+        reverse('problems_list'), order=100)
 @enforce_condition(contest_exists & can_enter_contest)
-def problems_list_view(request, contest_id):
+def problems_list_view(request):
     controller = request.contest.controller
     problem_instances = visible_problem_instances(request)
     problems_statements = [(pi, controller.can_see_statement(request, pi))
@@ -65,7 +64,7 @@ def problems_list_view(request, contest_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def problem_statement_view(request, contest_id, problem_instance):
+def problem_statement_view(request, problem_instance):
     controller = request.contest.controller
     pi = get_object_or_404(ProblemInstance, round__contest=request.contest,
             short_name=problem_instance)
@@ -81,16 +80,17 @@ def problem_statement_view(request, contest_id, problem_instance):
                     {'problem_instance': pi})
 
     if statement.extension == '.zip':
-        return redirect('problem_statement_zip_index', contest_id=contest_id,
-            problem_instance=problem_instance, statement_id=statement.id)
+        return redirect('problem_statement_zip_index',
+                contest_id=request.contest.id,
+                problem_instance=problem_instance, statement_id=statement.id)
     return stream_file(statement.content)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def problem_statement_zip_index_view(request, contest_id, problem_instance,
+def problem_statement_zip_index_view(request, problem_instance,
         statement_id):
 
-    response = problem_statement_zip_view(request, contest_id,
+    response = problem_statement_zip_view(request,
             problem_instance, statement_id, 'index.html')
 
     problem_statement = get_object_or_404(ProblemStatement, id=statement_id)
@@ -101,7 +101,7 @@ def problem_statement_zip_index_view(request, contest_id, problem_instance,
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def problem_statement_zip_view(request, contest_id, problem_instance,
+def problem_statement_zip_view(request, problem_instance,
         statement_id, path):
     controller = request.contest.controller
     pi = get_object_or_404(ProblemInstance, round__contest=request.contest,
@@ -117,28 +117,26 @@ def problem_statement_zip_view(request, contest_id, problem_instance,
 
 
 @menu_registry.register_decorator(_("Submit"), lambda request:
-        reverse('submit', kwargs={'contest_id': request.contest.id}),
-    order=300)
+        reverse('submit'), order=300)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(has_any_submittable_problem,
                    template='contests/nothing_to_submit.html')
-def submit_view(request, contest_id):
+def submit_view(request):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
             request.contest.controller.create_submission(request,
                     form.cleaned_data['problem_instance'], form.cleaned_data)
-            return redirect('my_submissions', contest_id=contest_id)
+            return redirect('my_submissions', contest_id=request.contest.id)
     else:
         form = SubmissionForm(request)
     return TemplateResponse(request, 'contests/submit.html', {'form': form})
 
 
 @menu_registry.register_decorator(_("My submissions"), lambda request:
-        reverse('my_submissions', kwargs={'contest_id': request.contest.id}),
-    order=400)
+        reverse('my_submissions'), order=400)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-def my_submissions_view(request, contest_id):
+def my_submissions_view(request):
     queryset = Submission.objects \
             .filter(problem_instance__contest=request.contest) \
             .order_by('-date') \
@@ -158,8 +156,8 @@ def my_submissions_view(request, contest_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def submission_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def submission_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id)
     controller = request.contest.controller
     header = controller.render_submission(request, submission)
     footer = controller.render_submission_footer(request, submission)
@@ -180,8 +178,8 @@ def submission_view(request, contest_id, submission_id):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def report_view(request, contest_id, submission_id, report_id):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def report_view(request, submission_id, report_id):
+    submission = get_submission_or_error(request, submission_id)
     controller = request.contest.controller
     queryset = SubmissionReport.objects.filter(submission=submission)
     report = get_object_or_404(queryset, id=report_id)
@@ -190,19 +188,19 @@ def report_view(request, contest_id, submission_id, report_id):
 
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
-def rejudge_submission_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def rejudge_submission_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id)
     controller = request.contest.controller
     controller.judge(submission, request.GET.dict(), is_rejudge=True)
     messages.info(request, _("Rejudge request received."))
-    return redirect('submission', contest_id=contest_id,
+    return redirect('submission', contest_id=request.contest.id,
             submission_id=submission_id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
 @require_POST
-def change_submission_kind_view(request, contest_id, submission_id, kind):
-    submission = get_submission_or_error(request, contest_id, submission_id)
+def change_submission_kind_view(request, submission_id, kind):
+    submission = get_submission_or_error(request, submission_id)
     controller = request.contest.controller
     if kind in controller.valid_kinds_for_submission(submission):
         controller.change_submission_kind(submission, kind)
@@ -211,15 +209,14 @@ def change_submission_kind_view(request, contest_id, submission_id, kind):
         messages.error(request,
             _("%(kind)s is not valid kind for submission %(submission_id)d.")
             % {'kind': kind, 'submission_id': submission.id})
-    return redirect('submission', contest_id=contest_id,
+    return redirect('submission', contest_id=request.contest.id,
                     submission_id=submission_id)
 
 
 @menu_registry.register_decorator(_("Files"), lambda request:
-        reverse('contest_files', kwargs={'contest_id': request.contest.id}),
-    order=200)
+        reverse('contest_files'), order=200)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-def contest_files_view(request, contest_id):
+def contest_files_view(request):
     contest_files = ContestAttachment.objects.filter(contest=request.contest) \
         .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request))) \
         .select_related('round')
@@ -234,15 +231,15 @@ def contest_files_view(request, contest_id):
         'category': cf.round if cf.round else '',
         'name': cf.filename,
         'description': cf.description,
-        'link': reverse('contest_attachment', kwargs={'contest_id': contest_id,
-            'attachment_id': cf.id}),
+        'link': reverse('contest_attachment',
+            kwargs={'contest_id': request.contest.id, 'attachment_id': cf.id}),
         } for cf in contest_files]
     rows += [{
         'category': pf.problem,
         'name': pf.filename,
         'description': pf.description,
-        'link': reverse('problem_attachment', kwargs={'contest_id': contest_id,
-            'attachment_id': pf.id}),
+        'link': reverse('problem_attachment',
+            kwargs={'contest_id': request.contest.id, 'attachment_id': pf.id}),
         } for pf in problem_files]
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(request, 'contests/files.html', {'files': rows,
@@ -251,16 +248,16 @@ def contest_files_view(request, contest_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def contest_attachment_view(request, contest_id, attachment_id):
-    attachment = get_object_or_404(ContestAttachment, contest_id=contest_id,
-        id=attachment_id)
+def contest_attachment_view(request, attachment_id):
+    attachment = get_object_or_404(ContestAttachment,
+            contest_id=request.contest.id, id=attachment_id)
     if attachment.round and attachment.round not in visible_rounds(request):
         raise PermissionDenied
     return stream_file(attachment.content)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def problem_attachment_view(request, contest_id, attachment_id):
+def problem_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
     problem_instances = visible_problem_instances(request)
     problem_ids = [pi.problem_id for pi in problem_instances]
@@ -271,14 +268,14 @@ def problem_attachment_view(request, contest_id, attachment_id):
 
 @enforce_condition(contest_exists & (is_contest_admin | is_contest_observer |
                                      can_see_personal_data))
-def contest_user_hints_view(request, contest_id):
+def contest_user_hints_view(request):
     rcontroller = request.contest.controller.registration_controller()
     queryset = rcontroller.filter_participants(User.objects.all())
     return get_user_hints_view(request, 'substr', queryset)
 
 
 @enforce_condition(contest_exists & (is_contest_admin | can_see_personal_data))
-def user_info_view(request, contest_id, user_id):
+def user_info_view(request, user_id):
     controller = request.contest.controller
     rcontroller = controller.registration_controller()
     user = get_object_or_404(User, id=user_id)
@@ -300,17 +297,17 @@ def user_info_view(request, contest_id, user_id):
 
 @enforce_condition(contest_exists & (is_contest_admin | can_see_personal_data))
 @require_POST
-def user_info_redirect_view(request, contest_id):
+def user_info_redirect_view(request):
     form = GetUserInfoForm(request, request.POST)
     if not form.is_valid():
         return TemplateResponse(request, 'simple-centered-form.html', {
                 'form': form,
                 'action': reverse('user_info_redirect',
-                        kwargs={'contest_id': contest_id}),
+                        kwargs={'contest_id': request.contest.id}),
                 'title': _("See user info page")})
 
     user = form.cleaned_data['user']
 
     return safe_redirect(request, reverse('user_info', kwargs={
-                        'contest_id': contest_id,
+                        'contest_id': request.contest.id,
                         'user_id': user.id}))

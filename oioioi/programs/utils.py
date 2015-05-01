@@ -120,7 +120,7 @@ def slice_str(str, length):
     return str[:length].decode('utf-8', 'ignore').encode('utf-8')
 
 
-def get_submission_source_file_or_error(request, contest_id, submission_id):
+def get_submission_source_file_or_error(request, submission_id):
     """Returns the submission source and filename
 
        If it does not exist or the user has no rights to see it, then error is

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.utils.encoding import force_unicode
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
@@ -13,6 +14,7 @@ from oioioi.base.tests import fake_time
 from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.contests.tests import SubmitFileMixin
+from oioioi.contests.current_contest import ContestMode
 from oioioi.participants.models import Participant
 from oioioi.oi.models import Region, OIOnsiteRegistration, School, \
         OIRegistration
@@ -71,6 +73,7 @@ class TestOIOnsiteAdmin(TestCase):
         r.save()
 
         self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:oi_region_changelist')
         response = self.client.get(url)
         elements_to_find = ['Short name', 'Name', 'waw', 'Warszawa']
@@ -203,7 +206,6 @@ class TestOIRegistration(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_register',
             kwargs={'contest_id': contest.id})
-        add_school_url = reverse('add_school')
         self.client.login(username='test_user')
         response = self.client.get(url)
         self.assertContains(response, 'Postal code')
@@ -222,6 +224,7 @@ class TestOIRegistration(TestCase):
         }
 
         response = self.client.post(url, reg_data, follow=True)
+        add_school_url = reverse('add_school')
         self.assertRedirects(response, add_school_url)
         self.assertIn('oi_oiregistrationformdata', self.client.session)
 
@@ -311,6 +314,7 @@ class TestOIViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance', 'test_submission']
 
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         contest = Contest(id='visible', name='Visible Contest')
         contest.controller_name = \
@@ -377,6 +381,7 @@ class TestOIOnsiteViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance']
 
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
         contest.controller_name = \
@@ -456,8 +461,10 @@ class TestSchoolAdding(TestCase):
         contest.save()
 
     def test_schools_similar_view(self):
-        url = reverse('schools_similar')
         self.client.login(username='test_user')
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('schools_similar')
 
         response = self.client.post(url, {'city': 'Warszawa'})
         self.assertContains(response, 'LO')

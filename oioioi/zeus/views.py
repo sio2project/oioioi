@@ -15,8 +15,8 @@ from oioioi.zeus.models import ZeusTestRunProgramSubmission, ZeusTestRunReport
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def show_library_file_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+def show_library_file_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id,
             ZeusTestRunProgramSubmission)
     data = submission.library_file.read(get_preview_size_limit())
     data, decode_error = decode_str(data)
@@ -34,8 +34,8 @@ def show_library_file_view(request, contest_id, submission_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def download_library_file_view(request, contest_id, submission_id):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+def download_library_file_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id,
             ZeusTestRunProgramSubmission)
 
     # TODO: filename
@@ -43,9 +43,9 @@ def download_library_file_view(request, contest_id, submission_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def show_output_file_view(request, contest_id, submission_id,
+def show_output_file_view(request, submission_id,
         testrun_report_id=None):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+    submission = get_submission_or_error(request, submission_id,
             ZeusTestRunProgramSubmission)
     result = get_testrun_report_or_404(request, submission, testrun_report_id,
             ZeusTestRunReport)
@@ -65,9 +65,9 @@ def show_output_file_view(request, contest_id, submission_id,
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def download_output_file_view(request, contest_id, submission_id,
+def download_output_file_view(request, submission_id,
         testrun_report_id=None):
-    submission = get_submission_or_error(request, contest_id, submission_id,
+    submission = get_submission_or_error(request, submission_id,
             ZeusTestRunProgramSubmission)
     result = get_testrun_report_or_404(request, submission, testrun_report_id,
             ZeusTestRunReport)

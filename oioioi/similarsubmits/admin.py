@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
+from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Submission
 
@@ -100,7 +101,7 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
         queryset = queryset.order_by('-id')
         return queryset
 
-admin.site.register(SubmissionsSimilarityEntry,
+contest_site.contest_register(SubmissionsSimilarityEntry,
     SubmissionsSimilarityEntryAdmin)
 contest_admin_menu_registry.register('submissions_similarity',
     _("Similar submits"), lambda request:
@@ -186,5 +187,5 @@ class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
         queryset = queryset.order_by('-id')
         return queryset
 
-admin.site.register(SubmissionsSimilarityGroup,
+contest_site.contest_register(SubmissionsSimilarityGroup,
     SubmissionsSimilarityGroupAdmin)

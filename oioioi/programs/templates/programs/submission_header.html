@@ -106,7 +106,7 @@
             {% if is_admin %}
             <td>
                 {% if submission.submission.user %}
-                <a href="{% url 'user_info' contest.id submission.submission.user_id %}">{{ submission.submission.user.get_full_name }}</a>
+                <a href="{% url 'user_info' submission.submission.user_id %}">{{ submission.submission.user.get_full_name }}</a>
                 {% else %}
                 {{ submission.submission.user.get_full_name }}
                 {% endif %}

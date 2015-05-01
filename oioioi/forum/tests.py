@@ -127,6 +127,8 @@ class TestCategory(TestCase):
 
     def test_add_new(self):
         self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         url = reverse('oioioiadmin:forum_category_add', kwargs={})
         response = self.client.get(url, follow=True)
         self.assertEqual(403, response.status_code)

@@ -40,7 +40,7 @@ def match_problem(problem_instances, problem):
 @csrf_exempt
 @require_POST
 @enforce_condition(contest_exists)
-def submit_view(request, contest_id):
+def submit_view(request):
     try:
         token = request.POST['token']
         current_token = SubmitServiceToken.objects.filter(token=token)
@@ -74,7 +74,7 @@ def submit_view(request, contest_id):
         submission = request.contest.controller \
             .create_submission(request, pi, form.cleaned_data)
         result_url = reverse('oioioi.contests.views.submission_view',
-                                kwargs={'contest_id': contest_id,
+                                kwargs={'contest_id': request.contest.id,
                                 'submission_id': submission.id})
         result = {'result_url': result_url, 'submission_id': submission.id}
     except SubmitServiceException as exception_info:
@@ -88,7 +88,7 @@ def submit_view(request, contest_id):
 
 
 @enforce_condition(not_anonymous & contest_exists)
-def view_user_token(request, contest_id):
+def view_user_token(request):
     current_token = SubmitServiceToken.objects.filter(user=request.user)
     if not current_token.exists():
         current_token = SubmitServiceToken()
@@ -101,7 +101,7 @@ def view_user_token(request, contest_id):
                             {'token': current_token.token,
                              'contest_url': request.build_absolute_uri(reverse(
                                  'oioioi.contests.views.default_contest_view',
-                                 kwargs={'contest_id': contest_id}))
+                                 kwargs={'contest_id': request.contest.id}))
                              })
 
 
@@ -117,9 +117,9 @@ def generate_token():
 
 @enforce_condition(not_anonymous & contest_exists)
 @require_POST
-def clear_user_token(request, contest_id):
+def clear_user_token(request):
     current_token = SubmitServiceToken.objects.filter(user=request.user)
     if current_token.exists():
         current_token.delete()
     return redirect(reverse('submitservice_view_user_token',
-                     kwargs={'contest_id': contest_id}))
+                     kwargs={'contest_id': request.contest.id}))

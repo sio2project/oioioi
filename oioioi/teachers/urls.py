@@ -25,7 +25,6 @@ contest_patterns = patterns('oioioi.teachers.views',
 )
 
 urlpatterns = patterns('oioioi.teachers.views',
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
     url(r'^teachers/add/$', 'add_teacher_view', name='add_teacher'),
     url(r'^teachers/accept/(?P<user_id>\d+)/$', 'accept_teacher_view',
         name='accept_teacher'),

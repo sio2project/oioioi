@@ -13,6 +13,7 @@ from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
     ContestPermission
 from oioioi.contests.tests import SubmitFileMixin
+from oioioi.contests.current_contest import ContestMode
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant, TestRegistration
 from oioioi.participants.management.commands import import_participants
@@ -33,6 +34,7 @@ class TestParticipantsContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance']
 
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_participants_contest_visibility(self):
         contest = Contest(id='invisible', name='Invisible Contest')
         contest.controller_name = \
@@ -223,6 +225,8 @@ class TestParticipantsModelAdmin(TestCase):
         p = Participant(contest=contest, user=user)
         p.save()
 
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         url = reverse('oioioiadmin:participants_participant_changelist')
         self.client.login(username='test_user')
         check_not_accessible(self, url)
@@ -245,6 +249,8 @@ class TestParticipantsModelAdmin(TestCase):
 
         p = Participant(contest=contest, user=user)
         p.save()
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
 
         url = reverse('oioioiadmin:participants_participant_changelist')
         self.client.login(username='test_user')

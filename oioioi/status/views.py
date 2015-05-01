@@ -3,5 +3,5 @@ from oioioi.base.utils import jsonify
 
 
 @jsonify
-def get_status_view(request, contest_id=None):
+def get_status_view(request):
     return get_status(request)

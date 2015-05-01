@@ -17,7 +17,7 @@ from django.views.decorators.cache import cache_control
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
-from oioioi.contests.views import default_contest_view
+from oioioi.contests.models import Contest
 from oioioi.base.forms import UserForm
 from oioioi.base.utils import jsonify, generate_key
 from oioioi.base.menu import account_menu_registry
@@ -37,9 +37,9 @@ def index_view(request):
         return render_to_response("index.html",
                 context_instance=RequestContext(request))
     except TemplateDoesNotExist:
-        if not request.contest:
+        if not Contest.objects.exists():
             return TemplateResponse(request, "index-no-contests.html")
-        return default_contest_view(request, request.contest.id)
+        return redirect('select_contest')
 
 
 def force_error_view(request):

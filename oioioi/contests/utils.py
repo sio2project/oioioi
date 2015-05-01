@@ -217,7 +217,7 @@ def can_enter_contest(request):
     return rcontroller.can_enter_contest(request)
 
 
-def get_submission_or_error(request, contest_id, submission_id,
+def get_submission_or_error(request, submission_id,
                             submission_class=Submission):
     """Returns the submission if it exists and user has rights to see it."""
     submission = get_object_or_404(submission_class, id=submission_id)

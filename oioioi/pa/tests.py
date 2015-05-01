@@ -310,7 +310,7 @@ class TestPADivisions(TestCase):
         contest.save()
 
         self.client.login(username='test_admin')
-        url = reverse('add_or_update_contest_problem',
+        url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         urllib.urlencode({'key': 'upload'})
 
@@ -328,7 +328,7 @@ class TestPADivisions(TestCase):
         self.assertEquals(pid.division, 'A')
         self.assertEquals(pid.problem_instance.problem, problem)
 
-        url = reverse('add_or_update_contest_problem',
+        url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         urllib.urlencode({'problem': problem.id,
                                 'key': 'upload'})

@@ -1,3 +1,3 @@
 {% spaceless %}
-{% if is_admin or can_see_personal_data %}<a href="{% url 'user_info' ctx.contest.id target_user.id %}">{% endif %}{{ target_name }}{% if is_admin %}</a>{% endif %}
+{% if is_admin or can_see_personal_data %}<a href="{% url 'user_info' contest_id=ctx.contest.id user_id=target_user.id %}">{% endif %}{{ target_name }}{% if is_admin %}</a>{% endif %}
 {% endspaceless %}

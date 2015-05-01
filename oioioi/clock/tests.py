@@ -1,7 +1,9 @@
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from oioioi.contests.models import Contest, Round, RoundTimeExtension
+from oioioi.contests.current_contest import ContestMode
 from django.utils.timezone import utc
 from datetime import datetime
 import calendar
@@ -13,6 +15,7 @@ from dateutil.parser import parse as parse_date
 class TestClock(TestCase):
     fixtures = ['test_contest', 'test_users']
 
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_clock(self):
         response = self.client.get(reverse('get_status'))
         response = json.loads(response.content)
@@ -33,7 +36,7 @@ class TestClock(TestCase):
         r1.save()
         r2.save()
 
-        response = self.client.get(reverse('get_contest_status',
+        response = self.client.get(reverse('get_status',
             kwargs={'contest_id': contest.id}))
         response = json.loads(response.content)
         round_start_date = response['round_start_date']
@@ -52,7 +55,7 @@ class TestClock(TestCase):
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
         self.client.login(username='test_user')
-        response = self.client.get(reverse('get_contest_status',
+        response = self.client.get(reverse('get_status',
             kwargs={'contest_id': contest.id}))
         response = json.loads(response.content)
         round_start_date = response['round_start_date']
@@ -60,6 +63,7 @@ class TestClock(TestCase):
         self.assertEqual(round_start_date, time.mktime(r1_start.timetuple()))
         self.assertEqual(round_end_date, time.mktime(r1_end.timetuple()) + 600)
 
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_admin_time(self):
         self.client.login(username='test_admin')
         session = self.client.session

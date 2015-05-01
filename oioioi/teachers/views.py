@@ -116,7 +116,7 @@ def accept_teacher_view(request, user_id):
         reverse(members_view, kwargs={'contest_id': request.contest.id,
                                       'member_type': 'teacher'}), order=31)
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def members_view(request, contest_id, member_type):
+def members_view(request, member_type):
     registration_config, created = RegistrationConfig.objects.get_or_create(
             contest=request.contest)
 
@@ -134,7 +134,7 @@ def members_view(request, contest_id, member_type):
 
     registration_link = request.build_absolute_uri(
             reverse(activate_view, kwargs=
-                {'contest_id': contest_id,
+                {'contest_id': request.contest.id,
                  'key': key}))
     other_contests = Contest.objects \
             .filter(contestteacher__teacher__user=request.user) \
@@ -151,7 +151,7 @@ def members_view(request, contest_id, member_type):
 
 
 @enforce_condition(not_anonymous & is_teachers_contest)
-def activate_view(request, contest_id, key):
+def activate_view(request, key):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
     t_active = registration_config.is_active_teacher
@@ -199,7 +199,7 @@ def activate_view(request, contest_id, key):
         else:
             messages.info(request, _("Activation successful."))
 
-        return redirect('default_contest_view', contest_id=contest_id)
+        return redirect('default_contest_view', contest_id=request.contest.id)
 
 
 def redirect_to_members(request, member_type='pupil'):
@@ -209,7 +209,7 @@ def redirect_to_members(request, member_type='pupil'):
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def set_registration_view(request, contest_id, value, member_type='pupil'):
+def set_registration_view(request, value, member_type='pupil'):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
     if member_type == 'teacher':
@@ -225,7 +225,7 @@ def set_registration_view(request, contest_id, value, member_type='pupil'):
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def regenerate_key_view(request, contest_id, member_type):
+def regenerate_key_view(request, member_type):
     registration_config = get_object_or_404(RegistrationConfig,
             contest=request.contest)
 
@@ -243,7 +243,7 @@ def regenerate_key_view(request, contest_id, member_type):
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def delete_members_view(request, contest_id, member_type):
+def delete_members_view(request, member_type):
     if member_type == 'teacher':
         ContestTeacher.objects.filter(contest=request.contest,
                 teacher__user_id__in=request.POST.getlist('member')).delete()
@@ -258,7 +258,7 @@ def delete_members_view(request, contest_id, member_type):
 
 @require_POST
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
-def bulk_add_members_view(request, contest_id, other_contest_id):
+def bulk_add_members_view(request, other_contest_id):
     other_contest = get_object_or_404(Contest, id=other_contest_id)
     if not request.user.has_perm('contests.contest_admin', other_contest):
         raise PermissionDenied
@@ -270,4 +270,4 @@ def bulk_add_members_view(request, contest_id, other_contest_id):
                 teacher=ct.teacher)
 
     messages.info(request, _("Import members completed successfully."))
-    return redirect('contest_dashboard', contest_id=contest_id)
+    return redirect('contest_dashboard', contest_id=request.contest.id)

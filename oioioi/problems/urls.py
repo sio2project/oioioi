@@ -1,9 +1,5 @@
 from django.conf.urls import patterns, include, url
 
-contest_patterns = patterns('oioioi.problems.views',
-    url(r'^problems/add$', 'add_or_update_problem_view',
-        name='add_or_update_contest_problem'),
-)
 
 problem_site_patterns = patterns('oioioi.problems.views',
     url(r'^site/$', 'problem_site_view', name='problem_site'),
@@ -30,7 +26,6 @@ urlpatterns = patterns('oioioi.problems.views',
 
     url(r'^problems/add$', 'add_or_update_problem_view',
         name='add_or_update_problem'),
-    url(r'^c/(?P<contest_id>[a-z0-9_-]+)/', include(contest_patterns)),
 
     url(r'^problemset/$', 'problemset_main_view', name='problemset_main'),
     url(r'^problemset/myproblems/$', 'problemset_my_problems_view',

@@ -193,6 +193,7 @@ class TestIndex(TestCase):
         self.assertTrue(response['Location'].endswith('/test'))
 
     def test_logout(self):
+        self.client.get('/', follow=True)
         logout_url = reverse('logout')
         response = self.client.get(logout_url)
         self.assertEqual(405, response.status_code)
@@ -1076,6 +1077,7 @@ class TestLoginChange(TestCase):
                     response.content)
 
     def test_login_change(self):
+        self.client.get('/', follow=True)
         url_index = reverse('index')
         url_edit_profile = reverse('edit_profile')
 

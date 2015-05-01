@@ -91,7 +91,7 @@ def messages_template_context(request, messages):
         reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
     order=450)
 @enforce_condition(contest_exists & can_enter_contest)
-def messages_view(request, contest_id):
+def messages_view(request):
     if is_contest_admin(request):
         form = FilterMessageAdminForm(request, request.GET)
     else:
@@ -113,8 +113,9 @@ def messages_view(request, contest_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
-def message_view(request, contest_id, message_id):
-    message = get_object_or_404(Message, id=message_id, contest_id=contest_id)
+def message_view(request, message_id):
+    message = get_object_or_404(Message, id=message_id,
+            contest_id=request.contest.id)
     vmessages = visible_messages(request)
     if not vmessages.filter(id=message_id):
         raise PermissionDenied
@@ -134,7 +135,8 @@ def message_view(request, contest_id, message_id):
                 instance.date = request.timestamp
                 instance.save()
                 log_addition(request, instance)
-                return redirect('contest_messages', contest_id=contest_id)
+                return redirect('contest_messages',
+                        contest_id=request.contest.id)
             elif request.POST.get('just_reload') == 'yes':
                 form.is_bound = False
         else:
@@ -158,7 +160,7 @@ def message_view(request, contest_id, message_id):
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-def add_contest_message_view(request, contest_id):
+def add_contest_message_view(request):
     is_admin = is_contest_admin(request)
     if request.method == 'POST':
         form = AddContestMessageForm(request, request.POST)
@@ -175,7 +177,7 @@ def add_contest_message_view(request, contest_id):
                 new_question_signal.send(sender=Message, request=request,
                                          instance=instance)
             log_addition(request, instance)
-            return redirect('contest_messages', contest_id=contest_id)
+            return redirect('contest_messages', contest_id=request.contest.id)
 
     else:
         initial = {}
@@ -194,26 +196,26 @@ def add_contest_message_view(request, contest_id):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def get_messages_authors_view(request, contest_id):
+def get_messages_authors_view(request):
     queryset = visible_messages(request)
     return get_user_hints_view(request, 'substr', queryset, 'author')
 
 
 @jsonify
 @enforce_condition(contest_exists & is_contest_admin)
-def get_reply_templates_view(request, contest_id):
+def get_reply_templates_view(request):
     templates = ReplyTemplate.objects \
-                .filter(Q(contest=contest_id) | Q(contest__isnull=True)) \
-                .order_by('-usage_count')
+            .filter(Q(contest=request.contest.id) | Q(contest__isnull=True)) \
+            .order_by('-usage_count')
     return [{'id': t.id, 'name': t.visible_name, 'content': t.content}
             for t in templates]
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def increment_template_usage_view(request, contest_id, template_id=None):
+def increment_template_usage_view(request, template_id=None):
     try:
         template = ReplyTemplate.objects.filter(id=template_id) \
-                                        .filter(Q(contest=contest_id) |
+                                        .filter(Q(contest=request.contest.id) |
                                                 Q(contest__isnull=True)).get()
     except ReplyTemplate.DoesNotExist:
         raise Http404
@@ -225,7 +227,7 @@ def increment_template_usage_view(request, contest_id, template_id=None):
 
 @jsonify
 @enforce_condition(contest_exists)
-def check_new_messages_view(request, contest_id, topic_id):
+def check_new_messages_view(request, topic_id):
     timestamp = request.GET['timestamp']
     unix_date = datetime.datetime.fromtimestamp(int(timestamp))
     output = [[x.topic,

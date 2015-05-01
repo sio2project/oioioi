@@ -51,14 +51,14 @@ def grouper(n, iterable, fillvalue=None):
 
 
 @enforce_condition(contest_exists & is_contest_admin)
-def dashboard_message_edit_view(request, contest_id):
+def dashboard_message_edit_view(request):
     instance, _created = DashboardMessage.objects.get_or_create(
-            contest_id=contest_id)
+            contest_id=request.contest.id)
     if request.method == 'POST':
         form = DashboardMessageForm(request, request.POST, instance=instance)
         if form.is_valid():
             form.save()
-            return redirect('contest_dashboard', contest_id=contest_id)
+            return redirect('contest_dashboard', contest_id=request.contest.id)
     else:
         form = DashboardMessageForm(request, instance=instance)
     return TemplateResponse(request, 'dashboard/edit_dashboard_message.html',
@@ -142,7 +142,7 @@ def messages_fragment(request):
                 kwargs={'contest_id': request.contest.id}),
     order=20)
 @enforce_condition(contest_exists & can_enter_contest)
-def contest_dashboard_view(request, contest_id):
+def contest_dashboard_view(request):
     headers = [gen(request) for gen in dashboard_headers_registry]
     headers = [hdr for hdr in headers if hdr is not None]
     fragments = [gen(request) for gen in dashboard_registry]

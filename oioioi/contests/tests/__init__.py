@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from django.template import Template, RequestContext
 from django.http import HttpResponse
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
@@ -26,6 +26,8 @@ from oioioi.contests.controllers import ContestController, \
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest, rounds_times, can_see_personal_data
+from oioioi.contests.current_contest import ContestMode
+from oioioi.contests.views import select_contest_view
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
@@ -101,8 +103,9 @@ class TestScores(TestCase):
         self.assertEqual(scores, sorted(scores))
 
 
-def print_contest_id_view(request, contest_id=None):
-    return HttpResponse(str(request.contest.id))
+def print_contest_id_view(request):
+    id = request.contest.id if request.contest else None
+    return HttpResponse(str(id))
 
 
 def render_contest_id_view(request):
@@ -111,27 +114,189 @@ def render_contest_id_view(request):
     return HttpResponse(t.render(RequestContext(request)))
 
 
-class TestCurrentContest(TestCase):
+@override_settings(CONTEST_MODE=ContestMode.neutral)
+class TestUrls(TestCase):
+    fixtures = ['test_contest']
     urls = 'oioioi.contests.test_urls'
-    fixtures = ['test_two_empty_contests']
 
-    @override_settings(DEFAULT_CONTEST='c2')
-    def test_current_contest_session(self):
-        self.assertEqual(self.client.get('/c/c1/id/').content, 'c1')
-        self.assertEqual(self.client.get('/contest_id/').content, 'c1')
-        self.assertEqual(self.client.get('/c/c2/id/').content, 'c2')
-        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
+    def test_make_patterns(self):
+        # The 'urlpatterns' variable in test_urls is created using
+        # 'make_patterns'. We test if it contains patterns coming from
+        # different sources by trying to reverse them.
+        try:
+            # local contest pattern
+            reverse(render_contest_id_view, kwargs={'contest_id': 'c'})
+            # local neutral pattern
+            reverse('print_contest_id')
+            # local noncontest pattern
+            reverse('noncontest_print_contest_id')
+            # global contest pattern
+            reverse('default_contest_view', kwargs={'contest_id': 'c'})
+            # global neutral patterns
+            reverse('select_contest')
+            # global noncontest pattern
+            reverse('move_node')
+        except NoReverseMatch, e:
+            self.fail(str(e))
 
-    def test_current_contest_most_recent(self):
-        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
+    def test_reverse(self):
+        contest = Contest.objects.get()
+        contest_prefix = '/c/{}/'.format(contest.id)
 
-    @override_settings(DEFAULT_CONTEST='c1')
-    def test_current_contest_from_settings(self):
-        self.assertEqual(self.client.get('/contest_id/').content, 'c1')
+        # neutral non-admin
+        url = reverse('select_contest')
+        self.assertFalse(url.startswith(contest_prefix))
+        url = reverse('select_contest', kwargs={'contest_id': contest.id})
+        self.assertTrue(url.startswith(contest_prefix))
 
-    def test_current_contest_processor(self):
-        self.assertEqual(self.client.get('/contest_id/').content, 'c2')
-        self.assertEqual(self.client.get('/render_contest_id/').content, 'c2')
+        # neutral admin
+        url = reverse('oioioiadmin:contests_contest_add')
+        self.assertFalse(url.startswith(contest_prefix))
+        url = reverse('oioioiadmin:contests_contest_add',
+                kwargs={'contest_id': contest.id})
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # contest-only non-admin
+        with self.assertRaises(NoReverseMatch):
+            reverse('default_contest_view')
+        url = reverse('default_contest_view',
+                kwargs={'contest_id': contest.id})
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # contest-only admin
+        with self.assertRaises(NoReverseMatch):
+            reverse('oioioiadmin:contests_probleminstance_changelist')
+        url = reverse('oioioiadmin:contests_probleminstance_changelist',
+                kwargs={'contest_id': contest.id})
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # imported view
+        url = reverse(select_contest_view)
+        self.assertFalse(url.startswith(contest_prefix))
+        url = reverse(select_contest_view, kwargs={'contest_id': contest.id})
+        self.assertTrue(url.startswith(contest_prefix))
+
+        self.client.get(contest_prefix)  # contest active
+
+        # neutral non-admin
+        url = reverse('select_contest')
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # neutral admin
+        url = reverse('oioioiadmin:contests_contest_add')
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # contest-only non-admin
+        url = reverse('default_contest_view')
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # contest-only admin
+        url = reverse('oioioiadmin:contests_probleminstance_changelist')
+        self.assertTrue(url.startswith(contest_prefix))
+
+        # noncontest-only
+        url = reverse('noncontest_print_contest_id')
+        self.assertFalse(url.startswith(contest_prefix))
+
+
+class TestCurrentContest(TestCase):
+    fixtures = ['test_users', 'test_two_empty_contests']
+    urls = 'oioioi.contests.test_urls'
+
+    def _test_redirecting_contest_mode(self):
+        # assuming contest mode contest_if_possible or contest_only
+        url = reverse('print_contest_id')
+        url_c1 = reverse('print_contest_id', kwargs={'contest_id': 'c1'})
+        url_c2 = reverse('print_contest_id', kwargs={'contest_id': 'c2'})
+
+        response = self.client.get(url)
+        # 'c2' - most recently created contest
+        self.assertRedirects(response, url_c2, fetch_redirect_response=False)
+
+        with self.settings(DEFAULT_CONTEST='c1'):
+            response = self.client.get(url)
+            self.assertRedirects(response, url_c1)
+
+            response = self.client.get(url, follow=True)
+            self.assertEquals(response.content, 'c1')
+
+        response = self.client.get(url)
+        # 'c1' - most recently visited contest
+        self.assertRedirects(response, url_c1)
+
+        response = self.client.get(url, follow=True)
+        self.assertEquals(response.content, 'c1')
+
+        response = self.client.get(url_c2)
+        self.assertEquals(response.content, 'c2')
+
+        Contest.objects.get(id='c2').delete()
+
+        response = self.client.get(url_c2)
+        self.assertEquals(response.status_code, 404)
+
+        response = self.client.get(url)
+        self.assertRedirects(response, url_c1)
+
+        response = self.client.get(url, follow=True)
+        self.assertEquals(response.content, 'c1')
+
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_neutral_contest_mode(self):
+        url = reverse('print_contest_id')
+        response = self.client.get(url)
+        self.assertEquals(response.content, 'None')
+
+        url = reverse('print_contest_id', kwargs={'contest_id': 'c1'})
+        response = self.client.get(url)
+        self.assertEquals(response.content, 'c1')
+
+        url = reverse(render_contest_id_view)
+        response = self.client.get(url)
+        self.assertEquals(response.content, 'c1')
+
+        url = reverse('print_contest_id', kwargs={'contest_id': 'c2'})
+        response = self.client.get(url)
+        self.assertEquals(response.content, 'c2')
+
+        url = reverse('noncontest_print_contest_id')
+        response = self.client.get(url)
+        self.assertEquals(response.content, 'None')
+
+    @override_settings(CONTEST_MODE=ContestMode.contest_if_possible)
+    def test_contest_if_possible_contest_mode(self):
+        self._test_redirecting_contest_mode()
+
+        url = reverse('noncontest_print_contest_id')
+        response = self.client.get(url)
+        self.assertEquals(response.content, "None")
+
+    @override_settings(CONTEST_MODE=ContestMode.contest_only)
+    def test_contest_only_contest_mode(self):
+        self._test_redirecting_contest_mode()
+
+        url = reverse('noncontest_print_contest_id')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 403)
+
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 403)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.content, "None")
+
+    @override_settings(CONTEST_MODE=ContestMode.contest_if_possible)
+    def test_namespaced_redirect(self):
+        url = reverse('namespace:print_contest_id')
+        url_c2 = reverse('namespace:print_contest_id',
+                kwargs={'contest_id': 'c2'})
+
+        response = self.client.get(url)
+        # 'c2' - most recently created contest
+        self.assertRedirects(response, url_c2)
 
 
 class TestContestController(TestCase):
@@ -247,6 +412,7 @@ class TestContestViews(TestCase):
         contests = [cv.contest for cv in ContestView.objects.all()]
         self.assertEqual(contests, [invisible_contest, contest])
 
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_contest_visibility(self):
         invisible_contest = Contest(id='invisible', name='Invisible Contest',
             controller_name='oioioi.contests.tests.PrivateContestController')
@@ -622,6 +788,7 @@ class TestRejudgeTypesView(TestCase):
 
     def test_view(self):
         self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
 
         post_data = {'action': 'rejudge_action',
                      '_selected_action': ['1', '2']}
@@ -744,20 +911,30 @@ class TestContestAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # without set request.contest
-        url = reverse('oioioiadmin:contests_probleminstance_changelist')
+        with self.assertRaises(NoReverseMatch):
+            reverse('oioioiadmin:contests_probleminstance_changelist')
+
+        c_id = 'test_contest'
+        c = Contest.objects.create(id=c_id,
+            controller_name='oioioi.programs.controllers.'
+            'ProgrammingContestController',
+            name='Test contest')
+        contest_prefix = '/c/{}/'.format(c_id)
+
+        url = reverse('oioioiadmin:contests_probleminstance_changelist',
+                kwargs={'contest_id': c_id})
+        self.assertTrue(url.startswith(contest_prefix))
+        url = url[len(contest_prefix) - 1:]
+
         self.client.login(username='test_user')
         check_not_accessible(self, url)
 
         self.client.login(username='test_admin')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
-
-        c = Contest.objects.create(id='test_contest',
-            controller_name='oioioi.programs.controllers.'
-            'ProgrammingContestController',
-            name='Test contest')
+        self.assertEqual(response.status_code, 404)
 
         # with request.contest
+        self.client.get(contest_prefix)
         url = reverse('oioioiadmin:contests_probleminstance_changelist')
 
         self.client.login(username='test_admin')
@@ -1092,7 +1269,10 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
 
     def test_round_extension_admin(self):
         self.client.login(username='test_admin')
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_roundtimeextension_add')
+
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         post_data = {
@@ -1266,7 +1446,6 @@ class TestSubmissionChangeKind(TestCase):
         self.assertEqual(urc.score, 100)
 
 
-
 class TestSubmitSelectOneProblem(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance']
@@ -1329,6 +1508,8 @@ class TestPublicResults(TestCase):
 
     def test_round_inline(self):
         self.client.login(username='test_admin')
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote('c'),))
 
@@ -1443,6 +1624,8 @@ class TestProblemInstanceView(TestCase):
 
     def test_admin_change_view(self):
         self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
         problem_instance = Problem.objects.all()[0]
         url = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(problem_instance.id,))

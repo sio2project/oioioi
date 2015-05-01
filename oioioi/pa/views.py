@@ -25,7 +25,7 @@ def registration_notice_fragment(request):
 
 @allow_cross_origin
 @jsonify
-def contest_info_view(request, contest_id):
+def contest_info_view(request):
     rc = request.contest.controller.registration_controller()
     users = rc.filter_participants(User.objects.all())
     return {
