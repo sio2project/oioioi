@@ -167,6 +167,16 @@ class SubmissionForm(forms.Form):
                                                     cleaned_data)
 
 
+class SubmissionFormForProblemInstance(SubmissionForm):
+    def __init__(self, request, problem_instance, *args, **kwargs):
+        def pi_filter(pi_list):
+            return (problem_instance,)
+        kwargs['problem_filter'] = pi_filter
+        super(SubmissionFormForProblemInstance, self).__init__(request, *args,
+                **kwargs)
+        self.fields['problem_instance_id'].widget.attrs['readonly'] = 'True'
+
+
 class GetUserInfoForm(forms.Form):
     user = UserSelectionField(label=_("Username"))
 

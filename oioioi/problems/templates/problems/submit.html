@@ -1,0 +1,17 @@
+{% load i18n all_with_prefix %}
+
+<script>
+$(handle_prog_lang_updates);
+</script>
+<h2>{% trans "Submit solution" %}</h2>
+<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>
+
+<hr />
+
+{% all_with_prefix extra_submit_bottom_ %}

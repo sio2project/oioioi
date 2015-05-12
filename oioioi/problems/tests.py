@@ -442,10 +442,6 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, url_external_stmt)
 
-        contest = Contest.objects.get()
-        url_submit = reverse('submit', kwargs={'contest_id': contest.id})
-        self.assertContains(response, url_submit)
-
     def test_files_tab(self):
         url = self._get_site_urls()['files']
         response = self.client.get(url)

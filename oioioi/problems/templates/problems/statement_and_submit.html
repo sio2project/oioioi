@@ -1,9 +1,0 @@
-{% load i18n all_with_prefix %}
-
-{{ statement }}
-<hr />
-<div class="empty-space-filler">
-    {% blocktrans %}To submit solutions visit the appropriate contest's <a href="{{ submit_url }}">submission page</a>.{% endblocktrans %}
-</div>
-
-{% all_with_prefix extra_submit_bottom_ %}

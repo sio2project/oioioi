@@ -8,12 +8,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 from oioioi.base.menu import OrderedRegistry
 from oioioi.problems.utils import query_statement, query_zip
 from oioioi.problems.models import ProblemAttachment, Problem
 from oioioi.contests.models import Submission, ProblemInstance
+from oioioi.contests.forms import SubmissionFormForProblemInstance
 
 
 problem_site_tab_registry = OrderedRegistry()
@@ -47,7 +48,7 @@ def problem_site_statement_zip_view(request, site_key, path):
     return query_zip(statement, path)
 
 
-@problem_site_tab(_("Problem statement/Submit solution"),
+@problem_site_tab(_("Problem statement"),
         key='statement', order=100)
 def problem_site_statement(request, problem):
     statement = query_statement(problem.id)
@@ -66,13 +67,7 @@ def problem_site_statement(request, problem):
                 'problems/external_statement.html',
                 {'problem': problem, 'statement_url': statement_url})
 
-    # To be removed.
-    pi = ProblemInstance.objects.get(problem=problem.id)
-    submit_url = reverse('submit', kwargs={'contest_id': pi.contest.id})
-
-    return TemplateResponse(request, 'problems/statement_and_submit.html',
-            {'statement': statement_html,
-             'submit_url': submit_url})
+    return statement_html
 
 
 @problem_site_tab(_("Files"), key='files', order=200)
@@ -113,3 +108,18 @@ def problem_site_submissions(request, problem):
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
          'show_scores': True,
          'inside_problem_view': True})
+
+
+@problem_site_tab(_("Submit"), key='submit', order=400)
+def problem_site_submit(request, problem):
+    if request.method == 'POST':
+        form = SubmissionFormForProblemInstance(request,
+                problem.main_problem_instance, request.POST, request.FILES)
+        if form.is_valid():
+            url = reverse('problem_site',
+                    kwargs={'site_key': problem.problemsite.url_key})
+            return redirect(url + '?key=submissions')
+    else:
+        form = SubmissionFormForProblemInstance(request,
+                problem.main_problem_instance)
+    return TemplateResponse(request, 'problems/submit.html', {'form': form})
