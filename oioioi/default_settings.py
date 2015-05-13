@@ -348,6 +348,8 @@ UNPACKMGR_CONCURRENCY = 1
 ENABLE_SPLITEVAL = False
 SPLITEVAL_EVALMGR = False
 
+SIOWORKERSD_URL = 'http://localhost:7889/'
+
 # ID of JotForm account for "Send Feedback" link.
 JOTFORM_ID = None
 
