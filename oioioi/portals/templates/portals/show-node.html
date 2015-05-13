@@ -1,6 +1,11 @@
 {% extends "portals/base-node.html" %}
 {% load i18n %}
 
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/widgets.css">
+{% endblock %}
+
 {% block panel %}
-    {{ current_node.panel_code }}
+    {{ rendered_panel }}
 {% endblock %}

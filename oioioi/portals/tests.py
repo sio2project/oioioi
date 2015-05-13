@@ -5,6 +5,8 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.models import Portal, Node
 from oioioi.portals.actions import portal_url
+from oioioi.portals.widgets import render_panel, \
+        register_widget
 
 
 def get_portal():
@@ -317,3 +319,37 @@ class TestPortalViews(TestCase):
 
         with self.assertRaises(Node.DoesNotExist):
             Node.objects.get(pk=1)
+
+
+class TestMarkdown(TestCase):
+
+    def test_double_asterisk(self):
+        self.assertEquals(render_panel('**word**').strip(),
+                          '<p><strong>word</strong></p>')
+        self.assertEquals(render_panel('**word').strip(),
+                          '<p>**word</p>')
+
+    def test_youtube_widget(self):
+        url = 'http://youtube.com'
+        rendered = render_panel('[[YouTube|%s]]' % url)
+        self.assertIn('<iframe src="%s"' % url, rendered)
+
+    def test_problem_table(self):
+        ids = [1, 2, 2434, 35235, 35325, 5235632, 5234934]
+        ids = [str(id_) for id_ in ids]
+        rendered = render_panel('[[ProblemTable|%s]]' % ';'.join(ids))
+        for id_ in ids:
+            self.assertIn('<td>%s</td>' % id_, rendered)
+        rendered = render_panel('[[ProblemTable|123_424]]')
+        self.assertIn('[[ProblemTable|123_424]]', rendered)
+
+    def test_duplicate_tag(self):
+
+        class Widget(object):
+            def __init__(self, name):
+                self.name = name
+
+        with self.assertRaises(ValueError):
+            register_widget(Widget('youtube'))
+        with self.assertRaises(ValueError):
+            register_widget(Widget('problem_table'))

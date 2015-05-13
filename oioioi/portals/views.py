@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from django.core.urlresolvers import reverse
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.template.loader import render_to_string
@@ -15,6 +16,7 @@ from oioioi.portals.actions import node_actions, portal_actions, \
         DEFAULT_ACTION_NAME
 from oioioi.portals.utils import resolve_path, is_portal_admin, \
         current_node_is_root
+from oioioi.portals.widgets import render_panel
 
 
 def create_portal_view(request, username):
@@ -63,7 +65,9 @@ def portal_view(request, username, portal_path):
 
 @register_node_action('show_node', menu_text=_("Show node"), menu_order=100)
 def show_node_view(request):
-    return render(request, 'portals/show-node.html')
+    rendered_panel = mark_safe(render_panel(request.current_node.panel_code))
+    return render(request, 'portals/show-node.html',
+                  {'rendered_panel': rendered_panel})
 
 
 @register_node_action('edit_node', condition=is_portal_admin,
