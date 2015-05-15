@@ -513,24 +513,24 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
             self.assertIn('contests/my_submissions.html',
                     [t.name for t in response.templates])
-            self.assertEqual(response.content.count('<td>34</td>'), 2)
+            self.assertEqual(response.content.count('>34</td>'), 2)
 
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 4)
+            self.assertEqual(response.content.count('>34</td>'), 4)
 
         with fake_time(datetime(2012, 7, 31, 20, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('<td>34</td>', response.content)
+            self.assertNotIn('>34</td>', response.content)
             self.assertNotIn('Score', response.content)
 
         with fake_time(datetime(2012, 7, 31, 21, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 1)
+            self.assertEqual(response.content.count('>34</td>'), 1)
 
         with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 2)
+            self.assertEqual(response.content.count('>34</td>'), 2)
 
         round4 = Round.objects.get(pk=4)
         user = User.objects.get(username='test_user')
@@ -539,7 +539,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
         with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 1)
+            self.assertEqual(response.content.count('>34</td>'), 1)
 
         round4.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=utc)
         round4.results_date = datetime(2012, 8, 10, 0, 10, tzinfo=utc)
@@ -550,18 +550,18 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
         with fake_time(datetime(2012, 8, 10, 0, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 1)
+            self.assertEqual(response.content.count('>34</td>'), 1)
 
         ext.extra_time = 20
         ext.save()
 
         with fake_time(datetime(2012, 8, 10, 0, 15, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 1)
+            self.assertEqual(response.content.count('>34</td>'), 1)
 
         with fake_time(datetime(2012, 8, 10, 0, 21, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('<td>34</td>'), 2)
+            self.assertEqual(response.content.count('>34</td>'), 2)
 
     def test_mixin_past_rounds_hidden_during_prep_time(self):
         contest = Contest.objects.get()

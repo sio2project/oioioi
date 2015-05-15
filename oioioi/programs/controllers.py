@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
+from oioioi.problems.utils import is_problem_author
 from oioioi.contests.controllers import ContestController, \
         submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
@@ -35,7 +36,40 @@ logger = logging.getLogger(__name__)
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
 
-    def generate_base_environ(self, environ, **kwargs):
+    def generate_initial_evaluation_environ(self, environ, submission,
+                                            **kwargs):
+        problem_instance = submission.problem_instance
+        problem = problem_instance.problem
+        contest = problem_instance.contest
+        if contest is not None:
+            round = problem_instance.round
+
+        submission = submission.programsubmission
+        environ['source_file'] = \
+            django_to_filetracker_path(submission.source_file)
+        environ['language'] = problem_instance.controller \
+            ._get_language(submission.source_file, problem_instance)
+        environ['compilation_result_size_limit'] = \
+            problem_instance.controller \
+                .get_compilation_result_size_limit(submission)
+
+        environ['submission_id'] = submission.id
+        environ['submission_kind'] = submission.kind
+        environ['problem_instance_id'] = problem_instance.id
+        environ['problem_id'] = problem.id
+        environ['problem_short_name'] = problem.short_name
+        if contest is not None:
+            environ['round_id'] = round.id
+            environ['contest_id'] = contest.id
+        environ['submission_owner'] = submission.user.username \
+                                      if submission.user else None
+
+        environ.setdefault('report_kinds', ['INITIAL', 'NORMAL'])
+        if 'hidden_judge' in environ['extra_args']:
+            environ['report_kinds'] = ['HIDDEN']
+
+    def generate_base_environ(self, environ, submission, **kwargs):
+        self.generate_initial_evaluation_environ(environ, submission)
         environ['recipe'] = [
                 ('compile',
                     'oioioi.programs.handlers.compile'),
@@ -163,8 +197,14 @@ class ProgrammingProblemController(ProblemController):
 
         return recipe_body
 
-    def fill_evaluation_environ(self, environ, **kwargs):
-        self.generate_base_environ(environ, **kwargs)
+    def get_compilation_result_size_limit(self, submission):
+        return 10 * 1024 * 1024
+
+    def _get_language(self, source_file, problem_instance):
+        return os.path.splitext(source_file.name)[1][1:]
+
+    def fill_evaluation_environ(self, environ, submission, **kwargs):
+        self.generate_base_environ(environ, submission, **kwargs)
 
         if 'USER_OUTS' in environ['submission_kind']:
             environ['report_kinds'] = ['USER_OUTS']
@@ -183,42 +223,6 @@ class ProgrammingProblemController(ProblemController):
         if checker:
             environ['checker'] = django_to_filetracker_path(checker)
 
-    def filter_allowed_languages_dict(self, languages):
-        return languages
-
-    def mixins_for_admin(self):
-        from oioioi.programs.admin import ProgrammingProblemAdminMixin
-        return super(ProgrammingProblemController, self).mixins_for_admin() \
-                + (ProgrammingProblemAdminMixin,)
-
-
-class ProgrammingContestController(ContestController):
-    description = _("Simple programming contest")
-
-    def get_compilation_result_size_limit(self):
-        return 10 * 1024 * 1024
-
-    def _get_language(self, source_file):
-        return os.path.splitext(source_file.name)[1][1:]
-
-    def use_spliteval(self, submission):
-        return True
-
-    def fill_evaluation_environ(self, environ, submission):
-        submission = submission.programsubmission
-        environ['source_file'] = \
-            django_to_filetracker_path(submission.source_file)
-        environ['language'] = self._get_language(submission.source_file)
-        environ['compilation_result_size_limit'] = \
-            self.get_compilation_result_size_limit()
-
-        super(ProgrammingContestController,
-                self).fill_evaluation_environ(environ, submission)
-
-        self.fill_evaluation_environ_post_problem(environ, submission)
-
-    def fill_evaluation_environ_post_problem(self, environ, submission):
-        """Run after ProblemController.fill_evaluation_environ."""
         if 'INITIAL' in environ['report_kinds']:
             add_before_placeholder(environ, 'after_initial_tests',
                     ('update_report_statuses',
@@ -227,37 +231,179 @@ class ProgrammingContestController(ContestController):
                     ('update_submission_score',
                         'oioioi.contests.handlers.update_submission_score'))
 
-    def get_submission_size_limit(self):
+    def _map_report_to_submission_status(self, status, problem_instance,
+                                         kind='INITIAL'):
+        if kind == 'INITIAL':
+            mapping = {'OK': 'INI_OK', 'CE': 'CE', 'SE': 'SE'}
+            return mapping.get(status, 'INI_ERR')
+        return status
+
+    def update_submission_score(self, submission):
+        # Status is taken from User_outs report when generating user out
+        if submission.kind == 'USER_OUTS':
+            kind_for_status = 'USER_OUTS'
+        # Otherwise from the Initial report
+        else:
+            kind_for_status = 'INITIAL'
+
+        try:
+            report = SubmissionReport.objects.filter(submission=submission,
+                    status='ACTIVE', kind=kind_for_status).get()
+            score_report = ScoreReport.objects.get(submission_report=report)
+            submission.status = submission.problem_instance.controller \
+                ._map_report_to_submission_status(
+                    score_report.status, submission.problem_instance,
+                    kind=kind_for_status)
+        except SubmissionReport.DoesNotExist:
+            if SubmissionReport.objects.filter(submission=submission,
+                    status='ACTIVE', kind='FAILURE'):
+                submission.status = 'SE'
+            else:
+                submission.status = '?'
+
+        # Score from the final
+        try:
+            report = SubmissionReport.objects.filter(submission=submission,
+                    status='ACTIVE', kind='NORMAL').get()
+            score_report = ScoreReport.objects.get(submission_report=report)
+            submission.score = score_report.score
+        except SubmissionReport.DoesNotExist:
+            submission.score = None
+
+        submission.save()
+
+    def filter_allowed_languages_dict(self, languages, problem_instance):
+        return languages
+
+    def get_submission_size_limit(self, problem_instance):
         return 102400  # in bytes
 
-    def get_allowed_languages_dict(self):
+    def get_allowed_languages_dict(self, problem_instance):
         return getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
 
-    def get_allowed_languages(self):
-        return self.get_allowed_languages_dict().keys()
+    def get_allowed_languages(self, problem_instance):
+        return problem_instance.controller \
+            .get_allowed_languages_dict(problem_instance).keys()
 
-    def get_allowed_extensions(self):
-        lang_exts = self.get_allowed_languages_dict().values()
+    def get_allowed_extensions(self, problem_instance):
+        lang_exts = problem_instance.controller \
+            .get_allowed_languages_dict(problem_instance).values()
         return [ext for lang in lang_exts for ext in lang]
 
-    def parse_language_by_extension(self, ext):
-        for lang, extension_list in self.get_allowed_languages_dict().items():
+    def parse_language_by_extension(self, ext, problem_instance):
+        for lang, extension_list in problem_instance.controller \
+                .get_allowed_languages_dict(problem_instance).items():
             if ext in extension_list:
                 return lang
         return None
 
-    def adjust_submission_form(self, request, form):
-        super(ProgrammingContestController, self) \
-                  .adjust_submission_form(request, form)
-        size_limit = self.get_submission_size_limit()
+    def check_repeated_submission(self, request, problem_instance, form):
+        return not is_problem_author(request, problem_instance.problem) \
+                and form.kind == 'NORMAL' and \
+                getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False)
+
+    def validate_submission_form(self, request, problem_instance, form,
+            cleaned_data):
+        is_file_chosen = 'file' in cleaned_data and \
+                cleaned_data['file'] is not None
+        is_code_pasted = 'code' in cleaned_data and cleaned_data['code']
+
+        if (not is_file_chosen and not is_code_pasted) or \
+                (is_file_chosen and is_code_pasted):
+            raise ValidationError(_("You have to either choose file or paste "
+                "code."))
+
+        if 'prog_lang' not in cleaned_data:
+            cleaned_data['prog_lang'] = None
+
+        if not cleaned_data['prog_lang'] and is_file_chosen:
+            ext = os.path.splitext(cleaned_data['file'].name)[1].strip('.')
+            cleaned_data['prog_lang'] = problem_instance.controller \
+                .parse_language_by_extension(ext, problem_instance)
+
+        if not cleaned_data['prog_lang']:
+            if is_code_pasted:
+                raise ValidationError(_("You have to choose programming "
+                                        "language."))
+            else:
+                raise ValidationError(_("Unrecognized file extension."))
+
+        problem_instance = cleaned_data['problem_instance']
+        controller = problem_instance.controller
+        langs = controller.filter_allowed_languages_dict(
+                controller.get_allowed_languages_dict(problem_instance),
+                problem_instance)
+        if cleaned_data['prog_lang'] not in langs.keys():
+            raise ValidationError(_("This language is not allowed for selected"
+                                    " problem."))
+
+        if is_file_chosen:
+            code = cleaned_data['file'].read()
+        else:
+            code = cleaned_data['code'].encode('utf-8')
+
+        if problem_instance.controller \
+                .check_repeated_submission(request, problem_instance, form):
+            lines = iter(code.splitlines())
+            md5 = hashlib.md5()
+            for line in lines:
+                md5.update(line)
+            md5 = md5.hexdigest()
+            session_md5_key = 'programs_%d_md5' % \
+                    cleaned_data['problem_instance'].id
+
+            if session_md5_key in request.session and \
+                    md5 == request.session[session_md5_key]:
+                del request.session[session_md5_key]
+                raise ValidationError(
+                    _("You have submitted the same file for this problem "
+                      "again. Please resubmit if you really want "
+                      "to submit the same file"))
+            else:
+                request.session[session_md5_key] = md5
+                request.session.save()
+
+        return cleaned_data
+
+    def mixins_for_admin(self):
+        from oioioi.programs.admin import ProgrammingProblemAdminMixin
+        return super(ProgrammingProblemController, self).mixins_for_admin() \
+                + (ProgrammingProblemAdminMixin,)
+
+    def create_submission(self, request, problem_instance, form_data,
+                    judge_after_create=True, **kwargs):
+        submission = ProgramSubmission(
+                user=form_data.get('user', request.user),
+                problem_instance=problem_instance,
+                kind=form_data.get('kind',
+                    problem_instance.controller.get_default_submission_kind(
+                           request, problem_instance=problem_instance)),
+                    date=request.timestamp
+        )
+
+        file = form_data['file']
+        if file is None:
+            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            extension = lang_exts[form_data['prog_lang']][0]
+            file = ContentFile(form_data['code'], '__pasted_code.' + extension)
+
+        submission.source_file.save(file.name, file)
+        submission.save()
+        if judge_after_create:
+            problem_instance.controller.judge(submission)
+        return submission
+
+    def adjust_submission_form(self, request, form, problem_instance):
+        controller = problem_instance.controller
+        size_limit = controller.get_submission_size_limit(problem_instance)
 
         def validate_file_size(file):
             if file.size > size_limit:
                 raise ValidationError(_("File size limit exceeded."))
 
         def validate_language(file):
-            ext = self._get_language(file)
-            if ext not in self.get_allowed_extensions():
+            ext = controller._get_language(file, problem_instance)
+            if ext not in controller.get_allowed_extensions(problem_instance):
                 raise ValidationError(_(
                     "Unknown or not supported file extension."))
 
@@ -283,7 +429,8 @@ class ProgrammingContestController(ContestController):
                     " You can paste the code below instead of"
                     " choosing file."
                     " <strong>Try drag-and-drop too!</strong>"
-                ) % (', '.join(self.get_allowed_extensions())))
+                ) % (', '.join(controller.get_allowed_extensions(
+                        problem_instance))))
         )
         form.fields['code'] = forms.CharField(required=False,
                 label=_("Code"),
@@ -292,7 +439,8 @@ class ProgrammingContestController(ContestController):
         )
 
         choices = [('', '')]
-        choices += [(lang, lang) for lang in self.get_allowed_languages()]
+        choices += [(lang, lang) for lang in controller.get_allowed_languages(
+                problem_instance)]
         form.fields['prog_lang'] = forms.ChoiceField(required=False,
                 label=_("Programming language"),
                 choices=choices,
@@ -315,7 +463,7 @@ class ProgrammingContestController(ContestController):
                             parse_problem(problem)
                 if 'prog_lang' not in request.POST:
                     form.fields['prog_lang'].initial = \
-                            self.parse_language_by_extension(ext)
+                            controller.parse_language_by_extension(ext)
 
         if is_contest_admin(request):
             form.fields['user'] = UserSelectionField(
@@ -330,7 +478,7 @@ class ProgrammingContestController(ContestController):
                     if user == request.user:
                         return user
                     if not request.user.is_superuser:
-                        self.registration_controller() \
+                        controller.registration_controller() \
                             .filter_participants(
                                 User.objects.filter(pk=user.pk)).get()
                     return user
@@ -343,136 +491,211 @@ class ProgrammingContestController(ContestController):
                 ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
                 initial=form.kind, label=_("Kind"))
 
-    def validate_submission_form(self, request, problem_instance, form,
-            cleaned_data):
-        is_file_chosen = 'file' in cleaned_data and \
-                cleaned_data['file'] is not None
-        is_code_pasted = 'code' in cleaned_data and cleaned_data['code']
+    def render_submission(self, request, submission):
+        problem_instance = submission.problem_instance
+        if submission.kind == 'USER_OUTS':
+            # The comment includes safe string, because it is generated
+            # automatically (users can not affect it).
+            # Note that we temporarily assign a safestring object, because
+            # field type in model is originally a string.
+            submission.programsubmission.comment = \
+                mark_safe(submission.programsubmission.comment)
 
-        if (not is_file_chosen and not is_code_pasted) or \
-                (is_file_chosen and is_code_pasted):
-            raise ValidationError(_("You have to either choose file or paste "
-                "code."))
+        return render_to_string('programs/submission_header.html',
+                context_instance=RequestContext(request,
+                    {'submission': submission_template_context(request,
+                        submission.programsubmission),
+                    'saved_diff_id': request.session.get('saved_diff_id'),
+                    'supported_extra_args':
+                        problem_instance.controller.get_supported_extra_args(
+                            submission)}))
 
-        if 'prog_lang' not in cleaned_data:
-            cleaned_data['prog_lang'] = None
+    def render_report_failure(self, request, report):
+        return ProblemController.render_report(self, request, report)
 
-        if not cleaned_data['prog_lang'] and is_file_chosen:
-            ext = os.path.splitext(cleaned_data['file'].name)[1].strip('.')
-            cleaned_data['prog_lang'] = self.parse_language_by_extension(ext)
+    def is_admin(self, request, report):
+        return is_problem_author(request, self.problem)
 
-        if not cleaned_data['prog_lang']:
-            if is_code_pasted:
-                raise ValidationError(_("You have to choose programming "
-                                        "language."))
-            else:
-                raise ValidationError(_("Unrecognized file extension."))
+    def render_report(self, request, report):
+        problem_instance = report.submission.problem_instance
+        if report.kind == 'FAILURE':
+            return problem_instance.controller \
+                    .render_report_failure(request, report)
 
-        pc = cleaned_data['problem_instance'].problem.controller
-        langs = pc.filter_allowed_languages_dict(
-                self.get_allowed_languages_dict())
-        if cleaned_data['prog_lang'] not in langs.keys():
-            raise ValidationError(_("This language is not allowed for selected"
-                                    " problem."))
+        score_report = ScoreReport.objects.get(submission_report=report)
+        compilation_report = \
+                CompilationReport.objects.get(submission_report=report)
+        test_reports = TestReport.objects.filter(submission_report=report) \
+                .order_by('test__order', 'test_group', 'test_name')
+        group_reports = GroupReport.objects.filter(submission_report=report)
+        show_scores = any(gr.score is not None for gr in group_reports)
+        group_reports = dict((g.group, g) for g in group_reports)
 
-        if is_file_chosen:
-            code = cleaned_data['file'].read()
-        else:
-            code = cleaned_data['code'].encode('utf-8')
+        picontroller = problem_instance.controller
 
-        if not is_contest_admin(request) and form.kind == 'NORMAL' and \
-                getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False):
-            lines = iter(code.splitlines())
-            md5 = hashlib.md5()
-            for line in lines:
-                md5.update(line)
-            md5 = md5.hexdigest()
-            session_md5_key = 'programs_%d_md5' % \
-                    cleaned_data['problem_instance'].id
+        allow_download_out = picontroller \
+                                .can_generate_user_out(request, report)
+        allow_test_comments = picontroller \
+                                .can_see_test_comments(request, report)
+        all_outs_generated = allow_download_out
 
-            if session_md5_key in request.session and \
-                    md5 == request.session[session_md5_key]:
-                del request.session[session_md5_key]
-                raise ValidationError(
-                    _("You have submitted the same file for this problem "
-                      "again. Please resubmit if you really want "
-                      "to submit the same file"))
-            else:
-                request.session[session_md5_key] = md5
-                request.session.save()
+        groups = []
+        for group_name, tests in itertools.groupby(test_reports,
+                attrgetter('test_group')):
+            tests_list = list(tests)
+            groups.append({'tests': tests_list,
+                'report': group_reports[group_name]})
 
-        return cleaned_data
+            for test in tests_list:
+                test.generate_status = picontroller \
+                    ._out_generate_status(request, test)
+                all_outs_generated &= (test.generate_status == 'OK')
+
+        return render_to_string('programs/report.html',
+                context_instance=RequestContext(request,
+                    {'report': report, 'score_report': score_report,
+                        'compilation_report': compilation_report,
+                        'groups': groups, 'show_scores': show_scores,
+                        'allow_download_out': allow_download_out,
+                        'allow_test_comments': allow_test_comments,
+                        'all_outs_generated': all_outs_generated,
+                        'is_admin': picontroller.is_admin(request, report)}))
+
+    def can_generate_user_out(self, request, submission_report):
+        """Determines if the current user is allowed to generate outs from
+           ``submission_report``.
+
+           Default implementations allow only problem author.
+        """
+        problem = submission_report.submission.problem_instance.problem
+        return is_problem_author(request, problem)
+
+    def can_see_test_comments(self, request, submissionreport):
+        return True
+
+    def _out_generate_status(self, request, testreport):
+        problem = testreport.test.problem_instance.problem
+        try:
+            if is_problem_author(request, problem) or \
+                    testreport.userout_status.visible_for_user:
+                # making sure, that output really exists or is processing
+                if bool(testreport.output_file) or \
+                        testreport.userout_status.status == '?':
+                    return testreport.userout_status.status
+
+        except UserOutGenStatus.DoesNotExist:
+            if testreport.output_file:
+                return 'OK'
+
+        return None
+
+
+class ProgrammingContestController(ContestController):
+    description = _("Simple programming contest")
+
+    def _map_report_to_submission_status(self, status, problem_instance,
+                                         kind='INITIAL'):
+        return problem_instance.problem.controller \
+            ._map_report_to_submission_status(status, problem_instance, kind)
+
+    def filter_allowed_languages_dict(self, languages, problem_instance):
+        return problem_instance.problem.controller \
+            .filter_allowed_languages_dict(languages, problem_instance)
+
+    def get_compilation_result_size_limit(self, submission):
+        return submission.problem_instance.problem.controller \
+            .get_compilation_result_size_limit(submission)
+
+    def _get_language(self, source_file, problem_instance):
+        return problem_instance.problem.controller \
+            ._get_language(source_file, problem_instance)
+
+    def use_spliteval(self, submission):
+        return True
+
+    def fill_evaluation_environ(self, environ, submission):
+        problem = submission.problem_instance.problem
+        problem.controller.fill_evaluation_environ(environ, submission)
+        self.fill_evaluation_environ_post_problem(environ, submission)
+
+    def fill_evaluation_environ_post_problem(self, environ, submission):
+        """Run after ProblemController.fill_evaluation_environ."""
+        if 'INITIAL' in environ['report_kinds']:
+            add_before_placeholder(environ, 'after_initial_tests',
+                    ('update_report_statuses',
+                        'oioioi.contests.handlers.update_report_statuses'))
+            add_before_placeholder(environ, 'after_initial_tests',
+                    ('update_submission_score',
+                        'oioioi.contests.handlers.update_submission_score'))
 
     def create_submission(self, request, problem_instance, form_data,
                     judge_after_create=True, **kwargs):
-        submission = ProgramSubmission(
-                user=form_data.get('user', request.user),
-                problem_instance=problem_instance,
-                kind=form_data.get('kind',
-                        self.get_default_submission_kind(request)),
-                date=request.timestamp
-        )
+        problem = problem_instance.problem
+        return problem.controller.create_submission(request,
+                problem_instance, form_data, judge_after_create=True, **kwargs)
 
-        file = form_data['file']
-        if file is None:
-            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-            extension = lang_exts[form_data['prog_lang']][0]
-            file = ContentFile(form_data['code'], '__pasted_code.' + extension)
+    def get_submission_size_limit(self, problem_instance):
+        return problem_instance.problem.controller \
+            .get_submission_size_limit(problem_instance)
 
-        submission.source_file.save(file.name, file)
-        submission.save()
-        if judge_after_create:
-            self.judge(submission)
-        return submission
+    def get_allowed_languages_dict(self, problem_instance):
+        return problem_instance.problem.controller \
+            .get_allowed_languages_dict(problem_instance)
+
+    def get_allowed_languages(self, problem_instance):
+        return problem_instance.problem.controller \
+            .get_allowed_languages(problem_instance)
+
+    def get_allowed_extensions(self, problem_instance):
+        return problem_instance.problem.controller \
+            .get_allowed_extensions(problem_instance)
+
+    def parse_language_by_extension(self, ext, problem_instance):
+        return problem_instance.problem.controller \
+            .parse_language_by_extension(ext, problem_instance)
+
+    def adjust_submission_form(self, request, form, problem_instance):
+        super(ProgrammingContestController, self) \
+                  .adjust_submission_form(request, form, problem_instance)
+        problem_instance.problem.controller \
+                .adjust_submission_form(request, form, problem_instance)
+
+    def check_repeated_submission(self, request, problem_instance, form):
+        return not is_contest_admin(request) and \
+            form.kind == 'NORMAL' and \
+            getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False)
+
+    def validate_submission_form(self, request, problem_instance, form,
+            cleaned_data):
+        return problem_instance.problem.controller \
+            .validate_submission_form(request, problem_instance,
+                                      form, cleaned_data)
 
     def update_report_statuses(self, submission, queryset):
-        self._activate_newest_report(submission, queryset,
+        """Updates statuses of reports for the newly judged submission.
+
+           Usually this involves looking at reports and deciding which should
+           be ``ACTIVE`` and which should be ``SUPERSEDED``.
+
+           :param submission: an instance of
+                              :class:`oioioi.contests.models.Submission`
+           :param queryset: a queryset returning reports for the submission
+        """
+        controller = submission.problem_instance.controller
+        controller._activate_newest_report(submission, queryset,
                 kind=['NORMAL', 'FAILURE'])
-        self._activate_newest_report(submission, queryset,
+        controller._activate_newest_report(submission, queryset,
                 kind=['INITIAL'])
-        self._activate_newest_report(submission, queryset,
+        controller._activate_newest_report(submission, queryset,
                 kind=['USER_OUTS'])
 
     def can_see_submission_status(self, request, submission):
         """Statuses are taken from initial tests which are always public."""
         return True
 
-    def _map_report_to_submission_status(self, status, kind='INITIAL'):
-        if kind == 'INITIAL':
-            mapping = {'OK': 'INI_OK', 'CE': 'CE', 'SE': 'SE'}
-            return mapping.get(status, 'INI_ERR')
-        return status
-
     def update_submission_score(self, submission):
-        # Status is taken from User_outs report when generating user out
-        if submission.kind == 'USER_OUTS':
-            kind_for_status = 'USER_OUTS'
-        # Otherwise from the Initial report
-        else:
-            kind_for_status = 'INITIAL'
-
-        try:
-            report = SubmissionReport.objects.filter(submission=submission,
-                    status='ACTIVE', kind=kind_for_status).get()
-            score_report = ScoreReport.objects.get(submission_report=report)
-            submission.status = self._map_report_to_submission_status(
-                    score_report.status, kind=kind_for_status)
-        except SubmissionReport.DoesNotExist:
-            if SubmissionReport.objects.filter(submission=submission,
-                    status='ACTIVE', kind='FAILURE'):
-                submission.status = 'SE'
-            else:
-                submission.status = '?'
-
-        # Score from the final
-        try:
-            report = SubmissionReport.objects.filter(submission=submission,
-                    status='ACTIVE', kind='NORMAL').get()
-            score_report = ScoreReport.objects.get(submission_report=report)
-            submission.score = score_report.score
-        except SubmissionReport.DoesNotExist:
-            submission.score = None
-        submission.save()
+        problem = submission.problem_instance.problem
+        problem.controller.update_submission_score(submission)
 
     def get_visible_reports_kinds(self, request, submission):
         if self.results_visible(request, submission):
@@ -541,21 +764,8 @@ class ProgrammingContestController(ContestController):
         return self.filter_visible_sources(request, qs).exists()
 
     def render_submission(self, request, submission):
-        if submission.kind == 'USER_OUTS':
-            # The comment includes safe string, because it is generated
-            # automatically (users can not affect it).
-            # Note that we temporarily assign a safestring object, because
-            # field type in model is originally a string.
-            submission.programsubmission.comment = \
-                mark_safe(submission.programsubmission.comment)
-
-        return render_to_string('programs/submission_header.html',
-                context_instance=RequestContext(request,
-                    {'submission': submission_template_context(request,
-                        submission.programsubmission),
-                    'saved_diff_id': request.session.get('saved_diff_id'),
-                    'supported_extra_args':
-                        self.get_supported_extra_args(submission)}))
+        problem = submission.problem_instance.problem
+        return problem.controller.render_submission(request, submission)
 
     def _out_generate_status(self, request, testreport):
         try:
@@ -573,46 +783,18 @@ class ProgrammingContestController(ContestController):
         return None
 
     def can_see_test_comments(self, request, submissionreport):
-        return True
+        return submissionreport.submission.problem_instance.problem \
+            .controller.can_see_test_comments(request, submissionreport)
+
+    def render_report_failure(self, request, report):
+        return ContestController.render_report(self, request, report)
+
+    def is_admin(self, request, report):
+        return is_contest_admin(request)
 
     def render_report(self, request, report):
-        if report.kind == 'FAILURE':
-            return ContestController.render_report(self, request,
-                    report)
-
-        score_report = ScoreReport.objects.get(submission_report=report)
-        compilation_report = \
-                CompilationReport.objects.get(submission_report=report)
-        test_reports = TestReport.objects.filter(submission_report=report) \
-                .order_by('test__order', 'test_group', 'test_name')
-        group_reports = GroupReport.objects.filter(submission_report=report)
-        show_scores = any(gr.score is not None for gr in group_reports)
-        group_reports = dict((g.group, g) for g in group_reports)
-
-        allow_download_out = self.can_generate_user_out(request, report)
-        allow_test_comments = self.can_see_test_comments(request, report)
-        all_outs_generated = allow_download_out
-
-        groups = []
-        for group_name, tests in itertools.groupby(test_reports,
-                attrgetter('test_group')):
-            tests_list = list(tests)
-            groups.append({'tests': tests_list,
-                'report': group_reports[group_name]})
-
-            for test in tests_list:
-                test.generate_status = self._out_generate_status(request, test)
-                all_outs_generated &= (test.generate_status == 'OK')
-
-        return render_to_string('programs/report.html',
-                context_instance=RequestContext(request,
-                    {'report': report, 'score_report': score_report,
-                        'compilation_report': compilation_report,
-                        'groups': groups, 'show_scores': show_scores,
-                        'allow_download_out': allow_download_out,
-                        'allow_test_comments': allow_test_comments,
-                        'all_outs_generated': all_outs_generated,
-                        'is_admin': is_contest_admin(request)}))
+        return report.submission.problem_instance.problem.controller \
+            .render_report(request, report)
 
     def render_submission_footer(self, request, submission):
         super_footer = super(ProgrammingContestController, self). \

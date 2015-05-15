@@ -146,7 +146,7 @@ def sync_submission(sio1_submission_id):
     submission.source_file.save(sio1_filename, submission_file)
     submission.date = sio1_date
     submission.save()
-    c.controller.judge(submission)
+    submission.problem_instance.controller.judge(submission)
 
     sql = 'UPDATE submits SET in_sio2 = %s WHERE id = %s'
     sync_env['sioCursor'].execute(sql, (submission.id, sio1_submission_id))

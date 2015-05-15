@@ -15,6 +15,10 @@ from django.utils.translation import ugettext_lazy as _, ungettext
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, MenuItem
 from oioioi.base.utils import get_object_by_dotted_name
+from oioioi.contests.fields import ScoreField
+from oioioi.contests.problem_instance_controller import \
+        ProblemInstanceController
+from oioioi.filetracker.fields import FileField
 from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
 from oioioi.contests.date_registration import date_registry
@@ -244,6 +248,10 @@ class ProblemInstance(models.Model):
             'name': self.problem.name,
         }
 
+    @property
+    def controller(self):
+        return ProblemInstanceController(self)
+
 
 @receiver(pre_save, sender=ProblemInstance)
 def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
@@ -307,14 +315,12 @@ class Submission(models.Model):
         return self.score is not None
 
     def get_date_display(self):
-        return self.problem_instance.contest.controller \
-                .render_submission_date(self)
+        return self.problem_instance.controller.render_submission_date(self)
 
     def get_score_display(self):
         if self.score is None:
             return None
-        return self.problem_instance.contest.controller \
-                .render_submission_score(self)
+        return self.problem_instance.controller.render_submission_score(self)
 
     def __unicode__(self):
         return "Submission(%d, %s, %s, %s, %s, %s)" % (

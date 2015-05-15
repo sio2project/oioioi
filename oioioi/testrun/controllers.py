@@ -21,12 +21,12 @@ from oioioi.programs.models import CompilationReport
 from oioioi.base.utils.archive import Archive, ArchiveException
 
 class TestRunProblemControllerMixin(object):
-    def fill_evaluation_environ(self, environ, **kwargs):
+    def fill_evaluation_environ(self, environ, submission, **kwargs):
+        self.generate_base_environ(environ, submission, **kwargs)
         if environ['submission_kind'] != 'TESTRUN':
             return super(TestRunProblemControllerMixin, self) \
-                .fill_evaluation_environ(environ, **kwargs)
+                .fill_evaluation_environ(environ, submission, **kwargs)
 
-        self.generate_base_environ(environ, **kwargs)
         recipe_body = [
                 ('make_test',
                     'oioioi.testrun.handlers.make_test'),
@@ -70,9 +70,9 @@ class TestRunContestControllerMixin(object):
         return getattr(settings, 'TESTRUN_UNZIPPED_INPUT_LIMIT',
                        10 * 1024 * 1024)
 
-    def adjust_submission_form(self, request, form):
+    def adjust_submission_form(self, request, form, problem_instance):
         super(TestRunContestControllerMixin, self) \
-            .adjust_submission_form(request, form)
+            .adjust_submission_form(request, form, problem_instance)
 
         if form.kind != 'TESTRUN':
             return
@@ -129,7 +129,8 @@ class TestRunContestControllerMixin(object):
         form.fields['file'].help_text = _("Language is determined by the file"
                 " extension. The following are recognized: %s, but allowed"
                 " languages may vary. You can paste the code below instead of"
-                " choosing file.") % (', '.join(self.get_allowed_extensions()))
+                " choosing file.") % (', '.join(
+                    self.get_allowed_extensions(problem_instance)))
 
         if 'kind' in form.fields:
             form.fields['kind'].choices = [('TESTRUN', _("Test run")), ]
@@ -152,7 +153,7 @@ class TestRunContestControllerMixin(object):
         submission.input_file.save(input_file.name, input_file)
         if commit:
             submission.save()
-            self.judge(submission)
+            submission.problem_instance.controller.judge(submission)
         return submission
 
     def update_submission_score(self, submission):

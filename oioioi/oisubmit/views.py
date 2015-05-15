@@ -42,7 +42,7 @@ def oisubmit_view(request):
                 .count() + 1
 
             submissions_limit = \
-                request.contest.controller.get_submissions_limit(request, pi)
+                pi.controller.get_submissions_limit(request, pi)
 
             errors = []
 

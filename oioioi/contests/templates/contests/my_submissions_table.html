@@ -1,4 +1,17 @@
 {% load i18n %}
+<script>
+{% for record in submissions %}
+    $(document).ready(function() {
+        $("#report{{ record.submission.id }}").hide();
+        $("[id^=submission{{ record.submission.id }}]").click(function() {
+            {% url 'get_report_HTML' submission_id=record.submission.id as link %}
+            $("#report{{ record.submission.id }}div").load("{{ link }}");
+            $("#report{{ record.submission.id }}").toggle("slow");
+        });
+    });
+    {% endfor %}
+</script>
+
 <table class="{% block table-classes %}table auto-width dense space-columns submissions_list{% endblock %}">
     <thead>
         <tr>
@@ -18,19 +31,31 @@
     <tbody>
         {% for record in submissions %}
         {% url 'submission' contest_id=contest.id submission_id=record.submission.id as link %}
+        {% url 'submission_without_contest' submission_id=record.submission.id as no_contest_link %}
         <tr class="subm_kind_{{ record.submission.kind }}">
-            <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"></td>
-            <td><a href="{{ link }}">{{ record.submission.get_date_display }}</a></td>
+            <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"
+                    id="submission{{ record.submission.id }}_margin"></td>
+            <td><a href="{% if record.submission.problem_instance.contest %} {{ link }} {% else %} {{ no_contest_link }} {% endif %}">{{ record.submission.get_date_display }}</a></td>
             {% if not inside_problem_view %}
-            <td>{{ record.submission.problem_instance }}</td>
+            <td id="submission{{ record.submission.id }}_problem_instance">{{ record.submission.problem_instance }}</td>
             {% endif %}
-            <td>{{ record.submission.get_kind_display }}</td>
-            <td class="subm_status {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}">{% if record.can_see_status %}{{ record.submission.get_status_display }}{% endif %}</td>
+            <td id="submission{{ record.submission.id }}_kind">{{ record.submission.get_kind_display }}</td>
+            <td class="subm_status {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"
+                    id="submission{{ record.submission.id }}_status">
+                {% if record.can_see_status %}{{ record.submission.get_status_display }}{% endif %}
+            </td>
             {% if show_scores %}
-            <td>{% if record.can_see_score %}{{ record.submission.get_score_display|default_if_none:'' }}{% endif %}</td>
+            <td id="submission{{ record.submission.id }}_score">{% if record.can_see_score %}{{ record.submission.get_score_display|default_if_none:'' }}{% endif %}</td>
             {% endif %}
             {% block more-columns-after %}{% endblock %}
         </tr>
+        {% if record.can_see_comment %}
+        <tr id="report{{ record.submission.id }}" style=""><td colspan=6>
+            <div class="table-content" style="max-width: 940px" id="report{{ record.submission.id }}div">
+            <center>{% trans "No reports are available" %}</center>
+            </div>
+        </td></tr>
+        {% endif %}
         {% endfor %}
     </tbody>
 </table>

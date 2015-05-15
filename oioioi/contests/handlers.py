@@ -31,18 +31,18 @@ def wait_for_submission_in_db(env, **kwargs):
 
 @transaction.atomic
 def update_report_statuses(env, **kwargs):
-    contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
+    problem_instance = submission.problem_instance
     reports = SubmissionReport.objects.filter(submission=submission)
-    contest.controller.update_report_statuses(submission, reports)
+    problem_instance.controller.update_report_statuses(submission, reports)
     return env
 
 
 @transaction.atomic
 def update_submission_score(env, **kwargs):
-    contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
-    contest.controller.update_submission_score(submission)
+    problem_instance = submission.problem_instance
+    problem_instance.controller.update_submission_score(submission)
     return env
 
 
@@ -55,19 +55,30 @@ def update_user_results(env, **kwargs):
         problem_instance = \
                 ProblemInstance.objects.get(id=env['problem_instance_id'])
         round = problem_instance.round
-        assert round.id == env['round_id']
-        contest = round.contest
-        assert contest.id == env['contest_id']
+        contest = None
+        if round is not None:
+            assert round.id == env['round_id']
+            contest = round.contest
+            assert contest.id == env['contest_id']
+        else:
+            assert 'round_id' not in env
+            assert 'contest_id' not in env
 
-    contest.controller.update_user_results(user, problem_instance)
+    problem_instance.controller.update_user_results(user, problem_instance)
 
     return env
 
 
 @transaction.atomic
 def call_submission_judged(env, **kwargs):
-    contest = Contest.objects.get(id=env['contest_id'])
     submission = Submission.objects.get(id=env['submission_id'])
+    contest = submission.problem_instance.contest
+
+    if contest is None:
+        assert 'contest_id' not in env
+        return env
+
+    assert contest.id == env['contest_id']
     contest.controller.submission_judged(submission,
             rejudged=env['is_rejudge'])
     contest.controller.submission_unqueued(submission, env['job_id'])

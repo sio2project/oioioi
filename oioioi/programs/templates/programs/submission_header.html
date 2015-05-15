@@ -14,7 +14,11 @@
                 <ul class="dropdown-menu">
                     {% for value, description in submission.valid_kinds_for_submission %}
                         <li>
+                            {% if submission.submission.problem_instance.contest %}
                             <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=submission.submission.id kind=value %}">
+                            {% else %}
+                            <a href="#" data-post-url="{% url 'change_submission_kind_without_contest' submission_id=submission.submission.id kind=value %}">
+                            {% endif %}
                                 <i class="icon-tag"></i>
                                 <span class="toolbar-button-text">{{ description }}</span>
                             </a>
@@ -31,25 +35,40 @@
                     <span class="toolbar-button-text">{% trans "Rejudge" %}</span>
                     <span class="caret"></span>
                 </a>
-                <ul class="dropdown-menu">
-                    <li>
-                        <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}">
-                            <i class="icon-eye-open"></i>
-                            <span class="toolbar-button-text">{% trans "Normal rejudge" %}</span>
-                        </a>
-                    </li>
-                    {% for link, name in supported_extra_args.items %}
+                {% if submission.submission.problem_instance.contest %}
+                    <ul class="dropdown-menu">
                         <li>
-                            <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}">
-                                <i class="icon-eye-close"></i>
-                                <span class="toolbar-button-text">{{ name }}</span>
+                            <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}">
+                                <i class="icon-eye-open"></i>
+                                <span class="toolbar-button-text">{% trans "Normal rejudge" %}</span>
                             </a>
                         </li>
-                    {% endfor %}
-                </ul>
+                        {% for link, name in supported_extra_args.items %}
+                            <li>
+                                <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}">
+                                    <i class="icon-eye-close"></i>
+                                    <span class="toolbar-button-text">{{ name }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" data-post-url="{% url 'rejudge_submission_without_contest' submission_id=submission.submission.id %}">
+                                <i class="icon-eye-open"></i>
+                                <span class="toolbar-button-text">{% trans "Normal rejudge" %}</span>
+                            </a>
+                        </li>
+                    </ul>
+                {% endif %}
             </div>
             {% if saved_diff_id %}
+                {% if submission.submission.problem_instance.contest %}
                 <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' contest_id=contest.id submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
+                {% else %}
+                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff_without_contest' submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
+                {% endif %}
                     <i class="icon-resize-small"></i>
                     <span class="toolbar-button-text">{% trans "Diff with saved" %}</span>
                 </a>
@@ -60,11 +79,19 @@
                 </button>
             {% endif %}
         {% endif %}
+        {% if submission.submission.problem_instance.contest %}
         <a class="btn btn-small" href="{% url 'show_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
+        {% else %}
+        <a class="btn btn-small" href="{% url 'show_submission_source_without_contest' submission_id=submission.submission.id %}">
+        {% endif %}
             <i class="icon-eye-open"></i>
             <span class="toolbar-button-text">{% trans "Show code" %}</span>
         </a>
+        {% if submission.submission.problem_instance.contest %}
         <a class="btn btn-small" href="{% url 'download_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
+        {% else %}
+        <a class="btn btn-small" href="{% url 'download_submission_source_without_contest' submission_id=submission.submission.id %}">
+        {% endif %}
             <i class="icon-download-alt"></i>
             <span class="toolbar-button-text">{% trans "Download" %}</span>
         </a>
@@ -74,7 +101,11 @@
                     function() {
                         $('#diff-button-save').click(
                             function() {
+                            {% if submission.submission.problem_instance.contest %}
                                 $.get('{% url 'save_diff_id' contest_id=contest.id submission_id=submission.submission.id %}',
+                            {% else %}
+                                $.get('{% url 'save_diff_id_without_contest' submission_id=submission.submission.id %}',
+                            {% endif %}
                                     function(data) {
                                         $('#diff-button-save').addClass('disabled');
                                         $('#diff-button-save > span').text('{% trans "Saved for diffing" %}');

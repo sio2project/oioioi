@@ -25,6 +25,7 @@ from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
         is_contest_admin, is_contest_observer, last_break_between_rounds, \
         has_any_active_round
+from oioioi.problems.controllers import ProblemController
 from oioioi import evalmgr
 
 
@@ -40,7 +41,7 @@ def export_entries(registry, values):
 
 
 def submission_template_context(request, submission):
-    controller = submission.problem_instance.contest.controller
+    controller = submission.problem_instance.controller
     can_see_status = controller.can_see_submission_status(request, submission)
     can_see_score = controller.can_see_submission_score(request, submission)
     can_see_comment = controller.can_see_submission_comment(request,
@@ -408,7 +409,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         else:
             return True
 
-    def get_default_submission_kind(self, request):
+    def get_default_submission_kind(self, request, **kwargs):
         """Returns default kind of newly created submission by the current
            user.
 
@@ -424,16 +425,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return None
         return problem_instance.submissions_limit
 
-    def is_submissions_limit_exceeded(self, request, problem_instance, kind):
-        submissions_number = Submission.objects.filter(user=request.user,
-            problem_instance__id=problem_instance.id, kind=kind).count()
-        submissions_limit = self.get_submissions_limit(request,
-            problem_instance)
-        if submissions_limit and submissions_number >= submissions_limit:
-            return True
-        return False
-
-    def adjust_submission_form(self, request, form):
+    def adjust_submission_form(self, request, form, problem_instance):
         pass
 
     def validate_submission_form(self, request, problem_instance, form,
@@ -444,81 +436,19 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                           **kwargs):
         raise NotImplementedError
 
+    def judge(self, submission, extra_args=None, is_rejudge=False):
+        submission.problem_instance.problem.controller \
+            .judge(submission, extra_args, is_rejudge)
+
     def fill_evaluation_environ(self, environ, submission):
-        problem_instance = submission.problem_instance
-        problem = problem_instance.problem
-        round = problem_instance.round
-        assert round, \
-            "Someone tried to evaluate submission to dangling problem " \
-            "instance."
-        contest = round.contest
-
-        environ['submission_id'] = submission.id
-        environ['submission_kind'] = submission.kind
-        environ['problem_instance_id'] = problem_instance.id
-        environ['problem_id'] = problem.id
-        environ['problem_short_name'] = problem.short_name
-        environ['round_id'] = round.id
-        environ['contest_id'] = contest.id
-        environ['submission_owner'] = submission.user.username \
-                                      if submission.user else None
-
-        environ.setdefault('report_kinds', ['INITIAL', 'NORMAL'])
-        if 'hidden_judge' in environ['extra_args']:
-            environ['report_kinds'] = ['HIDDEN']
-
-        problem.controller.fill_evaluation_environ(environ)
+        pass
 
     def get_supported_extra_args(self, submission):
         """Returns dict of all values which can be provided in extra_args
            argument to the judge method.
         """
-        return {'hidden_judge': _("Visible only for admins")}
-
-    def judge(self, submission, extra_args=None, is_rejudge=False):
-        environ = {}
-        environ['extra_args'] = extra_args or {}
-        environ['is_rejudge'] = is_rejudge
-
-        self.fill_evaluation_environ(environ, submission)
-
-        extra_steps = [
-                ('update_report_statuses',
-                    'oioioi.contests.handlers.update_report_statuses'),
-                ('update_submission_score',
-                    'oioioi.contests.handlers.update_submission_score'),
-                ('update_user_results',
-                    'oioioi.contests.handlers.update_user_results'),
-                ('call_submission_judged',
-                    'oioioi.contests.handlers.call_submission_judged'),
-                ('dump_final_env',
-                    'oioioi.evalmgr.handlers.dump_env',
-                    dict(message='Finished evaluation')),
-            ]
-
-        environ.setdefault('error_handlers', [])
-        environ['error_handlers'].append(('create_error_report',
-                    'oioioi.contests.handlers.create_error_report'))
-
-        if settings.MAIL_ADMINS_ON_GRADING_ERROR:
-            environ['error_handlers'].append(('mail_admins_on_error',
-                        'oioioi.contests.handlers.mail_admins_on_error'))
-
-        environ['error_handlers'].extend(extra_steps)
-        environ['error_handlers'].append(('error_handled',
-                    'oioioi.evalmgr.handlers.error_handled'))
-
-        environ['recipe'].extend(extra_steps)
-
-        self.finalize_evaluation_environment(environ)
-
-        environ['recipe'].insert(0, ('wait_for_submission_in_db',
-                'oioioi.contests.handlers.wait_for_submission_in_db'))
-
-        logger.debug("Judging submission #%d with environ:\n %s",
-                submission.id, pprint.pformat(environ, indent=4))
-        async_result = evalmgr.evalmgr_job.delay(environ)
-        self.submission_queued(submission, async_result)
+        problem = submission.problem_instance.problem
+        return problem.controller.get_supported_extra_args(submission)
 
     def finalize_evaluation_environment(self, environ):
         """This method gets called right before the environ becomes scheduled
@@ -555,47 +485,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                                    'submission': submission})
 
     def _activate_newest_report(self, submission, queryset, kind=None):
-        """Activates the newest report.
-
-           Previously active reports are set to ``SUPERSEDED``. Reports which
-           are neither ``INACTIVE``, ``ACTIVE`` nor ``SUPERSEDED`` are not
-           changed.
-
-           :ptype kind: str, list, tuple or ``None``
-           :param kind: If specified, only reports of the given kind(s) will be
-                        considered.
-        """
-        try:
-            if kind is None:
-                pass
-            elif isinstance(kind, basestring):
-                queryset = queryset.filter(kind=kind)
-            elif isinstance(kind, (list, tuple)):
-                queryset = queryset.filter(kind__in=kind)
-            else:
-                raise TypeError("invalid type parameter kind in "
-                        "_activate_newest_report: %r", type(kind))
-            latest = queryset \
-                    .select_for_update() \
-                    .filter(status__in=('INACTIVE', 'ACTIVE', 'SUPERSEDED')) \
-                    .latest()
-            queryset.filter(status='ACTIVE').update(status='SUPERSEDED')
-            latest.status = 'ACTIVE'
-            latest.save()
-        except ObjectDoesNotExist:
-            pass
+        problem = submission.problem_instance.problem
+        problem.controller._activate_newest_report(submission, queryset, kind)
 
     def update_report_statuses(self, submission, queryset):
-        """Updates statuses of reports for the newly judged submission.
-
-           Usually this involves looking at reports and deciding which should
-           be ``ACTIVE`` and which should be ``SUPERSEDED``.
-
-           :param submission: an instance of
-                              :class:`oioioi.contests.models.Submission`
-           :param queryset: a queryset returning reports for the submission
-        """
-        self._activate_newest_report(submission, queryset)
+        problem = submission.problem_instance.problem
+        problem.controller.update_report_statuses(submission, queryset)
 
     def update_submission_score(self, submission):
         """Updates status, score and comment in a submission.
@@ -606,34 +501,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         raise NotImplementedError
 
     def update_user_result_for_problem(self, result):
-        """Updates a :class:`~oioioi.contests.models.UserResultForProblem`.
-
-           Usually this involves looking at submissions and aggregating scores
-           from them. Default implementation takes the latest submission which
-           has a score and copies it to the result.
-
-           Saving the ``result`` is a responsibility of the caller.
-        """
-        try:
-            latest_submission = Submission.objects \
-                .filter(problem_instance=result.problem_instance) \
-                .filter(user=result.user) \
-                .filter(score__isnull=False) \
-                .filter(kind='NORMAL') \
-                .latest()
-            try:
-                report = SubmissionReport.objects.get(
-                        submission=latest_submission, status='ACTIVE',
-                        kind='NORMAL')
-            except SubmissionReport.DoesNotExist:
-                report = None
-            result.score = latest_submission.score
-            result.status = latest_submission.status
-            result.submission_report = report
-        except Submission.DoesNotExist:
-            result.score = None
-            result.status = None
-            result.submission_report = None
+        problem = result.problem_instance.problem
+        problem.controller.update_user_result_for_problem(result)
 
     def _sum_scores(self, scores):
         scores = [s for s in scores if s is not None]
@@ -682,6 +551,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         round = problem_instance.round
         contest = round.contest
+        problem = problem_instance.problem
 
         # We do this in three separate transactions, because in some database
         # engines (namely MySQL in REPEATABLE READ transaction isolation level)
@@ -689,12 +559,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         # even in the same transaction.
 
         # First: UserResultForProblem
-        with transaction.atomic():
-            result, created = UserResultForProblem.objects \
-                .select_for_update() \
-                .get_or_create(user=user, problem_instance=problem_instance)
-            self.update_user_result_for_problem(result)
-            result.save()
+
+        problem.controller.update_user_results(user, problem_instance)
 
         # Second: UserResultForRound
         with transaction.atomic():
@@ -772,57 +638,24 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return queryset.none()
 
     def can_see_submission_status(self, request, submission):
-        """Determines whether a user can see one of his/her submissions'
-           status.
-
-           Default implementation delegates to :meth:
-           :meth:`~ContestController.results_visible`.
-
-           :rtype: bool
-           """
-        return self.results_visible(request, submission)
+        return submission.problem_instance.problem.controller \
+            .can_see_submission_status(request, submission)
 
     def can_see_submission_score(self, request, submission):
-        """Determines whether a user can see one of his/her submissions'
-           score.
-
-           Default implementation delegates to :meth:
-           :meth:`~ContestController.results_visible`.
-
-           :rtype: bool
-        """
-        return self.results_visible(request, submission)
+        return submission.problem_instance.problem.controller \
+            .can_see_submission_score(request, submission)
 
     def can_see_submission_comment(self, request, submission):
-        """Determines whether a user can see one of his/her submissions'
-           comment.
-
-           Default implementation delegates to :meth:
-           :meth:`~ContestController.results_visible`.
-
-           :rtype: bool
-        """
-        return self.results_visible(request, submission)
+        return submission.problem_instance.problem.controller \
+            .can_see_submission_comment(request, submission)
 
     def render_submission_date(self, submission):
-        """Returns a human-readable representation of the submission date.
-
-           In some contests it is more reasonable to show time elapsed since
-           the contest start, in others it's better to just show the wall
-           clock time.
-
-           The default implementation returns the wall clock time.
-        """
-        localtime = timezone.localtime(submission.date)
-        return localtime.strftime('%Y-%m-%d %H:%M:%S')
+        problem = submission.problem_instance.problem
+        return problem.controller.render_submission_date(submission)
 
     def render_submission_score(self, submission):
-        """Returns a human-readable representation of the submission score.
-
-           The default implementation returns the Unicode representation of
-           ``submission.score``.
-        """
-        return unicode(submission.score)
+        problem = submission.problem_instance.problem
+        return problem.controller.render_submission_score(submission)
 
     def render_submission(self, request, submission):
         """Renders the given submission to HTML.
@@ -834,38 +667,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         raise NotImplementedError
 
     def render_submission_footer(self, request, submission):
-        """Renders the given submission footer to HTML.
-
-           Footer is shown under the submission reports.
-           The default implementation returns an empty string.
-        """
-        return mark_safe("")
+        problem = submission.problem_instance.problem
+        return problem.controller.render_submission_footer(request, submission)
 
     def render_report(self, request, report):
-        """Renders the given report to HTML.
-
-           Default implementation supports only rendering reports of
-           kind ``FAILURE`` and raises :py:exc:`NotImplementedError`
-           otherwise.
-        """
-        if report.kind == 'FAILURE':
-            failure_report = \
-                    FailureReport.objects.get(submission_report=report)
-            message = failure_report.message
-            environ = json.loads(failure_report.json_environ)
-            if not environ.get('recipe'):
-                next_step = '(none)'
-            else:
-                next_step = repr(environ['recipe'][0])
-            del environ['recipe']
-            del environ['error_handlers']
-            environ = pprint.pformat(environ, indent=4)
-            return render_to_string('contests/failure_report.html',
-                    context_instance=RequestContext(request,
-                        {'message': message, 'next_step': next_step,
-                            'environ': environ}))
-        else:
-            raise NotImplementedError
+        problem = report.submission.problem_instance.problem
+        return ProblemController.render_report(problem.controller, request,
+                                               report)
 
     def render_my_submissions_header(self, request, submissions):
         """Renders header on "My submissions" view.
@@ -880,32 +688,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         pass
 
     def valid_kinds_for_submission(self, submission):
-        """Returns list of all valid kinds we can change to
-           for the given submission.
-
-           Default implementation supports only kinds
-           ``NORMAL``, ``IGNORED``, ``SUSPECTED``, 'IGNORED_HIDDEN'.
-        """
-        valid = ['NORMAL', 'IGNORED', 'SUSPECTED', 'IGNORED_HIDDEN']
-        if submission.kind != 'SUSPECTED':
-            return [v for v in valid if v != 'SUSPECTED']
-        if submission.kind in valid:
-            return valid
-        return []
+        return submission.problem_instance.problem.controller \
+                .valid_kinds_for_submission(submission)
 
     def change_submission_kind(self, submission, kind):
-        """Changes kind of the submission. Also updates user reports for
-           problem, round and contest which may contain given submission.
-        """
-        assert kind in self.valid_kinds_for_submission(submission)
-        old_kind = submission.kind
-        submission.kind = kind
-        submission.save()
-        if old_kind == 'SUSPECTED' and kind != 'SUSPECTED':
-            self.judge(submission, is_rejudge=True)
-        if submission.user:
-            self.update_user_results(submission.user,
-                    submission.problem_instance)
+        return submission.problem_instance.problem.controller \
+            .change_submission_kind(submission, kind)
 
     def mixins_for_admin(self):
         """Returns an iterable of mixins to add to the default
@@ -1009,3 +797,23 @@ class NotificationsMixinForContestController(object):
         return ugettext_noop("Your submission was judged.")
 
 ContestController.mix_in(NotificationsMixinForContestController)
+
+
+class ProblemUploadingContestControllerMixin(object):
+    def adjust_upload_form(self, request, existing_problem, form):
+        """Adjusts the problem upload form created by some sublcass of
+           :class:`~oioioi.problems.problem_sources.PackageSource`.
+
+           Called from
+           :meth:`~oioioi.problems.problem_sources.PackageSource.view`.
+        """
+        pass
+
+    def fill_upload_environ(self, request, form, env):
+        """Extends the `env` dictionary used during problem uploading.
+
+           Called from
+           :meth:`~oioioi.problems.problem_sources.PackageSource.view`.
+        """
+        pass
+ContestController.mix_in(ProblemUploadingContestControllerMixin)

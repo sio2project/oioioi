@@ -7,18 +7,19 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.controllers import submission_template_context
 from oioioi.evalmgr import recipe_placeholder
-from oioioi.problems.controllers import ProblemController
-from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.programs.controllers import ProgrammingProblemController, \
+        ProgrammingContestController
 from oioioi.zeus.admin import ZeusProblemAdminMixin
 from oioioi.zeus.models import ZeusProblemData, ZeusTestRunProgramSubmission, \
         ZeusTestRunReport
 from oioioi.zeus.utils import has_any_zeus_testrun_problem, is_zeus_problem
 
 
-class ZeusProblemController(ProblemController):
+class ZeusProblemController(ProgrammingProblemController):
     description = _("Zeus programming problem")
 
-    def generate_base_environ(self, environ, **kwargs):
+    def generate_base_environ(self, environ, submission, **kwargs):
+        self.generate_initial_evaluation_environ(environ, submission)
         zeus_problem = ZeusProblemData.objects.get(problem=self.problem)
         environ['recipe'] = []
         environ['zeus_id'] = zeus_problem.zeus_id
@@ -163,8 +164,8 @@ class ZeusProblemController(ProblemController):
 
         return recipe_body
 
-    def fill_evaluation_environ(self, environ, **kwargs):
-        self.generate_base_environ(environ, **kwargs)
+    def fill_evaluation_environ(self, environ, submission, **kwargs):
+        self.generate_base_environ(environ, submission, **kwargs)
 
         environ['recipe'].extend(self.generate_recipe(environ['report_kinds']))
 
@@ -184,12 +185,12 @@ class ZeusProblemController(ProblemController):
 
 
 class ZeusTestRunProblemControllerMixin(object):
-    def fill_evaluation_environ(self, environ, **kwargs):
+    def fill_evaluation_environ(self, environ, submission, **kwargs):
+        self.generate_base_environ(environ, submission, **kwargs)
         if environ['submission_kind'] != 'TESTRUN':
             return super(ZeusTestRunProblemControllerMixin, self) \
-                .fill_evaluation_environ(environ, **kwargs)
+                .fill_evaluation_environ(environ, submission, **kwargs)
 
-        self.generate_base_environ(environ, **kwargs)
         recipe_body = [
             ('submit_testrun_job',
                 'oioioi.zeus.handlers.submit_testrun_job'),
@@ -229,9 +230,9 @@ class ZeusContestControllerMixin(object):
     def get_testrun_library_limit(self):
         return 100 * 1000  # in bytes
 
-    def adjust_submission_form(self, request, form):
+    def adjust_submission_form(self, request, form, problem_instance):
         super(ZeusContestControllerMixin, self) \
-                .adjust_submission_form(request, form)
+                .adjust_submission_form(request, form, problem_instance)
 
         if form.kind != 'TESTRUN' or not has_any_zeus_testrun_problem(request):
             return
@@ -263,7 +264,7 @@ class ZeusContestControllerMixin(object):
 
         if commit:
             submission.save()
-            self.judge(submission)
+            submission.problem_instance.controller.judge(submission)
         return submission
 
     def render_submission(self, request, submission):

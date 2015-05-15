@@ -424,7 +424,6 @@ class SubmissionAdmin(admin.ModelAdmin):
         tests = request.POST.getlist('tests', [])
         subs_ids = [int(x) for x in request.POST.getlist('submissions', [])]
         rejudge_type = request.POST['rejudge_type']
-        controller = request.contest.controller
         submissions = Submission.objects.in_bulk(subs_ids)
         all_reports_exist = True
         for sub in submissions.values():
@@ -436,7 +435,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
         if all_reports_exist or rejudge_type == 'FULL':
             for sub in submissions.values():
-                controller.judge(sub,
+                sub.problem_instance.controller.judge(sub,
                                  is_rejudge=True,
                                  extra_args={'tests_to_judge': tests,
                                              'rejudge_type': rejudge_type})

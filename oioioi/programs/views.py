@@ -22,14 +22,15 @@ from pygments.formatters import HtmlFormatter
 from pygments.util import ClassNotFound
 
 from oioioi.programs.models import ProgramSubmission, TestReport, Test, \
-    OutputChecker, SubmissionReport, UserOutGenStatus
+        OutputChecker, SubmissionReport, UserOutGenStatus
 from oioioi.programs.utils import decode_str, \
-    get_submission_source_file_or_error
+        get_submission_source_file_or_error
 from oioioi.contests.utils import contest_exists, can_enter_contest, \
-    get_submission_or_error, is_contest_admin
+        get_submission_or_error, is_contest_admin
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.utils import can_admin_problem
+from oioioi.problems.utils import can_admin_problem, \
+        get_submission_without_contest
 
 # Workaround for race condition in fnmatchcase which is used by pygments
 import fnmatch
@@ -38,10 +39,9 @@ fnmatch._MAXCACHE = sys.maxint
 
 logger = logging.getLogger(__name__)
 
-@enforce_condition(contest_exists & can_enter_contest)
-def show_submission_source_view(request, submission_id):
-    source_file = get_submission_source_file_or_error(request,
-            submission_id)
+
+def show_submission_source_view_unsafe(request, submission_id, source_file,
+                                       download_url):
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
     is_source_safe = False
@@ -59,9 +59,7 @@ def show_submission_source_view(request, submission_id):
     except ClassNotFound:
         formatted_source = raw_source
         formatted_source_css = ''
-    download_url = reverse('download_submission_source',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission_id})
+
     return TemplateResponse(request, 'programs/source.html', {
         'source': formatted_source,
         'css': formatted_source_css,
@@ -73,6 +71,25 @@ def show_submission_source_view(request, submission_id):
 
 
 @enforce_condition(contest_exists & can_enter_contest)
+def show_submission_source_view(request, submission_id):
+    source_file = get_submission_source_file_or_error(request,
+            submission_id)
+    download_url = reverse('download_submission_source',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission_id})
+    return show_submission_source_view_unsafe(request, submission_id,
+                                              source_file, download_url)
+
+
+def show_submission_source_without_contest_view(request, submission_id):
+    submission = get_submission_without_contest(request, submission_id)
+    download_url = reverse('download_submission_source',
+            kwargs={'submission_id': submission_id})
+    return show_submission_source_view_unsafe(request, submission_id,
+                                      submission.source_file, download_url)
+
+
+@enforce_condition(contest_exists & can_enter_contest)
 def save_diff_id_view(request, submission_id):
     # Verify user's access to the submission
     get_submission_source_file_or_error(request, submission_id)
@@ -80,15 +97,16 @@ def save_diff_id_view(request, submission_id):
     return HttpResponse()
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def source_diff_view(request, submission1_id, submission2_id):
-    if request.session.get('saved_diff_id'):
-        request.session.pop('saved_diff_id')
-    source1 = get_submission_source_file_or_error(request,
-        submission1_id).read()
-    source2 = get_submission_source_file_or_error(request,
-        submission2_id).read()
+def save_diff_id_without_contest_view(request, submission_id):
+    # Verify user's access to the submission
+    get_submission_without_contest(request, submission_id)
+    request.session['saved_diff_id'] = submission_id
+    return HttpResponse()
 
+
+def source_diff_view_unsafe(request, submission1_id, submission2_id, source1,
+                            source2, download_url1, download_url2,
+                            reverse_diff_url):
     source1, decode_error1 = decode_str(source1)
     source2, decode_error2 = decode_str(source2)
     source1 = source1.splitlines()
@@ -135,13 +153,6 @@ def source_diff_view(request, submission1_id, submission2_id):
         if diffline.startswith('+ ') or diffline.startswith('  '):
             count2 += 1
 
-    download_url1 = reverse('download_submission_source',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission1_id})
-    download_url2 = reverse('download_submission_source',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission2_id})
-
     return TemplateResponse(request, 'programs/source_diff.html',
             {'source1': diff1, 'decode_error1': decode_error1,
              'download_url1': download_url1,
@@ -149,10 +160,62 @@ def source_diff_view(request, submission1_id, submission2_id):
              'download_url2': download_url2,
              'submission1_id': submission1_id,
              'submission2_id': submission2_id,
-             'reverse_diff_url': reverse('source_diff', kwargs={
+             'reverse_diff_url': reverse_diff_url})
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def source_diff_view(request, submission1_id, submission2_id):
+    if request.session.get('saved_diff_id'):
+        request.session.pop('saved_diff_id')
+    source1 = get_submission_source_file_or_error(request,
+        submission1_id).read()
+    source2 = get_submission_source_file_or_error(request,
+        submission2_id).read()
+
+    download_url1 = reverse('download_submission_source',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission1_id})
+    download_url2 = reverse('download_submission_source',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission2_id})
+
+    reverse_diff_url = reverse('source_diff', kwargs={
                  'contest_id': request.contest.id,
                  'submission1_id': submission2_id,
-                 'submission2_id': submission1_id})})
+                 'submission2_id': submission1_id})
+
+    return source_diff_view_unsafe(request, submission1_id, submission2_id,
+                                   source1, source2, download_url1,
+                                   download_url2, reverse_diff_url)
+
+
+def source_diff_without_contest_view(request, submission1_id, submission2_id):
+    if request.session.get('saved_diff_id'):
+        request.session.pop('saved_diff_id')
+    submission1 = get_submission_without_contest(request, submission1_id)
+    submission2 = get_submission_without_contest(request, submission2_id)
+    source1 = submission1.programsubmission.source_file.read()
+    source2 = submission2.programsubmission.source_file.read()
+
+    download_url1 = reverse('download_submission_source_without_contest',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission1_id})
+    download_url2 = reverse('download_submission_source_without_contest',
+            kwargs={'contest_id': request.contest.id,
+                    'submission_id': submission2_id})
+
+    reverse_diff_url = reverse('source_diff_without_contest', kwargs={
+                 'submission1_id': submission2_id,
+                 'submission2_id': submission1_id})
+
+    return source_diff_view_unsafe(request, submission1_id, submission2_id,
+                                   source1, source2, download_url1,
+                                   download_url2, reverse_diff_url)
+
+
+def download_submission_source_without_contest_view(request, submission_id):
+    submission = get_submission_without_contest(request, submission_id)
+    return stream_file(submission.source_file)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -359,7 +422,7 @@ def generate_user_output_view(request, testreport_id=None,
                                          kind='USER_OUTS',
                                          source_file=submission.source_file)
         resubmission.save()
-        request.contest.controller.judge(resubmission,
+        resubmission.problem_instance.controller.judge(resubmission,
                 extra_args={'tests_subset': test_ids,
                             'submission_report_id': submission_report.id})
 

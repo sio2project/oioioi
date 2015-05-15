@@ -1,11 +1,13 @@
+# coding: utf8
 import urllib
 
 from django.db import transaction
-from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+from django.views.decorators.http import require_POST
 from django.template.response import TemplateResponse
 
 from oioioi.base.utils import tabbed_view
@@ -13,13 +15,15 @@ from oioioi.problems.models import ProblemStatement, ProblemAttachment, \
         Problem, ProblemPackage
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem, \
-        query_statement
+        query_statement, is_problem_author, get_submission_without_contest, \
+        can_see_submission_without_contest
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.problem_site import problem_site_tab_registry
-from oioioi.contests.models import ProblemInstance
+from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.middleware import activate_contest
-
+from oioioi.contests.views import submission_view_unsafe, \
+        rejudge_submission_view_unsafe, change_submission_kind_view_unsafe
 # problem_site_statement_zip_view is used in one of the tabs
 # in problem_site.py. We placed the view in problem_site.py
 # instead of views.py to avoid circular imports. We still import
@@ -111,7 +115,7 @@ def problemset_main_view(request):
        'problems/problemset/problem_list.html',
       {'problems': problems,
        'page_title':
-          _("Welcome to problemset, the place, where all the problems are."),
+          _("Welcome to problemset, the place where all the problems are."),
        'select_problem_src': request.GET.get('select_problem_src')})
 
 
@@ -128,14 +132,6 @@ def problemset_my_problems_view(request):
 
 def problem_site_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
-
-    # Currently each problem has exactly one problem instance
-    # which belongs to a contest. When visiting a problem site,
-    # we activate its contest to avoid subtle bugs. To be removed
-    # after non-contest problem instances are implemented.
-    pi = ProblemInstance.objects.get(problem=problem.id)
-    activate_contest(request, pi.contest)
-
     context = {'problem': problem,
                'select_problem_src': request.GET.get('select_problem_src')}
     tab_kwargs = {'problem': problem}
@@ -167,3 +163,38 @@ def problem_site_external_attachment_view(request, site_key, attachment_id):
     if attachment.problem.id != problem.id:
         raise PermissionDenied
     return stream_file(attachment.content)
+
+
+def get_report_HTML_view(request, submission_id):
+    submission = get_object_or_404(Submission, id=submission_id)
+    if not can_see_submission_without_contest(request, submission):
+        return HttpResponseForbidden()
+    controller = submission.problem_instance.controller
+    reports = ''
+    queryset = SubmissionReport.objects.filter(submission=submission). \
+        prefetch_related('scorereport_set')
+    for report in controller.filter_visible_reports(request, submission,
+            queryset.filter(status='ACTIVE')):
+        reports += controller.render_report(request, report)
+
+    if reports:
+        reports = _(u"<center>Reports are not available now (ಥ ﹏ ಥ)</center>")
+    return HttpResponse(reports)
+
+
+def submission_without_contest_view(request, submission_id):
+    submission = get_submission_without_contest(request, submission_id)
+    return submission_view_unsafe(request, submission)
+
+
+@require_POST
+def rejudge_submission_without_contest_view(request, submission_id):
+    submission = get_submission_without_contest(request, submission_id)
+    rejudge_submission_view_unsafe(request, submission)
+    return redirect('submission_without_contest', submission_id=submission_id)
+
+
+def change_submission_kind_without_contest_view(request, submission_id, kind):
+    submission = get_submission_without_contest(request, submission_id)
+    change_submission_kind_view_unsafe(request, submission, kind)
+    return redirect('submission_without_contest', submission_id=submission_id)

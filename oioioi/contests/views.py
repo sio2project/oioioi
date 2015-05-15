@@ -163,10 +163,8 @@ def my_submissions_view(request):
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def submission_view(request, submission_id):
-    submission = get_submission_or_error(request, submission_id)
-    controller = request.contest.controller
+def submission_view_unsafe(request, submission):
+    controller = submission.problem_instance.controller
     header = controller.render_submission(request, submission)
     footer = controller.render_submission_footer(request, submission)
     reports = []
@@ -185,6 +183,12 @@ def submission_view(request, submission_id):
                     'reports': reports, 'all_reports': all_reports})
 
 
+@enforce_condition(contest_exists & can_enter_contest)
+def submission_view(request, submission_id):
+    return submission_view_unsafe(request,
+                get_submission_or_error(request, submission_id))
+
+
 @enforce_condition(contest_exists & is_contest_admin)
 def report_view(request, submission_id, report_id):
     submission = get_submission_or_error(request, submission_id)
@@ -194,22 +198,25 @@ def report_view(request, submission_id, report_id):
     return HttpResponse(controller.render_report(request, report))
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@require_POST
+def rejudge_submission_view_unsafe(request, submission):
+    submission.problem_instance.controller \
+        .judge(submission, request.GET.dict(), is_rejudge=True)
+    messages.info(request, _("Rejudge request received."))
+
+
+@enforce_condition((contest_exists & is_contest_admin))
 @require_POST
 def rejudge_submission_view(request, submission_id):
     submission = get_submission_or_error(request, submission_id)
-    controller = request.contest.controller
-    controller.judge(submission, request.GET.dict(), is_rejudge=True)
-    messages.info(request, _("Rejudge request received."))
+    rejudge_submission_view_unsafe(request, submission)
     return redirect('submission', contest_id=request.contest.id,
             submission_id=submission_id)
 
 
-@enforce_condition(contest_exists & is_contest_admin)
 @require_POST
-def change_submission_kind_view(request, submission_id, kind):
-    submission = get_submission_or_error(request, submission_id)
-    controller = request.contest.controller
+def change_submission_kind_view_unsafe(request, submission, kind):
+    controller = submission.problem_instance.controller
     if kind in controller.valid_kinds_for_submission(submission):
         controller.change_submission_kind(submission, kind)
         messages.success(request, _("Submission kind has been changed."))
@@ -217,6 +224,13 @@ def change_submission_kind_view(request, submission_id, kind):
         messages.error(request,
             _("%(kind)s is not valid kind for submission %(submission_id)d.")
             % {'kind': kind, 'submission_id': submission.id})
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+@require_POST
+def change_submission_kind_view(request, submission_id, kind):
+    submission = get_submission_or_error(request, submission_id)
+    change_submission_kind_view_unsafe(request, submission, kind)
     return redirect('submission', contest_id=request.contest.id,
                     submission_id=submission_id)
 

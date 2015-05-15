@@ -7,9 +7,9 @@ from oioioi.sinolpack.utils import add_extra_files
 class SinolProblemController(ProgrammingProblemController):
     description = _("Sinol package problem")
 
-    def fill_evaluation_environ(self, environ, **kwargs):
+    def fill_evaluation_environ(self, environ, submission, **kwargs):
         super(SinolProblemController, self).fill_evaluation_environ(
-                environ, **kwargs)
+                environ, submission, **kwargs)
         add_extra_files(environ, self.problem)
 
     def mixins_for_admin(self):

@@ -6,9 +6,9 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class SubmitServiceMixinForProgrammingContestController(object):
-    def adjust_submission_form(self, request, form):
+    def adjust_submission_form(self, request, form, problem_instance):
         super(SubmitServiceMixinForProgrammingContestController, self) \
-            .adjust_submission_form(request, form)
+            .adjust_submission_form(request, form, problem_instance)
         form.fields['file'].help_text = \
             mark_safe(form.fields['file'].help_text + _(
                 " Alternatively, you can "

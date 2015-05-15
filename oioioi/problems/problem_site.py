@@ -13,7 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from oioioi.base.menu import OrderedRegistry
 from oioioi.problems.utils import query_statement, query_zip
 from oioioi.problems.models import ProblemAttachment, Problem
-from oioioi.contests.models import Submission, ProblemInstance
+from oioioi.contests.models import Submission
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 
 
@@ -88,12 +88,11 @@ def problem_site_files(request, problem):
 
 @problem_site_tab(_("Submissions"), key='submissions', order=300)
 def problem_site_submissions(request, problem):
-    # To be changed to Main Problem Instance.
-    pi = ProblemInstance.objects.get(problem=problem.id)
     if request.user.is_authenticated():
-        submissions_qs = Submission.objects.filter(problem_instance=pi) \
-                                           .filter(user=request.user) \
-                                           .order_by('-date')
+        submissions_qs = Submission.objects \
+                        .filter(problem_instance__problem=problem) \
+                        .filter(user=request.user) \
+                        .order_by('-date')
     else:
         submissions_qs = []
 
@@ -116,6 +115,8 @@ def problem_site_submit(request, problem):
         form = SubmissionFormForProblemInstance(request,
                 problem.main_problem_instance, request.POST, request.FILES)
         if form.is_valid():
+            problem.main_problem_instance.controller.create_submission(request,
+                       problem.main_problem_instance, form.cleaned_data)
             url = reverse('problem_site',
                     kwargs={'site_key': problem.problemsite.url_key})
             return redirect(url + '?key=submissions')

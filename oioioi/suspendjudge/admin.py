@@ -25,12 +25,12 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
         get_object_or_404(SuspendedProblem, problem_instance=instance_id) \
             .delete()
 
-    def _rejudge(self, controller, instance_id):
+    def _rejudge(self, instance_id):
         suspended = Submission.objects.filter(queuedsubmit__state="SUSPENDED",
                                               problem_instance=instance_id)
         for submission in suspended:
             QueuedSubmit.objects.filter(submission=submission).delete()
-            controller.judge(submission)
+            submission.problem_instance.controller.judge(submission)
 
     def _clear_queue(self, instance_id):
         QueuedSubmit.objects.filter(submission__problem_instance=instance_id,
@@ -47,7 +47,7 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
     @method_decorator(require_POST)
     def resume_and_rejudge_view(self, request, problem_instance_id):
         self._resume(problem_instance_id)
-        self._rejudge(request.contest.controller, problem_instance_id)
+        self._rejudge(problem_instance_id)
         return redirect('oioioiadmin:contests_probleminstance_changelist')
 
     @method_decorator(enforce_condition(contest_exists & is_contest_admin))

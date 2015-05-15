@@ -96,7 +96,6 @@ class ModelSolutionsManager(models.Manager):
                 model_submission.delete()
         if not problem_instance.round:
             return
-        controller = problem_instance.contest.controller
         for model_solution in self.filter(problem=problem_instance.problem):
             with transaction.atomic():
                 submission = ModelProgramSubmission(
@@ -105,7 +104,7 @@ class ModelSolutionsManager(models.Manager):
                         source_file=model_solution.source_file,
                         kind='IGNORED')
                 submission.save()
-            controller.judge(submission, is_rejudge=True)
+            problem_instance.controller.judge(submission, is_rejudge=True)
 
 
 class ModelSolution(models.Model):
@@ -156,7 +155,11 @@ def _autocreate_model_submissions_for_model_solutions(sender, instance,
 def make_submission_filename(instance, filename):
     if not instance.id:
         instance.save()
-    return 'submissions/%s/%d%s' % (instance.problem_instance.contest.id,
+    if instance.problem_instance.contest is not None:
+        folder = instance.problem_instance.contest.id
+    else:
+        folder = "main_problem_instance"
+    return 'submissions/%s/%d%s' % (folder,
             instance.id, os.path.splitext(filename)[1])
 
 

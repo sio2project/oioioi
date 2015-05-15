@@ -792,7 +792,7 @@ class TestRejudge(TestCase, SubmitFileMixin):
         self._set_active_tests(rejudge_active_tests, all_tests)
 
         ContestWithJudgeInfoController.judged = False
-        contest.controller.judge(submission,
+        submission.problem_instance.controller.judge(submission,
                                  is_rejudge=True,
                                  extra_args={'tests_to_judge': tests_subset,
                                              'rejudge_type': rejudge_type})

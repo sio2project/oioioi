@@ -35,7 +35,8 @@ class TestTestrunViews(TestCase):
             self.assertContains(submission_view, 'OK')
             submission_view = self.client.get(reverse('my_submissions',
                 kwargs={'contest_id': submission.problem_instance.contest.id}))
-            self.assertContains(submission_view, 'subm_OK">OK</td>')
+            self.assertContains(submission_view, 'subm_OK"')
+            self.assertContains(submission_view, 'OK\n            </td>')
 
     def test_input_views(self):
         self.client.login(username='test_user')

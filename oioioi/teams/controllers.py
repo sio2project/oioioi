@@ -60,9 +60,9 @@ class TeamsMixinForContestController(object):
         else:
             return qs.filter(date__lte=request.timestamp)
 
-    def adjust_submission_form(self, request, form):
+    def adjust_submission_form(self, request, form, problem_instance):
         super(TeamsMixinForContestController, self) \
-                  .adjust_submission_form(request, form)
+                  .adjust_submission_form(request, form, problem_instance)
         try:
             tm = TeamMembership.objects.get(user=request.user,
                                             team__contest=request.contest)

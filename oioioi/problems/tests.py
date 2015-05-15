@@ -23,7 +23,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class TestProblemController(ProblemController):
-    def fill_evaluation_environ(self, environ, **kwargs):
+    def fill_evaluation_environ(self, environ, submission, **kwargs):
         raise NotImplementedError
 
 
@@ -465,7 +465,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.client.login(username='test_user')
         self.assertEqual(response.status_code, 200)
         response = self.client.get(url)
-        self.assertEqual(response.content.count('<tr'), 2)
+        self.assertEqual(response.content.count('<tr'), 3)
 
     def test_add_new_tab(self):
         tab_title = 'Test tab'

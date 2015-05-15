@@ -5,10 +5,12 @@ import zipfile
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils import translation
 
 from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.models import Submission
 from oioioi.problems.models import ProblemStatement
 
 
@@ -30,6 +32,11 @@ def can_admin_problem(request, problem):
             if request.user.has_perm('contests.contest_admin', i.contest):
                 return True
     return False
+
+
+def is_problem_author(request, problem):
+    """Checks if the current user is author of the problem"""
+    return request.user == problem.author
 
 
 def query_statement(problem_id):
@@ -70,3 +77,17 @@ def query_zip(statement, path):
     response = HttpResponse(zip.read(path), content_type=content_type)
     response['Content-Length'] = info.file_size
     return response
+
+
+def can_see_submission_without_contest(request, submission):
+    return submission.user == request.user or \
+            is_problem_author(request, submission.problem_instance.problem)
+
+
+def get_submission_without_contest(request, submission_id):
+    submission = get_object_or_404(Submission, id=submission_id) \
+            .programsubmission
+    assert submission.problem_instance.contest is None
+    if not can_see_submission_without_contest(request, submission):
+        raise Http404
+    return submission

@@ -95,11 +95,26 @@ class SubmissionForm(forms.Form):
        Recognized optional ``**kwargs`` fields:
          * ``problem_filter`` Function filtering submittable tasks.
          * ``kind`` Kind of submission accessible with ``kind`` property.
+         * ``problem_instance`` - when SubmissionForm is used only for one
+             problem_instance. Otherwise ``problem_instance`` is None.
     """
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
     def __init__(self, request, *args, **kwargs):
-        self.kind = kwargs.pop('kind', self.get_default_kind(request))
+        problem_instance = kwargs.pop('problem_instance', None)
+        if problem_instance is None:
+            # if problem_instance does not exist any from the current
+            # contest is chosen. To change in future.
+            # ALSO in mailsubmit.forms
+            contest = request.contest
+            assert contest is not None
+            problem_instance = ProblemInstance.objects \
+                    .filter(contest=contest)[0]
+
+        controller = problem_instance.controller
+        self.kind = kwargs.pop('kind',
+                controller.get_default_submission_kind(request,
+                                       problem_instance=problem_instance))
         problem_filter = kwargs.pop('problem_filter', None)
         self.request = request
 
@@ -123,18 +138,13 @@ class SubmissionForm(forms.Form):
             pi_field.choices = pi_choices
 
         # adding additional fields, etc
-        request.contest.controller.adjust_submission_form(request, self)
+        controller.adjust_submission_form(request, self, problem_instance)
 
     def is_valid(self):
         return forms.Form.is_valid(self)
 
-    def get_default_kind(self, request):
-        # It's here to allow subforms alter this on their own.
-        return request.contest.controller.get_default_submission_kind(request)
-
     def clean(self, check_submission_limit=True, check_round_times=True):
         cleaned_data = forms.Form.clean(self)
-        ccontroller = self.request.contest.controller
 
         if 'kind' not in cleaned_data:
             cleaned_data['kind'] = self.kind
@@ -143,7 +153,7 @@ class SubmissionForm(forms.Form):
             return cleaned_data
 
         try:
-            pi = ProblemInstance.objects.filter(contest=self.request.contest) \
+            pi = ProblemInstance.objects \
                     .get(id=cleaned_data['problem_instance_id'])
             cleaned_data['problem_instance'] = pi
         except ProblemInstance.DoesNotExist:
@@ -152,18 +162,20 @@ class SubmissionForm(forms.Form):
             del cleaned_data['problem_instance_id']
             return cleaned_data
 
+        pcontroller = pi.problem.controller
         kind = cleaned_data['kind']
-        if check_submission_limit and ccontroller \
+        if check_submission_limit and pcontroller \
                 .is_submissions_limit_exceeded(self.request, pi, kind):
             raise ValidationError(_("Submission limit for the problem '%s' "
                                     "exceeded.") % pi.problem.name)
 
-        decision = ccontroller.can_submit(self.request, pi, check_round_times)
+        decision = pi.controller.can_submit(self.request, pi,
+                                            check_round_times)
         if not decision:
             raise ValidationError(str(getattr(decision, 'exc',
                                               _("Permission denied"))))
 
-        return ccontroller.validate_submission_form(self.request, pi, self,
+        return pi.controller.validate_submission_form(self.request, pi, self,
                                                     cleaned_data)
 
 
@@ -172,10 +184,10 @@ class SubmissionFormForProblemInstance(SubmissionForm):
         def pi_filter(pi_list):
             return (problem_instance,)
         kwargs['problem_filter'] = pi_filter
+        kwargs['problem_instance'] = problem_instance
         super(SubmissionFormForProblemInstance, self).__init__(request, *args,
                 **kwargs)
         self.fields['problem_instance_id'].widget.attrs['readonly'] = 'True'
-
 
 class GetUserInfoForm(forms.Form):
     user = UserSelectionField(label=_("Username"))

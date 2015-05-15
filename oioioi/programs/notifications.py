@@ -18,7 +18,7 @@ def notification_function_initial_results(arguments):
     request.timestamp = datetime.now().replace(tzinfo=utc)
 
     # Check if any initial result is visible for user
-    if not pi.contest.controller \
+    if not pi.controller \
             .can_see_submission_status(request, arguments.submission):
         return
 

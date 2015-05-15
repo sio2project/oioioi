@@ -117,8 +117,8 @@ class TestViews(TestCase):
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
             self.assertNotContains(response, "Score")
-            self.assertNotContains(response, '<td>34')
-            self.assertNotContains(response, '<td>42')
+            self.assertNotContains(response, '>34</td>')
+            self.assertNotContains(response, '>42</td>')
 
         _disqualify_contestwide()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -127,8 +127,8 @@ class TestViews(TestCase):
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
-            self.assertNotContains(response, '<td>34')
-            self.assertNotContains(response, '<td>42')
+            self.assertNotContains(response, '>34</td>')
+            self.assertNotContains(response, '>42</td>')
 
         Disqualification.objects.filter(submission__isnull=False).delete()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -138,7 +138,7 @@ class TestViews(TestCase):
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
             # Even disqualified users can see their score
-            self.assertContains(response, '<td>34')
+            self.assertContains(response, '>34</td>')
 
     def test_dashboard(self):
         self.client.login(username='test_user')
@@ -165,7 +165,7 @@ class TestViews(TestCase):
             self.assertContains(response, "Disqualification")
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
-            self.assertNotContains(response, '<td>34')
+            self.assertNotContains(response, '>34</td>')
 
         # Not disqualified submission
         submission = Submission.objects.get(id=2)
@@ -176,7 +176,7 @@ class TestViews(TestCase):
             self.assertNotContains(response, "Disqualification")
             self.assertNotContains(response, "Ni in code")
             self.assertNotContains(response, "ninininini")
-            self.assertNotContains(response, '<td>42')
+            self.assertNotContains(response, '>42</td>')
             self.assertContains(response, 'Submission 2')
 
     def test_ranking(self):
