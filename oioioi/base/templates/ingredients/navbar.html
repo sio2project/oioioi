@@ -38,6 +38,10 @@
                     </li>
                     {% endif %}
                 </ul>
+            {% elif navbar_location %}
+                <ul class="nav">
+                    <li><a href="#">{{ navbar_location }}</a></li>
+                </ul>
             {% endif %}
 
             <ul class="nav pull-left">

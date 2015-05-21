@@ -32,16 +32,6 @@ class ForcedError(StandardError):
     pass
 
 
-def index_view(request):
-    try:
-        return render_to_response("index.html",
-                context_instance=RequestContext(request))
-    except TemplateDoesNotExist:
-        if not Contest.objects.exists():
-            return TemplateResponse(request, "index-no-contests.html")
-        return redirect('select_contest')
-
-
 def force_error_view(request):
     raise ForcedError("Visited /force_error")
 
@@ -100,7 +90,7 @@ def edit_profile_view(request):
         )
         if form.is_valid():
             form.save()
-            return redirect(index_view)
+            return redirect('index')
     else:
         form = PreferencesFactory().create_form(
             request.user,

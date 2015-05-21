@@ -9,6 +9,7 @@ import threading
 import urllib
 import subprocess
 import logging
+from copy import deepcopy
 
 import django
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, login
@@ -49,6 +50,8 @@ from oioioi.base.notification import NotificationHandler
 from oioioi.base.middleware import UserInfoInErrorMessage
 from oioioi.base.views import ForcedError, handler500
 from oioioi.base.preferences import PreferencesFactory, PreferencesSaved
+from oioioi.base.main_page import register_main_page_view, \
+        unregister_main_page_view
 
 
 if not getattr(settings, 'TESTS', False):
@@ -249,13 +252,25 @@ class TestIndexNoContest(TestCase):
         clear_template_cache()
 
 
-class TestIndexNoContestWithOverride(TestCase):
+class TestMainPage(TestCase):
     fixtures = ('test_users',)
 
     @override_settings(TEMPLATE_DIRS=(os.path.join(basedir, 'templates'),))
-    def test_custom_index(self):
+    def test_custom_main_page(self):
+        @register_main_page_view(order=0,
+                                 condition=Condition(lambda request: False))
+        def inaccessible(request):
+            pass
+
+        @register_main_page_view(order=1)
+        def accessible(request):
+            return TemplateResponse(request, 'index.html')
+
         response = self.client.get('/')
         self.assertIn('This is a test index template', response.content)
+
+        unregister_main_page_view(inaccessible)
+        unregister_main_page_view(accessible)
 
     def tearDown(self):
         clear_template_cache()

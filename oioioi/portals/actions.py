@@ -2,7 +2,7 @@ import sys
 from django.core.urlresolvers import reverse
 from oioioi.base.permissions import Condition, enforce_condition
 from oioioi.base.menu import MenuRegistry
-from oioioi.portals.utils import is_portal_admin
+from oioioi.portals.conditions import is_portal_admin
 
 
 portal_actions = {}
@@ -115,8 +115,12 @@ def portal_url(portal=None, node=None, path=None, action=DEFAULT_ACTION_NAME):
             node = portal.root
         path = node.get_path()
 
-    url = reverse('portal', kwargs={'username': portal.owner.username,
-                                    'portal_path': path})
+    if portal.owner is None:
+        url = reverse('global_portal', kwargs={'portal_path': path})
+    else:
+        url = reverse('user_portal', kwargs={'username': portal.owner.username,
+                                             'portal_path': path})
+
     if action != DEFAULT_ACTION_NAME:
         url += '?action=' + action
     return url

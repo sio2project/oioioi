@@ -3,7 +3,6 @@ from django.conf.urls import patterns, url, include
 from oioioi.base import registration_backend, admin
 
 urlpatterns = patterns('oioioi.base.views',
-    url(r'^$', 'index_view', name='index'),
     url(r'^force_error/$', 'force_error_view', name='force_error'),
     url(r'^force_permission_denied/$', 'force_permission_denied_view',
         name='force_permission_denied'),
@@ -20,3 +19,6 @@ urlpatterns = patterns('oioioi.base.views',
 )
 
 urlpatterns += registration_backend.urlpatterns
+
+urlpatterns += [url(r'^$', 'oioioi.base.main_page.main_page_view',
+                    name='index')]

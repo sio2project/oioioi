@@ -23,9 +23,10 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
+from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionForm, GetUserInfoForm
-from oioioi.contests.models import ProblemInstance, Submission, \
+from oioioi.contests.models import Contest, ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         can_see_personal_data, is_contest_admin, has_any_submittable_problem, \
@@ -34,6 +35,13 @@ from oioioi.contests.utils import visible_contests, can_enter_contest, \
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.problems.utils import query_statement, query_zip
+
+
+@register_main_page_view(order=900)
+def main_page_view(request):
+    if not Contest.objects.exists():
+        return TemplateResponse(request, 'contests/index-no-contests.html')
+    return redirect('select_contest')
 
 
 def select_contest_view(request):

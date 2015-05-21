@@ -11,4 +11,7 @@ def portal_processor(request):
     if hasattr(request, 'current_node'):
         context['current_node'] = request.current_node
 
+    if request.portal.owner:
+        context['navbar_location'] = '~' + request.portal.owner.username
+
     return context

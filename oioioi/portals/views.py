@@ -8,18 +8,47 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from mptt.exceptions import InvalidMove
+from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.menu import account_menu_registry
+from oioioi.base.main_page import register_main_page_view
 from oioioi.portals.models import Node, Portal
 from oioioi.portals.forms import NodeForm
 from oioioi.portals.actions import node_actions, portal_actions, \
         register_node_action, register_portal_action, portal_url, \
         DEFAULT_ACTION_NAME
-from oioioi.portals.utils import resolve_path, is_portal_admin, \
-        current_node_is_root
 from oioioi.portals.widgets import render_panel
+from oioioi.portals.utils import resolve_path
+from oioioi.portals.conditions import is_portal_admin, current_node_is_root, \
+        global_portal_exists
 
 
-def create_portal_view(request, username):
+@register_main_page_view(order=500, condition=global_portal_exists)
+def main_page_view(request):
+    return redirect('global_portal', portal_path='')
+
+
+@enforce_condition(is_superuser, login_redirect=False)
+def create_global_portal_view(request):
+    if Portal.objects.filter(owner=None).exists():
+        raise Http404
+
+    if request.method != 'POST':
+        return render(request, 'portals/create-global-portal.html')
+    else:
+        if 'confirmation' in request.POST:
+            name = render_to_string(
+                    'portals/global-portal-initial-main-page-name.txt')
+            body = render_to_string(
+                    'portals/global-portal-initial-main-page-body.txt')
+            root = Node.objects.create(full_name=name, short_name='',
+                                       parent=None, panel_code=body)
+            portal = Portal.objects.create(owner=None, root=root)
+            return redirect(portal_url(portal=portal))
+        else:
+            return redirect('/')
+
+
+def create_user_portal_view(request, username):
     if username != request.user.username:
         raise PermissionDenied
 
@@ -27,29 +56,28 @@ def create_portal_view(request, username):
         raise Http404
 
     if request.method != 'POST':
-        return render(request, 'portals/create-portal.html')
+        return render(request, 'portals/create-user-portal.html')
     else:
         if 'confirmation' in request.POST:
             name = render_to_string(
-                    'portals/initial-main-page-name.txt')
+                    'portals/user-portal-initial-main-page-name.txt')
             body = render_to_string(
-                    'portals/initial-main-page-body.txt')
+                    'portals/user-portal-initial-main-page-body.txt')
             root = Node.objects.create(full_name=name, short_name='',
                                        parent=None, panel_code=body)
-            portal = Portal.objects.create(owner=request.user,
-                                           root=root)
+            portal = Portal.objects.create(owner=request.user, root=root)
             return redirect(portal_url(portal=portal))
         else:
             return redirect('/')
 
 
-def portal_view(request, username, portal_path):
+def _portal_view(request, portal, portal_path):
     if 'action' in request.GET:
         action = request.GET['action']
     else:
         action = DEFAULT_ACTION_NAME
 
-    request.portal = get_object_or_404(Portal, owner__username=username)
+    request.portal = portal
     request.action = action
 
     if action in node_actions:
@@ -61,6 +89,16 @@ def portal_view(request, username, portal_path):
         raise Http404
 
     return view(request)
+
+
+def global_portal_view(request, portal_path):
+    portal = get_object_or_404(Portal, owner=None)
+    return _portal_view(request, portal, portal_path)
+
+
+def user_portal_view(request, username, portal_path):
+    portal = get_object_or_404(Portal, owner__username=username)
+    return _portal_view(request, portal, portal_path)
 
 
 @register_node_action('show_node', menu_text=_("Show node"), menu_order=100)
@@ -181,7 +219,7 @@ def my_portal_url(request):
     try:
         return portal_url(portal=request.user.portal)
     except Portal.DoesNotExist:
-        return reverse('create_portal',
+        return reverse('create_user_portal',
                        kwargs={'username': request.user.username})
 
 account_menu_registry.register('my_portal', _("My portal"), my_portal_url,
