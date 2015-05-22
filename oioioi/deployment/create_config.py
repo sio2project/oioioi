@@ -49,7 +49,7 @@ def generate_from_template(dir, filename, context, mode=None):
         os.chmod(dest, mode)
 
 
-def generate_all(dir):
+def generate_all(dir, verbose):
     generate_from_template(dir, 'settings.py', {
             '__CONFIG_VERSION__': str(INSTALLATION_CONFIG_VERSION),
             '__DIR__': dir,
@@ -108,13 +108,20 @@ def generate_all(dir):
     # Having DJANGO_SETTINGS_MODULE here would probably cause collectstatic to
     # run with wrong settings.
     os.environ.pop('DJANGO_SETTINGS_MODULE', None)
-    execute([sys.executable, manage_py, 'collectstatic', '--noinput'],
+    # Let's silence collectstatic a bit - a ton of (normally) useless logs
+    # happen from it
+    print >> sys.stderr, 'Collecting static files...'
+    cmd = [sys.executable, manage_py, 'collectstatic', '--noinput']
+    if not verbose:
+        cmd += ['-v', '0']
+    execute(cmd,
             capture_output=False)
 
 
 def main():
     usage = "usage: %prog [options] dir"
     parser = OptionParser(usage=usage)
+    parser.add_option('-v', '--verbose', action='store_true', dest='verbose')
     _options, args = parser.parse_args()
     if len(args) != 1:
         parser.error("expected a single argument: deployment folder to create")
@@ -126,7 +133,7 @@ def main():
     os.makedirs(dir)
 
     try:
-        generate_all(dir)
+        generate_all(dir, _options.verbose)
     except BaseException:
         shutil.rmtree(dir)
         raise
