@@ -11,7 +11,7 @@ from django.utils.safestring import mark_safe
 
 from dateutil.parser import parse as parse_date
 
-from oioioi.base.views import has_valid_username
+from oioioi.base.utils.user import has_valid_username
 from oioioi.su.utils import is_under_su
 
 
