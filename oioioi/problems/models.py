@@ -17,8 +17,6 @@ from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.filetracker.fields import FileField
 
-import oioioi.contests.models
-
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +90,7 @@ class Problem(models.Model):
         """
         problem = cls(*args, **kwargs)
         problem.save()
+        import oioioi.contests.models
         pi = oioioi.contests.models.ProblemInstance(problem=problem)
         pi.save()
         problem.main_problem_instance = pi

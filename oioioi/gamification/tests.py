@@ -16,6 +16,8 @@ from oioioi.gamification.profile import profile_section, profile_registry
 from oioioi.gamification.controllers import CodeSharingController
 from oioioi.problems.models import Problem
 from oioioi.contests.models import Submission
+from oioioi.gamification.difficulty import DIFFICULTY, get_problem_difficulty,\
+    get_problems_by_difficulty, parse_old_problems
 
 
 class TestExperienceModule(TestCase):
@@ -457,7 +459,8 @@ class TestProfileTabs(TestCase):
 
 class TestCodeSharingFriends(TestCase):
     fixtures = ['gamification_users.json', 'test_friendships.json',
-                'test_allowsharingprefs.json', 'test_submissions.json']
+                'test_allowsharingprefs.json', 'gamification_problems.json',
+                'gamification_submissions.json']
 
     def ensure_enabled(self):
         self.assertTrue(
@@ -522,3 +525,43 @@ class TestCodeSharingFriends(TestCase):
         self.assertEquals(
             list(controller.shared_with_me(problem, user4).all()),
             [])
+
+
+class DifficultyTest(TestCase):
+    fixtures = ['gamification_problems.json',
+                'gamification_sinol_config.json']
+
+    def setUp(self):
+        parse_old_problems()
+
+    def test_get_difficulty(self):
+        problem1 = Problem.objects.get(pk=1)
+        problem2 = Problem.objects.get(pk=2)
+        problem3 = Problem.objects.get(pk=3)
+        problem4 = Problem.objects.get(pk=4)
+
+        # Twice to check lazy initiation
+        self.assertEquals(get_problem_difficulty(problem1), DIFFICULTY.TRIVIAL)
+        self.assertEquals(get_problem_difficulty(problem1), DIFFICULTY.TRIVIAL)
+        self.assertEquals(get_problem_difficulty(problem2), DIFFICULTY.MEDIUM)
+        self.assertEquals(get_problem_difficulty(problem3), None)
+        self.assertEquals(get_problem_difficulty(problem4), None)
+
+    def test_problems_by_difficulty(self):
+        # Trivial
+        problem1 = Problem.objects.get(pk=1)
+        # Medium
+        problem2 = Problem.objects.get(pk=2)
+        problem5 = Problem.objects.get(pk=5)
+
+        trivial_result =\
+            list(get_problems_by_difficulty(DIFFICULTY.TRIVIAL).all())
+        self.assertEqual(trivial_result, [problem1])
+        medium_result =\
+            list(get_problems_by_difficulty(DIFFICULTY.MEDIUM).all())
+        self.assertIn(problem2, medium_result)
+        self.assertIn(problem5, medium_result)
+        self.assertEqual(len(medium_result), 2)
+
+        hard_result = list(get_problems_by_difficulty(DIFFICULTY.HARD).all())
+        self.assertEqual(hard_result, [])

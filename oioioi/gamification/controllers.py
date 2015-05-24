@@ -8,7 +8,8 @@ from oioioi.base.preferences import PreferencesSaved, PreferencesFactory
 from oioioi.contests.models import Submission
 from oioioi.gamification.constants import CODE_SHARING_FRIENDS_ENABLED,\
     CODE_SHARING_PREFERENCES_DEFAULT
-
+from oioioi.problems.controllers import ProblemController
+from oioioi.gamification.difficulty import _update_problem_difficulty
 
 
 class CodeSharingController(ObjectWithMixins):
@@ -115,3 +116,14 @@ class TaskSuggestionController(ObjectWithMixins):
            suggestion can be returned
         """
         return None
+
+
+class DifficultyProblemMixin(object):
+    """A class to mix-in with problem controller, overriding fill_ev
+       to update difficulty rows"""
+    def adjust_problem(self):
+        """Creates row with difficulty for current problem"""
+        super(DifficultyProblemMixin, self).adjust_problem()
+        _update_problem_difficulty(self.problem)
+
+ProblemController.mix_in(DifficultyProblemMixin)

@@ -1,0 +1,61 @@
+[
+  {
+    "pk": "c",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test contest",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ",
+      "contest": "c",
+      "short_name": "xyz",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ2",
+      "contest": "c",
+      "short_name": "xyz2",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ3",
+      "contest": "c",
+      "short_name": "xyz3",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ4",
+      "contest": "c",
+      "short_name": "xyz4",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ5",
+      "contest": "c",
+      "short_name": "xyz5",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+    }
+  }
+]
