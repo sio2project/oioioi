@@ -1,17 +1,23 @@
-{% load i18n all_with_prefix %}
+{% load i18n %}
 
-<script>
+{% block styles %}
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
 $(handle_prog_lang_updates);
 </script>
+{% endblock %}
+
 <h2>{% trans "Submit solution" %}</h2>
 <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
     <div class="form-actions">
+        {% block submit_btn %}
         <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        {% endblock %}
     </div>
 </form>
 
 <hr />
-
-{% all_with_prefix extra_submit_bottom_ %}

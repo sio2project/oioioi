@@ -31,7 +31,7 @@ def problem_site_tab(title, key, order=sys.maxint):
 
        :param title: the tab's title, will be shown on the site
        :param key: will be used as a GET parameter to indicate the active tab
-       :order: value determining the order of tabs
+       :param order: value determining the order of tabs
     """
 
     Tab = namedtuple('Tab', ['view', 'title', 'key'])
@@ -123,4 +123,5 @@ def problem_site_submit(request, problem):
     else:
         form = SubmissionFormForProblemInstance(request,
                 problem.main_problem_instance)
-    return TemplateResponse(request, 'problems/submit.html', {'form': form})
+    return TemplateResponse(request, 'problems/submit.html',
+            {'problem': problem, 'form': form})

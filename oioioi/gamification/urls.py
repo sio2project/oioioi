@@ -13,5 +13,7 @@ urlpatterns = patterns('oioioi.gamification.views',
     url(r'^profile/(?P<username>[a-zA-Z0-9_@\+\.\-]+)/refuse_request$',
         'refuse_friendship_request_view', name='refuse_friendship_request'),
     url(r'^check_user_exists/$', 'check_user_exists_view',
-        name='check_user_exists')
+        name='check_user_exists'),
+    url(r'user_problem_exp/(?P<problem_id>\d+)/$', 'user_problem_exp_view',
+        name='user_problem_exp'),
 )

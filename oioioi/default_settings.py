@@ -190,6 +190,7 @@ INSTALLED_APPS = (
     'compressor',
     'linaro_django_pagination',
     'mptt',
+    'overextends',
 
     'django.contrib.admin',
     'django.contrib.admindocs',

@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from django.http import JsonResponse
 
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.utils import jsonify
@@ -14,6 +15,7 @@ from oioioi.gamification.controllers import CodeSharingController
 from oioioi.gamification.experience import Experience
 from oioioi.gamification.friends import UserFriends
 from oioioi.gamification.profile import profile_registry
+from oioioi.gamification.models import ProblemDifficulty
 from oioioi.problems.problem_site import problem_site_tab
 
 
@@ -117,3 +119,39 @@ def accept_friendship_request_view(request, username):
 @require_POST
 def refuse_friendship_request_view(request, username):
     return friend_action(request, username, 'refuse_friendship_request')
+
+
+@login_required
+def user_problem_exp_view(request, problem_id):
+    curr_exp = Experience(request.user)
+    try:
+        difficulty = ProblemDifficulty.objects.get(problem=problem_id)
+        problem_exp = difficulty.experience
+    except ProblemDifficulty.DoesNotExist:
+        problem_exp = 0
+    new_exp = Experience(
+        level=curr_exp.current_level,
+        experience=curr_exp.current_experience + problem_exp
+    )
+
+    if new_exp.current_level == curr_exp.current_level:
+        exp_diff_percent = \
+            ((new_exp.current_experience - curr_exp.current_experience) /
+            curr_exp.required_experience_to_lvlup) * 100
+    else:
+        whole_levels = \
+            (new_exp.current_level - curr_exp.current_level - 1) * 100
+        from_curr = \
+            100 - ((curr_exp.current_experience /
+                    curr_exp.required_experience_to_lvlup) * 100)
+        to_expected = (new_exp.current_experience /
+                       new_exp.required_experience_to_lvlup) * 100
+        exp_diff_percent = whole_levels + from_curr + to_expected
+
+    return JsonResponse({
+        'current_exp':
+            (curr_exp.current_experience /
+            curr_exp.required_experience_to_lvlup) * 100,
+        'current_lvl': curr_exp.current_level,
+        'exp_to_add': exp_diff_percent
+    })

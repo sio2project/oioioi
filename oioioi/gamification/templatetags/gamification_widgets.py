@@ -46,3 +46,10 @@ def experience_widget_big(user):
 @register.inclusion_tag('gamification/exp-widget.svg')
 def experience_widget_small(user):
     return _experience_widget(user, 'small')
+
+
+@register.assignment_tag
+def widget_constants():
+    return {'large_outer_radius': LARGE_WIDGET_OUTER_RADIUS,
+            'large_inner_radius': LARGE_WIDGET_INNER_RADIUS,
+            'small_outer_radius': SMALL_WIDGET_OUTER_RADIUS}
