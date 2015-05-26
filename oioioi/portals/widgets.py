@@ -3,6 +3,9 @@ from django.template.loader import render_to_string
 import re
 
 
+REGISTERED_WIDGETS = []
+
+
 class PortalInlineGrammar(InlineGrammar):
     pass
 
@@ -14,15 +17,16 @@ class PortalRenderer(Renderer):
 class PortalInlineLexer(InlineLexer):
     default_rules = InlineLexer.default_rules[:]
 
-    def __init__(self, renderer, rules=None, **kwargs):
+    def __init__(self, request, renderer, rules=None, **kwargs):
+        self.request = request
         if rules is None:
             rules = PortalInlineGrammar()
         super(PortalInlineLexer, self).__init__(renderer, rules, **kwargs)
 
 
-def render_panel(panel):
+def render_panel(request, panel):
     renderer = PortalRenderer(escape=True)
-    inline_lexer = PortalInlineLexer(renderer)
+    inline_lexer = PortalInlineLexer(request, renderer)
     portal_markdown = Markdown(renderer, inline=inline_lexer)
     return portal_markdown.render(panel)
 
@@ -47,8 +51,10 @@ def register_widget(widget):
     setattr(PortalInlineGrammar, widget.name, widget.compiled_tag_regex)
 
     def func(self, m):
-        return widget.render(m)
+        return widget.render(self.request, m)
     setattr(PortalInlineLexer, 'output_' + widget.name, func)
+
+    REGISTERED_WIDGETS.append(widget)
 
 
 class YouTubeWidget(object):
@@ -59,7 +65,7 @@ class YouTubeWidget(object):
         r'\]\](?!\])'             # ]]
     )
 
-    def render(self, m):
+    def render(self, request, m):
         youtube_url = m.group(1).split('|')[-1].strip()
         return render_to_string('portals/widgets/youtube.html',
                                 {'youtube_url': youtube_url})
@@ -73,9 +79,12 @@ class ProblemTableWidget(object):
         r'\]\](?!\])'             # ]]
     )
 
-    def render(self, m):
+    def get_problem_ids(self, m):
         ids_str = m.group(1).split('|')[-1].strip(' ;')
-        problem_ids = ids_str.split(';') if ids_str else []
+        return ids_str.split(';') if ids_str else []
+
+    def render(self, request, m):
+        problem_ids = self.get_problem_ids(m)
         return render_to_string('portals/widgets/problem_table.html',
                                 {'problem_ids': problem_ids})
 

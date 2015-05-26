@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from oioioi.base.permissions import make_request_condition
+from oioioi.problems.models import Problem
 
 
 def join_paths(path1, path2):
@@ -29,3 +30,13 @@ def resolve_path(portal, path):
         raise Http404
 
     return node
+
+
+def problems_in_tree(node, include_self=True):
+    """Returns a queryset of problems which can be accessed
+       from one of the node's descendants (or, if include_self
+       is True, from the node's content itself).
+    """
+    descendants = node.get_descendants(include_self)
+    return Problem.objects.filter(
+            node=descendants).distinct()

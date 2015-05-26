@@ -20,6 +20,9 @@ class Node(MPTTModel):
     panel_code = models.TextField(null=False, blank=True,
                                   verbose_name=_("panel code"))
 
+    problems_in_content = models.ManyToManyField('problems.problem',
+                                                 blank=True)
+
     class Meta(object):
         unique_together = (('parent', 'short_name'),)
 

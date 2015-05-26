@@ -20,6 +20,8 @@ from oioioi.problems.problem_site import problem_site_tab
 
 # pylint: disable=W0611
 import oioioi.gamification.handlers
+import oioioi.gamification.widgets
+
 
 @jsonify
 @require_GET

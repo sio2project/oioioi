@@ -22,6 +22,9 @@ from oioioi.portals.utils import resolve_path
 from oioioi.portals.conditions import is_portal_admin, current_node_is_root, \
         global_portal_exists
 
+# pylint: disable=W0611
+import oioioi.portals.handlers
+
 
 @register_main_page_view(order=500, condition=global_portal_exists)
 def main_page_view(request):
@@ -104,7 +107,8 @@ def user_portal_view(request, username, portal_path):
 
 @register_node_action('show_node', menu_text=_("Show node"), menu_order=100)
 def show_node_view(request):
-    rendered_panel = mark_safe(render_panel(request.current_node.panel_code))
+    rendered_panel = mark_safe(render_panel(request,
+            request.current_node.panel_code))
     return render(request, 'portals/show-node.html',
                   {'rendered_panel': rendered_panel})
 
