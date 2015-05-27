@@ -6,10 +6,14 @@ from oioioi.gamification.friends import UserFriends
 from oioioi.gamification.models import CodeSharingSettings
 from oioioi.base.preferences import PreferencesSaved, PreferencesFactory
 from oioioi.contests.models import Submission
+from oioioi.problems.models import Problem
 from oioioi.gamification.constants import CODE_SHARING_FRIENDS_ENABLED,\
-    CODE_SHARING_PREFERENCES_DEFAULT
+    CODE_SHARING_PREFERENCES_DEFAULT, SuggestLvl2From, SuggestLvl3From, \
+    SuggestLvl4From, SuggestLvl5From
 from oioioi.problems.controllers import ProblemController
-from oioioi.gamification.difficulty import _update_problem_difficulty
+from oioioi.gamification.experience import Experience
+from oioioi.gamification.difficulty import _update_problem_difficulty,\
+    get_problems_by_difficulty, DIFFICULTY
 
 
 class CodeSharingController(ObjectWithMixins):
@@ -115,7 +119,23 @@ class TaskSuggestionController(ObjectWithMixins):
         """Returns a problem object as a suggestion for the user or None if no
            suggestion can be returned
         """
-        return None
+        user_level = Experience(user).current_level
+
+        if user_level >= SuggestLvl5From:
+            qset = get_problems_by_difficulty(DIFFICULTY.IMPOSSIBLE)
+        elif user_level >= SuggestLvl4From:
+            qset = get_problems_by_difficulty(DIFFICULTY.HARD)
+        elif user_level >= SuggestLvl3From:
+            qset = get_problems_by_difficulty(DIFFICULTY.MEDIUM)
+        elif user_level >= SuggestLvl2From:
+            qset = get_problems_by_difficulty(DIFFICULTY.EASY)
+        else:
+            qset = get_problems_by_difficulty(DIFFICULTY.TRIVIAL)
+
+        try:
+            return qset.order_by('?').first()
+        except Problem.DoesNotExist:
+            return None
 
 
 class DifficultyProblemMixin(object):
