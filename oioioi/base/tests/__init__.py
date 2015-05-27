@@ -48,8 +48,6 @@ from oioioi.base.management.commands import import_users
 from oioioi.contests.utils import is_contest_admin
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.middleware import UserInfoInErrorMessage
-from oioioi.base.views import ForcedError, handler500
-from oioioi.base.preferences import PreferencesFactory, PreferencesSaved
 from oioioi.base.main_page import register_main_page_view, \
         unregister_main_page_view
 
@@ -382,6 +380,7 @@ class TestErrorHandlers(TestCase):
         self._req = None
 
         def wrapped_handler500(request):
+            from oioioi.base.views import handler500
             r = WSGIRequest(request)
             r.session = import_module(settings.SESSION_ENGINE).SessionStore()
             if self._user:
@@ -440,6 +439,8 @@ class TestErrorHandlers(TestCase):
         self.assertHtml(self.client.get(reverse('force_error')), 500)
 
     def test_user_in_500(self):
+        from oioioi.base.views import ForcedError
+
         mid = UserInfoInErrorMessage()
 
         self.client.login(username='test_admin')
@@ -878,6 +879,9 @@ class TestBaseViews(TestCase):
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
 
     def test_profile_dynamic_fields(self):
+        from oioioi.base.preferences import PreferencesFactory, \
+                PreferencesSaved
+
         def callback_func(sender, **kwargs):
             self.assertEquals(sender.cleaned_data['dog'], 'Janusz')
             self.assertEquals(sender.cleaned_data['answer'], 42)
