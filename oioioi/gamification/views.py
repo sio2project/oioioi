@@ -18,6 +18,8 @@ from oioioi.gamification.profile import profile_registry
 from oioioi.gamification.models import ProblemDifficulty
 from oioioi.problems.problem_site import problem_site_tab
 
+# pylint: disable=W0611
+import oioioi.gamification.handlers
 
 @jsonify
 @require_GET

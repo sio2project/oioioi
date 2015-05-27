@@ -5,7 +5,8 @@ from oioioi.base.utils import ObjectWithMixins
 from oioioi.gamification.friends import UserFriends
 from oioioi.gamification.models import CodeSharingSettings
 from oioioi.base.preferences import PreferencesSaved, PreferencesFactory
-from oioioi.contests.models import Submission
+from oioioi.contests.controllers import ContestController
+from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.problems.models import Problem
 from oioioi.programs.controllers import ProgrammingContestController, \
     ProgrammingProblemController
@@ -13,7 +14,8 @@ from oioioi.gamification.constants import CODE_SHARING_FRIENDS_ENABLED,\
     CODE_SHARING_PREFERENCES_DEFAULT, SuggestLvl2From, SuggestLvl3From, \
     SuggestLvl4From, SuggestLvl5From
 from oioioi.problems.controllers import ProblemController
-from oioioi.gamification.experience import Experience
+from oioioi.gamification.experience import Experience, \
+    PROBLEM_EXPERIENCE_SOURCE
 from oioioi.gamification.difficulty import _update_problem_difficulty,\
     get_problems_by_difficulty, DIFFICULTY
 
@@ -139,6 +141,27 @@ class CodeSharingContestControllerMixin(object):
 
 
 ProgrammingContestController.mix_in(CodeSharingContestControllerMixin)
+
+
+class ProblemExperienceMixinForContestController(object):
+    """A helper mixin for oioioi.gamification.ProblemExperienceSource."""
+    def submission_judged(self, submission, rejudged=False):
+        super(ProblemExperienceMixinForContestController, self)\
+                .submission_judged(submission, rejudged)
+
+        try:
+            report = SubmissionReport.objects.get(
+                userresultforproblem__user=submission.user,
+                userresultforproblem__problem_instance=
+                    submission.problem_instance
+            )
+
+            PROBLEM_EXPERIENCE_SOURCE.handle_submission_report(report)
+
+        except SubmissionReport.DoesNotExist:
+            pass  # Possible in tests
+
+ContestController.mix_in(ProblemExperienceMixinForContestController)
 
 
 class TaskSuggestionController(ObjectWithMixins):

@@ -6,23 +6,33 @@ from oioioi.base.menu import OrderedRegistry
 from oioioi.base.notification import NotificationHandler
 
 from oioioi.gamification.experience import DBCachedByKeyExperienceSource, \
-    Experience, ExperienceSource
+    Experience, ExperienceSource, ProblemExperienceSource, \
+    PROBLEM_EXPERIENCE_SOURCE
 from oioioi.gamification.constants import ExpMultiplier, ExpBase, \
     SoftCapLevel, LinearMultiplier, CODE_SHARING_FRIENDS_ENABLED,\
-    CODE_SHARING_PREFERENCES_DEFAULT
+    CODE_SHARING_PREFERENCES_DEFAULT, Lvl1TaskExp
+from oioioi.gamification.difficulty import DIFFICULTY, get_problem_difficulty,\
+    get_problems_by_difficulty, parse_old_problems
 from oioioi.gamification.friends import UserFriends, FriendshipRequest,\
     FriendshipRequestSent, FriendshipRequestAccepted,\
     FriendshipRequestRefused, FriendshipEnded
+from oioioi.gamification.models import ProblemDifficulty
 from oioioi.gamification.profile import profile_section, profile_registry
 from oioioi.gamification.controllers import CodeSharingController
 from oioioi.problems.models import Problem
 from oioioi.contests.models import Submission
-from oioioi.gamification.difficulty import DIFFICULTY, get_problem_difficulty,\
-    get_problems_by_difficulty, parse_old_problems
 
 
 class TestExperienceModule(TestCase):
-    fixtures = ['gamification_users.json']
+    fixtures = ['gamification_users.json',
+                'gamification_problem_without_contest.json']
+
+    def setUp(self):
+        self._backup_experience_sources = Experience._sources
+        Experience.clear_experience_sources()
+
+    def tearDown(self):
+        Experience._sources = self._backup_experience_sources
 
     def test_caching_experience_source(self):
         test_user = User.objects.get(username='test_user')
@@ -192,6 +202,30 @@ class TestExperienceModule(TestCase):
                 exp.required_experience_to_lvlup,
                 Experience.exp_to_lvl(SoftCapLevel) + 2*LinearMultiplier
             )
+
+        finally:
+            Experience.clear_experience_sources()
+
+    def test_problem_source(self):
+        try:
+            Experience.add_experience_source(
+                PROBLEM_EXPERIENCE_SOURCE
+            )
+
+            user = User.objects.get(username='test_user4')
+
+            # test_user has solved a trivial task
+            user_exp = Experience(user)
+            user_exp.force_recalculate()
+            self.assertEquals(user_exp.current_level, 0)
+            self.assertEquals(user_exp.current_experience, Lvl1TaskExp)
+
+            # Update on problem difficulty change
+            pd = ProblemDifficulty.objects.get(problem__id=10)
+            pd.difficulty = DIFFICULTY.EASY
+            pd.save()
+            self.assertEquals(user_exp.current_level, 1)
+            self.assertEquals(user_exp.current_experience, 0)
 
         finally:
             Experience.clear_experience_sources()

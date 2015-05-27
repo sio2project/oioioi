@@ -5,12 +5,20 @@
     "fields": {
       "name": "ABC",
       "short_name": "abc",
-      "main_problem_instance": 2,
+      "main_problem_instance": 10,
       "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
     }
   },
   {
-    "pk": 2,
+    "pk": 5,
+    "model": "gamification.problemdifficulty",
+    "fields": {
+      "problem": 10,
+      "difficulty": 1
+    }
+  },
+  {
+    "pk": 10,
     "model": "contests.probleminstance",
     "fields": {
       "problem": 10,
@@ -22,7 +30,7 @@
     "model": "contests.submission",
     "fields": {
       "status": "OK",
-      "problem_instance": 2,
+      "problem_instance": 10,
       "kind": "NORMAL",
       "comment": "",
       "score": "int:0000000000000000042",
@@ -39,11 +47,22 @@
     }
   },
   {
+    "pk": 1,
+    "model": "contests.scorereport",
+    "fields": {
+      "submission_report": 2,
+      "status": "OK",
+      "score": "int:0000000000000000042",
+      "max_score": "int:0000000000000000042",
+      "comment": ""
+    }
+  },
+  {
     "pk": 2,
     "model": "contests.userresultforproblem",
     "fields": {
       "user": 1004,
-      "problem_instance": 2,
+      "problem_instance": 10,
       "submission_report": 2
     }
   },

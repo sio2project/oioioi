@@ -32,8 +32,10 @@ import itertools
 from math import floor
 from django.contrib.auth.models import User
 from django.db import transaction
-from models import CachedExperienceSourceID, CachedExperienceSourceTotal
-import constants as const
+from oioioi.contests.models import UserResultForProblem, ScoreReport
+from oioioi.gamification.models import CachedExperienceSourceID,\
+        CachedExperienceSourceTotal, ProblemDifficulty
+import oioioi.gamification.constants as const
 
 
 class Experience(object):
@@ -248,6 +250,9 @@ class DBCachedByKeyExperienceSource(ExperienceSource):
     # Modifiers #
     #############
 
+    def has_row(self, cache_id, user):
+        return self._get_row(cache_id, user) is not None
+
     def get_value(self, cache_id, user):
         obj = self._get_row(cache_id, user)
         if obj is not None:
@@ -302,3 +307,80 @@ class DBCachedByKeyExperienceSource(ExperienceSource):
 
         if total_obj.value == 0:
             total_obj.delete()
+
+
+class ProblemExperienceSource(DBCachedByKeyExperienceSource):
+    """The source of experience coming from completed problems."""
+    def __init__(self):
+        super(ProblemExperienceSource, self).__init__("ProblemSource")
+
+    def force_recalculate(self, user):
+        super(ProblemExperienceSource, self).force_recalculate(user)
+
+        results = UserResultForProblem.objects.filter(
+                    user=user,
+                    problem_instance__contest__isnull=True
+                ).select_related(
+                    'submission_report',
+                    'submission_report__submission',
+                    'submission_report__submission'
+                        '__problem__problemdifficulty'
+                ).all()
+
+        self._recalculate_results(results)
+
+    def force_recalculate_problem(self, problem):
+        results = UserResultForProblem.objects.filter(
+                    problem_instance__problem=problem,
+                    problem_instance__contest__isnull=True
+                ).select_related(
+                    'submission_report',
+                    'submission_report__submission',
+                    'submission_report__submission'
+                        '__problem__problemdifficulty'
+                ).all()
+
+        self._recalculate_results(results)
+
+    def handle_submission_report(self, submission_report):
+        # Only score non-contest problems
+        if submission_report.submission.problem_instance.contest is not None:
+            return
+
+        try:
+            reward = submission_report.submission.problem\
+                        .problemdifficulty.experience
+
+            if reward == 0:
+                return  # Difficulty was not set
+
+            # Assumes there is only one ScoreReport for a SubmissionReport
+            probleminstance_id =\
+                submission_report.submission.problem_instance.pk
+            user = submission_report.submission.user
+
+            if user is None:
+                return
+
+            score_report = submission_report.scorereport_set.get()
+            full_points = (score_report.score == score_report.max_score)
+
+            if full_points:
+                if self.has_row(probleminstance_id, user):
+                    self.set_value(probleminstance_id, user, reward)
+                else:
+                    self.add_row(probleminstance_id, user, reward)
+
+        except (ProblemDifficulty.DoesNotExist, ScoreReport.DoesNotExist):
+            # This problem has no difficulty set or no score report, so ignore
+            return
+
+    def _recalculate_results(self, results):
+        # Handle submissions
+        for result in results:
+            if result.submission_report is not None:
+                self.handle_submission_report(result.submission_report)
+
+
+PROBLEM_EXPERIENCE_SOURCE = ProblemExperienceSource()
+Experience.add_experience_source(PROBLEM_EXPERIENCE_SOURCE)
