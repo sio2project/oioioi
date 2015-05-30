@@ -13,7 +13,6 @@ from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import Submission
 from oioioi.problems.models import ProblemStatement
 
-
 @request_cached
 def can_add_problems(request):
     return request.user.has_perm('problems.problems_db_admin') \
@@ -91,3 +90,33 @@ def get_submission_without_contest(request, submission_id):
     if not can_see_submission_without_contest(request, submission):
         raise Http404
     return submission
+
+
+def update_tests_from_main_pi(problem_instance):
+    """Deletes all tests assigned to problem_instance
+        and replaces them by new ones copied from
+        main_problem_instance of appropiate Problem
+    """
+    if problem_instance == problem_instance.problem.main_problem_instance:
+        return
+    for test in problem_instance.test_set.all():
+        test.delete()
+    for test in problem_instance.problem.main_problem_instance.test_set.all():
+        test.id = None
+        test.pk = None
+        test.problem_instance = problem_instance
+        test.save()
+
+
+def get_new_problem_instance(problem):
+    """Returns a deep copy of problem.main_problem_instance,
+        with an independent set of test. Returned ProblemInstance
+        is already saved and contains model solutions copied
+    """
+    pi = problem.main_problem_instance
+    pi.id = None
+    pi.pk = None
+    pi.short_name = None
+    pi.save()
+    update_tests_from_main_pi(pi)
+    return pi

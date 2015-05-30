@@ -112,6 +112,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'oioioi.contestexcl.processors.register_contest_exclusive',
     'oioioi.problems.processors.dangling_problems_processor',
     'oioioi.problems.processors.problemset_link_visible_processor',
+    'oioioi.problems.processors.problems_need_rejudge_processor',
     'oioioi.questions.processors.navbar_tip_processor',
     'oioioi.analytics.processors.analytics_processor',
     'oioioi.status.processors.status_processor',
@@ -241,6 +242,7 @@ REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
 
 PROBLEM_SOURCES = (
     'oioioi.problems.problem_sources.UploadedPackageSource',
+    'oioioi.problems.problem_sources.ProblemsetSource',
 )
 
 PROBLEM_PACKAGE_BACKENDS = (

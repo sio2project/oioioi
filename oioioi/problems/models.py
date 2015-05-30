@@ -93,6 +93,8 @@ class Problem(models.Model):
         import oioioi.contests.models
         pi = oioioi.contests.models.ProblemInstance(problem=problem)
         pi.save()
+        pi.short_name += "_main"
+        pi.save()
         problem.main_problem_instance = pi
         problem.save()
         return problem
@@ -277,7 +279,7 @@ class ProblemPackage(models.Model):
 class ProblemSite(models.Model):
     """Represents a global problem site.
 
-       Contains configuration  necessary to view and submit solutions
+       Contains configuration necessary to view and submit solutions
        to a :class:`~oioioi.problems.models.Problem`.
     """
     problem = models.OneToOneField(Problem)

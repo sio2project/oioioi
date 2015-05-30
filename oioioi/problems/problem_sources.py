@@ -6,15 +6,20 @@ from django.template.response import TemplateResponse
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
+from django.utils.http import urlencode
 from django.contrib import messages
 from django.core.files import File
+from django.core.urlresolvers import reverse
 
 from oioioi.base.utils import get_object_by_dotted_name, memoized, \
         uploaded_file_name
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.problems.package import backend_for_package
 from oioioi.problems.unpackmgr import unpackmgr_job
-from oioioi.problems.models import ProblemPackage
-from oioioi.problems.forms import PackageUploadForm
+from oioioi.problems.models import ProblemPackage, Problem
+from oioioi.problems.forms import PackageUploadForm, ProblemsetSourceForm
+from oioioi.problems.utils import update_tests_from_main_pi, \
+        get_new_problem_instance
 
 logger = logging.getLogger(__name__)
 
@@ -147,12 +152,13 @@ class PackageSource(ProblemSource):
         package.save()
         env = {}
         env['post_upload_handlers'] = \
-                ['oioioi.problems.handlers.update_main_problem_instance']
+                ['oioioi.problems.handlers.update_problem_instance']
         env['backend_name'] = backend_name
         env['package_id'] = package.id
         env['round_id'] = form.cleaned_data.get('round_id', None)
         if contest:
             env['contest_id'] = contest.id
+        env['author'] = request.user
 
         return env
 
@@ -211,3 +217,60 @@ class UploadedPackageSource(PackageSource):
     def get_package_file(self, request, contest, form, existing_problem=None):
         package_file = request.FILES['package_file']
         return package_file.name, uploaded_file_name(package_file)
+
+
+class ProblemsetSource(ProblemSource):
+    key = 'problemset_source'
+    short_description = _('Add from Problemset')
+
+    def view(self, request, contest, existing_problem=None):
+        if not contest:
+            messages.error(request, _("Option not available"))
+            path = request.path
+            if existing_problem:
+                path += '?' + urlencode({'problem': existing_problem.id})
+            return safe_redirect(request, path)
+
+        is_reupload = existing_problem is not None
+        if existing_problem:
+            url_key = existing_problem.problemsite.url_key
+        else:
+            # take url_key form form
+            url_key = request.POST.get('url_key', None)
+        if url_key is None:
+            # take url_key from Problemset
+            url_key = request.GET.get('url_key', None)
+
+        form = ProblemsetSourceForm(url_key)
+        post_data = {'form': form, 'is_reupload': is_reupload}
+
+        if request.POST:
+            if not Problem.objects.filter(problemsite__url_key=url_key) \
+                    .exists():
+                messages.error(request, _('Given url key is invalid'))
+                return TemplateResponse(request,
+                        "problems/problemset_source.html",
+                        post_data)
+
+            problem = Problem.objects.get(problemsite__url_key=url_key)
+            if existing_problem:
+                assert problem == existing_problem
+                assert 'instance_id' in request.GET
+                pi = problem.probleminstance_set.get(contest=request.contest,
+                                            id=request.GET['instance_id'])
+                update_tests_from_main_pi(pi)
+                # limits could be changed
+                pi.needs_rejudge = True
+                pi.save()
+                messages.success(request, _("Problem successfully updated"))
+            else:
+                pi = get_new_problem_instance(problem)
+                pi.contest = request.contest
+                pi.short_name = None
+                pi.save()
+                messages.success(request, _("Problem successfully uploaded"))
+            return safe_redirect(request, reverse(
+                    'oioioiadmin:contests_probleminstance_changelist'))
+
+        return TemplateResponse(request, "problems/problemset_source.html",
+                                post_data)

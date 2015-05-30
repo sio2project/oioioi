@@ -1,3 +1,6 @@
+# coding: utf-8
+
+import os.path
 import urllib
 
 from django.contrib.auth.models import User, Permission
@@ -8,16 +11,17 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.http import HttpResponse
 from django import forms
+from nose.tools import nottest
 
 from oioioi.base.tests import check_not_accessible
-from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.current_contest import ContestMode
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage, \
-        ProblemAttachment, make_problem_filename
+        ProblemAttachment, make_problem_filename, ProblemSite
 from oioioi.problems.problem_site import problem_site_tab
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -40,6 +44,7 @@ class TestModels(TestCase):
         ps = ProblemStatement(pk=22, problem=p12)
         self.assertEqual(make_problem_filename(ps, 'a/hej.txt'),
                 'problems/12/hej.txt')
+
 
 class TestProblemViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -210,7 +215,8 @@ class TestProblemUpload(TransactionTestCase):
         self.assertEqual(package.problem_name, 'bar')
         problem = Problem.objects.get()
         self.assertEqual(problem.short_name, 'bar')
-        problem_instance = ProblemInstance.objects.get()
+        problem_instance = ProblemInstance.objects \
+            .filter(contest__isnull=False).get()
         self.assertEqual(problem_instance.contest, contest)
         self.assertEqual(problem_instance.problem, problem)
 
@@ -282,9 +288,10 @@ class TestProblemUpload(TransactionTestCase):
                 {'package_file': package_file}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
-        self.assertEqual(ProblemInstance.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
 
-        problem = ProblemInstance.objects.get().problem
+        problem = ProblemInstance.objects \
+            .filter(contest__isnull=False).get().problem
         contest.default_submissions_limit += 100
         contest.save()
 
@@ -299,7 +306,7 @@ class TestProblemUpload(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
 
         pis = ProblemInstance.objects.filter(problem=problem)
-        self.assertEqual(pis.count(), 1)
+        self.assertEqual(pis.count(), 2)
 
 
 class TestProblemPackageAdminView(TestCase):
@@ -499,17 +506,223 @@ class TestProblemSite(TestCase, TestStreamingMixin):
 class TestProblemsetPage(TestCase):
     fixtures = ['test_users', 'test_problemset_author_problems']
 
-    def test_database(self):
+    def test_problemlist(self):
         self.client.login(username='test_user')
-        url = reverse('oioioi.problems.views.problemset_main_view')
+        url = reverse('problemset_main')
         response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
         public_problems = Problem.objects.filter(is_public=True)
         for problem in public_problems:
             self.assertIn(str(problem.name), str(response.content))
+        self.assertEqual(response.content.count("Select me!"), 0)
 
-        url = reverse('oioioi.problems.views.problemset_my_problems_view')
+        url = reverse('problemset_main') + '?' + \
+                urllib.urlencode({'select_problem_src': "redirect here"})
         response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count("Select me!"), 2)
+
+        url = reverse('problemset_my_problems')
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
         author_user = User.objects.filter(username='test_user')
         author_problems = Problem.objects.filter(author=author_user)
         for problem in author_problems:
             self.assertIn(str(problem.name), str(response.content))
+        self.assertEqual(response.content.count("Select me!"), 0)
+
+        url = reverse('problemset_my_problems') + '?' + \
+                urllib.urlencode({'select_problem_src': "redirect here"})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count("Select me!"), 2)
+
+
+@nottest
+def get_test_filename(name):
+    return os.path.join(os.path.dirname(__file__), '../sinolpack/files', name)
+
+
+class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
+    fixtures = ['test_users', 'test_contest']
+
+    def check_models_for_simple_package(self, problem_instance):
+        url = reverse('model_solutions', args=[problem_instance.id])
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        to_find = ["0", "1a", "1b", "1c", "2"]
+        for test in to_find:
+            self.assertIn(">" + test + "</th>", response.content)
+
+    def test_upload_problem(self):
+        filename = get_test_filename('test_simple_package.zip')
+        self.client.login(username='test_admin')
+
+        #add problem to problemset
+        url = reverse('problemset_add_or_update')
+        #not possible from problemset :)
+        response = self.client.get(url, {'key': "problemset_source"},
+                                   follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Option not available", response.content)
+        self.assertIn("Add problem", response.content)
+        self.assertNotIn("Select", response.content)
+        #but ok from package
+        response = self.client.get(url, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Add problem", response.content)
+        self.assertIn('problems/problemset/add_or_update.html',
+                [getattr(t, 'name', None) for t in response.templates])
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 1)
+        self.assertEqual(ProblemSite.objects.count(), 1)
+
+        #problem is not visable in "Public"
+        url = reverse('problemset_main')
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("Testowe", response.content)
+        self.assertNotIn("<td>tst</td>", response.content)
+        #but visable in "My problems"
+        url = reverse('problemset_my_problems')
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, follow=True)
+        self.assertIn("Testowe", response.content)
+        self.assertIn("<td>tst</td>", response.content)
+        #and we are problem's author and problem_site exists
+        problem = Problem.objects.get()
+        url = reverse('problem_site', args=[problem.problemsite.url_key])
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Edit problem', response.content)
+        self.assertIn('Reupload problem', response.content)
+        self.assertIn('Model solutions', response.content)
+        #we can see model solutions of main_problem_instance
+        self.check_models_for_simple_package(problem.main_problem_instance)
+
+        #reuploading problem in problemset is not aviable from problemset
+        url = reverse('problemset_add_or_update')
+        response = self.client.get(url, {'key': "problemset_source",
+                                         'problem': problem.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Option not available", response.content)
+        self.assertIn("Update problem", response.content)
+        self.assertNotIn("Select", response.content)
+
+    def test_add_problem_to_contest(self):
+        ProblemInstance.objects.all().delete()
+
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_simple_package.zip')
+        self.client.login(username='test_admin')
+        # Add problem to problemset
+        url = reverse('problemset_add_or_update')
+        response = self.client.get(url, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 1)
+
+        problem = Problem.objects.get()
+        url_key = problem.problemsite.url_key
+
+        #now, add problem to the contest
+        url = reverse('add_or_update_problem',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'key': "problemset_source"})
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Add from Problemset', response.content)
+        self.assertIn('s url key', response.content)
+        self.assertIn('Select', response.content)
+
+        pi_number = 3
+        for i in xrange(pi_number):
+            url = reverse('add_or_update_problem',
+                    kwargs={'contest_id': contest.id}) + '?' + \
+                        urllib.urlencode({'key': "problemset_source"})
+            response = self.client.get(url,
+                       {'url_key': url_key}, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(str(url_key), response.content)
+            response = self.client.post(url,
+                        {'url_key': url_key}, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(ProblemInstance.objects.count(), 2 + i)
+
+        #add probleminstances to round
+        for pi in ProblemInstance.objects.filter(contest__isnull=False):
+            pi.round = Round.objects.get()
+            pi.save()
+
+        #we can see model solutions
+        pi = ProblemInstance.objects.filter(contest__isnull=False)[0]
+        self.check_models_for_simple_package(pi)
+
+        #tests and models of every problem_instance are independent
+        num_tests = pi.test_set.count()
+        for test in pi.test_set.all():
+            test.delete()
+        pi.save()
+
+        url = reverse('model_solutions', args=[pi.id])
+        response = self.client.post(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        for test in ["0", "1a", "1b", "1c", "2"]:
+            self.assertNotIn(">" + test + "</th>", response.content)
+
+        for pi2 in ProblemInstance.objects.all():
+            if pi2 != pi:
+                self.assertEqual(pi2.test_set.count(), num_tests)
+                self.check_models_for_simple_package(pi2)
+
+        #reupload one ProblemInstance from problemset
+        url = reverse('add_or_update_problem',
+                kwargs={'contest_id': contest.id}) + '?' + \
+                    urllib.urlencode({'key': "problemset_source",
+                                      'problem': problem.id,
+                                      'instance_id': pi.id})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(str(url_key), response.content)
+        self.assertNotIn("Select", response.content)
+        response = self.client.post(url, {'url_key': url_key}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ProblemInstance.objects.count(), pi_number + 1)
+        self.assertTrue(pi.round)
+        self.assertEqual(pi.test_set.count(), num_tests)
+        self.check_models_for_simple_package(pi)
+        self.assertIn("1 PROBLEM NEEDS REJUDGING", response.content)
+        self.assertEqual(response.content
+               .count("Rejudge all submissions for problem"), 1)
+
+        #reupload problem in problemset
+        url = reverse('problemset_add_or_update') + '?' + \
+                    urllib.urlencode({'problem': problem.id})
+        response = self.client.get(url, follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ProblemInstance.objects.count(), pi_number + 1)
+        self.assertIn("3 PROBLEMS NEED REJUDGING", response.content)
+        self.check_models_for_simple_package(pi)
+
+        #rejudge one problem
+        url = reverse('rejudge_all_submissions_for_problem', args=[pi.id])
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("You are going to rejudge 1", response.content)
+        response = self.client.post(url, {'submit': True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content
+                 .count("Rejudge all submissions for problem"), pi_number - 1)
+        self.assertIn("1 rejudge request received.", response.content)

@@ -93,12 +93,14 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
         problem = None
         pp = ProblemPackage(problem=existing_problem)
         pp.package_file.save(filename, File(open(filename, 'rb')))
+        env = {}
         if existing_problem:
+            env['author'] = existing_problem.author
             pp.problem_name = existing_problem.short_name
         else:
             pp.problem_name = self.get_short_name(filename)
         pp.save()
-        env = {'package_id': pp.id}
+        env['package_id'] = pp.id
         with pp.save_operation_status():
             self.unpack(env)
             problem = Problem.objects.get(id=env['problem_id'])

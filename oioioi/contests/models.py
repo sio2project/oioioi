@@ -229,6 +229,11 @@ class ProblemInstance(models.Model):
         default=settings.DEFAULT_SUBMISSIONS_LIMIT,
         verbose_name=_("submissions limit"))
 
+    # set on True only when problem_instace's tests were overriden but there
+    # are some submissions judged on old tests
+    needs_rejudge = models.BooleanField(default=False,
+                                        verbose_name=_("needs rejudge"))
+
     class Meta(object):
         verbose_name = _("problem instance")
         verbose_name_plural = _("problem instances")
@@ -258,8 +263,14 @@ def _generate_problem_instance_fields(sender, instance, raw, **kwargs):
     if not raw and instance.round_id:
         instance.contest = instance.round.contest
     if not raw and not instance.short_name and instance.problem_id:
-        short_names = ProblemInstance.objects.filter(contest=instance.contest)\
-                .values_list('short_name', flat=True)
+        if instance.contest:
+            short_names = ProblemInstance.objects \
+                    .filter(contest=instance.contest) \
+                    .values_list('short_name', flat=True)
+        else:
+            short_names = ProblemInstance.objects \
+                    .filter(contest__isnull=True) \
+                    .values_list('short_name', flat=True)
         # SlugField and validate_slug accepts uppercase letters, while we don't
         problem_short_name = instance.problem.short_name.lower()
         if problem_short_name not in short_names:

@@ -29,7 +29,12 @@ Problemset
                 <li><a
                 href="{% url 'problemset_my_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
                 {% endif %}">
-                    My problems
+                    {% trans "My problems" %}
+                </a></li>
+                <li><a
+                href="{% url 'problemset_add_or_update' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+                {% endif %}">
+                    {% trans "Add problem" %}
                 </a></li>
                 {% endif %}
             </ul>
@@ -46,6 +51,7 @@ Problemset
 <div class="container">
     <div class="row-fluid">
         <div class="main-content pagination-centered">
+        {% include "ingredients/flash.html" %}
         {% block main_content %}
         {% endblock %}
         </div>

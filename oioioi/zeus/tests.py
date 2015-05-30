@@ -308,5 +308,5 @@ class TestZeusProblemUpload(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
-        self.assertEqual(ProblemInstance.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
         self.assertEqual(ZeusProblemData.objects.count(), 1)

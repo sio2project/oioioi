@@ -11,7 +11,7 @@
 {% else %}
 <div class="corner-icons">
     <ul>
-        <li><a class="btn btn-small" href="{% url 'oioioiadmin:contests_probleminstance_models_rejudge' problem_instance.id %}">
+        <li><a class="btn btn-small" href="{% url 'model_solutions_rejudge' problem_instance.id %}">
                 <i class="icon-repeat"></i>
                 <span class="toolbar-button-text">{% trans "Rejudge" %}</span>
             </a>

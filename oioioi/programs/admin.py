@@ -13,7 +13,6 @@ from django.http import Http404
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
-from oioioi.contests.scores import IntegerScore
 from oioioi.problems.admin import ProblemPackageAdmin
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
         GroupReport, ModelProgramSubmission, OutputChecker, \
@@ -147,141 +146,6 @@ class ProgrammingProblemInstanceAdminMixin(object):
                 __init__(*args, **kwargs)
         self.inlines = self.inlines + [TestInline]
 
-    def _is_partial_score(self, test_report):
-        if not test_report:
-            return False
-        if isinstance(test_report.score, IntegerScore):
-            return test_report.score.value != test_report.test_max_score
-        return False
-
-    def model_solutions_view(self, request, problem_instance_id):
-        problem_instance = self.get_object(request,
-                unquote(problem_instance_id))
-        if problem_instance is None:
-            raise Http404
-        contest = problem_instance.contest
-        if not request.user.has_perm('contests.contest_admin', contest):
-            raise PermissionDenied
-
-        filter_kwargs = {
-            'test__isnull': False,
-            'submission_report__submission__problem_instance':
-                problem_instance,
-            'submission_report__submission__programsubmission'
-                    '__modelprogramsubmission__isnull': False,
-            'submission_report__status': 'ACTIVE',
-        }
-        test_reports = TestReport.objects.filter(**filter_kwargs) \
-                .select_related()
-        filter_kwargs = {
-            'submission_report__submission__problem_instance':
-                problem_instance,
-            'submission_report__submission__programsubmission'
-                    '__modelprogramsubmission__isnull': False,
-            'submission_report__status': 'ACTIVE',
-        }
-        group_reports = GroupReport.objects.filter(**filter_kwargs) \
-                .select_related()
-        submissions = ModelProgramSubmission.objects \
-                .filter(problem_instance=problem_instance) \
-                .order_by('model_solution__order_key') \
-                .select_related('model_solution') \
-                .all()
-        tests = problem_instance.test_set \
-                .order_by('order', 'group', 'name').all()
-
-        group_results = defaultdict(lambda: defaultdict(lambda: None))
-        for gr in group_reports:
-            group_results[gr.group][gr.submission_report.submission_id] = gr
-
-        test_results = defaultdict(lambda: defaultdict(lambda: None))
-        for tr in test_reports:
-            test_results[tr.test_id][tr.submission_report.submission_id] = tr
-
-        submissions_percentage_statuses = {s.id: '25' for s in submissions}
-        rows = []
-        submissions_row = []
-        for t in tests:
-            row_test_results = test_results[t.id]
-            row_group_results = group_results[t.group]
-            percentage_statuses = {s.id: '100' for s in submissions}
-            for s in submissions:
-                if row_test_results[s.id] is not None:
-                    time_ratio = float(row_test_results[s.id].time_used) / \
-                            row_test_results[s.id].test_time_limit
-                    if time_ratio <= 0.25:
-                        percentage_statuses[s.id] = '25'
-                    elif time_ratio <= 0.50:
-                        percentage_statuses[s.id] = '50'
-                        if submissions_percentage_statuses[s.id] is not '100':
-                            submissions_percentage_statuses[s.id] = '50'
-                    else:
-                        percentage_statuses[s.id] = '100'
-                        submissions_percentage_statuses[s.id] = '100'
-
-            rows.append({
-                'test': t,
-                'results': [{
-                    'test_report': row_test_results[s.id],
-                    'group_report': row_group_results[s.id],
-                    'is_partial_score': self._is_partial_score(
-                        row_test_results[s.id]),
-                    'percentage_status': percentage_statuses[s.id]
-                } for s in submissions]
-            })
-
-        for s in submissions:
-            status = s.status
-            if s.status == 'OK' or s.status == 'INI_OK':
-                status = 'OK' + submissions_percentage_statuses[s.id]
-
-            submissions_row.append({
-                'submission': s,
-                'status': status
-                })
-
-        context = {
-                'problem_instance': problem_instance,
-                'submissions_row': submissions_row,
-                'submissions': submissions,
-                'rows': rows
-        }
-
-        return TemplateResponse(request, 'programs/admin/model_solutions.html',
-                context)
-
-    def rejudge_model_solutions_view(self, request, problem_instance_id):
-        problem_instance = self.get_object(request,
-                unquote(problem_instance_id))
-        contest = problem_instance.contest
-        if not request.user.has_perm('contests.contest_admin', contest):
-            raise PermissionDenied
-        ModelSolution.objects.recreate_model_submissions(problem_instance)
-        messages.info(request, _("Model solutions sent for evaluation."))
-        return redirect('oioioiadmin:contests_probleminstance_models',
-            problem_instance.id)
-
-    def get_urls(self):
-        urls = super(ProgrammingProblemInstanceAdminMixin, self).get_urls()
-        extra_urls = patterns('',
-                url(r'(\d+)/models/$', self.model_solutions_view,
-                    name='contests_probleminstance_models'),
-                url(r'(\d+)/models/rejudge/$',
-                    self.rejudge_model_solutions_view,
-                    name='contests_probleminstance_models_rejudge'),
-            )
-        return extra_urls + urls
-
-    def inline_actions(self, instance):
-        actions = super(ProgrammingProblemInstanceAdminMixin, self) \
-                .inline_actions(instance)
-        if ModelSolution.objects.filter(problem_id=instance.problem_id):
-            models_view = reverse(
-                    'oioioiadmin:contests_probleminstance_models',
-                    args=(instance.id,))
-            actions.append((models_view, _("Model solutions")))
-        return actions
-
 ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
 
 
@@ -291,13 +155,15 @@ class ProblemPackageAdminMixin(object):
                 .inline_actions(package_instance, contest)
         if package_instance.status == 'OK':
             try:
-                problem_instance = ProblemInstance.objects.get(
+                problem_instance = package_instance.problem \
+                    .main_problem_instance
+                if not problem_instance:
+                    problem_instance = ProblemInstance.objects.get(
                         problem=package_instance.problem, contest=contest)
                 if (problem_instance.contest and ModelSolution.objects.filter(
                         problem=problem_instance.problem)):
-                    models_view = reverse(
-                            'oioioiadmin:contests_probleminstance_models',
-                            args=(problem_instance.id,))
+                    models_view = reverse('model_solutions',
+                                          args=(problem_instance.id,))
                     actions.append((models_view, _("Model solutions")))
             except ProblemInstance.DoesNotExist:
                 pass

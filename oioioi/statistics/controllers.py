@@ -157,12 +157,15 @@ ContestController.mix_in(StatisticsMixinForContestController)
 
 class StatisticsMixinForProgrammingContestController(object):
     def can_see_problem_statistics(self, request, pi):
-        cc = request.contest.controller
+        controller = pi.controller
         rtimes = rounds_times(request)
 
-        can_see_problem = cc.can_see_problem(request, pi)
-        can_see_round_results = rtimes[pi.round].public_results_visible(
-                request.timestamp)
+        can_see_problem = controller.can_see_problem(request, pi)
+        if pi.round:
+            can_see_round_results = rtimes[pi.round].public_results_visible(
+                    request.timestamp)
+        else:
+            can_see_round_results = False
         can_observe = is_contest_admin(request) or is_contest_observer(request)
 
         return can_see_problem and (can_see_round_results or can_observe)

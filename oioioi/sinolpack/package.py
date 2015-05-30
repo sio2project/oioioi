@@ -13,10 +13,11 @@ from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from django.core.files import File
 
-from oioioi.base.utils import naturalsort_key
+from oioioi.base.utils import naturalsort_key, generate_key
 from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.execute import execute, ExecuteError
-from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage
+from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage, \
+        ProblemSite
 from oioioi.problems.package import ProblemPackageBackend, \
         ProblemPackageError
 from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
@@ -674,7 +675,13 @@ class SinolPackage(object):
                     name=self.short_name,
                     short_name=self.short_name,
                     controller_name=self.controller_name,
-                    contest=self.package.contest)
+                    contest=self.package.contest,
+                    is_public=(env.get('author') is None),
+                    author=env.get('author'))
+            problem_site = ProblemSite(problem=self.problem,
+                                       url_key=generate_key())
+            problem_site.save()
+            self.problem.problem_site = problem_site
             self.main_problem_instance = self.problem.main_problem_instance
 
         self.problem.package_backend_name = self.package_backend_name

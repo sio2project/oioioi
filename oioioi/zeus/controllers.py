@@ -20,8 +20,9 @@ class ZeusProblemController(ProgrammingProblemController):
 
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
-        zeus_problem = ZeusProblemData.objects.get(problem=self.problem)
         environ['recipe'] = []
+        zeus_problem, _created = ZeusProblemData.objects \
+            .get_or_create(problem=self.problem)
         environ['zeus_id'] = zeus_problem.zeus_id
         environ['zeus_problem_id'] = zeus_problem.zeus_problem_id
 

@@ -348,14 +348,24 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
                 {'package_file': open(filename, 'rb')}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
-        self.assertEqual(ProblemInstance.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
 
-        # Delete tests and check if re-uploading will fix it.
-        problem_instance = Problem.objects.get().main_problem_instance
+        ## Delete tests and check if re-uploading will fix it.
+        problem = Problem.objects.get()
+        problem_instance = ProblemInstance.objects \
+            .filter(contest__isnull=False).get()
         num_tests = problem_instance.test_set.count()
         for test in problem_instance.test_set.all():
             test.delete()
         problem_instance.save()
+        # problem instances are independent
+        problem_instance = problem.main_problem_instance
+        self.assertEqual(problem_instance.test_set.count(), num_tests)
+        num_tests = problem_instance.test_set.count()
+        for test in problem_instance.test_set.all():
+            test.delete()
+        problem_instance.save()
+
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         urllib.urlencode({
@@ -368,7 +378,10 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)
         self.assertEqual(response.status_code, 200)
-        problem_instance = Problem.objects.get().main_problem_instance
+        problem_instance = ProblemInstance.objects \
+            .filter(contest__isnull=False).get()
+        self.assertEqual(problem_instance.test_set.count(), num_tests)
+        problem_instance = problem.main_problem_instance
         self.assertEqual(problem_instance.test_set.count(), num_tests)
 
         response = self.client.get(

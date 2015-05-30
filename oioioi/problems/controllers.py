@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import Submission, SubmissionReport, \
         UserResultForProblem, FailureReport
+from oioioi.contests.scores import IntegerScore
 from oioioi import evalmgr
 from oioioi.problems.utils import is_problem_author
 from django.utils.translation import ugettext_lazy as _
@@ -22,6 +23,11 @@ logger = logging.getLogger(__name__)
 
 
 class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
+    """Every method contained by ProblemController are specific
+       for ProblemController or should be caled from ContestController,
+       but are necessery for main_problem_instace, which has no contest
+       (contest is None). In this case methods behave in default way.
+    """
 
     modules_with_subclasses = ['controllers']
     abstract = True
@@ -425,3 +431,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             submission.problem_instance.controller \
                 .update_user_results(submission.user,
                     submission.problem_instance)
+
+    def _is_partial_score(self, test_report):
+        if not test_report:
+            return False
+        if isinstance(test_report.score, IntegerScore):
+            return test_report.score.value != test_report.test_max_score
+        return False

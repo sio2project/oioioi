@@ -1,0 +1,27 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm rejudge" %}{% endblock %}
+
+{% block content %}
+<div class="empty-space-filler">
+    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+        <input type="hidden" name="post" value="yes" />
+        <div class="control-group">
+                <h2>{% trans "Confirm rejudge" %}</h2>
+        </div>
+        <div class="control-group">
+                <p>{% trans "Tests for this problem have changed, you should rejudge existing submissions." %}
+                </p>
+                <p>{% trans "You are going to rejudge" %} {{ count }}
+                    {% trans "submissions. It may take some time." %}
+                </p>
+                <p>{% trans "Are you sure?" %}</p>
+        </div>
+        <div class="form-actions" style="padding-left: 150px; padding-right: 150px;">
+            <button type="submit" class="btn btn-danger" style="float: left">{% trans "Yes, I am sure." %}</button>
+            <button type="button" class="btn" onclick="history.back()" style="float: right">{% trans "No, go back" %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

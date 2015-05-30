@@ -1,22 +1,35 @@
 {% extends "problems/problemset/base.html" %}
 {% load i18n %}
+{% load staticfiles %}
 
 {% block main_content %}
 <h2 class="text-right">{{ problem }}</h2>
 
 {% if user == problem.author %}
-<p>
-    <a>Edit me!</a>
-</p>
+
+<div class="alert authorbar">
+    <a >
+        {% trans "Edit problem" %}
+    </a>
+    |
+    <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">
+        {% trans "Reupload problem" %}
+    </a>
+    |
+    <a href="{% url 'model_solutions' problem_instance_id=problem.main_problem_instance.id %}">
+        {% trans "Model solutions" %}
+    </a>
+</div>
 {% endif %}
 
 {% if select_problem_src %}
-<a href="{{ select_problem_src }}?problem_hash={{ problem.id }}">
+<a type="button" class="btn"
+        href="{{ select_problem_src }}{% if '?' in select_problem_src %}&{% else %}?{% endif %}url_key={{ problem.problemsite.url_key }}">
     Select me!
 </a>
 {% endif %}
 
-<div class="tabbable text-left">
+<div class="tabbable text-left bigtopmargin">
     <ul class="nav nav-tabs">
         {% for tab in tabs %}
         <li {% if tab.obj == current_tab %}class="active"{% endif %}>

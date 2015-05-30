@@ -1,0 +1,26 @@
+{% load i18n %}
+<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    {% csrf_token %}
+
+    <div class="control-group {% if form.url_key.errors %}error{% endif %}">
+        <label for="{{ form.url_key.auto_id }}" class="control-label">{{ form.url_key.label }}</label>
+        <div class="controls">
+            {{ form.url_key }}
+            {% if not is_reupload %}
+            <a type="button" class="btn" href="{% url 'problemset_main' %}?select_problem_src={{ request.get_full_path }}">
+                {% trans "Select" %}
+            </a>
+            {% endif %}
+            {% for error in form.url_key.errors %}
+            <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+            {% if form.url_key.help_text %}
+            <p class="help-block">{{ form.url_key.help_text }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    </div>
+</form>

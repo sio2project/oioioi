@@ -667,8 +667,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         raise NotImplementedError
 
     def render_submission_footer(self, request, submission):
-        problem = submission.problem_instance.problem
-        return problem.controller.render_submission_footer(request, submission)
+        return submission.problem.controller \
+                .render_submission_footer(request, submission)
 
     def render_report(self, request, report):
         problem = report.submission.problem_instance.problem
@@ -688,11 +688,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         pass
 
     def valid_kinds_for_submission(self, submission):
-        return submission.problem_instance.problem.controller \
+        return submission.problem.controller \
                 .valid_kinds_for_submission(submission)
 
     def change_submission_kind(self, submission, kind):
-        return submission.problem_instance.problem.controller \
+        return submission.problem.controller \
             .change_submission_kind(submission, kind)
 
     def mixins_for_admin(self):
@@ -725,6 +725,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         email = EmailMessage(subject, body, settings.DEFAULT_FROM_EMAIL,
                 recipients, headers=final_headers)
         email.send()
+
+    def _is_partial_score(self, test_report):
+        if not test_report:
+            return False
+        return test_report.submission_report.submission.problem \
+                .controller._is_partial_score(test_report)
+
 
 
 class PastRoundsHiddenContestControllerMixin(object):

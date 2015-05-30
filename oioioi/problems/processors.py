@@ -37,3 +37,25 @@ def dangling_problems_processor(request):
 
 def problemset_link_visible_processor(request):
     return {'is_problemset_link_visible': settings.PROBLEMSET_LINK_VISIBLE}
+
+
+def problems_need_rejudge_processor(request):
+    if not getattr(request, 'contest', None):
+        return {}
+    if not is_contest_admin(request):
+        return {}
+
+    def generator():
+        pis = ProblemInstance.objects.filter(contest=request.contest,
+                needs_rejudge=True)
+        count = pis.count()
+        if not count:
+            return ''
+        else:
+            link = reverse('oioioiadmin:contests_probleminstance_changelist')
+        text = ungettext("%(count)d PROBLEM NEEDS REJUDGING",
+                "%(count)d PROBLEMS NEED REJUDGING",
+                count) % {'count': count}
+        return make_navbar_badge(link, text)
+    return {'extra_navbar_right_not_rejudged_problems':
+                lazy(generator, unicode)()}

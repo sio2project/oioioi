@@ -52,3 +52,12 @@ class ProblemSiteForm(forms.ModelForm):
         widgets = {
             'url_key': TextInputWithGenerate()
         }
+
+
+class ProblemsetSourceForm(forms.Form):
+    url_key = forms.CharField(label=_("Problem's url key"), required=True)
+
+    def __init__(self, url_key, *args, **kwargs):
+        super(ProblemsetSourceForm, self).__init__(*args, **kwargs)
+        if url_key:
+            self.initial = {'url_key': url_key}

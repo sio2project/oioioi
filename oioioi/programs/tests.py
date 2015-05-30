@@ -111,8 +111,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         ModelSolution.objects.recreate_model_submissions(pi)
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioiadmin:contests_probleminstance_models',
-                args=(pi.id,))
+        url = reverse('model_solutions', args=(pi.id,))
 
         self.client.login(username='test_admin')
         response = self.client.get(url)

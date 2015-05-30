@@ -94,7 +94,8 @@ class ModelSolutionsManager(models.Manager):
             for model_submission in ModelProgramSubmission.objects.filter(
                     problem_instance=problem_instance):
                 model_submission.delete()
-        if not problem_instance.round:
+        if not problem_instance.round and \
+                problem_instance.contest is not None:
             return
         for model_solution in self.filter(problem=problem_instance.problem):
             with transaction.atomic():

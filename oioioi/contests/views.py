@@ -13,7 +13,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy, ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.http import Http404
 from django.utils.safestring import mark_safe
@@ -333,3 +333,25 @@ def user_info_redirect_view(request):
     return safe_redirect(request, reverse('user_info', kwargs={
                         'contest_id': request.contest.id,
                         'user_id': user.id}))
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
+    problem_instance = get_object_or_404(ProblemInstance,
+                                         id=problem_instance_id)
+    count = problem_instance.submission_set.count()
+    if request.POST:
+        for submission in problem_instance.submission_set.all():
+            problem_instance.controller.judge(submission, request.GET.dict(),
+                                              is_rejudge=True)
+        messages.info(request,
+                      ungettext_lazy("%(count)d rejudge request received.",
+                      "%(count)d rejudge requests reveived.",
+                      count) % {'count': count})
+        problem_instance.needs_rejudge = False
+        problem_instance.save()
+        return safe_redirect(request, reverse(
+            'oioioiadmin:contests_probleminstance_changelist'))
+
+    return TemplateResponse(request, "contests/confirm_rejudge.html",
+                            {'count': count})
