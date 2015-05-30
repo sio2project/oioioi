@@ -15,12 +15,11 @@ from django.utils.translation import ugettext_lazy as _, ungettext
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, MenuItem
 from oioioi.base.utils import get_object_by_dotted_name
-from oioioi.contests.fields import ScoreField
-from oioioi.filetracker.fields import FileField
 from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
-from oioioi.problems.models import Problem
 from oioioi.contests.date_registration import date_registry
+from oioioi.contests.fields import ScoreField
+from oioioi.filetracker.fields import FileField
 
 
 def make_contest_filename(instance, filename):
@@ -219,7 +218,7 @@ class ProblemInstance(models.Model):
             null=True, blank=True)
     round = models.ForeignKey(Round, verbose_name=_("round"), null=True,
             blank=True)
-    problem = models.ForeignKey(Problem, verbose_name=_("problem"))
+    problem = models.ForeignKey('problems.Problem', verbose_name=_("problem"))
     short_name = models.CharField(max_length=30, verbose_name=_("short name"),
             validators=[validate_db_string_id])
     submissions_limit = models.IntegerField(blank=True,
