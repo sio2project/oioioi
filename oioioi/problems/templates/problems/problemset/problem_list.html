@@ -1,6 +1,7 @@
 {% extends "problems/problemset/base.html" %}
 {% load i18n %}
 {% load pagination_tags %}
+{% load tag %}
 
 {% block main_content %}
 <h1>{{ page_title }}</h1>
@@ -15,6 +16,7 @@
             <tr>
                 <th style="width: 100px">{% trans "ID" %}</th>
                 <th>{% trans "Name" %}</th>
+                {%if show_tags %}<th>{% trans "Tags" %}</th>{% endif %}
 
                 {% if select_problem_src %}
                 <th>{% trans "Select problem" %}</th>
@@ -28,6 +30,14 @@
                 <td><a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
                     {{ problem.name }}
                 </a></td>
+
+                {% if show_tags %}
+                <td>
+                {% for tag in problem.tag_set.all %}
+                    {% tag_label tag %}
+                {% endfor %}
+                </td>
+                {% endif %}
 
                 {% if select_problem_src %}
                 <td><a type="button" class="btn"

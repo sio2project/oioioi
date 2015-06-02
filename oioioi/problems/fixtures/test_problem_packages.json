@@ -30,7 +30,9 @@
       "name": "XYZ",
       "contest": "c",
       "short_name": "xyz",
-      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "author": 1000,
+      "is_public": true
     }
   },
   {

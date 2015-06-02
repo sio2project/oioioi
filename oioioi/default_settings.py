@@ -93,6 +93,8 @@ if not DEBUG:
 
 PROBLEMSET_LINK_VISIBLE = True
 
+PROBLEM_TAGS_VISIBLE = False
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.debug',

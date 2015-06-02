@@ -10,10 +10,11 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.views.decorators.http import require_POST
 from django.template.response import TemplateResponse
+from django.conf import settings
 
-from oioioi.base.utils import tabbed_view
+from oioioi.base.utils import tabbed_view, jsonify
 from oioioi.problems.models import ProblemStatement, ProblemAttachment, \
-        Problem, ProblemPackage
+        Problem, ProblemPackage, Tag
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem, \
         query_statement, is_problem_author, get_submission_without_contest, \
@@ -118,27 +119,46 @@ def add_or_update_problem_view(request):
                                  'problems/add_or_update.html')
 
 
+def get_problem_queryset_by_tag(datadict):
+    try:
+        tag_name = datadict['tag_search']
+        if not tag_name:
+            return Problem.objects, ''
+        tag = Tag.objects.get(name=tag_name)
+        return tag.problems, tag_name
+    except KeyError:
+        return Problem.objects, ''
+    except Tag.DoesNotExist:
+        return Problem.objects.none(), ''
+
+
 def problemset_main_view(request):
-    problems = Problem.objects.filter(is_public=True,
-            problemsite__isnull=False)
+    queryset, query_string = get_problem_queryset_by_tag(request.GET)
+    problems = queryset.filter(is_public=True, problemsite__isnull=False)
 
     return TemplateResponse(request,
        'problems/problemset/problem_list.html',
       {'problems': problems,
        'page_title':
-          _("Welcome to problemset, the place where all the problems are."),
-       'select_problem_src': request.GET.get('select_problem_src')})
+          _("Welcome to problemset, the place, where all the problems are."),
+       'select_problem_src': request.GET.get('select_problem_src'),
+       'tag_search': query_string,
+       'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
+       'show_search_bar': True})
 
 
 def problemset_my_problems_view(request):
-    problems = Problem.objects.filter(author=request.user,
-            problemsite__isnull=False)
+    queryset, query_string = get_problem_queryset_by_tag(request.GET)
+    problems = queryset.filter(author=request.user, problemsite__isnull=False)
 
     return TemplateResponse(request,
          'problems/problemset/problem_list.html',
          {'problems': problems,
           'page_title': _("My problems"),
-          'select_problem_src': request.GET.get('select_problem_src')})
+          'select_problem_src': request.GET.get('select_problem_src'),
+          'tag_search': query_string,
+          'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
+          'show_search_bar': True})
 
 
 def problem_site_view(request, site_key):
@@ -326,3 +346,13 @@ def rejudge_model_solutions_view(request, problem_instance_id):
     ModelSolution.objects.recreate_model_submissions(problem_instance)
     messages.info(request, _("Model solutions sent for evaluation."))
     return redirect('model_solutions', problem_instance.id)
+
+
+@jsonify
+def get_tag_hints_view(request):
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    queryset = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
+    return [str(tag.name) for tag in queryset]

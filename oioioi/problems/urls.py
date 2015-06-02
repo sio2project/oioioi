@@ -51,4 +51,6 @@ urlpatterns = patterns('oioioi.problems.views',
     url(r'^s_wc/(?P<submission_id>\d+)/change_kind/(?P<kind>\w+)/$',
         'change_submission_kind_without_contest_view',
         name='change_submission_kind_without_contest'),
+
+    url(r'^get_tag_hints/$', 'get_tag_hints_view', name='get_tag_hints'),
 )

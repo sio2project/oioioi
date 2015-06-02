@@ -3,6 +3,7 @@ import os.path
 from contextlib import contextmanager
 from traceback import format_exception
 
+from django.core import validators
 from django.core.validators import validate_slug
 from django.core.files.base import ContentFile
 from django.db import models, transaction
@@ -297,3 +298,33 @@ class ProblemSite(models.Model):
 class MainProblemInstance(ProblemInstance):
     class Meta(object):
         proxy = True
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=20, unique=True,
+            verbose_name=_("name"), null=False, blank=False,
+            validators=[
+                validators.MinLengthValidator(3),
+                validators.MaxLengthValidator(20),
+                validators.validate_slug,
+            ])
+    problems = models.ManyToManyField(Problem, through='TagThrough')
+
+    class Meta(object):
+        verbose_name = _("tag")
+        verbose_name_plural = _("tags")
+
+    def __unicode__(self):
+        return str(self.name)
+
+
+class TagThrough(models.Model):
+    problem = models.ForeignKey(Problem)
+    tag = models.ForeignKey(Tag)
+
+    # This string will be visible in admin form
+    def __unicode__(self):
+        return unicode(self.tag.name)
+
+    class Meta(object):
+        unique_together = ('problem', 'tag')

@@ -726,3 +726,97 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.content
                  .count("Rejudge all submissions for problem"), pi_number - 1)
         self.assertIn("1 rejudge request received.", response.content)
+
+
+class TestTags(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_problem_packages',
+                'test_problem_site', 'test_tags']
+
+    def test_tag_hints_view(self):
+        self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        def get_query_url(query):
+            url = reverse('get_tag_hints')
+            return url + '?' + urllib.urlencode({'substr': query})
+
+        response = self.client.get(get_query_url('rowk'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('mrowkowiec', response.content)
+        self.assertIn('mrowka', response.content)
+
+        response = self.client.get(get_query_url('rowka'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('mrowkowiec', response.content)
+        self.assertIn('mrowka', response.content)
+
+        response = self.client.get(get_query_url('bad_tag'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('mrowkowiec', response.content)
+        self.assertNotIn('mrowka', response.content)
+
+    @override_settings(PROBLEM_TAGS_VISIBLE=True)
+    def test_problemset_list_search_visible(self):
+        self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        def get_search_url(query):
+            url = reverse('problemset_main')
+            return url + '?' + urllib.urlencode({'tag_search': query})
+
+        response = self.client.get(get_search_url('mrowkowiec'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('XYZ', response.content)
+        self.assertIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+        response = self.client.get(get_search_url('mrowka'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('XYZ', response.content)
+        self.assertNotIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+        response = self.client.get(get_search_url('bad_tag'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('XYZ', response.content)
+        self.assertNotIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+        response = self.client.get(get_search_url(''))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('XYZ', response.content)
+        self.assertIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+    @override_settings(PROBLEM_TAGS_VISIBLE=False)
+    def test_problemset_list_search_invisible(self):
+        self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        def get_search_url(query):
+            url = reverse('problemset_main')
+            return url + '?' + urllib.urlencode({'tag_search': query})
+
+        response = self.client.get(get_search_url('mrowkowiec'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('XYZ', response.content)
+        self.assertNotIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+        response = self.client.get(get_search_url('mrowka'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('XYZ', response.content)
+        self.assertNotIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+        response = self.client.get(get_search_url('bad_tag'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('XYZ', response.content)
+        self.assertNotIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
+
+        response = self.client.get(get_search_url(''))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('XYZ', response.content)
+        self.assertNotIn('>mrowkowiec<', response.content)
+        self.assertNotIn('>mrowka<', response.content)
