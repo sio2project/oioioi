@@ -27,7 +27,6 @@ from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest, rounds_times, can_see_personal_data
 from oioioi.contests.current_contest import ContestMode
-from oioioi.contests.views import select_contest_view
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
@@ -171,6 +170,7 @@ class TestUrls(TestCase):
         self.assertTrue(url.startswith(contest_prefix))
 
         # imported view
+        from oioioi.contests.views import select_contest_view
         url = reverse(select_contest_view)
         self.assertFalse(url.startswith(contest_prefix))
         url = reverse(select_contest_view, kwargs={'contest_id': contest.id})
