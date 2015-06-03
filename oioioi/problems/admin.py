@@ -114,7 +114,7 @@ class ProblemSiteInline(admin.StackedInline):
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [StatementInline, AttachmentInline, ProblemInstanceInline,
                ProblemSiteInline]
-    readonly_fields = ['name', 'short_name', 'controller_name',
+    readonly_fields = ['author', 'name', 'short_name', 'controller_name',
             'package_backend_name']
     exclude = ['contest']
     list_filter = ['short_name']
