@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import OrderedRegistry
 from oioioi.gamification.friends import UserFriends
 from oioioi.contests.models import UserResultForProblem
+from oioioi.gamification.controllers import TaskSuggestionController
 
 
 MAX_SUGGESTIONS_FROM_FRIENDS = 10
@@ -38,6 +39,18 @@ def miniprofile_tab(title, order):
 def user_info_row(request):
     return render_to_string('gamification/miniprofile/user-info.html',
         {'user': request.user})
+
+
+@miniprofile_row(50)
+def suggestion_row(request):
+    if request.user.is_authenticated():
+        problem = TaskSuggestionController().suggest_task(request.user)
+        if problem is not None:
+            assert problem.is_public
+            return render_to_string('gamification/miniprofile/suggestion.html',
+                    {'suggestion': problem}
+                )
+    return ''
 
 
 @miniprofile_row(100)
