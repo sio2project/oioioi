@@ -133,7 +133,7 @@ class TaskSuggestionController(ObjectWithMixins):
             qset = get_problems_by_difficulty(DIFFICULTY.TRIVIAL)
 
         try:
-            return qset.order_by('?').first()
+            return qset.filter(is_public=True).order_by('?').first()
         except Problem.DoesNotExist:
             return None
 
