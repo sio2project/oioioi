@@ -31,7 +31,16 @@ setup(
         "PyYAML",
         "python-dateutil",
         "django-nose>=1.3",
-        "django-registration-redux",
+
+        # The newer version changes API of RegistrationForm, causing the
+        # following error:
+        #
+        #   File lib/python2.7/site-packages/registration/views.py",
+        #        line 94, in form_valid
+        #       new_user = self.register(request, form)
+        #       TypeError: register() takes exactly 7 arguments (3 given)
+        "django-registration-redux==1.1",
+
         "django-celery>=3.1.15",
         "django-supervisor",
         "linaro-django-pagination",
