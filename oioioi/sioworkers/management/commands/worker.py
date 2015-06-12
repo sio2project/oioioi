@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
-from jsonrpclib import Server
+from xmlrpclib import Server
 import json
-
 
 class Command(BaseCommand):
     args = '<command> [args]'   # TODO
@@ -21,18 +20,18 @@ class Command(BaseCommand):
 
     def cmd_run(self, *args, **kwargs):
         env = json.loads(' '.join(args))
-        self.stdout.write(self.server.run(env, 0))
+        self.stdout.write(self.server.run(env))
+
+    def cmd_sync_run(self, *args, **kwargs):
+        env = json.loads(' '.join(args))
+        self.stdout.write(repr(self.server.sync_run(env)))
 
     def cmd_queue(self, *args, **kwargs):
-        if int(kwargs['verbosity']) > 1:
-            verbose = True
-        else:
-            verbose = False
-        q = self.server.get_queue(verbose)
+        q = self.server.get_queue()
         if not q:
             self.stdout.write('Empty queue.\n')
             return
-        self.stdout.write('\n'.join(map(str, q)))
+        self.stdout.write(unicode(q).encode('utf-8'))
 
     def handle(self, *args, **kwargs):
         if not args:
