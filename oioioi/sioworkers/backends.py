@@ -1,6 +1,8 @@
 import sio.workers.runner
 import sio.celery.job
 import oioioi
+from django.conf import settings
+from xmlrpclib import Server
 
 
 # This is a workaround for SIO-915. We assume that other parts of OIOIOI code
@@ -31,7 +33,7 @@ class LocalBackend(object):
     def send_async_jobs(self, env, **kwargs):
         res = self.run_jobs(env['workers_jobs'],
             **(env.get('workers_jobs.extra_args', dict())))
-        env['workers_job.results'] = res
+        env['workers_jobs.results'] = res
         del env["workers_jobs"]
         if 'workers_jobs.extra_args' in env:
             del env['workers_jobs.extra_args']
@@ -65,3 +67,34 @@ class CeleryBackend(object):
         if 'workers_jobs.extra_args' in env:
             del env['workers_jobs.extra_args']
         oioioi.evalmgr.evalmgr_job.delay(env)
+
+
+class SioworkersdBackend(object):
+    """A backend which collaborates with sioworkersd"""
+    server = Server(settings.SIOWORKERSD_URL, allow_none=True)
+
+    def run_job(self, job, **kwargs):
+        env = {'workers_jobs': {'dummy_name': job}}
+        env['workers_jobs.extra_args'] = kwargs
+        ans = SioworkersdBackend.server.sync_run_group(env)
+        if 'error' in ans:
+            raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
+                (ans['error']['message'], env['error']['traceback']))
+        return ans['workers_jobs.results']['dummy_name']
+
+    def run_jobs(self, dict_of_jobs, **kwargs):
+        env = {'workers_jobs': dict_of_jobs,
+                'workers_jobs.extra_args': kwargs}
+        ans = SioworkersdBackend.server.sync_run_group(env)
+        if 'error' in ans:
+            raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
+                (ans['error']['message'], env['error']['traceback']))
+        return ans['workers_jobs.results']
+
+    def send_async_jobs(self, env, **kwargs):
+        url = settings.SIOWORKERS_LISTEN_URL
+        if url is None:
+            url = 'http://' + settings.SIOWORKERS_LISTEN_ADDR + ':' \
+                + str(settings.SIOWORKERS_LISTEN_PORT)
+        env['return_url'] = url
+        SioworkersdBackend.server.run_group(env)

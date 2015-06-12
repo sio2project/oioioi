@@ -431,3 +431,12 @@ LIVEDATA_CACHE_TIMEOUT = 30
 
 # Submissions by (snail) mail
 MAILSUBMIT_CONFIRMATION_HASH_LENGTH = 5
+
+# On which interface should the sioworkers receiver listen
+SIOWORKERS_LISTEN_ADDR = '127.0.0.1'
+SIOWORKERS_LISTEN_PORT = 7890
+
+# URL to which should respond sioworkersd, when it has finished its job
+# When set to None the default url will be created using the pattern
+# http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
+SIOWORKERS_LISTEN_URL = None

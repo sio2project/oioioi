@@ -182,7 +182,9 @@ def evalmgr_job(env):
         if 'recipe' not in env:
             raise RuntimeError('No recipe found in job environment. '
                     'Did you forget to set environ["run_externally"]?')
-
+        if 'error' in env:
+            raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
+                (env['error']['message'], env['error']['traceback']))
         while True:
             recipe = env.get('recipe')
             if not recipe:

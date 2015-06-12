@@ -96,7 +96,7 @@ def compile(env, **kwargs):
 
 
 def compile_end(env, **kwargs):
-    new_env = env['workers_job.results']['compile']
+    new_env = env['workers_jobs.results']['compile']
     env['compiled_file'] = new_env.get('out_file')
     env['compilation_message'] = new_env.get('compiler_output', '')
     env['compilation_result'] = new_env.get('result_code', 'CE')
@@ -254,7 +254,7 @@ def run_tests(env, kind=None, **kwargs):
 def run_tests_end(env, **kwargs):
     not_to_judge = env['workers_jobs.not_to_judge']
     del env['workers_jobs.not_to_judge']
-    jobs = env['workers_job.results']
+    jobs = env['workers_jobs.results']
     env.setdefault('test_results', {})
     for test_name, result in jobs.iteritems():
         env['test_results'].setdefault(test_name, {}).update(result)
