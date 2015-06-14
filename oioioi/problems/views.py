@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_POST
 from django.template.response import TemplateResponse
 from django.conf import settings
@@ -198,9 +199,10 @@ def problem_site_external_attachment_view(request, site_key, attachment_id):
 
 def get_report_HTML_view(request, submission_id):
     submission = get_object_or_404(Submission, id=submission_id)
-    if not can_see_submission_without_contest(request, submission):
-        return HttpResponseForbidden()
     controller = submission.problem_instance.controller
+    if not controller.filter_my_visible_submissions(request, Submission.objects
+                            .filter(id=submission_id)).exists():
+        return Http404()
     reports = ''
     queryset = SubmissionReport.objects.filter(submission=submission). \
         prefetch_related('scorereport_set')
@@ -208,8 +210,9 @@ def get_report_HTML_view(request, submission_id):
             queryset.filter(status='ACTIVE')):
         reports += controller.render_report(request, report)
 
-    if reports:
-        reports = _(u"<center>Reports are not available now (ಥ ﹏ ಥ)</center>")
+    if not reports:
+        reports = _(u"Reports are not available now (ಥ ﹏ ಥ)")
+        reports = mark_safe('<center>' + reports + '</center>')
     return HttpResponse(reports)
 
 

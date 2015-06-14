@@ -472,6 +472,12 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.client.login(username='test_user')
         self.assertEqual(response.status_code, 200)
         response = self.client.get(url)
+        #submissions submitted for contest are not visible
+        self.assertEqual(response.content.count('<tr'), 0)
+        for pi in ProblemInstance.objects.all():
+            pi.contest = pi.round = None
+            pi.save()
+        response = self.client.get(url)
         self.assertEqual(response.content.count('<tr'), 3)
 
     def test_add_new_tab(self):
@@ -581,13 +587,13 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(ProblemInstance.objects.count(), 1)
         self.assertEqual(ProblemSite.objects.count(), 1)
 
-        #problem is not visable in "Public"
+        #problem is not visible in "Public"
         url = reverse('problemset_main')
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Testowe", response.content)
         self.assertNotIn("<td>tst</td>", response.content)
-        #but visable in "My problems"
+        #but visible in "My problems"
         url = reverse('problemset_my_problems')
         self.assertEqual(response.status_code, 200)
         response = self.client.post(url, follow=True)

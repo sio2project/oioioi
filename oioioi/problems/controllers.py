@@ -336,10 +336,8 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     def filter_visible_reports(self, request, submission, queryset):
         """Determines which reports the user should be able to see.
 
-           It need not check whether the submission is visible to the user.
-
-           The default implementation uses
-           :meth:`~ContestController.results_visible`.
+           It needs to check whether the submission is visible to the user
+           and submission is submitted without contest.
 
            :param request: Django request
            :param submission: instance of
@@ -348,6 +346,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                               select only given submission's reports
            :returns: updated queryset
         """
+        assert not submission.problem_instance.contest
         problem = submission.problem_instance.problem
         if is_problem_author(request, problem):
             return queryset
@@ -438,3 +437,23 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         if isinstance(test_report.score, IntegerScore):
             return test_report.score.value != test_report.test_max_score
         return False
+
+    def filter_my_visible_submissions(self, request, queryset):
+        """Returns the submissions which the user should see in the
+           problemset in "My submissions" view.
+
+           The default implementation returns all submissions belonging to
+           the user for current problem except for author, who
+           gets all his submissions.
+
+           Should return the updated queryset.
+        """
+        if not request.user.is_authenticated():
+            return queryset.none()
+        qs = queryset.filter(user=request.user,
+                     problem_instance=self.problem.main_problem_instance)
+        if is_problem_author(request, self.problem):
+            return qs
+        else:
+            return qs.filter(date__lte=request.timestamp) \
+            .exclude(kind='IGNORED_HIDDEN')

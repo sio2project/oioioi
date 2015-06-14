@@ -90,8 +90,9 @@ def problem_site_files(request, problem):
 def problem_site_submissions(request, problem):
     if request.user.is_authenticated():
         submissions_qs = Submission.objects \
-                        .filter(problem_instance__problem=problem) \
-                        .filter(user=request.user) \
+                        .filter(problem_instance__problem=problem,
+                                problem_instance__contest__isnull=True,
+                                user=request.user) \
                         .order_by('-date')
     else:
         submissions_qs = []
