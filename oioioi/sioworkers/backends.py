@@ -59,8 +59,9 @@ class CeleryBackend(object):
 
     def send_async_jobs(self, env, **kwargs):
         res = self.run_jobs(env['workers_jobs'],
-            **env['workers_jobs.extra_args'])
+            **(env.get('workers_jobs.extra_args', dict())))
         env['workers_job.results'] = res
         del env["workers_jobs"]
-        del env['workers_jobs.extra_args']
+        if 'workers_jobs.extra_args' in env:
+            del env['workers_jobs.extra_args']
         oioioi.evalmgr.evalmgr_job.delay(env)
