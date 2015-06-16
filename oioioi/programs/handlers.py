@@ -27,6 +27,8 @@ DEFAULT_GROUP_SCORER = \
         'oioioi.programs.utils.min_group_scorer'
 DEFAULT_SCORE_AGGREGATOR = \
         'oioioi.programs.utils.sum_score_aggregator'
+DEFAULT_NORMAL_PRIORITY = 100
+DEFAULT_HIGH_PRIORITY = 50
 
 
 def _make_filename(env, base_name):
@@ -218,6 +220,9 @@ def run_tests(env, kind=None, **kwargs):
 
            If the dictionary already exists, new test results are appended.
     """
+    priority = DEFAULT_NORMAL_PRIORITY
+    if kind == 'INITIAL' or kind == 'EXAMPLE':
+        priority = DEFAULT_HIGH_PRIORITY
     jobs = dict()
     not_to_judge = []
     for test_name, test_env in env['tests'].iteritems():
@@ -230,6 +235,7 @@ def run_tests(env, kind=None, **kwargs):
         job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
         job['exe_file'] = env['compiled_file']
         job['exec_info'] = env['exec_info']
+        job['priority'] = priority
         job['check_output'] = env.get('check_outputs', True)
         if env.get('checker'):
             job['chk_file'] = env['checker']
