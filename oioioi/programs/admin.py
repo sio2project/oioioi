@@ -13,7 +13,7 @@ from django.http import Http404
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
-from oioioi.problems.admin import ProblemPackageAdmin
+from oioioi.problems.admin import ProblemPackageAdmin, MainProblemInstanceAdmin
 from oioioi.programs.models import Test, ModelSolution, TestReport, \
         GroupReport, ModelProgramSubmission, OutputChecker, \
         LibraryProblemData, ReportActionsConfig
@@ -147,6 +147,15 @@ class ProgrammingProblemInstanceAdminMixin(object):
         self.inlines = self.inlines + [TestInline]
 
 ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
+
+
+class ProgrammingMainProblemInstanceAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(ProgrammingMainProblemInstanceAdminMixin, self). \
+                __init__(*args, **kwargs)
+        self.inlines = self.inlines + [TestInline]
+
+MainProblemInstanceAdmin.mix_in(ProgrammingMainProblemInstanceAdminMixin)
 
 
 class ProblemPackageAdminMixin(object):

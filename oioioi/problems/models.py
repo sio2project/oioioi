@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.filetracker.fields import FileField
+from oioioi.contests.models import ProblemInstance
 
 
 logger = logging.getLogger(__name__)
@@ -291,3 +292,8 @@ class ProblemSite(models.Model):
     class Meta(object):
         verbose_name = _("problem site")
         verbose_name_plural = _("problem sites")
+
+
+class MainProblemInstance(ProblemInstance):
+    class Meta(object):
+        proxy = True

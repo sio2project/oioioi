@@ -8,8 +8,12 @@
 {% if user == problem.author %}
 
 <div class="alert authorbar">
-    <a >
+    <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">
         {% trans "Edit problem" %}
+    </a>
+    |
+    <a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance.id %}">
+        {% trans "Edit tests" %}
     </a>
     |
     <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">

@@ -21,8 +21,9 @@ from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment, ProblemPackage, ProblemSite
-from oioioi.problems.utils import can_add_problems, can_admin_problem
+        ProblemAttachment, ProblemPackage, ProblemSite, MainProblemInstance
+from oioioi.problems.utils import can_add_problems, can_admin_problem, \
+        is_problem_author
 from oioioi.problems.forms import ProblemStatementConfigForm, ProblemSiteForm
 
 
@@ -125,6 +126,8 @@ class ProblemAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return self.get_queryset(request).exists()
+        if is_problem_author(request, obj):
+            return True
         return can_admin_problem(request, obj)
 
     def has_delete_permission(self, request, obj=None):
@@ -135,6 +138,13 @@ class ProblemAdmin(admin.ModelAdmin):
             return redirect('oioioiadmin:contests_probleminstance_changelist')
         else:
             return redirect('oioioiadmin:problems_problem_changelist')
+
+    def response_change(self, request, obj):
+        if not '_continue' in request.POST and obj.problemsite:
+            return redirect('problem_site', obj.problemsite.url_key)
+        else:
+            return super(ProblemAdmin, self). \
+                response_change(request, obj)
 
     def add_view(self, request, form_url='', extra_context=None):
         return redirect('add_or_update_problem',
@@ -155,7 +165,10 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super(ProblemAdmin, self).get_queryset(request)
-        combined = queryset.none()
+        if request.user.is_anonymous():
+            combined = queryset.none()
+        else:
+            combined = request.user.problem_set.all()
         if request.user.has_perm('problems.problems_db_admin'):
             combined |= queryset.filter(contest__isnull=True)
         if is_contest_admin(request):
@@ -349,3 +362,30 @@ contest_admin_menu_registry.register('problempackage_change',
             reverse('oioioiadmin:problems_contestproblempackage_changelist'),
         condition=((~is_superuser) & pending_contest_packages),
         order=70)
+
+
+class MainProblemInstanceAdmin(admin.ModelAdmin):
+    fields = ['submissions_limit']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        if obj is None:
+            return False
+        problem = obj.problem
+        if problem.main_problem_instance != obj:
+            return False
+        return is_problem_author(request, problem)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def response_change(self, request, obj):
+        if not '_continue' in request.POST:
+            return redirect('problem_site', obj.problem.problemsite.url_key)
+        else:
+            return super(MainProblemInstanceAdmin, self). \
+                response_change(request, obj)
+
+admin.site.register(MainProblemInstance, MainProblemInstanceAdmin)
