@@ -14,6 +14,7 @@ from django.core.urlresolvers import reverse
 from oioioi.base.utils import get_object_by_dotted_name, memoized, \
         uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.package import backend_for_package
 from oioioi.problems.unpackmgr import unpackmgr_job
 from oioioi.problems.models import ProblemPackage, Problem
@@ -196,9 +197,18 @@ class PackageSource(ProblemSource):
                         ProblemPackage.objects.filter(id=package.id).update(
                                 celery_task_id=async_result.task_id)
                     async_task.delay()
+                    if request.user.is_superuser or (request.contest and
+                                 is_contest_admin(request)):
+                        messages.success(request,
+                                _("Package queued for processing."))
+                        return self._redirect_response(request)
+
                     messages.success(request,
-                            _("Package queued for processing."))
-                    return self._redirect_response(request)
+                        _("Package queued for processing. It will appear in "
+                            "problem list when ready. Please be patient."))
+                    return TemplateResponse(request, self.template_name,
+                                            {'form': form})
+
                 # pylint: disable=broad-except
                 except Exception, e:
                     logger.error("Error processing package", exc_info=True)
