@@ -77,7 +77,10 @@ def _fold_registration_models_tree(object):
             if hasattr(object, rel.get_accessor_name())]
     while objs:
         current = objs.pop(0)
+        if current is None:
+            continue
         objects_used.append(current)
+
         for field in current._meta.fields:
             if field.rel is not None and \
                     getattr(current, field.name) not in objects_used:

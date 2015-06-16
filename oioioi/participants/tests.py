@@ -500,6 +500,28 @@ class TestParticipantsDataViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
                 'test_problem_instance', 'test_schools']
 
+    def register(self, contest):
+        reg_url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+
+        self.client.get(reg_url)
+        reg_data = {
+            'address': 'The Castle',
+            'postal_code': '31-337',
+            'city': 'Camelot',
+            'phone': '000-000-000',
+            'birthday_month': '5',
+            'birthday_day': '25',
+            'birthday_year': '1975',
+            'birthplace': 'Lac',
+            't_shirt_size': 'L',
+            'school': '1',
+            'class_type': '1LO',
+            'terms_accepted': 'y',
+            'anonymous': False,
+        }
+        self.client.post(reg_url, reg_data)
+
     def test_data_view(self):
         contest = Contest.objects.get()
         contest.controller_name = \
@@ -509,51 +531,59 @@ class TestParticipantsDataViews(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_data', kwargs={'contest_id': contest.id})
         self.client.login(username='test_user')
+        try:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 403)
 
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+            self.client.logout()
+            perm = ContestPermission(user=user, contest=contest,
+                                     permission='contests.personal_data')
+            perm.save()
+            if hasattr(user, '_contest_perms_cache'):
+                delattr(user, '_contest_perms_cache')
 
-        self.client.logout()
-        perm = ContestPermission(user=user, contest=contest,
+            self.client.login(username='test_user')
+
+            response = self.client.get(url)
+            self.assertIn('no participants', response.content)
+
+            self.register(contest)
+
+            response = self.client.get(url)
+            self.assertIn('<td>The Castle</td>', response.content)
+            self.assertIn('<td>31-337</td>', response.content)
+            self.assertIn('<td>Camelot</td>', response.content)
+            self.assertIn('<td>000-000-000</td>', response.content)
+            self.assertIn('<td>1975-05-25</td>', response.content)
+            self.assertIn('<td>L</td>', response.content)
+        finally:
+            self.client.logout()
+
+    def test_none_school(self):
+        user2 = User.objects.get(username='test_user2')
+
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                "oioioi.oi.controllers.OIContestController"
+        contest.save()
+
+        url = reverse('participants_data', kwargs={'contest_id': contest.id})
+
+        perm = ContestPermission(user=user2, contest=contest,
                                  permission='contests.personal_data')
         perm.save()
-        if hasattr(user, '_contest_perms_cache'):
-            delattr(user, '_contest_perms_cache')
+        if hasattr(user2, '_contest_perms_cache'):
+            delattr(user2, '_contest_perms_cache')
 
-        self.client.login(username='test_user')
+        self.client.login(username='test_user2')
 
-        response = self.client.get(url)
-        self.assertIn('no participants', response.content)
+        try:
+            self.register(contest)
+            p_data = Participant.objects.get(user=user2).registration_model
+            p_data.school = None
+            p_data.save()
 
-        def register(user):
-            reg_url = reverse('participants_register',
-                          kwargs={'contest_id': contest.id})
-            self.client.login(username=user.username)
-
-            self.client.get(reg_url)
-            reg_data = {
-                'address': 'The Castle',
-                'postal_code': '31-337',
-                'city': 'Camelot',
-                'phone': '000-000-000',
-                'birthday_month': '5',
-                'birthday_day': '25',
-                'birthday_year': '1975',
-                'birthplace': 'Lac',
-                't_shirt_size': 'L',
-                'school': '1',
-                'class_type': '1LO',
-                'terms_accepted': 'y',
-                'anonymous': False,
-            }
-            self.client.post(reg_url, reg_data)
-
-        register(user)
-
-        response = self.client.get(url)
-        self.assertIn('<td>The Castle</td>', response.content)
-        self.assertIn('<td>31-337</td>', response.content)
-        self.assertIn('<td>Camelot</td>', response.content)
-        self.assertIn('<td>000-000-000</td>', response.content)
-        self.assertIn('<td>1975-05-25</td>', response.content)
-        self.assertIn('<td>L</td>', response.content)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+        finally:
+            self.client.logout()
