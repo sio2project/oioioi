@@ -123,11 +123,11 @@ def _call_controller_adjust_problem(sender, instance, raw, **kwargs):
 @receiver(pre_delete, sender=Problem)
 def _check_problem_instance_integrity(sender, instance, **kwargs):
     from oioioi.contests.models import ProblemInstance
-    pis = ProblemInstance.objects.filter(problem=instance)
+    pis = ProblemInstance.objects \
+        .filter(problem=instance, contest__isnull=True)
     if pis.count() > 1:
-        raise RuntimeError("Multiple ProblemInstance objects for a single "
-                    "problem. Please reopen "
-                    "https://jira.sio2project.mimuw.edu.pl/browse/SIO-1517")
+        raise RuntimeError("Multiple main_problem_instance objects for "
+                           "a single problem.")
 
 
 class ProblemStatement(models.Model):
