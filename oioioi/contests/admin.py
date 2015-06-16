@@ -211,9 +211,10 @@ class ContestAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         # The contest's edit view uses request.contest, so editing a contest
         # when a different contest is active would produce weird results.
-        if not request.contest or request.contest.id != object_id:
+        contest_id = unquote(object_id)
+        if not request.contest or request.contest.id != contest_id:
             return redirect('oioioiadmin:contests_contest_change',
-                    object_id, contest_id=object_id)
+                    object_id, contest_id=contest_id)
         return super(ContestAdmin, self).change_view(request,
                 object_id, form_url, extra_context)
 
