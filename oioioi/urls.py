@@ -3,6 +3,8 @@ from django.conf.urls import patterns, include, url
 from django.utils.importlib import import_module
 from django.contrib import admin as django_admin
 
+from oioioi.base import registration_backend
+
 django_admin.autodiscover()
 
 handler403 = 'oioioi.base.views.handler403'
@@ -32,3 +34,5 @@ urlpatterns.extend([
     url(r'^file/(?P<filename>.*)/$',
         'oioioi.filetracker.views.raw_file_view'),
 ])
+
+urlpatterns += registration_backend.urlpatterns

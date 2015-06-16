@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url, include
 
-from oioioi.base import registration_backend, admin
+from oioioi.base import admin
 
 urlpatterns = patterns('oioioi.base.views',
     url(r'^force_error/$', 'force_error_view', name='force_error'),
@@ -17,8 +17,6 @@ urlpatterns = patterns('oioioi.base.views',
     url(r'^admin/logout/$', 'logout_view'),
     url(r'^admin/', include(admin.site.urls)),
 )
-
-urlpatterns += registration_backend.urlpatterns
 
 urlpatterns += [url(r'^$', 'oioioi.base.main_page.main_page_view',
                     name='index')]
