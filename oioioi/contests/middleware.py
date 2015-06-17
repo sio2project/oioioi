@@ -1,5 +1,3 @@
-import urllib
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.core.urlresolvers import reverse, resolve
@@ -142,7 +140,7 @@ class CurrentContestMiddleware(object):
         new_path = reverse(name, args=res.args, kwargs=res.kwargs)
         if contest_re.match(new_path):
             if request.GET:
-                new_path += '?' + urllib.urlencode(request.GET)
+                new_path += '?' + request.GET.urlencode()
             return HttpResponseRedirect(new_path)
 
         if nonglobal:
