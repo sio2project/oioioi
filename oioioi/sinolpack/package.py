@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 from django.core.files import File
+from django.contrib.auth.models import User
 
 from oioioi.base.utils import naturalsort_key, generate_key
 from oioioi.base.utils.archive import Archive
@@ -671,13 +672,19 @@ class SinolPackage(object):
                     dict(oldname=existing_problem.short_name,
                         newname=self.short_name))
         else:
+            author_username = env.get('author')
+            if author_username:
+                author = User.objects.get(username=author_username)
+            else:
+                author = None
+
             self.problem = Problem.create(
                     name=self.short_name,
                     short_name=self.short_name,
                     controller_name=self.controller_name,
                     contest=self.package.contest,
-                    is_public=(env.get('author') is None),
-                    author=env.get('author'))
+                    is_public=(author is None),
+                    author=author)
             problem_site = ProblemSite(problem=self.problem,
                                        url_key=generate_key())
             problem_site.save()

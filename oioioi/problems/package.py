@@ -95,7 +95,8 @@ class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):
         pp.package_file.save(filename, File(open(filename, 'rb')))
         env = {}
         if existing_problem:
-            env['author'] = existing_problem.author
+            if existing_problem.author:
+                env['author'] = existing_problem.author.username
             pp.problem_name = existing_problem.short_name
         else:
             pp.problem_name = self.get_short_name(filename)

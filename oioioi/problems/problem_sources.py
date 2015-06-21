@@ -158,7 +158,7 @@ class PackageSource(ProblemSource):
         env['round_id'] = form.cleaned_data.get('round_id', None)
         if contest:
             env['contest_id'] = contest.id
-        env['author'] = request.user
+        env['author'] = request.user.username
 
         return env
 
