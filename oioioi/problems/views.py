@@ -80,7 +80,6 @@ def download_package_traceback_view(request, package_id):
     return stream_file(package.traceback)
 
 
-@transaction.non_atomic_requests
 def add_or_update_problem(request, contest, template):
     if 'problem' in request.GET:
         existing_problem = \
@@ -113,6 +112,7 @@ def add_or_update_problem(request, contest, template):
             problem_sources(request), tab_kwargs, build_link)
 
 
+@transaction.non_atomic_requests
 def add_or_update_problem_view(request):
     return add_or_update_problem(request, request.contest,
                                  'problems/add_or_update.html')
@@ -211,6 +211,7 @@ def change_submission_kind_without_contest_view(request, submission_id, kind):
     return redirect('submission_without_contest', submission_id=submission_id)
 
 
+@transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
     return add_or_update_problem(request, None,
                                  'problems/problemset/add_or_update.html')
