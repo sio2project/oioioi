@@ -1,0 +1,15 @@
+{% load i18n gamification_widgets %}
+<div class="panel panel-default">
+    <h2 class="page-header">{% block heading %}{% endblock %}</h2>
+    <div class="panel-body">
+        {% if users %}
+        <ul class="nav nav-pills nav-stacked friend-list">
+            {% for user in users %}
+            <li><a href="{% url 'view_profile' user %}">{% experience_widget_small user %}<h2 class="username">{{ user }}</h2></a></li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center">{% block default_text %}{% endblock %}</p>
+        {% endif %}
+    </div>
+</div>

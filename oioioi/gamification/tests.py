@@ -536,6 +536,24 @@ class TestProfileView(TestCase):
                 args=['test_user2']))
         self.assertFalse(friends.has_request_from(test_user2))
 
+    def test_invite_list(self):
+        test_user1 = User.objects.get(username='test_user')
+        test_user2 = User.objects.get(username='test_user2')
+
+        url = reverse('view_current_profile')
+
+        # Check visibility without an invite
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertNotIn('Pending invites', response.content)
+        self.assertNotIn('test_user2', response.content)
+
+        # Check visibility with an invite
+        UserFriends(test_user2).send_friendship_request(test_user1)
+        response = self.client.get(url)
+        self.assertIn('Pending invites', response.content)
+        self.assertIn('test_user2', response.content)
+
     def test_friends_list(self):
         test_user1 = User.objects.get(username='test_user')
         test_user2 = User.objects.get(username='test_user2')
