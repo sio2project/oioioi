@@ -83,4 +83,6 @@ class ProblemDifficulty(models.Model):
             return Lvl4TaskExp
         elif self.difficulty == DIFFICULTY.IMPOSSIBLE:
             return Lvl5TaskExp
-        return 0
+        # Since most problems won't have any difficulty, we should reward the
+        # player anyways
+        return Lvl1TaskExp
