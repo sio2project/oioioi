@@ -22,19 +22,19 @@ class TestPortalUtils(TestCase):
         root = portal.root
         child1 = root.children.get(short_name='child1')
 
-        url = '/users/test_user/portal/'
+        url = '/~test_user/'
         self.assertEqual(portal_url(portal=portal), url)
         self.assertEqual(portal_url(portal=portal, path=''), url)
         self.assertEqual(portal_url(node=root), url)
 
-        url = '/users/test_user/portal/child1'
+        url = '/~test_user/child1'
         self.assertEqual(portal_url(portal=portal, path='child1'), url)
         self.assertEqual(portal_url(node=child1), url)
         self.assertEqual(portal_url(node=child1, action='show_node'), url)
         self.assertEqual(portal_url(node=child1, action='edit_node'),
                          url + '?action=edit_node')
 
-        url = '/users/test_user/portal/?action=manage_portal'
+        url = '/~test_user/?action=manage_portal'
         self.assertEqual(portal_url(portal=portal, action='manage_portal'),
                          url)
 
@@ -113,38 +113,36 @@ class TestPortalModels(TestCase):
 class TestPortalViews(TestCase):
     fixtures = ['test_users', 'test_portals']
 
-    def _test_create_portal_view(self, url_prefix, username):
-        create_url = url_prefix + 'create_portal/'
+    def _test_create_portal_view(self, create_url, portal_root_url, username):
+        create_url = reverse(create_url)
 
-        response = self.client.get(create_url)
-        self.assertEqual(response.status_code, 403)
-
-        self.client.login(username='test_user2')
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 403)
 
         self.client.login(username=username)
         response = self.client.get(create_url)
-        self.assertEqual(response.status_code, 404)
+        self.assertRedirects(response, portal_root_url)
 
-        self.client.post(url_prefix + 'portal/?action=delete_portal',
+        self.client.post(portal_root_url + '?action=delete_portal',
                          data={'confirmation': ''})
 
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(create_url, data={'confirmation': ''})
-        self.assertRedirects(response, url_prefix + 'portal/')
+        self.assertRedirects(response, portal_root_url)
 
-        response = self.client.get(url_prefix + 'portal/')
+        response = self.client.get(portal_root_url)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("Main page"))
 
     def test_create_user_portal_view(self):
-        self._test_create_portal_view('/users/test_user/', 'test_user')
+        self._test_create_portal_view('create_user_portal', '/~test_user/',
+                                      'test_user')
 
     def test_create_global_portal_view(self):
-        self._test_create_portal_view('/', 'test_admin')
+        self._test_create_portal_view('create_global_portal', '/portal/',
+                                      'test_admin')
 
     def test_admin_buttons(self):
         show = _("Show node")

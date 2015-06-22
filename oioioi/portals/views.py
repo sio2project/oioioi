@@ -8,7 +8,8 @@ from django.template.loader import render_to_string
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from mptt.exceptions import InvalidMove
-from oioioi.base.permissions import enforce_condition, is_superuser
+from oioioi.base.permissions import enforce_condition, is_superuser, \
+        not_anonymous
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.main_page import register_main_page_view
 from oioioi.portals.models import Node, Portal
@@ -29,8 +30,9 @@ def main_page_view(request):
 
 @enforce_condition(is_superuser, login_redirect=False)
 def create_global_portal_view(request):
-    if Portal.objects.filter(owner=None).exists():
-        raise Http404
+    portal_queryset = Portal.objects.filter(owner=None)
+    if portal_queryset.exists():
+        return redirect(portal_url(portal=portal_queryset.get()))
 
     if request.method != 'POST':
         return render(request, 'portals/create-global-portal.html')
@@ -48,12 +50,11 @@ def create_global_portal_view(request):
             return redirect('/')
 
 
-def create_user_portal_view(request, username):
-    if username != request.user.username:
-        raise PermissionDenied
-
-    if Portal.objects.filter(owner__username=username).exists():
-        raise Http404
+@enforce_condition(not_anonymous, login_redirect=False)
+def create_user_portal_view(request):
+    portal_queryset = Portal.objects.filter(owner=request.user)
+    if portal_queryset.exists():
+        return redirect(portal_url(portal=portal_queryset.get()))
 
     if request.method != 'POST':
         return render(request, 'portals/create-user-portal.html')
@@ -219,8 +220,7 @@ def my_portal_url(request):
     try:
         return portal_url(portal=request.user.portal)
     except Portal.DoesNotExist:
-        return reverse('create_user_portal',
-                       kwargs={'username': request.user.username})
+        return reverse('create_user_portal')
 
 account_menu_registry.register('my_portal', _("My portal"), my_portal_url,
         order=150)
