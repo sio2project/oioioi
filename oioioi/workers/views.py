@@ -6,47 +6,41 @@ from django.utils.translation import ugettext as _
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.admin import system_admin_menu_registry
+from django.conf import settings
+import xmlrpclib
+
+server = xmlrpclib.ServerProxy(settings.SIOWORKERSD_URL, allow_none=True)
 
 
-#TODO dummy function -- should be filled when the server is able to response
 def get_info_about_workers():
-    workers_info = [("Komp%d" % j, j, 2 ** j,
-        ["tag%d" % (i + j) for i in range(100)]) for j in range(6)]
-    return workers_info
+    return server.get_workers()
 
 
-#TODO dummy function -- should be filled when the server is able to response
 def get_all_tags():
-    answer = ["tag%d" % i for i in range(106)]
-    return answer
+    return server.list_tags()
 
 
-#TODO dummy function -- should be filled when the server is able to response
 def get_all_names():
-    answer = ["Komp%d" % j for j in range(6)]
-    return answer
+    return [i['name'] for i in get_info_about_workers()]
 
 
-#TODO dummy function -- should be filled when the server is able to response
 def del_worker(l):
-    return 0
+    for i in l:
+        server.forget_worker(i)
 
 
-#TODO dummy function -- should be filled when the server is able to response
-def del_tag_from_workers(t, l):
-    return 0
+def del_tag_from_workers(tag, l):
+    server.del_tag(l, tag)
 
 
-#TODO dummy function -- should be filled when the server is able to response
-def add_tag_to_workers(t, l):
-    return 0
+def add_tag_to_workers(tag, l):
+    server.add_tag(l, tag)
 
 
 @enforce_condition(is_superuser)
 def show_info_about_workers(request):
     readonly = False
     announce = None
-    error = None
     edit = False
     delete = False
     all_tags = None
@@ -64,38 +58,30 @@ def show_info_about_workers(request):
         if request.POST.get('confirm'):
             selected = [x for x in get_all_names() if
                 request.POST.get("work-%s" % x)]
-            ret = del_worker(selected)
-            if ret == 0:
-                announce = _("Successfully deleted selected workers")
-            else:
-                error = _("Error %d when deleting workers") % ret
+            del_worker(selected)
+            announce = _("Successfully deleted selected workers")
         if request.POST.get('tagadd'):
             tag_name = request.POST.get('tagname')
             selected = [x for x in get_all_names() if
                 request.POST.get('work-%s' % x)]
-            ret = add_tag_to_workers(tag_name, selected)
-            if ret == 0:
-                announce = _("Successfully added tag")
-            else:
-                error = _("Error %d when adding tag") % ret
+            add_tag_to_workers(tag_name, selected)
+            announce = _("Successfully added tag")
         if request.POST.get('tagdelete'):
             selected = [x for x in get_all_names() if
                 request.POST.get('work-%s' % x)]
             tag_name = request.POST.get('tagname')
-            ret = del_tag_from_workers(tag_name, selected)
-            if ret == 0:
-                announce = _("Successfully deleted tag")
-            else:
-                error = _("Error %d when deleting tag") % ret
+            del_tag_from_workers(tag_name, selected)
+            announce = _("Successfully deleted tag")
     workers_info = get_info_about_workers()
 
-    def tuple_to_dict(tup):
-        select = request.POST.get('work-' + tup[0])
+    def tuple_to_dict(d):
+        select = request.POST.get('work-' + d['name'])
+        info = d['info']
         result = {
-            'name': tup[0],
-            'ram': tup[1],
-            'maxConcurr': tup[2],
-            'tags': tup[3],
+            'name': d['name'],
+            'ram': info.get('ram', '<unknown>'),
+            'maxConcurr': info.get('concurrency', '<unknown>'),
+            'tags': d['tags'],
             'select': select,
         }
         return result
@@ -104,7 +90,6 @@ def show_info_about_workers(request):
         'workers': workers_info,
         'readonly': readonly,
         'announce': announce,
-        'error': error,
         'edit': edit,
         'delete': delete,
         'all_tags': all_tags

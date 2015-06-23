@@ -1,9 +1,20 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from oioioi.workers import views
+
+
+class TestServer(object):
+    def get_workers(self):
+        return [{'name': 'Komp4', 'tags': [], 'info': {
+                    'concurrency': 2}}]
 
 
 class TestWorkersInfo(TestCase):
     fixtures = ['test_users']
+
+    def setUp(self):
+        # monkeypatch test server instead of XMLRPC
+        views.server = TestServer()
 
     def test_admin_can_see(self):
         self.client.login(username='test_admin')
