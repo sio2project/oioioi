@@ -6,11 +6,11 @@ from oioioi.base.notification import NotificationHandler
 TYPE_TO_TEXT = {
     'sent': ugettext_noop("User %(sender)s has "
                             "sent you a friendship request."),
-    'accepted': ugettext_noop("User %(recipient)s has "
+    'accepted': ugettext_noop("User %(sender)s has "
                             "accepted your friendship request."),
-    'refused': ugettext_noop("User %(recipient)s "
+    'refused': ugettext_noop("User %(sender)s "
                             "refused your friendship request."),
-    'ended': ugettext_noop("User %(recipient)s no longer "
+    'ended': ugettext_noop("User %(sender)s no longer "
                             "wants to be your friend."),
 }
 
