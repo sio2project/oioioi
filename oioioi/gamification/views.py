@@ -51,6 +51,12 @@ def profile_view(request, username=None):
     pending_incoming_friendship_request = friends.has_request_from(shown_user)
     sent_friendship_request = friends.sent_request_to(shown_user)
 
+    has_portal = False
+    if 'oioioi.portals' in settings.INSTALLED_APPS:
+        from oioioi.portals.models import Portal
+        if Portal.objects.filter(owner=shown_user).exists():
+            has_portal = True
+
     sections = []
     for func in profile_registry.items:
         response = func(request, shown_user)
@@ -69,6 +75,7 @@ def profile_view(request, username=None):
         'exp': exp,
         'exp_percentage': int(100 * exp.current_experience /
                               exp.required_experience_to_lvlup),
+        'has_portal': has_portal,
         'pending_incoming_friendship_request':
                 pending_incoming_friendship_request,
         'sent_friendship_request': sent_friendship_request,

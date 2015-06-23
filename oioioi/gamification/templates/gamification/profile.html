@@ -24,6 +24,10 @@
         <h2>{{ shown_user }}</h2>
         <h4>{% trans "Level" %}: {{ exp.current_level }}</h4>
         <h4>{% trans "Experience" %}: {{ exp_percentage }}%</h4>
+        {% if has_portal %}
+        {% load portal_url %}
+        <h4><a href="{% portal_url shown_user.portal %}">{% trans "User portal" %}</a></h4>
+        {% endif %}
     </div>
     {% if user != shown_user %}
         <div id="friend-status" class="pull-right">
