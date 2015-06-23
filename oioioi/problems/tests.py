@@ -639,7 +639,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         url_key = problem.problemsite.url_key
 
-        #now, add problem to the contest
+        # now, add problem to the contest
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         urllib.urlencode({'key': "problemset_source"})
@@ -663,16 +663,16 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(ProblemInstance.objects.count(), 2 + i)
 
-        #add probleminstances to round
+        # add probleminstances to round
         for pi in ProblemInstance.objects.filter(contest__isnull=False):
             pi.round = Round.objects.get()
             pi.save()
 
-        #we can see model solutions
+        # we can see model solutions
         pi = ProblemInstance.objects.filter(contest__isnull=False)[0]
         self.check_models_for_simple_package(pi)
 
-        #tests and models of every problem_instance are independent
+        # tests and models of every problem_instance are independent
         num_tests = pi.test_set.count()
         for test in pi.test_set.all():
             test.delete()
@@ -689,7 +689,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
                 self.assertEqual(pi2.test_set.count(), num_tests)
                 self.check_models_for_simple_package(pi2)
 
-        #reupload one ProblemInstance from problemset
+        # reupload one ProblemInstance from problemset
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                     urllib.urlencode({'key': "problemset_source",
@@ -709,7 +709,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.content
                .count("Rejudge all submissions for problem"), 1)
 
-        #reupload problem in problemset
+        # reupload problem in problemset
         url = reverse('problemset_add_or_update') + '?' + \
                     urllib.urlencode({'problem': problem.id})
         response = self.client.get(url, follow=True)
@@ -722,7 +722,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertIn("3 PROBLEMS NEED REJUDGING", response.content)
         self.check_models_for_simple_package(pi)
 
-        #rejudge one problem
+        # rejudge one problem
         url = reverse('rejudge_all_submissions_for_problem', args=[pi.id])
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -732,6 +732,34 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.content
                  .count("Rejudge all submissions for problem"), pi_number - 1)
         self.assertIn("1 rejudge request received.", response.content)
+
+    def test_uploading_to_contest(self):
+        # we can add problem directly from contest
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_simple_package.zip')
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id},
+                follow=True)
+        url = response.redirect_chain[-1][0]
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('problems/add_or_update.html',
+                [getattr(t, 'name', None) for t in response.templates])
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
+
+        # many times
+        response = self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 2)
+        self.assertEqual(ProblemInstance.objects.count(), 4)
+
+        # and nothing needs rejudging
+        self.assertNotIn('REJUDGING', response.content)
 
 
 class TestTags(TestCase):

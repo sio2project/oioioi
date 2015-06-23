@@ -160,6 +160,10 @@ class PackageSource(ProblemSource):
         if contest:
             env['contest_id'] = contest.id
         env['author'] = request.user.username
+        if existing_problem:
+            env['is_reupload'] = True
+        else:
+            env['is_reupload'] = False
 
         return env
 

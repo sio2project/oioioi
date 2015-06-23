@@ -21,18 +21,23 @@ def update_problem_instance(env):
          ``round_id``: (Optional) id of the
          :class:`~oioioi.contests.models.Round` the problem instance should
          be attached to.
+
+         ``is_reupload``: set on True when problem is being reuploaded
     """
     problem = Problem.objects.get(id=env['problem_id'])
     if env.get('contest_id', None):
         if not ProblemInstance.objects.filter(contest__id=env['contest_id'],
                                        problem=problem).exists():
             pi = get_new_problem_instance(problem)
+            pi.short_name = None
             pi.contest = Contest.objects.get(id=env['contest_id'])
             if env.get('round_id', None) and not pi.round:
                 pi.round = Round.objects.get(id=env['round_id'])
             pi.save()
             env['problem_instance_id'] = pi.id
-    update_all_probleminstances_after_reupload(problem)
+    if env['is_reupload']:
+        update_all_probleminstances_after_reupload(problem)
+
     return env
 
 
