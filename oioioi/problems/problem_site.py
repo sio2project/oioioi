@@ -15,12 +15,13 @@ from oioioi.problems.utils import query_statement, query_zip
 from oioioi.problems.models import ProblemAttachment, Problem
 from oioioi.contests.models import Submission
 from oioioi.contests.forms import SubmissionFormForProblemInstance
+from oioioi.contests.controllers import submission_template_context
 
 
 problem_site_tab_registry = OrderedRegistry()
 
 
-def problem_site_tab(title, key, order=sys.maxint):
+def problem_site_tab(title, key, order=sys.maxint, condition=None):
     """A decorator that for each decorated function adds a corresponding
        tab to the global problem site that uses the function to generate
        its contents.
@@ -32,12 +33,18 @@ def problem_site_tab(title, key, order=sys.maxint):
        :param title: the tab's title, will be shown on the site
        :param key: will be used as a GET parameter to indicate the active tab
        :param order: value determining the order of tabs
+       :param condition: a function receiving a request and returning
+           if the tab should be accessible for this request
     """
 
-    Tab = namedtuple('Tab', ['view', 'title', 'key'])
+    Tab = namedtuple('Tab', ['view', 'title', 'key', 'condition'])
+
+    if condition is None:
+        condition = lambda request: True
 
     def decorator(func):
-        problem_site_tab_registry.register(Tab(func, title, key), order)
+        problem_site_tab_registry.register(
+                Tab(func, title, key, condition), order)
         return func
     return decorator
 
@@ -86,30 +93,30 @@ def problem_site_files(request, problem):
          'add_category_field': False})
 
 
-@problem_site_tab(_("Submissions"), key='submissions', order=300)
+@problem_site_tab(_("Submissions"), key='submissions', order=300,
+        condition=lambda request: not request.contest)
 def problem_site_submissions(request, problem):
     controller = problem.main_problem_instance.controller
     if request.user.is_authenticated():
-        submissions_qs = controller.filter_my_visible_submissions(request,
-                            Submission.objects.filter(
-                            problem_instance=problem.main_problem_instance))
+        qs = controller.filter_my_visible_submissions(request,
+            Submission.objects
+                .filter(problem_instance=problem.main_problem_instance)
+                .order_by('-date'))
     else:
-        submissions_qs = []
+        qs = []
 
-    submissions = [{'submission': submission,
-                    'can_see_status': True,
-                    'can_see_score': True,
-                    'can_see_comment': True}
-                   for submission in submissions_qs]
+    submissions = [submission_template_context(request, s) for s in qs]
+    show_scores = any(s['can_see_score'] for s in submissions)
 
     return TemplateResponse(request, 'problems/submissions.html',
         {'submissions': submissions,
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
-         'show_scores': True,
+         'show_scores': show_scores,
          'inside_problem_view': True})
 
 
-@problem_site_tab(_("Submit"), key='submit', order=400)
+@problem_site_tab(_("Submit"), key='submit', order=400,
+        condition=lambda request: not request.contest)
 def problem_site_submit(request, problem):
     if request.method == 'POST':
         form = SubmissionFormForProblemInstance(request,

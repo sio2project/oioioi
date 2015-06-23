@@ -129,6 +129,9 @@ SEND_USER_ACTIVATION_EMAIL = False
 # that either the "neutral" or the "contest_if_possible" option is picked.
 #
 # The default setting is "contest_if_possible".
+# To access the contest mode setting you also have to uncomment
+# the following import line.
+#from oioioi.contests.current_contest import ContestMode
 #CONTEST_MODE =
 
 # Similarly comment this out to disable workers running on the server machine.

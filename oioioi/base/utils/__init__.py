@@ -418,15 +418,22 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
         :param template: the rendered template
         :param context: additional context to be passed to the template
         :param tabs: an iterable of tabs. Each tab must have a unique 'key'
-                attribute that will be used to create an URL to the tab
-                and a 'view' attribute returning either HttpResponseRedirect,
-                TemplateResponse or rendered html.
+                attribute that will be used to create an URL to the tab,
+                a 'view' attribute returning either HttpResponseRedirect,
+                TemplateResponse or rendered html, and an optional 'condition'
+                attribute: a function taking a request and returning
+                if the tab should be accessible for this request. If there is
+                no condition then it is assumed to be always returning True.
         :param tab_kwargs: a dict to be passed as kwargs to each tab's view
         :param link_builder: a function which receives a tab and returns
                 a link to the tab. It should contain a proper path
                 and the appropriate 'key' parameter.
     """
+    tabs = [t for t in tabs if not hasattr(t, 'condition')
+                                or t.condition(request)]
     if 'key' not in request.GET:
+        if not tabs:
+            raise Http404
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
         return HttpResponseRedirect(request.path + '?' + urllib.urlencode(qs))

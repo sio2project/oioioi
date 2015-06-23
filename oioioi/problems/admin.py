@@ -153,8 +153,6 @@ class ProblemAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return self.get_queryset(request).exists()
-        if can_admin_problem(request, obj):
-            return True
         return can_admin_problem(request, obj)
 
     def has_delete_permission(self, request, obj=None):

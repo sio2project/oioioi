@@ -31,10 +31,11 @@ from oioioi.contests.models import Contest, ProblemInstance, Submission, \
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         can_see_personal_data, is_contest_admin, has_any_submittable_problem, \
         visible_rounds, visible_problem_instances, contest_exists, \
-        get_submission_or_error, is_contest_observer
+        is_contest_observer, get_submission_or_error
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
-from oioioi.problems.utils import query_statement, query_zip
+from oioioi.problems.utils import query_statement, query_zip, \
+        can_admin_problem_instance
 
 
 @register_main_page_view(order=900)
@@ -163,8 +164,13 @@ def my_submissions_view(request):
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
 
 
-def submission_view_unsafe(request, submission):
-    controller = submission.problem_instance.controller
+@enforce_condition(~contest_exists | can_enter_contest)
+def submission_view(request, submission_id):
+    submission = get_submission_or_error(request, submission_id)
+    pi = submission.problem_instance
+    controller = pi.controller
+    can_admin = can_admin_problem_instance(request, pi)
+
     header = controller.render_submission(request, submission)
     footer = controller.render_submission_footer(request, submission)
     reports = []
@@ -174,49 +180,49 @@ def submission_view_unsafe(request, submission):
             queryset.filter(status='ACTIVE')):
         reports.append(controller.render_report(request, report))
 
-    all_reports = is_contest_admin(request) and \
-        controller.filter_visible_reports(request, submission, queryset) or \
-        []
+    if can_admin:
+        all_reports = \
+            controller.filter_visible_reports(request, submission, queryset)
+    else:
+        all_reports = []
 
     return TemplateResponse(request, 'contests/submission.html',
                 {'submission': submission, 'header': header, 'footer': footer,
-                    'reports': reports, 'all_reports': all_reports})
+                 'reports': reports, 'all_reports': all_reports,
+                 'can_admin': can_admin})
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def submission_view(request, submission_id):
-    return submission_view_unsafe(request,
-                get_submission_or_error(request, submission_id))
-
-
-@enforce_condition(contest_exists & is_contest_admin)
 def report_view(request, submission_id, report_id):
     submission = get_submission_or_error(request, submission_id)
-    controller = request.contest.controller
+    pi = submission.problem_instance
+    if not can_admin_problem_instance(request, pi):
+        raise PermissionDenied
+
     queryset = SubmissionReport.objects.filter(submission=submission)
     report = get_object_or_404(queryset, id=report_id)
-    return HttpResponse(controller.render_report(request, report))
+    return HttpResponse(pi.controller.render_report(request, report))
 
 
-@require_POST
-def rejudge_submission_view_unsafe(request, submission):
-    submission.problem_instance.controller \
-        .judge(submission, request.GET.dict(), is_rejudge=True)
-    messages.info(request, _("Rejudge request received."))
-
-
-@enforce_condition((contest_exists & is_contest_admin))
 @require_POST
 def rejudge_submission_view(request, submission_id):
     submission = get_submission_or_error(request, submission_id)
-    rejudge_submission_view_unsafe(request, submission)
-    return redirect('submission', contest_id=request.contest.id,
-            submission_id=submission_id)
+    pi = submission.problem_instance
+    if not can_admin_problem_instance(request, pi):
+        raise PermissionDenied
+
+    pi.controller.judge(submission, request.GET.dict(), is_rejudge=True)
+    messages.info(request, _("Rejudge request received."))
+    return redirect('submission', submission_id=submission_id)
 
 
 @require_POST
-def change_submission_kind_view_unsafe(request, submission, kind):
-    controller = submission.problem_instance.controller
+def change_submission_kind_view(request, submission_id, kind):
+    submission = get_submission_or_error(request, submission_id)
+    pi = submission.problem_instance
+    if not can_admin_problem_instance(request, pi):
+        raise PermissionDenied
+
+    controller = pi.controller
     if kind in controller.valid_kinds_for_submission(submission):
         controller.change_submission_kind(submission, kind)
         messages.success(request, _("Submission kind has been changed."))
@@ -224,15 +230,7 @@ def change_submission_kind_view_unsafe(request, submission, kind):
         messages.error(request,
             _("%(kind)s is not valid kind for submission %(submission_id)d.")
             % {'kind': kind, 'submission_id': submission.id})
-
-
-@enforce_condition(contest_exists & is_contest_admin)
-@require_POST
-def change_submission_kind_view(request, submission_id, kind):
-    submission = get_submission_or_error(request, submission_id)
-    change_submission_kind_view_unsafe(request, submission, kind)
-    return redirect('submission', contest_id=request.contest.id,
-                    submission_id=submission_id)
+    return redirect('submission', submission_id=submission_id)
 
 
 @menu_registry.register_decorator(_("Files"), lambda request:

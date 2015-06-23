@@ -26,12 +26,11 @@ from oioioi.programs.models import ProgramSubmission, TestReport, Test, \
 from oioioi.programs.utils import decode_str, \
         get_submission_source_file_or_error
 from oioioi.contests.utils import contest_exists, can_enter_contest, \
-        get_submission_or_error, is_contest_admin
+        is_contest_admin, get_submission_or_error
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import strip_num_or_hash
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.utils import can_admin_problem_instance, \
-        get_submission_source_file_without_contest_or_error
+from oioioi.problems.utils import can_admin_instance_of_problem
 
 # Workaround for race condition in fnmatchcase which is used by pygments
 import fnmatch
@@ -41,8 +40,10 @@ fnmatch._MAXCACHE = sys.maxint
 logger = logging.getLogger(__name__)
 
 
-def show_submission_source_view_unsafe(request, submission_id, source_file,
-                                       download_url):
+@enforce_condition(~contest_exists | can_enter_contest)
+def show_submission_source_view(request, submission_id):
+    source_file = get_submission_source_file_or_error(request,
+            submission_id)
     raw_source, decode_error = decode_str(source_file.read())
     filename = source_file.file.name
     is_source_safe = False
@@ -60,7 +61,8 @@ def show_submission_source_view_unsafe(request, submission_id, source_file,
     except ClassNotFound:
         formatted_source = raw_source
         formatted_source_css = ''
-
+    download_url = reverse('download_submission_source',
+            kwargs={'submission_id': submission_id})
     return TemplateResponse(request, 'programs/source.html', {
         'source': formatted_source,
         'css': formatted_source_css,
@@ -71,27 +73,7 @@ def show_submission_source_view_unsafe(request, submission_id, source_file,
     })
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def show_submission_source_view(request, submission_id):
-    source_file = get_submission_source_file_or_error(request,
-            submission_id)
-    download_url = reverse('download_submission_source',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission_id})
-    return show_submission_source_view_unsafe(request, submission_id,
-                                              source_file, download_url)
-
-
-def show_submission_source_without_contest_view(request, submission_id):
-    source_file = get_submission_source_file_without_contest_or_error(
-            request, submission_id)
-    download_url = reverse('download_submission_source',
-            kwargs={'submission_id': submission_id})
-    return show_submission_source_view_unsafe(request, submission_id,
-                                              source_file, download_url)
-
-
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(~contest_exists | can_enter_contest)
 def save_diff_id_view(request, submission_id):
     # Verify user's access to the submission
     get_submission_source_file_or_error(request, submission_id)
@@ -99,17 +81,15 @@ def save_diff_id_view(request, submission_id):
     return HttpResponse()
 
 
-def save_diff_id_without_contest_view(request, submission_id):
-    # Verify user's access to the submission
-    get_submission_source_file_without_contest_or_error(request,
-                                                        submission_id)
-    request.session['saved_diff_id'] = submission_id
-    return HttpResponse()
+@enforce_condition(~contest_exists | can_enter_contest)
+def source_diff_view(request, submission1_id, submission2_id):
+    if request.session.get('saved_diff_id'):
+        request.session.pop('saved_diff_id')
+    source1 = get_submission_source_file_or_error(request,
+        submission1_id).read()
+    source2 = get_submission_source_file_or_error(request,
+        submission2_id).read()
 
-
-def source_diff_view_unsafe(request, submission1_id, submission2_id, source1,
-                            source2, download_url1, download_url2,
-                            reverse_diff_url):
     source1, decode_error1 = decode_str(source1)
     source2, decode_error2 = decode_str(source2)
     source1 = source1.splitlines()
@@ -156,6 +136,11 @@ def source_diff_view_unsafe(request, submission1_id, submission2_id, source1,
         if diffline.startswith('+ ') or diffline.startswith('  '):
             count2 += 1
 
+    download_url1 = reverse('download_submission_source',
+            kwargs={'submission_id': submission1_id})
+    download_url2 = reverse('download_submission_source',
+            kwargs={'submission_id': submission2_id})
+
     return TemplateResponse(request, 'programs/source_diff.html',
             {'source1': diff1, 'decode_error1': decode_error1,
              'download_url1': download_url1,
@@ -163,64 +148,12 @@ def source_diff_view_unsafe(request, submission1_id, submission2_id, source1,
              'download_url2': download_url2,
              'submission1_id': submission1_id,
              'submission2_id': submission2_id,
-             'reverse_diff_url': reverse_diff_url})
-
-
-@enforce_condition(contest_exists & can_enter_contest)
-def source_diff_view(request, submission1_id, submission2_id):
-    if request.session.get('saved_diff_id'):
-        request.session.pop('saved_diff_id')
-    source1 = get_submission_source_file_or_error(request,
-        submission1_id).read()
-    source2 = get_submission_source_file_or_error(request,
-        submission2_id).read()
-
-    download_url1 = reverse('download_submission_source',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission1_id})
-    download_url2 = reverse('download_submission_source',
-            kwargs={'contest_id': request.contest.id,
-                    'submission_id': submission2_id})
-
-    reverse_diff_url = reverse('source_diff', kwargs={
-                 'contest_id': request.contest.id,
+             'reverse_diff_url': reverse('source_diff', kwargs={
                  'submission1_id': submission2_id,
-                 'submission2_id': submission1_id})
-
-    return source_diff_view_unsafe(request, submission1_id, submission2_id,
-                                   source1, source2, download_url1,
-                                   download_url2, reverse_diff_url)
+                 'submission2_id': submission1_id})})
 
 
-def source_diff_without_contest_view(request, submission1_id, submission2_id):
-    if request.session.get('saved_diff_id'):
-        request.session.pop('saved_diff_id')
-    source1 = get_submission_source_file_without_contest_or_error(
-        request, submission1_id).read()
-    source2 = get_submission_source_file_without_contest_or_error(
-        request, submission2_id).read()
-
-    download_url1 = reverse('download_submission_source_without_contest',
-            kwargs={'submission_id': submission1_id})
-    download_url2 = reverse('download_submission_source_without_contest',
-            kwargs={'submission_id': submission2_id})
-
-    reverse_diff_url = reverse('source_diff_without_contest', kwargs={
-                 'submission1_id': submission2_id,
-                 'submission2_id': submission1_id})
-
-    return source_diff_view_unsafe(request, submission1_id, submission2_id,
-                                   source1, source2, download_url1,
-                                   download_url2, reverse_diff_url)
-
-
-def download_submission_source_without_contest_view(request, submission_id):
-    source_file = get_submission_source_file_without_contest_or_error(
-        request, submission_id)
-    return stream_file(source_file)
-
-
-@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(~contest_exists | can_enter_contest)
 def download_submission_source_view(request, submission_id):
     source_file = get_submission_source_file_or_error(request,
         submission_id)
@@ -230,7 +163,7 @@ def download_submission_source_view(request, submission_id):
 def download_input_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
 
-    if not can_admin_problem_instance(request, test.problem):
+    if not can_admin_instance_of_problem(request, test.problem):
         raise PermissionDenied
     return stream_file(test.input_file,
                        strip_num_or_hash(test.input_file.name))
@@ -238,7 +171,7 @@ def download_input_file_view(request, test_id):
 
 def download_output_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
-    if not can_admin_problem_instance(request, test.problem):
+    if not can_admin_instance_of_problem(request, test.problem):
         raise PermissionDenied
     return stream_file(test.output_file,
                        strip_num_or_hash(test.output_file.name))
@@ -246,7 +179,7 @@ def download_output_file_view(request, test_id):
 
 def download_checker_exe_view(request, checker_id):
     checker = get_object_or_404(OutputChecker, id=checker_id)
-    if not can_admin_problem_instance(request, checker.problem):
+    if not can_admin_instance_of_problem(request, checker.problem):
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404

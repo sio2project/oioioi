@@ -18,8 +18,7 @@ from django.contrib.auth.models import User
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
-from oioioi.problems.utils import can_admin_problem, \
-        can_see_submission_without_contest
+from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
 from oioioi.contests.controllers import ContestController, \
         submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
@@ -514,6 +513,8 @@ class ProgrammingProblemController(ProblemController):
             # field type in model is originally a string.
             submission.programsubmission.comment = \
                 mark_safe(submission.programsubmission.comment)
+        can_admin = \
+            can_admin_problem_instance(request, submission.problem_instance)
 
         return render_to_string('programs/submission_header.html',
                 context_instance=RequestContext(request,
@@ -522,7 +523,8 @@ class ProgrammingProblemController(ProblemController):
                     'saved_diff_id': request.session.get('saved_diff_id'),
                     'supported_extra_args':
                         problem_instance.controller.get_supported_extra_args(
-                            submission)}))
+                            submission),
+                    'can_admin': can_admin}))
 
     def render_report_failure(self, request, report):
         return ProblemController.render_report(self, request, report)
@@ -585,7 +587,8 @@ class ProgrammingProblemController(ProblemController):
         return can_admin_problem(request, problem)
 
     def can_see_source(self, request, submission):
-        return can_see_submission_without_contest(request, submission)
+        qs = Submission.objects.filter(id=submission.id)
+        return self.filter_my_visible_submissions(request, qs).exists()
 
     def can_see_test_comments(self, request, submissionreport):
         return True

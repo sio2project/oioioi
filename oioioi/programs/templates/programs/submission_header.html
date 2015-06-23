@@ -1,10 +1,8 @@
 {% load i18n %}
-{% load check_perm %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
 {% block program_controls %}
 
 <div class="corner-icons btn-toolbar">
-        {% if is_admin and submission.valid_kinds_for_submission %}
+        {% if can_admin and submission.valid_kinds_for_submission %}
             <div class="btn-group">
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="icon-tags"></i>
@@ -14,11 +12,7 @@
                 <ul class="dropdown-menu">
                     {% for value, description in submission.valid_kinds_for_submission %}
                         <li>
-                            {% if submission.submission.problem_instance.contest %}
-                            <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=submission.submission.id kind=value %}">
-                            {% else %}
-                            <a href="#" data-post-url="{% url 'change_submission_kind_without_contest' submission_id=submission.submission.id kind=value %}">
-                            {% endif %}
+                            <a href="#" data-post-url="{% url 'change_submission_kind' submission_id=submission.submission.id kind=value %}">
                                 <i class="icon-tag"></i>
                                 <span class="toolbar-button-text">{{ description }}</span>
                             </a>
@@ -28,47 +22,32 @@
             </div>
         {% endif %}
         {# TODO: test! #}
-        {% if is_admin %}
+        {% if can_admin %}
             <div class="btn-group">
                 <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="icon-repeat"></i>
                     <span class="toolbar-button-text">{% trans "Rejudge" %}</span>
                     <span class="caret"></span>
                 </a>
-                {% if submission.submission.problem_instance.contest %}
                     <ul class="dropdown-menu">
                         <li>
-                            <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}">
+                            <a href="#" data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}">
                                 <i class="icon-eye-open"></i>
                                 <span class="toolbar-button-text">{% trans "Normal rejudge" %}</span>
                             </a>
                         </li>
                         {% for link, name in supported_extra_args.items %}
                             <li>
-                                <a href="#" data-post-url="{% url 'rejudge_submission' contest_id=contest.id submission_id=submission.submission.id %}?{{ link }}">
+                                <a href="#" data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}">
                                     <i class="icon-eye-close"></i>
                                     <span class="toolbar-button-text">{{ name }}</span>
                                 </a>
                             </li>
                         {% endfor %}
                     </ul>
-                {% else %}
-                    <ul class="dropdown-menu">
-                        <li>
-                            <a href="#" data-post-url="{% url 'rejudge_submission_without_contest' submission_id=submission.submission.id %}">
-                                <i class="icon-eye-open"></i>
-                                <span class="toolbar-button-text">{% trans "Normal rejudge" %}</span>
-                            </a>
-                        </li>
-                    </ul>
-                {% endif %}
             </div>
             {% if saved_diff_id %}
-                {% if submission.submission.problem_instance.contest %}
-                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' contest_id=contest.id submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
-                {% else %}
-                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff_without_contest' submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
-                {% endif %}
+                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
                     <i class="icon-resize-small"></i>
                     <span class="toolbar-button-text">{% trans "Diff with saved" %}</span>
                 </a>
@@ -79,19 +58,11 @@
                 </button>
             {% endif %}
         {% endif %}
-        {% if submission.submission.problem_instance.contest %}
-        <a class="btn btn-small" href="{% url 'show_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
-        {% else %}
-        <a class="btn btn-small" href="{% url 'show_submission_source_without_contest' submission_id=submission.submission.id %}">
-        {% endif %}
+        <a class="btn btn-small" href="{% url 'show_submission_source' submission_id=submission.submission.id %}">
             <i class="icon-eye-open"></i>
             <span class="toolbar-button-text">{% trans "Show code" %}</span>
         </a>
-        {% if submission.submission.problem_instance.contest %}
-        <a class="btn btn-small" href="{% url 'download_submission_source' contest_id=contest.id submission_id=submission.submission.id %}">
-        {% else %}
-        <a class="btn btn-small" href="{% url 'download_submission_source_without_contest' submission_id=submission.submission.id %}">
-        {% endif %}
+        <a class="btn btn-small" href="{% url 'download_submission_source' submission_id=submission.submission.id %}">
             <i class="icon-download-alt"></i>
             <span class="toolbar-button-text">{% trans "Download" %}</span>
         </a>
@@ -101,11 +72,7 @@
                     function() {
                         $('#diff-button-save').click(
                             function() {
-                            {% if submission.submission.problem_instance.contest %}
-                                $.get('{% url 'save_diff_id' contest_id=contest.id submission_id=submission.submission.id %}',
-                            {% else %}
-                                $.get('{% url 'save_diff_id_without_contest' submission_id=submission.submission.id %}',
-                            {% endif %}
+                                $.get('{% url 'save_diff_id' submission_id=submission.submission.id %}',
                                     function(data) {
                                         $('#diff-button-save').addClass('disabled');
                                         $('#diff-button-save > span').text('{% trans "Saved for diffing" %}');
@@ -124,19 +91,19 @@
 <table class="details_table">
     <thead>
         <tr>
-            {% if is_admin %}<th style="min-width: 120px">{% trans "User name" %}</th>{% endif %}
+            {% if can_admin %}<th style="min-width: 120px">{% trans "User name" %}</th>{% endif %}
             <th style="min-width: 120px">{% trans "Problem" %}</th>
             <th style="min-width: 150px">{% trans "Submission date" %}</th>
             <th style="min-width: 150px">{% trans "Status" %}</th>
-            {% if is_admin %}<th style="min-width: 120px"> {% trans "Kind" %}</th>{% endif %}
+            {% if can_admin %}<th style="min-width: 120px"> {% trans "Kind" %}</th>{% endif %}
             <th style="min-width: 80px">{% trans "Score" %}</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            {% if is_admin %}
+            {% if can_admin %}
             <td>
-                {% if submission.submission.user %}
+                {% if submission.submission.user and contest %}
                 <a href="{% url 'user_info' submission.submission.user_id %}">{{ submission.submission.user.get_full_name }}</a>
                 {% else %}
                 {{ submission.submission.user.get_full_name }}
@@ -146,7 +113,7 @@
             <td>{{ submission.submission.problem_instance }}</td>
             <td>{{ submission.submission.get_date_display }}</td>
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
-            {% if is_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
+            {% if can_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
             <td>{% if submission.can_see_score %}{{ submission.submission.score|default_if_none:'' }}{% endif %}</td>
         </tr>
     </tbody>

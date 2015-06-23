@@ -10,7 +10,7 @@ from django.utils import translation
 
 from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
-from oioioi.contests.models import Submission, ProblemInstance
+from oioioi.contests.models import ProblemInstance
 from oioioi.problems.models import ProblemStatement
 
 @request_cached
@@ -31,21 +31,29 @@ def can_admin_problem(request, problem):
     return False
 
 
-def can_admin_problem_instance(request, problem):
-    """Checks if user has admin permission in ProblemInstace of given problem.
-       If request.contest is not None ProblemInstace from this contest
-       is taken into account, problem.main_problem_instance otherwise.
+def can_admin_instance_of_problem(request, problem):
+    """Checks if the user has admin permission in a ProblemInstace
+       of the given Problem.
+       If request.contest is not None then ProblemInstaces from this contest
+       are taken into account, problem.main_problem_instance otherwise.
 
-       If there is no ProblemInstace of problem in request.contest function
-       returns False
+       If there is no ProblemInstace of problem in request.contest then
+       the function returns False.
 
-       If request.user has permission to admin problem function will always
-       return True.
+       If the user has permission to admin problem then the function
+       will always return True.
     """
     if can_admin_problem(request, problem):
         return True
     return is_contest_admin(request) and ProblemInstance.objects \
         .filter(problem=problem, contest=request.contest).exists()
+
+
+def can_admin_problem_instance(request, pi):
+    if pi.contest:
+        return request.user.has_perm('contests.contest_admin', pi.contest)
+    else:
+        return can_admin_problem(request, pi.problem)
 
 
 def query_statement(problem_id):
@@ -86,31 +94,6 @@ def query_zip(statement, path):
     response = HttpResponse(zip.read(path), content_type=content_type)
     response['Content-Length'] = info.file_size
     return response
-
-
-def can_see_submission_without_contest(request, submission):
-    return submission.user == request.user or \
-            can_admin_problem(request, submission.problem_instance.problem)
-
-
-def get_submission_without_contest(request, submission_id):
-    submission = get_object_or_404(Submission, id=submission_id) \
-            .programsubmission
-    assert submission.problem_instance.contest is None
-    if not can_see_submission_without_contest(request, submission):
-        raise Http404
-    return submission
-
-
-def get_submission_source_file_without_contest_or_error(request,
-                                                        submission_id):
-    submission = get_object_or_404(Submission, id=submission_id) \
-            .programsubmission
-    assert submission.problem_instance.contest is None
-    controller = submission.problem_instance.controller
-    if not controller.can_see_source(request, submission):
-        raise PermissionDenied
-    return submission.source_file
 
 
 def update_tests_from_main_pi(problem_instance):

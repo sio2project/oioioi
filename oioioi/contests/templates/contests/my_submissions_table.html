@@ -30,12 +30,10 @@
     </thead>
     <tbody>
         {% for record in submissions %}
-        {% url 'submission' contest_id=contest.id submission_id=record.submission.id as link %}
-        {% url 'submission_without_contest' submission_id=record.submission.id as no_contest_link %}
         <tr class="subm_kind_{{ record.submission.kind }}">
             <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"
                     id="submission{{ record.submission.id }}_margin"></td>
-            <td><a href="{% if record.submission.problem_instance.contest %} {{ link }} {% else %} {{ no_contest_link }} {% endif %}">{{ record.submission.get_date_display }}</a></td>
+            <td><a href="{{ record.link }}">{{ record.submission.get_date_display }}</a></td>
             {% if not inside_problem_view %}
             <td id="submission{{ record.submission.id }}_problem_instance">{{ record.submission.problem_instance }}</td>
             {% endif %}

@@ -122,11 +122,12 @@ def get_submission_source_file_or_error(request, submission_id):
        raised.
     """
     submission = get_object_or_404(ProgramSubmission, id=submission_id)
-    if request.contest.id != submission.problem_instance.contest_id:
+    pi = submission.problem_instance
+    if pi.contest and (not request.contest or
+                       request.contest.id != pi.contest.id):
         raise PermissionDenied
-    controller = request.contest.controller
-    queryset = Submission.objects.filter(programsubmission=submission)
-    if not controller.filter_visible_sources(request, queryset).exists():
+
+    if not pi.controller.can_see_source(request, submission):
         raise PermissionDenied
     return submission.source_file
 

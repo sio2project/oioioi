@@ -18,16 +18,14 @@ from oioioi.problems.models import ProblemStatement, ProblemAttachment, \
         Problem, ProblemPackage, Tag
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem, \
-        query_statement, get_submission_without_contest, \
-        can_see_submission_without_contest, can_admin_problem_instance
+        query_statement, can_admin_instance_of_problem, \
+        can_admin_problem_instance
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.contests.models import Submission, SubmissionReport, \
         ProblemInstance
 from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.middleware import activate_contest
-from oioioi.contests.views import submission_view_unsafe, \
-        rejudge_submission_view_unsafe, change_submission_kind_view_unsafe
 from oioioi.programs.models import ModelSolution, TestReport, GroupReport, \
         ModelProgramSubmission
 
@@ -42,14 +40,14 @@ from oioioi.problems.problem_site import problem_site_statement_zip_view
 
 def show_statement_view(request, statement_id):
     statement = get_object_or_404(ProblemStatement, id=statement_id)
-    if not can_admin_problem_instance(request, statement.problem):
+    if not can_admin_instance_of_problem(request, statement.problem):
         raise PermissionDenied
     return stream_file(statement.content, statement.download_name)
 
 
 def show_problem_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
-    if not can_admin_problem_instance(request, attachment.problem):
+    if not can_admin_instance_of_problem(request, attachment.problem):
         raise PermissionDenied
     return stream_file(attachment.content, attachment.download_name)
 
@@ -216,24 +214,6 @@ def get_report_HTML_view(request, submission_id):
     return HttpResponse(reports)
 
 
-def submission_without_contest_view(request, submission_id):
-    submission = get_submission_without_contest(request, submission_id)
-    return submission_view_unsafe(request, submission)
-
-
-@require_POST
-def rejudge_submission_without_contest_view(request, submission_id):
-    submission = get_submission_without_contest(request, submission_id)
-    rejudge_submission_view_unsafe(request, submission)
-    return redirect('submission_without_contest', submission_id=submission_id)
-
-
-def change_submission_kind_without_contest_view(request, submission_id, kind):
-    submission = get_submission_without_contest(request, submission_id)
-    change_submission_kind_view_unsafe(request, submission, kind)
-    return redirect('submission_without_contest', submission_id=submission_id)
-
-
 @transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
     return add_or_update_problem(request, None,
@@ -243,11 +223,7 @@ def problemset_add_or_update_problem_view(request):
 def model_solutions_view(request, problem_instance_id):
     problem_instance = \
         get_object_or_404(ProblemInstance, id=problem_instance_id)
-    problem = problem_instance.problem
-    contest = problem_instance.contest
-    if (contest is None and not can_admin_problem(request, problem)) or \
-            (contest and
-             not request.user.has_perm('contests.contest_admin', contest)):
+    if not can_admin_problem_instance(request, problem_instance):
         raise PermissionDenied
 
     filter_kwargs = {

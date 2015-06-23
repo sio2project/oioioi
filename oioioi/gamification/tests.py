@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.dispatch import receiver
@@ -21,6 +22,7 @@ from oioioi.gamification.profile import profile_section, profile_registry
 from oioioi.gamification.controllers import CodeSharingController
 from oioioi.problems.models import Problem
 from oioioi.contests.models import Submission
+from oioioi.contests.current_contest import ContestMode
 
 
 class TestExperienceModule(TestCase):
@@ -605,6 +607,7 @@ class TestProfileTabs(TestCase):
         self.assertIn(tab_content, response.content)
 
 
+@override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestCodeSharingFriends(TestCase):
     fixtures = ['gamification_users.json', 'test_friendships.json',
                 'test_allowsharingprefs.json', 'gamification_problems.json',
@@ -677,13 +680,15 @@ class TestCodeSharingFriends(TestCase):
             [])
 
     def test_is_shared_visible(self):
-        def check_submission(submission_id, view_name):
+        def check_submission(submission_id):
             submission = Submission.objects.get(pk=submission_id)
 
             kwargs = {'submission_id': submission.id}
             if submission.problem_instance.contest is not None:
                 kwargs['contest_id'] = submission.problem_instance.contest.id
-            url = reverse(view_name, kwargs=kwargs)
+            else:
+                kwargs['contest_id'] = None
+            url = reverse('show_submission_source', kwargs=kwargs)
 
             # 2 & 4 are friends, 1 & 4 are not
             self.client.login(username='test_user')
@@ -694,8 +699,8 @@ class TestCodeSharingFriends(TestCase):
             response = self.client.get(url)
             self.assertEquals(response.status_code, 200)
 
-        check_submission(1, 'show_submission_source')
-        check_submission(2, 'show_submission_source_without_contest')
+        check_submission(1)
+        check_submission(2)
 
 
 class DifficultyTest(TestCase):

@@ -30,11 +30,17 @@ def reverse(target, *args, **kwargs):
        and generates URLs that are appropriately prefixed. With it we
        substitute the original ``urlresolvers.reverse`` function.
 
-       If a ``contest_id`` kwarg is given or there is a current contest when
-       reverse is called, it tries to generate a contest-prefixed URL pointing
-       to the target (the kwarg takes precedence). If it fails or there is no
-       contest, it tries to return a non contest-prefixed URL. Only when
-       both cases fail ``NoReverseMatch`` is thrown.
+       The choice of prefixing the URL with a particular contest ID
+       (or not prefixing at all) by the function is made as follows:
+
+        * If a ``contest_id`` kwarg is given which is not None then the URL,
+          if succesfully reversed, is prefixed with it.
+        * If a ``contest_id`` kwarg equal to None is given then the URL,
+          if succesfully reversed, will not be prefixed.
+        * If the kwarg isn't given but a contest is active when calling
+          the function then that contest is used for the generated URL.
+        * If the above fails or there is no active contest then no contest
+          will be used.
 
        Our reverser uses the special structure of each app's urls.py file:
 
@@ -56,7 +62,7 @@ def reverse(target, *args, **kwargs):
        a ``contest_id`` kwarg. That particular kwarg is interpreted differently
        and will never be actually matched in the url pattern when reversing.
 
-       You need to take for account the behavior of reverse when defining
+       You need to take into account the behavior of reverse when defining
        your own custom urlconf (that means patterns lying outside an app's
        urls.py file, e.g. for testing purposes), because it won't be
        preprocessed. For that we created the
@@ -69,28 +75,31 @@ def reverse(target, *args, **kwargs):
     else:
         name = target
 
-    contest_id = None
     if 'kwargs' in kwargs and kwargs['kwargs'] \
             and 'contest_id' in kwargs['kwargs']:
         kwargs = copy.deepcopy(kwargs)
         contest_id = kwargs['kwargs'].pop('contest_id')
-    if not contest_id:
+        explicit_contest = True
+    else:
         contest_id = get_cc_id()
+        explicit_contest = False
 
     if contest_id:
         try:
             ret = django_reverse('contest:' + name, *args, **kwargs)
             return re.sub(contest_re, r'/c/{}/'.format(contest_id), ret)
         except NoReverseMatch:
-            # We will try the noncontest version.
-            pass
+            if explicit_contest:
+                raise
+            # Else we will try the noncontest version.
 
     try:
         return django_reverse('noncontest:' + name, *args, **kwargs)
     except NoReverseMatch:
+        if explicit_contest and not contest_id:
+            raise
         # It can still be one of those urls defined in the global urls.py
         # because we didn't namespace them.
-        pass
 
     return django_reverse(name, *args, **kwargs)
 

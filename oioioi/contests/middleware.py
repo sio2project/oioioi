@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import reverse, resolve, NoReverseMatch
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect
 
@@ -137,15 +137,16 @@ class CurrentContestMiddleware(object):
         name = res.url_name
         if res.namespaces:
             name = ':'.join(res.namespaces + [name])
-        new_path = reverse(name, args=res.args, kwargs=res.kwargs)
-        if contest_re.match(new_path):
+        try:
+            new_path = reverse(name, args=res.args, kwargs=res.kwargs)
+            assert contest_re.match(new_path)
             if request.GET:
                 new_path += '?' + request.GET.urlencode()
             return HttpResponseRedirect(new_path)
-
-        if nonglobal:
-            # That wasn't a global url and it doesn't have a contest version.
-            # It must be a noncontest-only url.
-            if settings.CONTEST_MODE == ContestMode.contest_only \
-                    and not request.user.is_superuser:
-                raise PermissionDenied
+        except NoReverseMatch:
+            if nonglobal:
+                # That wasn't a global url and it doesn't have
+                # a contest version. It must be a noncontest-only url.
+                if settings.CONTEST_MODE == ContestMode.contest_only \
+                        and not request.user.is_superuser:
+                    raise PermissionDenied

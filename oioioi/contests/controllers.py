@@ -41,11 +41,15 @@ def export_entries(registry, values):
 
 
 def submission_template_context(request, submission):
-    controller = submission.problem_instance.controller
+    pi = submission.problem_instance
+    controller = pi.controller
     can_see_status = controller.can_see_submission_status(request, submission)
     can_see_score = controller.can_see_submission_score(request, submission)
     can_see_comment = controller.can_see_submission_comment(request,
             submission)
+    link = reverse('submission', kwargs={
+        'submission_id': submission.id,
+        'contest_id': pi.contest.id if pi.contest else None})
 
     valid_kinds = controller.valid_kinds_for_submission(submission)
     valid_kinds.remove(submission.kind)
@@ -56,6 +60,7 @@ def submission_template_context(request, submission):
             'can_see_status': can_see_status,
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment,
+            'link': link,
             'valid_kinds_for_submission': valid_kinds_for_submission}
 
 

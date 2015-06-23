@@ -24,7 +24,7 @@
         <tr>
             <th rowspan="3" colspan="2" class="corner"></th>
             {% for s in submissions %}
-            <th><a href="{% url 'submission' contest_id=contest.id submission_id=s.id %}">{{ s.model_solution.short_name }}</a></th>
+            <th><a href="{% url 'submission' submission_id=s.id %}">{{ s.model_solution.short_name }}</a></th>
             {% endfor %}
         </tr>
         <tr>

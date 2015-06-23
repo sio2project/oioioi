@@ -221,14 +221,16 @@ def get_submission_or_error(request, submission_id,
                             submission_class=Submission):
     """Returns the submission if it exists and user has rights to see it."""
     submission = get_object_or_404(submission_class, id=submission_id)
-    if submission.problem_instance.contest:
-        if request.contest.id != submission.problem_instance.contest_id:
+    pi = submission.problem_instance
+    if pi.contest:
+        if not request.contest or request.contest.id != pi.contest.id:
             raise PermissionDenied
         if is_contest_admin(request) or is_contest_observer(request):
             return submission
-    controller = submission.problem_instance.controller
+    elif request.contest:
+        raise PermissionDenied
     queryset = Submission.objects.filter(id=submission.id)
-    if not controller.filter_my_visible_submissions(request, queryset):
+    if not pi.controller.filter_my_visible_submissions(request, queryset):
         raise PermissionDenied
     return submission
 

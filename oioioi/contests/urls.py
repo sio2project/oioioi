@@ -88,14 +88,6 @@ c_patterns = patterns('oioioi.contests.views',
         name='rejudge_all_submissions_for_problem'),
     url(r'^submit/$', 'submit_view', name='submit'),
     url(r'^submissions/$', 'my_submissions_view', name='my_submissions'),
-    url(r'^s/(?P<submission_id>\d+)/$', 'submission_view',
-        name='submission'),
-    url(r'^s/(?P<submission_id>\d+)/rejudge/$', 'rejudge_submission_view',
-        name='rejudge_submission'),
-    url(r'^s/(?P<submission_id>\d+)/change_kind/(?P<kind>\w+)/$',
-        'change_submission_kind_view', name='change_submission_kind'),
-    url(r'^s/(?P<submission_id>\d+)/report/(?P<report_id>\d+)/$',
-        'report_view', name='report'),
     url(r'^files/$', 'contest_files_view', name='contest_files'),
     url(r'^ca/(?P<attachment_id>\d+)/$', 'contest_attachment_view',
         name='contest_attachment'),
@@ -115,6 +107,15 @@ nonc_patterns = patterns('')
 
 neutral_patterns = patterns('oioioi.contests.views',
     url(r'^contest/$', 'select_contest_view', name='select_contest'),
+
+    url(r'^s/(?P<submission_id>\d+)/$', 'submission_view',
+        name='submission'),
+    url(r'^s/(?P<submission_id>\d+)/rejudge/$', 'rejudge_submission_view',
+        name='rejudge_submission'),
+    url(r'^s/(?P<submission_id>\d+)/change_kind/(?P<kind>\w+)/$',
+        'change_submission_kind_view', name='change_submission_kind'),
+    url(r'^s/(?P<submission_id>\d+)/report/(?P<report_id>\d+)/$',
+        'report_view', name='report'),
 )
 
 for app in settings.INSTALLED_APPS:
