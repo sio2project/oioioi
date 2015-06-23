@@ -33,9 +33,7 @@ def get_notifications_session(session):
 
 
 def notification_processor(request):
-    if not getattr(request, 'contest', None) or \
-            not request.user.is_authenticated() or \
-            not can_enter_contest(request):
+    if not request.user.is_authenticated():
         return {}
 
     def generator():
