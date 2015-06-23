@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import Http404, HttpResponse
 from django.utils.translation import ugettext_lazy as _
@@ -108,7 +109,7 @@ def user_portal_view(request, username, portal_path):
 @register_node_action('show_node', menu_text=_("Show node"), menu_order=100)
 def show_node_view(request):
     rendered_panel = mark_safe(render_panel(request,
-            request.current_node.panel_code))
+                                            request.current_node.panel_code))
     return render(request, 'portals/show-node.html',
                   {'rendered_panel': rendered_panel})
 
@@ -225,6 +226,16 @@ def my_portal_url(request):
         return portal_url(portal=request.user.portal)
     except Portal.DoesNotExist:
         return reverse('create_user_portal')
+
+
+@enforce_condition(not_anonymous, login_redirect=False)
+def render_markdown_view(request):
+    if request.method != 'POST' or 'markdown' not in request.POST:
+        raise Http404
+    rendered = render_panel(request, request.POST['markdown'])
+    return HttpResponse(json.dumps({'rendered': rendered}),
+                        content_type='application/json')
+
 
 account_menu_registry.register('my_portal', _("My portal"), my_portal_url,
         order=150)

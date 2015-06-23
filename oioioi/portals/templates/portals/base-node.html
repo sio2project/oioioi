@@ -3,6 +3,11 @@
 
 {% block title %}{{ current_node.full_name }}{% endblock %}
 
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/widgets.css">
+{% endblock %}
+
 {% block menu %}
     <ul class="nav nav-list portal-menu-high portal-menu-path">
         {% if current_node.is_root_node and current_node.is_leaf_node %}

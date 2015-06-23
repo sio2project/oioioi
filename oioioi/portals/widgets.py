@@ -1,6 +1,9 @@
 import re
+import urlparse
 
 from mistune import Renderer, InlineGrammar, InlineLexer, Markdown, BlockLexer
+from django.core.urlresolvers import resolve, reverse
+from django.http import Http404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -8,6 +11,8 @@ from django.utils.safestring import mark_safe
 from oioioi.contests.utils import visible_contests
 from oioioi.contests.processors import recent_contests
 from oioioi.teachers.models import Teacher
+from oioioi.problems.models import Problem
+from oioioi.problems.views import problem_site_view
 
 
 REGISTERED_WIDGETS = []
@@ -100,13 +105,20 @@ class YouTubeWidget(object):
     )
 
     def render(self, request, m):
+        # 'https://www.youtube.com/watch?v=dVDk7PXNXB8'
         youtube_url = m.group(1).split('|')[-1].strip()
         # We must use the embed player, so if user just copies link
         # from the browser when he is on YT, we must transform
         # the link in order to be able to play the movie
-        youtube_url = youtube_url.replace('watch?v=', 'embed/')
+        parsed = urlparse.urlparse(youtube_url)
+        try:
+            video_id = urlparse.parse_qs(parsed.query)['v'][0]
+        except KeyError:
+            return ''
+        # 'https://www.youtube.com/embed/dVDk7PXNXB8'
+        youtube_embed_url = 'https://www.youtube.com/embed/%s' % video_id
         return render_to_string('portals/widgets/youtube.html',
-                                {'youtube_url': youtube_url})
+                                {'youtube_embed_url': youtube_embed_url})
 register_widget(YouTubeWidget())
 
 
@@ -114,18 +126,46 @@ class ProblemTableWidget(object):
     name = 'problem_table'
     compiled_tag_regex = re.compile(
         r'\[\['                   # [[
-        r'ProblemTable\|(;?[0-9]+(;[0-9]+)*;?)'   # ProblemTable|id1;id2;..
+        r'ProblemTable\|(.+)'   # ProblemTable|...
         r'\]\](?!\])'             # ]]
     )
 
-    def get_problem_ids(self, m):
-        ids_str = m.group(1).split('|')[-1].strip(' ;')
-        return ids_str.split(';') if ids_str else []
+    def site_key_from_link(self, link):
+        if '//' in link:
+            link = link.split('//')[1]
+        if '/' not in link:
+            return None
+        rel_path = '/' + link.split('/', 1)[1]
+        try:
+            resolved = resolve(rel_path)
+        except Http404:
+            return None
+        if not 'site_key' in resolved.kwargs:
+            return None
+        return resolved.kwargs['site_key']
 
     def render(self, request, m):
-        problem_ids = self.get_problem_ids(m)
+        if not m.group(1).strip(' ;'):
+            return ''
+        links = m.group(1).split(';')
+        links = [link.strip() for link in links if link.strip()]
+
+        keys = [self.site_key_from_link(link) for link in links]
+        keys = [key for key in keys if key is not None]
+        problems = Problem.objects.filter(problemsite__url_key__in=keys) \
+                .select_related('problemsite')
+        problem_map = {pr.problemsite.url_key: pr for pr in problems}
+
+        rows = [problem_map[key] for key in keys if key in problem_map]
+
+        def get_url(site_key):
+            return reverse(problem_site_view, kwargs={'site_key': site_key})
+
+        rows = [{'url': get_url(pr.problemsite.url_key),
+                 'name': pr.name} for pr in rows]
+
         return render_to_string('portals/widgets/problem_table.html',
-                                {'problem_ids': problem_ids})
+                                {'problems': rows})
 register_widget(ProblemTableWidget())
 
 

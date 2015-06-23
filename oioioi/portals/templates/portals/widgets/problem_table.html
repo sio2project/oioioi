@@ -1,16 +1,15 @@
 {% load i18n %}
 
 <table>
-    <caption>{% trans "Problems" %}</caption>
     <thead>
         <tr>
-            <th>URL</th>
+            <th>{% trans "Problem Name" %}</th>
         </tr>
     </thead>
     <tbody>
-        {% for problem_id in problem_ids %}
+        {% for problem in problems %}
         <tr>
-            <td>{{ problem_id }}</td> {# temporary. waiting for problem urls #}
+            <td><a href="{{ problem.url }}">{{ problem.name }}</a></td>
         </tr>
         {% endfor %}
     </tbody>

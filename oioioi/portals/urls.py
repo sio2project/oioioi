@@ -11,5 +11,7 @@ noncontest_patterns = patterns('oioioi.portals.views',
         views.create_user_portal_view, name='create_user_portal'),
     url(r'^~(?P<username>[^/]+)/(?P<portal_path>.*)$',
         views.user_portal_view, name='user_portal'),
-    url(r'^move_node/$', views.move_node_view, name='move_node')
+    url(r'^move_node/$', views.move_node_view, name='move_node'),
+    url(r'^render_markdown/$', views.render_markdown_view,
+        name='render_markdown')
 )

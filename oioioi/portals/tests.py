@@ -7,6 +7,7 @@ from oioioi.portals.models import Portal, Node
 from oioioi.portals.actions import portal_url
 from oioioi.portals.widgets import render_panel, \
         register_widget
+from oioioi.problems.models import Problem, ProblemSite
 
 
 def get_portal():
@@ -367,26 +368,51 @@ class TestPortalViews(TestCase):
 
 class TestMarkdown(TestCase):
 
+    def setUp(self):
+        self.request = None
+        for i in range(1, 5):
+            name = 'problem_%s_name' % i
+            url_key = 'problem_%s_key' % i
+            problem = Problem(name=name, short_name=name, is_public=True)
+            problem.save()
+            site = ProblemSite(problem=problem, url_key=url_key)
+            site.save()
+
     def test_double_asterisk(self):
-        self.assertEquals(render_panel(None, '**word**').strip(),
+        self.assertEquals(render_panel(self.request, '**word**').strip(),
                           '<p><strong>word</strong></p>')
-        self.assertEquals(render_panel(None, '**word').strip(),
+        self.assertEquals(render_panel(self.request, '**word').strip(),
                           '<p>**word</p>')
 
     def test_youtube_widget(self):
-        url = 'http://youtube.com'
-        rendered = render_panel(None, '[[YouTube|%s]]' % url)
-        self.assertIn('<iframe src="%s"' % url, rendered)
+        url = 'https://www.youtube.com/watch?v=pB0CTz5QlOw'
+        embed_url = 'https://www.youtube.com/embed/pB0CTz5QlOw'
+        rendered = render_panel(self.request, '[[YouTube|%s]]' % url)
+        self.assertIn('<iframe src="%s"' % embed_url, rendered)
 
-    def test_problem_table(self):
-        ids = [1, 2, 2434, 35235, 35325, 5235632, 5234934]
-        ids = [str(id_) for id_ in ids]
-        rendered = render_panel(None,
-                        '[[ProblemTable|%s]]' % ';'.join(ids))
-        for id_ in ids:
-            self.assertIn('<td>%s</td>' % id_, rendered)
-        rendered = render_panel(None, '[[ProblemTable|123_424]]')
-        self.assertIn('[[ProblemTable|123_424]]', rendered)
+    def test_problemtable_widget(self):
+        urls = [
+            'http://127.0.0.1:8000/problemset/problem/problem_1_key/site/',
+            'http://wwww.zabawa.pl/problemset/problem/problem_2_key/site/',
+            'www.zabawa.pl/problemset/problem/i_dont_exist_key/site/',
+            'www.zabawa.pl/problemset/problem/problem_3_key/site/',
+            'https://www.zabawa.pl/problemset/problem/problem_3_key/site/',
+            'zabawa.pl/problemset/problem/problem_3_name/site/',
+            'zabawa.pl/problemset/problem/problem_4_key/site/?key=statement',
+        ]
+        tag = '[[ProblemTable|%s]]' % ';'.join(urls)
+        rendered = render_panel(self.request, tag)
+        self.assertEquals(rendered.count('<tr>'), 6)
+        self.assertEquals(rendered.count('href'), 5)
+        self.assertNotIn('i_dont_exist', rendered)
+        self.assertIn('>problem_1_name</a>', rendered)
+        self.assertIn('>problem_2_name</a>', rendered)
+        self.assertIn('>problem_3_name</a>', rendered)
+        self.assertIn('>problem_4_name</a>', rendered)
+        self.assertIn('problem_1_key/site', rendered)
+        self.assertIn('problem_2_key/site', rendered)
+        self.assertIn('problem_3_key/site', rendered)
+        self.assertIn('problem_4_key/site', rendered)
 
     def test_duplicate_tag(self):
 
