@@ -14,9 +14,9 @@ def parse_node_for_problems(node):
                             lambda w: hasattr(w, 'get_problem_ids'),
                             REGISTERED_WIDGETS)
 
+    ids = []
     for widget in widgets_with_links:
         regex = widget.compiled_tag_regex
-        ids = []
         for m in regex.finditer(node.panel_code):
             ids += widget.get_problem_ids(m)
 
