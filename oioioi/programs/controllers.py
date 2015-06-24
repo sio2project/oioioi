@@ -478,7 +478,7 @@ class ProgrammingProblemController(ProblemController):
                     form.fields['prog_lang'].initial = \
                             controller.parse_language_by_extension(ext)
 
-        if is_contest_admin(request):
+        if request.contest and is_contest_admin(request):
             form.fields['user'] = UserSelectionField(
                     label=_("User"),
                     hints_url=reverse('contest_user_hints',

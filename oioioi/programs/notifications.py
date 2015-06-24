@@ -22,15 +22,16 @@ def notification_function_initial_results(arguments):
             .can_see_submission_status(request, arguments.submission):
         return
 
-    kwargs = {}
-    kwargs['submission_id'] = arguments.submission.pk
     if pi.contest:
-        kwargs['contest_id'] = pi.contest.pk
         url = reverse('oioioi.contests.views.submission_view',
-            kwargs=kwargs)
+            kwargs={'contest_id': pi.contest.pk,
+            'submission_id': arguments.submission.pk})
+    elif pi.problem.problemsite:
+        url = reverse('problem_site', kwargs={
+                'site_key': pi.problem.problemsite.url_key}) \
+                + '?key=submissions'
     else:
-        url = reverse('problem_site', args=(arguments.submission.problem
-                                            .problemsite.url_key,))
+        url = ''
 
     message = ugettext_noop("Initial result for task %(short_name)s is ready")
     message_arguments = {'short_name': pi.short_name,

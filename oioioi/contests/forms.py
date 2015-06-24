@@ -119,7 +119,7 @@ class SubmissionForm(forms.Form):
         self.request = request
 
         # taking the available problems
-        pis = submittable_problem_instances(request)
+        pis = self.get_problem_instances()
         if problem_filter:
             pis = problem_filter(pis)
         pi_choices = [(pi.id, unicode(pi)) for pi in pis]
@@ -139,6 +139,9 @@ class SubmissionForm(forms.Form):
 
         # adding additional fields, etc
         controller.adjust_submission_form(request, self, problem_instance)
+
+    def get_problem_instances(self):
+        return submittable_problem_instances(self.request)
 
     def is_valid(self):
         return forms.Form.is_valid(self)
@@ -181,13 +184,14 @@ class SubmissionForm(forms.Form):
 
 class SubmissionFormForProblemInstance(SubmissionForm):
     def __init__(self, request, problem_instance, *args, **kwargs):
-        def pi_filter(pi_list):
-            return (problem_instance,)
-        kwargs['problem_filter'] = pi_filter
+        self.problem_instance = problem_instance
         kwargs['problem_instance'] = problem_instance
         super(SubmissionFormForProblemInstance, self).__init__(request, *args,
                 **kwargs)
         self.fields['problem_instance_id'].widget.attrs['readonly'] = 'True'
+
+    def get_problem_instances(self):
+        return [self.problem_instance]
 
 class GetUserInfoForm(forms.Form):
     user = UserSelectionField(label=_("Username"))
