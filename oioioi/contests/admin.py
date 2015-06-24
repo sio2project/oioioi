@@ -257,20 +257,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                 args=(instance.problem_id,)) + '?' + \
                         urllib.urlencode({'came_from': came_from})
 
-    def _problem_reupload_href(self, instance):
-        return reverse('add_or_update_problem',
-                kwargs={'contest_id': instance.contest.id}) + '?' + \
-                urllib.urlencode({'problem': instance.problem.id,
-                                  'instance_id': instance.id})
-
-    def _problem_download_href(self, instance):
-        came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
-        return reverse('oioioiadmin:problems_problem_download',
-                args=(instance.problem_id,)) + '?' + \
-                        urllib.urlencode({'came_from': came_from})
-
     def probleminstance_change_link_name(self):
-        return _("Edit problem instance")
+        return _("Edit problem")
 
     def _rejudge_all_submissions_for_problem_href(self, instance):
         return reverse('rejudge_all_submissions_for_problem',
@@ -282,15 +270,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def inline_actions(self, instance):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(instance.id,))
-        edit_href = self._problem_change_href(instance)
-        reupload_href = self._problem_reupload_href(instance)
-        download_href = self._problem_download_href(instance)
         models_href = self._model_solutions_href(instance)
         result = [
             (move_href, self.probleminstance_change_link_name()),
-            (edit_href, _("Edit problem")),
-            (reupload_href, _("Re-upload")),
-            (download_href, _("Download package")),
             (models_href, _("Model solutions")),
         ]
         if instance.needs_rejudge:

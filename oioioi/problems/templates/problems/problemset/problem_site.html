@@ -16,6 +16,10 @@
         {% trans "Edit tests" %}
     </a>
     |
+    <a href="{% url 'oioioiadmin:problems_problem_download' problem.id %}">
+        {% trans "Download package" %}
+    </a>
+    |
     <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">
         {% trans "Reupload problem" %}
     </a>
