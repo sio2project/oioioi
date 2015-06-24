@@ -79,7 +79,7 @@ class SioworkersdBackend(object):
         ans = SioworkersdBackend.server.sync_run_group(env)
         if 'error' in ans:
             raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
-                (ans['error']['message'], env['error']['traceback']))
+                (ans['error']['message'], ans['error']['traceback']))
         return ans['workers_jobs.results']['dummy_name']
 
     def run_jobs(self, dict_of_jobs, **kwargs):
@@ -88,7 +88,7 @@ class SioworkersdBackend(object):
         ans = SioworkersdBackend.server.sync_run_group(env)
         if 'error' in ans:
             raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
-                (ans['error']['message'], env['error']['traceback']))
+                (ans['error']['message'], ans['error']['traceback']))
         return ans['workers_jobs.results']
 
     def send_async_jobs(self, env, **kwargs):
