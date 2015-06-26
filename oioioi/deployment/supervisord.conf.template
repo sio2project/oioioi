@@ -79,6 +79,20 @@ command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications_server
 redirect_stderr=true
 {% if not settings.NOTIFICATIONS_SERVER_ENABLED %}exclude=true{% endif %}
 
+[program:receive_from_workers]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py start_receive_from_workers
+startretries=0
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/receive_from_workers.log
+{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
+
+[program:sioworkersd]
+command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.sqlite
+startretries=0
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
+{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
+
 [program:autoreload]
 # Comment this out to enable auto-reloading when code changes.
 exclude=true
