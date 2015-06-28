@@ -3,6 +3,7 @@ import json
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
+from django.http import JsonResponse
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.admin import system_admin_menu_registry
@@ -74,7 +75,7 @@ def show_info_about_workers(request):
             announce = _("Successfully deleted tag")
     workers_info = get_info_about_workers()
 
-    def tuple_to_dict(d):
+    def transform_dict(d):
         select = request.POST.get('work-' + d['name'])
         info = d['info']
         result = {
@@ -85,7 +86,7 @@ def show_info_about_workers(request):
             'select': select,
         }
         return result
-    workers_info = map(tuple_to_dict, workers_info)
+    workers_info = map(transform_dict, workers_info)
     context = {
         'workers': workers_info,
         'readonly': readonly,
@@ -95,6 +96,18 @@ def show_info_about_workers(request):
         'all_tags': all_tags
     }
     return render(request, 'workers/list_workers.html', context)
+
+
+@enforce_condition(is_superuser)
+def get_load_json(request):
+    data = get_info_about_workers()
+    cap = 0
+    load = 0
+    for i in data:
+        cap += min(1, i['info'].get('concurrency', 1))
+        load += len(i['tasks'])
+    return JsonResponse({'capacity': cap, 'load': load})
+
 
 system_admin_menu_registry.register('workers_management_admin',
         _("Manage workers"), lambda request:

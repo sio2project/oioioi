@@ -1,38 +1,57 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
+{% load static %}
 
 {% block title %}{% trans "Workers list" %}{% endblock %}
 
 {% block content %}
 
-<h2>{% trans "Workers list" %}</h2>
-{%if announce%}
-<div class="alert alert-info">
-    {{announce}}
-</div>
-{%endif%}
+<script type="text/javascript" src="{% static 'js/highcharts.js' %}"></script>
 
-<form method="post" action= {%url "show_workers" %} > {% csrf_token %}
-        {%if edit%}
+
+<h2>{% trans "System load" %}</h2>
+<script type="text/javascript" src="{% static 'common/load_chart.js' %}">
+</script>
+
+<script type="text/javascript">
+$(function() {
+    make_load_chart('{% url 'get_load_json' %}', 'worker_load_plot');
+});
+</script>
+
+<div id="worker_load_plot" class="highcharts_plot">
+</div>
+
+
+
+{% if announce %}
+<div class="alert alert-info">
+    {{ announce }}
+</div>
+{% endif %}
+<h2>{% trans "Workers list" %}</h2>
+
+<form method="post" action= {% url "show_workers" %} > {% csrf_token %}
+        {% if edit %}
         <div class ="row-fluid">
-        <div class = "span3"> <b> {%trans "Tag to add/delete: "%}</b></div>
-        <div class = "span3"> <input type="text" name="tagname" data-provide="typeahead" autocomplete="off" data-source = '{{all_tags}}'></div>
+        <div class = "span3"> <b> {% trans "Tag to add/delete: " %}</b></div>
+        <div class = "span3"> <input type="text" name="tagname" data-provide="typeahead" autocomplete="off" data-source = '{{ all_tags }}'></div>
         </div>
-        {%endif%}
+        {% endif %}
         <div class="row-fluid">
-            {% for w in workers%}
+            {% for w in workers %}
                 <div class = "span3"> <div class="well" style="height: 35vmin; overflow-y: scroll">
                     <div style="width:100%; background-color">
-                        <span>{{w.name}}</span>
-                        <input type="checkbox" name="work-{{w.name}}" style="float:right"
-                            {%if readonly%} onclick="return false"{%endif%}
-                            {%if w.select%} checked style="opacity: .50;" {%endif%}>
+                        <span>{{ w.name }}</span>
+                        <input type="checkbox" name="work-{{ w.name }}" style="float:right"
+                            {% if readonly %} onclick="return false"{% endif %}
+                            {% if w.select %} checked style="opacity: .50;" {% endif %}>
                     </div>
-                    <span>{% trans "RAM:"%} </span>{{w.ram}} <br>
-                    <span>{% trans "Max number of tasks:" %} </span>{{w.maxConcurr}} </br>
-                    <span>{% trans "Tags:"%}</span> <br>
+                    <span>{% trans "RAM:" %} </span>{{ w.ram }} <br>
+                    <span>{% trans "Max number of tasks:" %} </span>{{ w.maxConcurr }} </br>
+                    <span>{% trans "Tags:" %}</span> <br>
                     {% for tag in w.tags %}
-                        <span class = "label"> {{tag}} </span>
+                        <span class = "label"> {{ tag }} </span>
                     {% endfor %}
                 </div></div>
                 {% if forloop.counter|divisibleby:4 %}</div><div class="row-fluid">{% endif %}
@@ -40,17 +59,17 @@
         </div>
         <br>
         <div class="row-fluid">
-            {%if delete%}
+            {% if delete %}
                 <button type="submit" name="confirm" value="1" class="btn btn-danger">{% trans "Confirm"%}</button>
                 <button type="submit" name="nothing" value="1" class="btn">{% trans "Go back"%}</button>
-            {%elif edit%}
-                <button type="submit" name="tagadd" value="1" class="btn btn-primary">{% trans "Add tag"%}</button>
-                <button type="submit" name="tagdelete" value="1" class="btn btn-danger">{% trans "Delete tag"%}</button>
-                <button type="submit" name="nothing" value="1" class="btn">{% trans "Go back"%}</button>
-            {%else%}
+            {% elif edit %}
+                <button type="submit" name="tagadd" value="1" class="btn btn-primary">{% trans "Add tag" %}</button>
+                <button type="submit" name="tagdelete" value="1" class="btn btn-danger">{% trans "Delete tag" %}</button>
+                <button type="submit" name="nothing" value="1" class="btn">{% trans "Go back" %}</button>
+            {% else %}
                 <button type="submit" name="edit" value="1" class="btn btn-primary">{% trans "Edit tags"%}</button>
                 <button type="submit" name="delete" value="1" class="btn btn-danger">{% trans "Delete workers"%}</button>
-            {%endif%}
+            {% endif %}
 
         </div>
     <div>

@@ -58,7 +58,7 @@ class StaticHighchartsPlot(PlotType):
        * ``highcharts_extra_options`` hook for adding extra Highcharts options
     """
     def head_libraries(self):
-        return ['statistics/highcharts.js', 'statistics/highcharts_plot.css']
+        return ['js/highcharts.js', 'statistics/highcharts_plot.css']
 
     def highcharts_options(self, data):
         """Function generating options for Highcharts chart, as specified in
