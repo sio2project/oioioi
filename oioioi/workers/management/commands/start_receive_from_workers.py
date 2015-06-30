@@ -28,7 +28,7 @@ class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             del env['workers_jobs']
             if 'workers_jobs.extra_args' in env:
                 del env['workers_jobs.extra_args']
-            assert 'workers_jobs.results' in env
+            assert 'workers_jobs.results' in env or 'error' in env
             oioioi.evalmgr.evalmgr_job.delay(env)
             self.send_response(200, 'OK')
             self.send_header('Content-type', 'text/plain')
