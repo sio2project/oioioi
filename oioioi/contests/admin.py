@@ -25,6 +25,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.programs.models import Test, TestReport
+from oioioi.problems.models import ProblemSite
 
 
 class ContestProxyAdminSite(admin.AdminSite):
@@ -267,6 +268,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def _model_solutions_href(self, instance):
         return reverse('model_solutions', args=(instance.id,))
 
+    def _problem_site_href(self, instance):
+        return reverse('problem_site',
+                       args=(instance.problem.problemsite.url_key,))
+
     def inline_actions(self, instance):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(instance.id,))
@@ -275,6 +280,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             (move_href, self.probleminstance_change_link_name()),
             (models_href, _("Model solutions")),
         ]
+        if ProblemSite.objects.filter(problem=instance.problem).exists():
+            site_href = self._problem_site_href(instance)
+            result.append((site_href, _("Problem site")))
         if instance.needs_rejudge:
             rejudge_all_href = self \
                 ._rejudge_all_submissions_for_problem_href(instance)
