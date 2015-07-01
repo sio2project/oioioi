@@ -96,14 +96,14 @@ class AttachmentInline(admin.TabularInline):
 class ProblemInstanceInline(admin.StackedInline):
     model = ProblemInstance
     can_delete = False
-    fields = ['submissions_limit']
+    fields = []
     inline_classes = ('collapse open',)
 
     def has_add_permission(self, request):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return False
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -113,6 +113,15 @@ class ProblemSiteInline(admin.StackedInline):
     model = ProblemSite
     form = ProblemSiteForm
 
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
 
 class TagInline(admin.StackedInline):
     model = Tag.problems.through
@@ -120,6 +129,15 @@ class TagInline(admin.StackedInline):
     extra = 0
     verbose_name = _("Tag")
     verbose_name_plural = _("Tags")
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
 
 
 class ProblemAdmin(admin.ModelAdmin):
