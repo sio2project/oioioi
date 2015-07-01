@@ -29,8 +29,7 @@ from oioioi.contests.utils import contest_exists, can_enter_contest, \
         get_submission_or_error, is_contest_admin
 from oioioi.base.permissions import enforce_condition
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.utils import can_admin_problem, \
-        get_submission_without_contest, \
+from oioioi.problems.utils import can_admin_problem_instance, \
         get_submission_source_file_without_contest_or_error
 
 # Workaround for race condition in fnmatchcase which is used by pygments
@@ -230,21 +229,21 @@ def download_submission_source_view(request, submission_id):
 def download_input_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
 
-    if not can_admin_problem(request, test.problem):
+    if not can_admin_problem_instance(request, test.problem):
         raise PermissionDenied
     return stream_file(test.input_file)
 
 
 def download_output_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
-    if not can_admin_problem(request, test.problem):
+    if not can_admin_problem_instance(request, test.problem):
         raise PermissionDenied
     return stream_file(test.output_file)
 
 
 def download_checker_exe_view(request, checker_id):
     checker = get_object_or_404(OutputChecker, id=checker_id)
-    if not can_admin_problem(request, checker.problem):
+    if not can_admin_problem_instance(request, checker.problem):
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404

@@ -51,7 +51,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
             'test_problem_instance', 'test_permissions']
 
     def test_problem_statement_view(self):
-        #superuser
+        # superuser
         self.client.login(username='test_admin')
         statement = ProblemStatement.objects.get()
 
@@ -61,7 +61,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         content = self.streamingContent(response)
         self.assertTrue(content.startswith('%PDF'))
-        #contest admin
+        # contest admin
         self.client.login(username='test_contest_admin')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -465,18 +465,17 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, url_attachment)
 
     def test_submissions_tab(self):
+        for problem in Problem.objects.all():
+            problem.main_problem_instance.contest = None
+            problem.main_problem_instance.round = None
+            problem.main_problem_instance.save()
+
         url = self._get_site_urls()['submissions']
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.count('<tr'), 0)
         self.client.login(username='test_user')
         self.assertEqual(response.status_code, 200)
-        response = self.client.get(url)
-        #submissions submitted for contest are not visible
-        self.assertEqual(response.content.count('<tr'), 0)
-        for pi in ProblemInstance.objects.all():
-            pi.contest = pi.round = None
-            pi.save()
         response = self.client.get(url)
         self.assertEqual(response.content.count('<tr'), 3)
 

@@ -6,16 +6,17 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template import RequestContext
 from django.db import transaction
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import Submission, SubmissionReport, \
-        UserResultForProblem, FailureReport
+        UserResultForProblem, FailureReport, ProblemInstance
 from oioioi.contests.scores import IntegerScore
 from oioioi import evalmgr
-from oioioi.problems.utils import is_problem_author
+from oioioi.problems.utils import can_admin_problem
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -46,16 +47,16 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
            user.
 
            The default implementation returns ``'IGNORED'`` for
-           problem author.  In other cases it returns ``'NORMAL'``.
+           problem admins. In other cases it returns ``'NORMAL'``.
         """
-        if is_problem_author(request, problem_instance.problem):
+        if can_admin_problem(request, problem_instance.problem):
             return 'IGNORED'
         return 'NORMAL'
 
     def get_submissions_limit(self, request, problem_instance):
         problem = problem_instance.problem
 
-        if is_problem_author(request, problem):
+        if can_admin_problem(request, problem):
             return None
         return problem_instance.submissions_limit
 
@@ -348,7 +349,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         assert not submission.problem_instance.contest
         problem = submission.problem_instance.problem
-        if is_problem_author(request, problem):
+        if can_admin_problem(request, problem):
             return queryset
         return queryset.filter(status='ACTIVE', kind='NORMAL')
 
@@ -450,10 +451,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if not request.user.is_authenticated():
             return queryset.none()
-        qs = queryset.filter(user=request.user,
-                     problem_instance=self.problem.main_problem_instance)
-        if is_problem_author(request, self.problem):
-            return qs
+        qs = queryset \
+            .filter(problem_instance=self.problem.main_problem_instance)
+        if can_admin_problem(request, self.problem):
+            return qs.filter(Q(user=request.user) | Q(user__isnull=True))
         else:
-            return qs.filter(date__lte=request.timestamp) \
+            return qs.filter(user=request.user, date__lte=request.timestamp) \
             .exclude(kind='IGNORED_HIDDEN')

@@ -18,7 +18,7 @@ from django.contrib.auth.models import User
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
-from oioioi.problems.utils import is_problem_author, \
+from oioioi.problems.utils import can_admin_problem, \
         can_see_submission_without_contest
 from oioioi.contests.controllers import ContestController, \
         submission_template_context
@@ -311,7 +311,7 @@ class ProgrammingProblemController(ProblemController):
         return None
 
     def check_repeated_submission(self, request, problem_instance, form):
-        return not is_problem_author(request, problem_instance.problem) \
+        return not can_admin_problem(request, problem_instance.problem) \
                 and form.kind == 'NORMAL' and \
                 getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False)
 
@@ -527,7 +527,7 @@ class ProgrammingProblemController(ProblemController):
         return ProblemController.render_report(self, request, report)
 
     def is_admin(self, request, report):
-        return is_problem_author(request, self.problem)
+        return can_admin_problem(request, self.problem)
 
     def render_report(self, request, report):
         problem_instance = report.submission.problem_instance
@@ -578,10 +578,10 @@ class ProgrammingProblemController(ProblemController):
         """Determines if the current user is allowed to generate outs from
            ``submission_report``.
 
-           Default implementations allow only problem author.
+           Default implementations allow only problem admins.
         """
         problem = submission_report.submission.problem_instance.problem
-        return is_problem_author(request, problem)
+        return can_admin_problem(request, problem)
 
     def can_see_source(self, request, submission):
         return can_see_submission_without_contest(request, submission)
@@ -592,7 +592,7 @@ class ProgrammingProblemController(ProblemController):
     def _out_generate_status(self, request, testreport):
         problem = testreport.test.problem_instance.problem
         try:
-            if is_problem_author(request, problem) or \
+            if can_admin_problem(request, problem) or \
                     testreport.userout_status.visible_for_user:
                 # making sure, that output really exists or is processing
                 if bool(testreport.output_file) or \

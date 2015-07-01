@@ -18,8 +18,8 @@ from oioioi.problems.models import ProblemStatement, ProblemAttachment, \
         Problem, ProblemPackage, Tag
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem, \
-        query_statement, is_problem_author, get_submission_without_contest, \
-        can_see_submission_without_contest
+        query_statement, get_submission_without_contest, \
+        can_see_submission_without_contest, can_admin_problem_instance
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.contests.models import Submission, SubmissionReport, \
@@ -42,14 +42,14 @@ from oioioi.problems.problem_site import problem_site_statement_zip_view
 
 def show_statement_view(request, statement_id):
     statement = get_object_or_404(ProblemStatement, id=statement_id)
-    if not can_admin_problem(request, statement.problem):
+    if not can_admin_problem_instance(request, statement.problem):
         raise PermissionDenied
     return stream_file(statement.content)
 
 
 def show_problem_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
-    if not can_admin_problem(request, attachment.problem):
+    if not can_admin_problem_instance(request, attachment.problem):
         raise PermissionDenied
     return stream_file(attachment.content)
 
@@ -61,8 +61,7 @@ def _get_package(request, package_id):
         has_perm = request.user.has_perm('contests.contest_admin',
                 package.contest)
     elif package.problem:
-        has_perm = request.user.has_perm('problems.problem_admin',
-                package.problem) or is_problem_author(request, package.problem)
+        has_perm = can_admin_problem(request, package.problem)
     else:
         has_perm = request.user.is_superuser
     if not has_perm:
@@ -89,8 +88,7 @@ def add_or_update_problem(request, contest, template):
         if contest and not existing_problem.probleminstance_set.filter(
                 contest=contest).exists():
             raise Http404
-        if not (can_admin_problem(request, existing_problem) or
-                is_problem_author(request, existing_problem)):
+        if not can_admin_problem(request, existing_problem):
             raise PermissionDenied
     else:
         existing_problem = None
@@ -165,6 +163,7 @@ def problemset_my_problems_view(request):
 def problem_site_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
     context = {'problem': problem,
+               'can_admin_problem': can_admin_problem(request, problem),
                'select_problem_src': request.GET.get('select_problem_src')}
     tab_kwargs = {'problem': problem}
 
@@ -245,7 +244,7 @@ def model_solutions_view(request, problem_instance_id):
         get_object_or_404(ProblemInstance, id=problem_instance_id)
     problem = problem_instance.problem
     contest = problem_instance.contest
-    if (contest is None and not is_problem_author(request, problem)) or \
+    if (contest is None and not can_admin_problem(request, problem)) or \
             (contest and
              not request.user.has_perm('contests.contest_admin', contest)):
         raise PermissionDenied

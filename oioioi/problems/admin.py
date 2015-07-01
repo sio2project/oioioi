@@ -23,8 +23,7 @@ from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import Problem, ProblemStatement, \
         ProblemAttachment, ProblemPackage, ProblemSite, MainProblemInstance, \
         Tag
-from oioioi.problems.utils import can_add_problems, can_admin_problem, \
-        is_problem_author
+from oioioi.problems.utils import can_add_problems, can_admin_problem
 from oioioi.problems.forms import ProblemStatementConfigForm, \
         ProblemSiteForm, TagThroughForm
 
@@ -154,7 +153,7 @@ class ProblemAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return self.get_queryset(request).exists()
-        if is_problem_author(request, obj):
+        if can_admin_problem(request, obj):
             return True
         return can_admin_problem(request, obj)
 
@@ -404,7 +403,7 @@ class MainProblemInstanceAdmin(admin.ModelAdmin):
         problem = obj.problem
         if problem.main_problem_instance != obj:
             return False
-        return is_problem_author(request, problem)
+        return can_admin_problem(request, problem)
 
     def has_delete_permission(self, request, obj=None):
         return False

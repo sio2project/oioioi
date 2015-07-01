@@ -5,7 +5,7 @@
 {% block main_content %}
 <h2 class="text-right">{{ problem }}</h2>
 
-{% if user == problem.author %}
+{% if can_admin_problem %}
 
 <div class="alert authorbar">
     <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">

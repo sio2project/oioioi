@@ -10,7 +10,7 @@ from django.utils import translation
 
 from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
-from oioioi.contests.models import Submission
+from oioioi.contests.models import Submission, ProblemInstance
 from oioioi.problems.models import ProblemStatement
 
 @request_cached
@@ -24,18 +24,28 @@ def can_admin_problem(request, problem):
         return True
     if request.user.has_perm('problems.problem_admin', problem):
         return True
+    if request.user == problem.author:
+        return True
     if problem.contest:
         return request.user.has_perm('contests.contest_admin', problem.contest)
-    elif problem.probleminstance_set:
-        for i in problem.probleminstance_set.all():
-            if request.user.has_perm('contests.contest_admin', i.contest):
-                return True
     return False
 
 
-def is_problem_author(request, problem):
-    """Checks if the current user is author of the problem"""
-    return request.user == problem.author
+def can_admin_problem_instance(request, problem):
+    """Checks if user has admin permission in ProblemInstace of given problem.
+       If request.contest is not None ProblemInstace from this contest
+       is taken into account, problem.main_problem_instance otherwise.
+
+       If there is no ProblemInstace of problem in request.contest function
+       returns False
+
+       If request.user has permission to admin problem function will always
+       return True.
+    """
+    if can_admin_problem(request, problem):
+        return True
+    return is_contest_admin(request) and ProblemInstance.objects \
+        .filter(problem=problem, contest=request.contest).exists()
 
 
 def query_statement(problem_id):
@@ -80,7 +90,7 @@ def query_zip(statement, path):
 
 def can_see_submission_without_contest(request, submission):
     return submission.user == request.user or \
-            is_problem_author(request, submission.problem_instance.problem)
+            can_admin_problem(request, submission.problem_instance.problem)
 
 
 def get_submission_without_contest(request, submission_id):

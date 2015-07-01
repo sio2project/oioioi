@@ -88,12 +88,11 @@ def problem_site_files(request, problem):
 
 @problem_site_tab(_("Submissions"), key='submissions', order=300)
 def problem_site_submissions(request, problem):
+    controller = problem.main_problem_instance.controller
     if request.user.is_authenticated():
-        submissions_qs = Submission.objects \
-                        .filter(problem_instance__problem=problem,
-                                problem_instance__contest__isnull=True,
-                                user=request.user) \
-                        .order_by('-date')
+        submissions_qs = controller.filter_my_visible_submissions(request,
+                            Submission.objects.filter(
+                            problem_instance=problem.main_problem_instance))
     else:
         submissions_qs = []
 
