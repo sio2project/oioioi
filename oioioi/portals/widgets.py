@@ -1,6 +1,13 @@
-from mistune import Renderer, InlineGrammar, InlineLexer, Markdown
-from django.template.loader import render_to_string
 import re
+
+from mistune import Renderer, InlineGrammar, InlineLexer, Markdown, BlockLexer
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
+
+from oioioi.contests.utils import visible_contests
+from oioioi.contests.processors import recent_contests
+from oioioi.teachers.models import Teacher
 
 
 REGISTERED_WIDGETS = []
@@ -11,7 +18,9 @@ class PortalInlineGrammar(InlineGrammar):
 
 
 class PortalRenderer(Renderer):
-    pass
+    def block_center(self, text):
+        return render_to_string('portals/widgets/block_center.html',
+                                {'content': mark_safe(text)})
 
 
 class PortalInlineLexer(InlineLexer):
@@ -24,11 +33,36 @@ class PortalInlineLexer(InlineLexer):
         super(PortalInlineLexer, self).__init__(renderer, rules, **kwargs)
 
 
+class PortalBlockLexer(BlockLexer):
+    def __init__(self, *args, **kwargs):
+        super(PortalBlockLexer, self).__init__(*args, **kwargs)
+        self.rules.block_center = re.compile(r'^ *->(.*?)<-', re.DOTALL)
+        # Insert before 'block_code'
+        if 'block_center' not in self.default_rules:
+            self.default_rules.insert(self.default_rules.index('block_code'),
+                                      'block_center')
+
+    def parse_block_center(self, m):
+        self.tokens.append({
+            'type': 'block_center',
+            'text': m.group(1),
+        })
+
+
+class PortalMarkdown(Markdown):
+    def __init__(self, request):
+        renderer = PortalRenderer(escape=True)
+        inline_lexer = PortalInlineLexer(request, renderer)
+        block_lexer = PortalBlockLexer()
+        super(PortalMarkdown, self).__init__(renderer, inline=inline_lexer,
+                                             block=block_lexer)
+
+    def output_block_center(self):
+        return self.renderer.block_center(self.inline(self.token['text']))
+
+
 def render_panel(request, panel):
-    renderer = PortalRenderer(escape=True)
-    inline_lexer = PortalInlineLexer(request, renderer)
-    portal_markdown = Markdown(renderer, inline=inline_lexer)
-    return portal_markdown.render(panel)
+    return PortalMarkdown(request).render(panel)
 
 
 def register_widget(widget):
@@ -69,6 +103,7 @@ class YouTubeWidget(object):
         youtube_url = m.group(1).split('|')[-1].strip()
         return render_to_string('portals/widgets/youtube.html',
                                 {'youtube_url': youtube_url})
+register_widget(YouTubeWidget())
 
 
 class ProblemTableWidget(object):
@@ -87,7 +122,34 @@ class ProblemTableWidget(object):
         problem_ids = self.get_problem_ids(m)
         return render_to_string('portals/widgets/problem_table.html',
                                 {'problem_ids': problem_ids})
-
-
-register_widget(YouTubeWidget())
 register_widget(ProblemTableWidget())
+
+
+class ContestSelectionWidget(object):
+    name = 'contest_selection'
+    compiled_tag_regex = re.compile(r'\[\[ContestSelection\]\]')
+    TO_SHOW = 9
+
+    def render(self, request, m):
+        contests = list(visible_contests(request)[:self.TO_SHOW])
+        rcontests = recent_contests(request)
+        contests = rcontests + [c for c in contests if c not in rcontests]
+
+        default_contest = None
+        if rcontests:
+            default_contest = rcontests[0]
+        elif contests:
+            default_contest = contests[0]
+
+        context = {
+            'contests': contests[:self.TO_SHOW-1],
+            'default_contest': default_contest,
+            'more_contests': len(contests) > self.TO_SHOW-1,
+            'is_teacher': request.user.has_perm('teachers.teacher'),
+            'is_inactive_teacher': request.user.is_authenticated() and
+                    bool(Teacher.objects.filter(user=request.user,
+                         is_active=False)),
+        }
+        return render_to_string('portals/widgets/contest_selection.html',
+                                RequestContext(request, context))
+register_widget(ContestSelectionWidget())
