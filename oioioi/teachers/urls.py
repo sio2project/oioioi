@@ -19,7 +19,6 @@ contest_patterns = patterns('oioioi.teachers.views',
         include(member_type_dependent_patterns)),
     url(r'^join/(?P<key>[0-9a-zA-Z-_=]+)/$', 'activate_view',
         name='teachers_activate_member'),
-    # Unused in current UI implementation:
     url(r'^teachers/members/import/(?P<other_contest_id>[a-z0-9_-]+)/$',
         'bulk_add_members_view', name='teachers_bulk_add_members'),
 )

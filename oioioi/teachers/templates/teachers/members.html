@@ -90,7 +90,7 @@
             <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" href="#">{% trans "Add from other contest" %} <span class="caret"></span></button>
             <ul class="dropdown-menu">
                 {% for c in other_contests %}
-                <li><a data-post-url="{% url 'teachers_bulk_add_pupils' contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
+                <li><a data-post-url="{% url 'teachers_bulk_add_members' contest_id=contest.id other_contest_id=c.id %}">{{ c }}</a></li>
                 {% endfor %}
             </ul>
         </div>
