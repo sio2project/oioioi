@@ -276,13 +276,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(instance.id,))
         models_href = self._model_solutions_href(instance)
+        assert ProblemSite.objects.filter(problem=instance.problem).exists()
+        site_href = self._problem_site_href(instance)
         result = [
             (move_href, self.probleminstance_change_link_name()),
             (models_href, _("Model solutions")),
+            (site_href, _("Problem site")),
         ]
-        if ProblemSite.objects.filter(problem=instance.problem).exists():
-            site_href = self._problem_site_href(instance)
-            result.append((site_href, _("Problem site")))
         if instance.needs_rejudge:
             rejudge_all_href = self \
                 ._rejudge_all_submissions_for_problem_href(instance)
