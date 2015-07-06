@@ -11,7 +11,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
-from django.utils.text import get_valid_filename
+from django.utils.text import get_valid_filename, Truncator
 from django.contrib.auth.models import User
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
@@ -240,7 +240,7 @@ class ProblemPackage(models.Model):
             package = ProblemPackage.objects.get(id=self.package_id)
             if type:
                 package.status = 'ERR'
-                package.info = value
+                package.info = Truncator(value).chars(1000)
                 package.traceback = ContentFile(
                         ''.join(format_exception(type, value, traceback,
                             TRACEBACK_STACK_LIMIT)),
