@@ -174,6 +174,14 @@ class ProgramSubmission(Submission):
             self.source_length = self.source_file.size
         super(ProgramSubmission, self).save(*args, **kwargs)
 
+    @property
+    def extension(self):
+        return os.path.splitext(self.source_file.name)[1][1:]
+
+    def get_language_display(self):
+        return self.problem.controller.parse_language_by_extension(
+               self.extension, self.problem_instance)
+
 
 class ModelProgramSubmission(ProgramSubmission):
     model_solution = models.ForeignKey(ModelSolution)

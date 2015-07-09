@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.admin import SimpleListFilter
+from django.db.models import Q
 from django.template.response import TemplateResponse
 from django.conf.urls import patterns, url
 from django.core.exceptions import PermissionDenied
@@ -209,6 +212,12 @@ class ProgramSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
         self.actions += ['submission_diff_action']
+        self.list_display += ['language_display']
+        self.list_filter += [LanguageListFilter]
+
+    def language_display(self, instance):
+        return instance.programsubmission.get_language_display()
+    language_display.short_description = _("Language")
 
     def submission_diff_action(self, request, queryset):
         if len(queryset) != 2:
@@ -223,3 +232,23 @@ class ProgramSubmissionAdminMixin(object):
     submission_diff_action.short_description = _("Diff submissions")
 
 SubmissionAdmin.mix_in(ProgramSubmissionAdminMixin)
+
+
+class LanguageListFilter(SimpleListFilter):
+    title = _("language")
+    parameter_name = 'lang'
+
+    def lookups(self, request, model_admin):
+        exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+        return [(x, x) for x in exts]
+
+    def queryset(self, request, queryset):
+        exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+        if self.value() and self.value() in exts:
+            condition = Q()
+            for ext in exts[self.value()]:
+                condition |= Q(programsubmission__source_file__contains='.%s@'
+                               % ext)
+            return queryset.filter(condition)
+        else:
+            return queryset
