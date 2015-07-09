@@ -41,6 +41,8 @@ class TestACMRanking(TestCase):
     def test_ranking_view(self):
         contest = Contest.objects.get()
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        csv_url = reverse('ranking_csv', kwargs={'contest_id': contest.id,
+                                                 'key': 'c'})
 
         self.client.login(username='test_user')
 
@@ -106,6 +108,10 @@ class TestACMRanking(TestCase):
         self.client.login(username='test_admin')
 
         with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+            response = self.client.get(csv_url)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content.count('\n'), 4)
+
             response = self.client.get(url)
             self.assertEqual(response.content.count('result_url'), 8)
 

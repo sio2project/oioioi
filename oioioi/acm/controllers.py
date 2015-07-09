@@ -215,7 +215,7 @@ class ACMRankingController(DefaultRankingController):
     def _get_csv_header(self, request, data):
         header = [_("#"), _("Username"), _("First name"), _("Last name"),
                   _("Solved")]
-        for pi in data['problem_instances']:
+        for pi, _statement_visible in data['problem_instances']:
             header.append(pi.get_short_name_display())
         header.append(_("Sum"))
         return header
