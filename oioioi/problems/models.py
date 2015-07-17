@@ -240,7 +240,9 @@ class ProblemPackage(models.Model):
             package = ProblemPackage.objects.get(id=self.package_id)
             if type:
                 package.status = 'ERR'
-                package.info = Truncator(value).chars(1000)
+                # Truncate error so it doesn't take up whole page in list
+                # view. Full info is available anyway in package.traceback.
+                package.info = Truncator(value).chars(400)
                 package.traceback = ContentFile(
                         ''.join(format_exception(type, value, traceback,
                             TRACEBACK_STACK_LIMIT)),
@@ -249,6 +251,9 @@ class ProblemPackage(models.Model):
                         package.package_file.name)
             else:
                 package.status = 'OK'
+
+            # Truncate message to fit in db.
+            package.info = Truncator(package.info).chars(1000)
 
             package.celery_task_id = None
             package.save()
