@@ -224,6 +224,9 @@ PROBLEMSET_LINK_VISIBLE = True
 # Comment out to show tags on the list of problems
 #PROBLEM_TAGS_VISIBLE = True
 
+# Set to True to allow every logged in user to add problems directly to Problemset
+EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
 TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.logo_processor',
 #    'oioioi.contestlogo.processors.icon_processor',

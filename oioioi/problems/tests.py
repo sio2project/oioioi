@@ -563,16 +563,16 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         filename = get_test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
 
-        #add problem to problemset
+        # add problem to problemset
         url = reverse('problemset_add_or_update')
-        #not possible from problemset :)
+        # not possible from problemset :)
         response = self.client.get(url, {'key': "problemset_source"},
                                    follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn("Option not available", response.content)
         self.assertIn("Add problem", response.content)
         self.assertNotIn("Select", response.content)
-        #but ok from package
+        # but ok by package
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
@@ -586,19 +586,19 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(ProblemInstance.objects.count(), 1)
         self.assertEqual(ProblemSite.objects.count(), 1)
 
-        #problem is not visible in "Public"
+        # problem is not visible in "Public"
         url = reverse('problemset_main')
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("Testowe", response.content)
         self.assertNotIn("<td>tst</td>", response.content)
-        #but visible in "My problems"
+        # but visible in "My problems"
         url = reverse('problemset_my_problems')
         self.assertEqual(response.status_code, 200)
         response = self.client.post(url, follow=True)
         self.assertIn("Testowe", response.content)
         self.assertIn("<td>tst</td>", response.content)
-        #and we are problem's author and problem_site exists
+        # and we are problem's author and problem_site exists
         problem = Problem.objects.get()
         url = reverse('problem_site', args=[problem.problemsite.url_key])
         response = self.client.post(url, follow=True)
@@ -606,10 +606,10 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertIn('Edit problem', response.content)
         self.assertIn('Reupload problem', response.content)
         self.assertIn('Model solutions', response.content)
-        #we can see model solutions of main_problem_instance
+        # we can see model solutions of main_problem_instance
         self.check_models_for_simple_package(problem.main_problem_instance)
 
-        #reuploading problem in problemset is not aviable from problemset
+        # reuploading problem in problemset is not aviable from problemset
         url = reverse('problemset_add_or_update')
         response = self.client.get(url, {'key': "problemset_source",
                                          'problem': problem.id}, follow=True)
@@ -853,3 +853,65 @@ class TestTags(TestCase):
         self.assertIn('XYZ', response.content)
         self.assertNotIn('>mrowkowiec<', response.content)
         self.assertNotIn('>mrowka<', response.content)
+
+
+class TestAddToProblemsetPermissions(TestCase):
+    fixtures = ['test_users']
+
+    @override_settings(EVERYBODY_CAN_ADD_TO_PROBLEMSET=False)
+    def test_default_permissions(self):
+        url_main = reverse('problemset_main')
+        url_add = reverse('problemset_add_or_update')
+
+        response = self.client.get(url_main, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Add problem', response.content)
+        self.assertIn('<h1>Welcome to problemset, the place, where all'
+            ' the problems are.</h1>', response.content)
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url_main)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Add problem', response.content)
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.login(username='test_user')
+        response = self.client.get(url_main)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Add problem', response.content)
+        url_add = reverse('problemset_add_or_update')
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+    @override_settings(EVERYBODY_CAN_ADD_TO_PROBLEMSET=True)
+    def test_everyone_allowed_permissions(self):
+        url_main = reverse('problemset_main')
+        url_add = reverse('problemset_add_or_update')
+
+        response = self.client.get(url_main, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Add problem', response.content)
+        self.assertIn('<h1>Welcome to problemset, the place, where all'
+            ' the problems are.</h1>', response.content)
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='test_admin')
+        url_main = reverse('problemset_main')
+        response = self.client.get(url_main)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Add problem', response.content)
+        url_add = reverse('problemset_add_or_update')
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.client.login(username='test_user')
+        response = self.client.get(url_main)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Add problem', response.content)
+        url_add = reverse('problemset_add_or_update')
+        response = self.client.get(url_add, follow=True)
+        self.assertEqual(response.status_code, 200)

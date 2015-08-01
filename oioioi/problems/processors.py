@@ -6,7 +6,7 @@ from django.conf import settings
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
-
+from oioioi.problems.utils import can_add_to_problemset
 
 def dangling_problems_processor(request):
     if not getattr(request, 'contest', None):
@@ -59,3 +59,7 @@ def problems_need_rejudge_processor(request):
         return make_navbar_badge(link, text)
     return {'extra_navbar_right_not_rejudged_problems':
                 lazy(generator, unicode)()}
+
+
+def can_add_to_problemset_processor(request):
+    return {'can_add_to_problemset': can_add_to_problemset(request)}

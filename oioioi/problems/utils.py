@@ -13,6 +13,7 @@ from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import ProblemInstance
 from oioioi.problems.models import ProblemStatement
 
+
 @request_cached
 def can_add_problems(request):
     return request.user.has_perm('problems.problems_db_admin') \
@@ -54,6 +55,25 @@ def can_admin_problem_instance(request, pi):
         return request.user.has_perm('contests.contest_admin', pi.contest)
     else:
         return can_admin_problem(request, pi.problem)
+
+
+@request_cached
+def can_add_to_problemset(request):
+    """Returns True if request.user is authenticated and:
+        EVERYBODY_CAN_ADD_TO_PROBLEMSET in settings.py is set on True or
+        user is a teacher or
+        user is a superuser or
+        user is a database admin
+    """
+    if not request.user.is_authenticated():
+        return False
+    if settings.EVERYBODY_CAN_ADD_TO_PROBLEMSET:
+        return True
+    if request.user.has_perm('teachers.teacher'):
+        return True
+    if request.user.is_superuser:
+        return True
+    return request.user.has_perm('problems.problems_db_admin')
 
 
 def query_statement(problem_id):

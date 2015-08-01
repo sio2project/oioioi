@@ -31,11 +31,13 @@ Problemset
                 {% endif %}">
                     {% trans "My problems" %}
                 </a></li>
-                <li><a
-                href="{% url 'problemset_add_or_update' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-                {% endif %}">
-                    {% trans "Add problem" %}
-                </a></li>
+                    {% if can_add_to_problemset %}
+                    <li><a
+                    href="{% url 'problemset_add_or_update' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+                    {% endif %}">
+                        {% trans "Add problem" %}
+                    </a></li>
+                    {% endif %}
                 {% endif %}
             </ul>
         </div>

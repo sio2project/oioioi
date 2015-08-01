@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse, HttpResponseForbidden
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
@@ -14,12 +15,13 @@ from django.template.response import TemplateResponse
 from django.conf import settings
 
 from oioioi.base.utils import tabbed_view, jsonify
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.problems.models import ProblemStatement, ProblemAttachment, \
         Problem, ProblemPackage, Tag
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem, \
         query_statement, can_admin_instance_of_problem, \
-        can_admin_problem_instance
+        can_admin_problem_instance, can_add_to_problemset
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.contests.models import Submission, SubmissionReport, \
@@ -216,6 +218,13 @@ def get_report_HTML_view(request, submission_id):
 
 @transaction.non_atomic_requests
 def problemset_add_or_update_problem_view(request):
+    if not can_add_to_problemset(request):
+        if request.contest:
+            url = reverse('add_or_update_problem') + '?' + urllib \
+                .urlencode(request.GET.dict())
+            return safe_redirect(request, url)
+        raise PermissionDenied
+
     return add_or_update_problem(request, None,
                                  'problems/problemset/add_or_update.html')
 

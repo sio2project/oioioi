@@ -1,0 +1,20 @@
+[
+    {
+        "pk": 1001,
+        "model": "teachers.teacher",
+        "fields": {
+            "user": 1001,
+            "is_active": true,
+            "school": "School"
+        }
+    },
+    {
+        "pk": 1002,
+        "model": "teachers.teacher",
+        "fields": {
+            "user": 1002,
+            "is_active": false,
+            "school": "School"
+        }
+    }
+]
