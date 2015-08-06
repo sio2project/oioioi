@@ -63,11 +63,13 @@ class TestPublicSolutions(TestCase):
 
     def assertSubmissionUrlsCount(self, string, count):
         actual = len(re.findall(r'result_url.*"/c/c/s/\d/"', string))
-        self.assertEqual(actual, count)
+        self.assertEqual(actual, count, "Expected %d urls, got %d in: %s" %
+                (count, actual, string))
 
     def assertSourceUrlsCount(self, string, count):
         actual = len(re.findall(r'result_url.*"/c/c/s/\d/source/"', string))
-        self.assertEqual(actual, count)
+        self.assertEqual(actual, count, "Expected %d urls, got %d in: %s" %
+                (count, actual, string))
 
     def test_solutions_in_menu(self):
         contest = Contest.objects.get()
@@ -237,36 +239,37 @@ class TestPublicSolutions(TestCase):
             return reverse('publish_solution' if way else 'unpublish_solution',
                     kwargs={'contest_id': contest.id, 'submission_id': sub_id})
 
-        contest = Contest.objects.get()
-        contest.controller_name = \
-            'oioioi.publicsolutions.tests.TSolutionSimpleContestController'
-        contest.save()
+        with fake_time(self._rounds_14()):
+            contest = Contest.objects.get()
+            contest.controller_name = \
+                'oioioi.publicsolutions.tests.TSolutionSimpleContestController'
+            contest.save()
 
-        self.client.login(username='test_user')
+            self.client.login(username='test_user')
 
-        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+            url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        response = self.client.get(url)
-        self.assertSubmissionUrlsCount(response.content, 2)
-        self.assertSourceUrlsCount(response.content, 0)
+            response = self.client.get(url)
+            self.assertSubmissionUrlsCount(response.content, 2)
+            self.assertSourceUrlsCount(response.content, 0)
 
-        self.client.login(username='test_user2')
-        cache.clear()
-        response = self.client.get(url)
-        self.assertSubmissionUrlsCount(response.content, 0)
-        self.assertSourceUrlsCount(response.content, 1)
+            self.client.login(username='test_user2')
+            cache.clear()
+            response = self.client.get(url)
+            self.assertSubmissionUrlsCount(response.content, 0)
+            self.assertSourceUrlsCount(response.content, 1)
 
-        self.client.login(username='test_user')
-        request = self.client.post(change_publication_url(True, 4))
-        self.assertEqual(302, request.status_code)
+            self.client.login(username='test_user')
+            request = self.client.post(change_publication_url(True, 4))
+            self.assertEqual(302, request.status_code)
 
-        cache.clear()
-        response = self.client.get(url)
-        self.assertSubmissionUrlsCount(response.content, 2)
-        self.assertSourceUrlsCount(response.content, 0)
+            cache.clear()
+            response = self.client.get(url)
+            self.assertSubmissionUrlsCount(response.content, 2)
+            self.assertSourceUrlsCount(response.content, 0)
 
-        self.client.login(username='test_user2')
-        cache.clear()
-        response = self.client.get(url)
-        self.assertSubmissionUrlsCount(response.content, 0)
-        self.assertSourceUrlsCount(response.content, 2)
+            self.client.login(username='test_user2')
+            cache.clear()
+            response = self.client.get(url)
+            self.assertSubmissionUrlsCount(response.content, 0)
+            self.assertSourceUrlsCount(response.content, 2)
