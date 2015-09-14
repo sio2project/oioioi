@@ -476,7 +476,8 @@ class ProgrammingProblemController(ProblemController):
                             parse_problem(problem)
                 if 'prog_lang' not in request.POST:
                     form.fields['prog_lang'].initial = \
-                            controller.parse_language_by_extension(ext)
+                            controller.parse_language_by_extension(ext,
+                                    problem_instance)
 
         if request.contest and is_contest_admin(request):
             form.fields['user'] = UserSelectionField(
