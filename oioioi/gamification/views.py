@@ -26,12 +26,13 @@ import oioioi.gamification.widgets
 @jsonify
 @require_GET
 def check_user_exists_view(request):
-    username = request.GET['username']
-    if User.objects.filter(username=username).exists():
-        url = reverse('view_profile', args=[username])
-        return {'userExists': True, 'profileUrl': url}
-    else:
-        return {'userExists': False}
+    if 'username' in request.GET:
+        username = request.GET['username']
+        if User.objects.filter(username=username).exists():
+            url = reverse('view_profile', args=[username])
+            return {'userExists': True, 'profileUrl': url}
+
+    return {'userExists': False}
 
 
 @account_menu_registry.register_decorator(_("Profile"),
