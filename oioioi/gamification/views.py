@@ -1,3 +1,4 @@
+from django.core.exceptions import PermissionDenied
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -100,11 +101,14 @@ def friend_action(request, other_name, action):
     friends = UserFriends(request.user)
 
     func = getattr(friends, action)
-    if action in ['send_friendship_request', 'remove_friend']:
-        func(other_user)
-    else:
-        friendship_request = friends.request_from(other_user)
-        func(friendship_request)
+    try:
+        if action in ['send_friendship_request', 'remove_friend']:
+            func(other_user)
+        else:
+            friendship_request = friends.request_from(other_user)
+            func(friendship_request)
+    except ValueError as e:
+        raise PermissionDenied(str(e))
 
     return redirect('view_profile', username=other_name)
 
