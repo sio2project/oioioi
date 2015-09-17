@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 from xmlrpclib import Server
-import json
 
 class Command(BaseCommand):
     args = '<command> [args]'   # TODO
@@ -19,12 +18,10 @@ class Command(BaseCommand):
             self.stdout.write('No workers connected.\n')
 
     def cmd_run(self, *args, **kwargs):
-        env = json.loads(' '.join(args))
-        self.stdout.write(self.server.run(env))
+        self.stdout.write(self.server.run(' '.join(args)))
 
     def cmd_sync_run(self, *args, **kwargs):
-        env = json.loads(' '.join(args))
-        self.stdout.write(repr(self.server.sync_run(env)))
+        self.stdout.write(repr(self.server.sync_run(' '.join(args))))
 
     def cmd_queue(self, *args, **kwargs):
         q = self.server.get_queue()

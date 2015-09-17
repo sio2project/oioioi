@@ -1,3 +1,4 @@
+import json
 import sio.workers.runner
 import sio.celery.job
 import oioioi
@@ -76,7 +77,7 @@ class SioworkersdBackend(object):
     def run_job(self, job, **kwargs):
         env = {'workers_jobs': {'dummy_name': job}}
         env['workers_jobs.extra_args'] = kwargs
-        ans = SioworkersdBackend.server.sync_run_group(env)
+        ans = SioworkersdBackend.server.sync_run_group(json.dumps(env))
         if 'error' in ans:
             raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
                 (ans['error']['message'], ans['error']['traceback']))
@@ -85,7 +86,7 @@ class SioworkersdBackend(object):
     def run_jobs(self, dict_of_jobs, **kwargs):
         env = {'workers_jobs': dict_of_jobs,
                 'workers_jobs.extra_args': kwargs}
-        ans = SioworkersdBackend.server.sync_run_group(env)
+        ans = SioworkersdBackend.server.sync_run_group(json.dumps(env))
         if 'error' in ans:
             raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
                 (ans['error']['message'], ans['error']['traceback']))
@@ -97,4 +98,4 @@ class SioworkersdBackend(object):
             url = 'http://' + settings.SIOWORKERS_LISTEN_ADDR + ':' \
                 + str(settings.SIOWORKERS_LISTEN_PORT)
         env['return_url'] = url
-        SioworkersdBackend.server.run_group(env)
+        SioworkersdBackend.server.run_group(json.dumps(env))
