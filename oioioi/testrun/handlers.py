@@ -1,7 +1,7 @@
 from django.db import transaction
+from django.utils.text import Truncator
 
 from oioioi.programs.handlers import _if_compiled, _make_base_report
-from oioioi.programs.utils import slice_str
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunConfig, \
     TestRunReport
 from oioioi.filetracker.utils import django_to_filetracker_path, \
@@ -98,9 +98,8 @@ def make_report(env, **kwargs):
 
     testrun_report = TestRunReport(submission_report=submission_report)
     testrun_report.status = env['status']
-    testrun_report.comment = \
-            slice_str(comment, TestRunReport._meta
-                      .get_field('comment').max_length)
+    testrun_report.comment = Truncator(comment).chars(
+            TestRunReport._meta.get_field('comment').max_length)
     testrun_report.time_used = test_result['time_used']
     testrun_report.test_time_limit = test.get('exec_time_limit')
     testrun_report.output_file = filetracker_to_django_file(

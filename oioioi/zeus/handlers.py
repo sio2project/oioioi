@@ -7,12 +7,12 @@ from django.core.files.base import ContentFile
 from django.core.mail import mail_admins
 from django.db import transaction, IntegrityError
 from django.forms.models import model_to_dict
+from django.utils.text import Truncator
 
 from oioioi.base.utils import get_object_by_dotted_name, naturalsort_key
 from oioioi.problems.models import Problem
 from oioioi.programs.handlers import _make_base_report, _if_compiled
 from oioioi.programs.models import ProgramSubmission, Test
-from oioioi.programs.utils import slice_str
 from oioioi.zeus.backends import get_zeus_server
 from oioioi.zeus.models import ZeusTestRunReport, ZeusAsyncJob, \
         ZeusTestRunProgramSubmission, ZeusProblemData
@@ -274,9 +274,8 @@ def make_zeus_testrun_report(env, **kwargs):
 
     testrun_report = ZeusTestRunReport(submission_report=submission_report)
     testrun_report.status = env['status']
-    testrun_report.comment = \
-        slice_str(comment, ZeusTestRunReport._meta
-        .get_field('comment').max_length)
+    testrun_report.comment = Truncator(comment).chars(
+            ZeusTestRunReport._meta.get_field('comment').max_length)
     testrun_report.time_used = test_result['time_used']
     testrun_report.test_time_limit = test.get('exec_time_limit')
     testrun_report.full_out_size = zeus_result['stdout_size']

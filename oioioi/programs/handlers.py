@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.core.urlresolvers import reverse
+from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.utils import get_object_by_dotted_name, make_html_link
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 from oioioi.contests.scores import ScoreValue, IntegerScore
@@ -8,7 +10,6 @@ from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
 from oioioi.programs.models import CompilationReport, TestReport, \
         GroupReport, Test, UserOutGenStatus
-from oioioi.programs.utils import slice_str
 from oioioi.problems.models import Problem
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path, \
@@ -493,7 +494,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         comment = result.get('result_string', '')
         if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
             comment = ''
-        test_report.comment = slice_str(comment, TestReport.
+        test_report.comment = Truncator(comment).chars(TestReport.
                 _meta.get_field('comment').max_length)
         if env.get('save_outputs', False):
             test_report.output_file = filetracker_to_django_file(
