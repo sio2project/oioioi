@@ -91,7 +91,7 @@ def problem_statement_view(request, problem_instance):
         return redirect('problem_statement_zip_index',
                 contest_id=request.contest.id,
                 problem_instance=problem_instance, statement_id=statement.id)
-    return stream_file(statement.content)
+    return stream_file(statement.content, statement.download_name)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -275,7 +275,7 @@ def contest_attachment_view(request, attachment_id):
             contest_id=request.contest.id, id=attachment_id)
     if attachment.round and attachment.round not in visible_rounds(request):
         raise PermissionDenied
-    return stream_file(attachment.content)
+    return stream_file(attachment.content, attachment.download_name)
 
 
 @enforce_condition(contest_exists & can_enter_contest)
@@ -285,7 +285,7 @@ def problem_attachment_view(request, attachment_id):
     problem_ids = [pi.problem_id for pi in problem_instances]
     if attachment.problem_id not in problem_ids:
         raise PermissionDenied
-    return stream_file(attachment.content)
+    return stream_file(attachment.content, attachment.download_name)
 
 
 @enforce_condition(contest_exists & (is_contest_admin | is_contest_observer |

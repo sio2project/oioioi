@@ -39,7 +39,7 @@ from oioioi.base import utils
 from oioioi.base.permissions import is_superuser, Condition, make_condition, \
     make_request_condition, RequestBasedCondition, enforce_condition
 from oioioi.base.utils import RegisteredSubclassesBase, archive
-from oioioi.base.utils import group_cache
+from oioioi.base.utils import group_cache, strip_num_or_hash, split_extension
 from oioioi.base.utils.execute import execute, ExecuteError
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, OrderedRegistry, \
@@ -1193,3 +1193,35 @@ class TestTranslate(TestCase):
         response = self.client.get(url, get_data)
         self.assertEqual(200, response.status_code)
         self.assertIn('konkurs', response.content)
+
+
+class TestFileUtils(TestCase):
+    def test_split_ext(self):
+        normal = ['a.b.c.d.pdf', '.bashrc', '.a.conf', '/a/b/c/a2.cpp',
+                  'a.xml', 'aaaaa...avi', '/a-b.png', '_ab_123.jpg', 'abc.tar',
+                  'my_file']
+        for name in normal:
+            their = os.path.splitext(name)
+            ours = split_extension(name)
+            self.assertEqual(ours, their)
+
+        weird = ['test.tar.gz', 'test.tar.xz', '/a/b/c/test.tar.bz2']
+        for name in weird:
+            self.assertNotIn('.', split_extension(name)[0])
+
+    def test_strip_num_or_hash(self):
+        cases = {
+            'abc_1.pdf': 'abc.pdf',
+            'abc_123.pdf': 'abc.pdf',
+            'abc_45HKmyT.pdf': 'abc.pdf',
+            'abc_1.tar.gz': 'abc.tar.gz',
+            'abc_45HKmyT.tar.gz': 'abc.tar.gz',
+            'abc.tar_1.gz': 'abc.tar.gz',
+            'abc.tar.gz': 'abc.tar.gz',
+            '/a/b/abc.tar.gz': '/a/b/abc.tar.gz',
+            'my_file': 'my_file',
+            'a_1_2.pdf': 'a_1.pdf',
+        }
+
+        for (before, after) in cases.iteritems():
+            self.assertEqual(strip_num_or_hash(before), after)

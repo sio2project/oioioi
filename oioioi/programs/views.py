@@ -28,6 +28,7 @@ from oioioi.programs.utils import decode_str, \
 from oioioi.contests.utils import contest_exists, can_enter_contest, \
         get_submission_or_error, is_contest_admin
 from oioioi.base.permissions import enforce_condition
+from oioioi.base.utils import strip_num_or_hash
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_problem_instance, \
         get_submission_source_file_without_contest_or_error
@@ -231,14 +232,16 @@ def download_input_file_view(request, test_id):
 
     if not can_admin_problem_instance(request, test.problem):
         raise PermissionDenied
-    return stream_file(test.input_file)
+    return stream_file(test.input_file,
+                       strip_num_or_hash(test.input_file.name))
 
 
 def download_output_file_view(request, test_id):
     test = get_object_or_404(Test, id=test_id)
     if not can_admin_problem_instance(request, test.problem):
         raise PermissionDenied
-    return stream_file(test.output_file)
+    return stream_file(test.output_file,
+                       strip_num_or_hash(test.output_file.name))
 
 
 def download_checker_exe_view(request, checker_id):
@@ -247,7 +250,8 @@ def download_checker_exe_view(request, checker_id):
         raise PermissionDenied
     if not checker.exe_file:
         raise Http404
-    return stream_file(checker.exe_file)
+    return stream_file(checker.exe_file,
+                       strip_num_or_hash(checker.exe_file.name))
 
 
 def _check_generate_out_permission(request, submission_report):

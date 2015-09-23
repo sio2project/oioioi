@@ -15,7 +15,8 @@ from django.utils.text import get_valid_filename, Truncator
 from django.contrib.auth.models import User
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.utils import get_object_by_dotted_name
+from oioioi.base.utils import get_object_by_dotted_name, strip_num_or_hash, \
+                              split_extension
 from oioioi.filetracker.fields import FileField
 from oioioi.contests.models import ProblemInstance
 
@@ -148,6 +149,10 @@ class ProblemStatement(models.Model):
         return os.path.split(self.content.name)[1]
 
     @property
+    def download_name(self):
+        return self.problem.short_name + self.extension
+
+    @property
     def extension(self):
         return os.path.splitext(self.content.name)[1].lower()
 
@@ -175,6 +180,10 @@ class ProblemAttachment(models.Model):
     @property
     def filename(self):
         return os.path.split(self.content.name)[1]
+
+    @property
+    def download_name(self):
+        return strip_num_or_hash(self.filename)
 
     class Meta(object):
         verbose_name = _("attachment")
@@ -223,6 +232,11 @@ class ProblemPackage(models.Model):
             verbose_name=_("traceback"), null=True, blank=True)
     status = EnumField(package_statuses, default='?', verbose_name=_("status"))
     creation_date = models.DateTimeField(default=timezone.now)
+
+    @property
+    def download_name(self):
+        ext = split_extension(self.package_file.name)[1]
+        return self.problem.short_name + ext
 
     class Meta(object):
         verbose_name = _("problem package")

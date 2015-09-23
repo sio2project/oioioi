@@ -44,14 +44,14 @@ def show_statement_view(request, statement_id):
     statement = get_object_or_404(ProblemStatement, id=statement_id)
     if not can_admin_problem_instance(request, statement.problem):
         raise PermissionDenied
-    return stream_file(statement.content)
+    return stream_file(statement.content, statement.download_name)
 
 
 def show_problem_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
     if not can_admin_problem_instance(request, attachment.problem):
         raise PermissionDenied
-    return stream_file(attachment.content)
+    return stream_file(attachment.content, attachment.download_name)
 
 
 def _get_package(request, package_id):
@@ -71,14 +71,15 @@ def _get_package(request, package_id):
 
 def download_problem_package_view(request, package_id):
     package = _get_package(request, package_id)
-    return stream_file(package.package_file)
+    return stream_file(package.package_file, package.download_name)
 
 
 def download_package_traceback_view(request, package_id):
     package = _get_package(request, package_id)
     if not package.traceback:
         raise Http404
-    return stream_file(package.traceback)
+    return stream_file(package.traceback, 'package_%s_%d_traceback.txt' % (
+            package.problem_name, package.id))
 
 
 def add_or_update_problem(request, contest, template):
@@ -185,7 +186,7 @@ def problem_site_external_statement_view(request, site_key):
     if statement.extension == '.zip' \
             and not can_admin_problem(request, problem):
         raise PermissionDenied
-    return stream_file(statement.content)
+    return stream_file(statement.content, statement.download_name)
 
 
 def problem_site_external_attachment_view(request, site_key, attachment_id):
@@ -193,7 +194,7 @@ def problem_site_external_attachment_view(request, site_key, attachment_id):
     attachment = get_object_or_404(ProblemAttachment, id=attachment_id)
     if attachment.problem.id != problem.id:
         raise PermissionDenied
-    return stream_file(attachment.content)
+    return stream_file(attachment.content, attachment.download_name)
 
 
 def get_report_HTML_view(request, submission_id):

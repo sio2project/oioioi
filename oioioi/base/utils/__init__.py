@@ -472,6 +472,31 @@ def uploaded_file_name(uploaded_file):
         f.close()
 
 
+def split_extension(filename):
+    special_extensions = ['.tar.gz', '.tar.bz2', '.tar.xz']
+    for ext in special_extensions:
+        if filename.endswith(ext):
+            return (filename.rstrip(ext), ext)
+    return os.path.splitext(filename)
+
+
+# https://docs.djangoproject.com/en/1.8/ref/files/storage/#django.core.files.storage.Storage.get_available_name
+_STRIP_NUM_RE = re.compile(r'^(.*)_\d+$')
+_STRIP_HASH_RE = re.compile(r'^(.*)_[a-zA-Z0-9]{7}$')
+
+
+def strip_num_or_hash(filename):
+    name, ext = split_extension(filename)
+    new_name = name
+    m = _STRIP_NUM_RE.match(name)
+    if m:
+        new_name = m.group(1)
+    m = _STRIP_HASH_RE.match(name)
+    if m:
+        new_name = m.group(1)
+    return new_name + ext
+
+
 def naturalsort_key(key):
     convert = lambda text: int(text) if text.isdigit() else text
     return [convert(c) for c in re.split('([0-9]+)', key)]

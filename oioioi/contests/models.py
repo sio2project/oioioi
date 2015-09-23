@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _, ungettext
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, MenuItem
-from oioioi.base.utils import get_object_by_dotted_name
+from oioioi.base.utils import get_object_by_dotted_name, strip_num_or_hash
 from oioioi.contests.fields import ScoreField
 from oioioi.contests.problem_instance_controller import \
         ProblemInstanceController
@@ -115,6 +115,10 @@ class ContestAttachment(models.Model):
     @property
     def filename(self):
         return os.path.split(self.content.name)[1]
+
+    @property
+    def download_name(self):
+        return strip_num_or_hash(self.filename)
 
     class Meta(object):
         verbose_name = _("attachment")
