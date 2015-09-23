@@ -1,7 +1,8 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.utils.translation import ugettext_lazy as _, ungettext_lazy, \
+        string_concat
 
 
 from oioioi.base import admin
@@ -36,7 +37,7 @@ class ForumAdmin(admin.ModelAdmin):
                     .all()]
         ret = "".join(slist)
         if not ret:
-            ret = '<li>' + _("Empty forum") + '</li>'
+            ret = string_concat('<li>', _("Empty forum"), '</li>')
         return '<ul>%s</ul>' % ret
     categories.allow_tags = True
     categories.short_description = _("Categories")
@@ -85,7 +86,7 @@ class CategoryAdmin(admin.ModelAdmin):
                     .prefetch_related('post_set').all()]
         ret = "".join(slist)
         if not ret:
-            ret = '<li>' + _("Empty category") + '</li>'
+            ret = string_concat('<li>', _("Empty category"), '</li>')
         return '<ul>%s</ul>' % ret
     threads.allow_tags = True
     threads.short_description = _("Threads")
@@ -147,7 +148,7 @@ class ThreadAdmin(admin.ModelAdmin):
                  for p in obj.post_set.select_related('author').all()]
         ret = "".join(slist)
         if not ret:
-            ret = '<li>' + _("Empty thread") + '</li>'
+            ret = string_concat('<li>', _("Empty thread"), '</li>')
         return '<ul>%s</ul>' % ret
     posts.allow_tags = True
     posts.short_description = _("Posts")
