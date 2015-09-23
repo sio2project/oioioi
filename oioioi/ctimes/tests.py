@@ -30,6 +30,7 @@ class TestCtimes(TestCase):
         ]
         self.round1_result = {
             'status': 'OK',
+            'round_name': 'round1',
             'start': '2013-10-11 08:00:00',
             'start_sec': 1381478400,
             'end': '2013-12-05 09:00:00',
@@ -37,6 +38,7 @@ class TestCtimes(TestCase):
         }
         self.round2_result = {
             'status': 'OK',
+            'round_name': 'round2',
             'start': '2013-10-22 10:00:00',
             'start_sec': 1382436000,
             'end': '2013-11-05 11:00:00',
@@ -44,6 +46,7 @@ class TestCtimes(TestCase):
         }
         self.round1p_result = {
             'status': 'OK',
+            'round_name': 'round1p',
             'start': '2014-01-02 03:10:00',
             'start_sec': 1388632200,
             'end': None,
@@ -92,6 +95,7 @@ class TestCtimes(TestCase):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response, {
                 'status': 'OK',
+                'round_name': 'round1',
                 'start': '2013-10-11 08:00:00',
                 'start_sec': 1381478400,
                 'end': '2013-12-05 09:05:00',

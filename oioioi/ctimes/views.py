@@ -23,9 +23,9 @@ def ctimes_view(request):
         return True if b is None else b >= a
 
     ccontroller = contest.controller
-    rtimes = [ccontroller.get_round_times(request, round)
+    rounds = [(ccontroller.get_round_times(request, round), round)
               for round in Round.objects.filter(contest=request.contest)]
-    rtimes = [rtime for rtime in rtimes
+    rounds = [(rtime, round) for (rtime, round) in rounds
               if end_le(now - timedelta(minutes=30), rtime.get_end())]
 
     def ctimes_sort_key(round_time):
@@ -35,7 +35,7 @@ def ctimes_view(request):
                 round_time.get_end())
 
     try:
-        rtime = min(rtimes, key=ctimes_sort_key)
+        (rtime, round) = min(rounds, key=lambda x: ctimes_sort_key(x[0]))
         date_format = '%Y-%m-%d %H:%M:%S'
         start = timezone.localtime(rtime.get_start())
         if rtime.get_end() is None:
@@ -51,6 +51,7 @@ def ctimes_view(request):
 
         return {
             'status': 'OK',
+            'round_name': round.name,
             'start': format_date(start),
             'start_sec': to_seconds(start),
             'end': format_date(end),
