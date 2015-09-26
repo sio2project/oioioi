@@ -38,12 +38,14 @@
                     <td class="subm_margin subm_{{ test.status }}"></td>
                     <td>{{ test.test_name }}
                         <div class="test_actions">
-                            {% if is_admin %}
-                                <a title="{% trans "Download output for this test" %}" href="{% url 'download_output_file' test_id=test.test.id %}">out</a>
-                                <a title="{% trans "Download input for this test" %}" href="{% url 'download_input_file' test_id=test.test.id %}">in</a><br>
-                            {% endif %}
-                            {% if allow_download_out and test.generate_status == 'OK' %}
-                                <a title="{% trans "Download user output for this test" %}" href="{% url 'download_user_output' testreport_id=test.id %}">usr-out</a>
+                            {% if test.test %}
+                                {% if is_admin %}
+                                    <a title="{% trans "Download output for this test" %}" href="{% url 'download_output_file' test_id=test.test.id %}">out</a>
+                                    <a title="{% trans "Download input for this test" %}" href="{% url 'download_input_file' test_id=test.test.id %}">in</a><br>
+                                {% endif %}
+                                {% if allow_download_out and test.generate_status == 'OK' %}
+                                    <a title="{% trans "Download user output for this test" %}" href="{% url 'download_user_output' testreport_id=test.id %}">usr-out</a>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </td>
