@@ -236,7 +236,11 @@ class ProblemPackage(models.Model):
     @property
     def download_name(self):
         ext = split_extension(self.package_file.name)[1]
-        return self.problem.short_name + ext
+        if self.problem:
+            return self.problem.short_name + ext
+        else:
+            filename = os.path.split(self.package_file.name)[1]
+            return strip_num_or_hash(filename)
 
     class Meta(object):
         verbose_name = _("problem package")
