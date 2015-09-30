@@ -306,7 +306,7 @@ the following needs to be done:
    For our automatic script we use a temporary virtualenv and a package
    containing all the necessary files to run the old migrations.
 
-#. Now enable all aplications you have ever used (in the INSTALLED_APPS
+#. Now enable all applications you have ever used (in the INSTALLED_APPS
    setting) and run ./manage.py migrate. If you don't know which applications
    you've used in the past, just enable them all and run ./manage.py syncdb
    and then ./manage.py migrate. Our script does that.
