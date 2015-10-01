@@ -456,3 +456,8 @@ our `issue tracker`_.
 .. _official website: http://sio2project.mimuw.edu.pl
 .. _project documentation: http://oioioi.readthedocs.org/en/latest/
 .. _issue tracker: http://jira.sio2project.mimuw.edu.pl
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/sio2project/oioioi
+   :target: https://gitter.im/sio2project/oioioi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
