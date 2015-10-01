@@ -27,7 +27,7 @@ Then OIOIOI and its dependencies can be installed using the following commands::
   cd oioioi
   pip install -r requirements.txt
 
-OIOIOI is a set of Django Applications, so you need to create a folder with
+OIOIOI is a set of Django applications, therefore you need to create a folder with
 Django settings and other deployment configuration::
 
   cd ..
