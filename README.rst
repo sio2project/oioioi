@@ -5,6 +5,10 @@ OIOIOI
 .. image:: https://hudson.sio2project.mimuw.edu.pl/job/oioioi-nightly-unittests/badge/icon
    :target: https://hudson.sio2project.mimuw.edu.pl/job/oioioi-nightly-unittests/Unittests_Report/
 
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/sio2project/oioioi
+   :target: https://gitter.im/sio2project/oioioi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 SIO2 is a free platform for carrying out algorithmic contests and OIOIOI is its
 main component — the web interface.
 
@@ -443,16 +447,23 @@ pointers, how it should look like:
 Contact us
 ------------
 
-Should you have any further questions regarding installation, configuration or
-usage of OIOIOI, feel free to contact us by an `e-mail`_,
-via IRC (#tagtag at freenode) or through `github issues system`_. Please use
-English on github and English or Polish elsewhere. You may find some additional
-information on our `official website`_ and in the official `project documentation`_.
-You can also look at what we are currently working on by browsing current tickets on
-our `issue tracker`_.
+Additional information can be found on our:
 
-.. _e-mail: sio2-project@googlegroups.com
-.. _github issues system: http://github.com/sio2project/oioioi/issues
+* `official website`_
+* `project documentation`_
+* `issue tracker`_
+
+If you have any further questions regarding installation, configuration or
+usage of OIOIOI, there are some places you can reach us through:
+
+* `our mailing list`_
+* `GitHub issues system`_ (English only)
+* `Gitter chat`_
+
 .. _official website: http://sio2project.mimuw.edu.pl
 .. _project documentation: http://oioioi.readthedocs.org/en/latest/
 .. _issue tracker: http://jira.sio2project.mimuw.edu.pl
+
+.. _our mailing list: sio2-project@googlegroups.com
+.. _GitHub issues system: http://github.com/sio2project/oioioi/issues
+.. _Gitter chat: https://gitter.im/sio2project/oioioi
