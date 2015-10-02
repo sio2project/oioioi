@@ -8,6 +8,7 @@ from django.utils.timezone import utc
 from django.test import TestCase
 
 from oioioi.base.tests import fake_time
+from oioioi.base.utils import strip_num_or_hash
 from oioioi.contests.models import Contest
 from oioioi.problems.models import Problem
 from oioioi.programs.models import Test
@@ -22,7 +23,7 @@ class TestTestsPackages(TestCase):
         zipf = zipfile.ZipFile(tp.package, 'r')
         for t in tests:
             for f in [t.input_file, t.output_file]:
-                file_name = os.path.basename(f.file.name)
+                file_name = strip_num_or_hash(os.path.basename(f.file.name))
                 content1 = zipf.open(file_name).read()
                 content2 = f.file.file.read()
                 self.assertEquals(content1, content2)
@@ -33,7 +34,8 @@ class TestTestsPackages(TestCase):
         for t in tests:
             for f in [t.input_file, t.output_file]:
                 with self.assertRaises(KeyError):
-                    file_name = os.path.basename(f.file.name)
+                    file_name = strip_num_or_hash(os.path.basename(
+                            f.file.name))
                     zipf.open(file_name)
         zipf.close()
 

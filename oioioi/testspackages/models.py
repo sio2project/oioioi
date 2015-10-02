@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models.signals import m2m_changed
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.utils import strip_num_or_hash
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.models import Test
@@ -94,7 +95,8 @@ def _create_tests_package(sender, instance, action, reverse, **kwargs):
             zipf = zipfile.ZipFile(f, 'w', zipfile.ZIP_DEFLATED)
             for test in instance.tests.all():
                 for test_file in [test.input_file, test.output_file]:
-                    arch_path = os.path.basename(test_file.file.name)
+                    arch_path = strip_num_or_hash(
+                            os.path.basename(test_file.file.name))
                     pack_test_file(test_file, arch_path, zipf)
             zipf.close()
             instance.package.save('tests.zip', File(f))
