@@ -200,7 +200,7 @@ def get_report_HTML_view(request, submission_id):
     controller = submission.problem_instance.controller
     if not controller.filter_my_visible_submissions(request, Submission.objects
                             .filter(id=submission_id)).exists():
-        return Http404()
+        raise Http404
     reports = ''
     queryset = SubmissionReport.objects.filter(submission=submission). \
         prefetch_related('scorereport_set')
