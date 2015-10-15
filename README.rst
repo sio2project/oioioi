@@ -143,9 +143,9 @@ Production configuration
    if you want to configure judging machines (see below) for judging, what is
    strongly recommended. Comment out the *RUN_LOCAL_WORKERS = True* setting.
 
-#. (optionally) Enable Filetracker server by uncommenting corresponding lines
-   in *settings.py* and restart the daemons. This is required for dedicated
-   judging machines.
+#. (required only for dedicated judging machines) Enable Filetracker server by
+   uncommenting *FILETRACKER_SERVER_ENABLED*, *FILETRACKER_LISTEN_ADDR*,
+   *FILETRACKER_LISTEN_PORT* in *settings.py* and restart the daemons.
 
 #. Install and configure web server. We recommend using nginx with uwsgi plugin
    (included in *nginx-full* Ubuntu package). An example configuration is
