@@ -24,6 +24,11 @@ class Command(BaseCommand):
                 "stored"),
         make_option('--wget', metavar='PATH', dest='wget',
             default="wget", help="Specifies the wget binary to use"),
+        make_option('-y', '--yes', dest='license_agreement', default=False,
+            action='store_true',
+            help="Enabling this options means that you agree to the license "
+                "terms and conditions, so no license prompt will be "
+                "displayed"),
     )
 
     args = '[<sandbox-name> ...]'
@@ -58,7 +63,8 @@ class Command(BaseCommand):
         try:
             license_url = urlparse.urljoin(manifest_url, 'LICENSE')
             license = urllib2.urlopen(license_url).read()
-            self.display_license(license)
+            if not options['license_agreement']:
+                self.display_license(license)
         except urllib2.HTTPError, e:
             if e.code != 404:
                 raise
