@@ -29,6 +29,9 @@ class Command(BaseCommand):
             help="Enabling this options means that you agree to the license "
                 "terms and conditions, so no license prompt will be "
                 "displayed"),
+        make_option('-q', '--quiet', dest='quiet', default=False,
+            action='store_true',
+            help="Disables wget interactive progress bars"),
     )
 
     args = '[<sandbox-name> ...]'
@@ -93,8 +96,10 @@ class Command(BaseCommand):
                     "Wget binary using --wget option.")
 
         print >> self.stdout, "--- Downloading sandboxes ..."
-        execute([options['wget'], '-N', '-i', '-'], stdin='\n'.join(urls),
-                capture_output=False, cwd=dir)
+
+        quiet_flag = '-nv' if options['quiet'] else ''
+        execute([options['wget'], '-N', '-i', '-', quiet_flag],
+                stdin='\n'.join(urls), capture_output=False, cwd=dir)
 
         print >> self.stdout, "--- Saving sandboxes to the Filetracker ..."
         for arg in args:
