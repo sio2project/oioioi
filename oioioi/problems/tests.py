@@ -622,6 +622,8 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         ProblemInstance.objects.all().delete()
 
         contest = Contest.objects.get()
+        contest.default_submissions_limit = 42
+        contest.save()
         filename = get_test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
         # Add problem to problemset
@@ -661,6 +663,11 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
                         {'url_key': url_key}, follow=True)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(ProblemInstance.objects.count(), 2 + i)
+
+        # check submissions limit
+        for pi in ProblemInstance.objects.filter(contest__isnull=False):
+            self.assertEqual(pi.submissions_limit,
+                             contest.default_submissions_limit)
 
         # add probleminstances to round
         for pi in ProblemInstance.objects.filter(contest__isnull=False):

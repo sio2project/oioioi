@@ -270,7 +270,7 @@ class ProblemsetSource(ProblemSource):
             if existing_problem:
                 assert problem == existing_problem
                 assert 'instance_id' in request.GET
-                pi = problem.probleminstance_set.get(contest=request.contest,
+                pi = problem.probleminstance_set.get(contest=contest,
                                             id=request.GET['instance_id'])
                 update_tests_from_main_pi(pi)
                 # limits could be changed
@@ -279,7 +279,8 @@ class ProblemsetSource(ProblemSource):
                 messages.success(request, _("Problem successfully updated"))
             else:
                 pi = get_new_problem_instance(problem)
-                pi.contest = request.contest
+                pi.contest = contest
+                pi.submissions_limit = contest.default_submissions_limit
                 pi.short_name = None
                 pi.save()
                 messages.success(request, _("Problem successfully uploaded"))

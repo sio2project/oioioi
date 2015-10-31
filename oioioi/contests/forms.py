@@ -193,6 +193,7 @@ class SubmissionFormForProblemInstance(SubmissionForm):
     def get_problem_instances(self):
         return [self.problem_instance]
 
+
 class GetUserInfoForm(forms.Form):
     user = UserSelectionField(label=_("Username"))
 

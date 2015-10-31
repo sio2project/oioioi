@@ -390,7 +390,8 @@ contest_admin_menu_registry.register('problempackage_change',
 
 
 class MainProblemInstanceAdmin(admin.ModelAdmin):
-    fields = ['submissions_limit']
+    fields = ('problem', 'short_name')
+    readonly_fields = ('problem',)
 
     def has_add_permission(self, request):
         return False

@@ -72,6 +72,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         return True
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind):
+        if problem_instance.contest is None:
+            # submissions limit for main_problem_instace (without contest)
+            # makes no sense
+            return False
+
         submissions_number = Submission.objects.filter(user=request.user,
             problem_instance__id=problem_instance.id, kind=kind).count()
         submissions_limit = problem_instance.controller \
