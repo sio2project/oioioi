@@ -34,6 +34,6 @@ class CreateTeamForm(forms.Form):
     def clean_login(self):
         login = self.cleaned_data.get('login')
         if User.objects.filter(username=login).exists():
-            raise ValidationError(_("There already exists"
+            raise ValidationError(_("There already exists "
                                     "a team with that login"))
         return login
