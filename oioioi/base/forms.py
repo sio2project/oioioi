@@ -1,7 +1,9 @@
 from collections import OrderedDict
 
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, \
+    PasswordResetForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
@@ -77,6 +79,27 @@ class OioioiUserChangeForm(UserChangeForm):
         super(OioioiUserChangeForm, self).__init__(*args, **kwargs)
         adjust_username_field(self)
 
+
+class OioioiPasswordResetForm(PasswordResetForm):
+    error_messages = {
+        'unknown': _("That email address doesn't have an associated local "
+                     "user account."),
+    }
+
+    def clean_email(self):
+        """
+        Validates that an active user exists with the given email address.
+        """
+        user_model = get_user_model()
+
+        email = self.cleaned_data["email"]
+        users = user_model._default_manager.filter(email__iexact=email)
+
+        if not len(users):
+            raise forms.ValidationError(self.error_messages['unknown'])
+        if not any(user.is_active for user in users):
+            raise forms.ValidationError(self.error_messages['unknown'])
+        return email
 
 # http://stackoverflow.com/questions/3657709/how-to-force-save-an-empty-unchanged-django-admin-inline
 class AlwaysChangedModelForm(forms.ModelForm):
