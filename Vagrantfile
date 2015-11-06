@@ -173,18 +173,23 @@ Vagrant.configure(2) do |config|
     # -y agrees to the license, -q disables interactive progress bars
     ./manage.py download_sandboxes -y -q
 
-    echo "$header_spacer Launching OIOIOI"
-    mkdir ../logs
-    mkdir ../logs/supervisor
-    mkdir ../logs/runserver
-    mkdir ../logs/worker
+    echo "Setup finished"
+    echo "Please log in, go to /sio2/deployment, and run ./manage.py createsuperuser"
+    echo "THIS MACHINE HAS BEEN CONFIGURED FOR DEVELOPMENT PURPOSES ONLY. NEVER USE IT IN PRODUCTION ENVIRONMENT" 1>&2
+  SHELL
+
+  # Launches OIOIOI
+  config.vm.provision "shell", privileged: false, run: "always", inline: <<-SHELL
+    echo "Launching OIOIOI"
+    cd /sio2/deployment
+    mkdir -p ../logs
+    mkdir -p ../logs/supervisor
+    mkdir -p ../logs/runserver
+    mkdir -p ../logs/worker
 
     nohup ./manage.py runserver 0.0.0.0:8000 >../logs/runserver/out.log 2>../logs/runserver/err.log &
     nohup ./manage.py supervisor >../logs/supervisor/out.log 2>../logs/supervisor/err.log &
     nohup sio-celery-worker amqp://guest:guest@localhost:5672// >../logs/worker/out.log 2>../logs/worker/err.log &
-
-    echo "Setup finished"
-    echo "Please log in, go to /sio2/deployment, and run ./manage.py createsuperuser"
-    echo "THIS MACHINE HAS BEEN CONFIGURED FOR DEVELOPMENT PURPOSES ONLY. NEVER USE IT IN PRODUCTION ENVIRONMENT" 1>&2
+    echo "Done!"
   SHELL
 end

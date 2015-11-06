@@ -9,6 +9,7 @@
 *.egg-info
 *.pid
 .DS_Store
+/.vagrant/
 *.pyc
 *.kdev*
 *~
