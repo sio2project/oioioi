@@ -467,10 +467,25 @@ class SubmissionAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj:
             return False
+        # is_contest_observer() is required in here, because otherwise
+        # observers get a 403 response. Any actions that modify submissions
+        # will be blocked in get_actions()
         return is_contest_admin(request) or is_contest_observer(request)
 
     def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(request)
+        return is_contest_admin(request)
+
+    def has_rejudge_permission(self, request):
+        return is_contest_admin(request)
+
+    def get_actions(self, request):
+        actions = super(SubmissionAdmin, self).get_actions(request)
+        if not request.user.is_superuser:
+            if not self.has_delete_permission(request):
+                del actions['delete_selected']
+            if not self.has_rejudge_permission(request):
+                del actions['rejudge_action']
+        return actions
 
     def user_login(self, instance):
         if not instance.user:

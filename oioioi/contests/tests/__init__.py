@@ -1446,6 +1446,83 @@ class TestSubmissionChangeKind(TestCase):
         self.assertEqual(urc.score, 100)
 
 
+class TestDeleteSelectedSubmissions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission',
+                'test_another_submission', 'test_permissions']
+
+    def test_delete_one_submission(self):
+        self.client.login(username='test_contest_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        post_data = {'action': 'delete_selected',
+                     '_selected_action': ['1']}
+        response = self.client.post(
+            reverse('oioioiadmin:contests_submission_changelist'),
+            post_data)
+
+        # Test confirmation dialog
+        self.assertIn(
+            'Are you sure you want to delete the selected submission?',
+            response.content)
+        self.assertIn(
+            'All of the following objects and their related items ' +
+            'will be deleted:',
+            response.content)
+        self.assertIn('Submission(', response.content)
+        self.assertIn('NORMAL, OK)', response.content)
+        self.assertIn('Score report', response.content)
+        self.assertIn('Compilation report', response.content)
+        self.assertIn('Program submission: Submission(1, ', response.content)
+
+        # Delete it and check if there is one submission remaining
+        post_data = {'action': 'delete_selected',
+                     '_selected_action': ['1'],
+                     'post': 'yes'}
+        response = self.client.post(
+            reverse('oioioiadmin:contests_submission_changelist'),
+            post_data,
+            follow=True)
+
+        self.assertIn('Successfully deleted 1 submission.', response.content)
+        self.assertIn('1 total', response.content)
+
+    def test_delete_many_submissions(self):
+        self.client.login(username='test_contest_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        post_data = {'action': 'delete_selected',
+                     '_selected_action': ['1', '2']}
+        response = self.client.post(
+            reverse('oioioiadmin:contests_submission_changelist'),
+            post_data)
+
+        # Test confirmation dialog
+        self.assertIn(
+            'Are you sure you want to delete the selected submissions?',
+            response.content)
+        self.assertIn(
+            'All of the following objects and their related items ' +
+            'will be deleted:',
+            response.content)
+        self.assertIn('Submission(', response.content)
+        self.assertIn('NORMAL, OK)', response.content)
+        self.assertIn('Score report', response.content)
+        self.assertIn('Compilation report', response.content)
+        self.assertIn('Program submission: Submission(1, ', response.content)
+
+        # Delete them and check if there are no submissions remaining
+        post_data = {'action': 'delete_selected',
+                     '_selected_action': ['1', '2'],
+                     'post': 'yes'}
+        response = self.client.post(
+            reverse('oioioiadmin:contests_submission_changelist'),
+            post_data,
+            follow=True)
+
+        self.assertIn('Successfully deleted 2 submissions.', response.content)
+        self.assertIn('0 total', response.content)
+
 class TestSubmitSelectOneProblem(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance']

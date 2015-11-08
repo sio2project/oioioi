@@ -4,15 +4,20 @@ from django.template.response import TemplateResponse
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_unicode, force_text
 from django.utils.html import escape
+from django.contrib.admin import helpers
 from django.contrib.admin.util import unquote
+from django.contrib.admin.utils import model_ngettext, NestedObjects
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.admin.options import RenameBaseModelAdminMethods
 from django.utils.translation import ugettext_lazy as _
+from django.utils.text import capfirst
+from django.contrib import messages
+from django.db import router
 
 from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
@@ -117,7 +122,136 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             return qs
 
 
+def delete_selected(modeladmin, request, queryset):
+    """Default ModelAdmin action that deletes the selected objects.
+
+       Django's default handler doesn't even check the
+       has_delete_permission() of corresponding ModelAdmin with specific
+       instances (only the general permission), and requires django's User
+       model permissions as well. Theese aren't currently used in OIOIOI, so
+       this custom method doesn't care about them.
+
+       This implementation checks if deleted model is registered in the
+       current AdminSite and if it is, then uses has_delete_permission() with
+       it's instance.
+
+       It first displays a confirmation page that shows all the
+       deleteable objects, or, if the user has no permission for one of the
+       related objects (foreignkeys), a "permission denied" message.
+       Next, it deletes all selected objects and redirects back
+       to the change list.
+    """
+    opts = modeladmin.model._meta
+    app_label = opts.app_label
+
+    # Find related objects and check their permissions
+    # This is a custom method as well
+    to_delete, perms_needed, protected = \
+            collect_deleted_objects(modeladmin, request, queryset)
+
+    # The user has already confirmed the deletion.
+    # Do the deletion and return a None to display the change list view again.
+    if request.POST.get('post'):
+        if perms_needed:
+            raise PermissionDenied
+        n = queryset.count()
+        if n:
+            for obj in queryset:
+                obj_display = force_text(obj)
+                modeladmin.log_deletion(request, obj, obj_display)
+            queryset.delete()
+            message_text = _("Successfully deleted %(count)d %(items)s.") % {
+                "count": n,
+                "items": model_ngettext(modeladmin.opts, n)
+            }
+            modeladmin.message_user(request, message_text, messages.SUCCESS)
+        # Return None to display the change list page again.
+        return None
+
+    if len(queryset) == 1:
+        objects_name = force_text(opts.verbose_name)
+    else:
+        objects_name = force_text(opts.verbose_name_plural)
+
+    if perms_needed or protected:
+        title = _("Cannot delete %(name)s") % {"name": objects_name}
+    else:
+        title = _("Are you sure?")
+
+    context = dict(
+        modeladmin.admin_site.each_context(),
+        title=title,
+        objects_name=objects_name,
+        deletable_objects=[to_delete],
+        queryset=queryset,
+        perms_lacking=perms_needed,
+        protected=protected,
+        opts=opts,
+        action_checkbox_name=helpers.ACTION_CHECKBOX_NAME,
+    )
+
+    request.current_app = modeladmin.admin_site.name
+
+    custom_template = modeladmin.delete_selected_confirmation_template
+
+    # Display the confirmation page
+    return TemplateResponse(request, custom_template or [
+        "admin/%s/%s/delete_selected_confirmation.html" % (app_label,
+            opts.model_name),
+        "admin/%s/delete_selected_confirmation.html" % app_label,
+        "admin/delete_selected_confirmation.html"
+    ], context)
+
+delete_selected.short_description = \
+    _("Delete selected %(verbose_name_plural)s")
+
+
+def collect_deleted_objects(modeladmin, request, queryset):
+    """Collects objects that are related to queryset items and checks
+       their permissions.
+
+       This method checks if the user has permissions to delete items that are
+       anyhow related to theese in the queryset (regardless of the depth).
+
+       ``modeladmin`` is expected to be a ModelAdmin instance corresponding
+       to the class of items contained in the ``queryset``.
+    """
+    db_backend = router.db_for_write(queryset.first().__class__)
+    collector = NestedObjects(using=db_backend)
+    collector.collect(queryset)
+
+    # Check permissions and return a human-readable string representation
+    perms_needed = set()
+
+    def format_callback(obj):
+        admin_site = modeladmin.admin_site
+        has_admin = obj.__class__ in admin_site._registry
+        opts = obj._meta
+
+        if has_admin:
+            model_admin = admin_site._registry[obj.__class__]
+            if not request.user.is_superuser and \
+                    not model_admin.has_delete_permission(request, obj):
+                perms_needed.add(opts.verbose_name)
+
+        return '%s: %s' % (capfirst(opts.verbose_name),
+                           force_text(obj))
+
+    # Get a nested list of dependent objects
+    to_delete = collector.nested(format_callback)
+
+    protected = [format_callback(obj) for obj in collector.protected]
+
+    return to_delete, perms_needed, protected
+
 class AdminSite(DjangoAdminSite):
+    def __init__(self, *args, **kwargs):
+        super(AdminSite, self).__init__(*args, **kwargs)
+        # Override default delete_selected action handler
+        # See delete_selected() docstring for further information
+        self._actions['delete_selected'] = delete_selected
+        self._global_actions['delete_selected'] = delete_selected
+
     def has_permission(self, request):
         return request.user.is_active
 
