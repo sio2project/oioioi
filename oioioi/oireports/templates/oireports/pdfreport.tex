@@ -29,7 +29,7 @@
                     \test
                         { {{ test.test_name|latex_escape }} }
                         { {{ test.get_status_display }} }
-                        { {{ test.time_used|runtimeformat }} }
+                        { {% if is_admin or test.status != 'TLE' %}{{ test.time_used|runtimeformat }}{% else %}-.--s{% endif %} }
                         { {{ test.test_time_limit|runtimeformat }} }
                         {% if group.report.score %} { {{ group.report.score }} }{ {{ group.report.max_score }} } {% else %} {}{} {% endif %}
                         { {% if test.comment %} {{ test.comment|latex_escape }} {% endif %} }
@@ -37,7 +37,7 @@
                     \testg
                         { {{ test.test_name|latex_escape }} }
                         { {{ test.get_status_display }} }
-                        { {{ test.time_used|runtimeformat }} }
+                        { {% if is_admin or test.status != 'TLE' %}{{ test.time_used|runtimeformat }}{% else %}-.--s{% endif %} }
                         { {{ test.test_time_limit|runtimeformat }} }
                         { {% if test.comment %} {{ test.comment|latex_escape }} {% endif %} }
                 {% endif %}

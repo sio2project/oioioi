@@ -30,7 +30,7 @@
                 <test{% if forloop.first %} newgroup="1"{% endif %}>
                 <testname>{{ test.test_name }}</testname>
                 <testresult>{{ test.status|xmlreport_result }}</testresult>
-                <testtime>{{ test.time_used|runtimeformat }}</testtime>
+                <testtime>{% if is_admin or test.status != 'TLE' %}{{ test.time_used|runtimeformat }}{% else %}-.--s{% endif %}</testtime>
                 <testtimelimit>{{ test.test_time_limit|runtimeformat }}</testtimelimit>
                 <testpoints>{% if group.report.score %}{{ group.report.score }}{% endif %}</testpoints>
                 <testmaxpoints>{{ group.report.max_score }}</testmaxpoints>
