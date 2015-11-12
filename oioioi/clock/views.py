@@ -39,22 +39,25 @@ def get_times_status(request, response):
     current_rounds_times = None
 
     if timestamp and contest:
-        rtimes = [contest.controller.get_round_times(request, round)
-                    for round in Round.objects.filter(contest=contest)]
-        next_rounds_times = [rt for rt in rtimes if rt.is_future(timestamp)]
-        next_rounds_times.sort(key=lambda rt: rt.get_start())
-        current_rounds_times = [rt for rt in rtimes
+        rtimes = [(contest.controller.get_round_times(request, round), round)
+                  for round in Round.objects.filter(contest=contest)]
+        next_rounds_times = [(rt, round) for (rt, round)
+                             in rtimes if rt.is_future(timestamp)]
+        next_rounds_times.sort(key=lambda (rt, round): rt.get_start())
+        current_rounds_times = [(rt, round) for (rt, round) in rtimes
                                 if rt.is_active(timestamp) and rt.get_end()]
-        current_rounds_times.sort(key=lambda rt: rt.get_end())
+        current_rounds_times.sort(key=lambda (rt, round): rt.get_end())
 
     if current_rounds_times:
         response['round_start_date'] = time.mktime((timezone
-            .localtime(current_rounds_times[0].get_start())).timetuple())
+            .localtime(current_rounds_times[0][0].get_start())).timetuple())
         response['round_end_date'] = time.mktime((timezone
-            .localtime(current_rounds_times[0].get_end())).timetuple())
+            .localtime(current_rounds_times[0][0].get_end())).timetuple())
+        response['round_name'] = current_rounds_times[0][1].name
     elif next_rounds_times:
         response['round_start_date'] = time.mktime((timezone
-            .localtime(next_rounds_times[0].get_start())).timetuple())
+            .localtime(next_rounds_times[0][0].get_start())).timetuple())
+        response['round_name'] = next_rounds_times[0][1].name
 
     if 'admin_time' in request.session:
         response['is_admin_time_set'] = True
