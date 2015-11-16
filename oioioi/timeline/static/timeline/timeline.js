@@ -1,5 +1,6 @@
 $(document).ready(function() {
-    window.init_timeline = function(lang_code, $timeline_form) {
+    window.init_timeline = function(lang_code, $timeline_form,
+                                               server_timezone) {
 
         var $timeline = $timeline_form.find('#timeline');
 
@@ -111,7 +112,16 @@ If you want to split a date group, click the corresponding \
         }
 
         function get_date($datebox) {
-            return $datebox.children('.date').data('datetimepicker').getDate();
+            // datebox thinks that date is in UTC format but it really is
+            // in server's timezone format so we can't just call getDate()
+            // on datebox, instead we use Moment Timezone to create Date
+            // object
+            var date_string = $datebox.children('.date').find('input').val();
+            var date = null;
+            if (date_string !== '') {
+                date = moment.tz(date_string, server_timezone).toDate();
+            }
+            return date;
         }
 
         function set_date($datebox, new_date) {

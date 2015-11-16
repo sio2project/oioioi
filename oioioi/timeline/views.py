@@ -1,4 +1,5 @@
 import datetime
+from django.conf import settings
 from collections import defaultdict
 from operator import itemgetter
 
@@ -50,6 +51,7 @@ def timeline_view(request):
     registry = date_registry.tolist(request.contest.id)
     group_registry = _make_group_registry(registry)
 
+
     for item in registry:
         item['date_id'] = _get_date_id(item)
 
@@ -97,10 +99,12 @@ def timeline_view(request):
         if error_list:
             return TemplateResponse(request, 'timeline/timeline_view.html',
                     {'registry': group_registry,
-                    'error_list': sorted(error_list)})
+                    'error_list': sorted(error_list),
+                    'server_timezone': settings.TIME_ZONE})
 
         for obj in tosave.values():
             obj.save()
 
     return TemplateResponse(request, 'timeline/timeline_view.html',
-                {'registry': group_registry})
+                {'registry': group_registry,
+                 'server_timezone': settings.TIME_ZONE})

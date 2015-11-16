@@ -13,6 +13,8 @@
 <script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker-oioioi.js" ></script>
 <script type="text/javascript" src="{{ STATIC_URL }}bootstrap-datetimepicker-oioioi/locales.js" ></script>
 <script type="text/javascript" src="{{ STATIC_URL }}timeline/timeline.js" ></script>
+<script type="text/javascript" src="{{ STATIC_URL }}moment/moment.js" ></script>
+<script type="text/javascript" src="{{ STATIC_URL }}moment/moment-timezone-with-data-2010-2020.js" ></script>
 {% endblock %}
 
 {% block title %}{% trans "Timeline" %}{% endblock %}
@@ -79,7 +81,7 @@
 </form>
 <script type="text/javascript">
     $(document).ready(function() {
-        init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'));
+        init_timeline('{{ LANGUAGE_CODE|default:"en" }}', $('#timeline-form'), '{{ server_timezone }}');
     });
 </script>
 {% else %}
