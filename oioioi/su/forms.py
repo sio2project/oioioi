@@ -2,6 +2,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.contrib.auth import get_backends
 from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ValidationError
 from oioioi.base.utils.user_selection import UserSelectionField
 
 
@@ -12,8 +13,15 @@ def authentication_backends():
                    getattr(backend, 'description', backend.__class__.__name__))
 
 
+def no_superuser_validator(user):
+    if user.is_superuser:
+        raise ValidationError(_("Switching to a superuser is not allowed for "
+            "security reasons."))
+
+
 class SuForm(forms.Form):
-    user = UserSelectionField(label=_("Username"))
+    user = UserSelectionField(label=_("Username"), validators=[
+        no_superuser_validator])
     backend = forms.ChoiceField(label=_("Authentication backend"),
         required=False, choices=authentication_backends())
 

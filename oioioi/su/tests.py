@@ -74,8 +74,9 @@ class TestSwitchingUsers(TestCase):
 
     def test_forbidden_su(self):
         self.client.login(username='test_admin')
-        response = self.client.post(reverse('su'), {'user': 'test_admin'})
-        self.assertEquals(400, response.status_code)
+        response = self.client.post(reverse('su'), {'user': 'test_admin2'})
+        self.assertEquals(200, response.status_code)
+        self.assertEquals('test_admin', response.context['user'].username)
 
         response = self.client.post(reverse('su'),
             data={'user': 'test_user', 'next': 'http://enemy.example.com/'})

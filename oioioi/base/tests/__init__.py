@@ -833,11 +833,12 @@ class TestAdmin(TestCase):
         self.assertEqual(User.objects.filter(username='test_user').count(), 0)
 
     def test_import_users(self):
+        user_count_before = User.objects.count()
         filename = os.path.join(basedir, 'files', 'users.csv')
         manager = import_users.Command()
         manager.run_from_argv(['manage.py', 'import_users', filename])
 
-        self.assertEqual(User.objects.count(), 6)
+        self.assertEqual(User.objects.count(), user_count_before + 2)
         user4 = authenticate(username='test_user4', password='spam')
         self.assertEqual(user4.first_name, "Test")
         self.assertEqual(user4.last_name, "User 4")

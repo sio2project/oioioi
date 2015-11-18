@@ -70,6 +70,23 @@
       "email": "test_user3@example.com",
       "date_joined": "2012-08-31T20:27:58.768Z"
     }
+  },
+  {
+    "pk": 1004,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_admin2",
+      "first_name": "Test2",
+      "last_name": "Admin2",
+      "is_active": true,
+      "is_superuser": true,
+      "is_staff": true,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_admin2@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
   }
-
 ]

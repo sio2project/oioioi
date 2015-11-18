@@ -26,7 +26,7 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
                 'title': _("Login as another user")})
 
     user = form.cleaned_data['user']
-    if user.is_superuser or is_under_su(request):
+    if is_under_su(request):
         raise SuspiciousOperation
 
     su_to_user(request, user, form.cleaned_data['backend'])
