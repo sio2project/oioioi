@@ -16,7 +16,7 @@ from oioioi.gamification.controllers import CodeSharingController
 from oioioi.gamification.experience import Experience
 from oioioi.gamification.friends import UserFriends
 from oioioi.gamification.profile import profile_registry
-from oioioi.gamification.models import ProblemDifficulty
+from oioioi.gamification.models import ProblemDifficulty, FriendshipRequest
 from oioioi.problems.problem_site import problem_site_tab
 
 # pylint: disable=W0611
@@ -105,7 +105,10 @@ def friend_action(request, other_name, action):
         if action in ['send_friendship_request', 'remove_friend']:
             func(other_user)
         else:
-            friendship_request = friends.request_from(other_user)
+            try:
+                friendship_request = friends.request_from(other_user)
+            except FriendshipRequest.DoesNotExist:
+                return redirect('view_profile', username=other_name)
             func(friendship_request)
     except ValueError as e:
         raise PermissionDenied(str(e))
