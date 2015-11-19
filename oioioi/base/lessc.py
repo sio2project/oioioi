@@ -1,3 +1,4 @@
+import django
 from django.conf import settings
 from django.contrib.staticfiles import finders
 from oioioi.base.utils.execute import execute
@@ -47,6 +48,8 @@ def collect_sources(tmp_dir, staticfiles_path):
 
 
 def main():
+    django.setup()
+
     infile = os.path.realpath(os.path.abspath(sys.argv[1]))
     staticfiles_root = os.path.realpath(os.path.abspath(settings.STATIC_ROOT))
     staticfiles_root = staticfiles_root.rstrip(os.sep) + os.sep
