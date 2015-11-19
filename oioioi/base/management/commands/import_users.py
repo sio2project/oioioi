@@ -60,12 +60,18 @@ class Command(BaseCommand):
                         continue
                     kwargs[column] = value
 
+                username = kwargs['username']
+
                 try:
                     User.objects.create_user(**kwargs)
                 except DatabaseError, e:
+                    # This assumes that we'll get the message in this
+                    # encoding. It is not perfect, but much better than
+                    # ascii.
+                    message = e.message.decode('utf-8')
                     self.stdout.write(_(
                         "DB Error for user=%(user)s: %(message)s\n")
-                            % {'user': row[0], 'message': e.message})
+                            % {'user': username, 'message': message})
                     ok = False
                 except ValidationError, e:
                     for k, v in e.message_dict.iteritems():
@@ -78,7 +84,7 @@ class Command(BaseCommand):
                                 self.stdout.write(
                                         _("Error for user=%(user)s, "
                                             "field %(field)s: %(message)s\n")
-                                        % {'user': row[0], 'field': k,
+                                        % {'user': username, 'field': k,
                                             'message': message})
                     ok = False
 

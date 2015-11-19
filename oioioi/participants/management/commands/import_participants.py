@@ -63,9 +63,13 @@ class Command(BaseCommand):
                         " not exist\n") % {'user': login})
                     ok = False
                 except DatabaseError, e:
+                    # This assumes that we'll get the message in this
+                    # encoding. It is not perfect, but much better than
+                    # ascii.
+                    message = e.message.decode('utf-8')
                     self.stdout.write(_(
                         "DB Error for user=%(user)s: %(message)s\n")
-                            % {'user': login, 'message': e.message})
+                            % {'user': login, 'message': message})
                     ok = False
             if ok:
                 self.stdout.write(_("Processed %d entries") % (all_count))

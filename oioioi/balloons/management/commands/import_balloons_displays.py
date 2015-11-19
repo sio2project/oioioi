@@ -72,9 +72,13 @@ class Command(BaseCommand):
                         " not exist\n") % {'user': row[1]})
                     ok = False
                 except DatabaseError, e:
+                    # This assumes that we'll get the message in this
+                    # encoding. It is not perfect, but much better than
+                    # ascii.
+                    message = e.message.decode('utf-8')
                     self.stdout.write(_(
                         "DB Error for user=%(user)s: %(message)s\n")
-                            % {'user': row[1], 'message': e.message})
+                            % {'user': row[1], 'message': message})
                     ok = False
                 except ValidationError, e:
                     for k, v in e.message_dict.iteritems():
