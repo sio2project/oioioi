@@ -3,6 +3,7 @@ $(function() {
     var FULL_TEXT_WIDTH = 550;
     var SHORT_TEXT_WIDTH = 250;
     var DISPLAY_TIME = 10;
+    var CACHE_DETECT_TIME = 3000;
 
     var round_duration_in_s;
     var is_time_admin;
@@ -13,9 +14,20 @@ $(function() {
     var countdown_date;
     var ms_from_epoch;
     var round_name;
+    var previous_user_time;
 
     function updateClock() {
-        var time = new Date(new Date().getTime() + delay_in_ms);
+        // If we detect a long time interval between subsequent
+        // updateClock() calls, we detect a cached version of the webpage
+        // and send a request to resynchronize time with server
+        var user_time = new Date().getTime();
+        if (typeof previous_user_time != 'undefined') {
+            if (user_time - previous_user_time > CACHE_DETECT_TIME) {
+                $(window).trigger('updateStatusRequest');
+            }
+        }
+        previous_user_time = user_time;
+        var time = new Date(user_time + delay_in_ms);
         $('#clock').text(time.toLocaleTimeString());
         var s_from_epoch = Math.floor((new Date().getTime() +
             delay_in_ms) / 1000);
