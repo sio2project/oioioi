@@ -134,7 +134,8 @@ def get_problem_queryset_by_tag(datadict):
 
 def problemset_main_view(request):
     queryset, query_string = get_problem_queryset_by_tag(request.GET)
-    problems = queryset.filter(is_public=True, problemsite__isnull=False)
+    problems = queryset.filter(is_public=True, problemsite__isnull=False). \
+        order_by('name')
 
     return TemplateResponse(request,
        'problems/problemset/problem_list.html',
@@ -149,12 +150,29 @@ def problemset_main_view(request):
 
 def problemset_my_problems_view(request):
     queryset, query_string = get_problem_queryset_by_tag(request.GET)
-    problems = queryset.filter(author=request.user, problemsite__isnull=False)
+    problems = queryset.filter(author=request.user, problemsite__isnull=False)\
+        .order_by('name')
 
     return TemplateResponse(request,
          'problems/problemset/problem_list.html',
          {'problems': problems,
           'page_title': _("My problems"),
+          'select_problem_src': request.GET.get('select_problem_src'),
+          'tag_search': query_string,
+          'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
+          'show_search_bar': True})
+
+
+def problemset_all_problems_view(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    queryset, query_string = get_problem_queryset_by_tag(request.GET)
+    problems = queryset.filter(problemsite__isnull=False).order_by('name')
+
+    return TemplateResponse(request,
+         'problems/problemset/problem_list.html',
+         {'problems': problems,
+          'page_title': _("All problems"),
           'select_problem_src': request.GET.get('select_problem_src'),
           'tag_search': query_string,
           'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),

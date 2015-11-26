@@ -25,12 +25,23 @@ Problemset
                 Problemset
             </a>
             <ul class="nav navbar-nav">
+                <li><a href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+                {% endif %}">
+                {% trans "Public problems" %}
+                </a>
                 {% if user.is_authenticated %}
                 <li><a
                 href="{% url 'problemset_my_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
                 {% endif %}">
                     {% trans "My problems" %}
                 </a></li>
+                {% if user.is_superuser %}
+                <li><a
+                href="{% url 'problemset_all_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+                {% endif %}">
+                {% trans "All problems" %}
+                </a>
+                {% endif %}
                     {% if can_add_to_problemset %}
                     <li><a
                     href="{% url 'problemset_add_or_update' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
@@ -39,6 +50,7 @@ Problemset
                     </a></li>
                     {% endif %}
                 {% endif %}
+                <li><a href="/">{% trans "Main page" %}</a>
             </ul>
         </div>
 

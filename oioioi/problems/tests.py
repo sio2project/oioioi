@@ -519,13 +519,13 @@ class TestProblemsetPage(TestCase):
         public_problems = Problem.objects.filter(is_public=True)
         for problem in public_problems:
             self.assertIn(str(problem.name), str(response.content))
-        self.assertEqual(response.content.count("Select me!"), 0)
+        self.assertEqual(response.content.count("Choose me!"), 0)
 
         url = reverse('problemset_main') + '?' + \
                 urllib.urlencode({'select_problem_src': "redirect here"})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count("Select me!"), 2)
+        self.assertEqual(response.content.count("Choose me!"), 2)
 
         url = reverse('problemset_my_problems')
         response = self.client.post(url)
@@ -534,14 +534,25 @@ class TestProblemsetPage(TestCase):
         author_problems = Problem.objects.filter(author=author_user)
         for problem in author_problems:
             self.assertIn(str(problem.name), str(response.content))
-        self.assertEqual(response.content.count("Select me!"), 0)
+        self.assertEqual(response.content.count("Choose me!"), 0)
 
         url = reverse('problemset_my_problems') + '?' + \
                 urllib.urlencode({'select_problem_src': "redirect here"})
         response = self.client.post(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count("Select me!"), 2)
+        self.assertEqual(response.content.count("Choose me!"), 2)
+        self.assertNotIn("All problems", str(response.content))
 
+        url = reverse('problemset_all_problems')
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username="test_admin")
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("All problems", str(response.content))
+        self.assertEqual(response.content.count("/problemset/problem/"),
+                         Problem.objects.count())
 
 @nottest
 def get_test_filename(name):
@@ -647,8 +658,9 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn('Add from Problemset', response.content)
-        self.assertIn('s url key', response.content)
-        self.assertIn('Select', response.content)
+        self.assertIn('Enter problem', response.content)
+        self.assertIn('s secret key', response.content)
+        self.assertIn('choose problem from problemset', response.content)
 
         pi_number = 3
         for i in xrange(pi_number):

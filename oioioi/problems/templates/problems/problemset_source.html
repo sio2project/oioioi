@@ -1,24 +1,29 @@
 {% load i18n %}
-<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+<form enctype="multipart/form-data" method="post" action="" class="form-vertical">
     {% csrf_token %}
 
-    <div class="control-group {% if form.url_key.errors %}error{% endif %}">
+    <div class="form-group {% if form.url_key.errors %}error{% endif %}">
         <label for="{{ form.url_key.auto_id }}" class="control-label">{{ form.url_key.label }}</label>
         <div class="controls">
             {{ form.url_key }}
-            {% if not is_reupload %}
-            <a type="button" class="btn" href="{% url 'problemset_main' %}?select_problem_src={{ request.get_full_path }}">
-                {% trans "Select" %}
+        </div>
+        {% for error in form.url_key.errors %}
+        <span class="help-inline">{{ error }}</span>
+        {% endfor %}
+        {% if form.url_key.help_text %}
+        <p class="help-block">{{ form.url_key.help_text }}</p>
+        {% endif %}
+    </div>
+    {% if not is_reupload %}
+    <div class="form-group {% if form.url_key.errors %}error{% endif %}">
+        <label for="{{ form.url_key.auto_id }}" class="control-label">{% trans "or" %}</label>
+        <div class="controls">
+            <a type="button" class="btn btn-info btn-lg" href="{% url 'problemset_main' %}?select_problem_src={{ request.get_full_path }}">
+                {% trans "choose problem from problemset" %}
             </a>
-            {% endif %}
-            {% for error in form.url_key.errors %}
-            <span class="help-inline">{{ error }}</span>
-            {% endfor %}
-            {% if form.url_key.help_text %}
-            <p class="help-block">{{ form.url_key.help_text }}</p>
-            {% endif %}
         </div>
     </div>
+    {% endif %}
 
     <div class="form-actions">
         <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">

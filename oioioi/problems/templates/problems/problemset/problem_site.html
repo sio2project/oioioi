@@ -31,9 +31,9 @@
 {% endif %}
 
 {% if select_problem_src %}
-<a type="button" class="btn"
+<a type="button" class="btn btn-info"
         href="{{ select_problem_src }}{% if '?' in select_problem_src %}&{% else %}?{% endif %}url_key={{ problem.problemsite.url_key }}">
-    Select me!
+    {% trans "Choose me!" %}
 </a>
 {% endif %}
 

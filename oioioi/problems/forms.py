@@ -57,7 +57,8 @@ class ProblemSiteForm(forms.ModelForm):
 
 
 class ProblemsetSourceForm(forms.Form):
-    url_key = forms.CharField(label=_("Problem's url key"), required=True)
+    url_key = forms.CharField(label=_("Enter problem's secret key"),
+                              required=True)
 
     def __init__(self, url_key, *args, **kwargs):
         super(ProblemsetSourceForm, self).__init__(*args, **kwargs)
