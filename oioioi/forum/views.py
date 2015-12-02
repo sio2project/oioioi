@@ -174,8 +174,10 @@ def delete_post_view(request, category_id, thread_id, post_id):
 @require_POST
 def report_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
-    post.reported = True
-    post.save()
+    if not post.reported:
+        post.reported = True
+        post.reported_by = request.user
+        post.save()
     return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)
 
@@ -186,6 +188,7 @@ def report_post_view(request, category_id, thread_id, post_id):
 def unreport_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.reported = False
+    post.reported_by = None
     post.save()
     return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)

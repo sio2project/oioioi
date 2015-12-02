@@ -131,6 +131,8 @@ class Post(models.Model):
     author = models.ForeignKey(User, verbose_name=_("author"))
     reported = models.BooleanField(verbose_name=_("reported"), default=False)
     hidden = models.BooleanField(verbose_name=_("hidden"), default=False)
+    reported_by = models.ForeignKey(User, null=True,
+                                    related_name='%(class)s_user_reported')
 
     @property
     def edited(self):

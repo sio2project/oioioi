@@ -1,3 +1,5 @@
+import re
+
 from django.test import TestCase
 from django.utils import timezone
 from django.contrib.auth.models import User
@@ -208,3 +210,24 @@ class TestThread(TestCase):
         # user tries to remove post p0 but can't (added earlier than 15min ago)
         response = self.try_to_remove_post(p0)
         self.assertEqual(403, response.status_code)
+
+    def test_report_post(self):
+        p = Post(thread=self.thr, content='This post will be reported.',
+                 author=self.user, add_date=self.past)
+        p.save()
+        self.client.login(username='test_user')
+        url = reverse('forum_post_report', kwargs={'contest_id': self.cont.id,
+                                                   'category_id': self.cat.id,
+                                                   'thread_id': self.thr.id,
+                                                   'post_id': p.id})
+        name = self.user.first_name
+        surname = self.user.last_name
+        response = self.client.post(url, follow=True)
+        self.assertIn('This post was reported', response.content)
+        self.client.login(username='test_admin')
+        url = reverse('forum_thread', kwargs={'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.post(url, follow=True)
+        regexp = r".* was reported.+?by.+?<a.+?>%s %s</a>.*" % (name, surname)
+        pattern = re.compile(regexp, re.MULTILINE | re.DOTALL)
+        self.assertTrue(pattern.match(response.content))

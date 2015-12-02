@@ -65,6 +65,14 @@
                         {% endif %}
                         {% if p.reported %}
                         | {% trans "This post was reported" %}
+                          {% if is_admin %}
+                            by
+                            {% if p.reported_by %}
+                              {% full_name p.reported_by %}
+                            {% else %}
+                              {% trans "unknown" %}
+                            {% endif %}
+                          {% endif %}
                         {% endif %}
                     {% endif %}
                 </div>
