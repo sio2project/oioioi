@@ -24,6 +24,7 @@ Vagrant.configure(2) do |config|
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 8000, host: 8000 # SIO2 dev server
+  config.vm.network "forwarded_port", guest: 7887, host: 7887 # notifications-server
   config.vm.network "forwarded_port", guest: 5432, host: 8001 # postgres
 
   # Create a private network, which allows host-only access to the machine
