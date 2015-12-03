@@ -136,6 +136,19 @@ $(document).ready(function() {
     var expand = true;
     var btn = $('a#expand_messages');
     var speed = 200;
+    var message_on_expand = function(msg) {
+        if ($(msg).attr("data-is-new") == 1)
+        {
+            $.ajax({
+                 type: 'GET',
+                 url: $(msg).attr("data-visit-url"),
+            });
+
+            $(msg).removeAttr("data-visit-url");
+            $(msg).attr("data-is-new", 0);
+            $(msg).prev().find(".new-msg-label").remove();
+        }
+    };
 
     btn.text(expand_text);
     msg_buttons.attr('title', single_expand_text);
@@ -146,6 +159,7 @@ $(document).ready(function() {
             msgs.each(function() {
                 $(this).show(speed);
                 $(this).setMsgHeight();
+                message_on_expand(this);
             });
         else
             msgs.hide(speed);
@@ -176,6 +190,7 @@ $(document).ready(function() {
 
         hidden_msg.toggle(speed);
         hidden_msg.setMsgHeight();
+        message_on_expand(hidden_msg);
 
         $(this).children('i').toggleChevron();
         $(this).attr('title', $(this).attr('title') == single_expand_text ?

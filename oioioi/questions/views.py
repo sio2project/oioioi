@@ -112,6 +112,31 @@ def messages_view(request):
          'categories': get_categories(request)})
 
 
+def mark_messages_read(user, messages):
+    for m in messages:
+        try:
+            MessageView.objects.get_or_create(message=m, user=user)
+        except IntegrityError:
+            # get_or_create does not guarantee race-free execution, so we
+            # silently ignore the IntegrityError from the unique index
+            pass
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def message_visit_view(request, message_id):
+    message = get_object_or_404(Message, id=message_id,
+            contest_id=request.contest.id)
+    vmessages = visible_messages(request)
+    if message.top_reference_id is None:
+        replies = list(vmessages.filter(top_reference=message)
+                       .order_by('date'))
+    else:
+        replies = []
+    if request.user.is_authenticated():
+        mark_messages_read(request.user, [message] + replies)
+    return HttpResponse('OK', 'text/plain', 201)
+
+
 @enforce_condition(contest_exists & can_enter_contest)
 def message_view(request, message_id):
     message = get_object_or_404(Message, id=message_id,
@@ -146,13 +171,7 @@ def message_view(request, message_id):
     else:
         form = None
     if request.user.is_authenticated():
-        for m in [message] + replies:
-            try:
-                MessageView.objects.get_or_create(message=m, user=request.user)
-            except IntegrityError:
-                # get_or_create does not guarantee race-free execution, so we
-                # silently ignore the IntegrityError from the unique index
-                pass
+        mark_messages_read(request.user, [message] + replies)
     return TemplateResponse(request, 'questions/message.html',
             {'message': message, 'replies': replies, 'form': form,
                  'reply_to_id': message.top_reference_id or message.id,
