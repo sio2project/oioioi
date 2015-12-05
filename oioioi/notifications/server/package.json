@@ -8,11 +8,11 @@
   },
   "repository": "https://github.com/sio2project/oioioi/",
   "dependencies": {
-    "socket.io": "*",
-    "rabbit.js": "*",
-    "request": "*",
-    "commander": "*",
-    "prettyjson": "*"
+    "commander": "^2.9.0",
+    "prettyjson": "^1.1.3",
+    "rabbit.js": "^0.4.4",
+    "request": "^2.67.0",
+    "socket.io": "^1.3.7"
   },
   "devDependencies": {
     "mocha": "*",

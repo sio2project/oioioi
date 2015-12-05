@@ -1,4 +1,5 @@
 var request = require("request");
+var debug = require('debug')('auth');
 var queuemanager = require('./queuemanager');
 
 // maps sockets to user names
@@ -47,7 +48,8 @@ function login(socket, sessionId, onCompleted) {
 function auth(sessionId, onCompleted) {
     if (session_id_cache[sessionId]) {
         if (Date.now() < session_id_cache[sessionId].expires) {
-            console.log('User ' + session_id_cache[sessionId].user + ' logged in from cache');
+            debug('User ' + session_id_cache[sessionId].user +
+                  ' logged in from cache');
             onCompleted(session_id_cache[sessionId].user);
             return;
         }
@@ -63,7 +65,7 @@ function auth(sessionId, onCompleted) {
                     console.log('Unable to authorize user!');
                     onCompleted(null);
                 } else {
-                    console.log('Authorized user: ' + body.user);
+                    debug('Authorized user: ' + body.user);
                     session_id_cache[sessionId] = {
                         user: body.user,
                         expires: Date.now() +
@@ -103,7 +105,7 @@ function logout(socket) {
         delete users[userName][socket.dict_id];
         if (Object.keys(users[userName]).length === 0) {
             delete users[userName];
-            console.log("No more users subscribed to queue " + userName + "! " +
+            debug("No more users subscribed to queue " + userName + "! " +
                 "Unsubscribing from queue.");
             queuemanager.unsubscribe(userName);
         }

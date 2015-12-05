@@ -1,27 +1,66 @@
 var rabbit = require('rabbit.js');
+var debug = require('debug')('queuemanager');
 var EventEmitter = require('events').EventEmitter;
 var eventEmitter = new EventEmitter();
 var context;
 var workers = {};
 var unackMessages = {};
+var rabbit_ready = false;
 var QUEUE_PREFIX = '_notifs_';
+var RETRY_WAIT = 1000 * 30;
 /* Initializes the QueueManager.
-   Parameters: _context - RabbitMQ context,
+   Parameters: url - RabbitMQ url,
                onCompleted - callback called with no arguments
 */
-function init(_context, onCompleted) {
-    if (!_context) {
-        throw new TypeError();
+function init(url, onCompleted) {
+    if (!url) {
+        throw new TypeError("No rabbitmq url passed to queuemanager");
     }
-    context = _context;
 
-    context.on('ready', function() {
-        onCompleted();
-    });
-    context.on('error', function(e) {
-        console.log('RabbitMQ error!');
-        console.log(e.toString());
-    });
+    var workers_connected = Object.keys(workers);
+
+    function reconnectWorkers() {
+        debug('Reconnecting workers!');
+        workers_connected.forEach(function(id) {
+            subscribe(id);
+        });
+    }
+
+    function initContext(callback) {
+        debug('Initializing rabbitmq context');
+        workers = {};
+        unackMessages = {};
+
+        context = rabbit.createContext(url);
+
+        context.on('ready', function() {
+            console.log('Rabbit connected!');
+            rabbit_ready = true;
+            reconnectWorkers(workers_connected);
+            if (callback) {
+                callback();
+                callback = null;
+            }
+        });
+        context.on('error', function(e) {
+            console.log('RabbitMQ error!');
+            console.log(e.toString());
+            if (e.message.indexOf('CONNECTION-FORCED') > -1) {
+                rabbit_ready = false;
+                workers_connected = Object.keys(workers);
+            } else if (e.message.indexOf('ECONNREFUSED') > -1) {
+                console.log('Connection refused... Trying again');
+                setTimeout(function() { initContext(callback); }, RETRY_WAIT);
+            }
+        });
+        context.on('close', function() {
+            console.log('Rabbit closed connection! Handling error...');
+            rabbit_ready = false;
+            setTimeout(function() { initContext(callback); }, RETRY_WAIT);
+        });
+    }
+
+    initContext(onCompleted);
 }
 
 function getQueueNameForUser(userId) {
@@ -31,7 +70,8 @@ function getQueueNameForUser(userId) {
 // Subscribes to queue associated with given userId.
 // From now on, server will be notified of messages addressed to given user.
 function subscribe(userId) {
-    if (workers[userId]) {
+    debug('subscribing for ' + userId);
+    if (workers[userId] || !rabbit_ready) {
         return;
     }
     workers[userId] = context.socket('WORKER');
@@ -48,6 +88,12 @@ function subscribe(userId) {
        }
        unackMessages[userId][data.id] = data;
        eventEmitter.emit('message', userId, data);
+        debug(userId + ': recieved ' + data);
+    });
+
+    workers[userId].on('close', function() {
+        debug('deleting socket for ' + userId);
+        delete workers[userId];
     });
 }
 
@@ -57,7 +103,6 @@ function unsubscribe(userId) {
         return;
     }
     workers[userId].close();
-    delete workers[userId];
 }
 
 // Unsubscribes from all queues. I'm not sure if this is used anywhere.
@@ -75,7 +120,7 @@ function acknowledge(userId, messageId) {
         Object.keys(unackMessages[userId])[0] === messageId) {
         workers[userId].ack();
         delete unackMessages[userId][messageId];
-        console.log('Acknowledged msgid '+ messageId);
+        debug('Acknowledged msgid '+ messageId);
         return true;
     }
     return false;

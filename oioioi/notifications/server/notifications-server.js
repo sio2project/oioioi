@@ -1,4 +1,5 @@
 var http = require('http'),
+    debug = require('debug')('server'),
     io = require('socket.io'),
     rabbit = require('rabbit.js'),
     auth = require('./auth'),
@@ -27,7 +28,7 @@ function onSocketConnected(socket) {
 // Prepares socket to be used in the system.
 function configureSocket(socket) {
     socket.dict_id = last_dict_id++;
-    console.log("Connected socket " + socket.dict_id);
+    debug("Connected socket " + socket.dict_id);
     socket.on('authenticate', respond('authenticate', socket, onAuthenticateRequested));
     socket.on('ack_nots', respond('ack_nots', socket, onAckNotsRequested));
     socket.on('disconnect', onDisconnect(socket));
@@ -36,7 +37,7 @@ function configureSocket(socket) {
 // Called whenever new socket has disconnected from server.
 function onDisconnect(socket) {
     return function() {
-        console.log("Disconnected socket " + socket.dict_id);
+        debug("Disconnected socket " + socket.dict_id);
         auth.logout(socket);
     };
 }
@@ -45,9 +46,9 @@ function onDisconnect(socket) {
 function runServer(config) {
     CONFIG = config;
     auth.init(config);
-    queuemanager.init(rabbit.createContext(CONFIG.amqp), function() {
+    queuemanager.init(CONFIG.amqp, function() {
         app = http.createServer(httpRequestHandler);
-        queuemanager.on('message', onMessageReceived);
+        queuemanager.on('message', onRabbitMessage);
         io.listen(app).sockets.on('connection', onSocketConnected);
         app.listen(CONFIG.port);
         console.log('Notifications Server listening on port ' + CONFIG.port);
@@ -74,8 +75,9 @@ function respond(key, socket, handler) {
 }
 
 // Called whenever a message is received - message is an object.
-function onMessageReceived(userName, message) {
-    console.log('User ' + userName + ' sent message: ' + JSON.stringify(message));
+function onRabbitMessage(userName, message) {
+    debug('Got message from ' + userName + ' queue: ' +
+          JSON.stringify(message));
     var clients = auth.getClientsForUser(userName);
     for (var clientId in clients) {
         clients[clientId].emit("message", message);
@@ -102,9 +104,10 @@ function onAuthenticateRequested(data, _, socket, onCompleted) {
    and there are unacknowledged messages waiting for him.
  */
 function retransmitNotifications(userName) {
+    debug('Retransmitting notifications');
     var messages = queuemanager.getUnacknowledgedMessages(userName);
     for (var msgId in messages) {
-        onMessageReceived(userName, messages[msgId]);
+        onRabbitMessage(userName, messages[msgId]);
     }
 }
 
@@ -127,5 +130,5 @@ function onAckNotsRequested(nots, userName, _, onCompleted) {
 }
 
 exports.onSocketConnected = onSocketConnected;
-exports.onMessageReceived = onMessageReceived;
+exports.onRabbitMessage = onRabbitMessage;
 exports.runServer = runServer;

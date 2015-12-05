@@ -48,7 +48,7 @@ function NotificationsClient(serverUrl, sessionId) {
 NotificationsClient.prototype.constructor = NotificationsClient;
 
 NotificationsClient.prototype.notifWatchdog = function() {
-    if (!this.socket || !this.socket.socket.connected) {
+    if (!this.socket || !this.socket.connected) {
         this.setErrorState();
     }
 };
@@ -171,7 +171,7 @@ NotificationsClient.prototype.onMessageReceived = function(message, cached) {
     if (!cached) {
         this.notifCount++;
         this.updateNotifCount();
-        this.unconfirmedMessages.push(message.id);
+        this.unconfirmedMessages.push(message);
         if (message.popup && !$(this.DROPDOWN_PANEL).hasClass('open')) {
             $(this.DROPDOWN).dropdown('toggle');
         }
@@ -183,6 +183,10 @@ NotificationsClient.prototype.onMessageReceived = function(message, cached) {
 
 NotificationsClient.prototype.onAcknowledgeCompleted = function(result) {
     if (result && result.status === 'OK') {
+        this.unconfirmedMessages.forEach(function(message) {
+            $.localStorage.set("notif_" + message.date + "_" + message.id,
+                               message);
+        });
         this.notifCount = 0;
         this.updateNotifCount();
     }
@@ -190,7 +194,10 @@ NotificationsClient.prototype.onAcknowledgeCompleted = function(result) {
 
 NotificationsClient.prototype.acknowledgeMessages = function() {
     if (this.unconfirmedMessages.length > 0) {
-        this.socket.emits("ack_nots", this.unconfirmedMessages);
+        this.socket.emits("ack_nots",
+                          this.unconfirmedMessages.map(function(message) {
+                              return message.id;
+                          }));
         if (this.DEBUG) {
            console.log('Acknowledging messages: ' + JSON.stringify(this.unconfirmedMessages));
         }
@@ -215,7 +222,6 @@ MessageManager.prototype.cleanCache = function() {
 }
 
 MessageManager.prototype.onMessageReceived = function(message) {
-    $.localStorage.set("notif_" + message.date + "_" + message.id, message);
     this.client.onMessageReceived(message);
 }
 
