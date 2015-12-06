@@ -11,6 +11,7 @@ from django.contrib.admin.actions import delete_selected
 from django.contrib import messages
 from django.conf.urls import patterns, url
 from django.utils.encoding import force_unicode
+from django.db.models import Q
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link, make_html_links
@@ -360,7 +361,8 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
 
     def get_queryset(self, request):
         qs = super(ContestProblemPackageAdmin, self).get_queryset(request)
-        return qs.filter(contest=request.contest)
+        return qs.filter(Q(contest=request.contest) |
+                         Q(problem__contest=request.contest))
 
     def has_change_permission(self, request, obj=None):
         if obj:
