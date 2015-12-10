@@ -61,15 +61,10 @@ class TestPublicSolutions(TestCase):
     def _all_rounds(self):
         return datetime(2016, 1, 1, tzinfo=utc)
 
-    def assertSubmissionUrlsCount(self, string, count):
-        actual = len(re.findall(r'result_url.*"/c/c/s/\d/"', string))
-        self.assertEqual(actual, count, "Expected %d urls, got %d in: %s" %
-                (count, actual, string))
-
-    def assertSourceUrlsCount(self, string, count):
-        actual = len(re.findall(r'result_url.*"/c/c/s/\d/source/"', string))
-        self.assertEqual(actual, count, "Expected %d urls, got %d in: %s" %
-                (count, actual, string))
+    def assertUserSubmissionHTMLDataCount(self, html, username, count):
+        actual = len(re.findall(r'username.*"' + username + r'"', html))
+        self.assertEqual(actual, count, "Expected %d html data, got %d in %s" %
+                (count, actual, html))
 
     def test_solutions_in_menu(self):
         contest = Contest.objects.get()
@@ -250,14 +245,14 @@ class TestPublicSolutions(TestCase):
             url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
             response = self.client.get(url)
-            self.assertSubmissionUrlsCount(response.content, 2)
-            self.assertSourceUrlsCount(response.content, 0)
+            self.assertUserSubmissionHTMLDataCount(response.content,
+                    'test_user', 2)
 
             self.client.login(username='test_user2')
             cache.clear()
             response = self.client.get(url)
-            self.assertSubmissionUrlsCount(response.content, 0)
-            self.assertSourceUrlsCount(response.content, 1)
+            self.assertUserSubmissionHTMLDataCount(response.content,
+                    'test_user2', 0)
 
             self.client.login(username='test_user')
             request = self.client.post(change_publication_url(True, 4))
@@ -265,11 +260,11 @@ class TestPublicSolutions(TestCase):
 
             cache.clear()
             response = self.client.get(url)
-            self.assertSubmissionUrlsCount(response.content, 2)
-            self.assertSourceUrlsCount(response.content, 0)
+            self.assertUserSubmissionHTMLDataCount(response.content,
+                    'test_user', 2)
 
             self.client.login(username='test_user2')
             cache.clear()
             response = self.client.get(url)
-            self.assertSubmissionUrlsCount(response.content, 0)
-            self.assertSourceUrlsCount(response.content, 2)
+            self.assertUserSubmissionHTMLDataCount(response.content,
+                    'test_user2', 0)

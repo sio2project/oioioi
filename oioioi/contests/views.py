@@ -18,6 +18,7 @@ from django.views.decorators.http import require_POST
 from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.core.exceptions import SuspiciousOperation
+from oioioi.status import status_registry
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition
@@ -55,6 +56,12 @@ def select_contest_view(request):
 def default_contest_view(request):
     url = request.contest.controller.default_view(request)
     return HttpResponseRedirect(url)
+
+
+@status_registry.register
+def get_contest_permissions(request, response):
+    response['is_contest_admin'] = is_contest_admin(request)
+    return response
 
 
 @menu_registry.register_decorator(_("Problems"), lambda request:

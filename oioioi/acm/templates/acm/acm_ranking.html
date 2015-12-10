@@ -1,4 +1,4 @@
-{% load i18n check_perm get_user_name %}
+{% load i18n check_perm get_user_name static %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 
 {% if rows %}
@@ -32,24 +32,16 @@
                 <td class="acm_result{% if result.problem_instance.round.is_trial %} trial-round{% endif %}">
                 {% if result and result.score.problems_solved %}
                     <div class="acm_tries subm_status subm_OK">
-                        {% if result.url %}
-                            <a class="result_url" href="{{ result.url }}">
-                        {% endif %}
+                        <span class="result" data-username="{{ row.user.username }}" data-result_url="{{ result.url }}">
                             {{ result.score.penalties_count|add:"1" }}
-                        {% if result.url %}
-                            </a>
-                        {% endif %}
+                        </span>
                     </div>
                     <div class="acm_time">({{ result.score.time_passed_repr }})</div>
                 {% elif is_admin and result %}
-                    <div class="acm_tries subm_status subm_IGN"> 
-                        {% if result.url %}
-                            <a class="result_url" href="{{ result.url }}">
-                        {% endif %}
+                    <div class="acm_tries subm_status subm_IGN">
+                        <span class="result" data-username="{{ row.user.username }}" data-result_url="{{ result.url }}">
                             ({{ result.score.penalties_count }})
-                        {% if result.url %}
-                            </a>
-                        {% endif %}
+                        </span>
                     </div>
                 {% else %}
                     <div class="acm_no_score"> &#8211 </div>
@@ -64,3 +56,5 @@
     {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
 </div>
 {% endif %}
+
+<script type="text/javascript" src="{% static "rankings/ranking_links.js" %}"></script>

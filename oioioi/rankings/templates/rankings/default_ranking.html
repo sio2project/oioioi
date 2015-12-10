@@ -1,6 +1,4 @@
-{% load i18n %}
-{% load pagination_tags %}
-{% load get_user_name %}
+{% load i18n pagination_tags get_user_name static %}
 
 {% if rows %}
 <div class="paginated-list">
@@ -27,13 +25,9 @@
             <td>{% public_name row.user %}</td>
             {% for result in row.results %}
             <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >
-                {% if result.url %}
-                    <a class="result_url" href="{{ result.url }}">
-                {% endif %}
+                <span class="result" data-username="{{ row.user.username }}" data-result_url="{{ result.url }}">
                     {{ result.score|default_if_none:'' }}
-                {% if result.url %}
-                    </a>
-                {% endif %}
+                </span>
             </td>
             {% endfor %}
             <td class="text-right">{{ row.sum }}</td>
@@ -48,3 +42,5 @@
     {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
 </div>
 {% endif %}
+
+<script type="text/javascript" src="{% static "rankings/ranking_links.js" %}"></script>

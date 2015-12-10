@@ -269,11 +269,7 @@ class DefaultRankingController(RankingController):
                     submission = result.submission_report.submission
                     kwargs = {'contest_id': contest.id,
                               'submission_id': submission.id}
-                    if my_visible.filter(id=submission.id).exists():
-                        result.url = reverse('submission', kwargs=kwargs)
-                    elif controller.can_see_source(request, submission):
-                        result.url = reverse('show_submission_source',
-                                kwargs=kwargs)
+                    result.url = reverse('submission', kwargs=kwargs)
 
                 user_results.append(result)
                 if result and result.score and \

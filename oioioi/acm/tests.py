@@ -103,7 +103,8 @@ class TestACMRanking(TestCase):
 
         with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('result_url'), 2)
+            self.assertEqual(
+                response.content.count('data-username="test_user"'), 2)
 
         self.client.login(username='test_admin')
 
@@ -113,7 +114,7 @@ class TestACMRanking(TestCase):
             self.assertEqual(response.content.count('\n'), 4)
 
             response = self.client.get(url)
-            self.assertEqual(response.content.count('result_url'), 8)
+            self.assertEqual(response.content.count('data-result_url'), 8)
 
     def test_model_solution_submission_view(self):
         contest = Contest.objects.get()
