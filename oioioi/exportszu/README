@@ -1,0 +1,3 @@
+This module allows exporting submissions in a format compatible with szubrawcy, an anti-plagiarism system for programming competitions.
+
+Developer note. This module is inteded specifically for the single export format - szubrawcy, hence the name. It should be possible to extend the exporting abilities of SIO by adding more Collectors and build functions (see utils.py). If this module gets extended to support more formats, then it should be renamed. Currently there is no architecture for export formats, there is just a view and a menu option for this specific one.

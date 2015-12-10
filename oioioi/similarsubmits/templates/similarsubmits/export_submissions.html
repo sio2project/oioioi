@@ -1,0 +1,17 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Export submissions" %}{% endblock %}
+
+{% block content %}
+<h2>{% trans "Export submissions" %}</h2>
+<p> {% trans "Here you can export submissions from this contest to an archive in szubrawcy-compatible format. Please note that this feature is optimized for OI and may not work as well for other contest types." %} <p>
+<p><strong> For large contests building the archive may take a while. Please be patient.</strong></p>
+<form action={% url 'export_submissions' %} method="post" class="form-horizontal">
+	{% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-actions">
+        <input type="submit" class="btn btn-primary" value="{% trans "Download" %}">
+    </div>
+</form>
+{% endblock %}

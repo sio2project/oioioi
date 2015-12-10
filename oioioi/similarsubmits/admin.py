@@ -1,16 +1,16 @@
 from django.shortcuts import redirect
 from django.utils.encoding import force_unicode
-from oioioi.contests.utils import is_contest_admin
-from oioioi.similarsubmits.models import SubmissionsSimilarityGroup, \
-    SubmissionsSimilarityEntry
-
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Submission
+from oioioi.contests.utils import is_contest_admin
+from oioioi.similarsubmits.models import SubmissionsSimilarityGroup, \
+    SubmissionsSimilarityEntry
 
 
 class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
@@ -93,9 +93,9 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
                     'submission__problem_instance'
                 ]
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         queryset = super(SubmissionsSimilarityEntryAdmin, self) \
-            .queryset(request)
+            .get_queryset(request)
         queryset = queryset.filter(
             submission__problem_instance__contest=request.contest)
         queryset = queryset.order_by('-id')
@@ -108,7 +108,6 @@ contest_admin_menu_registry.register('submissions_similarity',
     reverse(
         'oioioiadmin:similarsubmits_submissionssimilarityentry_changelist'),
     order=100)
-
 
 class SubmisionsSimilarityEntryInline(admin.TabularInline):
     model = SubmissionsSimilarityEntry
@@ -180,9 +179,9 @@ class SubmissionsSimilarityGroupAdmin(admin.ModelAdmin):
         return super(SubmissionsSimilarityGroupAdmin, self) \
             .response_delete(request)
 
-    def queryset(self, request):
+    def get_queryset(self, request):
         queryset = super(SubmissionsSimilarityGroupAdmin, self) \
-            .queryset(request)
+            .get_queryset(request)
         queryset = queryset.filter(contest=request.contest)
         queryset = queryset.order_by('-id')
         return queryset
