@@ -1,0 +1,56 @@
+[
+  {
+    "pk": 2000,
+    "model": "auth.user",
+    "fields": {
+      "username": "UserNoFirstLast",
+      "first_name": "",
+      "last_name": "",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_nfirstlast@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2001,
+    "model": "auth.user",
+    "fields": {
+      "username": "UserNoFirst",
+      "first_name": "",
+      "last_name": "Last",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_nfirst@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2002,
+    "model": "auth.user",
+    "fields": {
+      "username": "UserNoLast",
+      "first_name": "First",
+      "last_name": "",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2012-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_nlast@example.com",
+      "date_joined": "2012-07-31T20:27:58.768Z"
+    }
+  }
+]

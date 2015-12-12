@@ -12,7 +12,7 @@ from oioioi.base.utils import jsonify, allow_cross_origin
 from oioioi.contests.models import SubmissionReport
 from oioioi.contests.utils import is_contest_observer, is_contest_admin, \
         contest_exists
-from oioioi.livedata.utils import can_see_livedata
+from oioioi.livedata.utils import can_see_livedata, get_display_name
 
 
 RESULT_FOR_FROZEN_SUBMISSION = 'FROZEN'
@@ -51,7 +51,7 @@ def livedata_teams_view(request, round_id):
     return [{
         'id': participant.user.id,
         'login': participant.user.username,
-        'name': participant.user.last_name,
+        'name': get_display_name(participant.user)
     } for participant in request.contest.participant_set.all()]
 
 
