@@ -101,6 +101,10 @@ class YouTubeWidget(object):
 
     def render(self, request, m):
         youtube_url = m.group(1).split('|')[-1].strip()
+        # We must use the embed player, so if user just copies link
+        # from the browser when he is on YT, we must transform
+        # the link in order to be able to play the movie
+        youtube_url = youtube_url.replace('watch?v=', 'embed/')
         return render_to_string('portals/widgets/youtube.html',
                                 {'youtube_url': youtube_url})
 register_widget(YouTubeWidget())
