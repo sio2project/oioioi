@@ -1,0 +1,40 @@
+[
+  {
+    "pk": "c1",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Extra test contest 1",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "c1",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": "c2",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Extra test contest 2",
+      "controller_name": "oioioi.programs.controllers.ProgrammingContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "c2",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  }
+]

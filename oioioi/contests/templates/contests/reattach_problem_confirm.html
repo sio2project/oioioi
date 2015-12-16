@@ -1,0 +1,25 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm attachement" %}{% endblock %}
+
+{% block content %}
+<div class="empty-space-filler">
+    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+        <input type="hidden" name="post" value="yes" />
+        <div class="control-group">
+                <h2>{% trans "Confirm attachement" %}</h2>
+        </div>
+        <div class="control-group">
+                <p>
+                    {% trans "You are going to attach problem" %} {{ problem_instance }}
+                    {% trans "to contest" %} {{ destination_contest }}
+                </p>
+        </div>
+        <div class="form-actions" style="padding-left: 150px; padding-right: 150px;">
+            <button type="submit" class="btn btn-primary" style="float: left">{% trans "Attach" %}</button>
+            <button type="button" class="btn" onclick="history.back()" style="float: right">{% trans "No, go back" %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

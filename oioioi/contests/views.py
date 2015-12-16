@@ -29,14 +29,16 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionForm, GetUserInfoForm
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
         SubmissionReport, ContestAttachment
+from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         can_see_personal_data, is_contest_admin, has_any_submittable_problem, \
         visible_rounds, visible_problem_instances, contest_exists, \
-        is_contest_observer, get_submission_or_error
+        is_contest_observer, get_submission_or_error, can_admin_contest
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemStatement, ProblemAttachment
 from oioioi.problems.utils import query_statement, query_zip, \
-        can_admin_problem_instance
+        can_admin_problem_instance, update_tests_from_main_pi, \
+        get_new_problem_instance
 
 
 @register_main_page_view(order=900)
@@ -358,5 +360,60 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
         return safe_redirect(request, reverse(
             'oioioiadmin:contests_probleminstance_changelist'))
 
-    return TemplateResponse(request, "contests/confirm_rejudge.html",
+    return TemplateResponse(request, 'contests/confirm_rejudge.html',
                             {'count': count})
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
+    problem_instance = get_object_or_404(ProblemInstance,
+                                         id=problem_instance_id)
+    if request.POST:
+        update_tests_from_main_pi(problem_instance)
+        messages.success(request, _("Tests limits resetted successfully"))
+        return safe_redirect(request, reverse(
+            'oioioiadmin:contests_probleminstance_changelist'))
+
+    return TemplateResponse(request, 'contests/confirm_resetting_limits.html',
+                            {'probleminstance': problem_instance})
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def reattach_problem_contest_list_view(request, problem_instance_id,
+                                       full_list=False):
+    problem_instance = get_object_or_404(ProblemInstance,
+                                         id=problem_instance_id)
+
+    if full_list:
+        contests = Contest.objects.all()
+    else:
+        contests = recent_contests(request) or Contest.objects.all()
+
+    contests = [c for c in contests if can_admin_contest(request.user, c)]
+    return TemplateResponse(request,
+                            'contests/reattach_problem_contest_list.html',
+                            {'problem_instance': problem_instance,
+                             'contest_list': contests,
+                             'full_list': full_list})
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
+    contest = get_object_or_404(Contest, id=contest_id)
+    if not can_admin_contest(request.user, contest):
+        raise PermissionDenied
+    problem_instance = get_object_or_404(ProblemInstance,
+                                         id=problem_instance_id)
+
+    if request.POST:
+        pi = get_new_problem_instance(problem_instance.problem, contest)
+        pi.short_name = None
+        pi.save()
+        messages.success(request, _(u"Problem {} added successfully."
+                                  .format(pi)))
+        return safe_redirect(request, reverse(
+            'oioioiadmin:contests_probleminstance_changelist',
+            kwargs={'contest_id': contest.id}))
+    return TemplateResponse(request, 'contests/reattach_problem_confirm.html',
+                            {'problem_instance': problem_instance,
+                             'destination_contest': contest})

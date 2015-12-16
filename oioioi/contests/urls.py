@@ -86,6 +86,10 @@ c_patterns = patterns('oioioi.contests.views',
     url(r'p/(?P<problem_instance_id>[a-z0-9_-]+)/rejudge_all',
         'rejudge_all_submissions_for_problem_view',
         name='rejudge_all_submissions_for_problem'),
+    url(r'p/(?P<problem_instance_id>[a-z0-9_-]+)/reset_limits',
+        'reset_tests_limits_for_probleminstance_view',
+        name='reset_tests_limits_for_probleminstance'),
+
     url(r'^submit/$', 'submit_view', name='submit'),
     url(r'^submissions/$', 'my_submissions_view', name='my_submissions'),
     url(r'^files/$', 'contest_files_view', name='contest_files'),
@@ -116,6 +120,14 @@ neutral_patterns = patterns('oioioi.contests.views',
         'change_submission_kind_view', name='change_submission_kind'),
     url(r'^s/(?P<submission_id>\d+)/report/(?P<report_id>\d+)/$',
         'report_view', name='report'),
+    url(r'^reattach/(?P<problem_instance_id>\d+)/contest_list/'
+        '((?P<full_list>full))?',
+        'reattach_problem_contest_list_view',
+        name='reattach_problem_contest_list'),
+    url(r'^reattach/(?P<problem_instance_id>\d+)/'
+        '(?P<contest_id>[a-z0-9_-]+)/confirm',
+        'reattach_problem_confirm_view',
+        name='reattach_problem_confirm'),
 )
 
 for app in settings.INSTALLED_APPS:

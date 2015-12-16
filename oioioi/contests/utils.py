@@ -189,11 +189,16 @@ def visible_contests(request):
     return contests
 
 
+def can_admin_contest(user, contest):
+    """Checks if the user can administer the contest."""
+    return user.has_perm('contests.contest_admin', contest)
+
+
 @make_request_condition
 @request_cached
 def is_contest_admin(request):
     """Checks if the current user can administer the current contest."""
-    return request.user.has_perm('contests.contest_admin', request.contest)
+    return can_admin_contest(request.user, request.contest)
 
 
 @make_request_condition

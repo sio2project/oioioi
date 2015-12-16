@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.admin.util import quote
+from nose.tools import nottest
 
 from oioioi.base.tests import check_not_accessible, fake_time, TestsUtilsMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
@@ -29,6 +30,7 @@ from oioioi.contests.tests import SubmitFileMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.programs.models import Test
 from oioioi.base.notification import NotificationHandler
 
 
@@ -1622,7 +1624,8 @@ class TestUserInfo(TestCase):
 
 class TestProblemInstanceView(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions']
+                'test_problem_instance', 'test_permissions',
+                'test_problem_site']
 
     def test_admin_change_view(self):
         self.client.login(username='test_admin')
@@ -1635,6 +1638,105 @@ class TestProblemInstanceView(TestCase):
         elements_to_find = ['0', '1a', '1b', '1ocen', '2', 'Example', 'Normal']
         for element in elements_to_find:
             self.assertIn(element, response.content)
+
+    @nottest
+    def separate_main_problem_instance(self):
+        # in fixtures there is only one ProblemInstance
+        # unfortunately it's already attached to contest and it's
+        # problem's main_problem_instance
+        pi = ProblemInstance.objects.get()
+        pi.id = None
+        pi.pk = None
+        pi.contest = None
+        pi.round = None
+        pi.save()
+
+        problem = Problem.objects.get()
+        problem.main_problem_instance = pi
+        problem.save()
+
+        old_instance = ProblemInstance.objects.get(contest__isnull=False)
+        for t in old_instance.test_set.all():
+            t.id = None
+            t.pk = None
+            t.problem_instance = pi
+            t.save()
+
+    def test_resetting_limits(self):
+        self.separate_main_problem_instance()
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        problem_instance = ProblemInstance.objects \
+                           .filter(contest__isnull=False)[0]
+        url = reverse('reset_tests_limits_for_probleminstance',
+                args=(problem_instance.id,))
+        for t in problem_instance.test_set.all():
+            t.delete()
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(url, data={'submit': True},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Tests limits resetted successfully", response.content)
+        self.assertEqual(problem_instance.test_set.count(),
+             problem_instance.problem.main_problem_instance.test_set.count())
+        self.assertNotEqual(problem_instance.test_set.count(), 0)
+
+
+class TestReattachingProblems(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_extra_contests',
+            'test_full_package', 'test_problem_instance', 'test_permissions',
+            'test_problem_site']
+
+    def test_reattaching_problem(self):
+        pi_id = ProblemInstance.objects.get().id
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+
+        url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Choose contest to attach problem", response.content)
+        self.assertEqual(response.content.count('<td><a'),
+                         Contest.objects.count())
+
+        url = reverse('reattach_problem_confirm', args=(pi_id, 'c2'))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Extra test contest 2", response.content)
+        self.assertContains(response, u'Sum\u017cyce')
+        self.assertIn("Attach", response.content)
+
+        response = self.client.post(url, data={'submit': True}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'c2')
+        self.assertEqual(ProblemInstance.objects.count(), 2)
+        self.assertIn(' added successfully.', response.content)
+        self.assertContains(response, u'Sum\u017cyce')
+        self.assertTrue(ProblemInstance.objects.filter(contest__id='c2')
+                        .exists())
+
+        for test in Problem.objects.get().main_problem_instance.test_set.all():
+            test.delete()
+        self.assertTrue(Test.objects.count() > 0)
+
+    def test_permissions(self):
+        pi_id = ProblemInstance.objects.get().id
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        urls = [reverse('reattach_problem_contest_list', args=(pi_id,)),
+                reverse('reattach_problem_confirm', args=(pi_id, 'c1'))]
+        for url in urls:
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+        self.client.login(username='test_user')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        for url in urls:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 403)
 
 
 class TestModifyContest(TestCase):

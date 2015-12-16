@@ -132,15 +132,17 @@ def update_tests_from_main_pi(problem_instance):
         test.save()
 
 
-def get_new_problem_instance(problem):
+def get_new_problem_instance(problem, contest=None):
     """Returns a deep copy of problem.main_problem_instance,
         with an independent set of test. Returned ProblemInstance
-        is already saved and contains model solutions copied
+        is already saved and contains model solutions.
     """
     pi = problem.main_problem_instance
     pi.id = None
     pi.pk = None
     pi.short_name = None
+    pi.contest = contest
+    pi.round = None
     pi.save()
     update_tests_from_main_pi(pi)
     return pi

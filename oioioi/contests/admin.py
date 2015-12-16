@@ -272,16 +272,27 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('problem_site',
                        args=(instance.problem.problemsite.url_key,))
 
+    def _reset_limits_href(self, instance):
+        return reverse('reset_tests_limits_for_probleminstance',
+                       args=(instance.id,))
+
+    def _reattach_problem_href(self, instance):
+        return reverse('reattach_problem_contest_list', args=(instance.id,))
+
     def inline_actions(self, instance):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(instance.id,))
         models_href = self._model_solutions_href(instance)
         assert ProblemSite.objects.filter(problem=instance.problem).exists()
         site_href = self._problem_site_href(instance)
+        limits_href = self._reset_limits_href(instance)
+        reattach_href = self._reattach_problem_href(instance)
         result = [
             (move_href, self.probleminstance_change_link_name()),
             (models_href, _("Model solutions")),
             (site_href, _("Problem site")),
+            (limits_href, _("Reset tests limits")),
+            (reattach_href, _("Attach to another contest"))
         ]
         if instance.needs_rejudge:
             rejudge_all_href = self \
