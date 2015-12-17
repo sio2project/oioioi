@@ -25,7 +25,7 @@ class ExclusivenessConfigManager(models.Manager):
         condition = Q(start_date__lte=timestamp, end_date__isnull=True) \
             | Q(start_date__lte=timestamp, end_date__gte=timestamp)
         condition &= Q(enabled=True)
-        return self.get_query_set().filter(condition)
+        return self.get_queryset().filter(condition)
 
     def get_active_between(self, start, end):
         if not (end is None or start <= end):
@@ -34,7 +34,7 @@ class ExclusivenessConfigManager(models.Manager):
         neg_condition |= Q(enabled=False)
         if end is not None:
             neg_condition |= Q(start_date__gt=end)
-        return self.get_query_set().exclude(neg_condition)
+        return self.get_queryset().exclude(neg_condition)
 
 
 @date_registry.register('start_date',

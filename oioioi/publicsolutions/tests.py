@@ -76,13 +76,15 @@ class TestPublicSolutions(TestCase):
 
         with fake_time(self._no_public_rounds()):
             response = self.client.get(dashboard_url)
-            self.assertNotIn(self._href(solutions_url), response.content)
+            self.assertNotIn(self._href(solutions_url).encode('utf-8'),
+                response.content)
             response = self.client.get(solutions_url)
             self.assertEqual(403, response.status_code)
 
         with fake_time(self._rounds_14()):
             response = self.client.get(dashboard_url)
-            self.assertIn(self._href(solutions_url), response.content)
+            self.assertIn(self._href(solutions_url).encode('utf-8'),
+                response.content)
             response = self.client.get(solutions_url)
             self.assertEqual(200, response.status_code)
 
@@ -122,11 +124,13 @@ class TestPublicSolutions(TestCase):
                     if id in good_ids:
                         self.assertIn(str(sb.problem_instance), r.content)
                         self.assertIn(str(sb.user.get_full_name()), r.content)
-                        self.assertIn(self._href(show_source_url(id)),
-                                r.content)
+                        self.assertIn(
+                            self._href(show_source_url(id)).encode('utf-8'),
+                            r.content)
                     else:
-                        self.assertNotIn(self._href(show_source_url(id)),
-                                r.content)
+                        self.assertNotIn(
+                            self._href(show_source_url(id)).encode('utf-8'),
+                            r.content)
                         if not category:
                             self.assertNotIn(str(sb.problem_instance),
                                     r.content)
@@ -202,9 +206,15 @@ class TestPublicSolutions(TestCase):
                 sb = Submission.objects.get(pk=id)
                 if id in good_ids:
                     self.assertIn(sb.get_date_display(), r.content)
-                    self.assertIn(self._href(show_source_url(id)), r.content)
-                    self.assertIn((change_publication_url(way, id)), r.content)
-                    self.assertIn(self._href(submission_url(id)), r.content)
+                    self.assertIn(
+                        self._href(show_source_url(id)).encode('utf-8'),
+                        r.content)
+                    self.assertIn(
+                        change_publication_url(way, id).encode('utf-8'),
+                        r.content)
+                    self.assertIn(
+                        self._href(submission_url(id)).encode('utf-8'),
+                        r.content)
                 else:
                     self.assertNotIn(sb.get_date_display(), r.content)
 

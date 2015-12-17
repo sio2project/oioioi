@@ -12,6 +12,7 @@ from oioioi.base.utils import ObjectWithMixins
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.middleware import activate_contest
 from oioioi.contests.models import Contest
+from oioioi.base.utils.loaders import load_modules
 
 
 class ExclusiveContestsMiddleware(ObjectWithMixins):
@@ -133,8 +134,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             'username': request.user.username
         }
 
-# This import causes adding all mixins to ExclusiveContestMiddleware.
+# This causes adding all mixins to ExclusiveContestMiddleware.
 # This is needed as middlewares are instantiated before importing
 # INSTALLED_APPS, so mixins would be late.
-# pylint: disable=unused-import
-import oioioi.participants
+load_modules('middleware')

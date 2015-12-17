@@ -86,7 +86,7 @@ class SimilarityDisqualificationMixin(object):
                              submissions__guilty=True)
         similarities = SubmissionsSimilarityGroup.objects \
             .filter(q_expression) \
-            .select_related('submissions')
+            .prefetch_related('submissions')
         if not similarities:
             return prev
 

@@ -7,13 +7,11 @@ from django.http import HttpResponseRedirect, Http404
 from django.utils.encoding import force_unicode, force_text
 from django.utils.html import escape
 from django.contrib.admin import helpers
-from django.contrib.admin.util import unquote
-from django.contrib.admin.utils import model_ngettext, NestedObjects
+from django.contrib.admin.utils import unquote, model_ngettext, NestedObjects
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from django.contrib.admin.options import RenameBaseModelAdminMethods
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import capfirst
 from django.contrib import messages
@@ -29,7 +27,7 @@ TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline
 
 
-class ModelAdminMeta(RenameBaseModelAdminMethods, ClassInitMeta):
+class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
     pass
 
 
@@ -65,7 +63,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             return HttpResponseRedirect(reverse('admin:index',
                                             current_app=self.admin_site.name))
         return HttpResponseRedirect(reverse('admin:%s_%s_changelist' %
-                                    (opts.app_label, opts.module_name),
+                                    (opts.app_label, opts.model_name),
                                     current_app=self.admin_site.name))
 
     def delete_view(self, request, object_id, extra_context=None):
@@ -179,7 +177,7 @@ def delete_selected(modeladmin, request, queryset):
         title = _("Are you sure?")
 
     context = dict(
-        modeladmin.admin_site.each_context(),
+        modeladmin.admin_site.each_context(request),
         title=title,
         objects_name=objects_name,
         deletable_objects=[to_delete],
@@ -217,6 +215,7 @@ def collect_deleted_objects(modeladmin, request, queryset):
        to the class of items contained in the ``queryset``.
     """
     db_backend = router.db_for_write(queryset.first().__class__)
+    # NestedObjects is undocumented API, can blow up at any time
     collector = NestedObjects(using=db_backend)
     collector.collect(queryset)
 
@@ -301,6 +300,7 @@ class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
     def activate_user(self, request, qs):
         qs.update(is_active=True)
     activate_user.short_description = _("Mark users as active")
+
 
 site.register(User, OioioiUserAdmin)
 

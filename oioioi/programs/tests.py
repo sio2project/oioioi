@@ -236,7 +236,7 @@ class TestDiffView(TestCase):
         kwargs2 = {'contest_id': submission.problem_instance.contest.id,
                    'submission1_id': submission2.id,
                    'submission2_id': submission.id}
-        self.assertIn(reverse('source_diff', kwargs=kwargs2),
+        self.assertIn(reverse('source_diff', kwargs=kwargs2).encode('utf-8'),
                 response.content)
         response = self.client.get(reverse('source_diff', kwargs=kwargs2))
         self.assertEqual(response.status_code, 200)

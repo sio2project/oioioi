@@ -92,7 +92,7 @@ class TestRankingViews(TestCase):
             self.assertRedirects(response, get_url_found_user(user, page))
 
         # Login as someone who is in the ranking
-        user_num = 6
+        user_num = 6  # a users list index
         self.client.login(username=users[user_num].username)
         response = self.client.get(
                 get_url_for_user(user_not_in_ranking.username))

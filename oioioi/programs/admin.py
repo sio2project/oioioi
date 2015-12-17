@@ -203,7 +203,8 @@ class ModelSubmissionAdminMixin(object):
     def get_list_select_related(self):
         return super(ModelSubmissionAdminMixin, self) \
                 .get_list_select_related() \
-                + ['programsubmission', 'modelprogramsubmission']
+                + ['programsubmission',
+                   'programsubmission__modelprogramsubmission']
 
 SubmissionAdmin.mix_in(ModelSubmissionAdminMixin)
 

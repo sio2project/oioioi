@@ -6,7 +6,3 @@
    and dictionary ``response`` -- output of previous functions,
    alter ``response`` and return it.
 """
-from oioioi.base.menu import OrderedRegistry
-
-
-status_registry = OrderedRegistry()

@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.test import TestCase
 
 from oioioi.contests.models import Contest
-from oioioi.status import status_registry
+from oioioi.status.registry import status_registry
 
 
 def _coding_status(request, response):

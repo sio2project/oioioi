@@ -30,7 +30,7 @@ from oioioi.problems.models import ProblemSite
 
 class ContestProxyAdminSite(admin.AdminSite):
     def __init__(self, orig):
-        super(ContestProxyAdminSite, self).__init__(orig.name, orig.app_name)
+        super(ContestProxyAdminSite, self).__init__(orig.name)
         self._orig = orig
 
     def register(self, model_or_iterable, admin_class=None, **options):

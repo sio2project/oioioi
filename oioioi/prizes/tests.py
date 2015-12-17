@@ -83,7 +83,7 @@ class TestPrizes(TestCase):
                             kwargs={'contest_id': contest.id})
 
         response = self.client.get(dashboard_url)
-        self.assertNotIn(prizes_url, response.content)
+        self.assertNotIn(prizes_url.encode('utf-8'), response.content)
         response = self.client.get(prizes_url)
         self.assertEqual(403, response.status_code)
 
@@ -93,7 +93,7 @@ class TestPrizes(TestCase):
         pg.save()
 
         response = self.client.get(dashboard_url)
-        self.assertIn(prizes_url, response.content)
+        self.assertIn(prizes_url.encode('utf-8'), response.content)
         response = self.client.get(prizes_url)
         self.assertEqual(200, response.status_code)
 

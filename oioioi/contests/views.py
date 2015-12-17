@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from django.http import Http404
 from django.utils.safestring import mark_safe
 from django.core.exceptions import SuspiciousOperation
-from oioioi.status import status_registry
+from oioioi.status.registry import status_registry
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import not_anonymous, enforce_condition

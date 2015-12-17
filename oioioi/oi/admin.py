@@ -120,12 +120,18 @@ class SchoolAdmin(admin.ModelAdmin):
             return None
         approved = approved[0]
 
-        # http://stackoverflow.com/questions/3393378/django-merging-objects
-        related = approved._meta.get_all_related_objects()
+        # https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-old-meta-api
+        def get_all_related_objects(modelObj):
+            return [
+                f for f in modelObj._meta.get_fields()
+                if (f.one_to_many or f.one_to_one) and f.auto_created
+            ]
 
+        # http://stackoverflow.com/questions/3393378/django-merging-objects
+        related = get_all_related_objects(approved)
         valnames = dict()
         for r in related:
-            valnames.setdefault(r.model, []).append(r.field.name)
+            valnames.setdefault(r.related_model, []).append(r.field.name)
 
         for s in toMerge:
             for model, field_names in valnames.iteritems():

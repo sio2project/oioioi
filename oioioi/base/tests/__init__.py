@@ -89,14 +89,6 @@ def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     testcase.assertIn(response.status_code, (403, 404))
 
 
-def clear_template_cache():
-    from django.template.loader import template_source_loaders
-    if template_source_loaders:
-        for l in template_source_loaders:
-            if isinstance(l, CachedLoader):
-                l.reset()
-
-
 class TestsUtilsMixin(object):
     def assertAllIn(self, elems, container, msg=None):
         """Checks that ``container`` contains all ``elems``."""

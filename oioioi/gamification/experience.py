@@ -324,7 +324,7 @@ class ProblemExperienceSource(DBCachedByKeyExperienceSource):
                     'submission_report',
                     'submission_report__submission',
                     'submission_report__submission'
-                        '__problem__problemdifficulty'
+                        '__problem_instance__problem__problemdifficulty'
                 ).all()
 
         self._recalculate_results(results)
@@ -337,7 +337,7 @@ class ProblemExperienceSource(DBCachedByKeyExperienceSource):
                     'submission_report',
                     'submission_report__submission',
                     'submission_report__submission'
-                        '__problem__problemdifficulty'
+                        '__problem_instance__problem__problemdifficulty'
                 ).all()
 
         self._recalculate_results(results)

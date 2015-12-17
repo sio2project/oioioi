@@ -37,7 +37,7 @@ class TestAutoAuthorization(TestCase):
 
     def _assertBackend(self, response, user):
         session = self.client.session
-        self.assertEqual(session['_auth_user_id'], user.id)
+        self.assertEqual(session['_auth_user_id'], unicode(user.id))
         self.assertEqual(session['_auth_user_backend'],
                          'oioioi.ipdnsauth.backends.IpDnsBackend')
 

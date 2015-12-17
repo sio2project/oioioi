@@ -10,15 +10,15 @@ import functools
 import weakref
 import urllib
 from contextlib import contextmanager
+from importlib import import_module
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 from django.template import Template, Context
 from django.template.response import TemplateResponse
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
-from django.utils.importlib import import_module
 from django.utils.translation import ugettext_lazy as _
 
 

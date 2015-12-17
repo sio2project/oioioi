@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import subprocess
 import logging
+from importlib import import_module
 
 from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate
 from django.http import HttpResponseRedirect
@@ -23,7 +24,6 @@ from django.test.client import RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.template import Context, Template
 from django.forms import ValidationError
-from django.utils.importlib import import_module
 from django.core.handlers.wsgi import WSGIRequest
 from django.forms.fields import CharField, IntegerField
 
@@ -42,7 +42,6 @@ from oioioi.base.notification import NotificationHandler
 from oioioi.base.middleware import UserInfoInErrorMessage
 from oioioi.base.main_page import register_main_page_view, \
         unregister_main_page_view
-from oioioi.base.tests import clear_template_cache
 
 
 if not getattr(settings, 'TESTS', False):
@@ -140,9 +139,6 @@ class TestIndexNoContest(TestCase):
         response = self.client.get('/')
         self.assertIn('navbar-login', response.content)
 
-    def tearDown(self):
-        clear_template_cache()
-
 
 class TestMainPage(TestCase):
     fixtures = ('test_users',)
@@ -163,9 +159,6 @@ class TestMainPage(TestCase):
 
         unregister_main_page_view(inaccessible)
         unregister_main_page_view(accessible)
-
-    def tearDown(self):
-        clear_template_cache()
 
 
 class TestOrderedRegistry(TestCase):
@@ -340,19 +333,19 @@ class TestErrorHandlers(TestCase):
         self.client.login(username='test_admin')
         req = self.client.get(reverse('force_error')).request
         mid.process_exception(req, ForcedError())
-        self.assertIn('test_admin', repr(req))
-        self.assertIn("""'IS_AUTHENTICATED': 'True'""", repr(req))
+        self.assertEqual(req.META['USERNAME'], 'test_admin')
+        self.assertEqual(req.META['IS_AUTHENTICATED'], 'True')
 
         self.client.login(username='test_user')
         req = self.client.get(reverse('force_error')).request
         mid.process_exception(req, ForcedError())
-        self.assertIn('test_user', repr(req))
-        self.assertIn("""'IS_AUTHENTICATED': 'True'""", repr(req))
+        self.assertEqual(req.META['USERNAME'], 'test_user')
+        self.assertEqual(req.META['IS_AUTHENTICATED'], 'True')
 
         self.client.logout()
         req = self.client.get(reverse('force_error')).request
         mid.process_exception(req, ForcedError())
-        self.assertIn("""'IS_AUTHENTICATED': 'False'""", repr(req))
+        self.assertEqual(req.META['IS_AUTHENTICATED'], 'False')
 
 
 class TestUtils(unittest.TestCase):
@@ -972,71 +965,70 @@ class TestLoginChange(TestCase):
         self.valid_logins = ['test_user', 'user', 'uSeR', 'U__4']
         self.user = User.objects.get(username='test_user')
         self.client.login(username=self.user.username)
+        self.client.get('/', follow=True)
+        self.url_index = reverse('index')
+        self.url_edit_profile = reverse('edit_profile')
 
     def test_message(self):
-        url_index = reverse('index')
-
         for l in self.invalid_logins:
             self.user.username = l
             self.user.save()
 
-            response = self.client.get(url_index, follow=True)
+            response = self.client.get(self.url_index, follow=True)
             self.assertIn('contains not allowed characters', response.content)
 
         for l in self.valid_logins:
             self.user.username = l
             self.user.save()
 
-            response = self.client.get(url_index, follow=True)
+            response = self.client.get(self.url_index, follow=True)
             self.assertNotIn('contains not allowed characters',
                     response.content)
 
-    def test_login_change(self):
-        self.client.get('/', follow=True)
-        url_index = reverse('index')
-        url_edit_profile = reverse('edit_profile')
-
+    def test_can_change_login_from_invalid(self):
         for l in self.invalid_logins:
             self.user.username = l
             self.user.save()
 
-            response = self.client.get(url_edit_profile)
+            response = self.client.get(self.url_edit_profile)
+            # The html strings underneath may change with any django upgrade.
             self.assertIn('<input id="id_username" maxlength="30" name='
                     '"username" type="text" value="%s" />' % l,
                     response.content)
 
-            self.client.post(url_edit_profile, {'username': 'valid_user'},
+            self.client.post(self.url_edit_profile, {'username': 'valid_user'},
                     follow=True)
             self.assertEqual(self.user.username, l)
 
-            response = self.client.post(url_index, follow=True)
+            response = self.client.post(self.url_index, follow=True)
             self.assertNotIn('contains not allowed characters',
                     response.content)
 
-            response = self.client.get(url_edit_profile)
+            response = self.client.get(self.url_edit_profile)
             self.assertIn('<input id="id_username" maxlength="30" name='
-                    '"username" readonly="True" type="text"'
-                    ' value="valid_user" />', response.content)
+                    '"username" type="text"'
+                    ' value="valid_user" readonly />', response.content)
 
+    def test_login_cannot_change_from_valid(self):
         for l in self.valid_logins:
             self.user.username = l
             self.user.save()
 
-            response = self.client.get(url_edit_profile)
+            response = self.client.get(self.url_edit_profile)
             self.assertIn('<input id="id_username" maxlength="30" name='
-                    '"username" readonly="True" type="text" value="%s" />'
+                    '"username" type="text" value="%s" readonly />'
                     % l, response.content)
 
-            response = self.client.post(url_edit_profile,
+            response = self.client.post(self.url_edit_profile,
                     {'username': 'valid_user'}, follow=True)
             self.assertEqual(self.user.username, l)
             self.assertIn('You cannot change your username.', response.content)
 
-            response = self.client.get(url_index, follow=True)
+            response = self.client.get(self.url_index, follow=True)
             self.assertNotIn('contains not allowed characters',
                     response.content)
 
-            response = self.client.get(url_edit_profile)
+            response = self.client.get(self.url_edit_profile)
             self.assertNotIn('valid_user', response.content)
 
     def test_failed_login_change(self):

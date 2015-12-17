@@ -24,14 +24,15 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django>=1.7.4,<1.8",
+        "Django>=1.8.9,<1.9",
         "pytz>=2013b",
         "sqlalchemy",
         "BeautifulSoup",
         "PyYAML",
         "python-dateutil",
-        "django-nose>=1.3",
-        "nose-picker",
+        # Earlier versions of django-nose are incompatible with Django 1.8
+        "django-nose>=1.4",
+        "nose-picker>=0.5.3",
 
         # The newer version changes API of RegistrationForm, causing the
         # following error:
@@ -47,20 +48,14 @@ setup(
         "linaro-django-pagination",
         "django-compressor>=1.4,<1.6",
         "django-grappelli>=2.6,<2.7",
-        "django-overextends",
+        "django-overextends>=0.4.1",
         "pygments",
 
-        "django-debug-toolbar",
+        "django-debug-toolbar>=1.4",
         "django-extensions>=1.0.0",
         "werkzeug",
 
-        # pylint: disable=line-too-long
-        # Old versions have buggy coverage reports generation, raising
-        # an exception like this:
-        #
-        #  IOError: [Errno 13] Permission denied: '/usr/share/pyshared/PIL/__init__.py,cover'
-        #
-        "nose >= 1.1",
+        "nose >= 1.3",
 
         "nose-capturestderr",
         "nose-html",

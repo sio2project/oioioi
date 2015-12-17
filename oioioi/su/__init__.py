@@ -9,13 +9,8 @@
    *effective* user, which may be also a pitfall if some code stores
    there data directly connected with current user scope.
 """
-from django.contrib.auth.backends import ModelBackend
-from django.utils.translation import ugettext_lazy as _
 
 
 SU_UID_SESSION_KEY = 'su_effective_user_id'
 SU_BACKEND_SESSION_KEY = 'su_effective_backend'
 
-# Modify django default backend to meet our needs
-ModelBackend.supports_authentication = True
-ModelBackend.description = _("Password authentication")

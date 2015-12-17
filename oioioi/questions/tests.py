@@ -136,7 +136,7 @@ class TestQuestions(TestCase):
         self.assertNotIn('the-new-question', response.content)
         self.assertNotIn('the-new-body', response.content)
         response = self.client.get(list_url)
-        self.assertIn(repl_url, response.content)
+        self.assertIn(repl_url.encode('utf-8'), response.content)
         self.assertIn('re-new-question', response.content)
         self.assertNotIn('the-new-question', response.content)
 
@@ -147,7 +147,7 @@ class TestQuestions(TestCase):
         self.assertIn('the-new-body', response.content)
         self.assertIn('re-new-body', response.content)
         response = self.client.get(list_url)
-        self.assertIn(q_url, response.content)
+        self.assertIn(q_url.encode('utf-8'), response.content)
         self.assertIn('re-new-question', response.content)
         self.assertNotIn('the-new-question', response.content)
 

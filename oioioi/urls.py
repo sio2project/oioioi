@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.conf.urls import patterns, include, url
-from django.utils.importlib import import_module
+from importlib import import_module
 from django.contrib import admin as django_admin
 
 from oioioi.base import registration_backend

@@ -16,7 +16,7 @@ class TestNotifications(TestCase):
         })
         resp_obj = json.loads(response.content)
         self.assertEqual(resp_obj['status'], 'OK')
-        self.assertEqual(resp_obj['user'], 1001)
+        self.assertEqual(resp_obj['user'], u'1001')
         self.client.logout()
         response = self.client.post(url, {
             'nsid': '123123122'

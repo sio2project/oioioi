@@ -242,11 +242,11 @@ class TestFriends(TestCase):
 
         result_a = friends1.is_friends_with(u2)
         result_b = friends2.is_friends_with(u1)
-        self.assertEquals(result_a, result_b)
-        self.assertEquals(result_a,
-             u1 in friends2.friends.select_related('user').all())
-        self.assertEquals(result_a,
-             u2 in friends1.friends.select_related('user').all())
+
+        # sanity checks
+        self.assertEquals(result_a, result_b)  # symmetrical
+        self.assertEquals(result_a, u1 in friends2.friends.all())
+        self.assertEquals(result_a, u2 in friends1.friends.all())
 
         return result_a
 

@@ -122,7 +122,8 @@ class CurrentContestMiddleware(object):
             # We still allow the request to continue, because
             # it could be a static URL.
             return
-
+        if not res.url_name:
+            return
         nonglobal = False
         if res.namespaces and res.namespaces[0] == 'noncontest':
             # It certainly isn't a global url because it has

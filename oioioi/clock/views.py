@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.redirect import safe_redirect
 
 from oioioi.contests.models import Round
-from oioioi.status import status_registry
+from oioioi.status.registry import status_registry
 from oioioi.su.utils import is_real_superuser
 
 

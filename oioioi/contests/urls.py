@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
-from django.utils.importlib import import_module
+from importlib import import_module
 
 from oioioi.contests import admin
 
