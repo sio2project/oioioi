@@ -73,6 +73,17 @@ class RegistrationModel(models.Model):
         pass
 
 
+class OpenRegistration(RegistrationModel):
+    terms_accepted = models.BooleanField(_("terms accepted"),
+        help_text=_("I declare that I have read the contest rules and "
+                    "the technical arrangements. I fully understand them and "
+                     "accept them unconditionally."), default=False)
+
+    def erase_data(self):
+        self.terms_accepted = False
+        self.save()
+
+
 @nottest
 class TestRegistration(RegistrationModel):
     """Used only for testing"""

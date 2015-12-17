@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from oioioi.participants.models import Participant
+from oioioi.participants.models import Participant, OpenRegistration
 from oioioi.contests.models import Round
 
 
@@ -18,6 +18,17 @@ class ParticipantForm(forms.ModelForm):
             raise ValidationError(_("%s is already a participant"
                     " of this contest.") % self.cleaned_data['user'].username)
         return self.cleaned_data['user']
+
+
+class OpenRegistrationForm(forms.ModelForm):
+    class Meta(object):
+        model = OpenRegistration
+        exclude = ['participant']
+
+    def clean_terms_accepted(self):
+        if not self.cleaned_data['terms_accepted']:
+            raise ValidationError(_("Terms not accepted"))
+        return True
 
 
 class ExtendRoundForm(forms.Form):

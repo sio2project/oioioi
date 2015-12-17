@@ -17,7 +17,9 @@ from oioioi.contests.models import SubmissionReport, Submission, \
 from oioioi.acm.score import BinaryScore, format_time, ACMScore
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         rounds_times
-from oioioi.participants.controllers import ParticipantsController
+from oioioi.participants.controllers import ParticipantsController, \
+        OpenParticipantsController
+from oioioi.participants.utils import is_participant
 
 
 IGNORED_STATUSES = ['CE', 'SE', '?']
@@ -165,6 +167,23 @@ class ACMContestController(ProgrammingContestController):
             return True
         rtimes = self.get_round_times(request, round)
         return rtimes.is_active(request.timestamp)
+
+
+class ACMOpenContestController(ACMContestController):
+    description = _("ACM style contest (open)")
+
+    def registration_controller(self):
+        return OpenParticipantsController(self.contest)
+
+    def can_submit(self, request, problem_instance, check_round_times=True):
+        if request.user.is_anonymous():
+            return False
+        if request.user.has_perm('contests.contest_admin', self.contest):
+            return True
+        if not is_participant(request):
+            return False
+        return super(ACMOpenContestController, self) \
+                .can_submit(request, problem_instance, check_round_times)
 
 
 class _FakeUserResultForProblem(object):

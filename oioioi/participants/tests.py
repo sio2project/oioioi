@@ -1,3 +1,4 @@
+import json
 import os
 from datetime import datetime
 from django.test import TestCase
@@ -15,7 +16,8 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.contests.current_contest import ContestMode
 from oioioi.participants.controllers import ParticipantsController
-from oioioi.participants.models import Participant, TestRegistration
+from oioioi.participants.models import Participant, TestRegistration, \
+    OpenRegistration
 from oioioi.participants.management.commands import import_participants
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.oi.controllers import OIContestController, OIRegistrationController
@@ -199,6 +201,48 @@ class TestParticipantsRegistration(TestCase):
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
         self.assertEqual(Participant.objects.count(), 1)
+
+
+class TestOpenParticipantsRegistration(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def setUp(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.acm.controllers.ACMOpenContestController'
+        contest.save()
+        self.reg_data = {
+            'terms_accepted': 'y',
+        }
+
+    def test_participants_registration(self):
+        contest = Contest.objects.get()
+        user = User.objects.get(username='test_user')
+        url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertContains(response, 'Terms accepted')
+
+        user.first_name = 'Sir Lancelot'
+        user.last_name = 'du Lac'
+        user.save()
+
+        response = self.client.post(url, self.reg_data)
+        self.assertEquals(302, response.status_code)
+
+        registration = OpenRegistration.objects.get(participant__user=user)
+        self.assertTrue(registration.terms_accepted)
+
+    def test_contest_info(self):
+        contest = Contest.objects.get()
+        user = User.objects.get(username='test_user')
+        p = Participant(contest=contest, user=user)
+        p.save()
+        OpenRegistration(participant_id=p.id, **self.reg_data).save()
+        url = reverse('contest_info', kwargs={'contest_id': contest.id})
+        data = json.loads(self.client.get(url).content)
+        self.assertEquals(data['users_count'], 1)
 
 
 class NoAdminParticipantsRegistrationController(ParticipantsController):
