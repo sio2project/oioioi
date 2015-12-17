@@ -917,10 +917,8 @@ class TestBaseViews(TestCase):
             # callback_func should be called already
         finally:
             PreferencesSaved.disconnect(callback_func)
-            PreferencesFactory.clear_all_fields()
-
-
-
+            PreferencesFactory.remove_field('dog')
+            PreferencesFactory.remove_field('answer')
 
 
 class TestBackendMiddleware(TestCase):

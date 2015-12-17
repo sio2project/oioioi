@@ -55,9 +55,11 @@ class PreferencesFactory(object):
         })
 
     @staticmethod
-    def clear_all_fields():
-        """Clears the additional fields from preferences"""
-        PreferencesFactory._additional_fields = []
+    def remove_field(field_name):
+        """Removes field with given name."""
+        for field in PreferencesFactory._additional_fields[:]:
+            if field['name'] == field_name:
+                PreferencesFactory._additional_fields.remove(field)
 
     def create_form(self, user, *args, **kwargs):
         """Returns a form with all the additional fields which can then be

@@ -65,11 +65,12 @@ class CodeSharingFriendsController(ObjectWithMixins):
 
         @transaction.atomic
         def on_preferences_saved(sender, **kwargs):
-            obj, created = CodeSharingSettings.get_or_create(
-                user=sender.user
-            )
-            obj.code_share_allowed = sender.cleaned_data['code_sharing']
-            obj.save()
+            if 'code_sharing' in sender.cleaned_data:
+                obj, created = CodeSharingSettings.objects.get_or_create(
+                    user=sender.instance
+                )
+                obj.code_share_allowed = sender.cleaned_data['code_sharing']
+                obj.save()
 
         CodeSharingController.mix_in(CodeSharingFriendsController)
         PreferencesFactory.add_field(
@@ -80,7 +81,10 @@ class CodeSharingFriendsController(ObjectWithMixins):
                     "solutions"),
             required=False
         )
-        PreferencesSaved.connect(on_preferences_saved)
+        # django.dispatch.Signal stores callback function with weak reference
+        # by default - and because we pass there local function it is
+        # immediately garbage collected; we need to turn off weak reference.
+        PreferencesSaved.connect(on_preferences_saved, weak=False)
 
     def can_see_code(self, task, user_requester, user_sharing):
         if not UserFriends(user_requester).is_friends_with(user_sharing):

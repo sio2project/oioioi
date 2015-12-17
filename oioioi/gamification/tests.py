@@ -17,7 +17,7 @@ from oioioi.gamification.difficulty import DIFFICULTY, get_problem_difficulty,\
 from oioioi.gamification.friends import UserFriends, FriendshipRequest,\
     FriendshipRequestSent, FriendshipRequestAccepted,\
     FriendshipRequestRefused, FriendshipEnded
-from oioioi.gamification.models import ProblemDifficulty
+from oioioi.gamification.models import ProblemDifficulty, CodeSharingSettings
 from oioioi.gamification.profile import profile_section, profile_registry
 from oioioi.gamification.controllers import CodeSharingController
 from oioioi.problems.models import Problem
@@ -741,3 +741,37 @@ class DifficultyTest(TestCase):
 
         hard_result = list(get_problems_by_difficulty(DIFFICULTY.HARD).all())
         self.assertEqual(hard_result, [])
+
+
+class TestEditProfile(TestCase):
+    fixtures = ['gamification_users.json']
+
+    def setUp(self):
+        user = User.objects.get(username='test_user')
+        CodeSharingSettings.objects.get_or_create(user=user)
+
+    def test_edit_code_sharing_false(self):
+        self.client.login(username='test_user')
+        url = reverse('edit_profile')
+        response = self.client.get(url)
+
+        data = {'username': 'test_user', 'first_name': 'fn',
+                'last_name': 'ln', 'email': 'foo@bar.com',
+                'code_sharing': False}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        settings = CodeSharingSettings.objects.get(user__username='test_user')
+        self.assertEqual(settings.code_share_allowed, False)
+
+    def test_edit_code_sharing_true(self):
+        self.client.login(username='test_user')
+        url = reverse('edit_profile')
+        response = self.client.get(url)
+
+        data = {'username': 'test_user', 'first_name': 'fn',
+                'last_name': 'ln', 'email': 'foo@bar.com',
+                'code_sharing': True}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        settings = CodeSharingSettings.objects.get(user__username='test_user')
+        self.assertEqual(settings.code_share_allowed, True)
