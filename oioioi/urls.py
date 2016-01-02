@@ -22,6 +22,9 @@ urlpatterns = patterns('',
 for app in settings.INSTALLED_APPS:
     if app.startswith('oioioi.'):
         try:
+            # Django imports views lazily, and sice there are some decorators
+            # that have to run, all views need to be imported at startup
+            import_module(app + '.views')
             urls_module = import_module(app + '.urls')
             if hasattr(urls_module, 'urlpatterns'):
                 urlpatterns += getattr(urls_module, 'urlpatterns')

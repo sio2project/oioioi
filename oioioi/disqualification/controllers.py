@@ -11,8 +11,6 @@ from oioioi.contests.controllers import submission_template_context, \
     ContestController
 from oioioi.rankings.controllers import DefaultRankingController
 
-import oioioi.disqualification.views  # pylint: disable=unused-import
-
 
 class DisqualificationContestControllerMixin(object):
     def is_submission_disqualified(self, submission):
