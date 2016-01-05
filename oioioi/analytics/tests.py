@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.test.utils import override_settings
 
-
 class TestAnalytics(TestCase):
     def test_without_analytics(self):
         response = self.client.get('/', follow=True)

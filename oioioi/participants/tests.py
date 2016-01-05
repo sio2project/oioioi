@@ -285,7 +285,7 @@ class TestParticipantsModelAdmin(TestCase):
 class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
                                                        ContestIdViewCheckMixin
                                                        ):
-    urls = 'oioioi.contests.test_urls'
+    urls = 'oioioi.contests.tests.test_urls'
     fixtures = ['test_users', 'test_two_empty_contests']
 
     def setUp(self):

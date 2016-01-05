@@ -7,7 +7,6 @@ from oioioi.ipdnsauth.models import IpToUser, DnsToUser
 import socket
 import os
 
-
 @override_settings(AUTHENTICATION_BACKENDS=AUTHENTICATION_BACKENDS +
                    ('oioioi.ipdnsauth.backends.IpDnsBackend',))
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +

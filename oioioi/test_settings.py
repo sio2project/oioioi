@@ -75,6 +75,7 @@ NOSE_ARGS += (
 NOSE_PLUGINS = [
     'oioioi.base.tests.nose_plugins.ClearCache',
     'oioioi.contests.tests.nose_plugins.ClearCurrentContest',
+    'picker.nose_plugin.NosePicker'
 ]
 
 SECRET_KEY = 'no_secret'

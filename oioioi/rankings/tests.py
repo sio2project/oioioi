@@ -28,9 +28,9 @@ class TestRankingViews(TestCase):
             'test_problem_instance', 'test_submission', 'test_extra_rounds',
             'test_ranking_data', 'test_permissions']
 
-    @override_settings(PARTICIPANTS_ON_PAGE=10)
+    @override_settings(PARTICIPANTS_ON_PAGE=3)
     def test_find_user(self):
-        number_of_users = 100  # this test will create that number of users
+        number_of_users = 7  # this test will create that number of users
         per_page = settings.PARTICIPANTS_ON_PAGE
         contest = Contest.objects.get()
         pis = ProblemInstance.objects.get(id=1)
@@ -92,7 +92,7 @@ class TestRankingViews(TestCase):
             self.assertRedirects(response, get_url_found_user(user, page))
 
         # Login as someone who is in the ranking
-        user_num = 34
+        user_num = 6
         self.client.login(username=users[user_num].username)
         response = self.client.get(
                 get_url_for_user(user_not_in_ranking.username))

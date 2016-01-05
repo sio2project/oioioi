@@ -31,6 +31,7 @@ setup(
         "PyYAML",
         "python-dateutil",
         "django-nose>=1.3",
+        "nose-picker",
 
         # The newer version changes API of RegistrationForm, causing the
         # following error:
