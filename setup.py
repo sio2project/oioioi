@@ -76,7 +76,7 @@ setup(
 
         "django-gravatar2",
 
-        "django-mptt",
+        "django-mptt<0.8.0",
 
         "mistune",
 
