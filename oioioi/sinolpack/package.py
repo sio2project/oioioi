@@ -69,6 +69,25 @@ def _make_filename(env, base_name):
     return '%s/%s-%s' % (env['unpack_dir'], env['job_id'], base_name)
 
 
+# Removes files from zip file by creating new zip file with all
+# the files except the files to remove. Then the old file is removed.
+# It has to be done like this because zipfile module doesn't
+# implement function to delete file.
+def _remove_from_zip(zipfname, *filenames):
+    tempdir = tempfile.mkdtemp()
+    try:
+        tempname = os.path.join(tempdir, 'new.zip')
+        with zipfile.ZipFile(zipfname, 'r') as zipread:
+            with zipfile.ZipFile(tempname, 'a') as zipwrite:
+                for item in zipread.infolist():
+                    if item.filename not in filenames:
+                        data = zipread.read(item.filename)
+                        zipwrite.writestr(item, data)
+        shutil.move(tempname, zipfname)
+    finally:
+        shutil.rmtree(tempdir)
+
+
 class SinolPackage(object):
     controller_name = 'oioioi.sinolpack.controllers.SinolProblemController'
     package_backend_name = 'oioioi.sinolpack.package.SinolPackageBackend'
@@ -255,6 +274,30 @@ class SinolPackage(object):
 
         htmlzipfile = os.path.join(docdir, self.short_name + 'zad.html.zip')
         if os.path.isfile(htmlzipfile):
+            with zipfile.ZipFile(htmlzipfile, 'r') as archive, \
+                 archive.open('index.html') as index:
+
+                data = index.read()
+                # First, we check if index.html is utf-8 encoded.
+                # If it is - nothing to do.
+                try:
+                    data.decode('utf8')
+                # We accept iso-8859-2 encoded files, but django doesn't
+                # so index.html has to be translated to utf-8.
+                except UnicodeDecodeError:
+                    try:
+                        data = data.decode('iso-8859-2').encode('utf8')
+                    except (UnicodeDecodeError, UnicodeEncodeError):
+                        raise ProblemPackageError(
+                          _("index.html has to be utf8 or iso8859-2 encoded"))
+                    # We have to remove index.html from the archive and
+                    # then add the translated file to archive because
+                    # zipfile module doesn't implement editing files
+                    # inside archive.
+                    _remove_from_zip(htmlzipfile, 'index.html')
+                    with zipfile.ZipFile(htmlzipfile, 'a') as new_archive:
+                        new_archive.writestr('index.html', data)
+
             statement = ProblemStatement(problem=self.problem)
             statement.content.save(self.short_name + '.html.zip',
                     File(open(htmlzipfile, 'rb')))
