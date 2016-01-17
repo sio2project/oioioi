@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'newsfeed/newsfeed.css' %}" />
+
+{% if request.user.is_superuser %}
+<div class="news-item">
+    <p><a href="{% url 'add_news' %}">{% trans "Add news" %}</a></p>
+</div>
+{% endif %}
+{% for news_item in news_list %}
+    {% include 'newsfeed/widgets/news.html' with news=news_item request=request %}
+{% endfor %}

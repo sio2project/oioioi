@@ -1,0 +1,16 @@
+{% extends "simple-centered-wide.html" %}
+{% load i18n %}
+
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'newsfeed/newsfeed.css' %}" />
+
+{% block content %}
+
+{% if request.user.is_superuser %}
+<p class="news-add-link"><a href="{% url 'add_news' %}">{% trans "Add news" %}</a></p>
+{% endif %}
+{% for news_item in news_list %}
+    {% include 'newsfeed/widgets/news.html' with news=news_item request=request %}
+{% endfor %}
+
+{% endblock %}

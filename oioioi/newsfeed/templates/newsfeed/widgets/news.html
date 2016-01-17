@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load staticfiles %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'newsfeed/newsfeed.css' %}" />
+
+<div class="news-item">
+    <span class="news-date">
+         {{ news.date }}
+         {% if request.user.is_superuser %}
+         | <a href="{% url 'edit_news' news.id %}">Edit</a>
+         | <a href="{% url 'delete_news' news.id %}"
+            onclick="return confirm('{% trans "Are you sure you want to delete" %} \'{{ news.title }}\'?')">
+            Delete
+           </a>
+         {% endif %}
+     </span>
+    <h3 class="news-title">{{ news.title }}</h3>
+    <p class="news-content">{{ news.content }}</p>
+</div>
