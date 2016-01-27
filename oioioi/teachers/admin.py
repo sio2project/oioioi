@@ -49,7 +49,12 @@ class ContestAdminMixin(object):
         return super(ContestAdminMixin, self).has_add_permission(request)
 
     def save_model(self, request, obj, form, change):
-        if not request.user.is_superuser:
+        # Superusers are allowed to add contest of any type.
+        # Teachers may only add TeacherContests. The type should be
+        # set only if the contest is created - if it's modified we
+        # don't want to change the current type.
+        if request.user.has_perm('teachers.teacher') and \
+                (not change and not request.user.is_superuser):
             obj.controller_name = \
                     'oioioi.teachers.controllers.TeacherContestController'
         super(ContestAdminMixin, self).save_model(request, obj, form, change)

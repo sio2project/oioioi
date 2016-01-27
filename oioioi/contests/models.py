@@ -41,6 +41,9 @@ class Contest(models.Model):
             verbose_name=_("ID"), validators=[validate_db_string_id])
     name = models.CharField(max_length=255, verbose_name=_("full name"),
                             validators=[validate_whitespaces])
+    # The controller_name field is deliberately lacking default value. This
+    # ensures that the contest type is explicitly set when persisting
+    # an object to the database.
     controller_name = DottedNameField(
             'oioioi.contests.controllers.ContestController',
             verbose_name=_("type"))

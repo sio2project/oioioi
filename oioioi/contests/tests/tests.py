@@ -1635,3 +1635,57 @@ class TestProblemInstanceView(TestCase):
         elements_to_find = ['0', '1a', '1b', '1ocen', '2', 'Example', 'Normal']
         for element in elements_to_find:
             self.assertIn(element, response.content)
+
+
+class TestModifyContest(TestCase):
+    fixtures = ['test_users']
+
+    # Verifies that contest's type remains intact when its data (start date,
+    # end date, name etc.) changes.
+    # For more info see SIO-1711 on Jira.
+    def test_modify_contest(self):
+        controller_name = \
+                    'oioioi.programs.controllers.ProgrammingContestController'
+
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:contests_contest_add')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        post_data = {
+                'name': 'Yet Another Contest',
+                'id': 'yac',
+                'start_date_0': '2012-02-03',
+                'start_date_1': '04:05:06',
+                'end_date_0': '2012-02-04',
+                'end_date_1': '05:06:07',
+                'results_date_0': '2012-02-05',
+                'results_date_1': '06:07:08',
+                'controller_name': controller_name
+        }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('was added successfully', response.content)
+        contest = Contest.objects.get()
+        self.assertEqual(controller_name, contest.controller_name)
+        ContestPermission(user=User.objects.get(pk=1001), contest=contest,
+            permission='contests.contest_admin').save()
+
+        self.client.login(username='test_user')
+        url = reverse('oioioiadmin:contests_contest_change',
+                args=(quote('yac'),)) + '?simple=true'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        post_data = {
+                'name': 'New Name',
+                'start_date_0': '2013-02-03',
+                'start_date_1': '14:05:06',
+                'end_date_0': '2013-02-04',
+                'end_date_1': '15:06:07',
+                'results_date_0': '2013-02-05',
+                'results_date_1': '16:07:08',
+        }
+        response = self.client.post(url, post_data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        contest = Contest.objects.get()
+        self.assertEqual(contest.id, 'yac')
+        self.assertEqual(controller_name, contest.controller_name)
