@@ -144,6 +144,7 @@ MIDDLEWARE_CLASSES = (
     'oioioi.base.middleware.CheckLoginMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'oioioi.maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 DEBUG_TOOLBAR_CONFIG = {
@@ -183,6 +184,7 @@ INSTALLED_APPS = (
     'oioioi.clock',
     'oioioi.dashboard',
     'oioioi.base',
+    'oioioi.maintenancemode',
 
     'djcelery',
     'kombu.transport.django',
@@ -443,3 +445,12 @@ SIOWORKERS_LISTEN_PORT = 7890
 # When set to None the default url will be created using the pattern
 # http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
 SIOWORKERS_LISTEN_URL = None
+
+# Maintenance mode settings
+CONTEST_PREFIX_RE = '^(/c/[a-z0-9_-]+)?'
+MAINTENANCE_MODE_REDIRECT_URL = '/maintenance/'
+MAINTENANCE_MODE_IGNORE_URLS = [
+    CONTEST_PREFIX_RE + MAINTENANCE_MODE_REDIRECT_URL + '$',
+    CONTEST_PREFIX_RE + '/login/$',
+    CONTEST_PREFIX_RE + '/logout/$',
+]

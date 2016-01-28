@@ -1,0 +1,10 @@
+{% extends "simple-centered.html" %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="empty-space-filler">
+    <p>{% trans "Sorry, the site is under maintenance." %}</p>
+    <p>{{ message }}</p>
+</div>
+{% endblock %}

@@ -1,4 +1,4 @@
-{% load i18n check_perm all_with_prefix menu get_clocks get_su get_user_info_form %}
+{% load i18n check_perm all_with_prefix menu get_clocks get_su get_user_info_form get_maintenance_state %}
 
 <div id="main-navbar" class="navbar navbar-fixed-top navbar-inverse {% if request.session.admin_time %} admin-time-set {% endif %}{% if is_under_su %} under-su{% endif %} {% block navbar-class %}{% endblock %}">
     <noscript><div class="js-disabled-info">{% trans "OIOIOI works properly only if javascript is enabled." %}</div></noscript>
@@ -74,6 +74,12 @@
                 <a href="#" id="navbar-username" class="dropdown-toggle {% if avatar %}has-avatar{% endif %}" data-toggle="dropdown">
                     {% if real_user.is_superuser %}
                         <span id="su-label" class="label label-inverse"{% if not is_under_su %} style="display: none"{% endif %}>{% trans "Switched user" %}</span>
+                    {% endif %}
+                    {% if user.is_superuser %}
+                    {% is_maintenance_enabled as enabled %}
+                    {% if enabled %}
+                        <span id="maintenance-label" class="label label-inverse">{% trans "Maintenance Mode is ON" %}</span>
+                    {% endif %}
                     {% endif %}
                     {% if avatar %}<img alt="avatar" width="25" height="25" src="{{ avatar }}">{% endif %}
                     <strong id="username">{{ user.username }}</strong>
