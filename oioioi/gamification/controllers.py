@@ -87,12 +87,16 @@ class CodeSharingFriendsController(ObjectWithMixins):
         PreferencesSaved.connect(on_preferences_saved, weak=False)
 
     def can_see_code(self, task, user_requester, user_sharing):
+        if not user_requester.is_authenticated():
+            return False
         if not UserFriends(user_requester).is_friends_with(user_sharing):
             return False
         return (CodeSharingSettings.objects.sharing_allowed(user_sharing) and
                 self._has_submission(task, user_sharing))
 
     def all_shared_with_me(self, user):
+        if not user.is_authenticated():
+            return Submission.objects.none()
         allowed_sharing = UserFriends(user).friends
         if CODE_SHARING_PREFERENCES_DEFAULT is True:
             allowed_sharing = allowed_sharing.exclude(
@@ -185,6 +189,9 @@ class TaskSuggestionController(ObjectWithMixins):
         """Returns a problem object as a suggestion for the user or None if no
            suggestion can be returned
         """
+        if not user.is_authenticated():
+            return None
+
         user_level = Experience(user).current_level
 
         if user_level >= SuggestLvl5From:
