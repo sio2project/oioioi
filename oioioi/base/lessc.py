@@ -23,7 +23,10 @@ def find_staticfiles_path(fs_path):
                 "static directories" % (fs_path,))
     return longest_good
 
-LESS_IMPORT_RE = re.compile(r'^\s*@import\s*[\'"]([^\'"]*)', re.I | re.M)
+LESS_IMPORT_RE = re.compile(
+    r'^\s*@import\s*(?:\(.*\)|\s*)\s*[\'"]([^\'"]*)',
+    re.I | re.M
+)
 
 
 def collect_sources(tmp_dir, staticfiles_path):
