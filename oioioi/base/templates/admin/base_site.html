@@ -40,6 +40,11 @@
 
 {% block title %}{{ title }} - {% blocktrans %}{{ site_name }} Admin{% endblocktrans %}{% endblock %}
 
+{% block messages %}
+    {% all_with_prefix extra_admin_ %}
+    {{ block.super }}
+{% endblock %}
+
 {% block navigation %}
     {% include "admin/includes_grappelli/header.html" %}
 {% endblock %}

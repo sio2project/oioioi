@@ -57,7 +57,7 @@ directory::
 
   ./manage.py collectstatic
 
-You'll also need lessc (a `LESS`_ compiler, **minimum version 1.3.3**).
+You'll also need lessc (a `LESS`_ compiler, **minimum version 1.5.0**).
 First you need to install node.js with npm as described in `their documentation`_,
 then install less; either globally as root::
 

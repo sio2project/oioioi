@@ -51,6 +51,7 @@ INSTALLED_APPS = (
     'oioioi.prizes',
     'oioioi.mailsubmit',
     'oioioi.gamification',
+    'oioioi.globalmessage',
     'oioioi.portals',
     'oioioi.workers',
 ) + INSTALLED_APPS
@@ -58,6 +59,7 @@ INSTALLED_APPS = (
 TEMPLATE_CONTEXT_PROCESSORS += (
     'oioioi.contestlogo.processors.logo_processor',
     'oioioi.contestlogo.processors.icon_processor',
+    'oioioi.globalmessage.processors.global_message_processor',
 )
 
 AUTHENTICATION_BACKENDS += (
