@@ -107,7 +107,7 @@ def join_processes(args, tmp_dir, processes):
 def main():
     parser = argparse.ArgumentParser(
                     description='Runs OIOIOI tests in parallel')
-    parser.add_argument('--total-processes', default=0,
+    parser.add_argument('--total-processes', default=0, type=int,
                         help='How many runners to use (0 = use 2/3 of cores)')
     parser.add_argument('--html-file', default='test_report.html',
                         help='Name of the html output file')
