@@ -1,6 +1,12 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+# We need Facter in order to determine processor architecture.
+unless Vagrant.has_plugin?("facter")
+    system "vagrant plugin install facter"
+    exec "vagrant #{ARGV.join(' ')}"
+end
+
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
 # backwards compatibility). Please don't change it unless you know what
@@ -12,7 +18,21 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "ubuntu/trusty64"
+
+  processor = Facter.value(:processor0)
+  architecture = Facter.value(:architecture)
+  if architecture.include? "i386" or processor.include? "AMD"
+    # Obviously, we need 32-bit system if we have 32-bit processor.
+    # Less obviously, there is a bug on 64-bit AMD processors with 64-bit
+    # guest that results in system error while running solutions.
+    # Similar issues:
+    # https://groups.google.com/forum/#!msg/snipersim/gbGr1VbM2aw/xywdv0ZILL0J
+    # https://groups.yahoo.com/neo/groups/pinheads/conversations/topics/9404
+    # https://github.com/olimpiada/oitimetool-bin/issues/1
+    config.vm.box = "ubuntu/trusty32"
+  else
+    config.vm.box = "ubuntu/trusty64"
+  end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
