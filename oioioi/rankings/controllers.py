@@ -7,7 +7,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_unicode, force_str
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -75,10 +76,10 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
                                                request.GET.get('page', 1))
 
         with CacheGenerator(ranking_cache_key, ranking_cache_group) as cg:
-            f = (lambda: self.render_ranking(request, key))
+            f = (lambda: force_str(self.render_ranking(request, key)))
             html = cg.get_cached_obj(f, settings.RANKING_CACHE_TIMEOUT)
 
-        return html
+        return mark_safe(html)
 
     def render_ranking(self, request, key):
         raise NotImplementedError
