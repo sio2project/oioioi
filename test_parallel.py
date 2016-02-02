@@ -60,9 +60,12 @@ class HtmlCollector(object):
 
     def __unicode__(self):
         """Outputs an HTML string with all parsed information"""
-        return self.html_header + \
-               '\n'.join(self.rows) + \
-               self.html_footer
+        if not self.html_header:
+            return ''
+        else:
+            return self.html_header + \
+                   '\n'.join(self.rows) + \
+                   self.html_footer
 
 
 def spawn_processes(args, tmp_dir, nose_args, env):
