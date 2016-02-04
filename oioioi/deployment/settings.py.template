@@ -217,6 +217,7 @@ INSTALLED_APPS = (
 #    'oioioi.portals',
 #    'oioioi.gamification',
 #    'oioioi.globalmessage',
+#    'oioioi.newsfeed',
 ) + INSTALLED_APPS
 
 # Set to True to show the link to the problemset with contests on navbar.
