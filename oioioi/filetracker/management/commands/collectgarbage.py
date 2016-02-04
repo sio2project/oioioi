@@ -36,7 +36,7 @@ class Command(BaseCommand):
                 if len(file_fields) > 0:
                     files = model.objects.all().values_list(*file_fields)
                     result.extend([split_name(file)[0] for file in itertools.
-                                  chain.from_iterable(files)])
+                                  chain.from_iterable(files) if file])
         return result
 
     def handle(self, *args, **options):
