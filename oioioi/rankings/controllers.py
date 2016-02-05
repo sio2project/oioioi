@@ -255,21 +255,13 @@ class DefaultRankingController(RankingController):
                 'sum': None
             }
 
-            submissions = Submission.objects.filter(
-                    problem_instance__contest=contest)
-            if is_contest_admin(request) or is_contest_observer(request):
-                my_visible = submissions
-            else:
-                my_visible = controller.filter_my_visible_submissions(request,
-                        submissions)
-
             for pi in pis:
                 result = by_user_row.get(pi.id)
                 if result and hasattr(result, 'submission_report') and \
-                        hasattr(result.submission_report, 'submission'):
-                    submission = result.submission_report.submission
+                        hasattr(result.submission_report, 'submission_id'):
+                    submission_id = result.submission_report.submission_id
                     kwargs = {'contest_id': contest.id,
-                              'submission_id': submission.id}
+                              'submission_id': submission_id}
                     result.url = reverse('submission', kwargs=kwargs)
 
                 user_results.append(result)
