@@ -18,6 +18,9 @@ class Command(BaseCommand):
             default=DEFAULT_SANDBOXES_MANIFEST,
             help="Specifies URL with the Manifest file listing available "
                 "sandboxes"),
+        make_option('-c', '--cache-dir', metavar='DIR', dest='cache_dir',
+            default=None,
+            help="Load cached sandboxes from a local directory"),
         make_option('-d', '--download-dir', metavar='DIR', dest='download_dir',
             default="sandboxes-download",
             help="Temporary directory where the downloaded files will be "
@@ -77,17 +80,24 @@ class Command(BaseCommand):
 
         print >> self.stdout, "--- Preparing ..."
         urls = []
+        cached_args = []
         for arg in args:
+            basename = arg + '.tar.gz'
+            if options['cache_dir']:
+                path = os.path.join(options['cache_dir'], basename)
+                if os.path.isfile(path):
+                    cached_args.append(arg)
+                    continue
             if arg not in manifest:
                 raise CommandError("Sandbox '%s' not available (not in "
                         "Manifest)" % (arg,))
-            urls.append(urlparse.urljoin(manifest_url, arg + '.tar.gz'))
+            urls.append(urlparse.urljoin(manifest_url, basename))
 
         filetracker = get_client()
 
-        dir = options['download_dir']
-        if not os.path.exists(dir):
-            os.makedirs(dir)
+        download_dir = options['download_dir']
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
 
         try:
             execute([options['wget'], '--version'])
@@ -95,22 +105,28 @@ class Command(BaseCommand):
             raise CommandError("Wget not working. Please specify a working "
                     "Wget binary using --wget option.")
 
-        print >> self.stdout, "--- Downloading sandboxes ..."
+        if len(urls) > 0:
+            print >> self.stdout, "--- Downloading sandboxes ..."
 
-        quiet_flag = '-nv' if options['quiet'] else ''
-        execute([options['wget'], '-N', '-i', '-', quiet_flag],
-                stdin='\n'.join(urls), capture_output=False, cwd=dir)
+            quiet_flag = ['-nv'] if options['quiet'] else []
+            execute([options['wget'], '-N', '-i', '-'] + quiet_flag,
+                    stdin='\n'.join(urls), capture_output=False,
+                    cwd=download_dir)
 
         print >> self.stdout, "--- Saving sandboxes to the Filetracker ..."
         for arg in args:
             basename = arg + '.tar.gz'
-            local_file = os.path.join(dir, basename)
+            if arg in cached_args:
+                local_file = os.path.join(options['cache_dir'], basename)
+            else:
+                local_file = os.path.join(download_dir, basename)
             print >> self.stdout, " ", basename
             filetracker.put_file('/sandboxes/' + basename, local_file)
-            os.unlink(local_file)
+            if arg not in cached_args:
+                os.unlink(local_file)
 
         try:
-            os.rmdir(dir)
+            os.rmdir(download_dir)
         except OSError:
             print >> self.stdout, "--- Done, but couldn't remove the " \
                     "downloads directory."
