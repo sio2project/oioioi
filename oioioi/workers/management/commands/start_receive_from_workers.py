@@ -36,9 +36,15 @@ class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write('OK')
 
 
+class Server(SocketServer.TCPServer):
+    # See SIO-1741 and
+    # https://docs.python.org/2/library/socketserver.html#SocketServer.BaseServer.allow_reuse_address
+    allow_reuse_address = True
+
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
         Handler = ServerHandler
-        httpd = SocketServer.TCPServer((settings.SIOWORKERS_LISTEN_ADDR,
+        httpd = Server((settings.SIOWORKERS_LISTEN_ADDR,
             settings.SIOWORKERS_LISTEN_PORT), Handler)
         httpd.serve_forever()
