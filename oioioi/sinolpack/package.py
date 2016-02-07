@@ -638,9 +638,9 @@ class SinolPackage(object):
                     instance.exe_file = checker
                     instance.save()
                     break
-        if not checker:
-            instance.exe_file = None
-            instance.save()
+            if not checker:
+                instance.exe_file = None
+                instance.save()
 
     def _process_model_solutions(self):
         ModelSolution.objects.filter(problem=self.problem).delete()

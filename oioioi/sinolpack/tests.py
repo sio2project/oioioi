@@ -225,7 +225,7 @@ class TestSinolPackage(TestCase):
         self.assertEqual(tests.count(), 6)
 
         checker = OutputChecker.objects.get(problem=problem)
-        self.assertIsNotNone(checker.exe_file)
+        self.assertTrue(bool(checker.exe_file))
 
         extra_files = ExtraFile.objects.filter(problem=problem)
         self.assertEqual(extra_files.count(), 1)
