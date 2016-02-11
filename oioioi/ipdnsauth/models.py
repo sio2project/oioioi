@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from oioioi.base.utils.deps import check_django_app_dependencies
+
+
+check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
 
 
 class IpToUser(models.Model):

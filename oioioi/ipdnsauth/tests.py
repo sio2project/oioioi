@@ -1,55 +1,65 @@
-from django.test import TestCase
-from django.contrib.auth.models import User
-from django.test.utils import override_settings
-from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE_CLASSES
-from oioioi.ipdnsauth.management.commands.ipdnsauth import Command
-from oioioi.ipdnsauth.models import IpToUser, DnsToUser
+from datetime import datetime
 import socket
 import os
 
+from django.test import TestCase
+from django.contrib.auth.models import User
+from django.test.utils import override_settings
+from django.utils.timezone import utc
+
+from oioioi.base.tests import fake_time
+from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE_CLASSES
+from oioioi.contests.models import Contest
+from oioioi.contestexcl.models import ExclusivenessConfig
+from oioioi.ipdnsauth.management.commands.ipdnsauth import Command
+from oioioi.ipdnsauth.models import IpToUser, DnsToUser
+
+
 @override_settings(AUTHENTICATION_BACKENDS=AUTHENTICATION_BACKENDS +
-                   ('oioioi.ipdnsauth.backends.IpDnsBackend',))
+        ('oioioi.ipdnsauth.backends.IpDnsBackend',))
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
-                   ('oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',))
+        ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
+         'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',))
 class TestAutoAuthorization(TestCase):
-    fixtures = ['test_users']
+    fixtures = ['test_users', 'test_two_empty_contests']
 
     def setUp(self):
         self.test_user = User.objects.get(username='test_user')
         self.test_user2 = User.objects.get(username='test_user2')
 
+        ex_conf = ExclusivenessConfig()
+        ex_conf.contest = Contest.objects.get(id='c1')
+        ex_conf.start_date = datetime(2012, 1, 1, 10, tzinfo=utc)
+        ex_conf.end_date = datetime(2012, 1, 1, 14, tzinfo=utc)
+        ex_conf.save()
+
+    def _assertBackend(self, user):
+        with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
+            self.client.get('/c/c1/id')
+            session = self.client.session
+            self.assertEqual(session['_auth_user_id'], unicode(user.id))
+            self.assertEqual(session['_auth_user_backend'],
+                             'oioioi.ipdnsauth.backends.IpDnsBackend')
+
     def test_ip_authentication(self):
         self.test_user.iptouser_set.create(ip_addr='127.0.0.1')
         self.test_user2.dnstouser_set.create(dns_name='localhost')
-        response = self.client.get('/')
-        self._assertBackend(response, self.test_user)
+        self._assertBackend(self.test_user)
 
     def test_ipv4packing_authentication(self):
         self.test_user.iptouser_set.create(ip_addr='::ffff:127.0.0.1')
-        response = self.client.get('/')
-        self._assertBackend(response, self.test_user)
+        self._assertBackend(self.test_user)
 
     def test_reverse_dns_authentication(self):
         self.test_user2.dnstouser_set.create(
             dns_name=socket.getfqdn('localhost'))
-        response = self.client.get('/')
-        self._assertBackend(response, self.test_user2)
-
-    def _assertBackend(self, response, user):
-        session = self.client.session
-        self.assertEqual(session['_auth_user_id'], unicode(user.id))
-        self.assertEqual(session['_auth_user_backend'],
-                         'oioioi.ipdnsauth.backends.IpDnsBackend')
+        self._assertBackend(self.test_user2)
 
 
 def _test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
 
 
-@override_settings(AUTHENTICATION_BACKENDS=AUTHENTICATION_BACKENDS +
-                   ('oioioi.ipdnsauth.backends.IpDnsBackend',))
-@override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
-                   ('oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',))
 class TestIpDnsManagement(TestCase):
     fixtures = ['test_users']
 

@@ -36,7 +36,7 @@ class IpDnsAuthMiddleware(object):
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware
 class ForceDnsIpAuthMiddleware(object):
-    """Middleware which allows only IP/DNS login for participants for
+    """Middleware which allows only IP/DNS login for participants of
        on-site contests."""
 
     def process_view(self, request, view_func, view_args, view_kwargs):
@@ -58,14 +58,16 @@ class ForceDnsIpAuthMiddleware(object):
                 " earlier in MIDDLEWARE_CLASSES.")
         if not request.contest:
             return
+        if not hasattr(request, 'contest_exclusive'):
+            raise ImproperlyConfigured(
+                "The ForceDnsIpAuthMiddleware middleware requires the"
+                " 'oioioi.contextexcl.middleware.ExclusiveContestsMiddleware'"
+                " earlier in MIDDLEWARE_CLASSES.")
+        if not request.contest_exclusive:
+            return
         if not request.contest.controller.is_onsite():
             return
         if not request.user.is_authenticated():
-            return
-        if is_contest_admin(request):
-            return
-        if not Participant.objects.filter(
-                user=request.user, contest=request.contest, status='ACTIVE'):
             return
         backend_path = request.user.backend
         if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':
