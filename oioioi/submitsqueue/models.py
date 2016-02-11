@@ -24,5 +24,6 @@ class QueuedSubmit(models.Model):
     creation_date.short_description = _("Creation date")
 
     class Meta(object):
-        verbose_name = _("Queued Submit")
+        verbose_name = _("Queued submission")
+        verbose_name_plural = _("Queued submissions")
         ordering = ['pk']
