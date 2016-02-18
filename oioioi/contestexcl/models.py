@@ -50,7 +50,11 @@ class ExclusivenessConfig(models.Model):
        ``end_date``.
     """
     contest = models.OneToOneField(Contest)
-    enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
+    enabled = models.BooleanField(
+        default=True,
+        verbose_name=_("enabled"),
+        help_text=_("Caution! If you'll disable exclusiveness and you are " +
+        "not superadmin you won't be able to enable it again!"))
     start_date = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True,

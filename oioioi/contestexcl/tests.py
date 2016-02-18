@@ -1,8 +1,9 @@
 from datetime import datetime
 from django.core import mail
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.test.utils import override_settings
 from django.utils.timezone import utc
+from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import fake_time
 from oioioi.contestexcl.models import ExclusivenessConfig
@@ -21,6 +22,75 @@ class ContestIdViewCheckMixin(object):
         response = self.client.get('/c/' + contest_id + '/id/')
         self.assertEqual(response.status_code, 302)
         self.assertIn(where, response['Location'])
+
+
+@override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
+    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',))
+class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
+    urls = 'oioioi.contests.tests.test_urls'
+    fixtures = ['test_permissions', 'test_users', 'test_contest']
+
+    def setUp(self):
+        self.c = Contest.objects.get(id='c')
+
+        self.user = Client()
+        self.admin = Client()
+        self.contestadmin = Client()
+
+        self.user.login(username='test_user')
+        self.admin.login(username='test_admin')
+        self.contestadmin.login(username='test_contest_admin')
+
+        self.url = reverse('admin:contests_contest_change', args=[self.c.id])
+
+    def test_no_exclusiveness(self):
+        response = self.user.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        response = self.admin.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Exclusiveness configs', response.content)
+
+        response = self.contestadmin.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Exclusiveness configs', response.content)
+
+    def test_exclusiveness_on(self):
+        ex_conf = ExclusivenessConfig()
+        ex_conf.contest = self.c
+        ex_conf.start_date = datetime(2012, 1, 1, 10, tzinfo=utc)
+        ex_conf.end_date = datetime(2012, 1, 1, 14, tzinfo=utc)
+        ex_conf.save()
+
+        response = self.user.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        response = self.admin.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Exclusiveness configs', response.content)
+
+        response = self.contestadmin.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Exclusiveness configs', response.content)
+
+    def test_exclusiveness_off(self):
+        ex_conf = ExclusivenessConfig()
+        ex_conf.contest = self.c
+        ex_conf.start_date = datetime(2012, 1, 1, 10, tzinfo=utc)
+        ex_conf.end_date = datetime(2012, 1, 1, 14, tzinfo=utc)
+        ex_conf.enabled = False
+        ex_conf.save()
+
+        response = self.user.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        response = self.admin.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Exclusiveness configs', response.content)
+
+        response = self.contestadmin.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Exclusiveness configs', response.content)
 
 
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +

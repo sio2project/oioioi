@@ -14,15 +14,23 @@ class ExclusivenessConfigInline(admin.TabularInline):
 
     def get_readonly_fields(self, request, obj=None):
         if obj and not request.user.is_superuser:
-            return self.readonly_fields + ('enabled', 'start_date', 'end_date')
+            return self.readonly_fields + ('start_date', 'end_date')
         return ()
 
     def has_add_permission(self, request):
         return request.user.is_superuser
 
     def has_change_permission(self, request, obj=None):
-        # Protected by parent ModelAdmin and get_readonly_fields
-        return True
+        if request.user.is_superuser:
+            return True
+        if obj is None:
+            return True
+        # Other users can only disable exclusiveness if it's enabled, the rest
+        # of the fields is protected by get_readonly_fields
+        return \
+            (obj.exclusivenessconfig.enabled if
+            obj is not None and hasattr(obj, 'exclusivenessconfig')
+            else False)
 
     def has_delete_permission(self, request, obj=None):
         return request.user.is_superuser

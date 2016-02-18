@@ -1,6 +1,6 @@
 [
   {
-    "pk": 1003,
+    "pk": 1103,
     "model": "auth.user",
     "fields": {
       "username": "test_observer",
@@ -18,7 +18,7 @@
     }
   },
     {
-        "pk": 1004,
+        "pk": 1104,
         "model": "auth.user",
         "fields": {
             "username": "test_contest_admin",
@@ -36,7 +36,7 @@
         }
     },
     {
-        "pk": 1005,
+        "pk": 1105,
         "model": "auth.user",
         "fields": {
             "username": "test_personal_data_user",
