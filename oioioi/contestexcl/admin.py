@@ -5,6 +5,7 @@ from oioioi.base import admin
 from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.utils import is_contest_admin
 
 
 class ExclusivenessConfigInline(admin.TabularInline):
@@ -13,19 +14,19 @@ class ExclusivenessConfigInline(admin.TabularInline):
     form = AlwaysChangedModelForm
 
     def get_readonly_fields(self, request, obj=None):
-        if obj and not request.user.is_superuser:
+        if obj and not (request.user.is_superuser or is_contest_admin(request)):
             return self.readonly_fields + ('enabled', 'start_date', 'end_date')
         return ()
 
     def has_add_permission(self, request):
-        return request.user.is_superuser
+        return request.user.is_superuser or is_contest_admin(request)
 
     def has_change_permission(self, request, obj=None):
         # Protected by parent ModelAdmin and get_readonly_fields
         return True
 
     def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
+        return request.user.is_superuser or is_contest_admin(request)
 
 
 class ContestAdminWithExclusivenessInlineMixin(object):
