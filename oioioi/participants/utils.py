@@ -94,14 +94,18 @@ def _fold_registration_models_tree(object):
     return result
 
 
-def serialize_participants_data(participants):
+def serialize_participants_data(request, participants):
     """Serializes all personal data of participants to a table.
        :param participants: A QuerySet from table participants.
     """
+
     if not participants.exists():
         return {'no_participants': True}
 
-    keys = ['username', 'first name', 'last name']
+    display_email = request.contest.controller.show_email_in_participants_data
+
+    keys = ['username', 'user ID', 'first name', 'last name'] + \
+          (['email address'] if display_email else [])
 
     def key_name((obj, field)):
         return str(obj.__class__.__name__) + ": " + \
@@ -122,15 +126,18 @@ def serialize_participants_data(participants):
         values = dict(map(key_value,
                           _fold_registration_models_tree(participant)))
         values['username'] = participant.user.username
+        values['user ID'] = participant.user.id
         values['first name'] = participant.user.first_name
         values['last name'] = participant.user.last_name
+        if display_email:
+            values['email address'] = participant.user.email
         data.append([values.get(key, '') for key in keys])
 
     return {'keys': keys, 'data': data}
 
 
-def render_participants_data_csv(participants, name):
-    data = serialize_participants_data(participants)
+def render_participants_data_csv(request, participants, name):
+    data = serialize_participants_data(request, participants)
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
         'attachment; filename=%s-%s.csv' % \

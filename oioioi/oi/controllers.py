@@ -94,6 +94,7 @@ class OIRegistrationController(ParticipantsController):
 class OIContestController(ProgrammingContestController):
     description = _("Polish Olympiad in Informatics - Online")
     create_forum = True
+    show_email_in_participants_data = True
 
     def fill_evaluation_environ(self, environ, submission):
         super(OIContestController, self) \

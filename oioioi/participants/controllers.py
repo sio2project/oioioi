@@ -207,6 +207,15 @@ def anonymous_participants(request):
             .select_related('user')))
 
 
+class EmailShowContestControllerMixin(object):
+    """Contest controller defines whether in participants' data view email
+    should be shown. That is a case in OI-type contest.
+    """
+    show_email_in_participants_data = False
+
+ContestController.mix_in(EmailShowContestControllerMixin)
+
+
 class AnonymousContestControllerMixin(object):
     def get_user_public_name(self, request, user):
         assert self.contest == request.contest

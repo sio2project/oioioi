@@ -60,6 +60,7 @@ def unregistration_view(request):
                    can_see_personal_data)
 def participants_data(request):
     context = serialize_participants_data(
+            request,
             Participant.objects.filter(contest=request.contest))
     return TemplateResponse(request, 'participants/data.html', context)
 
@@ -68,5 +69,6 @@ def participants_data(request):
                    can_see_personal_data)
 def participants_data_csv(request):
     return render_participants_data_csv(
+            request,
             Participant.objects.filter(contest=request.contest),
                     request.contest.id)

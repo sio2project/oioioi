@@ -566,6 +566,26 @@ class TestParticipantsDataViews(TestCase):
         }
         self.client.post(reg_url, reg_data)
 
+    def test_no_email_data_view(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.participants.tests.ParticipantsContestController'
+        contest.save()
+
+        user = User.objects.get(username='test_user')
+        url = reverse('participants_data', kwargs={'contest_id': contest.id})
+        perm = ContestPermission(user=user, contest=contest,
+                                 permission='contests.personal_data')
+        perm.save()
+        if hasattr(user, '_contest_perms_cache'):
+            delattr(user, '_contest_perms_cache')
+
+        self.client.login(username='test_user')
+        self.register(contest)
+
+        response = self.client.get(url)
+        self.assertNotIn('<td>email address</td>', response.content)
+
     def test_data_view(self):
         contest = Contest.objects.get()
         contest.controller_name = \
@@ -594,6 +614,7 @@ class TestParticipantsDataViews(TestCase):
             self.register(contest)
 
             response = self.client.get(url)
+            self.assertIn('<td>{}</td>'.format(user.id), response.content)
             self.assertIn('<td>The Castle</td>', response.content)
             self.assertIn('<td>31-337</td>', response.content)
             self.assertIn('<td>Camelot</td>', response.content)
