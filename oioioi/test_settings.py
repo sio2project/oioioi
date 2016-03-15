@@ -54,6 +54,7 @@ INSTALLED_APPS = (
     'oioioi.globalmessage',
     'oioioi.portals',
     'oioioi.workers',
+    'oioioi.newsfeed'
 ) + INSTALLED_APPS
 
 TEMPLATE_CONTEXT_PROCESSORS += (

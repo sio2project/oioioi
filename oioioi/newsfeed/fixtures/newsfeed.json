@@ -1,0 +1,11 @@
+[
+    {
+    	"fields": {
+    		"date": "2016-03-14T19:00:32.428Z",
+    		"content": "This is a test",
+    		"title": "Test news"
+    	},
+    	"model": "newsfeed.news",
+    	"pk": 1
+    }
+]
