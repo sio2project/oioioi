@@ -21,6 +21,7 @@ from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage
 from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
         TestReport
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
+from oioioi.contests.current_contest import ContestMode
 
 
 @nottest
@@ -110,6 +111,7 @@ class TestSinolPackage(TestCase):
 
     @attr('slow')
     @both_configurations
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_huge_unpack_update(self):
         self.client.login(username='test_admin')
         filename = get_test_filename('test_huge_package.tgz')
