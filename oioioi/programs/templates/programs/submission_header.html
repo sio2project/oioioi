@@ -24,7 +24,7 @@
         {# TODO: test! #}
         {% if can_admin %}
             <div class="btn-group">
-                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#">
+                <a class="btn btn-small no-wrap dropdown-toggle" data-toggle="dropdown" href="#">
                     <i class="icon-repeat"></i>
                     <span class="toolbar-button-text">{% trans "Rejudge" %}</span>
                     <span class="caret"></span>
@@ -47,22 +47,22 @@
                     </ul>
             </div>
             {% if saved_diff_id %}
-                <a class="btn btn-small diff-button" id="diff-button-do" href="{% url 'source_diff' submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
+                <a class="btn btn-small no-wrap diff-button" id="diff-button-do" href="{% url 'source_diff' submission1_id=submission.submission.id submission2_id=saved_diff_id %}">
                     <i class="icon-resize-small"></i>
                     <span class="toolbar-button-text">{% trans "Diff with saved" %}</span>
                 </a>
             {% else %}
-                <button class="btn btn-small diff-button" id="diff-button-save">
+                <button class="btn btn-small no-wrap diff-button" id="diff-button-save">
                     <i class="icon-resize-small"></i>
                     <span class="toolbar-button-text">{% trans "Diff with other" %}</span>
                 </button>
             {% endif %}
         {% endif %}
-        <a class="btn btn-small" href="{% url 'show_submission_source' submission_id=submission.submission.id %}">
+        <a class="btn btn-small no-wrap" href="{% url 'show_submission_source' submission_id=submission.submission.id %}">
             <i class="icon-eye-open"></i>
             <span class="toolbar-button-text">{% trans "Show code" %}</span>
         </a>
-        <a class="btn btn-small" href="{% url 'download_submission_source' submission_id=submission.submission.id %}">
+        <a class="btn btn-small no-wrap" href="{% url 'download_submission_source' submission_id=submission.submission.id %}">
             <i class="icon-download-alt"></i>
             <span class="toolbar-button-text">{% trans "Download" %}</span>
         </a>
