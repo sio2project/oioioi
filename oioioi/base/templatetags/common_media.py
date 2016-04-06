@@ -36,9 +36,9 @@ _cache = {}
 
 
 def common_media_tag(template_generator, context):
-    t = template.Template(template_generator())
     if template_generator in _cache:
         return _cache[template_generator]
+    t = template.Template(template_generator())
     value = t.render(context)
     if not settings.DEBUG:
         _cache[template_generator] = value
