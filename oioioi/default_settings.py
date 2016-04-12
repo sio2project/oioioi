@@ -470,3 +470,7 @@ MAINTENANCE_MODE_IGNORE_URLS = [
     CONTEST_PREFIX_RE + '/login/$',
     CONTEST_PREFIX_RE + '/logout/$',
 ]
+
+# Domain to use for serving IP to hostname mappings
+# using ./manage.py ipauth-dnsserver
+IPAUTH_DNSSERVER_DOMAIN = None

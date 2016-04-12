@@ -335,3 +335,6 @@ ZEUS_INSTANCES = {
 # Port that the Notifications Server listens on
 #NOTIFICATIONS_SERVER_PORT = 7887
 
+# Domain to use for serving IP to hostname mappings
+# using ./manage.py ipauth-dnsserver
+#IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'

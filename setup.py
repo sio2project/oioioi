@@ -66,7 +66,8 @@ setup(
         "slate",
         "unicodecsv",
         "shortuuid",
-        'enum34',
+        "enum34",
+        "dnslib",
 
         "chardet",
 

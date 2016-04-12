@@ -6,13 +6,14 @@ from django.db import transaction
 
 from oioioi.contests.models import Contest
 from oioioi.ipdnsauth.models import DnsToUser
+from oioioi.ipdnsauth.utils import username_to_hostname
 from oioioi.participants.models import Participant
 from oioioi.oi.admin import OIOnsiteRegistrationParticipantAdmin
 
 
 def username_to_dns_name(username):
-    name = re.sub(r'[^a-z0-9]', '', username.lower())
-    return 'oi-%s.dasie.mimuw.edu.pl' % (name,)
+    hostname = username_to_hostname(username)
+    return 'oi-%s.dasie.mimuw.edu.pl' % (hostname,)
 
 
 class Command(BaseCommand):
