@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField, \
     UserSelectionWidget
 from oioioi.contests.models import ProblemInstance
-from oioioi.oi.models import Region
+from oioioi.participants.models import Region
 from oioioi.programs.models import Test
 
 CONTEST_REPORT_KEY = 'all'

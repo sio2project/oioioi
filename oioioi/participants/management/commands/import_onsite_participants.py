@@ -4,9 +4,8 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.db import transaction, DatabaseError
 from oioioi.contests.models import Contest
-from oioioi.participants.models import Participant
-from oioioi.oi.models import Region, OIOnsiteRegistration
-from oioioi.oi.admin import OIOnsiteRegistrationParticipantAdmin
+from oioioi.participants.models import Participant, Region, OnsiteRegistration
+from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
 import os
 import csv
 import urllib2
@@ -36,8 +35,9 @@ class Command(BaseCommand):
             raise CommandError(_("Contest %s does not exist") % args[0])
 
         rcontroller = contest.controller.registration_controller()
+        print rcontroller
         if not issubclass(getattr(rcontroller, 'participant_admin', None),
-                          OIOnsiteRegistrationParticipantAdmin):
+                          OnsiteRegistrationParticipantAdmin):
             raise CommandError(_("Wrong type of contest"))
 
         arg = args[1]
@@ -75,7 +75,7 @@ class Command(BaseCommand):
                     participant, created = Participant.objects \
                             .get_or_create(contest=contest, user=user)
 
-                    reg = OIOnsiteRegistration(participant=participant,
+                    reg = OnsiteRegistration(participant=participant,
                             number=row[0], local_number=row[3], region=region)
 
                     reg.full_clean()
@@ -103,8 +103,8 @@ class Command(BaseCommand):
                         for message in v:
                             if k == '__all__':
                                 self.stdout.write(_(
-                                    "Error for user=%(user)s: %s\n")
-                                        % (row[1], message))
+                                    "Error for user=%(user)s: %(message)s\n")
+                                    % {'user': row[1], 'message': message})
                             else:
                                 self.stdout.write(
                                         _("Error for user=%(user)s, "

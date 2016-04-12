@@ -15,7 +15,8 @@ from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import RegistrationController, \
         ContestController
 from oioioi.contests.utils import is_contest_admin, can_see_personal_data
-from oioioi.participants.models import Participant, RegistrationModel
+from oioioi.participants.models import Participant, RegistrationModel, \
+        OnsiteRegistration
 
 
 class ParticipantsController(RegistrationController):
@@ -253,3 +254,48 @@ class AnonymousContestControllerMixin(object):
         return prev
 
 ContestController.mix_in(AnonymousContestControllerMixin)
+
+
+class OnsiteRegistrationController(ParticipantsController):
+    @property
+    def participant_admin(self):
+        from oioioi.participants.admin import \
+                OnsiteRegistrationParticipantAdmin
+        return OnsiteRegistrationParticipantAdmin
+
+    def get_model_class(self):
+        return OnsiteRegistration
+
+    def can_register(self, request):
+        return False
+
+    def can_edit_registration(self, request, participant):
+        return False
+
+    def get_contest_participant_info_list(self, request, user):
+        prev = super(OnsiteRegistrationController, self) \
+                .get_contest_participant_info_list(request, user)
+
+        info = OnsiteRegistration.objects.filter(participant__user=user,
+                participant__contest=request.contest)
+
+        if info.exists():
+            context = {'model': info[0]}
+            rendered_info = render_to_string('oi/participant_info.html',
+                    context_instance=RequestContext(request, context))
+            prev.append((98, rendered_info))
+
+        return prev
+
+
+class OnsiteContestControllerMixin(object):
+    create_forum = False
+
+    def registration_controller(self):
+        return OnsiteRegistrationController(self.contest)
+
+    def should_confirm_submission_receipt(self, request, submission):
+        return False
+
+    def is_onsite(self):
+        return True

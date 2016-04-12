@@ -21,7 +21,7 @@ from oioioi.contests.utils import is_contest_admin, contest_exists, \
 from oioioi.oireports.forms import OIReportForm, CONTEST_REPORT_KEY
 from oioioi.programs.models import CompilationReport, GroupReport, \
         TestReport
-from oioioi.oi.models import Region
+from oioioi.participants.models import Region
 
 
 # FIXME conditions for views expressing oi dependence?
@@ -31,7 +31,7 @@ def _users_in_contest(request, region=None):
         participant__status='ACTIVE')
     if region is not None:
         queryset = queryset.filter(
-                participant__oi_oionsiteregistration__region_id=region)
+                participant__participants_onsiteregistration__region_id=region)
     return queryset
 
 

@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from oioioi.participants.models import Participant, OpenRegistration
+from oioioi.participants.models import Participant, OpenRegistration, Region
 from oioioi.contests.models import Round
 
 
@@ -18,6 +18,20 @@ class ParticipantForm(forms.ModelForm):
             raise ValidationError(_("%s is already a participant"
                     " of this contest.") % self.cleaned_data['user'].username)
         return self.cleaned_data['user']
+
+
+class RegionForm(forms.ModelForm):
+    class Meta(object):
+        fields = '__all__'
+        model = Region
+
+    def clean_short_name(self):
+        if Region.objects.filter(contest=self.request_contest,
+            short_name=self.cleaned_data['short_name']).exists() \
+            and (self.instance is None or
+                 self.instance.short_name != self.cleaned_data['short_name']):
+            raise ValidationError(_("Region with this name already exists."))
+        return self.cleaned_data['short_name']
 
 
 class OpenRegistrationForm(forms.ModelForm):

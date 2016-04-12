@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumRegistry, EnumField
 from oioioi.base.utils.deps import check_django_app_dependencies
+from oioioi.base.utils.validators import validate_db_string_id
 from oioioi.contests.models import Contest
 from oioioi.participants.fields import \
         OneToOneBothHandsCascadingParticipantField
@@ -62,6 +63,19 @@ class Participant(models.Model):
         self.save()
 
 
+class Region(models.Model):
+    short_name = models.CharField(max_length=10,
+        validators=[validate_db_string_id])
+    name = models.CharField(max_length=255)
+    contest = models.ForeignKey(Contest)
+
+    class Meta(object):
+        unique_together = ('contest', 'short_name')
+
+    def __unicode__(self):
+        return '%s' % (self.short_name,)
+
+
 class RegistrationModel(models.Model):
     participant = OneToOneBothHandsCascadingParticipantField(Participant,
             related_name='%(app_label)s_%(class)s')
@@ -81,6 +95,27 @@ class OpenRegistration(RegistrationModel):
 
     def erase_data(self):
         self.terms_accepted = False
+        self.save()
+
+
+class OnsiteRegistration(RegistrationModel):
+    number = models.IntegerField(verbose_name=_("number"))
+    region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL,
+        verbose_name=_("region"))
+    local_number = models.IntegerField(verbose_name=_("local number"))
+
+    class Meta(object):
+        unique_together = ('region', 'local_number')
+
+    def __unicode__(self):
+        return _("%(number)s/%(region)s/%(local_number)s") % \
+                dict(number=self.number, region=self.region,
+                    local_number=self.local_number)
+
+    def erase_data(self):
+        self.number = -1
+        self.region = None
+        self.local_number = -1
         self.save()
 
 

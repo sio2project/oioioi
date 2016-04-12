@@ -1,18 +1,22 @@
 from django.contrib.auth.models import User
+from django.contrib.admin import RelatedFieldListFilter, SimpleListFilter
 from django.core.urlresolvers import reverse
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from oioioi.base import admin
-from oioioi.contests.admin import RoundTimeExtensionAdmin, contest_site
+from oioioi.contests.admin import RoundTimeExtensionAdmin, contest_site, \
+        SubmissionAdmin
 from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.participants.forms import ParticipantForm, ExtendRoundForm
-from oioioi.participants.models import Participant
+from oioioi.participants.forms import ParticipantForm, ExtendRoundForm, \
+        RegionForm
+from oioioi.participants.models import Participant, OnsiteRegistration, Region
 from oioioi.contests.models import RoundTimeExtension
-from oioioi.participants.utils import contest_has_participants
+from oioioi.participants.utils import contest_has_participants, \
+        is_contest_with_participants
 from oioioi.contests.utils import is_contest_admin
 
 
@@ -20,6 +24,16 @@ from oioioi.contests.utils import is_contest_admin
 def has_participants_admin(request):
     rcontroller = request.contest.controller.registration_controller()
     return getattr(rcontroller, 'participant_admin', None) is not None
+
+
+@make_request_condition
+def is_onsite_contest(request):
+    if not is_contest_with_participants(request.contest):
+        return False
+    rcontroller = request.contest.controller.registration_controller()
+    padmin = rcontroller.participant_admin
+    return (padmin and
+            issubclass(padmin, OnsiteRegistrationParticipantAdmin))
 
 
 class ParticipantAdmin(admin.ModelAdmin):
@@ -206,6 +220,121 @@ class ParticipantInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+class RegionAdmin(admin.ModelAdmin):
+    list_display = ('short_name', 'name')
+    fields = ['short_name', 'name']
+    form = RegionForm
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
+
+    def get_queryset(self, request):
+        qs = super(RegionAdmin, self).get_queryset(request)
+        qs = qs.filter(contest=request.contest)
+        return qs
+
+    def save_model(self, request, obj, form, change):
+        obj.contest = request.contest
+        obj.save()
+
+    def get_form(self, request, obj=None, **kwargs):
+        Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
+
+        def form_wrapper(*args, **kwargs):
+            form = Form(*args, **kwargs)
+            form.request_contest = request.contest
+            return form
+        return form_wrapper
+
+contest_site.contest_register(Region, RegionAdmin)
+contest_admin_menu_registry.register('regions', _("Regions"),
+    lambda request: reverse('oioioiadmin:participants_region_changelist'),
+    condition=is_onsite_contest, order=21)
+
+
+class OnsiteRegistrationInline(admin.TabularInline):
+    model = OnsiteRegistration
+    fk_name = 'participant'
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+
+class RegionFilter(RelatedFieldListFilter):
+    def __init__(self, field, request, *args, **kwargs):
+        super(RegionFilter, self).__init__(field, request, *args, **kwargs)
+        contest = request.contest
+        self.lookup_choices = [(r.id, unicode(r))
+                               for r in contest.region_set.all()]
+
+
+class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
+    list_display = ParticipantAdmin.list_display \
+            + ['number', 'region', 'local_number']
+    inlines = ParticipantAdmin.inlines + [OnsiteRegistrationInline]
+    list_filter = ParticipantAdmin.list_filter \
+            + [('participants_onsiteregistration__region', RegionFilter)]
+    ordering = ['participants_onsiteregistration__number']
+    search_fields = ParticipantAdmin.search_fields \
+            + ['participants_onsiteregistration__number']
+
+    def get_list_select_related(self):
+        return super(OnsiteRegistrationParticipantAdmin, self) \
+                .get_list_select_related() + \
+                ['participants_onsiteregistration',
+                 'participants_onsiteregistration__region']
+
+    def number(self, instance):
+        return instance.participants_onsiteregistration.number
+    number.admin_order_field = 'participants_onsiteregistration__number'
+
+    def region(self, instance):
+        return instance.participants_onsiteregistration.region
+    region.admin_order_field = 'participants_onsiteregistration__region'
+
+    def local_number(self, instance):
+        return instance.participants_onsiteregistration.local_number
+    local_number.admin_order_field = \
+        'participants_onsiteregistration__local_number'
+
+
+class RegionListFilter(SimpleListFilter):
+    title = _("region")
+    parameter_name = 'region'
+
+    def lookups(self, request, model_admin):
+        regions = Region.objects.filter(contest=request.contest)
+        return [(x, x.name) for x in regions]
+
+    def queryset(self, request, queryset):
+        name = self.value()
+        if name:
+            kwargs = {'user__participant__contest': request.contest,
+                    'user__participant__participants_onsiteregistration__'
+                    'region__short_name': name}
+            return queryset.filter(**kwargs)
+        else:
+            return queryset
+
+
+class OnsiteSubmissionAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(OnsiteSubmissionAdminMixin, self).__init__(*args, **kwargs)
+        self.list_filter = self.list_filter + [RegionListFilter]
+
+SubmissionAdmin.mix_in(OnsiteSubmissionAdminMixin)
 
 
 class UserWithParticipantsAdminMixin(object):

@@ -8,7 +8,7 @@ from oioioi.contests.models import Contest
 from oioioi.ipdnsauth.models import DnsToUser
 from oioioi.ipdnsauth.utils import username_to_hostname
 from oioioi.participants.models import Participant
-from oioioi.oi.admin import OIOnsiteRegistrationParticipantAdmin
+from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
 
 
 def username_to_dns_name(username):
@@ -34,7 +34,7 @@ class Command(BaseCommand):
 
         rcontroller = contest.controller.registration_controller()
         if not issubclass(getattr(rcontroller, 'participant_admin', None),
-                          OIOnsiteRegistrationParticipantAdmin):
+                          OnsiteRegistrationParticipantAdmin):
             raise CommandError(_("Wrong type of contest"))
 
         with transaction.atomic():

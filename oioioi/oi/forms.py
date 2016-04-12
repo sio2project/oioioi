@@ -6,21 +6,7 @@ from django.forms.extras.widgets import SelectDateWidget
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.oi.models import OIRegistration, PROVINCES, School, Region
-
-
-class RegionForm(forms.ModelForm):
-    class Meta(object):
-        fields = '__all__'
-        model = Region
-
-    def clean_short_name(self):
-        if Region.objects.filter(contest=self.request_contest,
-            short_name=self.cleaned_data['short_name']).exists() \
-            and (self.instance is None or
-                 self.instance.short_name != self.cleaned_data['short_name']):
-            raise ValidationError(_("Region with this name already exists."))
-        return self.cleaned_data['short_name']
+from oioioi.oi.models import OIRegistration, PROVINCES, School
 
 
 class AddSchoolForm(forms.ModelForm):

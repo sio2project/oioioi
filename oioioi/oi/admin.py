@@ -1,7 +1,6 @@
 import urllib
 
 from django.contrib import messages
-from django.contrib.admin import RelatedFieldListFilter, SimpleListFilter
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,60 +9,9 @@ from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.contests.admin import SubmissionAdmin, contest_site
 from oioioi.participants.admin import ParticipantAdmin
-from oioioi.oi.models import Region, School, OIRegistration, \
-                                OIOnsiteRegistration
-from oioioi.oi.forms import OIRegistrationForm, RegionForm
-from oioioi.participants.utils import is_contest_with_participants
-
-
-@make_request_condition
-def is_onsite_contest(request):
-    if not is_contest_with_participants(request.contest):
-        return False
-    rcontroller = request.contest.controller.registration_controller()
-    padmin = rcontroller.participant_admin
-    return (padmin and
-            issubclass(padmin, OIOnsiteRegistrationParticipantAdmin))
-
-
-class RegionAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'name')
-    fields = ['short_name', 'name']
-    form = RegionForm
-
-    def has_add_permission(self, request):
-        return is_contest_admin(request)
-
-    def has_change_permission(self, request, obj=None):
-        return is_contest_admin(request)
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(request, obj)
-
-    def get_queryset(self, request):
-        qs = super(RegionAdmin, self).get_queryset(request)
-        qs = qs.filter(contest=request.contest)
-        return qs
-
-    def save_model(self, request, obj, form, change):
-        obj.contest = request.contest
-        obj.save()
-
-    def get_form(self, request, obj=None, **kwargs):
-        Form = super(RegionAdmin, self).get_form(request, obj, **kwargs)
-
-        def form_wrapper(*args, **kwargs):
-            form = Form(*args, **kwargs)
-            form.request_contest = request.contest
-            return form
-        return form_wrapper
-
-contest_site.contest_register(Region, RegionAdmin)
-contest_admin_menu_registry.register('regions', _("Regions"),
-    lambda request: reverse('oioioiadmin:oi_region_changelist'),
-    condition=is_onsite_contest, order=21)
+from oioioi.oi.models import School, OIRegistration
+from oioioi.oi.forms import OIRegistrationForm
 
 
 class SchoolAdmin(admin.ModelAdmin):
@@ -207,76 +155,3 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
         return actions
 
 
-class OIOnsiteRegistrationInline(admin.TabularInline):
-    model = OIOnsiteRegistration
-    fk_name = 'participant'
-    can_delete = False
-
-    def has_add_permission(self, request):
-        return is_contest_admin(request)
-
-    def has_change_permission(self, request, obj=None):
-        return is_contest_admin(request)
-
-
-class RegionFilter(RelatedFieldListFilter):
-    def __init__(self, field, request, *args, **kwargs):
-        super(RegionFilter, self).__init__(field, request, *args, **kwargs)
-        contest = request.contest
-        self.lookup_choices = [(r.id, unicode(r))
-                               for r in contest.region_set.all()]
-
-
-class OIOnsiteRegistrationParticipantAdmin(ParticipantAdmin):
-    list_display = ParticipantAdmin.list_display \
-            + ['number', 'region', 'local_number']
-    inlines = ParticipantAdmin.inlines + [OIOnsiteRegistrationInline]
-    list_filter = ParticipantAdmin.list_filter \
-            + [('oi_oionsiteregistration__region', RegionFilter)]
-    ordering = ['oi_oionsiteregistration__number']
-    search_fields = ParticipantAdmin.search_fields \
-            + ['oi_oionsiteregistration__number']
-
-    def get_list_select_related(self):
-        return super(OIOnsiteRegistrationParticipantAdmin, self) \
-                .get_list_select_related() + \
-                ['oi_oionsiteregistration', 'oi_oionsiteregistration__region']
-
-    def number(self, instance):
-        return instance.oi_oionsiteregistration.number
-    number.admin_order_field = 'oi_oionsiteregistration__number'
-
-    def region(self, instance):
-        return instance.oi_oionsiteregistration.region
-    region.admin_order_field = 'oi_oionsiteregistration__region'
-
-    def local_number(self, instance):
-        return instance.oi_oionsiteregistration.local_number
-    local_number.admin_order_field = 'oi_oionsiteregistration__local_number'
-
-
-class RegionListFilter(SimpleListFilter):
-    title = _("region")
-    parameter_name = 'region'
-
-    def lookups(self, request, model_admin):
-        regions = Region.objects.filter(contest=request.contest)
-        return [(x, x.name) for x in regions]
-
-    def queryset(self, request, queryset):
-        name = self.value()
-        if name:
-            kwargs = {'user__participant__contest': request.contest,
-                    'user__participant__oi_oionsiteregistration__'
-                    'region__short_name': name}
-            return queryset.filter(**kwargs)
-        else:
-            return queryset
-
-
-class OIOnsiteSubmissionAdminMixin(object):
-    def __init__(self, *args, **kwargs):
-        super(OIOnsiteSubmissionAdminMixin, self).__init__(*args, **kwargs)
-        self.list_filter = self.list_filter + [RegionListFilter]
-
-SubmissionAdmin.mix_in(OIOnsiteSubmissionAdminMixin)

@@ -12,10 +12,11 @@ from oioioi.contests.models import Submission, SubmissionReport
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_see_personal_data
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.participants.controllers import ParticipantsController
+from oioioi.participants.controllers import ParticipantsController, \
+        OnsiteContestControllerMixin
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
-from oioioi.oi.models import OIRegistration, OIOnsiteRegistration
+from oioioi.oi.models import OIRegistration
 from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 from oioioi.scoresreveal.utils import is_revealed
 
@@ -165,49 +166,10 @@ class OIContestController(ProgrammingContestController):
 OIContestController.mix_in(SplitEvalContestControllerMixin)
 
 
-class OIOnsiteRegistrationController(ParticipantsController):
-    @property
-    def participant_admin(self):
-        from oioioi.oi.admin import OIOnsiteRegistrationParticipantAdmin
-        return OIOnsiteRegistrationParticipantAdmin
-
-    def get_model_class(self):
-        return OIOnsiteRegistration
-
-    def can_register(self, request):
-        return False
-
-    def can_edit_registration(self, request, participant):
-        return False
-
-    def get_contest_participant_info_list(self, request, user):
-        prev = super(OIOnsiteRegistrationController, self) \
-                .get_contest_participant_info_list(request, user)
-
-        info = OIOnsiteRegistration.objects.filter(participant__user=user,
-                participant__contest=request.contest)
-
-        if info.exists():
-            context = {'model': info[0]}
-            rendered_info = render_to_string('oi/participant_info.html',
-                    context_instance=RequestContext(request, context))
-            prev.append((98, rendered_info))
-
-        return prev
-
-
 class OIOnsiteContestController(OIContestController):
     description = _("Polish Olympiad in Informatics - Onsite")
-    create_forum = False
 
-    def registration_controller(self):
-        return OIOnsiteRegistrationController(self.contest)
-
-    def should_confirm_submission_receipt(self, request, submission):
-        return False
-
-    def is_onsite(self):
-        return True
+OIOnsiteContestController.mix_in(OnsiteContestControllerMixin)
 OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
 
 
