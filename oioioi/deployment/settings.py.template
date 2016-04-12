@@ -209,6 +209,7 @@ INSTALLED_APPS = (
 #    'oioioi.avatar',
 #    'oioioi.teachers',
 #    'oioioi.ipdnsauth',
+#    'oioioi.ipauthsync',
 #    'oioioi.participants',
 #    'oioioi.oi',
 #    'oioioi.contestexcl',

@@ -15,9 +15,30 @@ def is_contest_with_participants(contest):
     return isinstance(rcontroller, ParticipantsController)
 
 
+def is_onsite_contest(contest):
+    if not is_contest_with_participants(contest):
+        return False
+    from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
+    rcontroller = contest.controller.registration_controller()
+    padmin = rcontroller.participant_admin
+    return (padmin and
+            issubclass(padmin, OnsiteRegistrationParticipantAdmin))
+
+
 @make_request_condition
 def contest_has_participants(request):
     return is_contest_with_participants(request.contest)
+
+
+@make_request_condition
+def has_participants_admin(request):
+    rcontroller = request.contest.controller.registration_controller()
+    return getattr(rcontroller, 'participant_admin', None) is not None
+
+
+@make_request_condition
+def contest_is_onsite(request):
+    return is_onsite_contest(request.contest)
 
 
 @request_cached

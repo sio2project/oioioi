@@ -67,7 +67,10 @@ class Region(models.Model):
     short_name = models.CharField(max_length=10,
         validators=[validate_db_string_id])
     name = models.CharField(max_length=255)
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, related_name='regions')
+    region_server = models.CharField(max_length=255, null=True, blank=True,
+            verbose_name=_("Region server"),
+            help_text=_("IP address or hostname of the regional server"))
 
     class Meta(object):
         unique_together = ('contest', 'short_name')

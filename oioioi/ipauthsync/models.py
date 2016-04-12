@@ -1,0 +1,72 @@
+from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
+
+from oioioi.contests.models import Contest
+from oioioi.contests.date_registration import date_registry
+from oioioi.base.utils.deps import check_django_app_dependencies
+from oioioi.ipdnsauth.models import IpToUser
+from oioioi.participants.models import Region
+
+
+check_django_app_dependencies(__name__, ['oioioi.participants',
+        'oioioi.ipdnsauth'])
+
+
+class IpAuthSyncConfigManager(models.Manager):
+    def get_active(self, timestamp):
+        return self.get_queryset().filter(start_date__lte=timestamp,
+                end_date__gte=timestamp, enabled=True)
+
+
+@date_registry.register('start_date',
+                        name_generator=(lambda obj:
+                                        _("Enable IP authentication sync")))
+@date_registry.register('end_date',
+                        name_generator=(lambda obj:
+                                        _("Disable IP authentication sync")))
+class IpAuthSyncConfig(models.Model):
+    contest = models.OneToOneField(Contest)
+    enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
+    start_date = models.DateTimeField(default=timezone.now,
+                                      verbose_name=_("start date"))
+    end_date = models.DateTimeField(verbose_name=_("end date"))
+
+    region_server_mysql_user = models.CharField(max_length=255,
+        verbose_name=_("MySQL username"), default='oi')
+    region_server_mysql_pass = models.CharField(max_length=255,
+        verbose_name=_("MySQL password"), blank=True)
+    region_server_mysql_db = models.CharField(max_length=255,
+        verbose_name=_("MySQL database name"), default='oi')
+
+    objects = IpAuthSyncConfigManager()
+
+    class Meta(object):
+        verbose_name = _("IP authentication sync config")
+        verbose_name_plural = _("IP authentication sync configs")
+
+    def __unicode__(self):
+        return u'%s (%s): %s - %s' % (self.contest,
+                                      'enabled' if self.enabled
+                                              else 'disabled',
+                                      self.start_date, self.end_date)
+
+    def clean(self):
+        if self.start_date > self.end_date:
+            raise ValidationError(_("The start date should"
+                                    " precede the end date"))
+
+
+class IpAuthSyncedUser(models.Model):
+    entry = models.OneToOneField(IpToUser)
+
+
+class IpAuthSyncRegionMessages(models.Model):
+    region = models.OneToOneField(Region)
+    warnings = models.TextField(blank=True, verbose_name=_("Warnings"))
+    mapping = models.TextField(blank=True, verbose_name=_("Mapping"))
+
+    class Meta(object):
+        verbose_name = _("IP authentication sync messages")
+        verbose_name_plural = _("IP authentication sync messages")

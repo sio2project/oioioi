@@ -16,24 +16,9 @@ from oioioi.participants.forms import ParticipantForm, ExtendRoundForm, \
 from oioioi.participants.models import Participant, OnsiteRegistration, Region
 from oioioi.contests.models import RoundTimeExtension
 from oioioi.participants.utils import contest_has_participants, \
-        is_contest_with_participants
+        is_contest_with_participants, has_participants_admin, \
+        contest_is_onsite
 from oioioi.contests.utils import is_contest_admin
-
-
-@make_request_condition
-def has_participants_admin(request):
-    rcontroller = request.contest.controller.registration_controller()
-    return getattr(rcontroller, 'participant_admin', None) is not None
-
-
-@make_request_condition
-def is_onsite_contest(request):
-    if not is_contest_with_participants(request.contest):
-        return False
-    rcontroller = request.contest.controller.registration_controller()
-    padmin = rcontroller.participant_admin
-    return (padmin and
-            issubclass(padmin, OnsiteRegistrationParticipantAdmin))
 
 
 class ParticipantAdmin(admin.ModelAdmin):
@@ -223,8 +208,8 @@ class ParticipantInline(admin.TabularInline):
 
 
 class RegionAdmin(admin.ModelAdmin):
-    list_display = ('short_name', 'name')
-    fields = ['short_name', 'name']
+    list_display = ('short_name', 'name', 'region_server')
+    fields = ['short_name', 'name', 'region_server']
     form = RegionForm
 
     def has_add_permission(self, request):
@@ -257,7 +242,7 @@ class RegionAdmin(admin.ModelAdmin):
 contest_site.contest_register(Region, RegionAdmin)
 contest_admin_menu_registry.register('regions', _("Regions"),
     lambda request: reverse('oioioiadmin:participants_region_changelist'),
-    condition=is_onsite_contest, order=21)
+    condition=contest_is_onsite, order=21)
 
 
 class OnsiteRegistrationInline(admin.TabularInline):
@@ -277,7 +262,7 @@ class RegionFilter(RelatedFieldListFilter):
         super(RegionFilter, self).__init__(field, request, *args, **kwargs)
         contest = request.contest
         self.lookup_choices = [(r.id, unicode(r))
-                               for r in contest.region_set.all()]
+                               for r in contest.regions.all()]
 
 
 class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
