@@ -263,6 +263,9 @@ USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False
 RUN_LOCAL_WORKERS = False
 
+# WARNING: experimental, see settings template
+USE_UNSAFE_CHECKER = True
+
 # When USE_SINOLPACK_MAKEFILES equals True, the sinolpack upload workflow uses
 # standard sinolpack makefiles, whose behaviour may be modified by a custom
 # makefile.user file from a package. The makefiles' execution is not sandboxed,

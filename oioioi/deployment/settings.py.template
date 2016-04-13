@@ -147,6 +147,13 @@ RUN_LOCAL_WORKERS = True
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
 
+# WARNING: setting this to False is experimental until we make sure that
+# checkers do work well in sandbox
+#
+# Setting this to False will run checkers in sandbox. This option is
+# independent to USE_UNSAFE_EXEC.
+#USE_UNSAFE_CHECKER = True
+
 # When USE_SINOLPACK_MAKEFILES equals True, the sinolpack upload workflow uses
 # standard sinolpack makefiles, whose behaviour may be modified by a custom
 # makefile.user file from a package. The makefiles' execution is not sandboxed,

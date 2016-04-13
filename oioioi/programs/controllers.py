@@ -89,6 +89,8 @@ class ProgrammingProblemController(ProblemController):
         else:
             environ['exec_mode'] = settings.SAFE_EXEC_MODE
 
+        environ['untrusted_checker'] = not settings.USE_UNSAFE_CHECKER
+
         if getattr(settings, 'USE_LOCAL_COMPILERS', False):
             environ['compiler'] = 'system-' + environ['language']
 

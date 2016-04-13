@@ -92,6 +92,7 @@ SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.LocalBackend'
 FILETRACKER_CLIENT_FACTORY = 'filetracker.dummy.DummyClient'
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
+USE_UNSAFE_CHECKER = True
 
 USE_SINOLPACK_MAKEFILES = True
 
