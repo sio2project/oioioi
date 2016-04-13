@@ -1,7 +1,7 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
+from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
 from oioioi.participants.models import Participant
 

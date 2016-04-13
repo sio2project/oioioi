@@ -1,7 +1,7 @@
 import json
 import urllib
 
-from django.test import TestCase
+from oioioi.base.tests import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 

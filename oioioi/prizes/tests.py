@@ -1,12 +1,13 @@
 from collections import namedtuple
 from contextlib import contextmanager
 from datetime import timedelta
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core import mail
+
+from oioioi.base.tests import TestCase
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.contests.models import Contest
 from oioioi.prizes.utils import assign_from_order, FairAssignmentNotFound

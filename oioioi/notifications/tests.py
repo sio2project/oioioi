@@ -1,6 +1,7 @@
 import json
 from django.core.urlresolvers import reverse_lazy
-from django.test import TestCase
+
+from oioioi.base.tests import TestCase
 from oioioi.notifications.processors import get_notifications_session
 from oioioi.notifications.views import notifications_authenticate_view
 

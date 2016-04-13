@@ -1,12 +1,14 @@
-from django.test import TestCase
+import slate
+from StringIO import StringIO
+
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+
+from oioioi.base.tests import TestCase
 from oioioi.printing.pdf import generator
 from oioioi.contests.models import Contest
 from oioioi.contests.controllers import ContestController
-import slate
-from StringIO import StringIO
 
 SAMPLE_TEXT = """Lorem ipsum dolor sit amet, consectetur adipiscing
         elit. Aenean aliquet commodo vulputate. Fusce vehicula tincidunt

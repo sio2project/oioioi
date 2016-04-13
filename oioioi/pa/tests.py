@@ -2,14 +2,14 @@ import json
 import urllib
 from datetime import datetime
 
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
         UserResultForProblem
 from oioioi.contests.scores import IntegerScore

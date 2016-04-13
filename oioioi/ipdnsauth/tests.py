@@ -2,12 +2,11 @@ from datetime import datetime
 import socket
 import os
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE_CLASSES
 from oioioi.contests.models import Contest
 from oioioi.contestexcl.models import ExclusivenessConfig

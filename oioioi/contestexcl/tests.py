@@ -1,11 +1,11 @@
 from datetime import datetime
 from django.core import mail
-from django.test import TestCase, Client
+from django.test import Client
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 from django.core.urlresolvers import reverse
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.models import Contest
 from oioioi.test_settings import MIDDLEWARE_CLASSES

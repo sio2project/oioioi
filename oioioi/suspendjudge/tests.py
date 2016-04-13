@@ -1,5 +1,5 @@
 from celery.exceptions import Ignore
-from django.test import TestCase
+from oioioi.base.tests import TestCase
 from django.core.urlresolvers import reverse
 
 from oioioi.contests.models import ProblemInstance, Contest, Submission

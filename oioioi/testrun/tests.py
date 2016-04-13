@@ -2,7 +2,7 @@
 from datetime import datetime
 import os
 
-from django.test import TestCase
+from oioioi.base.tests import TestCase
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc

@@ -4,7 +4,7 @@ from collections import defaultdict
 from datetime import datetime
 
 from django.conf import settings
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory
 from django.utils.timezone import utc
 from django.utils.html import strip_tags, escape
 from django.contrib.auth.models import User
@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.test.utils import override_settings
 
+from oioioi.base.tests import TestCase
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible, fake_time

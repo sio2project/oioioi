@@ -6,11 +6,13 @@ import zipfile
 from cStringIO import StringIO
 from nose.plugins.attrib import attr
 from nose.tools import nottest
-from django.test import TestCase, TransactionTestCase
 from django.test.utils import override_settings
+from django.test import TransactionTestCase
 from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.conf import settings
+
+from oioioi.base.tests import TestCase
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.sinolpack.package import SinolPackageBackend, \
         DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT

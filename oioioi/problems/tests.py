@@ -5,7 +5,7 @@ import urllib
 
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
@@ -13,6 +13,7 @@ from django.http import HttpResponse
 from django import forms
 from nose.tools import nottest
 
+from oioioi.base.tests import TestCase
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.current_contest import ContestMode

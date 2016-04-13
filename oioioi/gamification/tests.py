@@ -1,11 +1,12 @@
-from django.test import TestCase
+
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.dispatch import receiver
+
+from oioioi.base.tests import TestCase
 from oioioi.base.menu import OrderedRegistry
 from oioioi.base.notification import NotificationHandler
-
 from oioioi.gamification.experience import DBCachedByKeyExperienceSource, \
     Experience, ExperienceSource, ProblemExperienceSource, \
     PROBLEM_EXPERIENCE_SOURCE

@@ -3,14 +3,13 @@ import os
 from datetime import datetime, timedelta
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.encoding import force_unicode
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.contests.tests import SubmitFileMixin

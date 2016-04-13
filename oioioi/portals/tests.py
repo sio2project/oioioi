@@ -1,7 +1,8 @@
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
+from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
 from oioioi.portals.models import Portal, Node
 from oioioi.portals.actions import portal_url

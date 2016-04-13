@@ -2,8 +2,8 @@ import re
 
 from django.contrib.auth.models import User
 from django.core import mail
-from django.test import TestCase
 
+from oioioi.base.tests import TestCase
 from oioioi.confirmations.utils import submission_receipt_proof, \
         verify_submission_receipt_proof, ProofCorrupted
 from oioioi.contests.models import Contest, ProblemInstance

@@ -18,7 +18,6 @@ from django.core.files.uploadedfile import TemporaryUploadedFile, \
         SimpleUploadedFile
 from django.utils import unittest
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.test.client import RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
@@ -28,6 +27,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.forms.fields import CharField, IntegerField
 
 from oioioi.base import utils
+from oioioi.base.tests import TestCase
 from oioioi.base.permissions import is_superuser, Condition, make_condition, \
     make_request_condition, RequestBasedCondition, enforce_condition
 from oioioi.base.utils import RegisteredSubclassesBase, archive
@@ -74,15 +74,20 @@ class TestIndex(TestCase):
     fixtures = ('test_users', 'test_contest')
 
     def test_login(self):
-        response = self.client.get('/', follow=True)
+        with self.assertNumQueriesLessThan(50):
+            response = self.client.get('/', follow=True)
         self.assertNotIn('test_user', response.content)
         self.assert_(self.client.login(username='test_user'))
-        response = self.client.get('/', follow=True)
+        with self.assertNumQueriesLessThan(60):
+            response = self.client.get('/', follow=True)
         self.assertIn('test_user', response.content)
         login_url = reverse('login')
-        response = self.client.get(login_url)
+        with self.assertNumQueriesLessThan(50):
+            response = self.client.get(login_url)
         self.assertEqual(302, response.status_code)
-        response = self.client.get(login_url, {REDIRECT_FIELD_NAME: '/test'})
+        with self.assertNumQueriesLessThan(50):
+            response = self.client.get(login_url,
+                {REDIRECT_FIELD_NAME: '/test'})
         self.assertEqual(302, response.status_code)
         self.assertTrue(response['Location'].endswith('/test'))
 
@@ -105,15 +110,16 @@ class TestIndex(TestCase):
             self.assertIn(lang_code + '.png', response.content)
 
     def test_index(self):
-        self.client.login(username='test_user')
-        response = self.client.get('/', follow=True)
-        self.assertNotIn('navbar-login', response.content)
-        self.assertNotIn('System Administration', response.content)
-
-        self.client.login(username='test_admin')
-        response = self.client.get('/', follow=True)
-        self.assertNotIn('navbar-login', response.content)
-        self.assertIn('System Administration', response.content)
+        with self.assertNumQueriesLessThan(90):
+            self.client.login(username='test_user')
+            response = self.client.get('/', follow=True)
+            self.assertNotIn('navbar-login', response.content)
+            self.assertNotIn('System Administration', response.content)
+        with self.assertNumQueriesLessThan(70):
+            self.client.login(username='test_admin')
+            response = self.client.get('/', follow=True)
+            self.assertNotIn('navbar-login', response.content)
+            self.assertIn('System Administration', response.content)
 
     def test_accounts_menu(self):
         response = self.client.get('/', follow=True)
@@ -127,13 +133,15 @@ class TestIndexNoContest(TestCase):
     fixtures = ('test_users',)
 
     def test_no_contest(self):
-        response = self.client.get('/')
-        self.assertIn('There are no contests available to logged out',
-                response.content)
-        self.client.login(username='test_admin')
-        response = self.client.get('/')
-        self.assertIn('This is a new OIOIOI installation',
-                response.content)
+        with self.assertNumQueriesLessThan(50):
+            response = self.client.get('/')
+            self.assertIn('There are no contests available to logged out',
+                    response.content)
+        with self.assertNumQueriesLessThan(50):
+            self.client.login(username='test_admin')
+            response = self.client.get('/')
+            self.assertIn('This is a new OIOIOI installation',
+                    response.content)
 
     def test_navbar_login(self):
         response = self.client.get('/')

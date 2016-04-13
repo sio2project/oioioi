@@ -1,15 +1,17 @@
-from django.test import TestCase
-from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from oioioi.contests.models import Contest, Round, RoundTimeExtension
-from oioioi.contests.current_contest import ContestMode
-from django.utils.timezone import utc
-from datetime import datetime
 import calendar
 import json
 import time
+from datetime import datetime
 from dateutil.parser import parse as parse_date
+
+from django.test.utils import override_settings
+from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
+from django.utils.timezone import utc
+
+from oioioi.base.tests import TestCase
+from oioioi.contests.models import Contest, Round, RoundTimeExtension
+from oioioi.contests.current_contest import ContestMode
 
 
 class TestClock(TestCase):

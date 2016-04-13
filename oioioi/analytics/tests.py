@@ -1,5 +1,6 @@
-from django.test import TestCase
 from django.test.utils import override_settings
+
+from oioioi.base.tests import TestCase
 
 class TestAnalytics(TestCase):
     def test_without_analytics(self):

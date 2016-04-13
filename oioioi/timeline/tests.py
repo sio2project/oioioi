@@ -1,9 +1,9 @@
 import datetime
 
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.utils.timezone import utc
 
+from oioioi.base.tests import TestCase
 from oioioi.base.tests import check_not_accessible
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest, Round

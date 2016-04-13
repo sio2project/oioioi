@@ -4,7 +4,7 @@ from functools import partial
 from django.core import mail
 from collections import defaultdict
 
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.template import Template, RequestContext
 from django.http import HttpResponse
@@ -16,7 +16,8 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.admin.util import quote
 from nose.tools import nottest
 
-from oioioi.base.tests import check_not_accessible, fake_time, TestsUtilsMixin
+from oioioi.base.tests import TestCase, check_not_accessible, fake_time, \
+    TestsUtilsMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         UserResultForContest, Submission, ContestAttachment, \
         RoundTimeExtension, ContestPermission, UserResultForProblem, \

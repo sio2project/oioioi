@@ -2,9 +2,9 @@ from datetime import datetime
 import json
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.utils.timezone import utc
-from oioioi.base.tests import fake_time
+
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Round, Contest, RoundTimeExtension
 
 

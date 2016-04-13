@@ -3,10 +3,10 @@ import json
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
+from oioioi.base.tests import TestCase
 from oioioi.su import SU_UID_SESSION_KEY, SU_BACKEND_SESSION_KEY
 from oioioi.su.utils import get_user, su_to_user
 from oioioi.contests.current_contest import ContestMode

@@ -1,10 +1,9 @@
 import json
 
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
-from oioioi.base.tests import check_not_accessible
+from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.models import Message, ReplyTemplate

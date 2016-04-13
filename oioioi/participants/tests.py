@@ -1,14 +1,13 @@
 import json
 import os
 from datetime import datetime
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
-from oioioi.base.tests import fake_time, check_not_accessible
+from oioioi.base.tests import TestCase, fake_time, check_not_accessible
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \

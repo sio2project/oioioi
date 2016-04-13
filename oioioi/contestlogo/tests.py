@@ -1,10 +1,10 @@
-from django.test import TestCase
 from django.utils.timezone import timedelta
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.http import http_date
 
+from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
 from oioioi.contestlogo.models import ContestLogo, ContestIcon
 from oioioi.programs.controllers import ProgrammingContestController

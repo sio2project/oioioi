@@ -1,10 +1,11 @@
 #~*~ encoding: utf-8 ~*~
 import re
 from datetime import datetime
-from django.test import TestCase
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+
+from oioioi.base.tests import TestCase
 from oioioi.oi.controllers import OIContestController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.contests.models import Contest, Submission

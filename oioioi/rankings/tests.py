@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
@@ -8,7 +7,7 @@ from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.conf import settings
 
-from oioioi.base.tests import fake_time, check_not_accessible
+from oioioi.base.tests import TestCase, fake_time, check_not_accessible
 from oioioi.contests.models import Contest, UserResultForProblem, \
         ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController

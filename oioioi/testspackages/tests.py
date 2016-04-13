@@ -5,9 +5,8 @@ import zipfile
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
-from django.test import TestCase
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.base.utils import strip_num_or_hash
 from oioioi.contests.models import Contest
 from oioioi.problems.models import Problem

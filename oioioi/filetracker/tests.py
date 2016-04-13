@@ -1,11 +1,12 @@
 # coding: utf-8
 
 from django.utils import unittest
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile, FileField
 from django.core.files.storage import default_storage
+
+from oioioi.base.tests import TestCase
 from oioioi.filetracker.models import TestFileModel
 from oioioi.filetracker.storage import FiletrackerStorage
 from oioioi.filetracker.utils import django_to_filetracker_path, \

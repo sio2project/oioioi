@@ -1,8 +1,8 @@
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, get_current_timezone
-from oioioi.base.tests import fake_time
+
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission
 from oioioi.test_settings import OISUBMIT_MAGICKEY

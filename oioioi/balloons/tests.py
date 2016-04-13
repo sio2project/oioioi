@@ -4,11 +4,10 @@ import json
 from django.contrib.admin.util import quote
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.utils.timezone import utc
 
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.balloons.models import BalloonsDeliveryAccessData, BalloonDelivery
-from oioioi.base.tests import fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.participants.models import Participant
 from oioioi.sinolpack.tests import get_test_filename

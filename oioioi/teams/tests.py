@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc
@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.teams.models import TeamsConfig
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.teams.utils import can_join_team, can_quit_team, can_delete_team, \
                                can_create_team
 from oioioi.teams.views import create_team

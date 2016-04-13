@@ -2,12 +2,51 @@ import threading
 import urllib
 from contextlib import contextmanager
 
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.test import TestCase as DjangoTestCase
+from django.test.utils import CaptureQueriesContext
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User, AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.template.loaders.cached import Loader as CachedLoader
+
+
+# Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30
+class _AssertNumQueriesLessThanContext(CaptureQueriesContext):
+    def __init__(self, test_case, num, connection):
+        self.test_case = test_case
+        self.num = num
+        super(_AssertNumQueriesLessThanContext, self).__init__(connection)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        super(_AssertNumQueriesLessThanContext, self). \
+            __exit__(exc_type, exc_value, traceback)
+        if exc_type is not None:
+            return
+        executed = len(self)
+        self.test_case.assertTrue(
+            executed < self.num,
+            "%d queries executed, expected less than %d" %
+                (executed, self.num)
+        )
+
+
+class TestCase(DjangoTestCase):
+
+    # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L236
+    def assertNumQueriesLessThan(self, num, *args, **kwargs):
+        func = kwargs.pop('func', None)
+        using = kwargs.pop("using", DEFAULT_DB_ALIAS)
+        conn = connections[using]
+
+        context = _AssertNumQueriesLessThanContext(self, num, conn)
+        if func is None:
+            return context
+
+        with context:
+            func(*args, **kwargs)
 
 
 class IgnorePasswordAuthBackend(object):

@@ -1,12 +1,11 @@
 from datetime import datetime
-from django.test import TestCase
 from django.core import mail
 from django.test.utils import override_settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.complaints.models import ComplaintsConfig
 from oioioi.contests.models import Contest
 from oioioi.participants.models import Participant

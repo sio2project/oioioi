@@ -4,9 +4,9 @@ import tarfile
 import shutil
 import StringIO
 
-from django.test import TestCase
 from django.core.management import call_command
 
+from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Round
 from oioioi.programs.models import ProgramSubmission
 from oioioi.exportszu.utils import SubmissionsWithUserDataCollector

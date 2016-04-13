@@ -1,7 +1,7 @@
 from django.core.urlresolvers import reverse
-from django.test import TestCase
 from django.utils import timezone
 
+from oioioi.base.tests import TestCase
 from oioioi.globalmessage.models import GlobalMessage
 
 

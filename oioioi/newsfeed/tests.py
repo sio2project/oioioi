@@ -1,5 +1,6 @@
 from django.core.urlresolvers import reverse
-from django.test import TestCase
+
+from oioioi.base.tests import TestCase
 
 
 class TestNewsfeedVisibility(TestCase):

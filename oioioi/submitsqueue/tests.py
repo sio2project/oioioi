@@ -1,7 +1,7 @@
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from celery.exceptions import Ignore
 
+from oioioi.base.tests import TestCase
 from oioioi.submitsqueue.models import QueuedSubmit
 from oioioi.submitsqueue.handlers import mark_submission_state
 from oioioi.contests.models import Submission, Contest
