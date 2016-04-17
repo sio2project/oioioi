@@ -562,6 +562,18 @@ class SinolPackage(object):
             if instance:
                 created_tests.append(instance)
 
+        time_limit_sum = 0
+        for test in created_tests:
+            time_limit_sum += test.time_limit
+        if time_limit_sum > settings.MAX_TEST_TIME_LIMIT_PER_PROBLEM:
+            time_limit_sum_rounded = (time_limit_sum + 999) / 1000.0
+            limit_seconds = settings.MAX_TEST_TIME_LIMIT_PER_PROBLEM / 1000.0
+
+            raise ProblemPackageError(_(
+                "Sum of time limits for all tests is too big. It's %(sum)ds, "
+                "but it shouldn't exceed %(limit)ds."
+                ) % {'sum': time_limit_sum_rounded, 'limit': limit_seconds})
+
         # Check test inputs
         self._verify_ins(created_tests)
 

@@ -1,4 +1,5 @@
 from nose.tools import nottest
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils.translation import ugettext_lazy as _
@@ -24,6 +25,14 @@ def validate_time_limit(value):
         raise ValidationError(_("Time limit must be a positive number."))
 
 
+def validate_memory_limit(value):
+    if value is None or value <= 0:
+        raise ValidationError(_("Memory limit must be a positive number."))
+    if value > settings.MAX_MEMORY_LIMIT_FOR_TEST:
+        raise ValidationError(_("Memory limit mustn't be greater than %dKiB."
+                              % settings.MAX_MEMORY_LIMIT_FOR_TEST))
+
+
 @nottest
 class Test(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance)
@@ -37,7 +46,8 @@ class Test(models.Model):
     time_limit = models.IntegerField(verbose_name=_("time limit (ms)"),
             null=True, blank=False, validators=[validate_time_limit])
     memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"),
-            null=True, blank=True)
+            null=True, blank=True,
+            validators=[validate_memory_limit])
     max_score = models.IntegerField(verbose_name=_("score"),
             default=10)
     order = models.IntegerField(default=0)

@@ -4,7 +4,7 @@ from django.contrib.admin import SimpleListFilter
 from django.db.models import Q
 from django.template.response import TemplateResponse
 from django.conf.urls import patterns, url
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
@@ -22,6 +22,35 @@ from oioioi.programs.models import Test, ModelSolution, TestReport, \
         LibraryProblemData, ReportActionsConfig
 from collections import defaultdict
 
+from django.forms.models import BaseInlineFormSet
+
+
+class TimeLimitFormset(BaseInlineFormSet):
+    def get_time_limit_sum(self):
+        time_limit_sum = 0
+        for test in self.cleaned_data:
+            time_limit_sum += test['time_limit']
+        return time_limit_sum
+
+    def validate_time_limit_sum(self):
+        time_limit_per_problem = settings.MAX_TEST_TIME_LIMIT_PER_PROBLEM
+
+        if self.get_time_limit_sum() > time_limit_per_problem:
+            time_limit_sum_rounded = (self.get_time_limit_sum() + 999) / 1000.0
+            limit_seconds = time_limit_per_problem / 1000.0
+
+            raise ValidationError(_(
+                "Sum of time limits for all tests is too big. It's %(sum)ds, "
+                "but it shouldn't exceed %(limit)ds."
+                ) % {'sum': time_limit_sum_rounded, 'limit': limit_seconds})
+
+    def clean(self):
+        try:
+            self.validate_time_limit_sum()
+            return self.cleaned_data
+        except AttributeError:
+            pass
+
 
 class TestInline(admin.TabularInline):
     model = Test
@@ -34,6 +63,7 @@ class TestInline(admin.TabularInline):
     readonly_fields = ('name', 'kind', 'group', 'input_file_link',
             'output_file_link')
     ordering = ('kind', 'order', 'name')
+    formset = TimeLimitFormset
 
     class Media(object):
         css = {

@@ -486,3 +486,36 @@ class TestJudging(TestCase):
 
         urc = UserResultForContest.objects.get()
         self.assertEqual(urc.score, IntegerScore(34))
+
+
+class TestLimits(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def upload_package(self):
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        filename = get_test_filename('test_simple_package.zip')
+
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id},
+                follow=True)
+        url = response.redirect_chain[-1][0]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('problems/add_or_update.html',
+                [getattr(t, 'name', None) for t in response.templates])
+        return self.client.post(url,
+                {'package_file': open(filename, 'rb')}, follow=True)
+
+    @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=2000)
+    def test_time_limit(self):
+        response = self.upload_package()
+        self.assertIn("Sum of time limits for all tests is too big. It&#39;s "
+                      "50s, but it shouldn&#39;t exceed 2s.", response.content)
+
+    @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=10)
+    def test_memory_limit(self):
+        response = self.upload_package()
+        self.assertIn("Memory limit mustn&#39;t be greater than %dKiB"
+                        % settings.MAX_MEMORY_LIMIT_FOR_TEST, response.content)

@@ -274,6 +274,10 @@ USE_UNSAFE_CHECKER = True
 # execution (in a sandboxed environment, if USE_UNSAFE_EXEC is set to False).
 USE_SINOLPACK_MAKEFILES = True
 
+# Upper bounds for tests' time [ms] and memory [KiB] limits.
+MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
+MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024
+
 FILETRACKER_SERVER_ENABLED = False
 FILETRACKER_LISTEN_ADDR = '127.0.0.1'
 FILETRACKER_LISTEN_PORT = 9999

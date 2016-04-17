@@ -3,12 +3,14 @@ from collections import defaultdict
 
 from datetime import datetime
 
+from django.conf import settings
 from django.test import TestCase, RequestFactory
 from django.utils.timezone import utc
 from django.utils.html import strip_tags, escape
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+from django.test.utils import override_settings
 
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
@@ -844,3 +846,85 @@ class TestRejudge(TestCase, SubmitFileMixin):
                            {},
                            ['0', '1b', '3'],
                            ['1a', '2'])
+
+
+class TestLimitsLimits(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission']
+
+    form_data = {
+        'test_set-TOTAL_FORMS': 6,
+        'test_set-INITIAL_FORMS': 6,
+        'test_set-MIN_NUM_FORMS': 0,
+        'test_set-MAX_NUM_FORMS': 0,
+        'test_set-0-time_limit': 1000,
+        'test_set-0-memory_limit': 1,
+        'test_set-0-max_score': 10,
+        'test_set-0-is_active': 'on',
+        'test_set-0-problem_instance': 1,
+        'test_set-0-id': 1,
+        'test_set-1-time_limit': 1000,
+        'test_set-1-memory_limit': 10,
+        'test_set-1-max_score': 10,
+        'test_set-1-is_active': 'on',
+        'test_set-1-problem_instance': 1,
+        'test_set-1-id': 4,
+        'test_set-2-time_limit': 1000,
+        'test_set-2-memory_limit': 10,
+        'test_set-2-max_score': 10,
+        'test_set-2-is_active': 'on',
+        'test_set-2-problem_instance': 1,
+        'test_set-2-id': 2,
+        'test_set-3-time_limit': 1001,
+        'test_set-3-memory_limit': 10,
+        'test_set-3-max_score': 10,
+        'test_set-3-is_active': 'on',
+        'test_set-3-problem_instance': 1,
+        'test_set-3-id': 3,
+        'test_set-4-time_limit': 1000,
+        'test_set-4-memory_limit': 101,
+        'test_set-4-max_score': 10,
+        'test_set-4-is_active': 'on',
+        'test_set-4-problem_instance': 1,
+        'test_set-4-id': 5,
+        'test_set-5-time_limit': 1000,
+        'test_set-5-memory_limit': 101,
+        'test_set-5-max_score': 10,
+        'test_set-5-is_active': 'on',
+        'test_set-5-problem_instance': 1,
+        'test_set-5-id': 6,
+        'test_set-__prefix__-time-limit': '',
+        'test_set-__prefix__-memory-limit': '',
+        'test_set-__prefix__-max_score': 10,
+        'test_set-__prefix__-is_active': 'on',
+        'test_set-__prefix__-problem_instance': 3,
+        'test_set-__prefix__-id': '',
+        '_continue': 'Zapisz+i+kontynuuj+edycj%C4%99',
+        'round': 1,
+        'short_name': 'zad1',
+        'submissions_limit': 10,
+        'paprobleminstancedata-TOTAL_FORMS': 1,
+        'paprobleminstancedata-INITIAL_FORMS': 0,
+        'paprobleminstancedata-MIN_NUM_FORMS': 0,
+        'paprobleminstancedata-MAX_NUM_FORMS': 1
+    }
+
+    def edit_settings(self):
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')
+        return self.client.post(
+                reverse('oioioiadmin:contests_probleminstance_change',
+                        kwargs={'contest_id': 'c'}, args=[1]),
+                self.form_data, follow=True)
+
+    @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=6000)
+    def test_time_limit(self):
+        response = self.edit_settings()
+        self.assertIn("Sum of time limits for all tests is too big. It&#39;s "
+                      "7s, but it shouldn&#39;t exceed 6s.", response.content)
+
+    @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=100)
+    def test_memory_limit(self):
+        response = self.edit_settings()
+        self.assertIn("Memory limit mustn&#39;t be greater than %dKiB."
+                        % settings.MAX_MEMORY_LIMIT_FOR_TEST, response.content)
