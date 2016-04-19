@@ -34,6 +34,7 @@ Vagrant.configure(2) do |config|
     config.vm.network "forwarded_port", guest: 8000, host: 8000 # SIO2 dev server
     config.vm.network "forwarded_port", guest: 7887, host: 7887 # notifications-server
     config.vm.network "forwarded_port", guest: 5432, host: 8001 # postgres
+    config.vm.network "forwarded_port", guest: 8089, host: 8089 # locust
 
     config.vm.synced_folder ".", "/sio2/oioioi"
   end
