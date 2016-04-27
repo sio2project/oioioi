@@ -1792,3 +1792,51 @@ class TestModifyContest(TestCase):
         contest = Contest.objects.get()
         self.assertEqual(contest.id, 'yac')
         self.assertEqual(controller_name, contest.controller_name)
+
+
+class TestRegistrationController(TestCase):
+    fixtures = ['test_two_empty_contests', 'test_users']
+
+    def test_filter_visible_contests(self):
+        invisible_contest = Contest(id='invisible', name='Invisible Contest',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        invisible_contest.save()
+
+        c1 = Contest.objects.get(id='c1')
+        c2 = Contest.objects.get(id='c2')
+
+        request = self.client.get('/').wsgi_request
+
+        public_rc = c1.controller.registration_controller().__class__
+        private_rc = invisible_contest.controller \
+               .registration_controller().__class__
+
+        def assert_public_are_visible():
+            results = public_rc.filter_visible_contests(request,
+                Contest.objects.filter(id__in=[c1.id, c2.id]))
+            visible_contests = list(results.values_list('id', flat=True))
+            self.assertEqual(len(visible_contests), 2)
+            self.assertTrue(c1.id in visible_contests)
+            self.assertTrue(c2.id in visible_contests)
+
+        def query_private(request):
+            return private_rc.filter_visible_contests(request,
+                Contest.objects.filter(id=invisible_contest.id))
+
+        # Check anonymous
+        assert_public_are_visible()
+        self.assertFalse(query_private(request).exists())
+
+        # Check logged in
+        self.client.login(username='test_user')
+        user = User.objects.get(username='test_user')
+
+        assert_public_are_visible()
+        self.assertFalse(query_private(request).exists())
+
+        ContestPermission(user=user, contest=invisible_contest,
+                permission='contests.contest_admin').save()
+        request = self.client.get('/', follow=True).wsgi_request
+        visible = list(query_private(request).values_list('id', flat=True))
+        self.assertEquals(len(visible), 1)
+        self.assertTrue(invisible_contest.id in visible)

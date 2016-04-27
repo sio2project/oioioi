@@ -31,14 +31,20 @@ class PARegistrationController(ParticipantsController):
         from oioioi.pa.admin import PARegistrationParticipantAdmin
         return PARegistrationParticipantAdmin
 
+    @classmethod
     def anonymous_can_enter_contest(self):
         return True
 
     def allow_login_as_public_name(self):
         return True
 
+    # Redundant because of filter_visible_contests, but saves a db query
     def can_enter_contest(self, request):
         return True
+
+    @classmethod
+    def filter_visible_contests(cls, request, contest_queryset):
+        return contest_queryset
 
     def can_register(self, request):
         return True

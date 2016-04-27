@@ -5,6 +5,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, RoundTimeExtension
 from oioioi.base.utils import request_cached
 from datetime import timedelta
+from collections import defaultdict
 
 
 class RoundTimes(object):
@@ -179,14 +180,31 @@ def aggregate_statuses(statuses):
         return 'OK'
 
 
+def contests_by_registration_controller():
+    """Returns a mapping from RegistrationController class to contest ids.
+
+       This is useful for limiting the number of database queries required
+       to check which contests can be shown to the user.  It allows
+       RegistrationController subclasses to operate on contest querysets
+       and filter many of them at once.
+
+       :rtype: :class:`~collections.defaultdict` containing `set` objects
+    """
+    rcontrollers = defaultdict(set)
+    for contest in Contest.objects.all():
+        rc = contest.controller.registration_controller()
+        rcontrollers[rc.__class__].add(contest.id)
+    return rcontrollers
+
 @request_cached
 def visible_contests(request):
-    contests = []
-    for contest in Contest.objects.order_by('-creation_date'):
-        rcontroller = contest.controller.registration_controller()
-        if rcontroller.can_enter_contest(request):
-            contests.append(contest)
-    return contests
+    visible = Contest.objects.none().distinct()
+    rc_mapping = contests_by_registration_controller()
+    for rcontroller, contest_ids in rc_mapping.iteritems():
+        contests = Contest.objects.filter(id__in=contest_ids)
+        result = rcontroller.filter_visible_contests(request, contests)
+        visible |= result.distinct()
+    return visible.order_by('-creation_date')
 
 
 def can_admin_contest(user, contest):

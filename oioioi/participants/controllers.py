@@ -30,7 +30,8 @@ class ParticipantsController(RegistrationController):
         from oioioi.participants.admin import ParticipantAdmin
         return ParticipantAdmin
 
-    def anonymous_can_enter_contest(self):
+    @classmethod
+    def anonymous_can_enter_contest(cls):
         return False
 
     def allow_login_as_public_name(self):
@@ -42,6 +43,11 @@ class ParticipantsController(RegistrationController):
     def filter_participants(self, queryset):
         return queryset.filter(participant__contest=self.contest,
                 participant__status='ACTIVE')
+
+    @classmethod
+    def filter_user_contests(cls, request, contest_queryset):
+        return contest_queryset.filter(participant__user__id=request.user.id,
+            participant__status='ACTIVE')
 
     def filter_users_with_accessible_personal_data(self, queryset):
         return self.filter_participants(queryset)
@@ -163,14 +169,20 @@ class OpenParticipantsController(ParticipantsController):
         from oioioi.participants.forms import OpenRegistrationForm
         return OpenRegistrationForm
 
-    def anonymous_can_enter_contest(self):
+    @classmethod
+    def anonymous_can_enter_contest(cls):
         return True
 
     def allow_login_as_public_name(self):
         return True
 
+    # Redundant because of filter_visible_contests, but saves a db query
     def can_enter_contest(self, request):
         return True
+
+    @classmethod
+    def filter_visible_contests(cls, request, contest_queryset):
+        return contest_queryset
 
     def can_register(self, request):
         return True

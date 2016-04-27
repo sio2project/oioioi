@@ -22,6 +22,7 @@ from oioioi.contests.models import Submission, Round, UserResultForRound, \
         UserResultForContest, submission_kinds, ProblemStatementConfig, \
         RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
+from oioioi.contests.models import Contest
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
         is_contest_admin, is_contest_observer, last_break_between_rounds, \
         has_any_active_round
@@ -72,26 +73,62 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         """Determines if the current user is allowed to enter the contest,
            i.e. see any page related to the contest.
 
-           The default implementation uses :meth:`filter_participants` on
-           a single-row queryset for non-anonymous users. For anonymous,
-           :meth:`anonymous_can_enter_contest` is called.
-
-           Contest administrators are also allowed, regardless of what
-           :meth:`filter_participants` returns.
+           The default implementation uses :meth:`filter_visible_contests` with
+           a single-element contest queryset.
 
            :rtype: bool
         """
-        if request.user.is_anonymous():
-            return self.anonymous_can_enter_contest()
-        if request.user.has_perm('contests.contest_admin', self.contest):
-            return True
-        if request.user.has_perm('contests.contest_observer', self.contest):
-            return True
-        if request.user.has_perm('contests.personal_data', self.contest):
-            return True
-        queryset = User.objects.filter(id=request.user.id)
-        return bool(self.filter_participants(queryset))
+        queryset = Contest.objects.filter(id=self.contest.id)
+        return self.filter_visible_contests(request, queryset).exists()
 
+    @classmethod
+    def filter_visible_contests(cls, request, contest_queryset):
+        """Filters a queryset of :class:`oioioi.contests.models.Contest`
+           leaving only contests that the user can enter.
+
+           contest_queryset should containin only contests that use a
+           :class:`oioioi.base.controllers.RegistractionController` subclass
+           which :meth:`filter_visible_contests` is being called.
+
+           For non-anonymous users default implementation checks their
+           permissions and returns a union with what is returned from
+           :meth:`filter_user_contests`. For anonymous, checks
+           :meth:`anonymous_can_enter_contest`.
+
+           :rtype: :class:`~django.db.models.query.QuerySet`
+        """
+        if request.user.is_anonymous() and cls.anonymous_can_enter_contest():
+            return contest_queryset.distinct()
+        contests = set()
+        for contest in contest_queryset:
+            if request.user.has_perm('contests.contest_admin', contest):
+                contests.add(contest.id)
+                continue
+            if request.user.has_perm('contests.contest_observer', contest):
+                contests.add(contest.id)
+                continue
+            if request.user.has_perm('contests.personal_data', contest):
+                contests.add(contest.id)
+                continue
+        permissions = Contest.objects.filter(id__in=contests)
+        participated = \
+                cls.filter_user_contests(request, contest_queryset)
+        return (permissions | participated).distinct()
+
+    @classmethod
+    def filter_user_contests(cls, request, contest_queryset):
+        """Filters a queryset of :class:`oioioi.contests.models.Contest`
+           leaving only contests that the user has entered.
+
+           contest_queryset should contain only contests that use a
+           :class:`oioioi.base.controllers.RegistractionController` subclass
+           which :meth:`filter_user_contests` is being called.
+
+           :rtype: :class:`~django.db.models.query.QuerySet`
+        """
+        raise NotImplementedError
+
+    @classmethod
     def anonymous_can_enter_contest(self):
         """Determines if an anonymous user can enter the contest.
 
@@ -160,11 +197,21 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 class PublicContestRegistrationController(RegistrationController):
     description = _("Public contest")
 
+    # Redundant because of filter_visible_contests, but saves a db query
     def can_enter_contest(self, request):
         return True
 
-    def anonymous_can_enter_contest(self):
+    @classmethod
+    def anonymous_can_enter_contest(cls):
         return True
+
+    @classmethod
+    def filter_visible_contests(cls, request, contest_queryset):
+        return contest_queryset
+
+    @classmethod
+    def filter_user_contests(cls, request, contest_queryset):
+        return contest_queryset
 
     def filter_participants(self, queryset):
         return queryset

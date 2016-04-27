@@ -651,3 +651,34 @@ class TestParticipantsDataViews(TestCase):
             self.assertEqual(response.status_code, 200)
         finally:
             self.client.logout()
+
+
+class TestParticipantsController(TestCase):
+    fixtures = ['test_users']
+
+    def test_filter_visible_contests(self):
+        participants_contest = Contest(id='participants',
+            name='Participants Contest')
+        participants_contest.controller_name = \
+                'oioioi.participants.tests.ParticipantsContestController'
+        participants_contest.save()
+
+        request = self.client.get('/').wsgi_request
+
+        def query_contest(request):
+            return ParticipantsController.filter_visible_contests(request,
+                Contest.objects.filter(id=participants_contest.id))
+
+        # Check anonymous
+        self.assertFalse(query_contest(request).exists())
+
+        # Check logged in
+        self.client.login(username='test_user')
+        user = User.objects.get(username='test_user')
+        self.assertFalse(query_contest(request).exists())
+
+        Participant(contest=participants_contest, user=user).save()
+        request = self.client.get('/', follow=True).wsgi_request
+        results = list(query_contest(request).values_list('id', flat=True))
+        self.assertEquals(len(results), 1)
+        self.assertTrue(participants_contest.id in results)

@@ -4,8 +4,13 @@ from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
 
 class PrivateRegistrationController(RegistrationController):
-    def anonymous_can_enter_contest(self):
+    @classmethod
+    def anonymous_can_enter_contest(cls):
         return False
+
+    @classmethod
+    def filter_user_contests(cls, request, contest_queryset):
+        return contest_queryset.none()
 
     def filter_participants(self, queryset):
         return queryset.none()

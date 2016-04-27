@@ -2,6 +2,7 @@ import re
 import urlparse
 
 from mistune import Renderer, InlineGrammar, InlineLexer, Markdown, BlockLexer
+from django.conf import settings
 from django.core.urlresolvers import resolve, reverse
 from django.http import Http404
 from django.template import RequestContext
@@ -172,12 +173,13 @@ register_widget(ProblemTableWidget())
 class ContestSelectionWidget(object):
     name = 'contest_selection'
     compiled_tag_regex = re.compile(r'\[\[ContestSelection\]\]')
-    TO_SHOW = 9
+    TO_SHOW = getattr(settings, 'NUM_RECENT_CONTESTS', 5)
 
     def render(self, request, m):
-        contests = list(visible_contests(request)[:self.TO_SHOW])
         rcontests = recent_contests(request)
-        contests = rcontests + [c for c in contests if c not in rcontests]
+        rcontests_ids = {contest.id for contest in rcontests}
+        contests = visible_contests(request).exclude(id__in=rcontests_ids)
+        contests = list(contests[:self.TO_SHOW+1])
 
         default_contest = None
         if rcontests:
@@ -186,9 +188,9 @@ class ContestSelectionWidget(object):
             default_contest = contests[0]
 
         context = {
-            'contests': contests[:self.TO_SHOW-1],
+            'contests': contests[:self.TO_SHOW],
             'default_contest': default_contest,
-            'more_contests': len(contests) > self.TO_SHOW-1,
+            'more_contests': len(contests) > self.TO_SHOW,
             'is_teacher': request.user.has_perm('teachers.teacher'),
             'is_inactive_teacher': request.user.is_authenticated() and
                     bool(Teacher.objects.filter(user=request.user,

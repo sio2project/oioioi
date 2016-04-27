@@ -107,9 +107,7 @@ class CurrentContestMiddleware(object):
             contest = self._get_contest(getattr(settings, 'DEFAULT_CONTEST'))
 
         if not contest:
-            contests = visible_contests(request)
-            if contests:
-                contest = contests[0]
+            contest = visible_contests(request).first()
 
         if not contest:
             return

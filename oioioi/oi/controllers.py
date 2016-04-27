@@ -31,11 +31,17 @@ class OIRegistrationController(ParticipantsController):
         from oioioi.oi.admin import OIRegistrationParticipantAdmin
         return OIRegistrationParticipantAdmin
 
-    def anonymous_can_enter_contest(self):
+    @classmethod
+    def anonymous_can_enter_contest(cls):
         return True
 
+    # Redundant because of filter_visible_contests, but saves a db query
     def can_enter_contest(self, request):
         return True
+
+    @classmethod
+    def filter_visible_contests(cls, request, contest_queryset):
+        return contest_queryset
 
     def can_register(self, request):
         return True
