@@ -448,10 +448,11 @@ Testing
 -----
 
 OIOIOI has a big suite of unit tests. All utilites that are useful for testing
-can be found in `test/` directory. Currently these are:
-* test.sh - a simple test runner
-* test_parallel.py - runs the same tests as test.sh, but uses multiple processes
-* loadtest.py - load testing script
+can be found in ``test/`` directory. Currently these are:
+
+* ``test.sh`` - a simple test runner
+* ``test_parallel.py`` - runs the same tests as test.sh, but uses multiple processes
+* ``loadtest.py`` - load testing script
 
 Contact us
 ------------
