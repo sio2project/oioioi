@@ -15,7 +15,10 @@ class TeacherAuthBackend(object):
         if not user_obj.is_authenticated() or not user_obj.is_active:
             return False
         if perm == 'teachers.teacher':
-            return bool(Teacher.objects.filter(user=user_obj, is_active=True))
+            if not hasattr(user_obj, '_is_teacher'):
+                user_obj._is_teacher = Teacher.objects.filter(
+                    user=user_obj, is_active=True).exists()
+            return user_obj._is_teacher
         if perm == 'contests.contest_admin' and isinstance(obj, Contest):
             if not hasattr(user_obj, '_teacher_perms_cache'):
                 user_obj._teacher_perms_cache = set(ContestTeacher.objects
