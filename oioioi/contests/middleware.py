@@ -107,7 +107,10 @@ class CurrentContestMiddleware(object):
             contest = self._get_contest(getattr(settings, 'DEFAULT_CONTEST'))
 
         if not contest:
-            contest = visible_contests(request).first()
+            visible = visible_contests(request)
+            if visible:
+                # Get most recent visible contest
+                contest = max(visible, key=lambda c: c.creation_date)
 
         if not contest:
             return

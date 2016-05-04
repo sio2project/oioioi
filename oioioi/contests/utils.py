@@ -198,13 +198,17 @@ def contests_by_registration_controller():
 
 @request_cached
 def visible_contests(request):
-    visible = Contest.objects.none().distinct()
+    visible = set()
     rc_mapping = contests_by_registration_controller()
     for rcontroller, contest_ids in rc_mapping.iteritems():
         contests = Contest.objects.filter(id__in=contest_ids)
-        result = rcontroller.filter_visible_contests(request, contests)
-        visible |= result.distinct()
-    return visible.order_by('-creation_date')
+        # These querysets could be concatenated and evaluated in a single
+        # query, however it turns out, that it results in so big and complex
+        # WHERE clauses that Postgres doesn't even attempt to optimize it
+        # (which means ~100x longer execution times).
+        filtered = set(rcontroller.filter_visible_contests(request, contests))
+        visible = visible | filtered
+    return visible
 
 
 def can_admin_contest(user, contest):

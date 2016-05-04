@@ -177,9 +177,9 @@ class ContestSelectionWidget(object):
 
     def render(self, request, m):
         rcontests = recent_contests(request)
-        rcontests_ids = {contest.id for contest in rcontests}
-        contests = visible_contests(request).exclude(id__in=rcontests_ids)
-        contests = list(contests[:self.TO_SHOW+1])
+        contests = list(visible_contests(request).difference(rcontests))
+        contests.sort(key=lambda x: x.creation_date, reverse=True)
+        contests = (rcontests + contests)[:self.TO_SHOW+1]
 
         default_contest = None
         if rcontests:
