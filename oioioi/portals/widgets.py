@@ -8,13 +8,14 @@ from django.http import Http404
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.utils import visible_contests
 from oioioi.contests.processors import recent_contests
+from oioioi.contests.models import UserResultForProblem
 from oioioi.teachers.models import Teacher
 from oioioi.problems.models import Problem
 from oioioi.problems.views import problem_site_view
-
 
 REGISTERED_WIDGETS = []
 
@@ -40,6 +41,7 @@ class PortalInlineLexer(InlineLexer):
 
 
 class PortalBlockLexer(BlockLexer):
+
     def __init__(self, *args, **kwargs):
         super(PortalBlockLexer, self).__init__(*args, **kwargs)
         self.rules.block_center = re.compile(r'^ *->(.*?)<-', re.DOTALL)
@@ -127,7 +129,8 @@ class ProblemTableWidget(object):
     name = 'problem_table'
     compiled_tag_regex = re.compile(
         r'\[\['                   # [[
-        r'ProblemTable\|(.+)'   # ProblemTable|...
+        # ProblemTable|... or ProblemTable:<Header>|...
+        r'ProblemTable(:.*)?\|(.+)'
         r'\]\](?!\])'             # ]]
     )
 
@@ -146,15 +149,15 @@ class ProblemTableWidget(object):
         return resolved.kwargs['site_key']
 
     def render(self, request, m):
-        if not m.group(1).strip(' ;'):
+        if not m.group(2).strip(' ;'):
             return ''
-        links = m.group(1).split(';')
+        links = m.group(2).split(';')
         links = [link.strip() for link in links if link.strip()]
 
         keys = [self.site_key_from_link(link) for link in links]
         keys = [key for key in keys if key is not None]
         problems = Problem.objects.filter(problemsite__url_key__in=keys) \
-                .select_related('problemsite')
+            .select_related('problemsite')
         problem_map = {pr.problemsite.url_key: pr for pr in problems}
 
         rows = [problem_map[key] for key in keys if key in problem_map]
@@ -162,11 +165,27 @@ class ProblemTableWidget(object):
         def get_url(site_key):
             return reverse(problem_site_view, kwargs={'site_key': site_key})
 
-        rows = [{'url': get_url(pr.problemsite.url_key),
-                 'name': pr.name} for pr in rows]
+        rows = [{
+            'url': get_url(pr.problemsite.url_key),
+            'name': pr.name,
+            'result': "" if not request.user.is_authenticated() else
+                (lambda e: "" if e is None else str(e.score.to_int()))
+                (
+                    UserResultForProblem.objects.filter(
+                        user=request.user,
+                        problem_instance=pr.main_problem_instance,
+                        submission_report__isnull=False
+                    ).first()
+            )
+        }
+            for pr in rows]
+
+        header = _("Problem Name")
+        if m.group(1):
+            header = m.group(1)[1:]
 
         return render_to_string('portals/widgets/problem_table.html',
-                                {'problems': rows})
+                                {'problems': rows, 'header': header})
 register_widget(ProblemTableWidget())
 
 
@@ -192,9 +211,9 @@ class ContestSelectionWidget(object):
             'default_contest': default_contest,
             'more_contests': len(contests) > self.TO_SHOW,
             'is_teacher': request.user.has_perm('teachers.teacher'),
-            'is_inactive_teacher': request.user.is_authenticated() and
-                    bool(Teacher.objects.filter(user=request.user,
-                         is_active=False)),
+            'is_inactive_teacher':
+            request.user.is_authenticated() and
+            bool(Teacher.objects.filter(user=request.user, is_active=False))
         }
         return render_to_string('portals/widgets/contest_selection.html',
                                 RequestContext(request, context))

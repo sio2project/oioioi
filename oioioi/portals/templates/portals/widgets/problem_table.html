@@ -3,13 +3,15 @@
 <table>
     <thead>
         <tr>
-            <th>{% trans "Problem Name" %}</th>
+            <th>{{ header }}</th>
+            <th>{% trans "Score" %}</th>
         </tr>
     </thead>
     <tbody>
         {% for problem in problems %}
         <tr>
             <td><a href="{{ problem.url }}">{{ problem.name }}</a></td>
+            <td>{{ problem.result }}</td>
         </tr>
         {% endfor %}
     </tbody>

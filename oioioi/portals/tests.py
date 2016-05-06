@@ -1,4 +1,5 @@
 from django.test.utils import override_settings
+from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -370,7 +371,13 @@ class TestPortalViews(TestCase):
 class TestMarkdown(TestCase):
 
     def setUp(self):
-        self.request = None
+        class MockRequest(object):
+            def __init__(self):
+                self.user = AnonymousUser()
+
+        # mocking up a request below becouse I am NOT testing whole view
+        self.request = MockRequest()
+
         for i in range(1, 5):
             name = 'problem_%s_name' % i
             url_key = 'problem_%s_key' % i
@@ -402,6 +409,7 @@ class TestMarkdown(TestCase):
             'zabawa.pl/problemset/problem/problem_4_key/site/?key=statement',
         ]
         tag = '[[ProblemTable|%s]]' % ';'.join(urls)
+
         rendered = render_panel(self.request, tag)
         self.assertEquals(rendered.count('<tr>'), 6)
         self.assertEquals(rendered.count('href'), 5)
