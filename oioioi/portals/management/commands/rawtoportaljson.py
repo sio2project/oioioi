@@ -8,12 +8,12 @@ import os
 
 class Command(BaseCommand):
 
-    args = str(_("<out_filename_json> [<in_filename_txt>]"))
-    help = str(_("Creates json describing portal structure from list of all "
-                 "tasks from MAIN portal (default one in "
-                 "oioioi/portals/management/commands/res) you may then edit "
-                 "to add contest descriptions and all of the other necessary "
-                 "polish."))
+    args = _("<out_filename_json> [<in_filename_txt>]").encode('utf-8')
+    help = _("Creates json describing portal structure from list of all "
+             "tasks from MAIN portal (default one in "
+             "oioioi/portals/management/commands/res) you may then edit "
+             "to add contest descriptions and all of the other necessary "
+             "polish.").encode('utf-8')
 
     def handle(self, *args, **options):
 
@@ -66,12 +66,15 @@ class Command(BaseCommand):
                     'name': edition,
                     'long_name': family['long_name']+" "+edition,
                     'tag': contest,
-                    'tasks': []
+                    'tasks': [("placeholder", []), ]
                 }
             edition = family['editions'][edition]
 
-            if name not in edition['tasks']:
-                edition['tasks'].append(name)
+            # non-usual structure of 'tasks' field is caused by feature
+            # that is only used by another generator; it's list of tuples
+            # containing pairs of header and task list
+            if name not in edition['tasks'][0][1]:
+                edition['tasks'][0][1].append(name)
 
         # sorting edition numbers as strings (but some of them are not numbers,
         # see 'PA2002-2'), it's tricky
