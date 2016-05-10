@@ -105,6 +105,10 @@ SEND_USER_ACTIVATION_EMAIL = False
 #FILETRACKER_LISTEN_ADDR = '0.0.0.0'
 #FILETRACKER_LISTEN_PORT = 9999
 
+# When using distributed workers set this to url on which workers will be
+# able to access filetracker server.
+FILETRACKER_URL = 'http://127.0.0.1:9999'
+
 # Contest mode - automatic activation of contests.
 #
 # Available choices are:
