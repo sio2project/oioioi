@@ -93,6 +93,11 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
 {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
 
+[program:cleanupd]
+command={{ PROJECT_DIR }}/manage.py cleanupd
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/cleanupd.log
+
 [program:autoreload]
 # Comment this out to enable auto-reloading when code changes.
 exclude=true
