@@ -22,7 +22,8 @@ function NotificationsClient(serverUrl, sessionId) {
     this.notifCount = 0;
     this.unconfirmedMessages = [];
     this.messages = [];
-    this.translatedText = {};
+    this.translationCache = {};
+    this.translationQueue = {};
     this.renderSuspended = false;
 
     if (typeof(io) === 'undefined')
@@ -65,27 +66,46 @@ NotificationsClient.prototype.setErrorState = function() {
     this.NUMBER_BADGE.addClass("label-warning");
 };
 
+NotificationsClient.prototype.setTranslatedText =
+    function(messageId, originalText) {
+        $('#notif_msg_' + messageId).text(this.translationCache[originalText]);
+    };
+
 NotificationsClient.prototype.resolveMessageText =
     function(messageId, originalText, args) {
-        var me = this;
-        if (me.translatedText[messageId]) {
-            $('#notif_msg_' + messageId).text(me.translatedText[messageId]);
+        if (this.translationCache[originalText]) {
+            this.setTranslatedText(messageId, originalText);
+            return;
         }
-        else {
-            $.get('/translate/',
-                {query: originalText}, 'json').
-                success(function (data) {
+        // Only the first query initiates a request
+        if (!this.translationQueue[originalText]) {
+            this.translationQueue[originalText] = [];
+
+            var dispatchCallbacks = (function(text, cacheTranslation) {
+                if (cacheTranslation)
+                    this.translationCache[originalText] = text;
+                var queue = this.translationQueue[originalText];
+                for (var i = 0; i < queue.length; i++)
+                    queue[i]();
+                delete this.translationQueue[originalText];
+            }).bind(this);
+
+            $.get('/translate/', {query: originalText}, 'json')
+                .success(function (data) {
                     var text = interpolate(data.answer, args, true);
-                    me.translatedText[messageId] = text;
-                    $('#notif_msg_' + messageId).text(text);
-                }).
-                fail(function (err) {
+                    dispatchCallbacks(text, true);
+                })
+                .fail(function (err) {
                     console.warn('Translation failed!' + err);
-                    $('#notif_msg_' + messageId).text(
-                        interpolate(originalText, args, true));
+                    var text = interpolate(originalText, args, true);
+                    dispatchCallbacks(text, false);
                 });
         }
-};
+        // Every query that had a cache miss adds itself to the queue
+        var callback = this.setTranslatedText.bind(this, messageId,
+                                                   originalText);
+        this.translationQueue[originalText].push(callback);
+    };
 
 NotificationsClient.prototype.authenticate = function() {
     var me = this;
