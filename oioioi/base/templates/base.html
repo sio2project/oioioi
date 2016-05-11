@@ -19,9 +19,9 @@
         <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
 
         {% block scripts %}
-        {% compress js %}
         <script type="text/javascript">var oioioi_base_url = "{{ base_url|escapejs }}";</script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
+        {% compress js %}
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui.js"></script>

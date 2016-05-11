@@ -2,22 +2,18 @@
 {% load i18n grp_tags compress common_media all_with_prefix %}
 
 {% block stylesheets %}
-{% compress css %}
 {{ block.super }}
+{% compress css %}
 <link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}less/admin.less">
 {% common_styles %}
 {% endcompress %}
 {% endblock %}
 
 {% block javascripts %}
-{% compress js %}
 {{ block.super }}
+{% compress js %}
 <script type="text/javascript"> var oioioi_base_url ="/"; </script>
-{% if debug %}
-<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.js"></script>
-{% else %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
-{% endif %}
 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/csrf_link_protect.js"></script>
