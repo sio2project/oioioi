@@ -1,0 +1,28 @@
+define dumptype szkopul-global {
+    global   # extends existing global dumptype
+    comment "Szkopul specific configuration"
+    auth "ssh"
+    ssh_keys "/var/lib/amanda/.ssh/id_rsa_amdump" # private SSH key that server uses when connecting to client
+    client-port 10045
+}
+define dumptype szkopul-tar {
+    szkopul-global   # auth options specified there
+    program "GNUTAR"    # we're using tar for dumping
+    compress server fast   # this uses fast compression on server side
+    index yes   # this allows to recover single files, not only entire dump at once
+}
+define application-tool app_ampgsql {
+    comment "ampgsql"
+    plugin "ampgsql"
+    property "TMPDIR" "/tmp"
+    property "ARCHIVEDIR" "/var/lib/postgresql/archive"   # dir containing WAL
+    property "DB" "sio2"   # which database to backup
+    property "USER" "amandabackup"   # PostgreSQL user that does backups, must be superuser
+    property "PASSFILE" "PATH_TO_PG_PASSFILE"   # credentials to use to login into PostgreSQL
+    property "HOST" "localhost"   # host on which client’s PostgreSQL is run
+}
+define dumptype szkopul-ampgsql {
+    szkopul-global   # auth options specified there
+    program "APPLICATION"
+    application "app_ampgsql"
+}

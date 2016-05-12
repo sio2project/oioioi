@@ -1,0 +1,14 @@
+Amanda uses client-server architecture - the server is doing
+backup of all registered clients. Backup strategy is defined
+in server's config files ("server_config" directory). These
+files contain lines, that should be added to corresponding,
+existing Amanda config files (/etc/amanda/<CONFIG_DIR> on
+default Ubuntu install). Client's Amanda config files are
+in "client_config" directory - these describe authorization
+details and contain hostname of Amanda server.
+
+In this sample configuration, SSH was configured as described here:
+https://wiki.zmanda.com/index.php/How_To:Set_up_transport_encryption_with_SSH
+And PostgreSQL was configured as described here:
+http://wiki.zmanda.com/index.php/How_To:Use_Amanda_to_Back_Up_PostgreSQL
+

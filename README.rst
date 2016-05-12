@@ -454,6 +454,12 @@ can be found in ``test/`` directory. Currently these are:
 * ``test_parallel.py`` - runs the same tests as test.sh, but uses multiple processes
 * ``loadtest.py`` - load testing script
 
+Backup
+-----
+
+Amanda is recommended for doing OIOIOI backups. Sample configuration with README
+is available in ``extra/amanda`` directory.
+
 Contact us
 ------------
 

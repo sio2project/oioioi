@@ -1,0 +1,5 @@
+# This file contains list of filesystems to dump.
+# Format is described here - http://wiki.zmanda.com/man/disklist.5.html
+
+dasie.mimuw.edu.pl szkopul / szkopul-tar
+dasie.mimuw.edu.pl postgresSzkopul /var/lib/postgresql/9.3/main szkopul-ampgsql
