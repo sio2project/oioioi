@@ -1,0 +1,48 @@
+{% load i18n %}
+
+<div class="problem">
+    <div class="problem__settings">
+        <a href="{% url 'oioioiadmin:contests_probleminstance_change' problem_instance.problem_instance.id %}">
+            {% blocktrans %}
+            <i class="icon-cog"></i> Settings
+            {% endblocktrans %}
+        </a>
+    </div>
+
+    <div class="problem__header">
+        <h4 class="problem__name">{{ problem_instance.problem_instance.problem.name|truncatechars:15 }}</h4>
+        <div class="problem__solved problem__solved--{{ problem_instance.solved }}" data-toggle="tooltip" title="{% trans "Solved / tried solving" %}">
+            {{ problem_instance.solved_count }} / {{ problem_instance.tried_solving_count }}
+        </div>
+    </div>
+
+    <div style="clear: both;"></div>
+
+    <div class="row-fluid">
+        <div class="span6">
+            {% trans "Recent activity:" %}
+            <div class="problem__submissions">
+                <a href="{% url 'oioioiadmin:contests_submission_changelist' %}?pi={{ problem_instance.problem_instance.problem.name|urlencode }}">
+                    {% blocktrans count count=problem_instance.submission_count %}
+                        {{ count }} submission
+                    {% plural %}
+                        {{ count }} submissions
+                    {% endblocktrans %}
+                </a>
+            </div>
+            <div class="problem__questions">
+                <a href="{% url 'contest_messages' %}?category=p_{{ problem_instance.problem_instance.id }}">
+                    {% blocktrans count count=problem_instance.question_count %}
+                        {{ count }} question
+                    {% plural %}
+                        {{ count }} questions
+                    {% endblocktrans %}
+                </a>
+            </div>
+        </div>
+        <div class="span6">
+            <div id="pointsChart-{{ problem_instance.problem_instance.short_name }}" class="problem__stats">
+            </div>
+        </div>
+    </div>
+</div>

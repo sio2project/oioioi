@@ -1,0 +1,40 @@
+{% load i18n %}
+
+<div class="round__header">
+    <div class="btn-group round__name">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+            {{ selected_round.round }}
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            {% for round, round_time in round_times %}
+                <li>
+                    <a href="{% url 'teacher_contest_dashboard' round.pk %}">{{ round }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="round__menu">
+        <a href="{% url 'oioioiadmin:problems_problem_add' %}">{% trans "Add a problem" %}</a>
+        |
+        <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
+    </div>
+</div>
+
+<div class="round__problems">
+    {% for problem_instance in round.problem_instances %}
+        <div class="problem__container">
+            {% include 'simpleui/contest/ingredients/problem.html' %}
+        </div>
+    {% endfor %}
+</div>
+
+<p class="round__info">
+    <small>
+        {% blocktrans count count=RECENT_ACTIVITY_DAYS %}
+            Recent activity is activity from last {{ RECENT_ACTIVITY_DAYS }} days.
+            {% plural %}
+            Recent activity is activity from last {{ RECENT_ACTIVITY_DAYS }} days.
+        {% endblocktrans %}
+    </small>
+</p>

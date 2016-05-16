@@ -1,0 +1,39 @@
+@import (reference) "../mixins/grid";
+@import "problem";
+@import "round";
+
+.contest__section {
+  margin-bottom: 5px;
+}
+
+.contest {
+  .make-row();
+
+  &__header {
+    .make-md-column(12);
+  }
+
+  &__name {
+    margin-bottom: 20px;
+  }
+
+  &__submissions {
+    &:extend(.contest__section);
+
+    .make-md-column(12);
+    .make-lg-column(6);
+  }
+
+  &__questions {
+    &:extend(.contest__section);
+
+    .make-md-column(12);
+    .make-lg-column(6);
+  }
+
+  &__rounds {
+    &:extend(.contest__section);
+
+    .make-md-column(12);
+  }
+}

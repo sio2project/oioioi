@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load i18n staticfiles compress %}
+
+{% block title %}{% trans "Contest dashboard" %}{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    {% compress css %}
+        <link charset="utf-8" rel="stylesheet" type="text/less" href="{% static 'simpleui/simpleui.less' %}">
+        <link charset="utf-8" rel="stylesheet" type="text/less" href="{% static 'simpleui/contest/contest.less' %}">
+    {% endcompress %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'js/highcharts.js' %}"></script>
+    <script type="text/javascript" src="{% static 'simpleui/contest/problem.js' %}"></script>
+    <script type="text/javascript" src="{% static 'simpleui/contest/contest.js' %}"></script>
+    <script type="text/javascript">
+        $(function () {
+            var contestData = {{ contest_data|safe }}
+            new Contest(contestData);
+        });
+    </script>
+{% endblock %}
+
+{% block container-class %}simpleui__container{% endblock %}
+
+{% block body %}
+    <div class="contest top-row">
+        <header class="contest__header">
+            <h1 class="inline-menu__name contest__name">{{ contest }}</h1>
+            <div class="inline-menu">
+                <a href="{% url 'show_members' member_type='pupil' %}">{% trans "Pupils" %}</a>
+                |
+                <a href="{% url 'show_members' member_type='teacher' %}">{% trans "Teachers" %}</a>
+                |
+                <a href="{% url 'default_ranking' %}">{% trans "Ranking" %}</a>
+                |
+                <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
+            </div>
+        </header>
+
+        <section class="contest__rounds">
+            <h2 class="inline-menu__name">{% trans "Rounds" %}</h2>
+            <div class="inline-menu">
+                <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Add a round" %}</a>
+            </div>
+
+            <section class="round">
+                {% if selected_round %}
+                    {% include "simpleui/contest/ingredients/round.html" with round=selected_round %}
+                {% else %}
+                    <p>{% trans "There are no rounds in this contest." %}</p>
+                {% endif %}
+            </section>
+        </section>
+
+        <section class="contest__submissions">
+            <h2 class="inline-menu__name">{% trans "Submissions" %}</h2>
+            <div class="inline-menu">
+                <a href="{% url 'oioioiadmin:contests_submission_changelist' %}">{% trans "Show all" %}</a>
+            </div>
+            <div class="table__wrapper">
+                {% include "simpleui/contest/ingredients/submissions.html" %}
+            </div>
+        </section>
+
+        <section class="contest__questions">
+            <h2 class="inline-menu__name">{% trans "Questions and news" %}</h2>
+            <div class="inline-menu">
+                <a href="{% url 'contest_messages' %}">{% trans "Show all" %}</a>
+            </div>
+            <div class="table__wrapper">
+                {% include "simpleui/contest/ingredients/questions.html" %}
+            </div>
+        </section>
+    </div>
+{% endblock %}

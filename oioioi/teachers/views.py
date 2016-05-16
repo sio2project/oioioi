@@ -31,6 +31,11 @@ def is_teachers_contest(request):
 
 
 @make_request_condition
+def is_teacher(request):
+    return not_anonymous(request) and request.user.has_perm('teachers.teacher')
+
+
+@make_request_condition
 def is_not_teacher(request):
     return not_anonymous(request) and \
            not request.user.has_perm('teachers.teacher')

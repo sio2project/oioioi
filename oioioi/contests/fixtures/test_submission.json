@@ -39,7 +39,8 @@
       "status": "OK",
       "comment": null,
       "score": null,
-      "submission_report": 1
+      "submission_report": 1,
+      "max_score": "int:0000000000000000100"
     }
   },
   {
@@ -49,7 +50,8 @@
       "status": "RE",
       "comment": null,
       "score": "int:0000000000000000034",
-      "submission_report": 2
+      "submission_report": 2,
+      "max_score": "int:0000000000000000100"
     }
   },
   {

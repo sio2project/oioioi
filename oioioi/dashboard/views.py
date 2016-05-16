@@ -15,6 +15,7 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.utils import can_enter_contest, contest_exists, \
         has_any_submittable_problem, has_any_visible_problem_instance, \
         is_contest_admin
+from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.dashboard.menu import top_links_registry
 from oioioi.dashboard.registry import dashboard_registry, \
         dashboard_headers_registry
@@ -140,9 +141,10 @@ def messages_fragment(request):
 @menu_registry.register_decorator(_("Dashboard"), lambda request:
         reverse('contest_dashboard',
                 kwargs={'contest_id': request.contest.id}),
-    order=20)
-@enforce_condition(contest_exists & can_enter_contest)
-def contest_dashboard_view(request):
+    order=20,
+    condition=contest_exists & can_enter_contest)
+@register_contest_dashboard_view(100, contest_exists & can_enter_contest)
+def public_contest_dashboard_view(request):
     headers = [gen(request) for gen in dashboard_headers_registry]
     headers = [hdr for hdr in headers if hdr is not None]
     fragments = [gen(request) for gen in dashboard_registry]

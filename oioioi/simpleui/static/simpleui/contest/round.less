@@ -1,0 +1,27 @@
+@import (reference) "../../bootstrap/less/variables";
+@import (reference) "../../bootstrap/less/mixins";
+@import (reference) "../../bootstrap/less/type";
+@import (reference) "../mixins/grid";
+
+.round {
+  &__header {
+    margin-bottom: 20px;
+  }
+
+  &__name {
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  &__menu {
+    display: inline-block;
+  }
+
+  &__problems {
+    .make-row();
+  }
+
+  &__info {
+    &:extend(.muted);
+  }
+}

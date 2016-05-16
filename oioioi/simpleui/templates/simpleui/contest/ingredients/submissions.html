@@ -1,0 +1,39 @@
+{% load i18n get_user_name %}
+
+<table class="{% block table-classes %}table submissions_list{% endblock %}">
+    <thead>
+        <tr>
+            <th></th>
+            <th>{% trans "Author" %}</th>
+            <th>{% trans "Date" %}</th>
+            <th>{% trans "Problem" %}</th>
+            <th>{% trans "Status" %}</th>
+            <th>{% trans "Score" %}</th>
+            {% block more-headers-after %}{% endblock %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in submissions %}
+        <tr class="subm_kind_{{ record.submission.kind }}">
+            <td class="subm_margin subm_{{ record.submission.status }}"
+                    id="submission{{ record.submission.id }}_margin"></td>
+            <td>
+                {% if record.submission.user %}
+                    {% full_name record.submission.user %}
+                {% else %}
+                    {% blocktrans with name=record.submission.programsubmission.modelprogramsubmission.model_solution.name %}
+                        Model solution: {{ name }}
+                    {% endblocktrans %}
+                {% endif %}
+            </td>
+            <td><a href="{{ record.link }}">{{ record.submission.get_date_display }}</a></td>
+            <td id="submission{{ record.submission.id }}_problem_instance">{{ record.submission.problem_instance }}</td>
+            <td class="subm_status" id="submission{{ record.submission.id }}_status">
+                {{ record.submission.status }}
+            </td>
+            <td id="submission{{ record.submission.id }}_score">{% if record.can_see_score %}{{ record.submission.get_score_display|default_if_none:'' }}{% endif %}</td>
+            {% block more-columns-after %}{% endblock %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
