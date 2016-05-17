@@ -13,7 +13,7 @@ from django.core.urlresolvers import reverse, NoReverseMatch
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
-from django.contrib.admin.util import quote
+from django.contrib.admin.utils import quote
 from nose.tools import nottest
 
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time, \

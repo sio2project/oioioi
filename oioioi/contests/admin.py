@@ -4,7 +4,7 @@ import urllib
 from django.conf.urls import patterns
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
-from django.contrib.admin.util import unquote, quote
+from django.contrib.admin.utils import unquote, quote
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect, Http404

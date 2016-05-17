@@ -8,7 +8,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from django.contrib.admin.util import unquote
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
 from django.http import Http404

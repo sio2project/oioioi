@@ -6,7 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.util import unquote
+from django.contrib.admin.utils import unquote
 from django.contrib.admin.actions import delete_selected
 from django.contrib import messages
 from django.conf.urls import patterns, url

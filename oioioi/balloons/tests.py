@@ -1,7 +1,7 @@
 from datetime import datetime
 import json
 
-from django.contrib.admin.util import quote
+from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
