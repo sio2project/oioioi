@@ -107,7 +107,7 @@ SEND_USER_ACTIVATION_EMAIL = False
 
 # When using distributed workers set this to url on which workers will be
 # able to access filetracker server.
-FILETRACKER_URL = 'http://127.0.0.1:9999'
+#FILETRACKER_URL = 'http://127.0.0.1:9999'
 
 # Contest mode - automatic activation of contests.
 #

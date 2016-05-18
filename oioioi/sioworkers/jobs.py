@@ -9,17 +9,20 @@ def _get_backend():
 # The url is added to job because worker needs to know which filetracker
 # server it should access.
 def run_sioworkers_job(job, **kwargs):
-    job['filetracker_url'] = settings.FILETRACKER_URL
+    if settings.FILETRACKER_URL:
+        job['filetracker_url'] = settings.FILETRACKER_URL
     return _get_backend().run_job(job, **kwargs)
 
 
 def run_sioworkers_jobs(dict_of_jobs, **kwargs):
-    for _, env in dict_of_jobs.iteritems():
-        env['filetracker_url'] = settings.FILETRACKER_URL
+    if settings.FILETRACKER_URL:
+        for _, env in dict_of_jobs.iteritems():
+            env['filetracker_url'] = settings.FILETRACKER_URL
     return _get_backend().run_jobs(dict_of_jobs, **kwargs)
 
 
 def send_async_jobs(dict_of_jobs, **kwargs):
-    for _, job in dict_of_jobs['workers_jobs'].iteritems():
-        job['filetracker_url'] = settings.FILETRACKER_URL
+    if settings.FILETRACKER_URL:
+        for _, job in dict_of_jobs['workers_jobs'].iteritems():
+            job['filetracker_url'] = settings.FILETRACKER_URL
     return _get_backend().send_async_jobs(dict_of_jobs, **kwargs)

@@ -145,7 +145,8 @@ Production configuration
 
 #. (required only for dedicated judging machines) Enable Filetracker server by
    uncommenting *FILETRACKER_SERVER_ENABLED*, *FILETRACKER_LISTEN_ADDR*,
-   *FILETRACKER_LISTEN_PORT* in *settings.py* and restart the daemons.
+   *FILETRACKER_LISTEN_PORT*, *FILETRACKER_URL* in *settings.py* and restart
+   the daemons.
 
 #. Install and configure web server. We recommend using nginx with uwsgi plugin
    (included in *nginx-full* Ubuntu package). An example configuration is
