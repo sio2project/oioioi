@@ -510,49 +510,44 @@ class TestProblemSite(TestCase, TestStreamingMixin):
 
 
 class TestProblemsetPage(TestCase):
-    fixtures = ['test_users', 'test_problemset_author_problems']
+    fixtures = ['test_users', 'test_problemset_author_problems',
+            'test_contest']
 
     def test_problemlist(self):
         self.client.login(username='test_user')
         url = reverse('problemset_main')
-        response = self.client.post(url)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         public_problems = Problem.objects.filter(is_public=True)
         for problem in public_problems:
             self.assertIn(str(problem.name), str(response.content))
-        self.assertEqual(response.content.count("Choose me!"), 0)
-
-        url = reverse('problemset_main') + '?' + \
-                urllib.urlencode({'select_problem_src': "redirect here"})
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count("Choose me!"), 2)
+        # User with no administered contests doesn't see the button
+        self.assertEqual(response.content.count('Add to contest'), 0)
 
         url = reverse('problemset_my_problems')
-        response = self.client.post(url)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         author_user = User.objects.filter(username='test_user')
         author_problems = Problem.objects.filter(author=author_user)
         for problem in author_problems:
             self.assertIn(str(problem.name), str(response.content))
-        self.assertEqual(response.content.count("Choose me!"), 0)
-
-        url = reverse('problemset_my_problems') + '?' + \
-                urllib.urlencode({'select_problem_src': "redirect here"})
-        response = self.client.post(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count("Choose me!"), 2)
-        self.assertNotIn("All problems", str(response.content))
+        # User with no administered contests doesn't see the button
+        self.assertEqual(response.content.count("Add to contest"), 0)
+        self.assertNotIn('All problems', str(response.content))
 
         url = reverse('problemset_all_problems')
-        response = self.client.post(url)
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username="test_admin")
-        response = self.client.post(url)
+        self.client.login(username='test_admin')
+        response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("All problems", str(response.content))
-        self.assertEqual(response.content.count("/problemset/problem/"),
+        self.assertIn('All problems', str(response.content))
+        # One link for problem site, another
+        # for "More..." link in "Add to contest"
+        self.assertEqual(response.content.count('/problemset/problem/'),
+                         Problem.objects.count() * 2)
+        self.assertEqual(response.content.count('Add to contest'),
                          Problem.objects.count())
 
 @nottest
@@ -617,7 +612,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertIn('Edit problem', response.content)
         self.assertIn('Reupload problem', response.content)
-        self.assertIn('Model solutions', response.content)
+        self.assertIn('Show model solutions', response.content)
         # we can see model solutions of main_problem_instance
         self.check_models_for_simple_package(problem.main_problem_instance)
 
@@ -661,7 +656,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertIn('Add from Problemset', response.content)
         self.assertIn('Enter problem', response.content)
         self.assertIn('s secret key', response.content)
-        self.assertIn('choose problem from problemset', response.content)
+        self.assertIn('Choose problem from problemset', response.content)
 
         pi_number = 3
         for i in xrange(pi_number):
@@ -886,7 +881,7 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_main, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Add problem', response.content)
-        self.assertIn('<h1>Welcome to problemset, the place, where all'
+        self.assertIn('<h1>Welcome to problemset, the place where all'
             ' the problems are.</h1>', response.content)
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
@@ -914,7 +909,7 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_main, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Add problem', response.content)
-        self.assertIn('<h1>Welcome to problemset, the place, where all'
+        self.assertIn('<h1>Welcome to problemset, the place where all'
             ' the problems are.</h1>', response.content)
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
@@ -935,3 +930,70 @@ class TestAddToProblemsetPermissions(TestCase):
         url_add = reverse('problemset_add_or_update')
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 200)
+
+
+class TestAddToContestFromProblemset(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_problem_site']
+
+    def test_add_from_problemlist(self):
+        self.client.login(username='test_admin')
+        # Visit contest page to register it in recent contests
+        contest = Contest.objects.get()
+        self.client.get('/c/%s/dashboard/' % contest.id)
+        url = reverse('problemset_all_problems')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('All problems', str(response.content))
+        # One link for problem site, another
+        # for "More..." link in "Add to contest"
+        self.assertEqual(response.content.count('/problemset/problem/'),
+                         Problem.objects.count() * 2)
+        self.assertEqual(response.content.count('Add to contest'),
+                         Problem.objects.count())
+        self.assertIn('data-addorupdate', str(response.content))
+        self.assertIn('data-urlkey', str(response.content))
+        self.assertIn('add_to_contest', str(response.content))
+
+    def test_add_from_problemsite(self):
+        self.client.login(username='test_admin')
+        contest = Contest.objects.get()
+        self.client.get('/c/%s/dashboard/' % contest.id)
+        url = reverse('problem_site', kwargs={'site_key': '123'})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.count('Add to contest'), 1)
+        self.assertIn('data-addorupdate', str(response.content))
+        self.assertIn('data-urlkey', str(response.content))
+        self.assertIn('add_to_contest', str(response.content))
+        self.assertIn('123', str(response.content))
+
+    def test_add_from_selectcontest(self):
+        self.client.login(username='test_admin')
+        # Now we're not having any contest in recent contests.
+        # As we are contest administrator, the button should still appear.
+        url = reverse('problemset_all_problems')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('All problems', str(response.content))
+        self.assertEqual(response.content.count('/problemset/problem/'),
+                         Problem.objects.count() * 2)
+        self.assertEqual(response.content.count('Add to contest'),
+                         Problem.objects.count())
+        # But it shouldn't be able to fill the form
+        self.assertNotIn('data-addorupdate', str(response.content))
+        self.assertNotIn('data-urlkey', str(response.content))
+        # And it should point to select_contest page
+        self.assertIn('/problem/123/add_to_contest/?problem_name=sum',
+            str(response.content))
+        # Follow the link...
+        url = reverse('problemset_add_to_contest', kwargs={'site_key': '123'})
+        url += '?problem_name=sum'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('to add sum problem to', str(response.content))
+        # This time we should be able to fill the form
+        self.assertIn('data-addorupdate', str(response.content))
+        self.assertIn('data-urlkey', str(response.content))
+        self.assertIn('add_to_contest', str(response.content))
+        self.assertIn('123', str(response.content))

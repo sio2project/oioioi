@@ -3,50 +3,92 @@
 {% load staticfiles %}
 
 {% block main_content %}
-<h2 class="text-right">{{ problem }}</h2>
 
-{% if can_admin_problem %}
+<link rel="stylesheet" type="text/css" href="{% static 'problems/progress.css' %}" />
 
-<div class="alert authorbar">
-    <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">
-        {% trans "Edit problem" %}
-    </a>
-    |
-    <a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance.id %}">
-        {% trans "Edit tests" %}
-    </a>
-    |
-    <a href="{% url 'oioioiadmin:problems_problem_download' problem.id %}">
-        {% trans "Download package" %}
-    </a>
-    |
-    <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">
-        {% trans "Reupload problem" %}
-    </a>
-    |
-    <a href="{% url 'model_solutions' problem_instance_id=problem.main_problem_instance.id %}">
-        {% trans "Model solutions" %}
-    </a>
+<div display="inline-block">
+<h2 class="text-left problemset-problem-site">
+<span>{{ problem }}</span>
+<div class="pull-right">
+    {% if administered_recent_contests %}
+    <div class="btn-group">
+        <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% trans "Add to contest" %}
+        <span class="add-contest-caret caret"></span>
+        <span class="hide loading-spinner job-active"><i class="icon-refresh icon-spin"></i></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li class="nav-header">{% trans "Choose contest" %}</li>
+                {% for contest in administered_recent_contests %}
+                <li>
+                    <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
+                       data-urlkey="{{ problem.problemsite.url_key }}">{{ contest.name }}</a>
+                </li>
+                {% endfor %}
+                <li role="separator" class="divider"></li>
+                <li>
+                    <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                    {% trans "More..." %}
+                    </a>
+                </li>
+        </ul>
+    </div>
+    {% else %}
+        {% if show_add_button %}
+        <a type="button" class="btn btn-default"
+        href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+        {% trans "Add to contest" %}
+        </a>
+        {% endif %}
+    {% endif %}
+
+    {% if can_admin_problem %}
+    <div class="btn-group">
+        <button class="btn btn-default dropdown-toggle" type="button"
+        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        {% trans "Actions" %} <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            <li>
+                <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">{% trans "Edit problem" %}</a>
+            </li>
+            <li>
+                <a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance.id %}">{% trans "Edit tests" %}</a>
+            </li>
+            <li>
+                <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">{% trans "Reupload problem" %}</a>
+            </li>
+            <li>
+                <a href="{% url 'model_solutions' problem_instance_id=problem.main_problem_instance.id %}">{% trans "Show model solutions" %}</a>
+            </li>
+        </ul>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
-
-{% if select_problem_src %}
-<a type="button" class="btn btn-info"
-        href="{{ select_problem_src }}{% if '?' in select_problem_src %}&{% else %}?{% endif %}url_key={{ problem.problemsite.url_key }}">
-    {% trans "Choose me!" %}
-</a>
-{% endif %}
+</h2>
+</div>
 
 <div class="tabbable text-left bigtopmargin">
     <ul class="nav nav-tabs">
         {% for tab in tabs %}
-        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
-        </li>
+            {% if tab.obj.key != "secret_key" or not problem.is_public %}
+            <li {% if tab.obj == current_tab %}class="active"{% endif %}>
+                <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+            </li>
+            {% endif %}
         {% endfor %}
     </ul>
     <div class="tab-content">
         {{ content }}
     </div>
 </div>
+
+<form id="add_to_contest" method="post" class="hidden">
+    {% csrf_token %}
+    <input id="url_key" name="url_key" type="text">
+    <input type="submit">
+</form>
+
+<script type="text/javascript" src="{% static 'problems/problemset/add_to_contest.js' %}"></script>
+
 {% endblock %}

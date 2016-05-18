@@ -26,10 +26,12 @@ from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.contests.models import Submission, SubmissionReport, \
         ProblemInstance
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.processors import recent_contests
+from oioioi.contests.utils import is_contest_admin, administered_contests
 from oioioi.contests.middleware import activate_contest
 from oioioi.programs.models import ModelSolution, TestReport, GroupReport, \
         ModelProgramSubmission
+from oioioi.problems.forms import ProblemsetSourceForm
 
 from collections import defaultdict
 
@@ -82,6 +84,27 @@ def download_package_traceback_view(request, package_id):
             package.problem_name, package.id))
 
 
+# This generates all metadata needed for
+# "add to contest" functionality in problemset.
+def _generate_add_to_contest_metadata(request):
+    administered = administered_contests(request)
+    # If user doesn't own any contest we won't show the option.
+    if administered:
+        show_add_button = True
+    else:
+        show_add_button = False
+    # We want to show administered recent contests, because
+    # these are most likely to be picked by an user.
+    rcontests = recent_contests(request)
+    administered_recent_contests = None
+    if rcontests:
+        administered_recent_contests = \
+            [contest
+             for contest in rcontests
+             if request.user.has_perm('contests.contest_admin', contest)]
+    return show_add_button, administered_recent_contests
+
+
 def add_or_update_problem(request, contest, template):
     if 'problem' in request.GET:
         existing_problem = \
@@ -132,58 +155,65 @@ def get_problem_queryset_by_tag(datadict):
         return Problem.objects.none(), ''
 
 
-def problemset_main_view(request):
+def problemset_generate_view(request, page_title, problems):
+    # We want to show "Add to contest" button only
+    # if user is contest admin for any contest.
     queryset, query_string = get_problem_queryset_by_tag(request.GET)
-    problems = queryset.filter(is_public=True, problemsite__isnull=False). \
-        order_by('name')
+    show_add_button, administered_recent_contests = \
+        _generate_add_to_contest_metadata(request)
+    form = ProblemsetSourceForm("")
 
     return TemplateResponse(request,
        'problems/problemset/problem_list.html',
       {'problems': problems,
-       'page_title':
-          _("Welcome to problemset, the place, where all the problems are."),
+       'page_title': page_title,
        'select_problem_src': request.GET.get('select_problem_src'),
        'tag_search': query_string,
        'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
-       'show_search_bar': True})
+       'show_search_bar': True,
+       'show_add_button': show_add_button,
+       'administered_recent_contests': administered_recent_contests,
+       'form': form})
+
+
+def problemset_main_view(request):
+    page_title = \
+        _("Welcome to problemset, the place where all the problems are.")
+    queryset = get_problem_queryset_by_tag(request.GET)[0]
+    problems = queryset.filter(is_public=True, problemsite__isnull=False) \
+        .order_by('name')
+
+    return problemset_generate_view(request, page_title, problems)
 
 
 def problemset_my_problems_view(request):
+    page_title = _("My problems")
     queryset, query_string = get_problem_queryset_by_tag(request.GET)
     problems = queryset.filter(author=request.user, problemsite__isnull=False)\
         .order_by('name')
 
-    return TemplateResponse(request,
-         'problems/problemset/problem_list.html',
-         {'problems': problems,
-          'page_title': _("My problems"),
-          'select_problem_src': request.GET.get('select_problem_src'),
-          'tag_search': query_string,
-          'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
-          'show_search_bar': True})
+    return problemset_generate_view(request, page_title, problems)
 
 
 def problemset_all_problems_view(request):
     if not request.user.is_superuser:
         raise PermissionDenied
+    page_title = _("All problems")
     queryset, query_string = get_problem_queryset_by_tag(request.GET)
     problems = queryset.filter(problemsite__isnull=False).order_by('name')
 
-    return TemplateResponse(request,
-         'problems/problemset/problem_list.html',
-         {'problems': problems,
-          'page_title': _("All problems"),
-          'select_problem_src': request.GET.get('select_problem_src'),
-          'tag_search': query_string,
-          'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
-          'show_search_bar': True})
+    return problemset_generate_view(request, page_title, problems)
 
 
 def problem_site_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
+    show_add_button, administered_recent_contests = \
+        _generate_add_to_contest_metadata(request)
     context = {'problem': problem,
                'can_admin_problem': can_admin_problem(request, problem),
-               'select_problem_src': request.GET.get('select_problem_src')}
+               'select_problem_src': request.GET.get('select_problem_src'),
+               'show_add_button': show_add_button,
+               'administered_recent_contests': administered_recent_contests}
     tab_kwargs = {'problem': problem}
 
     tab_link_params = request.GET.dict()
@@ -213,6 +243,17 @@ def problem_site_external_attachment_view(request, site_key, attachment_id):
     if attachment.problem.id != problem.id:
         raise PermissionDenied
     return stream_file(attachment.content, attachment.download_name)
+
+
+def problemset_add_to_contest_view(request, site_key):
+    problem_name = request.GET.get('problem_name')
+    if not problem_name:
+        raise Http404
+    administered = administered_contests(request)
+    return TemplateResponse(request, 'problems/problemset/select_contest.html',
+                            {'site_key': site_key,
+                             'administered_contests': administered,
+                             'problem_name': problem_name})
 
 
 def get_report_HTML_view(request, submission_id):

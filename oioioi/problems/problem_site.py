@@ -132,3 +132,9 @@ def problem_site_submit(request, problem):
                 problem.main_problem_instance)
     return TemplateResponse(request, 'problems/submit.html',
             {'problem': problem, 'form': form})
+
+
+@problem_site_tab(_("Secret key"), key='secret_key', order=500)
+def problem_site_secret_key(request, problem):
+    return TemplateResponse(request, 'problems/secret_key.html',
+        {'site_key': problem.problemsite.url_key})

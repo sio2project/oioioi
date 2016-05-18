@@ -217,6 +217,19 @@ def visible_contests(request):
     return visible
 
 
+@request_cached
+def administered_contests(request):
+    """Returns a list of contests for which the logged
+       user has contest_admin permission for.
+    """
+    visible = visible_contests(request)
+    admin_perm = 'contests.contest_admin'
+    administered = [contest
+                    for contest in visible
+                    if request.user.has_perm(admin_perm, contest)]
+    return administered
+
+
 def can_admin_contest(user, contest):
     """Checks if the user can administer the contest."""
     return user.has_perm('contests.contest_admin', contest)

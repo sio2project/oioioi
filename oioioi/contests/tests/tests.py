@@ -25,7 +25,8 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        can_enter_contest, rounds_times, can_see_personal_data
+        can_enter_contest, rounds_times, can_see_personal_data, \
+        administered_contests
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -1840,6 +1841,20 @@ class TestRegistrationController(TestCase):
         visible = list(query_private(request).values_list('id', flat=True))
         self.assertEquals(len(visible), 1)
         self.assertTrue(invisible_contest.id in visible)
+
+
+class TestAdministeredContests(TestCase):
+    fixtures = ['test_two_empty_contests', 'test_users']
+
+    def test_administered_contests(self):
+        self.client.login(username='test_user')
+        request = self.client.get('/').wsgi_request
+        administered = administered_contests(request)
+        self.assertEquals(len(administered), 0)
+        self.client.login(username='test_admin')
+        request = self.client.get('/').wsgi_request
+        administered = administered_contests(request)
+        self.assertEquals(len(administered), 2)
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
