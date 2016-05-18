@@ -13,6 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.contests.utils import visible_contests
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.models import UserResultForProblem
+from oioioi.contests.views import submission_view
 from oioioi.teachers.models import Teacher
 from oioioi.problems.models import Problem
 from oioioi.problems.views import problem_site_view
@@ -130,7 +131,7 @@ class ProblemTableWidget(object):
     compiled_tag_regex = re.compile(
         r'\[\['                   # [[
         # ProblemTable|... or ProblemTable:<Header>|...
-        r'ProblemTable(:.*)?\|(.+)'
+        r'ProblemTable(:.*)?\|(.*)'
         r'\]\](?!\])'             # ]]
     )
 
@@ -151,34 +152,48 @@ class ProblemTableWidget(object):
     def render(self, request, m):
         if not m.group(2).strip(' ;'):
             return ''
-        links = m.group(2).split(';')
-        links = [link.strip() for link in links if link.strip()]
+        links = [link.strip() for link in m.group(2).split(';')
+            if link.strip()]
 
-        keys = [self.site_key_from_link(link) for link in links]
-        keys = [key for key in keys if key is not None]
+        keys = [self.site_key_from_link(link) for link in links
+            if self.site_key_from_link(link) is not None]
+
         problems = Problem.objects.filter(problemsite__url_key__in=keys) \
             .select_related('problemsite')
+
         problem_map = {pr.problemsite.url_key: pr for pr in problems}
 
-        rows = [problem_map[key] for key in keys if key in problem_map]
+        problems = [problem_map[key] for key in keys if key in problem_map]
 
-        def get_url(site_key):
-            return reverse(problem_site_view, kwargs={'site_key': site_key})
+        rows = []
 
-        rows = [{
-            'url': get_url(pr.problemsite.url_key),
-            'name': pr.name,
-            'result': "" if not request.user.is_authenticated() else
-                (lambda e: "" if e is None else str(e.score.to_int()))
-                (
-                    UserResultForProblem.objects.filter(
-                        user=request.user,
-                        problem_instance=pr.main_problem_instance,
-                        submission_report__isnull=False
-                    ).first()
-            )
-        }
-            for pr in rows]
+        for problem in problems:
+            row = {}
+
+            row['url'] = reverse(problem_site_view,
+                kwargs={'site_key': problem.problemsite.url_key})
+            row['name'] = problem.name
+
+            def fill_row_with_score(row_, problem_):
+                if not request.user.is_authenticated():
+                    return False
+                result = UserResultForProblem.objects.filter(
+                    user=request.user,
+                    problem_instance=problem_.main_problem_instance,
+                    submission_report__isnull=False
+                ).first()
+                if result is None:
+                    return False
+                row_['score'] = str(result.score.to_int())
+                row_['submission_url'] = reverse(
+                    submission_view,
+                    kwargs={'submission_id':
+                        result.submission_report.submission.id}
+                )
+                return True
+
+            row['score_exists'] = fill_row_with_score(row, problem)
+            rows.append(row)
 
         header = _("Problem Name")
         if m.group(1):

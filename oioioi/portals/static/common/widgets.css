@@ -13,3 +13,19 @@
     width:100%;
     height:100%;
 }
+
+.problemTable {
+    table-layout:fixed;
+}
+
+.problemTable tr {
+    text-align:left;
+}
+
+.problemTable .score {
+    width: 40px;
+}
+
+.problemTable .problemName {
+    width: 210px;
+}
