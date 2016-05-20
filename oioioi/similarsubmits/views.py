@@ -23,7 +23,7 @@ def bulk_add_similarities_view(request):
             groups = form.cleaned_data['similar_groups']
             for group in groups:
                 entries = SubmissionsSimilarityEntry.objects.filter(
-                        submission_in=group).select_related('group')
+                        submission__in=group).select_related('group')
 
                 if entries.exists():
                     groups = set([entry.group for entry in entries])
