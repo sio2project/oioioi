@@ -1840,3 +1840,25 @@ class TestRegistrationController(TestCase):
         visible = list(query_private(request).values_list('id', flat=True))
         self.assertEquals(len(visible), 1)
         self.assertTrue(invisible_contest.id in visible)
+
+
+@override_settings(CONTEST_MODE=ContestMode.neutral)
+class TestSubmissionAdminWithoutContest(TestCase, SubmitFileMixin):
+    fixtures = ['test_extra_contests', 'test_users', 'test_full_package',
+                'test_extra_problem_instance', 'test_extra_submission']
+
+    def setUp(self):
+        self.client.login(username='test_admin')
+
+    def test_submission_admin_without_contest(self):
+        contest1 = Contest.objects.get(pk='c1')
+        url = reverse('oioioiadmin:contests_submission_changelist',
+                      kwargs={'contest_id': None})
+        response = self.client.get(url)
+        self.assertContains(response, '<th class="field-id">', count=2,
+                            status_code=200)
+        url = reverse('oioioiadmin:contests_submission_changelist',
+                      kwargs={'contest_id': contest1.id})
+        response = self.client.get(url)
+        self.assertContains(response, '<th class="field-id">', count=1,
+                            status_code=200)

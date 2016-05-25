@@ -49,8 +49,14 @@ class ScoresRevealProgrammingProblemAdminMixin(object):
 class ScoresRevealSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ScoresRevealSubmissionAdminMixin, self).__init__(*args, **kwargs)
-        self.list_display = self.list_display + ['reveal_display']
-        self.list_filter = self.list_filter + [RevealedFilter]
+
+    def get_list_display(self, request):
+        return super(ScoresRevealSubmissionAdminMixin, self) \
+                    .get_list_display(request) + ['reveal_display']
+
+    def get_list_filter(self, request):
+        return super(ScoresRevealSubmissionAdminMixin, self) \
+                    .get_list_filter(request) + [RevealedFilter]
 
     def reveal_display(self, instance):
         return is_revealed(instance)

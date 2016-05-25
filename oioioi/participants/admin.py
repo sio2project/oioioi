@@ -317,7 +317,10 @@ class RegionListFilter(SimpleListFilter):
 class OnsiteSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(OnsiteSubmissionAdminMixin, self).__init__(*args, **kwargs)
-        self.list_filter = self.list_filter + [RegionListFilter]
+
+    def get_list_filter(self, request):
+        return super(OnsiteSubmissionAdminMixin, self) \
+                   .get_list_filter(request) + [RegionListFilter]
 
 SubmissionAdmin.mix_in(OnsiteSubmissionAdminMixin)
 

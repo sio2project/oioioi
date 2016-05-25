@@ -28,7 +28,7 @@
     }
   },
   {
-    "pk": 2,
+    "pk": 3,
     "model": "contests.round",
     "fields": {
       "name": "Round 1",

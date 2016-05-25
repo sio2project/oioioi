@@ -7,9 +7,15 @@ from oioioi.oisubmit.err_dict import SUSPICION_REASONS
 class OISubmitSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(OISubmitSubmissionAdminMixin, self).__init__(*args, **kwargs)
-        self.list_display = self.list_display + ['received_suspected']
-        self.list_filter = self.list_filter + \
-                ['oisubmitextradata__received_suspected']
+
+    def get_list_display(self, request):
+        return super(OISubmitSubmissionAdminMixin, self) \
+                   .get_list_display(request) + ['received_suspected']
+
+    def get_list_filter(self, request):
+        return super(OISubmitSubmissionAdminMixin, self)\
+                    .get_list_filter(request) + \
+                    ['oisubmitextradata__received_suspected']
 
     def received_suspected(self, instance):
         received_suspected = getattr(instance.oisubmitextradata,

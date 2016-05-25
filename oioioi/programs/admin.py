@@ -242,8 +242,14 @@ class ProgramSubmissionAdminMixin(object):
     def __init__(self, *args, **kwargs):
         super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
         self.actions += ['submission_diff_action']
-        self.list_display += ['language_display']
-        self.list_filter += [LanguageListFilter]
+
+    def get_list_display(self, request):
+        return super(ProgramSubmissionAdminMixin, self) \
+                    .get_list_display(request) + ['language_display']
+
+    def get_list_filter(self, request):
+        return super(ProgramSubmissionAdminMixin, self) \
+                    .get_list_filter(request) + [LanguageListFilter]
 
     def language_display(self, instance):
         return instance.programsubmission.get_language_display()

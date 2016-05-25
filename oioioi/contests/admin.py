@@ -348,42 +348,18 @@ class ProblemFilter(AllValuesFieldListFilter):
     title = _("problem")
 
 
-class UserListFilter(SimpleListFilter):
-    title = _("user")
-    parameter_name = 'user'
-
-    def lookups(self, request, model_admin):
-        # Unique users that have submitted something in this contest
-        users = list(Submission.objects
-                .filter(problem_instance__contest=request.contest)
-                .distinct()
-                .order_by('user__username')
-                .values_list('user__id', 'user__username'))
-        if (None, None) in users:
-            users = [x for x in users if x != (None, None)]
-            users.append(('None', _("(None)")))
-        return users
-
-    def queryset(self, request, queryset):
-        if not self.value():
-            return queryset
-        if self.value() == 'None':
-            return queryset.filter(user=None)
-        if self.value().isdigit():
-            return queryset.filter(user=self.value())
-
-        raise Http404("Incorrect user filter")
-
-
 class ProblemNameListFilter(SimpleListFilter):
     title = _("problem")
     parameter_name = 'pi'
 
     def lookups(self, request, model_admin):
+        p_names = []
         # Unique problem names
-        p_names = list(set(ProblemInstance.objects
-                .filter(contest=request.contest)
-                .values_list('problem__name', flat=True)))
+        if request.contest:
+            p_names = list(set(ProblemInstance.objects
+                    .filter(contest=request.contest)
+                    .values_list('problem__name', flat=True)))
+
         return [(x, x) for x in p_names]
 
     def queryset(self, request, queryset):
@@ -413,7 +389,9 @@ class SubmissionRoundListFilter(SimpleListFilter):
     parameter_name = 'round'
 
     def lookups(self, request, model_admin):
-        r = Round.objects.filter(contest=request.contest)
+        r = []
+        if request.contest:
+            r = Round.objects.filter(contest=request.contest)
         return [(x, x) for x in r]
 
     def queryset(self, request, queryset):
@@ -423,15 +401,49 @@ class SubmissionRoundListFilter(SimpleListFilter):
             return queryset
 
 
+class ContestListFilter(SimpleListFilter):
+    title = _("contest")
+    parameter_name = 'problem_instance__contest'
+
+    def lookups(self, request, model_admin):
+        contests = list(Contest.objects.all())
+        return [(x, x) for x in contests]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(problem_instance__contest=self.value())
+        else:
+            return queryset
+
+
 class SubmissionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user_login', 'user_full_name', 'date',
-            'problem_instance_display', 'status_display', 'score_display']
-    list_display_links = ['id', 'date']
-    list_filter = [UserListFilter, ProblemNameListFilter,
-            SubmissionKindListFilter, 'status', SubmissionRoundListFilter]
     date_hierarchy = 'date'
     actions = ['rejudge_action']
     search_fields = ['user__username', 'user__last_name']
+
+    # We're using functions instead of lists because we want to
+    # have different columns and filters depending on whether
+    # contest is in url or not.
+    def get_list_display(self, request):
+        list_display = ['id', 'user_login', 'user_full_name', 'date',
+            'problem_instance_display', 'contest_display', 'status_display',
+            'score_display']
+        if request.contest:
+            list_display.remove('contest_display')
+        return list_display
+
+    def get_list_display_links(self, request, list_display):
+        return ['id', 'date']
+
+    def get_list_filter(self, request):
+        list_filter = [ProblemNameListFilter, ContestListFilter,
+                       SubmissionKindListFilter, 'status',
+                       SubmissionRoundListFilter]
+        if request.contest:
+            list_filter.remove(ContestListFilter)
+        else:
+            list_filter.remove(SubmissionRoundListFilter)
+        return list_filter
 
     def get_urls(self):
         urls = patterns('',
@@ -534,6 +546,10 @@ class SubmissionAdmin(admin.ModelAdmin):
     score_display.short_description = _("Score")
     score_display.admin_order_field = 'score'
 
+    def contest_display(self, instance):
+        return instance.problem_instance.contest
+    contest_display.short_description = _("Contest")
+    contest_display.admin_order_field = 'problem_instance__contest'
 
     def rejudge_action(self, request, queryset):
         # Otherwise the submissions are rejudged in their default display
@@ -578,7 +594,9 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super(SubmissionAdmin, self).get_queryset(request)
-        queryset = queryset.filter(problem_instance__contest=request.contest)
+        if request.contest:
+            queryset = queryset \
+                       .filter(problem_instance__contest=request.contest)
         queryset = queryset.order_by('-id')
         return queryset
 
@@ -588,10 +606,18 @@ class SubmissionAdmin(admin.ModelAdmin):
         return super(SubmissionAdmin, self).lookup_allowed(key, value)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        return redirect('submission', contest_id=request.contest.id,
-            submission_id=unquote(object_id))
+        _contest_id = None
+        if request.contest:
+            _contest_id = request.contest.id
+        if _contest_id is None:
+            contest = Submission.objects.get(pk=object_id) \
+                        .problem_instance.contest
+            if contest:
+                _contest_id = contest.id
+        return redirect('submission', contest_id=_contest_id,
+                        submission_id=unquote(object_id))
 
-contest_site.contest_register(Submission, SubmissionAdmin)
+contest_site.register(Submission, SubmissionAdmin)
 
 contest_admin_menu_registry.register('submissions_admin', _("Submissions"),
         lambda request: reverse('oioioiadmin:contests_submission_changelist'),
@@ -600,6 +626,11 @@ contest_admin_menu_registry.register('submissions_admin', _("Submissions"),
 contest_observer_menu_registry.register('submissions_admin', _("Submissions"),
         lambda request: reverse('oioioiadmin:contests_submission_changelist'),
         order=40)
+
+admin.system_admin_menu_registry.register('managesubmissions_admin',
+        _("All submissions"), lambda request:
+        reverse('oioioiadmin:contests_submission_changelist',
+                kwargs={'contest_id': None}), order=50)
 
 
 class RoundTimeRoundListFilter(SimpleListFilter):
