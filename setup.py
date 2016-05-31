@@ -76,6 +76,9 @@ setup(
 
         "mistune",
 
+        # Some of celery dependencies (kombu) require amqp to be <2.0.0
+        "amqp<2.0.0",
+
         # A library required by AMQP, used in notifications system.
         # We need version >= 1.5.1, becuase it has fixed this bug
         # https://github.com/celery/librabbitmq/issues/42
