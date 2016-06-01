@@ -274,6 +274,15 @@ USE_UNSAFE_CHECKER = True
 # execution (in a sandboxed environment, if USE_UNSAFE_EXEC is set to False).
 USE_SINOLPACK_MAKEFILES = True
 
+# Scorers below are used for judging submissions without contests,
+# eg. submitting to problems from problemset.
+DEFAULT_TEST_SCORER = \
+    'oioioi.programs.utils.discrete_test_scorer'
+DEFAULT_GROUP_SCORER = \
+    'oioioi.programs.utils.min_group_scorer'
+DEFAULT_SCORE_AGGREGATOR = \
+    'oioioi.programs.utils.sum_score_aggregator'
+
 # Upper bounds for tests' time [ms] and memory [KiB] limits.
 MAX_TEST_TIME_LIMIT_PER_PROBLEM = 1000 * 60 * 60 * 30
 MAX_MEMORY_LIMIT_FOR_TEST = 256 * 1024

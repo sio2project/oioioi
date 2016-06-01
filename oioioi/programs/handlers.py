@@ -2,6 +2,7 @@ from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
 from oioioi.base.utils import get_object_by_dotted_name, make_html_link
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
@@ -22,12 +23,6 @@ import types
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_TEST_SCORER = \
-        'oioioi.programs.utils.discrete_test_scorer'
-DEFAULT_GROUP_SCORER = \
-        'oioioi.programs.utils.min_group_scorer'
-DEFAULT_SCORE_AGGREGATOR = \
-        'oioioi.programs.utils.sum_score_aggregator'
 DEFAULT_NORMAL_PRIORITY = 100
 DEFAULT_HIGH_PRIORITY = 50
 
@@ -287,7 +282,7 @@ def grade_tests(env, **kwargs):
     """
 
     fun = get_object_by_dotted_name(env.get('test_scorer')
-            or DEFAULT_TEST_SCORER)
+            or settings.DEFAULT_TEST_SCORER)
     tests = env['tests']
     for test_name, test_result in env['test_results'].iteritems():
         if tests[test_name]['to_judge']:
@@ -342,7 +337,7 @@ def grade_groups(env, **kwargs):
         if group_name in env['group_results']:
             continue
         fun = get_object_by_dotted_name(env.get('group_scorer',
-                    DEFAULT_GROUP_SCORER))
+                    settings.DEFAULT_GROUP_SCORER))
         score, max_score, status = fun(results)
         if not isinstance(score, (types.NoneType, ScoreValue)):
             raise TypeError("Group scorer returned %r as score, "
@@ -393,7 +388,7 @@ def grade_submission(env, kind='NORMAL', **kwargs):
         return env
 
     fun = get_object_by_dotted_name(env.get('score_aggregator')
-            or DEFAULT_SCORE_AGGREGATOR)
+            or settings.DEFAULT_SCORE_AGGREGATOR)
 
     if kind is None:
         group_results = env['group_results']
