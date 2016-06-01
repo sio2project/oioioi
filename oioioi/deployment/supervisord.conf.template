@@ -24,6 +24,12 @@ startretries=0
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
 
+[program:rankingsd]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
+startretries=0
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/rankingsd.log
+
 [program:unpackmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
 startretries=0

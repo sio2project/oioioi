@@ -10,6 +10,11 @@ from django.conf import settings
 from oioioi.base.tests import TestCase, fake_time, check_not_accessible
 from oioioi.contests.models import Contest, UserResultForProblem, \
         ProblemInstance
+
+from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.rankings.models import Ranking, choose_for_recalculation, \
+    recalculate
+
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -212,3 +217,69 @@ class TestRankingViews(TestCase):
             self.assertContains(response, 'zad1')
             for task in ['zad2', 'zad3', 'zad3']:
                 self.assertNotContains(response, task)
+
+
+class MockRankingController(DefaultRankingController):
+    recalculation_result = ('serialized', ['1st', '2nd', '3rd'])
+
+    def build_ranking(self, key):
+        assert key == "key"
+        return self.recalculation_result
+
+
+class MockRankingContestController(ProgrammingContestController):
+
+    def ranking_controller(self):
+        return MockRankingController(self.contest)
+
+
+class TestRecalc(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_extra_rounds',
+            'test_ranking_data', 'test_permissions']
+
+    def test_empty(self):
+        contest = Contest.objects.get()
+        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key')
+        self.assertIsNone(ranking.serialized)
+        self.assertFalse(ranking.is_up_to_date())
+        self.assertIsNone(ranking.recalc_in_progress)
+
+    def test_simple_flow(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.rankings.tests.MockRankingContestController'
+        contest.save()
+        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key')
+        ranking.save()
+        self.assertFalse(ranking.is_up_to_date())
+        recalc = choose_for_recalculation()
+        self.assertIsNotNone(recalc)
+        self.assertIsNotNone(recalc.id)
+        ranking.refresh_from_db()
+        self.assertFalse(ranking.is_up_to_date())
+        recalculate(recalc)
+        ranking.refresh_from_db()
+        self.assertTrue(ranking.is_up_to_date())
+        self.assertEqual(ranking.serialized, 'serialized')
+        self.assertEqual([page.data for page in ranking.pages.all()],
+                         ['1st', '2nd', '3rd'])
+        self.assertEqual([page.nr for page in ranking.pages.all()],
+                         [1, 2, 3])
+
+    def test_simple_invalidate(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.rankings.tests.MockRankingContestController'
+        contest.save()
+        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key',
+            needs_recalculation=False)
+        ranking.save()
+        self.assertTrue(ranking.is_up_to_date())
+        recalc = choose_for_recalculation()
+        self.assertIsNone(recalc)
+        Ranking.invalidate_contest(contest)
+        ranking.refresh_from_db()
+        self.assertFalse(ranking.is_up_to_date())
+        recalc = choose_for_recalculation()
+        self.assertIsNotNone(recalc)

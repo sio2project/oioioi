@@ -426,6 +426,34 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         }
        }
 
+#. * Added *rankingsd*, *cleanupd*, *ipauthsyncd*, *ipauth-dnsserver* entries
+   to *deployment/supervisord.conf*::
+
+        [program:rankingsd]
+        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
+        startretries=0
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/rankingsd.log
+
+        [program:cleanupd]
+        command={{ PROJECT_DIR }}/manage.py cleanupd
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/cleanupd.log
+
+        [program:ipauthsyncd]
+        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauthsyncd
+        startretries=0
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/ipauthsyncd.log
+        {% if not 'oioioi.ipauthsync' in settings.INSTALLED_APPS %}exclude=true{% endif %}
+
+        [program:ipauth-dnsserver]
+        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauth-dnsserver
+        startretries=0
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/ipauth-dnsserver.log
+        {% if not settings.IPAUTH_DNSSERVER_DOMAIN %}exclude=true{% endif %}
+
 Usage
 -----
 

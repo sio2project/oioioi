@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 4
+INSTALLATION_CONFIG_VERSION = 5
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -423,7 +423,13 @@ CACHES = {
     }
 }
 
+# ranking
+
 RANKING_CACHE_TIMEOUT = 30  # seconds
+RANKINGSD_POLLING_INTERVAL = 0.5  # seconds
+RANKING_COOLDOWN_FACTOR = 2  # seconds
+RANKING_MIN_COOLDOWN = 5  # seconds
+RANKING_MAX_COOLDOWN = 100  # seconds
 
 # Notifications configuration (client)
 # This one is for JavaScript socket.io client.

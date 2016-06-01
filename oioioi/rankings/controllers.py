@@ -151,6 +151,9 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
                               str(page)])
         return cache_key
 
+    def build_ranking(self, key):
+        raise NotImplementedError
+
 
 class DefaultRankingController(RankingController):
     description = _("Default ranking")
