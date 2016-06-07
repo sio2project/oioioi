@@ -1,13 +1,3 @@
-form.teachers-delete-pupils label.checkbox,
-form.teachers-delete-pupils .info {
-    padding-left: 3em;
-    font-size: inherit;
-}
-
-.copy_link_container {
-    position: relative;
-}
-
 h3.members {
     margin-top: 1em;
 }
