@@ -80,16 +80,14 @@ STATICFILES_FINDERS = (
 SECRET_KEY = None
 
 # List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
+UNCACHED_TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#    'django.template.loaders.eggs.Loader',
 )
 
-if not DEBUG:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
-    )
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', UNCACHED_TEMPLATE_LOADERS),
+)
 
 PROBLEMSET_LINK_VISIBLE = True
 

@@ -14,6 +14,9 @@ DEBUG = True
 
 TEMPLATE_DEBUG = DEBUG
 
+if DEBUG:
+    TEMPLATE_LOADERS = UNCACHED_TEMPLATE_LOADERS
+
 # Site name displayed in the title
 SITE_NAME = 'OIOIOI'
 
