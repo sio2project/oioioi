@@ -17,9 +17,10 @@ from oioioi.rankings.forms import FilterUsersInRankingForm
 
 @make_request_condition
 def has_any_ranking_visible(request):
-    rcontroller = request.contest.controller.ranking_controller()
-    return bool(rcontroller.available_rankings(request))
-
+    ccontroller = request.contest.controller
+    rcontroller = ccontroller.ranking_controller()
+    return ccontroller.can_see_ranking(request) and \
+            bool(rcontroller.available_rankings(request))
 
 @enforce_condition(contest_exists & can_enter_contest & is_contest_admin)
 @enforce_condition(has_any_ranking_visible)
@@ -55,7 +56,7 @@ def ranking_view(request, key=None):
             # Everybody can search for themselves.
             # Contest admins can search for anyone.
             if user and (is_contest_admin(request) or user == request.user):
-                found_pos = rcontroller.find_user_position(user, request, key)
+                found_pos = rcontroller.find_user_position(request, key, user)
                 if found_pos:
                     users_per_page = getattr(settings, 'PARTICIPANTS_ON_PAGE',
                                              100)

@@ -1,0 +1,12 @@
+{% load i18n %}
+
+<div class="empty-space-filler">
+    {% blocktrans %}
+        We're generating the ranking right now.
+        Please hang tight. The page will refresh in a moment.
+    {% endblocktrans %}
+</div>
+
+<script type="text/javascript">
+    setTimeout(function() { location.reload(); }, 10000);
+</script>

@@ -81,15 +81,16 @@ class RoundTimes(object):
             return self.end
 
 
-@request_cached
-def rounds_times(request):
-    if not hasattr(request, 'contest'):
+def generic_rounds_times(request=None, contest=None):
+    if contest is None and not hasattr(request, 'contest'):
         return {}
+    contest = contest or request.contest
 
-    rounds = [r for r in Round.objects.filter(contest=request.contest)
+    rounds = [r for r in Round.objects.filter(contest=contest)
               .select_related('contest')]
     rids = [r.id for r in rounds]
-    if not request.user or request.user.is_anonymous():
+    if not request or not hasattr(request, 'user') or \
+            request.user.is_anonymous():
         rtexts = {}
     else:
         rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects
@@ -98,6 +99,11 @@ def rounds_times(request):
     return dict((r, RoundTimes(r.start_date, r.end_date, r.contest,
         r.results_date, r.public_results_date,
         rtexts[r.id]['extra_time'] if r.id in rtexts else 0)) for r in rounds)
+
+
+@request_cached
+def rounds_times(request):
+    return generic_rounds_times(request)
 
 
 @make_request_condition

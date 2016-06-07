@@ -1,8 +1,10 @@
 import threading
 import urllib
 from contextlib import contextmanager
+from mock import patch
 
 from django.db import connections, DEFAULT_DB_ALIAS
+from django.utils import timezone
 from django.test import TestCase as DjangoTestCase
 from django.test.utils import CaptureQueriesContext
 from django.core.cache import cache
@@ -97,6 +99,13 @@ def fake_time(timestamp):
     FakeTimeMiddleware._fake_timestamp.value = timestamp
     yield
     del FakeTimeMiddleware._fake_timestamp.value
+
+
+@contextmanager
+def fake_timezone_now(timestamp):
+    with patch.object(timezone, 'now', return_value=timestamp):
+        with fake_time(timestamp):
+            yield
 
 
 def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):

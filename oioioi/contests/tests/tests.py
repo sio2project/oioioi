@@ -627,7 +627,7 @@ class TestMultilingualStatements(TestCase, TestStreamingMixin):
 
 
 class ContestWithoutStatementsController(ProgrammingContestController):
-    def default_can_see_statement(self, request, problem_instance):
+    def default_can_see_statement(self, request_or_context, problem_instance):
         return False
 
 

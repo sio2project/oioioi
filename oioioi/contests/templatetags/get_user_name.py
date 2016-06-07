@@ -18,7 +18,8 @@ class UserInfoLinkNode(Node):
         raise NotImplementedError
 
     def render(self, context):
-        is_admin = is_contest_admin(context['request'])
+        is_admin = context.get('is_admin', False) or \
+            is_contest_admin(context['request'])
         personal_data = can_see_personal_data(context['request'])
         url = render_to_string('contests/user_info_link.html', {
                 'ctx': context,

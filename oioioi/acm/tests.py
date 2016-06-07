@@ -3,7 +3,7 @@ from datetime import datetime
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.tests import TestCase, fake_timezone_now
 from oioioi.contests.models import Contest
 
 # The following tests use full-contest fixture, which may be changed this way:
@@ -47,18 +47,18 @@ class TestACMRanking(TestCase):
 
         # trial round begins at 11:00, ends at 16:00, results are available
         # at 19:00
-        with fake_time(datetime(2013, 12, 13, 10, 59, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 13, 10, 59, tzinfo=utc)):
             response = self.client.get(url)
             for task in ['trial', 'A', 'sum', 'test']:
                 self.assertActiveTaskNotIn(task, response.content)
 
-        with fake_time(datetime(2013, 12, 13, 11, 30, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 13, 11, 30, tzinfo=utc)):
             response = self.client.get(url)
             self.assertActiveTaskIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
                 self.assertActiveTaskNotIn(task, response.content)
 
-        with fake_time(datetime(2013, 12, 13, 17, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 13, 17, 0, tzinfo=utc)):
             response = self.client.get(url)
             self.assertInactiveTaskIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
@@ -66,48 +66,48 @@ class TestACMRanking(TestCase):
 
         # round 1 starts at 20:40, ends at 01:40, results are available at
         # 09:00
-        with fake_time(datetime(2013, 12, 14, 20, 39, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 14, 20, 39, tzinfo=utc)):
             response = self.client.get(url)
             self.assertInactiveTaskIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
                 self.assertInactiveTaskNotIn(task, response.content)
 
-        with fake_time(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
             response = self.client.get(url)
             self.assertActiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
                 self.assertActiveTaskIn(task, response.content)
             self.assertNotIn('The ranking is frozen.', response.content)
 
-        with fake_time(datetime(2013, 12, 15, 1, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 1, 0, tzinfo=utc)):
             response = self.client.get(url)
             self.assertActiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
                 self.assertActiveTaskIn(task, response.content)
             self.assertIn('The ranking is frozen.', response.content)
 
-        with fake_time(datetime(2013, 12, 15, 7, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 7, 0, tzinfo=utc)):
             response = self.client.get(url)
             self.assertInactiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
                 self.assertInactiveTaskIn(task, response.content)
             self.assertIn('The ranking is frozen.', response.content)
 
-        with fake_time(datetime(2013, 12, 15, 9, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 9, 0, tzinfo=utc)):
             response = self.client.get(url)
             self.assertInactiveTaskNotIn('trial', response.content)
             for task in ['A', 'sum', 'test']:
                 self.assertInactiveTaskIn(task, response.content)
             self.assertNotIn('The ranking is frozen.', response.content)
 
-        with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(url)
             self.assertEqual(
                 response.content.count('data-username="test_user"'), 2)
 
         self.client.login(username='test_admin')
 
-        with fake_time(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(csv_url)
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content.count('\n'), 4)

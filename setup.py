@@ -61,6 +61,10 @@ setup(
         "nose-html",
         "nose-profile",
 
+        # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
+        # ¯\_(ツ)_/¯
+        "mock==1.0.1",
+
         "fpdf",
         "pdfminer>=20110515,<20131113",
         "slate",

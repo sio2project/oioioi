@@ -1,0 +1,49 @@
+{% load i18n %}
+
+{% if not is_up_to_date %}
+<div class="empty-space-filler" id="outdated-ranking-msg">
+    <div>
+        {% blocktrans %}
+            We're generating the ranking right now.
+            The data shown in here can be slightly outdated.
+        {% endblocktrans %}
+    </div>
+</div>
+
+<div id="outdated-ranking-msg-placeholder">
+</div>
+
+<script>
+$(function() {
+  // Attach message a moment before it touches the main navbar
+  var NAVBAR_HEIGHT = $('#main-navbar').height();
+  var OFFSET_TOP = NAVBAR_HEIGHT + 5;
+  var msg = $('#outdated-ranking-msg');
+  var placeholder = $('#outdated-ranking-msg-placeholder');
+  var msg_offset = msg.offset().top;
+  var msg_height = msg.height();
+  var msg_margin = msg.css('margin-top');
+
+  function sticky_relocate() {
+    var user_scroll = $(window).scrollTop();
+    var diff = user_scroll + OFFSET_TOP - msg_offset;
+    if (user_scroll + OFFSET_TOP > msg_offset) {
+      placeholder.css('margin-top', msg_margin);
+      placeholder.height(msg_height);
+      msg.addClass('outdated-ranking-msg-float');
+      msg.css('top', NAVBAR_HEIGHT);
+    } else {
+      msg.removeClass('outdated-ranking-msg-float');
+      placeholder.height(0);
+      placeholder.css('margin-top', 0);
+    }
+  }
+
+  $(window).scroll(sticky_relocate);
+  sticky_relocate();
+});
+</script>
+{% endif %}
+
+{{ ranking_html }}
+

@@ -20,3 +20,18 @@ div.search-for-user {
     margin-top: 20px;
     margin-bottom: -20px;
 }
+
+div.outdated-ranking-msg-float {
+    position: fixed;
+    width: inherit;
+    pointer-events: none;
+    margin: 0 -25px 0;
+    z-index: 10000;
+    div {
+        pointer-events: auto;
+        display: inline-block;
+        background: #fff;
+        padding: 5px 15px;
+        border-radius: 0 0 0.5em 0.5em;
+    }
+}

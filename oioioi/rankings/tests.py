@@ -7,14 +7,13 @@ from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.conf import settings
 
-from oioioi.base.tests import TestCase, fake_time, check_not_accessible
+from oioioi.base.tests import TestCase, fake_time, fake_timezone_now, \
+        check_not_accessible
 from oioioi.contests.models import Contest, UserResultForProblem, \
         ProblemInstance
-
 from oioioi.rankings.controllers import DefaultRankingController
-from oioioi.rankings.models import Ranking, choose_for_recalculation, \
-    recalculate
-
+from oioioi.rankings.models import Ranking, RankingPage, recalculate, \
+        choose_for_recalculation
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -23,7 +22,7 @@ HIDDEN_TASKS = ["zad3", "zad4"]
 
 
 class StatementHiderForContestController(ProgrammingContestController):
-    def default_can_see_statement(self, request, problem_instance):
+    def default_can_see_statement(self, request_or_context, problem_instance):
         return problem_instance.short_name in VISIBLE_TASKS
 
 
@@ -145,7 +144,7 @@ class TestRankingViews(TestCase):
         admin.save()
 
         self.client.login(username='test_user')
-        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertIn('rankings/ranking_view.html',
                     [t.name for t in response.templates])
@@ -153,7 +152,7 @@ class TestRankingViews(TestCase):
             self.assertEqual(response.content.count('<td>Test User'), 1)
             self.assertNotIn('<td>Test Admin</td>', response.content)
 
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             expected_order = ['Test User', 'Test User 2', 'Test Admin']
             prev_pos = 0
@@ -174,7 +173,7 @@ class TestRankingViews(TestCase):
             'oioioi.rankings.tests.StatementHiderForContestController'
         contest.save()
 
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
 
             for task in VISIBLE_TASKS:
@@ -283,3 +282,87 @@ class TestRecalc(TestCase):
         self.assertFalse(ranking.is_up_to_date())
         recalc = choose_for_recalculation()
         self.assertIsNotNone(recalc)
+
+
+class TestRankingsdFrontend(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance', 'test_submission', 'test_extra_rounds',
+            'test_ranking_data', 'test_permissions']
+
+    @override_settings(MOCK_RANKINGSD=False)
+    def test_first_ranking_view(self):
+        contest = Contest.objects.get()
+        ranking_url = reverse('ranking',
+            kwargs={'contest_id': contest.id, 'key': '1'})
+        response = self.client.get(ranking_url)
+
+        self.assertEqual(Ranking.objects.count(), 1)
+        ranking = Ranking.objects.get()
+        self.assertEqual(ranking.contest.id, contest.id)
+        self.assertEqual(ranking.key, 'regular#1')
+        self.assertContains(response, "We're generating the ranking right now")
+
+        response = self.client.get(ranking_url + '?page=2')
+        self.assertContains(response,
+                "You have requested a non-existent ranking page")
+
+    @override_settings(MOCK_RANKINGSD=False)
+    def test_display_ranking(self):
+        contest = Contest.objects.get()
+        ranking_url = reverse('ranking',
+            kwargs={'contest_id': contest.id, 'key': '1'})
+        response = self.client.get(ranking_url)
+
+        ranking = Ranking.objects.get(key='regular#1')
+        page_content = '<b>Some</b> <br/> <i>data</i>'
+        RankingPage(ranking=ranking, nr=1, data=page_content + " 1").save()
+        RankingPage(ranking=ranking, nr=2, data=page_content + " 2").save()
+        self.assertTrue(ranking.pages.count(), 2)
+
+        # Make sure the page includes our rendered data and that HTML
+        # hasn't been escaped
+        response = self.client.get(ranking_url)
+        self.assertContains(response, page_content + " 1")
+        response = self.client.get(ranking_url + '?page=2')
+        self.assertContains(response, page_content + " 2")
+
+        # Check if the user still can't request pages beyond available limit
+        response = self.client.get(ranking_url + '?page=3')
+        self.assertContains(response,
+                "You have requested a non-existent ranking page")
+
+    @override_settings(MOCK_RANKINGSD=False)
+    def test_display_outdated(self):
+        contest = Contest.objects.get()
+        ranking_url = reverse('ranking',
+            kwargs={'contest_id': contest.id, 'key': '1'})
+        response = self.client.get(ranking_url)
+
+        # Add a page to the ranking
+        ranking = Ranking.objects.get(key='regular#1')
+        ranking.needs_recalculation = False
+        ranking.save()
+        page_content = '<b>Some</b> <br/> <i>data</i>'
+        RankingPage(ranking=ranking, nr=1, data=page_content).save()
+        self.assertTrue(ranking.pages.count(), 1)
+
+        outdated_msg = "The data shown in here can be slightly outdated"
+        # We shouldn't tell the ranking is outdated, when it isn't
+        response = self.client.get(ranking_url)
+        self.assertContains(response, page_content)
+        self.assertNotContains(response, outdated_msg)
+
+        # Invalidate ranking
+        pi = ProblemInstance.objects.get(pk=1)
+        user = User.objects.get(username='test_user')
+        contest.controller.update_user_results(user, pi)
+
+        # Make sure we're telling people that the ranking is outdated
+        response = self.client.get(ranking_url)
+        self.assertContains(response, page_content)
+        self.assertContains(response, outdated_msg)
+
+        # Check if the user still can't request pages beyond available limit
+        response = self.client.get(ranking_url + '?page=2')
+        self.assertContains(response,
+                "You have requested a non-existent ranking page")

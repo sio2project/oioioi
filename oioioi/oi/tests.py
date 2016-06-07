@@ -2,13 +2,12 @@
 import os
 from datetime import datetime, timedelta
 
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.contests.tests import SubmitFileMixin
@@ -242,7 +241,7 @@ class TestOIViews(TestCase):
         p.save()
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        with fake_time(round.results_date + timedelta(days=1)):
+        with fake_timezone_now(round.results_date + timedelta(days=1)):
             self.client.login(username='test_user')
             response = self.client.get(url)
             self.assertContains(response, "No rankings available.")

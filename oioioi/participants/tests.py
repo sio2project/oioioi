@@ -2,7 +2,6 @@ import json
 import os
 from datetime import datetime
 
-from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.utils.timezone import utc
@@ -11,7 +10,8 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
-from oioioi.base.tests import fake_time, check_not_accessible
+from oioioi.base.tests import TestCase, fake_time, fake_timezone_now, \
+    check_not_accessible
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
@@ -551,7 +551,7 @@ class TestAnonymousParticipants(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         self.client.login(username='test_admin')
 
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertNotIn('>test_user</a>', response.content)
             self.assertIn('>Test User</a>', response.content)
@@ -572,7 +572,7 @@ class TestAnonymousParticipants(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         self.client.login(username='test_contest_admin')
 
-        with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
+        with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertNotIn('>test_user</a>', response.content)
             self.assertIn('>Test User</a>', response.content)

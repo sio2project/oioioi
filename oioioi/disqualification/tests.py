@@ -55,7 +55,7 @@ class TestContestController(TestCase):
         self.assertFalse(controller.results_visible(
             fake_request(), submission_ok))
         self.assertNotIn(user, controller.exclude_disqualified_users(
-            fake_request(), User.objects.all()))
+            User.objects.all()))
 
         other_contest = Contest(name='finding_another_shrubbery',
                                 controller_name=contest.controller_name,
@@ -81,7 +81,7 @@ class TestContestController(TestCase):
         self.assertFalse(controller.is_user_disqualified(fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
         self.assertIn(user, controller.exclude_disqualified_users(
-            fake_request(), User.objects.all()))
+            User.objects.all()))
 
     def test_disqualified_contestwide(self):
         Disqualification.objects.all().delete()
@@ -99,7 +99,7 @@ class TestContestController(TestCase):
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
         self.assertNotIn(user, controller.exclude_disqualified_users(
-            fake_request(), User.objects.all()))
+            User.objects.all()))
 
 
 class TestViews(TestCase):

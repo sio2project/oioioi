@@ -73,6 +73,7 @@ MIDDLEWARE_CLASSES += (
 )
 
 TESTS = True
+MOCK_RANKINGSD = True
 
 NOSE_ARGS += (
     '--with-clearcc',

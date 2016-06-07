@@ -52,13 +52,13 @@ class SimilarityDisqualificationMixin(object):
             SubmissionsSimilarityEntry.objects.filter(submission=submission) \
                 .update(guilty=False)
 
-    def exclude_disqualified_users(self, request, queryset):
+    def exclude_disqualified_users(self, queryset):
         return super(SimilarityDisqualificationMixin, self) \
-            .exclude_disqualified_users(request, queryset) \
+            .exclude_disqualified_users(queryset) \
             .exclude(
                 submission__in=Submission.objects.filter(
                     similarities__guilty=True,
-                    problem_instance__contest=request.contest))
+                    problem_instance__contest=self.contest))
 
     def filter_visible_sources(self, request, queryset):
         prev = super(SimilarityDisqualificationMixin, self) \

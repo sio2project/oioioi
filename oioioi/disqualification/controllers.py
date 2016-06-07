@@ -52,13 +52,13 @@ class DisqualificationContestControllerMixin(object):
         return Disqualification.objects.filter(contest=request.contest,
             user=user, guilty=True).exists()
 
-    def exclude_disqualified_users(self, request, queryset):
+    def exclude_disqualified_users(self, queryset):
         """Filters the queryset of :class:`~django.contrib.auth.model.User`
            to select only users which are not disqualified in this contest.
         """
         return queryset.exclude(
                 disqualification__in=Disqualification.objects.filter(
-                        contest=request.contest, guilty=True))
+                        contest=self.contest, guilty=True))
 
     def results_visible(self, request, submission):
         normally = super(DisqualificationContestControllerMixin, self) \
@@ -192,59 +192,58 @@ ProgrammingContestController.mix_in(
 
 
 class WithDisqualificationRankingControllerMixin(object):
-    def _show_disqualified(self, request):
+    def _show_disqualified(self, key):
         """Decides if disqualified users should be included in the ranking.
 
            They will be marked as disqualified and will *not* influence the
            places of other contestants.
         """
-        return is_contest_admin(request)
+        return self.is_admin_key(key)
 
-    def filter_users_for_ranking(self, request, key, queryset):
+    def filter_users_for_ranking(self, key, queryset):
         qs = super(WithDisqualificationRankingControllerMixin, self) \
-            .filter_users_for_ranking(request, key, queryset)
+            .filter_users_for_ranking(key, queryset)
 
-        if not self._show_disqualified(request):
-            qs = request.contest.controller.exclude_disqualified_users(
-                    request, qs)
+        if not self._show_disqualified(key):
+            qs = self.contest.controller.exclude_disqualified_users(qs)
 
         return qs
 
-    def render_ranking(self, request, key):
-        if not self._show_disqualified(request):
+    def _render_ranking_page(self, key, data, page):
+        if not self._show_disqualified(key):
             return super(WithDisqualificationRankingControllerMixin, self) \
-                .render_ranking(request, key)
+                ._render_ranking_page(key, data, page)
 
-        data = self.serialize_ranking(request, key)
+        request = self._fake_request(page)
+        data['is_admin'] = self.is_admin_key(key)
         return render_to_string('disqualification/default_ranking.html',
             context_instance=RequestContext(request, data))
 
-    def _get_csv_header(self, request, data):
+    def _get_csv_header(self, key, data):
         header = super(WithDisqualificationRankingControllerMixin, self) \
-            ._get_csv_header(request, data)
-        if self._show_disqualified(request):
+            ._get_csv_header(key, data)
+        if self._show_disqualified(key):
             header.append(_("Disqualified"))
         return header
 
-    def _get_csv_row(self, request, row):
+    def _get_csv_row(self, key, row):
         line = super(WithDisqualificationRankingControllerMixin, self) \
-            ._get_csv_row(request, row)
-        if self._show_disqualified(request):
+            ._get_csv_row(key, row)
+        if self._show_disqualified(key):
             line.append(_("Yes") if row.get('disqualified') else _("No"))
         return line
 
-    def serialize_ranking(self, request, key):
+    def serialize_ranking(self, key):
         data = super(WithDisqualificationRankingControllerMixin, self) \
-            .serialize_ranking(request, key)
-        if not self._show_disqualified(request):
+            .serialize_ranking(key)
+        if not self._show_disqualified(key):
             return data
-        return self._annotate_disqualified(request, key, data)
+        return self._annotate_disqualified(key, data)
 
-    def _annotate_disqualified(self, request, key, data):
+    def _annotate_disqualified(self, key, data):
         users_ids = [row['user'].id for row in data['rows']]
-        not_disqualified = request.contest.controller \
-            .exclude_disqualified_users(request,
-                                        User.objects.filter(id__in=users_ids))
+        not_disqualified = self.contest.controller \
+            .exclude_disqualified_users(User.objects.filter(id__in=users_ids))
 
         for row in data['rows']:
             row['disqualified'] = row['user'] not in not_disqualified

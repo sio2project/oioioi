@@ -9,7 +9,7 @@ from oioioi.base.tests import TestCase
 from oioioi.oi.controllers import OIContestController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.contests.models import Contest, Submission
-from oioioi.base.tests import fake_time
+from oioioi.base.tests import fake_time, fake_timezone_now
 
 
 class TSolutionOIContestController(OIContestController):
@@ -245,7 +245,7 @@ class TestPublicSolutions(TestCase):
             return reverse('publish_solution' if way else 'unpublish_solution',
                     kwargs={'contest_id': contest.id, 'submission_id': sub_id})
 
-        with fake_time(self._rounds_14()):
+        with fake_timezone_now(self._rounds_14()):
             contest = Contest.objects.get()
             contest.controller_name = \
                 'oioioi.publicsolutions.tests.TSolutionSimpleContestController'

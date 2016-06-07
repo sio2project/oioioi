@@ -24,7 +24,7 @@ class AMPPZContestController(ACMContestController):
         return round.end_date - \
                datetime.timedelta(minutes=frozen_ranking_minutes)
 
-    def default_can_see_statement(self, request, problem_instance):
+    def default_can_see_statement(self, request_or_context, problem_instance):
         return False
 
     def can_see_livedata(self, request):

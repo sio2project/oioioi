@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase, fake_time
+from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
         UserResultForProblem
 from oioioi.contests.scores import IntegerScore
@@ -99,7 +99,7 @@ class TestPARoundTimes(TestCase):
             request.timestamp = date
 
             self.client.login(username='test_user')
-            with fake_time(date):
+            with fake_timezone_now(date):
                 url = reverse('ranking', kwargs={'contest_id': 'c',
                     'key': A_PLUS_B_RANKING_KEY})
                 response = self.client.get(url)
@@ -164,7 +164,7 @@ class TestPARanking(TestCase):
 
         self.client.login(username='test_user')
 
-        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             response = self.client.get(self._ranking_url(B_RANKING_KEY))
             check_visibility(['B'], response)
             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
@@ -195,7 +195,7 @@ class TestPARanking(TestCase):
 
         self.client.login(username='test_user')
 
-        with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
+        with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
             check_order(response, ['Test User', 'Test User 2', 'Test User 3'])

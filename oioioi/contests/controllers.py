@@ -24,8 +24,8 @@ from oioioi.contests.models import Submission, Round, UserResultForRound, \
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
-        is_contest_admin, is_contest_observer, last_break_between_rounds, \
-        has_any_active_round
+        generic_rounds_times, is_contest_admin, is_contest_observer, \
+        last_break_between_rounds, has_any_active_round
 from oioioi.problems.controllers import ProblemController
 from oioioi import evalmgr
 
@@ -223,6 +223,13 @@ class PublicContestRegistrationController(RegistrationController):
         return [q for q in queryset if q in authors]
 
 
+class ContestControllerContext(object):
+    def __init__(self, contest, timestamp, is_admin):
+        self.contest = contest
+        self.timestamp = timestamp
+        self.is_admin = is_admin
+
+
 class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
     """Contains the contest logic and rules.
 
@@ -238,6 +245,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def registration_controller(self):
         return PublicContestRegistrationController(self.contest)
+
+    def make_context(self, request_or_context):
+        if isinstance(request_or_context, ContestControllerContext):
+            return request_or_context
+        return ContestControllerContext(request_or_context.contest,
+                request_or_context.timestamp,
+                is_contest_admin(request_or_context))
 
     def default_view(self, request):
         """Determines the default landing page for the user from the passed
@@ -316,10 +330,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            :class:`RoundTimes` cached by round_times() method.
 
            Round must belong to request.contest.
+           Request is optional (round extensions won't be included if omitted).
 
            :returns: an instance of :class:`RoundTimes`
         """
-        return rounds_times(request)[round]
+        if request is not None:
+            return rounds_times(request)[round]
+        else:
+            return generic_rounds_times(None, self.contest)[round]
 
     def separate_public_results(self):
         """Determines if there should be two separate dates for personal
@@ -385,17 +403,18 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                     abs(rtimes.get_start() - now))
         return sorted(queryset, key=sort_key)
 
-    def can_see_round(self, request, round):
+    def can_see_round(self, request_or_context, round):
         """Determines if the current user is allowed to see the given round.
 
            If not, everything connected with this round will be hidden.
 
            The default implementation checks if the round is not in the future.
         """
-        if is_contest_admin(request):
+        context = self.make_context(request_or_context)
+        if context.is_admin:
             return True
-        rtimes = self.get_round_times(request, round)
-        return not rtimes.is_future(request.timestamp)
+        rtimes = self.get_round_times(request_or_context, round)
+        return not rtimes.is_future(context.timestamp)
 
     def can_see_ranking(self, request):
         """Determines if the current user is allowed to see the ranking.
@@ -404,7 +423,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
          """
         return True
 
-    def can_see_problem(self, request, problem_instance):
+    def can_see_problem(self, request_or_context, problem_instance):
         """Determines if the current user is allowed to see the given problem.
 
            If not, the problem will be hidden from all lists, so that its name
@@ -413,13 +432,14 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation checks if the user can see the given
            round (calls :meth:`can_see_round`).
         """
+        context = self.make_context(request_or_context)
         if not problem_instance.round:
             return False
-        if is_contest_admin(request):
+        if context.is_admin:
             return True
-        return self.can_see_round(request, problem_instance.round)
+        return self.can_see_round(request_or_context, problem_instance.round)
 
-    def can_see_statement(self, request, problem_instance):
+    def can_see_statement(self, request_or_context, problem_instance):
         """Determines if the current user is allowed to see the statement for
            the given problem.
 
@@ -429,15 +449,17 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            current contest or option 'AUTO' is chosen, returns default value
            (calls :meth:`default_can_see_statement`)
         """
-        if is_contest_admin(request):
+        context = self.make_context(request_or_context)
+        if context.is_admin:
             return True
-        psc = ProblemStatementConfig.objects.filter(contest=request.contest)
+        psc = ProblemStatementConfig.objects.filter(contest=context.contest)
         if psc.exists() and psc[0].visible != 'AUTO':
             return psc[0].visible == 'YES'
         else:
-            return self.default_can_see_statement(request, problem_instance)
+            return self.default_can_see_statement(request_or_context,
+                    problem_instance)
 
-    def default_can_see_statement(self, request, problem_instance):
+    def default_can_see_statement(self, request_or_context, problem_instance):
         return True
 
     def can_submit(self, request, problem_instance, check_round_times=True):

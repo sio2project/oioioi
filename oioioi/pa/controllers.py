@@ -170,13 +170,21 @@ class PARankingController(DefaultRankingController):
     """
     description = _("PA style ranking")
 
-    def _rounds_for_ranking(self, request, key=CONTEST_RANKING_KEY):
-        if key not in [A_PLUS_B_RANKING_KEY, B_RANKING_KEY]:
-            return super(PARankingController, self)._rounds_for_ranking(
-                request, key)
+    def _rounds_for_ranking(self, request, partial_key=CONTEST_RANKING_KEY):
+        method = super(PARankingController, self)._rounds_for_ranking
+        if partial_key not in [A_PLUS_B_RANKING_KEY, B_RANKING_KEY]:
+            return method(request, partial_key)
         else:
-            rounds = super(PARankingController, self)._rounds_for_ranking(
-                request, CONTEST_RANKING_KEY)
+            rounds = method(request, CONTEST_RANKING_KEY)
+            return (r for r in rounds if not r.is_trial)
+
+    def _rounds_for_key(self, key):
+        method = super(PARankingController, self)._rounds_for_key
+        partial_key = self.get_partial_key(key)
+        if partial_key not in [A_PLUS_B_RANKING_KEY, B_RANKING_KEY]:
+            return method(key)
+        else:
+            rounds = method(self.replace_partial_key(key, CONTEST_RANKING_KEY))
             return (r for r in rounds if not r.is_trial)
 
     def available_rankings(self, request):
@@ -187,11 +195,11 @@ class PARankingController(DefaultRankingController):
                 rankings.append((str(round.id), round.name))
         return rankings
 
-    def _filter_pis_for_ranking(self, key, queryset):
-        if key == A_PLUS_B_RANKING_KEY:
+    def _filter_pis_for_ranking(self, partial_key, queryset):
+        if partial_key == A_PLUS_B_RANKING_KEY:
             return queryset.filter(
                     paprobleminstancedata__division__in=['A', 'B'])
-        elif key == B_RANKING_KEY:
+        elif partial_key == B_RANKING_KEY:
             return queryset.filter(paprobleminstancedata__division='B')
         else:
             return queryset.filter(paprobleminstancedata__division='NONE')
