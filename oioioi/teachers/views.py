@@ -30,6 +30,10 @@ def is_teachers_contest(request):
     return isinstance(request.contest.controller, TeacherContestController)
 
 
+def is_teachers(contest):
+    return isinstance(contest.controller, TeacherContestController)
+
+
 @make_request_condition
 def is_teacher(request):
     return not_anonymous(request) and request.user.has_perm('teachers.teacher')

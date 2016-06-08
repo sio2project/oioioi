@@ -1,5 +1,6 @@
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.forms.models import modelform_factory
@@ -94,6 +95,7 @@ class ContestAdminMixin(object):
 
 ContestAdmin.mix_in(ContestAdminMixin)
 
-teacher_menu_registry.register('create_contest', _("New contest"),
+if 'oioioi.simpleui' not in settings.INSTALLED_APPS:
+    teacher_menu_registry.register('create_contest', _("New contest"),
         lambda request: reverse('oioioiadmin:contests_contest_add'),
         order=10)

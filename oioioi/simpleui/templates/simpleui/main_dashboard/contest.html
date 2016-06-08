@@ -1,0 +1,64 @@
+{% load i18n %}
+
+<div class="contest_box">
+  <div class="contest_header">
+    <h2><a href="{% url 'teacher_contest_dashboard' contest_id=contest.id %}">{{contest.name}}</a></h2>
+    <a class="settings" href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
+      <i class="icon-cog"></i> {% trans "Settings" %}
+    </a>
+  </div>
+  <div class="clear"></div>
+  <div class="contest_inner_wrapper">
+    <div class="contest_stats">
+      <div class="statistics_header">{% trans "In the last 7 days" %}</div>
+      <div>
+          <a href="{% url 'oioioiadmin:contests_submission_changelist' contest_id=contest.id %}?c={{contest.id|urlencode }}">
+              {% blocktrans count count=contest.recent_submission_count %}
+                {{ count }} submission
+              {% plural %}
+                {{ count }} submissions
+              {% endblocktrans %}
+          </a>
+      </div>
+      <div>
+          <a href="{% url 'contest_messages' contest_id=contest.id %}">
+              {% blocktrans count count=contest.recent_question_count %}
+                {{ count }} question
+              {% plural %}
+                {{ count }} questions
+              {% endblocktrans %}
+          </a>
+      </div>
+      <div class="statistics_header">{% trans "Overall" %}</div>
+      <div>
+          {% blocktrans count count=contest.round_count %}
+              {{ count }} round
+          {% plural %}
+              {{ count }} rounds
+          {% endblocktrans %}
+      </div>
+      <div>
+          {% blocktrans count count=contest.task_count %}
+              {{ count }} problem
+          {% plural %}
+              {{ count }} problems
+          {% endblocktrans %}
+      </div>
+      <div>
+          {% blocktrans count count=contest.user_count %}
+              {{ count }} user
+          {% plural %}
+              {{ count }} users
+          {% endblocktrans %}
+      </div>
+      <div>
+          {% blocktrans count count=contest.submission_count %}
+              {{ count }} submission
+          {% plural %}
+              {{ count }} submissions
+          {% endblocktrans %}
+      </div>
+    </div>
+    <div class="contest_graph" id="container_{{contest.id}}" data-max_score="{{contest.max_score}}" data-scores="{{contest.scores}}"></div>
+  </div>
+</div>

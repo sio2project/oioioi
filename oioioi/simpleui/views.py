@@ -1,24 +1,35 @@
 import json
 from collections import defaultdict
-from datetime import timedelta
+from datetime import datetime, timedelta
 
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
+from oioioi.base.main_page import register_main_page_view
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import Round, Submission, UserResultForProblem, \
-    ProblemInstance
-from oioioi.contests.utils import contest_exists, rounds_times, \
-    is_contest_admin
+from oioioi.contests.models import Round, ProblemInstance, Submission, \
+    UserResultForContest, UserResultForProblem
+from oioioi.contests.utils import contest_exists, is_contest_admin, \
+    rounds_times, visible_contests, can_admin_contest
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
+from oioioi.portals.conditions import global_portal_exists
+from oioioi.portals.models import Portal
 from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
-from oioioi.teachers.views import is_teachers_contest
+from oioioi.teachers.views import is_teachers_contest, is_teacher, is_teachers
 
 NUMBER_OF_RECENT_ACTIONS = 5
 RECENT_ACTIVITY_DAYS = 7
+MAX_CONTESTS_ON_PAGE = 6
+
+
+@register_main_page_view(order=400, condition=is_teacher & ~is_superuser)
+def main_page_view(request):
+    return redirect('teacher_dashboard')
 
 
 def get_round_context(request, round_pk):
@@ -165,3 +176,72 @@ def contest_dashboard_view(request, round_pk=None):
         context.update(get_round_context(request, round_pk))
 
     return TemplateResponse(request, 'simpleui/contest/contest.html', context)
+
+
+@enforce_condition(is_teacher)
+def teacher_dashboard_view(request):
+    contest_context = []
+    min_date = datetime.today() - timedelta(days=7)
+
+    contests = [contest for contest in visible_contests(request)]
+    are_contests_limited = len(contests) > MAX_CONTESTS_ON_PAGE
+    visible_contests_count = len(contests)
+
+    contests = [x for x in contests if is_teachers(x)
+                                    and can_admin_contest(request.user, x)]
+    if len(contests) < visible_contests_count:
+        are_contests_limited = True
+    contests.sort(key=lambda x: x.creation_date, reverse=True)
+
+    contests = contests[:MAX_CONTESTS_ON_PAGE]
+
+    if 'oioioi.portals' in settings.INSTALLED_APPS:
+        has_portal = global_portal_exists(request)
+    else:
+        has_portal = False
+
+    for contest in contests:
+
+        scores = [result.score.to_int() for result in
+                    UserResultForContest.objects.filter(contest=contest).all()]
+
+        max_score = 0
+        for problem_inst in ProblemInstance.objects.filter(contest=contest):
+            user_results = \
+                UserResultForProblem.objects.filter(
+                        problem_instance=problem_inst).all()
+            if user_results.count() > 0:
+                max_score += user_results[0].submission_report.score_report. \
+                                                             max_score.to_int()
+
+        contest_dict = {
+            'id': contest.id,
+            'name': contest.name,
+            'round_count': Round.objects.filter(contest=contest).count(),
+            'task_count': ProblemInstance.objects.filter(
+                contest=contest).count(),
+            'user_count': User.objects.filter(
+                participant__contest=contest).count(),
+            'submission_count': Submission.objects.filter(
+                problem_instance__contest=contest).count(),
+            'recent_submission_count': Submission.objects.filter(
+                    problem_instance__contest=contest, date__gte=min_date
+                ).count(),
+            'recent_question_count': Message.objects.filter(
+                    contest=contest, kind='QUESTION', date__gte=min_date
+                ).count(),
+            'max_score': max_score,
+            'scores': scores,
+        }
+        contest_context.append(contest_dict)
+    context = {
+            'contests': contest_context,
+            'are_contests_limited': are_contests_limited,
+            'has_portal': has_portal
+    }
+    if has_portal:
+        context['portal_path'] = Portal.objects.filter(owner=None)[0] \
+                                 .root.get_path()
+
+    return TemplateResponse(request,
+            'simpleui/main_dashboard/dashboard.html', context)

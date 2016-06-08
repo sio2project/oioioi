@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n static staticfiles compress %}
+
+{% block title %}{% trans "Contest dashboard" %}{% endblock %}
+
+{% block styles %}
+    {{ block.super }}
+    {% compress css %}
+        <link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}simpleui/simpleui.less">
+        <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}simpleui/main_dashboard.css">
+    {% endcompress %}
+{% endblock %}
+
+{% block container-class %}simpleui__container{% endblock %}
+
+{% block body %}
+<div class="contest top-row">
+    <header class="contest__header">
+        <h1 class="inline-menu__name contest__name">{% trans "Teacher dashboard" %}</h1>
+        <div class="inline-menu">
+            <a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create contest" %}</a>
+        </div>
+        {% if has_portal %}
+        <div class="inline-menu">
+            |
+            <a href="{% url 'global_portal' portal_path %}">
+                {% trans "Homepage" %}
+            </a>
+        </div>
+        {% endif %}
+        <div class="inline-menu">
+            |
+            <a href="{% url 'problemset_main' %}">
+                {% trans "Problemset" %}
+            </a>
+        </div>
+
+    </header>
+    <script type="text/javascript" src="{% static 'js/highcharts.js' %}"></script>
+    {% if contests|length == 0 %}
+        {% url 'oioioiadmin:contests_contest_add' as link %}
+        {% blocktrans %}
+            <p>There are no teacher contests to display. You can <a href="{{link}}">create one</a>.</p>
+        {% endblocktrans %}
+    {% endif %}
+    {% for contest in contests %}
+        {% if forloop.counter0|divisibleby:2 %}
+            <span class="contest_row">
+                {% include "simpleui/main_dashboard/contest.html" %}
+        {% else %}
+                {% include "simpleui/main_dashboard/contest.html" %}
+            </span>
+        {% endif %}
+    {% endfor %}
+    {% if not contests|length|divisibleby:2 %}
+            </span>
+    {% endif %}
+    <script type="text/javascript" src="{{ STATIC_URL }}simpleui/main_dashboard.js"></script>
+    {% if are_contests_limited %}
+        <div class="limited_contests">
+            <a class="btn btn-primary" href="{% url 'select_contest' %}">
+                {% trans "Show all contests" %}
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
