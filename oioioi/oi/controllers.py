@@ -211,6 +211,39 @@ class OIOnsiteContestController(OIContestController):
 OIOnsiteContestController.mix_in(PastRoundsHiddenContestControllerMixin)
 
 
+class OIFinalOnsiteContestController(OIOnsiteContestController):
+    description = _("Polish Olympiad in Informatics - Onsite - Finals")
+
+    def can_see_submission_score(self, request, submission):
+        return True
+
+    def update_user_result_for_problem(self, result):
+        submissions = Submission.objects \
+            .filter(problem_instance=result.problem_instance) \
+            .filter(user=result.user) \
+            .filter(score__isnull=False) \
+            .exclude(status='CE') \
+            .filter(kind='NORMAL')
+
+        if submissions:
+            max_submission = submissions.order_by('-score')[0]
+
+            try:
+                report = SubmissionReport.objects.get(
+                        submission=max_submission, status='ACTIVE',
+                        kind='NORMAL')
+            except SubmissionReport.DoesNotExist:
+                report = None
+
+            result.score = max_submission.score
+            result.status = max_submission.status
+            result.submission_report = report
+        else:
+            result.score = None
+            result.status = None
+            result.submission_report = None
+
+
 class BOIOnsiteContestController(OIOnsiteContestController):
     description = _("Baltic Olympiad in Informatics")
     create_forum = False
