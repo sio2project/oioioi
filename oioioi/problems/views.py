@@ -332,11 +332,20 @@ def model_solutions_view(request, problem_instance_id):
             'status': status
             })
 
+    total_row = {
+        'test': sum(t.time_limit for t in tests),
+        'results':
+            [sum(t[s.id].time_used if t[s.id] else 0
+                 for t in test_results.values())
+             for s in submissions],
+    }
+
     context = {
             'problem_instance': problem_instance,
             'submissions_row': submissions_row,
             'submissions': submissions,
-            'rows': rows
+            'rows': rows,
+            'total_row': total_row
     }
 
     return TemplateResponse(request, 'programs/admin/model_solutions.html',

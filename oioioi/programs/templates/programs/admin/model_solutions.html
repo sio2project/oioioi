@@ -37,6 +37,13 @@
             <th>{{ s.get_score_display|default_if_none:'' }}</th>
             {% endfor %}
         </tr>
+        <tr>
+            <th class="corner">{% trans "Total:" %}</th>
+            <th class="time-limit">{{ total_row.test|runtimeformat }}</th>
+            {% for result in total_row.results %}
+            <th class="time-limit">{{ result|runtimeformat }}</th>
+            {% endfor %}
+        </tr>
     </thead>
     <tbody>
         {% spaceless %}
