@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import sys
 import dateutil.parser
 
@@ -11,6 +12,7 @@ from oioioi.programs.models import ProgramSubmission
 
 
 SUBMISSION_RECEIVED_SALT = 'submission_reveived'
+logger = logging.getLogger(__name__)
 
 
 class ProofCorrupted(ValueError):
@@ -105,3 +107,7 @@ def send_submission_receipt_confirmation(request, submission):
 
     request.contest.controller.send_email(subject, body,
                 [submission.user.email])
+
+    logger.info("Proof of receiving sub. #%d@%s@%s (%s) sent to %s",
+            submission.id, context['problem_shortname'], context['contest_id'],
+            proof_data['source_hash'], submission.user)
