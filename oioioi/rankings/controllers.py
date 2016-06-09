@@ -198,14 +198,15 @@ class DefaultRankingController(RankingController):
                 context_instance=RequestContext(request, data))
 
     def _get_csv_header(self, request, data):
-        header = [_("No."), _("First name"), _("Last name")]
+        header = [_("No."), _("Login"), _("First name"), _("Last name")]
         for pi, _statement_visible in data['problem_instances']:
             header.append(pi.get_short_name_display())
         header.append(_("Sum"))
         return header
 
     def _get_csv_row(self, request, row):
-        line = [row['place'], row['user'].first_name, row['user'].last_name]
+        line = [row['place'], row['user'].username, row['user'].first_name,
+                row['user'].last_name]
         line += [r.score if r and r.score is not None else ''
                  for r in row['results']]
         line.append(row['sum'])
