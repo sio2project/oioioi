@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8 />	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		 		
+	<link href="{{ STATIC_URL }}liveranking/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+	<script>
+        BOMB_PENALTY = {{ bomb_penalty }};
+        FREEZE_TIME = {{ freeze_time }};
+        ROUND_LENGTH = {{ round_length }};
+        TEAMS_SENDER_URL = "{% url 'livedata_teams_view' contest_id=contest.id round_id=round.id %}";
+        TASKS_SENDER_URL = "{% url 'livedata_tasks_view' contest_id=contest.id round_id=round.id %}";
+        EVENTS_SENDER_URL = "{% url 'livedata_events_view' contest_id=contest.id round_id=round.id %}";
+        MAX_REFRESH_RATE = {{ max_refresh_rate }};
+    </script>
+	<script src="{{ STATIC_URL }}liveranking/js/jq.js"></script>
+	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/d3.js"></script>
+	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/utils.js"></script>			
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAcmvis.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAdapter.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CModel.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CRanking.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CClock.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CDonut.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CFlash.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CPanel.js"></script>		
+    <script>
+        console = {
+			'log' : function() {}
+		};
+		var isStarted = false;
+		var oneRoll = function() {
+			adapter.getEvents();
+			model.getEvents();		
+			ranking.update();			
+			setTimeout(function() {				
+				ranking.scrollTeams2(oneRoll);
+			}, 5000);
+		}
+		var adapter = new CAdapter();
+		var model = new CModel(adapter);				
+		adapter.settings.downloadEventsAsync = false;
+		model.init();	
+		model.setTime(1000000);
+		var ranking = new CRanking(model, "#ranking");						
+		ranking.settings.headerRowHeight = 55;
+		ranking.settings.visibleTeams = 9;
+		ranking.settings.taskColWidth = 55;
+		ranking.settings.useModelTime = false;
+		ranking.settings.parseTeamTask = function(teamTask) {
+			if (teamTask.lastStatus == null) return "";
+			if (teamTask.lastStatus == 'AC' && teamTask.penalty == 0) return 'AC';
+			return teamTask.lastStatus;			
+		};
+		
+		$(document).ready(function() {			
+			ranking.init(); 	
+			$(document).keydown(function(e){									
+				if (e.keyCode == 32 && !isStarted) { // <-- ruszamy na spacje					
+					isStarted = true;
+					model.getEvents();					
+					ranking.update();
+					$('#ranking').css('visibility', 'visible');					
+					oneRoll();
+					return false;
+				}
+			});						
+		});
+	</script>
+	<style>	
+	body {
+		color: black;
+		overflow: hidden;
+	}	
+	.row, .headerRow {
+		position: absolute;
+		height: 50px;
+	}
+	.row > * {
+		height: 50px;
+		line-height: 50px;
+	}
+	.teamToTask, .teamToTask, .name, .score, .time, .header, .rank{		
+		position: absolute;
+		display: block;		
+		top: 0px;
+		text-align: center;
+	}	
+	
+	.row .name, .headerRow .name {
+		width: 148px !important;
+	}
+	
+	#ranking {		
+		position: relative;
+		width: 1000px;
+		margin: 0px auto;
+	}
+	.teamToTask {				
+		width: 53px !important;		
+	}
+
+	.headerRow .task {
+		width: 53px !important;		
+	}
+	</style>
+</head>
+<body>
+	<!--<span onclick='hop();' style="z-index: 10000; background: blue;">HOP</span>-->	
+	<div id="header"></div>
+	<div id="ranking" style="z-index: 0; visibility: hidden;"></div>	
+	<div id="footer"></div>
+</body>
+</html>

@@ -279,3 +279,35 @@ def last_break_between_rounds(request):
     min_start = min(starts) if starts else None
 
     return max_end, min_start
+
+
+def best_round_to_display(request, allow_past_rounds=False):
+    timestamp = getattr(request, 'timestamp', None)
+    contest = getattr(request, 'contest', None)
+
+    next_rtimes = None
+    current_rtimes = None
+    past_rtimes = None
+
+    if timestamp and contest:
+        rtimes = dict(
+                (round, contest.controller.get_round_times(request, round))
+                for round in Round.objects.filter(contest=contest))
+        next_rtimes = [(r, rt) for r, rt in rtimes.iteritems()
+                if rt.is_future(timestamp)]
+        next_rtimes.sort(key=lambda (r, rt): rt.get_start())
+        current_rtimes = [(r, rt) for r, rt in rtimes
+                                if rt.is_active(timestamp) and rt.get_end()]
+        current_rtimes.sort(key=lambda (r, rt): rt.get_end())
+        past_rtimes = [(r, rt) for r, rt in rtimes.iteritems()
+                if rt.is_past(timestamp)]
+        past_rtimes.sort(key=lambda (r, rt): rt.get_end())
+
+    if current_rtimes:
+        return current_rtimes[0][0]
+    elif next_rtimes:
+        return next_rtimes[0][0]
+    elif past_rtimes and allow_past_rounds:
+        return past_rtimes[-1][0]
+    else:
+        return None

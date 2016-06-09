@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import all_public_results_visible, \
-        is_contest_admin, is_contest_observer
+        is_contest_admin, is_contest_observer, can_enter_contest
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
@@ -207,7 +207,7 @@ class PAFinalsContestController(ACMContestController):
         return True
 
     def can_see_livedata(self, request):
-        return True
+        return can_enter_contest(request)
 
     def is_onsite(self):
         return True

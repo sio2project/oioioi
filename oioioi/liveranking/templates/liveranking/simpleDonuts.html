@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset=utf-8 />	
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		 					
+	<link href="{{ STATIC_URL }}liveranking/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+	<script>
+        BOMB_PENALTY = {{ bomb_penalty }};
+        FREEZE_TIME = {{ freeze_time }};
+        ROUND_LENGTH = {{ round_length }};
+        TEAMS_SENDER_URL = "{% url 'livedata_teams_view' contest_id=contest.id round_id=round.id %}";
+        TASKS_SENDER_URL = "{% url 'livedata_tasks_view' contest_id=contest.id round_id=round.id %}";
+        EVENTS_SENDER_URL = "{% url 'livedata_events_view' contest_id=contest.id round_id=round.id %}";
+        MAX_REFRESH_RATE = {{ max_refresh_rate }};
+    </script>
+	<script src="{{ STATIC_URL }}liveranking/js/jq.js"></script>
+	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/d3.js"></script>
+	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/utils.js"></script>			
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAcmvis.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAdapter.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CModel.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CRanking.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CClock.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CDonut.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CFlash.js"></script>		
+	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CPanel.js"></script>		
+	<script>						
+        var acmvis = new CAcmvis();
+		$(document).ready(function() {							
+			acmvis.simpleDonuts('#content');
+		});		
+	</script>
+	<style>	
+	body {
+		color: black;
+		text-align: center;
+	}
+	.simpleDonut {
+		position: relative; 
+		display: inline-block;
+		width: 500px;
+		height: 500px;		
+	}
+	</style>
+</head>
+<body>
+	<div id="header"></div>
+	<div id="content" style="position: relative;"></div>
+	<div id="footer" style="clear: both;"></div>
+</body>
+</html>

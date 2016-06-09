@@ -12,14 +12,10 @@ from oioioi.base.utils import jsonify, allow_cross_origin
 from oioioi.contests.models import SubmissionReport
 from oioioi.contests.utils import is_contest_observer, is_contest_admin, \
         contest_exists
+from oioioi.livedata.utils import can_see_livedata
 
 
 RESULT_FOR_FROZEN_SUBMISSION = 'FROZEN'
-
-
-@make_request_condition
-def can_see_livedata(request):
-    return request.contest.controller.can_see_livedata(request)
 
 
 def cache_unless_admin_or_observer(view):

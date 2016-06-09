@@ -1,0 +1,242 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/* line 17, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: inherit;
+  font-size: 100%;
+  vertical-align: baseline;
+}
+
+/* line 22, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+html {
+  line-height: 1;
+}
+
+/* line 24, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+ol, ul {
+  list-style: none;
+}
+
+/* line 26, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* line 28, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+caption, th, td {
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* line 30, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+q, blockquote {
+  quotes: none;
+}
+/* line 103, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+q:before, q:after, blockquote:before, blockquote:after {
+  content: "";
+  content: none;
+}
+
+/* line 32, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+a img {
+  border: none;
+}
+
+/* line 116, ../../../../Ruby192/lib/ruby/gems/1.9.1/gems/compass-0.12.2/frameworks/compass/stylesheets/compass/reset/_utilities.scss */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
+  display: block;
+}
+
+/* line 9, ../sass/screen.scss */
+body {
+  background: black;
+  font-family: monospace;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* line 16, ../sass/screen.scss */
+#header {
+  background-image: url("images/header.png") !important;
+  background-repeat: no-repeat;
+  background-position: center 0px;
+  position: relative;
+  margin: 0px auto;
+  height: 140px;
+}
+/* line 23, ../sass/screen.scss */
+#header.small {
+  height: 140px;
+  background-position: center -15px;
+}
+
+/* line 28, ../sass/screen.scss */
+#footer {
+  background-image: url("images/footer.png") !important;
+  background-position: center bottom;
+  background-repeat: no-repeat;
+  clear: both;
+  cursor: none;
+  position: relative;
+  margin: 0px auto;
+  height: 94px;
+  margin-top: 10px;
+}
+
+/* line 39, ../sass/screen.scss */
+#ranking {
+  color: white;
+  overflow: hidden;
+}
+/* line 43, ../sass/screen.scss */
+#ranking .row {
+  -webkit-transition: top 0.8s, margin-top 0.4s;
+  -moz-transition: top 0.8s, margin-top 0.4s;
+  -o-transition: top 0.8s, margin-top 0.4s;
+  transition: top 0.8s, margin-top 0.4s;
+  -webkit-transition: top 0.8s;
+  -moz-transition: top 0.8s;
+  -o-transition: top 0.8s;
+  transition: top 0.8s;
+  margin-top: 0px;
+  background: black;
+}
+/* line 49, ../sass/screen.scss */
+#ranking .teamToTask {
+  -webkit-transition: background-color 0.8s, left 0.8s;
+  -webkit-transition-delay: 0.2s, 0s;
+  -moz-transition: background-color 0.8s 0.2s, left 0.8s 0s;
+  -o-transition: background-color 0.8s 0.2s, left 0.8s 0s;
+  transition: background-color 0.8s 0.2s, left 0.8s 0s;
+  background: black;
+  border: 1px solid orange;
+  width: 68px;
+  height: 48px;
+}
+/* line 58, ../sass/screen.scss */
+#ranking .headerRow {
+  background: black;
+}
+/* line 60, ../sass/screen.scss */
+#ranking .headerRow .task {
+  -webkit-transition: left 0.8s;
+  -webkit-transition-delay: 0s;
+  -moz-transition: left 0.8s 0s;
+  -o-transition: left 0.8s 0s;
+  transition: left 0.8s 0s;
+  width: 68px;
+  border: 1px solid orange;
+  height: 48px;
+  line-height: 48px;
+}
+/* line 68, ../sass/screen.scss */
+#ranking .headerRow .name, #ranking .headerRow .score, #ranking .headerRow .time, #ranking .headerRow .rank {
+  border: 1px solid orange;
+  height: 48px;
+  line-height: 48px;
+}
+/* line 75, ../sass/screen.scss */
+#ranking .name {
+  width: 98px;
+}
+/* line 76, ../sass/screen.scss */
+#ranking .score {
+  width: 88px;
+}
+/* line 77, ../sass/screen.scss */
+#ranking .time {
+  width: 118px;
+}
+/* line 78, ../sass/screen.scss */
+#ranking .rank {
+  width: 58px;
+}
+/* line 80, ../sass/screen.scss */
+#ranking .name, #ranking .score, #ranking .time, #ranking .rank {
+  border: 1px solid orange;
+  height: 48px;
+  line-height: 48px;
+}
+
+/* line 87, ../sass/screen.scss */
+.pluginClock {
+  background: white;
+  text-align: center;
+}
+
+/* line 94, ../sass/screen.scss */
+.pluginDonut .textBox {
+  color: white;
+  width: 250px;
+  height: 220px;
+  position: absolute;
+  margin-left: -125px;
+  margin-top: -110px;
+  text-align: center;
+}
+/* line 102, ../sass/screen.scss */
+.pluginDonut .textBox .scoreRow {
+  font-size: 100px;
+  margin-top: 30px;
+  font-family: Consolas;
+  display: block;
+}
+/* line 108, ../sass/screen.scss */
+.pluginDonut .textBox .nameRow {
+  margin-top: 30px;
+  font-size: 60px;
+  font-family: Candara;
+  display: block;
+}
+/* line 115, ../sass/screen.scss */
+.pluginDonut .textBox .taskName {
+  position: relative;
+  display: block;
+  text-transform: uppercase;
+  font-family: Consolas;
+  text-align: center;
+  font-size: 32px;
+  height: 50px;
+  line-height: 50px;
+}
+/* line 125, ../sass/screen.scss */
+.pluginDonut .textBox .statusName, .pluginDonut .textBox .statusNo {
+  position: relative;
+  width: 49%;
+  float: left;
+  display: block;
+  text-align: center;
+  height: 30px;
+  line-height: 30px;
+  font-size: 24px;
+  font-family: Candara;
+}
+
+/* line 139, ../sass/screen.scss */
+.flashPlugin {
+  -webkit-transition: top 0.8s;
+  -webkit-transition-delay: 0s;
+  -moz-transition: top 0.8s 0s;
+  -o-transition: top 0.8s 0s;
+  transition: top 0.8s 0s;
+}
