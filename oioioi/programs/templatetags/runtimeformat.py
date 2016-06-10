@@ -10,6 +10,7 @@ def runtimeformat(value):
         return '???'
     seconds = value / 1000.0
     if seconds < 200:
-        return _("%.2fs") % (seconds,)
+        return _("%(seconds).2fs") % dict(seconds=seconds)
     else:
-        return _("%dm %.2fs") % (int(seconds / 60), seconds % 60)
+        return _("%(minutes)dm %(seconds).2fs") % dict(
+                minutes=int(seconds / 60), seconds=(seconds % 60))
