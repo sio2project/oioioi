@@ -1,0 +1,58 @@
+{% load i18n %}
+
+<div class="table__wrapper">
+  <table class="table">
+      <thead>
+          <tr>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Time limit (ms)" %}</th>
+              <th>{% trans "Memory limit (KiB)" %}</th>
+              <th>{% trans "Points" %}</th>
+              <th>{% trans "Type" %}</th>
+              <th>{% trans "Input/output" %}</th>
+              <th>{% trans "Is active" %}</th>
+          </tr>
+      </thead>
+      <tbody>
+          {{ test_forms.management_form }}
+          {{ test_forms.formset.non_form_errors }}
+          {{ test_forms.non_form_errors }}
+          {% for test in test_forms %}
+              <tr>
+                {{ test.form.non_field_errors }}
+                {{ test.non_field_errors }}
+                 <td>
+                   {{ test.name.as_hidden }}
+                   {{ test.name.value }}
+                   {{ test.name.errors }}
+                 </td>
+                  <td class="test__time">
+                      {{ test.time_limit.errors }}
+                      {{ test.time_limit }}
+                  </td>
+                  <td class="test__memory">
+                      {{ test.memory_limit.errors }}
+                      {{ test.memory_limit }}
+                  </td>
+                  <td class="test__points">
+                      {{ test.max_score }}
+                  </td>
+                  <td>
+                      {{ test.kind.as_hidden }}
+                      {% trans test.kind.value %}
+                      {{ test.kind.errors }}
+                  </td>
+                  <td>
+                      {{ test.fields.input_file.link }} / {{ test.fields.output_file.link }}
+                  </td>
+                  <td>
+                      {{ test.is_active }}
+                  </td>
+                  <td>
+                      {{test.id}}
+                  </td>
+              </tr>
+          {% endfor %}
+      </tbody>
+  </table>
+</div>

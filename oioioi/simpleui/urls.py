@@ -10,4 +10,6 @@ contest_patterns = patterns('oioioi.simpleui.views',
         name='teacher_contest_dashboard'),
     url(r'^contest-dashboard/(?P<round_pk>[0-9]+)/$',
         'contest_dashboard_view', name='teacher_contest_dashboard'),
+    url(r'^problem-settings/(?P<problem_instance_id>\d+)/$',
+        'problem_settings', name='problem_settings'),
 )

@@ -232,7 +232,7 @@ class ProblemInstance(models.Model):
     problem = models.ForeignKey('problems.Problem', verbose_name=_("problem"))
     short_name = models.CharField(max_length=30, verbose_name=_("short name"),
             validators=[validate_db_string_id])
-    submissions_limit = models.IntegerField(blank=True,
+    submissions_limit = models.IntegerField(
         default=settings.DEFAULT_SUBMISSIONS_LIMIT,
         verbose_name=_("submissions limit"))
 

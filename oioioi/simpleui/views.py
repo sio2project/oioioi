@@ -2,9 +2,11 @@ import json
 from collections import defaultdict
 from datetime import datetime, timedelta
 
+import types
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.forms import modelformset_factory, inlineformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
@@ -18,8 +20,13 @@ from oioioi.contests.utils import contest_exists, is_contest_admin, \
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.portals.conditions import global_portal_exists
 from oioioi.portals.models import Portal
+from oioioi.problems.models import Problem, ProblemAttachment, Tag, TagThrough
+from oioioi.programs.admin import TimeLimitFormset
+from oioioi.programs.models import Test
 from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
+from oioioi.simpleui.forms import TestForm, ProblemInstanceForm, \
+    AttachmentForm, TagForm
 from oioioi.teachers.views import is_teachers_contest, is_teacher, is_teachers
 
 NUMBER_OF_RECENT_ACTIONS = 5
@@ -203,16 +210,16 @@ def teacher_dashboard_view(request):
     for contest in contests:
 
         scores = [result.score.to_int() for result in
-                    UserResultForContest.objects.filter(contest=contest).all()]
+                  UserResultForContest.objects.filter(contest=contest).all()]
 
         max_score = 0
         for problem_inst in ProblemInstance.objects.filter(contest=contest):
             user_results = \
                 UserResultForProblem.objects.filter(
-                        problem_instance=problem_inst).all()
+                    problem_instance=problem_inst).all()
             if user_results.count() > 0:
                 max_score += user_results[0].submission_report.score_report. \
-                                                             max_score.to_int()
+                    max_score.to_int()
 
         contest_dict = {
             'id': contest.id,
@@ -225,23 +232,121 @@ def teacher_dashboard_view(request):
             'submission_count': Submission.objects.filter(
                 problem_instance__contest=contest).count(),
             'recent_submission_count': Submission.objects.filter(
-                    problem_instance__contest=contest, date__gte=min_date
-                ).count(),
+                problem_instance__contest=contest, date__gte=min_date
+            ).count(),
             'recent_question_count': Message.objects.filter(
-                    contest=contest, kind='QUESTION', date__gte=min_date
-                ).count(),
+                contest=contest, kind='QUESTION', date__gte=min_date
+            ).count(),
             'max_score': max_score,
             'scores': scores,
         }
         contest_context.append(contest_dict)
     context = {
-            'contests': contest_context,
-            'are_contests_limited': are_contests_limited,
-            'has_portal': has_portal
+        'contests': contest_context,
+        'are_contests_limited': are_contests_limited,
+        'has_portal': has_portal
     }
     if has_portal:
         context['portal_path'] = Portal.objects.filter(owner=None)[0] \
-                                 .root.get_path()
+            .root.get_path()
 
     return TemplateResponse(request,
-            'simpleui/main_dashboard/dashboard.html', context)
+                            'simpleui/main_dashboard/dashboard.html', context)
+
+
+@enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
+def problem_settings(request, problem_instance_id):
+    # Database objects.
+    pi = get_object_or_404(ProblemInstance, id=problem_instance_id,
+                           contest=request.contest)
+    p = pi.problem
+    tags = p.tag_set.all()
+    attachments = p.attachments.all()
+    tests = pi.test_set.all()
+    # Formsets
+    TestFormset = modelformset_factory(Test, form=TestForm, extra=0)
+    PIFormset = modelformset_factory(ProblemInstance,
+                                     form=ProblemInstanceForm, extra=0)
+
+    AttachmentFormset = inlineformset_factory(Problem, ProblemAttachment,
+                                              extra=0, form=AttachmentForm,
+                                              can_delete=True)
+
+    TagFormset = modelformset_factory(Tag, form=TagForm, extra=0,
+                                      can_delete=True)
+
+    if request.method == 'POST':
+        pif = PIFormset(request.POST, prefix='pif')
+
+        test_formset = TestFormset(request.POST)
+        # Bind the clean method, which serves as a time limit validator.
+        # http://stackoverflow.com/questions/9646187
+        test_formset.get_time_limit_sum = types.MethodType(
+                TimeLimitFormset.__dict__['get_time_limit_sum'], test_formset)
+        test_formset.validate_time_limit_sum = types.MethodType(
+                TimeLimitFormset.__dict__['validate_time_limit_sum'],
+                test_formset)
+        test_formset.clean = types.MethodType(
+                TimeLimitFormset.__dict__['clean'], test_formset)
+
+        attachment_formset = \
+            AttachmentFormset(request.POST, request.FILES, instance=p,
+                              prefix='attachment')
+        tag_formset = TagFormset(request.POST, prefix='tag', queryset=tags)
+
+        if pif.is_valid() and test_formset.is_valid() and \
+                attachment_formset.is_valid() and tag_formset.is_valid():
+
+            # Commit is set to False because of errors while deleting.
+            instances = attachment_formset.save(commit=False)
+            for inst in instances:
+                inst.save()
+            for inst in attachment_formset.deleted_objects:
+                inst.delete()
+
+            # Commit is set to false because we don't want to persist
+            # every Tag - we'll be persisting TagThrough instead.
+            instances = tag_formset.save(commit=False)
+            for inst in instances:
+                tag, _ = Tag.objects.get_or_create(name=inst)
+                tt = TagThrough()
+                tt.problem = p
+                tt.tag = tag
+                tt.save()
+            for inst in tag_formset.deleted_objects:
+                TagThrough.objects.filter(tag=inst, problem=p).delete()
+
+            pif.save()
+            test_formset.save()
+            return redirect(reverse('problem_settings', kwargs={
+                'problem_instance_id': problem_instance_id}))
+
+        test_forms = test_formset
+        pi_form = pif
+
+    else:
+        test_forms = TestFormset(queryset=tests)
+        pi_form = PIFormset(queryset=ProblemInstance.objects.filter(id=pi.id),
+                            prefix='pif')
+        attachment_formset = AttachmentFormset(queryset=attachments,
+                                               prefix='attachment',
+                                               instance=p)
+        tag_formset = TagFormset(prefix='tag', queryset=tags)
+
+    context = {
+        'problem_instance': pi,
+        'problem': p,
+        'tags': tags,
+        'attachments': attachments,
+        'tests': tests,
+        'pi_form': pi_form,
+        'test_forms': test_forms,
+    }
+
+    for attachment_form in attachment_formset.forms:
+        attachment_form.update_link(request.contest.id)
+    context['attachment_formset'] = attachment_formset
+    context['tag_formset'] = tag_formset
+
+    return TemplateResponse(request,
+                            'simpleui/problem_settings/settings.html', context)
