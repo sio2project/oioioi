@@ -107,9 +107,64 @@ table.grp-sortable thead th.sortable {
     width: 278px;
 }
 
-.grp-fixed-footer > ul {
-    .span-fixed-sidebar;
+/* Below we defuse django-grappelli craziness.
+ * Sadly it makes css class names not reflect reality, but it
+ * is impossible to fix without changing grapelli templates.
+ * Also some grapelli hacks (!important) leak here.
+*/
+
+.grp-fixed-footer.grp-module {
+    padding: 0px;
+    position: static;
+    background-image: none;
+    margin-top: 5px;
 }
+
+li.grp-changelist-actions .grp-horizontal-list li {
+    margin-right: 0px;
+    border: 0px;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.grp-submit-row.grp-fixed-footer > ul > li {
+    margin: 0px 0px 0px 6px !important;
+    padding: 0px !important;
+    background: none;
+}
+
+.grp-submit-row.grp-fixed-footer > ul > li.grp-float-left {
+    margin: 0px 6px 0px 0px !important;
+}
+
+li.grp-changelist-actions .grp-horizontal-list span {
+    color: #000 !important;
+    cursor: default !important;
+    border: 1px solid #fff !important;
+    background: #fff !important;
+}
+
+.grp-fixed-footer input[type="submit"]:hover, .grp-fixed-footer input[type="submit"]:focus {
+    color: inherit;
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgi…pZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+    background-size: 100%;
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #4fb2d3),color-stop(100%, #309bbf));
+    background-image: -moz-linear-gradient(#4fb2d3,#309bbf);
+    background-image: -webkit-linear-gradient(#4fb2d3,#309bbf);
+    background-image: linear-gradient(#4fb2d3,#309bbf);
+}
+
+.grp-fixed-footer a.grp-button.grp-delete-link:hover, .grp-fixed-footer a.grp-button.grp-delete-link:focus, .grp-fixed-footer button.grp-button.grp-delete-link:hover, .grp-fixed-footer button.grp-button.grp-delete-link:focus, .grp-fixed-footer input[type=button].grp-button.grp-delete-link:hover, .grp-fixed-footer input[type=button].grp-button.grp-delete-link:focus {
+    color: inherit;
+    background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgi…pZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JhZCkiIC8+PC9zdmc+IA==');
+    background-size: 100%;
+    background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #d34f4f),color-stop(100%, #bf3030));
+    background-image: -moz-linear-gradient(#d34f4f,#bf3030);
+    background-image: -webkit-linear-gradient(#d34f4f,#bf3030);
+    background-image: linear-gradient(#d34f4f,#bf3030);
+}
+
 
 #menu_div {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
