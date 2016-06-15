@@ -244,10 +244,10 @@ class DefaultRankingController(RankingController):
                 ranking = Ranking.objects.get(contest=self.contest, key=key)
             except Ranking.DoesNotExist:
                 return None
-            # Not available yet
-            if not rows:
+            serialized = ranking.serialized or {}
+            rows = serialized.get('rows')
+            if not rows:  # Ranking isn't ready yet
                 return None
-            rows = ranking.serialized['rows']
 
         for i, row in enumerate(rows):
             if row['user'] == user:
