@@ -27,8 +27,8 @@ from oioioi.contests.current_contest import ContestMode
 
 
 class TestExperienceModule(TestCase):
-    fixtures = ['gamification_users.json',
-                'gamification_problem_without_contest.json']
+    fixtures = ['gamification_users',
+                'gamification_problem_without_contest']
 
     def setUp(self):
         self._backup_experience_sources = Experience._sources
@@ -235,7 +235,7 @@ class TestExperienceModule(TestCase):
 
 
 class TestFriends(TestCase):
-    fixtures = ['gamification_users.json']
+    fixtures = ['gamification_users']
 
     def areFriends(self, u1, u2):
         friends1 = UserFriends(u1)
@@ -463,7 +463,7 @@ class TestFriends(TestCase):
 
 
 class TestProfileView(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users']
 
     def test_experience_counter(self):
         url = reverse('view_current_profile')
@@ -582,7 +582,7 @@ class TestProfileView(TestCase):
 
 
 class TestProfileTabs(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users']
 
     def setUp(self):
         # pylint: disable=global-statement
@@ -610,11 +610,11 @@ class TestProfileTabs(TestCase):
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestCodeSharingFriends(TestCase):
-    fixtures = ['gamification_users.json', 'test_friendships.json',
-                'test_allowsharingprefs.json', 'gamification_problems.json',
-                'gamification_submissions.json',
-                'test_submission_source.json',
-                'gamification_problem_without_contest.json']
+    fixtures = ['gamification_users', 'test_friendships',
+                'test_allowsharingprefs', 'gamification_problems',
+                'gamification_submissions',
+                'test_submission_source',
+                'gamification_problem_without_contest']
 
     def ensure_enabled(self):
         self.assertTrue(
@@ -705,8 +705,8 @@ class TestCodeSharingFriends(TestCase):
 
 
 class DifficultyTest(TestCase):
-    fixtures = ['gamification_problems.json',
-                'gamification_sinol_config.json']
+    fixtures = ['gamification_problems',
+                'gamification_sinol_config']
 
     def setUp(self):
         parse_old_problems()
@@ -745,7 +745,7 @@ class DifficultyTest(TestCase):
 
 
 class TestEditProfile(TestCase):
-    fixtures = ['gamification_users.json']
+    fixtures = ['gamification_users']
 
     def setUp(self):
         user = User.objects.get(username='test_user')
