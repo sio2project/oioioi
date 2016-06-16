@@ -403,7 +403,7 @@ class SubmissionRoundListFilter(SimpleListFilter):
 
 class ContestListFilter(SimpleListFilter):
     title = _("contest")
-    parameter_name = 'problem_instance__contest'
+    parameter_name = 'contest'
 
     def lookups(self, request, model_admin):
         contests = list(Contest.objects.all())
@@ -411,7 +411,8 @@ class ContestListFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value():
-            return queryset.filter(problem_instance__contest=self.value())
+            return queryset.filter(
+                problem_instance__contest__name=self.value())
         else:
             return queryset
 
