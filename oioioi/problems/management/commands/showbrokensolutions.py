@@ -20,7 +20,7 @@ class Command(BaseCommand):
         problems = self.get_problems_without_correct_modelsolution(username)
         self.stdout.write('Problems: ' + str(len(problems)) + '\n')
         for problem in problems:
-            message = '- {name} / {short_name} ; id = {id}\n'.format(
+            message = u'- {name} / {short_name} ; id = {id}\n'.format(
                 name=problem.name, short_name=problem.short_name,
                 id=str(problem.pk))
             self.stdout.write(message)
