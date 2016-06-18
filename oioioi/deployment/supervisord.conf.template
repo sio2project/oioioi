@@ -97,7 +97,7 @@ command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid siowo
 startretries=0
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
-{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
+{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
 
 [program:cleanupd]
 command={{ PROJECT_DIR }}/manage.py cleanupd

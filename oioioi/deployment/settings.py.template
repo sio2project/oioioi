@@ -112,6 +112,21 @@ SEND_USER_ACTIVATION_EMAIL = False
 # able to access filetracker server.
 #FILETRACKER_URL = 'http://127.0.0.1:9999'
 
+# On which interface should the sioworkers receiver listen. You should
+# set the address to 0.0.0.0 if you want remote workers to access
+# your server.
+#SIOWORKERS_LISTEN_ADDR = '127.0.0.1'
+#SIOWORKERS_LISTEN_PORT = 7890
+
+# URL to which should respond sioworkersd, when it has finished its job
+# When set to None the default url will be created using the pattern
+# http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
+#SIOWORKERS_LISTEN_URL = None
+
+# Set this to false if you don't need sioworkersd instance (e. g.
+# because you use instance started by another instance of OIOIOI)
+#RUN_SIOWORKERSD = True
+
 # Contest mode - automatic activation of contests.
 #
 # Available choices are:

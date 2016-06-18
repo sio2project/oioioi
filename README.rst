@@ -454,6 +454,11 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         stdout_logfile={{ PROJECT_DIR }}/logs/ipauth-dnsserver.log
         {% if not settings.IPAUTH_DNSSERVER_DOMAIN %}exclude=true{% endif %}
 
+#. * Added new condition to *sioworkersd* in *deployment/supervisord.conf*
+   and corresponding entry in *deployment/settings.py*::
+
+	{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
+
 Usage
 -----
 

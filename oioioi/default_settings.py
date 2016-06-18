@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 5
+INSTALLATION_CONFIG_VERSION = 6
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -290,6 +290,8 @@ FILETRACKER_LISTEN_ADDR = '127.0.0.1'
 FILETRACKER_LISTEN_PORT = 9999
 
 FILETRACKER_URL = 'http://127.0.0.1:9999'
+
+RUN_SIOWORKERSD = True
 
 DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
