@@ -79,7 +79,7 @@ class Ranking(models.Model):
     last_recalculation_duration = models.DurationField(default=timedelta(0))
 
     # internal, use serialized instead
-    serialized_data = models.TextField(null=True)
+    serialized_data = models.BinaryField(null=True)
 
     # internal to ranking recalculation mechanism
     # use invalidate_* and is_up_to_date instead
