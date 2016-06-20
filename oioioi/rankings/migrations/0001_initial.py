@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('key', models.CharField(max_length=255)),
                 ('needs_recalculation', models.BooleanField(default=True)),
-                ('serialized_data', models.TextField(null=True)),
+                ('serialized_data', models.BinaryField(null=True)),
                 ('invalidation_date', models.DateTimeField(auto_now_add=True)),
                 ('last_recalculation_date', models.DateTimeField(null=True)),
                 ('last_recalculation_duration', models.DurationField(default=datetime.timedelta(0))),
