@@ -818,7 +818,7 @@ class PastRoundsHiddenContestControllerMixin(object):
        Do not use it with overlapping rounds.
     """
 
-    def can_see_round(self, request, round):
+    def can_see_round(self, request_or_context, round):
         """Decides whether the given round should be shown for the given user.
            The algorithm is as follows:
 
@@ -836,15 +836,15 @@ class PastRoundsHiddenContestControllerMixin(object):
                 1. During the preparation_time all rounds should be hidden.
                 1. Otherwise the decision is made by the superclass method.
         """
-
-        if is_contest_admin(request):
+        context = self.make_context(request_or_context)
+        if context.is_admin:
             return True
 
-        rtimes = self.get_round_times(request, round)
-        if has_any_active_round(request):
-            return rtimes.is_active(request.timestamp)
+        rtimes = self.get_round_times(None, round)
+        if has_any_active_round(context):
+            return rtimes.is_active(context.timestamp)
 
-        left, right = last_break_between_rounds(request)
+        left, right = last_break_between_rounds(context)
         if left is not None and right is not None:
             last_break_time = right - left
             preparation_start = right - min(
@@ -852,11 +852,11 @@ class PastRoundsHiddenContestControllerMixin(object):
                     last_break_time // 2
             )
             preparation_end = right
-            if preparation_start < request.timestamp < preparation_end:
+            if preparation_start < context.timestamp < preparation_end:
                 return False
 
         return super(PastRoundsHiddenContestControllerMixin, self) \
-                .can_see_round(request, round)
+                .can_see_round(request_or_context, round)
 
 
 class NotificationsMixinForContestController(object):

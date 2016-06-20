@@ -1,5 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.http import HttpRequest
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
         Submission, RoundTimeExtension
@@ -112,8 +113,8 @@ def contest_exists(request):
 
 
 @make_request_condition
-def has_any_rounds(request):
-    return Round.objects.filter(contest=request.contest).exists()
+def has_any_rounds(request_or_context):
+    return Round.objects.filter(contest=request_or_context.contest).exists()
 
 
 @make_request_condition
@@ -282,17 +283,20 @@ def get_submission_or_error(request, submission_id,
 
 
 @request_cached
-def last_break_between_rounds(request):
+def last_break_between_rounds(request_or_context):
     """Returns the end_date of the latest past round and the start_date
        of the closest future round.
 
        Assumes that none of the rounds is active.
     """
-    rtimes = rounds_times(request)
+    if isinstance(request_or_context, HttpRequest):
+        rtimes = rounds_times(request_or_context)
+    else:
+        rtimes = generic_rounds_times(None, request_or_context.contest)
     ends = [rt.get_end() for rt in rtimes.itervalues()
-            if rt.is_past(request.timestamp)]
+            if rt.is_past(request_or_context.timestamp)]
     starts = [rt.get_start() for rt in rtimes.itervalues()
-              if rt.is_future(request.timestamp)]
+              if rt.is_future(request_or_context.timestamp)]
 
     max_end = max(ends) if ends else None
     min_start = min(starts) if starts else None
