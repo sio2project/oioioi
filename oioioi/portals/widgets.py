@@ -42,6 +42,7 @@ class PortalInlineLexer(InlineLexer):
 
 
 class PortalBlockLexer(BlockLexer):
+    default_rules = BlockLexer.default_rules[:]
 
     def __init__(self, *args, **kwargs):
         super(PortalBlockLexer, self).__init__(*args, **kwargs)
