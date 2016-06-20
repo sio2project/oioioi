@@ -39,6 +39,11 @@ def main_page_view(request):
     return redirect('teacher_dashboard')
 
 
+def score_report_is_valid(score_report):
+    return score_report is not None and score_report.score is not None and \
+           score_report.max_score is not None
+
+
 def get_round_context(request, round_pk):
     selected_round = get_object_or_404(Round, pk=round_pk)
 
@@ -94,13 +99,15 @@ def get_round_context(request, round_pk):
         problem_instance = problem_instances[result.problem_instance.pk]
         score_report = result.submission_report.score_report
 
-        problem_instance['max_score'] = score_report.max_score.to_int()
+        if score_report_is_valid(score_report):
+            problem_instance['max_score'] = score_report.max_score.to_int()
 
-        problem_instance['tried_solving_count'] += 1
-        if score_report.score == score_report.max_score:
-            problem_instance['solved_count'] += 1
+            problem_instance['tried_solving_count'] += 1
+            if score_report.score == score_report.max_score:
+                problem_instance['solved_count'] += 1
 
-        problem_instance['users_with_score'][score_report.score.to_int()] += 1
+            problem_instance['users_with_score'][
+                score_report.score.to_int()] += 1
 
     contest_data = {}
 
@@ -217,12 +224,14 @@ def teacher_dashboard_view(request):
         for problem_inst in ProblemInstance.objects.filter(contest=contest):
             user_results = \
                 UserResultForProblem.objects.filter(
-                    problem_instance=problem_inst).all()
+                    problem_instance=problem_inst,
+                    submission_report__isnull=False)
             if user_results.count() > 0:
                 for result in user_results:
-                    if result.submission_report is not None:
-                        max_score += result.submission_report.score_report. \
-                                max_score.to_int()
+                    score_report = result.submission_report.score_report
+
+                    if score_report_is_valid(score_report):
+                        max_score += score_report.max_score.to_int()
                         break
 
         contest_dict = {
