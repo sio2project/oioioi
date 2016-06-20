@@ -210,7 +210,8 @@ def teacher_dashboard_view(request):
     for contest in contests:
 
         scores = [result.score.to_int() for result in
-                  UserResultForContest.objects.filter(contest=contest).all()]
+                  UserResultForContest.objects.filter(contest=contest).all()
+                  if result.score is not None]
 
         max_score = 0
         for problem_inst in ProblemInstance.objects.filter(contest=contest):
@@ -218,8 +219,11 @@ def teacher_dashboard_view(request):
                 UserResultForProblem.objects.filter(
                     problem_instance=problem_inst).all()
             if user_results.count() > 0:
-                max_score += user_results[0].submission_report.score_report. \
-                    max_score.to_int()
+                for result in user_results:
+                    if result.submission_report is not None:
+                        max_score += result.submission_report.score_report. \
+                                max_score.to_int()
+                        break
 
         contest_dict = {
             'id': contest.id,
