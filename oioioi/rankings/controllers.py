@@ -163,8 +163,10 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         data = self.serialize_ranking(key)
         pages = []
-        num_pages = math.ceil(len(data['rows']) / data['participants_on_page'])
-        num_pages = max(int(num_pages), 1)  # Render at least a single page
+        num_participants = len(data['rows'])
+        on_page = data['participants_on_page']
+        num_pages = (num_participants + on_page - 1) / on_page
+        num_pages = max(num_pages, 1)  # Render at least a single page
         for i in range(1, num_pages+1):
             pages.append(self._render_ranking_page(key, data, i))
         return data, pages
