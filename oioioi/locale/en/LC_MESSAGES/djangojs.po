@@ -1,165 +1,265 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+# 
+# Translators:
+# Accounts-Payable - Alkemics, 2015
+# Chen-Do LU <clu@alkemics.com>, 2015
+# François Breysse <fb@alkemics.com>, 2015
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-10-25 12:22+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2016-06-20 23:26+0200\n"
+"PO-Revision-Date: 2016-06-20 11:45+0000\n"
+"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"Language-Team: English (http://www.transifex.com/sio2project/sio2project/language/en/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: clock/static/common/clocks.js:31
-msgid "end of the round."
-msgstr ""
+#: balloons/static/balloons/delivery_panel.js:5
+msgid "Delivering..."
+msgstr "Delivering..."
 
-#: clock/static/common/clocks.js:32
-msgid "to the end"
-msgstr ""
+#: balloons/static/balloons/delivery_panel.js:6
+msgid "Delivered"
+msgstr "Delivered"
 
-#: clock/static/common/clocks.js:35
-msgid "start of the round."
-msgstr ""
+#: balloons/static/balloons/delivery_panel.js:8
+msgid "Taking back..."
+msgstr "Taking back..."
 
-#: clock/static/common/clocks.js:36
-msgid "to the start"
-msgstr ""
+#: balloons/static/balloons/delivery_panel.js:9
+msgid "Not delivered"
+msgstr "Not delivered"
 
-#: clock/static/common/clocks.js:41
-msgid "%(seconds)s second "
-msgid_plural "%(seconds)s seconds "
-msgstr[0] ""
-msgstr[1] ""
+#: balloons/static/balloons/delivery_panel.js:11
+msgid "First to solve"
+msgstr "First to solve"
+
+#: balloons/static/balloons/delivery_panel.js:20
+msgid "No color"
+msgstr "No color"
+
+#: balloons/static/balloons/delivery_panel.js:55
+msgid "No connection"
+msgstr "No connection"
+
+#: balloons/static/balloons/delivery_panel.js:69
+msgid "Corrupt data"
+msgstr "Corrupt data"
 
 #: clock/static/common/clocks.js:44
-msgid "%(seconds)ss "
-msgstr ""
+msgid "end of the %(round_name)s"
+msgid_plural "end of the %(round_name)s"
+msgstr[0] "end of the %(round_name)s"
+msgstr[1] "end of the %(round_name)s"
 
-#: clock/static/common/clocks.js:48
-msgid "%(minutes)s minute "
-msgid_plural "%(minutes)s minutes "
-msgstr[0] ""
-msgstr[1] ""
+#: clock/static/common/clocks.js:47
+msgid "to the end"
+msgstr "to the end"
 
-#: clock/static/common/clocks.js:51
-msgid "%(minutes)sm "
-msgstr ""
+#: clock/static/common/clocks.js:50
+msgid "start of the %(round_name)s"
+msgid_plural "start of the %(round_name)s"
+msgstr[0] "start of the %(round_name)s"
+msgstr[1] "start of the %(round_name)s"
 
-#: clock/static/common/clocks.js:55
-msgid "%(hours)s hour "
-msgid_plural "%(hours)s hours "
-msgstr[0] ""
-msgstr[1] ""
+#: clock/static/common/clocks.js:53
+msgid "to the start"
+msgstr "to the start"
 
-#: clock/static/common/clocks.js:57
-msgid "%(hours)sh "
-msgstr ""
+#: clock/static/common/clocks.js:58
+msgid "%(seconds)s second "
+msgid_plural "%(seconds)s seconds "
+msgstr[0] "%(seconds)s second "
+msgstr[1] "%(seconds)s seconds "
 
 #: clock/static/common/clocks.js:61
+msgid "%(seconds)ss "
+msgstr "%(seconds)ss "
+
+#: clock/static/common/clocks.js:65
+msgid "%(minutes)s minute "
+msgid_plural "%(minutes)s minutes "
+msgstr[0] "%(minutes)s minute "
+msgstr[1] "%(minutes)s minutes "
+
+#: clock/static/common/clocks.js:68
+msgid "%(minutes)sm "
+msgstr "%(minutes)sm "
+
+#: clock/static/common/clocks.js:72
+msgid "%(hours)s hour "
+msgid_plural "%(hours)s hours "
+msgstr[0] "%(hours)s hour "
+msgstr[1] "%(hours)s hours "
+
+#: clock/static/common/clocks.js:74
+msgid "%(hours)sh "
+msgstr "%(hours)sh "
+
+#: clock/static/common/clocks.js:78
 msgid "%(days)s day "
 msgid_plural "%(days)s days "
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%(days)s day "
+msgstr[1] "%(days)s days "
 
-#: clock/static/common/clocks.js:63
+#: clock/static/common/clocks.js:80
 msgid "%(days)sd "
-msgstr ""
+msgstr "%(days)sd "
 
-#: clock/static/common/clocks.js:73
-msgid "%(countdown_days)sleft to the %(countdown_destination)s"
-msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s"
-msgstr[0] ""
-msgstr[1] ""
+#: clock/static/common/clocks.js:90
+msgid "%(countdown_days)sleft to the %(countdown_destination)s."
+msgid_plural "%(countdown_days)sleft to the %(countdown_destination)s."
+msgstr[0] "%(countdown_days)sleft to the %(countdown_destination)s."
+msgstr[1] "%(countdown_days)sleft to the %(countdown_destination)s."
 
-#: clock/static/common/clocks.js:82
-msgid "%(countdown_hours)sleft to the %(countdown_destination)s"
-msgid_plural "%(countdown_hours)sleft to the %(countdown_destination)s"
-msgstr[0] ""
-msgstr[1] ""
+#: clock/static/common/clocks.js:100
+msgid "%(countdown_hours)sleft to the "
+msgid_plural "%(countdown_hours)sleft to the "
+msgstr[0] "%(countdown_hours)sleft to the "
+msgstr[1] "%(countdown_hours)sleft to the "
 
-#: clock/static/common/clocks.js:91
-msgid "%(countdown_minutes)sleft to the %(countdown_destination)s"
-msgid_plural "%(countdown_minutes)sleft to the %(countdown_destination)s"
-msgstr[0] ""
-msgstr[1] ""
+#: clock/static/common/clocks.js:111
+msgid "%(countdown_minutes)sleft to the "
+msgid_plural "%(countdown_minutes)sleft to the "
+msgstr[0] "%(countdown_minutes)sleft to the "
+msgstr[1] "%(countdown_minutes)sleft to the "
 
-#: clock/static/common/clocks.js:99
-msgid "%(countdown_seconds)sleft to the %(countdown_destination)s"
-msgid_plural "%(countdown_seconds)sleft to the %(countdown_destination)s"
-msgstr[0] ""
-msgstr[1] ""
+#: clock/static/common/clocks.js:121
+msgid "%(countdown_seconds)sleft to the "
+msgid_plural "%(countdown_seconds)sleft to the "
+msgstr[0] "%(countdown_seconds)sleft to the "
+msgstr[1] "%(countdown_seconds)sleft to the "
 
-#: clock/static/common/clocks.js:105
+#: clock/static/common/clocks.js:129
 msgid "The round is over!"
-msgstr ""
+msgstr "The round is over!"
 
-#: clock/static/common/clocks.js:108
+#: clock/static/common/clocks.js:132
 msgid "The round has started!"
-msgstr ""
+msgstr "The round has started!"
 
-#: clock/static/common/clocks.js:224
+#: clock/static/common/clocks.js:251
 msgid "Reason: Admin-time status has changed."
-msgstr ""
+msgstr "Reason: Admin-time status has changed."
+
+#: problems/static/common/tag_selection.js:49
+msgid "Try: "
+msgstr "Try: "
+
+#: problems/static/common/tag_selection.js:56
+msgid "Tag '%(query)s' doesn't exist."
+msgstr "Tag '%(query)s' doesn't exist."
+
+#: problems/static/common/tag_selection.js:60
+msgid "Tag exists."
+msgstr "Tag exists."
+
+#: problems/static/common/tag_selection.js:65
+msgid "Type tag name."
+msgstr "Type tag name."
 
 #: programs/static/common/filedrag.js:57
 msgid "Drop file here"
-msgstr ""
+msgstr "Drop file here"
 
 #: programs/static/common/filedrag.js:95
 msgid "Drop one file."
-msgstr ""
+msgstr "Drop one file."
 
 #: programs/static/common/filedrag.js:99
 msgid "File is empty."
-msgstr ""
+msgstr "File is empty."
 
 #: programs/static/common/filedrag.js:104
 msgid "File too big."
-msgstr ""
+msgstr "File too big."
 
 #: programs/static/common/filedrag.js:108
 msgid "Not a text file."
-msgstr ""
+msgstr "Not a text file."
 
 #: questions/static/common/messages.js:132
 msgid "Expand all messages"
-msgstr ""
+msgstr "Expand all messages"
 
 #: questions/static/common/messages.js:133
 msgid "Collapse all messages"
-msgstr ""
+msgstr "Collapse all messages"
 
 #: questions/static/common/messages.js:134
 msgid "Expand message"
-msgstr ""
+msgstr "Expand message"
 
 #: questions/static/common/messages.js:135
 msgid "Collapse message"
-msgstr ""
+msgstr "Collapse message"
+
+#: simpleui/static/simpleui/main_dashboard.js:59
+msgid "Result"
+msgstr "Result"
+
+#: simpleui/static/simpleui/main_dashboard.js:67
+#: simpleui/static/simpleui/main_dashboard.js:74
+msgid "Users"
+msgstr "Users"
+
+#: simpleui/static/simpleui/contest/problem.js:40
+msgid "Score"
+msgstr "Score"
+
+#: simpleui/static/simpleui/contest/problem.js:54
+msgid "Participants"
+msgstr "Participants"
+
+#: simpleui/static/simpleui/contest/problem.js:66
+msgid "<strong>%(low)s - %(high)s points</strong><br>"
+msgid_plural "<strong>%(low)s - %(high)s points</strong><br>"
+msgstr[0] "<strong>%(low)s - %(high)s points</strong><br>"
+msgstr[1] "<strong>%(low)s - %(high)s points</strong><br>"
+
+#: simpleui/static/simpleui/problem_settings/attachments.js:16
+#: simpleui/static/simpleui/problem_settings/tags.js:13
+msgid "Delete"
+msgstr "Delete"
 
 #: su/static/common/su.js:22
 msgid "Reason: User assoctiated with this session has changed."
-msgstr ""
+msgstr "Reason: User assoctiated with this session has changed."
 
-#: timeline/static/timeline/timeline.js:34
+#: timeline/static/timeline/timeline.js:35
 msgid ""
 "Change date in a datebox by clicking the corresponding <span class=\"icon-"
 "calendar\"></span> button. You can also use the keyboard: <br> <ul>     "
 "<li><strong>TAB</strong> - go to the next datebox</li>     "
-"<li><strong>ENTER</strong> - confirm date</li>     <li><strong>ESC, CTRL+Z</"
-"strong> - reset date</li> </ul> <hr> You can filter events by clicking the "
-"vertical bar representing a round. <hr> If you want to split a date group, "
-"click the corresponding <span class=\"icon-resize-vertical\"></span> button."
-msgstr ""
+"<li><strong>ENTER</strong> - confirm date</li>     <li><strong>ESC, "
+"CTRL+Z</strong> - reset date</li> </ul> <hr> You can filter events by "
+"clicking the vertical bar representing a round. <hr> If you want to split a "
+"date group, click the corresponding <span class=\"icon-resize-"
+"vertical\"></span> button."
+msgstr "Change date in a datebox by clicking the corresponding <span class=\"icon-calendar\"></span> button. You can also use the keyboard: <br> <ul>     <li><strong>TAB</strong> - go to the next datebox</li>     <li><strong>ENTER</strong> - confirm date</li>     <li><strong>ESC, CTRL+Z</strong> - reset date</li> </ul> <hr> You can filter events by clicking the vertical bar representing a round. <hr> If you want to split a date group, click the corresponding <span class=\"icon-resize-vertical\"></span> button."
 
-#: timeline/static/timeline/timeline.js:52
+#: timeline/static/timeline/timeline.js:53
 msgid "now"
-msgstr ""
+msgstr "now"
+
+#: workers/static/common/load_chart.js:28
+msgid "Couldn't get data from server. Please refresh the page."
+msgstr "Couldn't get data from server. Please refresh the page."
+
+#: workers/static/common/load_chart.js:46
+msgid "Load"
+msgstr "Load"
+
+#: workers/static/common/load_chart.js:60
+msgid "Capacity"
+msgstr "Capacity"
+
+#: workers/static/common/load_chart.js:63
+msgid "Busy workers"
+msgstr "Busy workers"
