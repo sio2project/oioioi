@@ -10,7 +10,11 @@
     </div>
 
     <div class="problem__header">
-        <h4 class="problem__name">{{ problem_instance.problem_instance.problem.name|truncatechars:15 }}</h4>
+        <h4 class="problem__name">
+            <a href="{% url 'problem_statement' contest_id=contest.id problem_instance=problem_instance.problem_instance.short_name %}">
+                {{ problem_instance.problem_instance.problem.name|truncatechars:15 }}
+            </a>
+        </h4>
         <div class="problem__solved problem__solved--{{ problem_instance.solved }}" data-toggle="tooltip" title="{% trans "Solved / tried solving" %}">
             {{ problem_instance.solved_count }} / {{ problem_instance.tried_solving_count }}
         </div>
