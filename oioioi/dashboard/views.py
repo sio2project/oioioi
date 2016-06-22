@@ -143,7 +143,8 @@ def messages_fragment(request):
                 kwargs={'contest_id': request.contest.id}),
     order=20,
     condition=contest_exists & can_enter_contest)
-@register_contest_dashboard_view(100, contest_exists & can_enter_contest)
+@register_contest_dashboard_view(100)
+@enforce_condition(contest_exists & can_enter_contest)
 def public_contest_dashboard_view(request):
     headers = [gen(request) for gen in dashboard_headers_registry]
     headers = [hdr for hdr in headers if hdr is not None]
