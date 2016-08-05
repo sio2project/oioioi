@@ -191,25 +191,6 @@ class OpenParticipantsController(ParticipantsController):
     def can_unregister(self, request, participant):
         return False
 
-    def registration_view(self, request):
-        participant = self._get_participant_for_form(request)
-        form = self.get_form(request, participant)
-
-        if request.method == 'POST':
-            # pylint: disable=maybe-no-member
-            if form.is_valid():
-                participant, created = Participant.objects \
-                        .get_or_create(contest=self.contest, user=request.user)
-                self.handle_validated_form(request, form, participant)
-                if 'next' in request.GET:
-                    return safe_redirect(request, request.GET['next'])
-                else:
-                    return redirect('default_contest_view',
-                            contest_id=self.contest.id)
-
-        context = {'form': form, 'participant': participant}
-        return TemplateResponse(request, self.registration_template, context)
-
 
 @request_cached
 def anonymous_participants(request):
