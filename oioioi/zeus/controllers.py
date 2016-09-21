@@ -226,11 +226,6 @@ class ZeusTestRunProblemControllerMixin(object):
         environ['zeus_metadata_decoder'] = \
                 'oioioi.zeus.handlers.testrun_metadata'
 
-    def mixins_for_admin(self):
-        from oioioi.testrun.admin import TestRunProgrammingProblemAdminMixin
-        return super(ZeusTestRunProblemControllerMixin, self) \
-                   .mixins_for_admin() + (TestRunProgrammingProblemAdminMixin,)
-
 ZeusProblemController.mix_in(ZeusTestRunProblemControllerMixin)
 
 
