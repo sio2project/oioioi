@@ -182,7 +182,7 @@ class ZeusProblemController(ProgrammingProblemController):
         environ.setdefault('score_aggregator',
             'oioioi.programs.utils.sum_score_aggregator')
 
-    def filter_allowed_languages_dict(self, languages):
+    def filter_allowed_languages_dict(self, languages, problem_instance):
         return {k: languages[k] for k in languages
                 if k in settings.ZEUS_ALLOWED_LANGUAGES}
 
