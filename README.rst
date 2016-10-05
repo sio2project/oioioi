@@ -427,7 +427,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
        }
 
 #. * Added *rankingsd*, *cleanupd*, *ipauthsyncd*, *ipauth-dnsserver* entries
-   to *deployment/supervisord.conf*::
+     to *deployment/supervisord.conf*::
 
         [program:rankingsd]
         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
@@ -455,7 +455,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         {% if not settings.IPAUTH_DNSSERVER_DOMAIN %}exclude=true{% endif %}
 
 #. * Added new condition to *sioworkersd* in *deployment/supervisord.conf*
-   and corresponding entry in *deployment/settings.py*::
+     and corresponding entry in *deployment/settings.py*::
 
 	{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
 
