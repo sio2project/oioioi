@@ -58,7 +58,9 @@ directory::
   ./manage.py collectstatic
 
 You'll also need lessc (a `LESS`_ compiler, **minimum version 1.7.0**).
-First you need to install node.js with npm as described in `their documentation`_,
+First you need to install node.js with npm as described in `their documentation`_.
+On some systems it will be neccessary to make a soft link called 'bin/node'
+pointing at 'bin/nodejs', because OIOIOI expects binary with this name.
 then install less; either globally as root::
 
     sudo npm install less
@@ -71,7 +73,7 @@ or locally inside virtualenv::
 .. _virtualenv: http://www.virtualenv.org/en/latest/index.html
 .. _database configuration: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 .. _LESS: http://lesscss.org/
-.. _their documentation: https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager
+.. _their documentation: https://github.com/nodejs/node/wiki/Installing-Node.js-via-package-manager
 
 Simple configuration
 ~~~~~~~~~~~~~~~~~~~~
