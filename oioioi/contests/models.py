@@ -9,12 +9,13 @@ from django.db.models import Max
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _, ungettext
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, MenuItem
-from oioioi.base.utils import get_object_by_dotted_name, strip_num_or_hash
+from oioioi.base.utils import strip_num_or_hash
 from oioioi.contests.fields import ScoreField
 from oioioi.contests.problem_instance_controller import \
         ProblemInstanceController
@@ -63,7 +64,7 @@ class Contest(models.Model):
     def controller(self):
         if not self.controller_name:
             return None
-        return get_object_by_dotted_name(self.controller_name)(self)
+        return import_string(self.controller_name)(self)
 
     class Meta(object):
         verbose_name = _("contest")

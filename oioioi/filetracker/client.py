@@ -2,9 +2,9 @@ from django.conf import settings
 from django.test.signals import setting_changed
 from django.dispatch import receiver
 from django.core.exceptions import ImproperlyConfigured
+from django.utils.module_loading import import_string
 
-from oioioi.base.utils import memoized, get_object_by_dotted_name, \
-        reset_memoized
+from oioioi.base.utils import memoized, reset_memoized
 
 import filetracker
 import filetracker.dummy
@@ -23,7 +23,7 @@ def get_client():
     """
     factory = settings.FILETRACKER_CLIENT_FACTORY
     if isinstance(factory, basestring):
-        factory = get_object_by_dotted_name(factory)
+        factory = import_string(factory)
     if not callable(factory):
         raise ImproperlyConfigured('The FILETRACKER_CLIENT_FACTORY setting '
                 'refers to non-callable: %r' % (factory,))

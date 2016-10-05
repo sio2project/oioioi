@@ -1,6 +1,6 @@
 import logging
 from celery.task import task
-from oioioi.base.utils import get_object_by_dotted_name
+from django.utils.module_loading import import_string
 from oioioi.problems.models import ProblemPackage, Problem
 
 logger = logging.getLogger(__name__)
@@ -35,7 +35,7 @@ def unpackmgr_job(env):
 
         with package.save_operation_status():
             env['job_id'] = unpackmgr_job.request.id
-            backend = get_object_by_dotted_name(env['backend_name'])()
+            backend = import_string(env['backend_name'])()
             env = backend.unpack(env)
             ProblemPackage.objects.get(id=env['package_id'])
             problem = Problem.objects.get(id=env['problem_id'])
@@ -44,7 +44,7 @@ def unpackmgr_job(env):
             package.save()
 
             for h in env['post_upload_handlers']:
-                handler = get_object_by_dotted_name(h)
+                handler = import_string(h)
                 env = handler(env)
 
     except ProblemPackage.DoesNotExist:

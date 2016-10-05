@@ -2,9 +2,10 @@ from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
+from django.utils.module_loading import import_string
 from django.conf import settings
 
-from oioioi.base.utils import get_object_by_dotted_name, make_html_link
+from oioioi.base.utils import make_html_link
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.models import Submission, SubmissionReport, \
@@ -281,7 +282,7 @@ def grade_tests(env, **kwargs):
          * `score`, `max_score` and `status` keys in ``env['test_result']``
     """
 
-    fun = get_object_by_dotted_name(env.get('test_scorer')
+    fun = import_string(env.get('test_scorer')
             or settings.DEFAULT_TEST_SCORER)
     tests = env['tests']
     for test_name, test_result in env['test_results'].iteritems():
@@ -336,7 +337,7 @@ def grade_groups(env, **kwargs):
     for group_name, results in test_results.iteritems():
         if group_name in env['group_results']:
             continue
-        fun = get_object_by_dotted_name(env.get('group_scorer',
+        fun = import_string(env.get('group_scorer',
                     settings.DEFAULT_GROUP_SCORER))
         score, max_score, status = fun(results)
         if not isinstance(score, (types.NoneType, ScoreValue)):
@@ -387,7 +388,7 @@ def grade_submission(env, kind='NORMAL', **kwargs):
         env['status'] = 'CE'
         return env
 
-    fun = get_object_by_dotted_name(env.get('score_aggregator')
+    fun = import_string(env.get('score_aggregator')
             or settings.DEFAULT_SCORE_AGGREGATOR)
 
     if kind is None:

@@ -7,12 +7,12 @@ from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_str
 from django.utils.http import urlencode
+from django.utils.module_loading import import_string
 from django.contrib import messages
 from django.core.files import File
 from django.core.urlresolvers import reverse
 
-from oioioi.base.utils import get_object_by_dotted_name, memoized, \
-        uploaded_file_name
+from oioioi.base.utils import memoized, uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.package import backend_for_package
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 def problem_sources(request):
     sources = []
     for name in settings.PROBLEM_SOURCES:
-        obj = get_object_by_dotted_name(name)()
+        obj = import_string(name)()
         if isinstance(obj, ProblemSource):
             sources.append(obj)
         else:
@@ -144,7 +144,7 @@ class PackageSource(ProblemSource):
            :func:`~oioioi.problems.unpackmgr.unpackmgr_job`.
         """
         backend_name = self.choose_backend(path, original_filename)
-        backend = get_object_by_dotted_name(backend_name)()
+        backend = import_string(backend_name)()
         if package.problem:
             package.problem_name = package.problem.short_name
         else:

@@ -1,8 +1,8 @@
 from django.db import models
+from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ValidationError
 from django.core.validators import RegexValidator
-from oioioi.base.utils import get_object_by_dotted_name
 
 
 class DottedNameField(models.CharField):
@@ -38,7 +38,7 @@ class DottedNameField(models.CharField):
 
     def _get_superclass(self):
         if isinstance(self._superclass, basestring):
-            self._superclass = get_object_by_dotted_name(self._superclass)
+            self._superclass = import_string(self._superclass)
         return self._superclass
 
     def _generate_choices(self):
@@ -60,7 +60,7 @@ class DottedNameField(models.CharField):
 
     def validate(self, value, model_instance):
         try:
-            obj = get_object_by_dotted_name(value)
+            obj = import_string(value)
         except Exception:
             raise ValidationError(_("Object %s not found") % (value,))
 

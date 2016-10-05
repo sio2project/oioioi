@@ -8,8 +8,9 @@ from django.core.mail import mail_admins
 from django.db import transaction, IntegrityError
 from django.forms.models import model_to_dict
 from django.utils.text import Truncator
+from django.utils.module_loading import import_string
 
-from oioioi.base.utils import get_object_by_dotted_name, naturalsort_key
+from oioioi.base.utils import naturalsort_key
 from oioioi.problems.models import Problem
 from oioioi.programs.handlers import _make_base_report, _if_compiled
 from oioioi.programs.models import ProgramSubmission, Test
@@ -199,7 +200,7 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
     if env['compilation_result'] != 'OK':
         return env
 
-    decoder = get_object_by_dotted_name(env.get('zeus_metadata_decoder')
+    decoder = import_string(env.get('zeus_metadata_decoder')
             or DEFAULT_METADATA_DECODER)
 
     tests = env.setdefault('tests', {})

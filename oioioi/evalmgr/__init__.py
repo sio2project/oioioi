@@ -4,10 +4,11 @@ import logging
 import pprint
 import traceback
 
+from django.utils.module_loading import import_string
+
 from celery.task import task
 from celery.exceptions import Ignore
 
-from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.base.utils.loaders import load_modules
 from oioioi.sioworkers.jobs import send_async_jobs
 
@@ -92,7 +93,7 @@ def _run_phase(env, phase, extra_kwargs=None):
         kwargs = phase[2].copy()
     if extra_kwargs:
         kwargs.update(extra_kwargs)
-    handler_func = get_object_by_dotted_name(handlerName)
+    handler_func = import_string(handlerName)
     env = handler_func(env, **kwargs)
     if env is None:
         raise RuntimeError('Evaluation handler "%s" (%s) '

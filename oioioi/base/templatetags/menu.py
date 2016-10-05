@@ -1,6 +1,6 @@
 from django import template
 from django.template import Node, TemplateSyntaxError
-from oioioi.base.utils import get_object_by_dotted_name
+from django.utils.module_loading import import_string
 from oioioi.base.menu import MenuRegistry, menu_registry
 
 register = template.Library()
@@ -16,7 +16,7 @@ class GenerateMenuNode(Node):
         if not registry:
             registry = menu_registry
         if isinstance(registry, basestring):
-            registry = get_object_by_dotted_name(registry)
+            registry = import_string(registry)
         if not isinstance(registry, MenuRegistry):
             raise TemplateSyntaxError("{%% generate_menu %%} got an "
                     "argument which is not a MenuRegistry: %r" % (registry,))

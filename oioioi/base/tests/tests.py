@@ -493,16 +493,6 @@ class TestUtils(unittest.TestCase):
         r2 = memoized_random()
         self.assertNotEqual(r1, r2)
 
-    def test_get_object_by_dotted_name(self):
-        self.assert_(utils.get_object_by_dotted_name(
-            'oioioi.base.tests.tests.TestUtils') is TestUtils)
-        with self.assertRaises(AssertionError):
-            utils.get_object_by_dotted_name('TestUtils')
-        with self.assertRaisesRegexp(ImportError, 'object .* not found'):
-            utils.get_object_by_dotted_name('oioioi.base.tests.Nonexistent')
-        with self.assertRaises(ImportError):
-            utils.get_object_by_dotted_name('oioioi.base.nonexistent.Foo')
-
     def test_utils_dont_need_settings(self):
         subprocess_env = os.environ.copy()
         subprocess_env.pop('DJANGO_SETTINGS_MODULE', None)

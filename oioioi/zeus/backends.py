@@ -8,8 +8,8 @@ from urlparse import urljoin
 
 from django.conf import settings
 from django.db import transaction
+from django.utils.module_loading import import_string
 
-from oioioi.base.utils import get_object_by_dotted_name
 from oioioi.zeus.models import ZeusFetchSeq
 
 
@@ -36,7 +36,7 @@ def get_zeus_server(zeus_id):
     server = settings.ZEUS_INSTANCES[zeus_id]
     # Used to inject mock instances/special handlers
     if server[0] == '__use_object__':
-        return get_object_by_dotted_name(server[1])(zeus_id, server[2])
+        return import_string(server[1])(zeus_id, server[2])
     return ZeusServer(zeus_id, server)
 
 

@@ -12,11 +12,11 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.utils.text import get_valid_filename, Truncator
+from django.utils.module_loading import import_string
 from django.contrib.auth.models import User
 
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.utils import get_object_by_dotted_name, strip_num_or_hash, \
-                              split_extension
+from oioioi.base.utils import strip_num_or_hash, split_extension
 from oioioi.filetracker.fields import FileField
 from oioioi.contests.models import ProblemInstance
 
@@ -77,11 +77,11 @@ class Problem(models.Model):
 
     @property
     def controller(self):
-        return get_object_by_dotted_name(self.controller_name)(self)
+        return import_string(self.controller_name)(self)
 
     @property
     def package_backend(self):
-        return get_object_by_dotted_name(self.package_backend_name)()
+        return import_string(self.package_backend_name)()
 
     @classmethod
     def create(cls, *args, **kwargs):

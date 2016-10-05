@@ -8,8 +8,8 @@
 import logging
 from django.conf import settings
 from django.core.files import File
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins, \
-        get_object_by_dotted_name
+from django.utils.module_loading import import_string
+from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.problems.models import ProblemPackage, Problem
 
 logger = logging.getLogger(__name__)
@@ -134,7 +134,7 @@ def backend_for_package(filename, original_filename=None):
     """
     for backend_name in settings.PROBLEM_PACKAGE_BACKENDS:
         try:
-            backend = get_object_by_dotted_name(backend_name)()
+            backend = import_string(backend_name)()
             if backend.identify(filename, original_filename):
                 return backend_name
         # pylint: disable=broad-except

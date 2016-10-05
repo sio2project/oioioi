@@ -354,23 +354,6 @@ def request_cached(fn):
     return cacher
 
 
-# Finding objects by name
-
-
-@memoized
-def get_object_by_dotted_name(name):
-    """Returns an object by its dotted name, e.g.
-       ``oioioi.base.utils.get_object_by_dotted_name``."""
-    if '.' not in name:
-        raise AssertionError('Invalid object name: %s' % (name,))
-    module, obj = name.rsplit('.', 1)
-    try:
-        # Map names to str, as Python 2.7.3 rejects unicode
-        return getattr(__import__(str(module), fromlist=[str(obj)]), obj)
-    except AttributeError, e:
-        raise ImportError('Requested object %r not found: %s' % (name, e))
-
-
 # Generating HTML
 
 
