@@ -18,12 +18,27 @@ Problemset
         margin-right: 20px;
         margin-left: 20px;
     ">
-        <div class="span6">
-            <a class="brand" style="color: #333333"
-                href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-                {% endif %}">
-                Problemset
-            </a>
+
+        <a class="brand" style="color: #333333"
+            href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
+            {% endif %}">
+            Problemset
+        </a>
+
+        {% if show_search_bar %}
+        <form class="navbar-search pull-right form-search" id="problemsite_tag_search-form" style="margin-right: 60px;">
+            <div class="input-append">
+                <input type="text" id="problemsite_tag_search" name="tag_search" class="search-query" data-hints-url="{% url "get_tag_hints" %}" autocomplete="off" placeholder="Search by tag" value="{{ tag_search }}" />
+                {% if request.GET.select_problem_src %}
+                <input type="hidden" name="select_problem_src" value="{{ request.GET.select_problem_src }}" />
+                {% endif %}
+                <script>init_tag_selection('problemsite_tag_search');</script>
+                <button type="submit" class="btn"><i class="icon-search"></i></button>
+            </div>
+        </form>
+        {% endif %}
+
+        <div class="span12" style="margin-left: 0px">
             <ul class="nav navbar-nav">
                 <li><a href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
                 {% endif %}">
@@ -53,19 +68,6 @@ Problemset
                 <li><a href="/">{% trans "Main page" %}</a>
             </ul>
         </div>
-
-        {% if show_search_bar %}
-        <form class="navbar-search pull-right form-search" id="problemsite_tag_search-form" style="margin-right: 60px;">
-            <div class="input-append">
-                <input type="text" id="problemsite_tag_search" name="tag_search" class="search-query" data-hints-url="{% url "get_tag_hints" %}" autocomplete="off" placeholder="Search by tag" value="{{ tag_search }}" />
-                {% if request.GET.select_problem_src %}
-                <input type="hidden" name="select_problem_src" value="{{ request.GET.select_problem_src }}" />
-                {% endif %}
-                <script>init_tag_selection('problemsite_tag_search');</script>
-                <button type="submit" class="btn"><i class="icon-search"></i></button>
-            </div>
-        </form>
-        {% endif %}
 
     </div>
 </div>
