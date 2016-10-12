@@ -1,6 +1,6 @@
 # These dependencies need to be installed from external sources,
 # therefore they must be listed here. Moreover, they cannot be listed in
-# setup.py, as pip sucks.
+# setup.py, as pip is not able to install them.
 http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.0.dev
 http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev
 http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev
