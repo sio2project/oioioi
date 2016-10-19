@@ -56,7 +56,7 @@ $(function () {
             xAxis: {
                 categories: axisCategories,
                 title: {
-                    text: gettext('Result')
+                    text: gettext('Score')
                 },
                 labels: {
                     enabled: false
@@ -64,14 +64,14 @@ $(function () {
             },
             yAxis: {
                 title: {
-                    text: gettext('Users')
+                    text: gettext('Participants')
                 }
             },
             credits: {
                 enabled: false
             },
             series: [{
-                name: gettext('Users'),
+                name: gettext('Participants'),
                 data: data
             }],
             legend: {

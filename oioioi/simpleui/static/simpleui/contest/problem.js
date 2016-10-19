@@ -63,10 +63,8 @@ var Problem = (function() {
                 formatter: function() {
                     return interpolate(
                         ngettext(
-                            '<strong>%(low)s - %(high)s points</strong><br>' +
-                            '%(cnt)s participant',
-                            '<strong>%(low)s - %(high)s points</strong><br>' +
-                            '%(cnt)s participants',
+                            '<strong>%(low)s - %(high)s points</strong><br>%(cnt)s participant', // XXX: splitting into multiple lines will break translation
+                            '<strong>%(low)s - %(high)s points</strong><br>%(cnt)s participants',
                             this.point.y
                         ), {
                             low: this.point.l,
