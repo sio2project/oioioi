@@ -9,6 +9,7 @@ import urllib.request
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.problems.problem_sources import PackageSource
 from oioioi.sharingcli.forms import RemoteProblemForm
 from oioioi.sharingcli.models import RemoteProblemURL
@@ -53,6 +54,9 @@ class RemoteSource(PackageSource):
         if clients is None:
             clients = [RemoteClient(*params) for params in settings.SHARING_SERVERS]
         self.clients = clients
+
+    def is_available(self, request):
+        return request.user.username == 'main'
 
     def create_env(
         self,
