@@ -12,8 +12,22 @@ OIOIOI
 SIO2 is a free platform for carrying out algorithmic contests and OIOIOI is its
 main component — the web interface.
 
-Installation
-------------
+.. contents:: :local:
+
+Simple installation
+-------------------
+
+You can easily start development and run oioioi out of the box with `vagrant`_.
+Just enter the directory where Vagrantfile and this README are placed, and type::
+
+  vagrant up
+
+It will create an instance of virtual machine with web server and judges running.
+
+.. _vagrant: https://www.vagrantup.com/docs/
+
+Manual Installation
+-------------------
 
 It should be easier to begin with a separate folder at first::
 
@@ -75,8 +89,8 @@ or locally inside virtualenv::
 .. _LESS: http://lesscss.org/
 .. _their documentation: https://github.com/nodejs/node/wiki/Installing-Node.js-via-package-manager
 
-Simple configuration
-~~~~~~~~~~~~~~~~~~~~
+Basic configuration
+~~~~~~~~~~~~~~~~~~~
 
 In the simple configuration, OIOIOI will use the system-installed compilers,
 and will not use the safe execution environment. User's programs will be run
