@@ -10,6 +10,12 @@ except ImportError:
 import os
 import sys
 
+if not sys.version_info[0] == 2:
+    print >>sys.stderr, "ERROR: Wrong python version."
+    print >>sys.stderr, "ERROR: You can only run this using Python 2."
+    sys.exit(2)
+
+
 if os.getuid() == 0:  # root
     print >>sys.stderr, "ERROR: This setup.py cannot be run as root."
     print >>sys.stderr, "ERROR: If you want to proceed anyway, hunt this"
