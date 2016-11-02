@@ -1,10 +1,11 @@
 $(function(){
     var STALE_PROMISE_TIME = 3000;
+    var FAIL_PROMISE_WAIT_TIME = 3000;
 
     var promise_pending = null;
-    var sync_time = 300000 + (Math.random()*60000)|0;
+    var sync_time = 300000 + (Math.random() * 60000) | 0;
     var sync_interval;
-    var status_url = oioioi_base_url + "status";
+    var status_url = oioioi_base_url + 'status';
 
     var update_status_promise = function() {
         var data = null;
@@ -17,7 +18,9 @@ $(function(){
         .fail(function() {
             // If we fail, we try to fullfill a promise again
             promise_pending = null;
-            $(window).trigger('updateStatusRequest');
+            setTimeout(function() {
+              $(window).trigger('updateStatusRequest');
+            }, FAIL_PROMISE_WAIT_TIME);
         });
 
         var json_request = $.getJSON(status_url, function(aData) {
@@ -51,7 +54,8 @@ $(function(){
 
     $(window).one('initialStatus', function(ev, data) {
         if (data.sync_time) {
-            sync_time = data.sync_time + (Math.random()*data.sync_time*0.05)|0;
+            sync_time = data.sync_time + 
+                        (Math.random() * data.sync_time * 0.05) | 0;
         }
         if (data.status_url) {
             status_url = data.status_url;
