@@ -8,6 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField, \
     UserSelectionWidget
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import rounds_times
 from oioioi.participants.models import Region
 from oioioi.programs.models import Test
 
@@ -24,6 +25,15 @@ def _rounds(request):
         # Only a single round => call this "contest report".
         return rounds[:1]
     return rounds
+
+
+def _last_finished_round_id(request):
+    past_rounds = [rt for rt in rounds_times(request).iteritems()
+                   if rt[1].is_past(request.timestamp)]
+    if not past_rounds:
+        return None
+    last_round = max(past_rounds, key=lambda x: x[1].end)
+    return last_round[0].id
 
 
 def _regions(request):
@@ -85,10 +95,11 @@ class OIReportForm(forms.Form):
     def __init__(self, request, *args, **kwargs):
         super(OIReportForm, self).__init__(*args, **kwargs)
         rounds = _rounds(request)
+        last_finished_round_id = _last_finished_round_id(request)
         regions = _regions(request)
         testgroups = _testgroups(request)
         self.fields['report_round'] = forms.ChoiceField(choices=rounds,
-                label=_("Round"))
+                label=_("Round"), initial=last_finished_round_id)
         self.fields['report_region'] = forms.ChoiceField(choices=regions,
                 label=_("Region"))
 

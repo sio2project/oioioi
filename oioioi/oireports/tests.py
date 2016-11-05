@@ -15,7 +15,8 @@ from oioioi.participants.models import Participant
 
 class TestReportViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission']
+                'test_problem_instance', 'test_submission',
+                'test_rounds_with_different_end_dates']
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -99,3 +100,12 @@ class TestReportViews(TestCase, TestStreamingMixin):
             content = self.streamingContent(response)
             self.assertNotIn('test_user2', content)
             self.assertIn('Strange, there is no one', content)
+
+    def test_default_selected_round(self):
+        contest = Contest.objects.get()
+        url = reverse('oireports', kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_admin')
+        with fake_time(datetime(2016, 11, 6, tzinfo=utc)):
+            response = self.client.get(url)
+            self.assertContains(response, 'selected="selected">Past round')
