@@ -30,6 +30,7 @@
 @import "../bootstrap/less/wells.less";
 @import "../bootstrap/less/labels-badges.less";
 @import "../bootstrap/less/tooltip.less";
+@import "../bootstrap/less/responsive-utilities.less";
 
 // Can't import full component-animation as it has name clash with grappelli
 .fade {
@@ -70,7 +71,10 @@
 }
 
 #grp-context-navigation {
-    top: 42px;
+    @media screen {
+        top: 42px;
+    }
+
     display: none;
 }
 
@@ -79,6 +83,10 @@
     width: auto;
     .span-fixed-sidebar;
     top: 45px;
+
+    @media print {
+        top: 0;
+    }
 }
 
 #grp-content-container {

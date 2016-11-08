@@ -5,7 +5,7 @@
 
 {% block body %}
 <div class="{% block row-class %}row-fluid{% endblock %} top-row">
-    <div id="menu_div" class="span3">
+    <div id="menu_div" class="span3 hidden-print">
         {% block menu %}
         {% include "ingredients/menu.html" %}
         {% endblock %}

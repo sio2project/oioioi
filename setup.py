@@ -54,7 +54,8 @@ setup(
         "django-supervisor",
         "linaro-django-pagination",
         "django-compressor>=1.4,<1.6",
-        "django-grappelli>=2.6,<2.7",
+        # https://github.com/sehmaschine/django-grappelli/issues/659
+        "django-grappelli==2.8.2",
         "django-overextends>=0.4.1",
         "pygments",
 
