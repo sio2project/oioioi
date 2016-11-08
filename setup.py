@@ -49,7 +49,7 @@ setup(
         #       TypeError: register() takes exactly 7 arguments (3 given)
         "django-registration-redux==1.1",
 
-        "django-celery>=3.1.15",
+        "Celery>=3.1.15,<4.0.0",
         "django-supervisor",
         "linaro-django-pagination",
         "django-compressor>=1.4,<1.6",
