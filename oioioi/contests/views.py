@@ -72,8 +72,14 @@ def get_contest_permissions(request, response):
 def problems_list_view(request):
     controller = request.contest.controller
     problem_instances = visible_problem_instances(request)
-    problems_statements = [(pi, controller.can_see_statement(request, pi))
-                           for pi in problem_instances]
+    problems_statements = [
+        (
+            pi,
+            controller.can_see_statement(request, pi),
+            controller.get_round_times(request, pi.round)
+        )
+        for pi in problem_instances
+    ]
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     return TemplateResponse(request, 'contests/problems_list.html',
         {'problem_instances': problems_statements,

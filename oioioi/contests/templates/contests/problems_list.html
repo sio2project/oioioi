@@ -15,18 +15,28 @@
         <tr>
             <th style="min-width: 60px">{% trans "Symbol" %}</th>
             <th style="min-width: 300px">{% trans "Name" %}</th>
-            {% if show_rounds %}<th style="min-width: 100px">{% trans "Round" %}</th>{% endif %}
+            {% if show_rounds %}
+            <th style="min-width: 100px">{% trans "Round" %}</th>
+            <th style="min-width: 100px">{% trans "End of the round" %}</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
-        {% for pi, statement_visible in problem_instances %}
+        {% for pi, statement_visible, round_time in problem_instances %}
         {% if statement_visible %}
         {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
         {% endif %}
         <tr>
             <td>{{ pi.get_short_name_display }}</td>
             <td>{% if statement_visible %}<a href="{{ link }}">{% endif %}{{ pi.problem.name }}{% if statement_visible %}</a>{% endif %}</td>
-            {% if show_rounds %}<td>{{ pi.round }}</td>{% endif %}
+            {% if show_rounds %}
+            <td>{{ pi.round }}</td>
+            <td>
+                {% blocktrans with end_time=round_time.get_end|default_if_none:"Not set" %}
+                {{ end_time }}
+                {% endblocktrans %}
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>
