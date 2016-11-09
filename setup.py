@@ -50,6 +50,7 @@ setup(
         "django-registration-redux==1.1",
 
         "Celery>=3.1.15,<4.0.0",
+        "django-celery>=3.1.15,<=3.1.17",
         "django-supervisor",
         "linaro-django-pagination",
         "django-compressor>=1.4,<1.6",
