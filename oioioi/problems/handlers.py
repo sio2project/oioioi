@@ -28,9 +28,8 @@ def update_problem_instance(env):
     if env.get('contest_id', None):
         if not ProblemInstance.objects.filter(contest__id=env['contest_id'],
                                        problem=problem).exists():
-            pi = get_new_problem_instance(problem)
-            pi.short_name = None
-            pi.contest = Contest.objects.get(id=env['contest_id'])
+            contest = Contest.objects.get(id=env['contest_id'])
+            pi = get_new_problem_instance(problem, contest)
             if env.get('round_id', None) and not pi.round:
                 pi.round = Round.objects.get(id=env['round_id'])
             pi.save()

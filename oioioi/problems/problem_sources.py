@@ -278,11 +278,7 @@ class ProblemsetSource(ProblemSource):
                 pi.save()
                 messages.success(request, _("Problem successfully updated"))
             else:
-                pi = get_new_problem_instance(problem)
-                pi.contest = contest
-                pi.submissions_limit = contest.default_submissions_limit
-                pi.short_name = None
-                pi.save()
+                pi = get_new_problem_instance(problem, contest)
                 messages.success(request, _("Problem successfully uploaded"))
             return safe_redirect(request, reverse(
                     'oioioiadmin:contests_probleminstance_changelist'))

@@ -309,6 +309,10 @@ class TestProblemUpload(TransactionTestCase):
         pis = ProblemInstance.objects.filter(problem=problem)
         self.assertEqual(pis.count(), 2)
 
+        pi = ProblemInstance.objects.get(contest__isnull=False)
+        self.assertEqual(pi.submissions_limit,
+                         contest.default_submissions_limit - 100)
+
 
 class TestProblemPackageAdminView(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_problem_packages',

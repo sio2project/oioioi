@@ -407,8 +407,6 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
 
     if request.POST:
         pi = get_new_problem_instance(problem_instance.problem, contest)
-        pi.short_name = None
-        pi.save()
         messages.success(request, _(u"Problem {} added successfully."
                                   .format(pi)))
         return safe_redirect(request, reverse(

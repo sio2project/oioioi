@@ -142,6 +142,8 @@ def get_new_problem_instance(problem, contest=None):
     pi.pk = None
     pi.short_name = None
     pi.contest = contest
+    if contest is not None:
+        pi.submissions_limit = contest.default_submissions_limit
     pi.round = None
     pi.save()
     update_tests_from_main_pi(pi)

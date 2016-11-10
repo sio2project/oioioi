@@ -339,6 +339,9 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         ProblemInstance.objects.all().delete()
 
         contest = Contest.objects.get()
+        contest.default_submissions_limit = 123
+        contest.save()
+
         filename = get_test_filename('test_simple_package.zip')
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:problems_problem_add')
@@ -353,6 +356,11 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 2)
+        self.assertEquals(ProblemInstance.objects.get(contest=contest)
+                          .submissions_limit, 123)
+
+        contest.default_submissions_limit = 124
+        contest.save()
 
         ## Delete tests and check if re-uploading will fix it.
         problem = Problem.objects.get()
@@ -385,6 +393,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         problem_instance = ProblemInstance.objects \
             .filter(contest__isnull=False).get()
         self.assertEqual(problem_instance.test_set.count(), num_tests)
+        self.assertEqual(problem_instance.submissions_limit, 123)
         problem_instance = problem.main_problem_instance
         self.assertEqual(problem_instance.test_set.count(), num_tests)
 

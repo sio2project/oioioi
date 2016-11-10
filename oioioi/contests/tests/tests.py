@@ -1693,6 +1693,10 @@ class TestReattachingProblems(TestCase):
             'test_problem_site']
 
     def test_reattaching_problem(self):
+        c2 = Contest.objects.get(id='c2')
+        c2.default_submissions_limit = 123
+        c2.save()
+
         pi_id = ProblemInstance.objects.get().id
         self.client.login(username='test_admin')
         self.client.get('/c/c/')  # 'c' becomes the current contest
@@ -1719,6 +1723,8 @@ class TestReattachingProblems(TestCase):
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2')
                         .exists())
+        self.assertEquals(ProblemInstance.objects.get(contest__id='c2')
+                          .submissions_limit, 123)
 
         for test in Problem.objects.get().main_problem_instance.test_set.all():
             test.delete()
