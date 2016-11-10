@@ -90,7 +90,6 @@ indent-string='    '
 
 [BASIC]
 
-required-attributes=
 bad-functions=apply,input
 module-rgx=(([a-z_][a-z0-9_]*)|([A-Z][a-zA-Z0-9]+))$
 const-rgx=(([A-Z_][A-Z0-9_]*)|(__.*__))$
@@ -128,7 +127,6 @@ int-import-graph=
 
 [CLASSES]
 
-ignore-iface-methods=isImplementedBy,deferred,extends,names,namesAndDescriptions,queryDescriptionFor,getBases,getDescriptionFor,getDoc,getName,getTaggedValue,getTaggedValueTags,isEqualOrExtendedBy,setTaggedValue,isImplementedByInstancesOf,adaptWith,is_implemented_by
 defining-attr-methods=__init__,__new__,setUp
 valid-classmethod-first-arg=cls
 valid-metaclass-classmethod-first-arg=mcs
