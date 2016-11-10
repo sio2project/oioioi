@@ -983,6 +983,58 @@ class TestAttachments(TestCase, TestStreamingMixin):
             check_not_accessible(self, 'contest_attachment',
                  kwargs={'contest_id': contest.id, 'attachment_id': ra.id})
 
+    def test_pub_date(self):
+        contest = Contest.objects.get()
+        ca = ContestAttachment(contest=contest,
+                description='contest-attachment',
+                content=ContentFile('content-null',
+                    name='conatt-null-date.txt'),
+                pub_date=None)
+        ca.save()
+        cb = ContestAttachment(contest=contest,
+                description='contest-attachment',
+                content=ContentFile('content-visible',
+                    name='conatt-visible.txt'),
+                pub_date=datetime(2011, 7, 10, 0, 0, 0, tzinfo=utc))
+        cb.save()
+        cc = ContestAttachment(contest=contest,
+                description='contest-attachment',
+                content=ContentFile('content-hidden',
+                    name='conatt-hidden.txt'),
+                pub_date=datetime(2011, 7, 10, 1, 0, 0, tzinfo=utc))
+        cc.save()
+
+        def check_visibility(*should_be_visible):
+            response = self.client.get(reverse('contest_files',
+                kwargs={'contest_id': contest.id}))
+            for name in ['conatt-null-date.txt', 'conatt-visible.txt',
+                    'conatt-hidden.txt']:
+                if name in should_be_visible:
+                    self.assertIn(name, response.content)
+                else:
+                    self.assertNotIn(name, response.content)
+
+        def check_accessibility(should_be_accesible, should_not_be_accesible):
+            for (id, content) in should_be_accesible:
+                response = self.client.get(reverse('contest_attachment',
+                    kwargs={'contest_id': contest.id, 'attachment_id': id}))
+                self.assertStreamingEqual(response, content)
+            for id in should_not_be_accesible:
+                check_not_accessible(self, 'contest_attachment',
+                        kwargs={'contest_id': contest.id, 'attachment_id': id})
+
+        with fake_time(datetime(2011, 7, 10, 0, 30, 0, tzinfo=utc)):
+            self.client.login(username='test_user')
+            check_visibility('conatt-null-date.txt', 'conatt-visible.txt')
+            check_accessibility([(ca.id, 'content-null'),
+                (cb.id, 'content-visible')], [cc.id])
+            self.client.login(username='test_admin')
+            check_visibility('conatt-null-date.txt', 'conatt-visible.txt',
+                    'conatt-hidden.txt')
+            check_accessibility([(ca.id, 'content-null'),
+                    (cb.id, 'content-visible'),
+                    (cc.id, 'content-hidden')], [])
+
 
 class TestSubmission(TestCase, SubmitFileMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
@@ -1394,7 +1446,7 @@ class TestDeleteSelectedSubmissions(TestCase):
             'Are you sure you want to delete the selected submission?',
             response.content)
         self.assertIn(
-            'All of the following objects and their related items ' +
+            'All of the following objects and their related items '
             'will be deleted:',
             response.content)
         self.assertIn('Submission(', response.content)
@@ -1430,7 +1482,7 @@ class TestDeleteSelectedSubmissions(TestCase):
             'Are you sure you want to delete the selected submissions?',
             response.content)
         self.assertIn(
-            'All of the following objects and their related items ' +
+            'All of the following objects and their related items '
             'will be deleted:',
             response.content)
         self.assertIn('Submission(', response.content)

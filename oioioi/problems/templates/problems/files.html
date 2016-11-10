@@ -12,6 +12,9 @@
             {% endif %}
             <th style="min-width: 100px">{% trans "File" %}</th>
             <th style="min-width: 300px">{% trans "Description" %}</th>
+            {% if is_admin and show_pub_dates %}
+            <th style="min-width: 100px">{% trans "Publication date" %}</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
@@ -22,6 +25,9 @@
             {% endif %}
             <td><a href="{{ file.link }}">{{ file.name }}</a></td>
             <td>{{ file.description }}</td>
+            {% if is_admin and show_pub_dates %}
+            <td>{% if file.pub_date %}{{ file.pub_date }}{% endif %}</td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>

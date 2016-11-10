@@ -115,6 +115,8 @@ class ContestAttachment(models.Model):
             verbose_name=_("content"))
     round = models.ForeignKey('Round', related_name='r_attachments',
             blank=True, null=True, verbose_name=_("round"))
+    pub_date = models.DateTimeField(default=None, blank=True, null=True,
+            verbose_name=_("publication date"))
 
     @property
     def filename(self):
@@ -123,6 +125,9 @@ class ContestAttachment(models.Model):
     @property
     def download_name(self):
         return strip_num_or_hash(self.filename)
+
+    def __unicode__(self):
+        return self.filename
 
     class Meta(object):
         verbose_name = _("attachment")

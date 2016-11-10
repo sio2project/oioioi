@@ -38,6 +38,8 @@ class Message(models.Model):
     content = models.TextField(verbose_name=_("content"))
     date = models.DateTimeField(default=timezone.now, editable=False,
             verbose_name=_("date"))
+    pub_date = models.DateTimeField(default=None, blank=True, null=True,
+            verbose_name=_("publication date"))
 
     def save(self, *args, **kwargs):
         # Assert integrity in this Message
@@ -85,6 +87,9 @@ class Message(models.Model):
             })
         return link
 
+    def get_user_date(self):
+        """ returns date visible by a user """
+        return self.pub_date if self.pub_date is not None else self.date
 
 class ReplyTemplate(models.Model):
     contest = models.ForeignKey(Contest, null=True, blank=True)

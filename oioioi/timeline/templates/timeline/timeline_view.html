@@ -62,7 +62,7 @@
                 {% for record in events %}
                 <div id="datetimepickerbox_{{ round.0 }}_{{ forloop.counter }}" data-timeline-round-num="{{ round.0 }}" data-timeline-order="{{ record.order }}" data-timeline-type="{{ record.type }}" class="datebox btn-primary">
                     <div id="datetimepicker_{{ round.0 }}_{{ forloop.counter }}" class="input-append date inline pull-left">
-                        <input type="text" name="{{ record.date_id }}" value="{{ record.date|date:'Y-m-d H:i' }}"></input> <span class="add-on">
+                        <input type="text" name="{{ record.date_id }}" value="{{ record.date|date:'Y-m-d H:i' }}" /> <span class="add-on">
                             <i data-time-icon="icon-time" data-date-icon="icon-calendar"></i>
                         </span>
                     </div>

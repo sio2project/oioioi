@@ -11,6 +11,7 @@
       "topic": "general-question",
       "top_reference": null,
       "date": "2012-09-07T13:16:09.336Z",
+      "pub_date": null,
       "content": "question-body"
     }
   },
@@ -26,6 +27,7 @@
       "topic": "problem-question",
       "top_reference": null,
       "date": "2012-09-07T13:16:20.524Z",
+      "pub_date": null,
       "content": "question-body"
     }
   },
@@ -41,6 +43,7 @@
       "topic": "private-answer",
       "top_reference": 2,
       "date": "2012-09-07T13:17:09.344Z",
+      "pub_date": null,
       "content": "private-answer-body"
     }
   },
@@ -56,7 +59,88 @@
       "topic": "public-answer",
       "top_reference": 2,
       "date": "2012-09-07T13:17:26.261Z",
+      "pub_date": null,
       "content": "public-answer-body"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PUBLIC",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "question-visible",
+      "top_reference": null,
+      "date": "2013-09-07T12:17:26.261Z",
+      "pub_date": "2013-09-07T13:37:26.261Z",
+      "content": "question-visible-body"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PUBLIC",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "question-hidden1",
+      "top_reference": null,
+      "date": "2013-09-07T12:18:26.261Z",
+      "pub_date": "2013-09-07T13:47:26.261Z",
+      "content": "question-hidden1-body"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PUBLIC",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "question-hidden2",
+      "top_reference": null,
+      "date": "2013-09-07T12:19:26.261Z",
+      "pub_date": "2013-09-07T13:47:26.261Z",
+      "content": "question-hidden2-body"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PUBLIC",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "response-hidden",
+      "top_reference": 5,
+      "date": "2013-09-07T12:20:26.261Z",
+      "pub_date": "2013-09-07T13:47:26.261Z",
+      "content": "response-hidden-body"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PUBLIC",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "visible-response-to-hidden",
+      "top_reference": 7,
+      "date": "2013-09-07T12:21:26.261Z",
+      "pub_date": "2013-09-07T13:37:26.261Z",
+      "content": "visible-response-to-hidden"
     }
   }
 ]

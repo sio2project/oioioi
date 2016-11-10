@@ -2,15 +2,19 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField
+from oioioi.base.widgets import DateTimePicker
 from oioioi.contests.models import Round, ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 from oioioi.questions.models import message_kinds, Message, ReplyTemplate
 from oioioi.questions.utils import get_categories, get_category
 
+from django.utils import timezone
 
 class AddContestMessageForm(forms.ModelForm):
     class Meta(object):
         model = Message
-        fields = ['category', 'topic', 'content']
+        fields = ['category', 'topic', 'content', 'pub_date']
+        help_texts = {'pub_date': _("Leave empty for immediate publication")}
 
     category = forms.ChoiceField([], label=_("Category"))
 
@@ -19,6 +23,12 @@ class AddContestMessageForm(forms.ModelForm):
         self.fields['topic'].widget.attrs['class'] = 'input-xxlarge'
         self.fields['content'].widget.attrs['class'] = \
                 'input-xxlarge monospace'
+
+        if not is_contest_admin(request):
+            del self.fields['pub_date']
+        else:
+            self.fields['pub_date'].widget = DateTimePicker()
+            self.fields['pub_date'].initial = timezone.now()
 
         self.request = request
 
@@ -53,7 +63,7 @@ class AddContestMessageForm(forms.ModelForm):
 
 class AddReplyForm(AddContestMessageForm):
     class Meta(AddContestMessageForm.Meta):
-        fields = ['kind', 'topic', 'content']
+        fields = ['kind', 'topic', 'content', 'pub_date']
 
     save_template = forms.BooleanField(required=False,
                                        widget=forms.HiddenInput,
@@ -77,9 +87,8 @@ class AddReplyForm(AddContestMessageForm):
 
 
 class ChangeContestMessageForm(AddContestMessageForm):
-    class Meta(object):
-        model = Message
-        fields = ['category', 'kind', 'topic', 'content']
+    class Meta(AddContestMessageForm.Meta):
+        fields = ['category', 'kind', 'topic', 'content', 'pub_date']
 
     def __init__(self, kind, *args, **kwargs):
         super(ChangeContestMessageForm, self).__init__(*args, **kwargs)

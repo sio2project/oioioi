@@ -255,6 +255,10 @@ def contest_files_view(request):
     contest_files = ContestAttachment.objects.filter(contest=request.contest) \
         .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request))) \
         .select_related('round')
+    if not is_contest_admin(request):
+        contest_files = contest_files.filter(Q(pub_date__isnull=True)
+                | Q(pub_date__lte=request.timestamp))
+
     round_file_exists = contest_files.filter(round__isnull=False).exists()
     problem_instances = visible_problem_instances(request)
     problem_ids = [pi.problem_id for pi in problem_instances]
@@ -268,6 +272,7 @@ def contest_files_view(request):
         'description': cf.description,
         'link': reverse('contest_attachment',
             kwargs={'contest_id': request.contest.id, 'attachment_id': cf.id}),
+        'pub_date': cf.pub_date
         } for cf in contest_files]
     rows += [{
         'category': pf.problem,
@@ -275,19 +280,25 @@ def contest_files_view(request):
         'description': pf.description,
         'link': reverse('problem_attachment',
             kwargs={'contest_id': request.contest.id, 'attachment_id': pf.id}),
+        'pub_date': None
         } for pf in problem_files]
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(request, 'contests/files.html', {'files': rows,
         'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100),
-        'add_category_field': add_category_field})
+        'add_category_field': add_category_field, 'show_pub_dates': True})
 
 
 @enforce_condition(contest_exists & can_enter_contest)
 def contest_attachment_view(request, attachment_id):
     attachment = get_object_or_404(ContestAttachment,
             contest_id=request.contest.id, id=attachment_id)
-    if attachment.round and attachment.round not in visible_rounds(request):
+
+    if (attachment.round and
+            attachment.round not in visible_rounds(request)) or \
+       (not is_contest_admin(request) and
+           attachment.pub_date and attachment.pub_date > request.timestamp):
         raise PermissionDenied
+
     return stream_file(attachment.content, attachment.download_name)
 
 

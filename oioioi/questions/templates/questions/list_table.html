@@ -7,8 +7,11 @@
         <tr>
             {% if not hide_author %}<th style="min-width: 130px">{% trans "Author" %}</th>{% endif %}
             <th style="min-width: 120px">{% trans "Date" %}</th>
+            {% if is_admin %}
+            <th style="min-width: 100px">{% trans "Publication date" %}</th>
+            {% endif %}
             <th style="min-width: 80px">{% trans "Category" %}</th>
-            <th style="min-width: 350px">
+            <th style="min-width: 250px">
                 {% trans "Topic" %}
                 <a class="btn btn-small expand_button" id="expand_messages">
                     <span class="toolbar-button-text"></span>
@@ -27,7 +30,12 @@
         {% url 'message_visit' contest_id=contest.id message_id=record.link_message.id as visit_link %}
         <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}" id="message_{{ msg.id }}">
             {% if not hide_author %}<td>{% full_name msg.author %}</td>{% endif %}
+            {% if is_admin %}
             <td><a href="{{ link }}">{{ msg.date }}</a></td>
+            <td>{% if msg.pub_date %}<a href="{{ link }}">{{ msg.pub_date }}</a>{% endif %}</td>
+            {% else %}
+            <td><a href="{{ link }}">{{ msg.get_user_date }}</a></td>
+            {% endif %}
             <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
             <td>{% if not record.read and not is_admin %}<span class="label label-info new-msg-label">{% trans "NEW" %}</span> {% endif %}<a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a></td>
             {% if is_admin %}

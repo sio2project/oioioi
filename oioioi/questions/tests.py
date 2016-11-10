@@ -2,12 +2,17 @@ import json
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
+from django.test import RequestFactory
 
-from oioioi.base.tests import TestCase, check_not_accessible
+from oioioi.base.tests import TestCase, check_not_accessible, fake_time
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.base.notification import NotificationHandler
+from .views import visible_messages
+
+from datetime import datetime
 
 
 class TestContestControllerMixin(object):
@@ -42,20 +47,71 @@ class TestQuestions(TestCase):
         self.client.login(username='test_admin')
         check_visibility('public-answer', 'private-answer')
 
+    def test_pub_date(self):
+        contest = Contest.objects.get()
+        all_messages = ['question-visible', 'question-hidden1',
+                'question-hidden2', 'response-hidden',
+                'visible-response-to-hidden']
+        url = reverse('contest_messages', kwargs={'contest_id': contest.id})
+        timestamp = datetime(2013, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
+
+        def check_visibility(*should_be_visible):
+            with fake_time(timestamp):
+                response = self.client.get(url)
+            for m in all_messages:
+                if m in should_be_visible:
+                    self.assertIn(m, response.content)
+                else:
+                    self.assertNotIn(m, response.content)
+
+        self.client.login(username='test_user')
+        check_visibility('question-visible')
+        self.client.login(username='test_admin')
+        check_visibility('response-hidden', 'question-hidden1',
+                'visible-response-to-hidden')
+
+    def test_user_date(self):
+        ta = datetime(1970, 1, 1, 12, 30, tzinfo=timezone.utc)
+        tb = datetime(1970, 1, 1, 13, 30, tzinfo=timezone.utc)
+        self.assertEquals(Message(date=ta, pub_date=None).get_user_date(), ta)
+        self.assertEquals(Message(date=ta, pub_date=tb).get_user_date(), tb)
+
+    def test_visible_messages(self):
+        contest = Contest.objects.get()
+        timestamp = datetime(2013, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
+
+        def make_request(username):
+            request = RequestFactory().request()
+            request.timestamp = timestamp
+            request.contest = contest
+            request.user = User.objects.get(username=username)
+            return request
+
+        self.assertListEqual([5, 4, 3, 2, 1],
+                [m.id for m in visible_messages(make_request('test_user'))])
+        self.assertListEqual([5, 4],
+                [m.id for m in visible_messages(make_request('test_user2'))])
+        self.assertListEqual(range(9, 0, -1),
+                [m.id for m in visible_messages(make_request('test_admin'))])
+
     def test_new_labels(self):
         self.client.login(username='test_user')
         contest = Contest.objects.get()
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
-        response = self.client.get(list_url)
+        timestamp = timezone.make_aware(datetime.utcfromtimestamp(1347025200))
+        with fake_time(timestamp):
+            response = self.client.get(list_url)
         self.assertEqual(response.content.count('>NEW<'), 2)
         public_answer = Message.objects.get(topic='public-answer')
-        response = self.client.get(reverse('message', kwargs={
-            'contest_id': contest.id, 'message_id': public_answer.id}))
+        with fake_time(timestamp):
+            response = self.client.get(reverse('message', kwargs={
+                'contest_id': contest.id, 'message_id': public_answer.id}))
         self.assertIn('public-answer-body', response.content)
         self.assertNotIn('contest-question', response.content)
         self.assertNotIn('problem-question', response.content)
-        response = self.client.get(list_url)
+        with fake_time(timestamp):
+            response = self.client.get(list_url)
         self.assertEqual(response.content.count('>NEW<'), 1)
 
     def test_ask_and_reply(self):

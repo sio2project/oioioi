@@ -46,7 +46,14 @@ def visible_messages(request, author=None, category=None):
             q_expression = q_expression \
                     | (Q(author=request.user) & Q(kind='QUESTION')) \
                     | Q(top_reference__author=request.user)
-        messages = messages.filter(q_expression, date__lte=request.timestamp)
+        q_time = Q(date__lte=request.timestamp) \
+                 & ((Q(pub_date__isnull=True)
+                    | Q(pub_date__lte=request.timestamp))) \
+                 & ((Q(top_reference__isnull=True))
+                    | Q(top_reference__pub_date__isnull=True)
+                    | Q(top_reference__pub_date__lte=request.timestamp))
+        messages = messages.filter(q_expression, q_time)
+
     return messages.select_related('top_reference', 'author',
             'problem_instance', 'problem_instance__problem')
 
@@ -82,7 +89,7 @@ def messages_template_context(request, messages):
         } for m in messages if m.id not in replied_ids]
 
     def key(entry):
-        return entry['needs_reply'], entry['message'].date
+        return entry['needs_reply'], entry['message'].get_user_date()
     to_display.sort(key=key, reverse=True)
     return to_display
 
@@ -128,8 +135,8 @@ def message_visit_view(request, message_id):
             contest_id=request.contest.id)
     vmessages = visible_messages(request)
     if message.top_reference_id is None:
-        replies = list(vmessages.filter(top_reference=message)
-                       .order_by('date'))
+        replies = list(vmessages.filter(top_reference=message))
+        replies.sort(key=Message.get_user_date)
     else:
         replies = []
     if request.user.is_authenticated():
@@ -145,8 +152,8 @@ def message_view(request, message_id):
     if not vmessages.filter(id=message_id):
         raise PermissionDenied
     if message.top_reference_id is None:
-        replies = list(vmessages.filter(top_reference=message)
-                       .order_by('date'))
+        replies = list(vmessages.filter(top_reference=message))
+        replies.sort(key=Message.get_user_date)
     else:
         replies = []
     if is_contest_admin(request) and message.kind == 'QUESTION' and \
@@ -190,6 +197,7 @@ def add_contest_message_view(request):
                 instance.kind = 'PUBLIC'
             else:
                 instance.kind = 'QUESTION'
+                instance.pub_date = None
             instance.date = request.timestamp
             instance.save()
             if instance.kind == 'QUESTION':

@@ -3,6 +3,11 @@
 
 {% block title %}{{ message.topic }} - {% trans "Questions and news" %}{% endblock %}
 
+{% block scripts %}
+{{ block.super }}
+{% if form %}{{ form.media }}{% endif %}
+{% endblock %}
+
 {% block content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 

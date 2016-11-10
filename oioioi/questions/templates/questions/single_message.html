@@ -11,7 +11,13 @@
     <div class="message_container">
         <p class="message_info">
         {% full_name message.author %}
-        | <span class="message_timestamp">{{ message.date }}</span>
+        |
+        {% if is_admin %}
+        <span class="message_timestamp">{{ message.date }}{% if message.pub_date %}, {% trans "publication" %} {{ message.pub_date }}{% endif %}</span>
+        {% else %}
+        <span class="message_timestamp">{{ message.get_user_date }}</span>
+        {% endif %}
+
         <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.get_kind_display }}</span>
         </p>
         <p class="message_body">{{ message.content|urlize }}</p>

@@ -104,7 +104,7 @@ class RoundInline(admin.StackedInline):
         return fdsets
 
 
-class AttachmentInline(admin.TabularInline):
+class AttachmentInline(admin.StackedInline):
     model = ContestAttachment
     extra = 0
     readonly_fields = ['content_link']
