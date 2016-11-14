@@ -78,10 +78,16 @@ class TestRankingViews(TestCase):
         user_not_in_ranking = User.objects.get(username='test_user')
         response = self.client.get(
                 get_url_for_user(user_not_in_ranking.username))
-        self.assertIn('User is not in the ranking.', response.content)
+
+        # Because there are two possible sources of error message,
+        # check also if there's only one displayed.
+        self.assertContains(response, 'User is not in the ranking.', 1)
 
         response = self.client.get(get_url_for_user('not_existing_username'))
         self.assertIn('User not found', response.content)
+
+        # User has already received more accurate error.
+        self.assertNotIn('User is not in the ranking.', response.content)
 
         # Contest admin shouldn't see 'Find my position' button
         self.assertNotIn('<span class="toolbar-button-text">' +
@@ -121,6 +127,13 @@ class TestRankingViews(TestCase):
             # User with the highest score should be visible
             self.assertIn('<tr id="ranking_row_%s"' % users[-1].id,
                           response.content)
+
+        # Test if user who is not in the ranking receives error message.
+        self.client.login(username=user_not_in_ranking.username)
+        response = self.client.get(
+                get_url_for_user(user_not_in_ranking.username))
+
+        self.assertContains(response, 'User is not in the ranking.', 1)
 
     def test_ranking_view(self):
         contest = Contest.objects.get()

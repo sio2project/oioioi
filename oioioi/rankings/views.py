@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 
 from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.menu import menu_registry
@@ -13,7 +14,6 @@ from oioioi.contests.models import Submission
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
     contest_exists
 from oioioi.rankings.forms import FilterUsersInRankingForm
-
 
 @make_request_condition
 def has_any_ranking_visible(request):
@@ -68,7 +68,13 @@ def ranking_view(request, key=None):
                             + '#' + str(user.id))
                 else:
                     msg = _("User is not in the ranking.")
-                    form._errors['user'] = form.error_class([msg])
+                    # Admin should receive error in form,
+                    # whereas user should see it as an error message,
+                    # because there is no form then.
+                    if is_contest_admin(request):
+                        form._errors['user'] = form.error_class([msg])
+                    else:
+                        messages.error(request, msg)
 
     if ranking is None:
         # Changing request.GET is necessary!
