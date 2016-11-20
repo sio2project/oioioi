@@ -411,9 +411,15 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
         size_limit = controller.get_submission_size_limit(problem_instance)
 
+        # tested in oioioi/contests/tests
         def validate_file_size(file):
             if file.size > size_limit:
                 raise ValidationError(_("File size limit exceeded."))
+
+        # tested in oioioi/contests/tests
+        def validate_code_length(code):
+            if len(code) > size_limit:
+                raise ValidationError(_("Code length limit exceeded."))
 
         def validate_language(file):
             ext = controller._get_language(file, problem_instance)
@@ -448,6 +454,7 @@ class ProgrammingProblemController(ProblemController):
         )
         form.fields['code'] = forms.CharField(required=False,
                 label=_("Code"),
+                validators=[validate_code_length],
                 widget=forms.widgets.Textarea(attrs={'rows': 10,
                     'class': 'monospace input-xxxlarge'})
         )

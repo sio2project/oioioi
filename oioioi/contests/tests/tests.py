@@ -1135,6 +1135,13 @@ class TestSubmission(TestCase, SubmitFileMixin):
                                     file_size=102405)
         self.assertIn('File size limit exceeded.', response.content)
 
+    def test_huge_code_length(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        code = 'a' * 102401
+        response = self.submit_code(contest, problem_instance, code=code)
+        self.assertIn('Code length limit exceeded.', response.content)
+
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
