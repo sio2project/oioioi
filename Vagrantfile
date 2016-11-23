@@ -125,6 +125,9 @@ Vagrant.configure("2") do |config|
         >> settings.py
     echo "CELERY_RESULT_BACKEND = None" >> settings.py
 
+    # otherwise the Debug Toolbar won't work: http://blog.joshcrompton.com/2014/01/how-to-make-django-debug-toolbar-display-when-using-vagrant/
+    echo "INTERNAL_IPS = ('127.0.0.1', '10.0.2.2')" >> settings.py
+
 
     echo "* migrating databases"
     ./manage.py migrate auth
