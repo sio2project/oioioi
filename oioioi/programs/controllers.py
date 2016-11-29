@@ -411,12 +411,10 @@ class ProgrammingProblemController(ProblemController):
         controller = problem_instance.controller
         size_limit = controller.get_submission_size_limit(problem_instance)
 
-        # tested in oioioi/contests/tests
         def validate_file_size(file):
             if file.size > size_limit:
                 raise ValidationError(_("File size limit exceeded."))
 
-        # tested in oioioi/contests/tests
         def validate_code_length(code):
             if len(code) > size_limit:
                 raise ValidationError(_("Code length limit exceeded."))
