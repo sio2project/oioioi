@@ -1,11 +1,26 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'yaml'
+
+def default(id, fallback)
+  return (if id then id else fallback end)
+end
+
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/trusty64"
   config.vm.box_check_update = false
 
-  oioioi_port = ENV.fetch('OIOIOI_PORT', 8000)
+
+  CFG_FILE = 'vagrant.yml'
+  settings =
+    if File.file? CFG_FILE
+    then YAML.load_file CFG_FILE
+    else {}
+    end
+
+  oioioi_port = default(settings['port'], 8000)
+  runserver_cmd = default(settings['runserver_cmd'], 'runserver')
 
   config.vm.network "forwarded_port", guest: oioioi_port, host: oioioi_port
   config.vm.synced_folder ".", "/sio2/oioioi/"
@@ -164,7 +179,7 @@ Vagrant.configure("2") do |config|
 
     mkdir -p ../logs/{supervisor,runserver}
 
-    nohup ./manage.py runserver 0.0.0.0:#{oioioi_port} \
+    nohup ./manage.py #{runserver_cmd} 0.0.0.0:#{oioioi_port} \
         >../logs/runserver/out.log 2>../logs/runserver/err.log &
     nohup ./manage.py supervisor \
         >../logs/supervisor/out.log 2>../logs/supervisor/err.log &

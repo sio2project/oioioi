@@ -24,6 +24,12 @@ Just enter the directory where Vagrantfile and this README are placed, and type:
 
 It will create an instance of virtual machine with web server and judges running.
 
+You can specify configuration in `vagrant.yml`. Supported configuration options (with example):
+```
+port: 8001  # run oioioi on port 8001 instead of the default 8000
+runserver_cmd: runserver_plus  # use manage.py runserver_plus instead of manage.py runserver
+```
+
 .. _vagrant: https://www.vagrantup.com/docs/
 
 Manual Installation
