@@ -22,6 +22,7 @@ from oioioi.base.forms import UserForm
 from oioioi.base.utils import jsonify, generate_key
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.preferences import PreferencesFactory
+from oioioi.base.processors import site_name
 import traceback
 
 account_menu_registry.register('change_password', _("Change password"),
@@ -104,7 +105,8 @@ def edit_profile_view(request):
     order=200, attrs={'data-post-url': reverse_lazy('logout')})
 @require_POST
 def logout_view(request):
-    return auth_logout(request, template_name='registration/logout.html')
+    return auth_logout(request, template_name='registration/logout.html',
+            extra_context=site_name(request))
 
 
 def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
@@ -112,7 +114,7 @@ def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
         redirect_to = request.REQUEST.get(redirect_field_name, None)
         return safe_redirect(request, redirect_to)
     else:
-        return auth_login(request, **kwargs)
+        return auth_login(request, extra_context=site_name(request), **kwargs)
 
 
 @require_GET
