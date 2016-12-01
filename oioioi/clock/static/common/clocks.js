@@ -41,14 +41,12 @@ $(function() {
             var countdown_destination;
             var countdown_dest_short;
             if (round_duration_in_s) {
-                countdown_destination = ngettext("end of the %(round_name)s",
-                    "end of the %(round_name)s", round_name)
+                countdown_destination = gettext("end of the %(round_name)s")
                     .fmt({round_name: round_name});
                 countdown_dest_short = gettext("to the end");
                 visible_bar = BarEnum.progressbar;
             } else {
-                countdown_destination = ngettext("start of the %(round_name)s",
-                    "start of the %(round_name)s", round_name)
+                countdown_destination = gettext("start of the %(round_name)s")
                     .fmt({round_name: round_name});
                 countdown_dest_short = gettext("to the start");
                 visible_bar = BarEnum.text_only;
@@ -97,10 +95,8 @@ $(function() {
                 countdown_short = hours_short + minutes_short + seconds_short +
                     countdown_dest_short;
                 countdown_text = ngettext(
-                    "%(countdown_hours)sleft to the " +
-                    "%(countdown_destination)s.",
-                    "%(countdown_hours)sleft to the " +
-                    "%(countdown_destination)s.",
+                    "%(countdown_hours)sleft to the %(countdown_destination)s.",
+                    "%(countdown_hours)sleft to the %(countdown_destination)s.",
                     hours).fmt({countdown_hours: countdown_hours,
                     countdown_destination: countdown_destination});
             } else if (minutes > 0) {
@@ -108,20 +104,16 @@ $(function() {
                 countdown_short = minutes_short + seconds_short +
                     countdown_dest_short;
                 countdown_text = ngettext(
-                    "%(countdown_minutes)sleft to the " +
-                    "%(countdown_destination)s.",
-                    "%(countdown_minutes)sleft to the " +
-                    "%(countdown_destination)s.",
+                    "%(countdown_minutes)sleft to the %(countdown_destination)s.",
+                    "%(countdown_minutes)sleft to the %(countdown_destination)s.",
                     minutes).fmt({countdown_minutes: countdown_minutes,
                     countdown_destination: countdown_destination});
             } else if (seconds >= 0) {
                 var countdown_seconds = seconds_str;
                 countdown_short = seconds_short + countdown_dest_short;
                 countdown_text = ngettext(
-                    "%(countdown_seconds)sleft to the " +
-                    "%(countdown_destination)s.",
-                    "%(countdown_seconds)sleft to the " +
-                    "%(countdown_destination)s.",
+                    "%(countdown_seconds)sleft to the %(countdown_destination)s.",
+                    "%(countdown_seconds)sleft to the %(countdown_destination)s.",
                     seconds).fmt({countdown_seconds: countdown_seconds,
                     countdown_destination: countdown_destination});
             } else {
