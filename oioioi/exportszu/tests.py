@@ -96,8 +96,7 @@ class TestExportCommand(TestCase):
         tmpdir = tempfile.mkdtemp()
         try:
             archive_path = os.path.join(tmpdir, 'archive.tgz')
-            with open(archive_path, 'w') as archive_file:
-                call_command('export_submissions', 'c', archive_file)
+            call_command('export_submissions', 'c', archive_path)
             archive = tarfile.open(archive_path, 'r:gz')
             index = archive.extractfile('c/INDEX').read()
             self.assertEqual(index, INDEX_HEADER +

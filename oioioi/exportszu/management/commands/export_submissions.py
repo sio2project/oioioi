@@ -49,4 +49,5 @@ class Command(BaseCommand):
 
         collector = SubmissionsWithUserDataCollector(contest, round=round,
             only_final=not options.get('all'))
-        build_submissions_archive(out_file, collector)
+        with open(out_file, 'w') as f:
+            build_submissions_archive(f, collector)
