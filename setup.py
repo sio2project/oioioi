@@ -80,6 +80,7 @@ setup(
         "shortuuid",
         "enum34",
         "dnslib",
+        "bleach==1.5",
 
         "chardet",
 
