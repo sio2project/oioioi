@@ -7,6 +7,7 @@ from django.conf import settings
 from django.test import RequestFactory
 from django.utils.timezone import utc
 from django.utils.html import strip_tags, escape
+from django.utils.http import urlencode
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
@@ -130,6 +131,34 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.assertNotIn('subm_ ', response.content)
         self.assertEqual(response.content.count('subm_status subm_CE'), 2)
         self.assertEqual(response.content.count('>10.00s<'), 5)
+
+
+class TestHeaderLinks(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission']
+
+    def test_link_to_changelist_visibility(self):
+        submission = Submission.objects.get(pk=1)
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                  'submission_id': submission.id}
+
+        # First check if admin can see the link.
+        self.client.login(username='test_admin')
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        link_url = reverse('oioioiadmin:contests_submission_changelist')
+        link_url += "?" + urlencode(
+            {'pi': submission.problem_instance.problem.name})
+        self.assertContains(response,
+                            '<a href="{}">{}</a>'
+                            .format(link_url, submission.problem_instance),
+                            html=True)
+
+        # And if normal user can't see it. Check just for href.
+        self.client.login(username='test_user')
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertNotContains(response,
+                               '<a href="{}">'.format(link_url),
+                               html=True)
 
 
 class TestProgramsXssViews(TestCase, TestStreamingMixin):

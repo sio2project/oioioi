@@ -109,8 +109,14 @@
                 {{ submission.submission.user.get_full_name }}
                 {% endif %}
             </td>
+            <td>
+                <a href="{% url 'oioioiadmin:contests_submission_changelist' %}?pi={{ submission.submission.problem_instance.problem.name|urlencode }}">
+                {{ submission.submission.problem_instance }}</a>
+            </td>
+            {% else %}
+                <td>{{ submission.submission.problem_instance }}</td>
             {% endif %}
-            <td>{{ submission.submission.problem_instance }}</td>
+
             <td>{{ submission.submission.get_date_display }}</td>
             {% if submission.can_see_status %}<td class="subm_status subm_{{ submission.submission.status }}">{{ submission.submission.get_status_display }}</td>{% else %}<td></td>{% endif %}
             {% if can_admin %}<td>{{ submission.submission.get_kind_display }}</td>{% endif %}
