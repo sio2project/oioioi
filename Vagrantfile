@@ -4,7 +4,7 @@
 require 'yaml'
 
 def default(id, fallback)
-  return (if id then id else fallback end)
+  return (if id.nil? then fallback else id end)
 end
 
 Vagrant.configure("2") do |config|
