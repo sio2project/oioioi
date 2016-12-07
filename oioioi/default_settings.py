@@ -228,7 +228,7 @@ DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]
 
 # For linaro_django_pagination
-PAGINATION_DEFAULT_WINDOW = 2
+PAGINATION_DEFAULT_WINDOW = 4
 PAGINATION_DEFAULT_MARGIN = 1
 FILES_ON_PAGE = 100
 PROBLEMS_ON_PAGE = 100
