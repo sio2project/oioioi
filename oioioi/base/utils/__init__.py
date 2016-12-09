@@ -14,7 +14,9 @@ from importlib import import_module
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms.utils import flatatt
+from django.shortcuts import render
 from django.template import Template, Context
+from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
@@ -378,10 +380,12 @@ def make_html_links(links, extra_attrs=None):
     return mark_safe(' | '.join(html_links))
 
 
-def make_navbar_badge(link, text):
-    template = Template('<li><a href="{{ link }}"><span class="label '
-            'label-important">{{ text }}</span></a></li>')
-    return template.render(Context({'link': link, 'text': text}))
+def make_navbar_badge(link, text, id=None):
+    return render_to_string('utils/navbar-badge.html', Context({
+        'link': link,
+        'text': text,
+        'id': id
+    }))
 
 
 # Creating views
