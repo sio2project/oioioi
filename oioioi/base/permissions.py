@@ -1,7 +1,7 @@
 # coding: utf-8
 import functools
 
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login, logout
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
 
@@ -143,7 +143,22 @@ def enforce_condition(condition, template=None, login_redirect=True):
 
 @make_request_condition
 def not_anonymous(request):
-    return request.user.is_authenticated()
+    """
+    Checks if user is logged in and if his account is active.
+    Logs out inactive users, effectively blocking
+    them from performing actions.
+
+    :param request:
+    :return:
+    """
+    if request.user.is_authenticated():
+        if request.user.is_active:
+            return True
+        else:
+            logout(request)
+            return False
+    else:
+        return False
 
 
 @make_request_condition

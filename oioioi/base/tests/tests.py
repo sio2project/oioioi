@@ -8,7 +8,7 @@ import subprocess
 import logging
 from importlib import import_module
 
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, get_user
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.conf import settings
@@ -1111,3 +1111,30 @@ class TestFileUtils(TestCase):
 
         for (before, after) in cases.iteritems():
             self.assertEqual(strip_num_or_hash(before), after)
+
+
+class TestUserDeactivationLogout(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def setUp(self):
+        self.user = User.objects.get(username='test_user')
+        self.profile_index = reverse('edit_profile')
+        self.client.login(username=self.user.username)
+        self.client.get(self.profile_index, follow=True)
+
+    def assert_logged(self, logged=True):
+        user = get_user(self.client)
+        if logged:
+            self.assertTrue(user.is_authenticated())
+        else:
+            self.assertFalse(user.is_authenticated())
+
+    def test_invalidated_user_logout(self):
+        self.assert_logged(True)
+
+        self.user.is_active = False
+        self.user.save()
+
+        self.client.get(self.profile_index, follow=True)
+        # At this point we should check if user is deactivated and log him out.
+        self.assert_logged(False)
