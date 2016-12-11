@@ -196,6 +196,7 @@ INSTALLED_APPS = (
     'linaro_django_pagination',
     'mptt',
     'overextends',
+    'raven.contrib.django.raven_compat',
 
     'django.contrib.admin',
     'django.contrib.admindocs',

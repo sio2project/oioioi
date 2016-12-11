@@ -354,3 +354,14 @@ ZEUS_INSTANCES = {
 # Domain to use for serving IP to hostname mappings
 # using ./manage.py ipauth-dnsserver
 #IPAUTH_DNSSERVER_DOMAIN = 'oioioi.example.com'
+
+# Error reporting
+import raven
+
+RAVEN_CONFIG = {
+    # Won't do anything with no dsn
+    # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
+    'dsn': '',
+    # This should be a path to git repo
+    'release': raven.fetch_git_sha(os.path.dirname(oioioi.__file__)),
+}

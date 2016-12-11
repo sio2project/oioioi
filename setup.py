@@ -98,6 +98,8 @@ setup(
         # https://github.com/celery/librabbitmq/issues/42
         "librabbitmq>=1.5.1",
 
+        "raven",
+
         # Dependencies from external sources live in requirements.txt
     ],
     packages=find_packages(exclude=['ez_setup']),
