@@ -142,6 +142,11 @@ class EnumField(models.CharField):
         for item in self.registry.entries:
             yield item
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(EnumField, self).deconstruct()
+        kwargs.pop('choices', None)
+        return name, path, args, kwargs
+
 
 class PhoneNumberField(models.CharField):
     """A ``CharField`` designed to store phone numbers."""

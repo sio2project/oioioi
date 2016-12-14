@@ -549,16 +549,31 @@ class TestFields(unittest.TestCase):
         self.assertIn('oioioi.base.tests.test_dotted_field_classes',
                 sys.modules)
 
-    def test_enum_field(self):
-        registry = EnumRegistry()
-        field = EnumField(registry)
-        registry.register('OK', 'OK')
-        registry.register('OK', 'Should be ignored (duplicate)')
-        registry.register('ERR', 'Error')
+
+class TestEnumField(unittest.TestCase):
+    def setUp(self):
+        self.registry = EnumRegistry()
+        self.registry.register('OK', 'OK')
+        self.registry.register('OK', 'Should be ignored (duplicate)')
+        self.registry.register('ERR', 'Error')
+
+    def test_basic_usage(self):
+        field = EnumField(self.registry)
         self.assertEqual(sorted(list(field.choices)),
                 [('ERR', 'Error'), ('OK', 'OK')])
         with self.assertRaises(ValidationError):
             field.validate('FOO', None)
+
+    def test_serialization(self):
+        """Test if choices aren't serialized by migration."""
+        first_field = EnumField(self.registry)
+        first_serialized = first_field.deconstruct()
+
+        self.registry.register('MAYBE', "You tell me if it's wrong or not")
+        second_field = EnumField(self.registry)
+        second_serialized = second_field.deconstruct()
+
+        self.assertEqual(first_serialized, second_serialized)
 
 
 class TestExecute(unittest.TestCase):
