@@ -318,6 +318,9 @@ class ProgrammingProblemController(ProblemController):
 
     def validate_submission_form(self, request, problem_instance, form,
             cleaned_data):
+        if any(field in form.errors.as_data() for field in ('file', 'code')):
+            return  # already have a ValidationError
+
         is_file_chosen = 'file' in cleaned_data and \
                 cleaned_data['file'] is not None
         is_code_pasted = 'code' in cleaned_data and cleaned_data['code']

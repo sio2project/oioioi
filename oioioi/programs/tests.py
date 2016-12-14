@@ -391,6 +391,8 @@ class TestSubmission(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance,
                                     file_size=102405)
         self.assertIn('File size limit exceeded.', response.content)
+        self.assertNotIn('You have to either choose file or paste',
+                         response.content)
 
     def test_huge_code_length(self):
         contest = Contest.objects.get()
