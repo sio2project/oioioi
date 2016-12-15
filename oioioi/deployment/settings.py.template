@@ -363,5 +363,6 @@ RAVEN_CONFIG = {
     # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
     'dsn': '',
     # This should be a path to git repo
-    'release': raven.fetch_git_sha(os.path.dirname(oioioi.__file__)),
+    'release': raven.fetch_git_sha(
+        os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
 }
