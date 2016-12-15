@@ -7,7 +7,7 @@ from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import unquote, quote
 from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
@@ -25,7 +25,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, \
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.programs.models import Test, TestReport
-from oioioi.problems.models import ProblemSite
+from oioioi.problems.models import ProblemSite, ProblemPackage
 
 
 class ContestProxyAdminSite(admin.AdminSite):
@@ -239,7 +239,8 @@ contest_admin_menu_registry.register('contest_change', _("Settings"),
 class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm
     fields = ('contest', 'round', 'problem', 'short_name', 'submissions_limit')
-    list_display = ('name_link', 'short_name_link', 'round', 'actions_field')
+    list_display = ('name_link', 'short_name_link', 'round', 'package',
+            'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
 
@@ -319,6 +320,17 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     short_name_link.allow_tags = True
     short_name_link.short_description = _("Symbol")
     short_name_link.admin_order_field = 'short_name'
+
+    def package(self, instance):
+        problem_package = ProblemPackage.objects \
+                .filter(problem=instance.problem).first()
+        if problem_package and problem_package.package_file:
+            href = reverse(
+                    'oioioi.problems.views.download_problem_package_view',
+                    kwargs={'package_id': str(problem_package.id)})
+            return make_html_link(href, problem_package.package_file)
+        return None
+    package.short_description = _("Package file")
 
     def get_actions(self, request):
         # Disable delete_selected.

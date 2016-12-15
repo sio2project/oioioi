@@ -61,6 +61,11 @@
             <li>
                 <a href="{% url 'model_solutions' problem_instance_id=problem.main_problem_instance.id %}">{% trans "Show model solutions" %}</a>
             </li>
+            {% if package %}
+            <li>
+                <a href="{% url 'oioioi.problems.views.download_problem_package_view' package_id=package.id %}">{% trans "Download problem package" %}</a>
+            </li>
+            {% endif %}
         </ul>
     </div>
     {% endif %}

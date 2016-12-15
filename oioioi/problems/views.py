@@ -207,9 +207,12 @@ def problemset_all_problems_view(request):
 
 def problem_site_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
+    package = ProblemPackage.objects.filter(problem=problem).first()
     show_add_button, administered_recent_contests = \
         _generate_add_to_contest_metadata(request)
     context = {'problem': problem,
+               'package': package if package and package.package_file
+                        else None,
                'can_admin_problem': can_admin_problem(request, problem),
                'select_problem_src': request.GET.get('select_problem_src'),
                'show_add_button': show_add_button,
