@@ -10,7 +10,8 @@ from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import all_public_results_visible, \
         is_contest_admin, is_contest_observer, can_enter_contest
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.participants.controllers import ParticipantsController
+from oioioi.participants.controllers import ParticipantsController, \
+        OnsiteContestControllerMixin
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.rankings.controllers import DefaultRankingController, \
@@ -211,6 +212,9 @@ class PARankingController(DefaultRankingController):
 class PAFinalsContestController(ACMContestController):
     description = _("Algorithmic Engagements finals")
 
+    def registration_controller(self):
+        return ParticipantsController(self.contest)
+
     def can_print_files(self, request):
         return True
 
@@ -233,3 +237,5 @@ class PAFinalsContestController(ACMContestController):
 
         return round.end_date - \
                datetime.timedelta(minutes=frozen_ranking_minutes)
+
+PAFinalsContestController.mix_in(OnsiteContestControllerMixin)
