@@ -250,6 +250,8 @@ def problemset_add_to_contest_view(request, site_key):
     if not problem_name:
         raise Http404
     administered = administered_contests(request)
+    administered = sorted(administered,
+        key=lambda x: x.creation_date, reverse=True)
     return TemplateResponse(request, 'problems/problemset/select_contest.html',
                             {'site_key': site_key,
                              'administered_contests': administered,

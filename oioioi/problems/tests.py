@@ -2,6 +2,7 @@
 
 import os.path
 import urllib
+from datetime import datetime
 
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -9,6 +10,7 @@ from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+from django.utils.timezone import utc
 from django.http import HttpResponse
 from django import forms
 from nose.tools import nottest
@@ -973,6 +975,22 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertIn('123', str(response.content))
 
     def test_add_from_selectcontest(self):
+        contest2 = Contest(id='c2', name='Contest2',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        contest2.save()
+        contest2.creation_date = datetime(2002, 1, 1, tzinfo=utc)
+        contest2.save()
+        contest3 = Contest(id='c3', name='Contest3',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        contest3.save()
+        contest3.creation_date = datetime(2004, 1, 1, tzinfo=utc)
+        contest3.save()
+        contest4 = Contest(id='c4', name='Contest4',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        contest4.save()
+        contest4.creation_date = datetime(2003, 1, 1, tzinfo=utc)
+        contest4.save()
+
         self.client.login(username='test_admin')
         # Now we're not having any contest in recent contests.
         # As we are contest administrator, the button should still appear.
@@ -1001,3 +1019,13 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertIn('data-urlkey', str(response.content))
         self.assertIn('add_to_contest', str(response.content))
         self.assertIn('123', str(response.content))
+        self.assertEqual(len(response.context['administered_contests']), 4)
+        self.assertEquals(list(response.context['administered_contests']),
+            list(Contest.objects.order_by('-creation_date').all()))
+        self.assertContains(response, 'Contest2', count=1)
+        self.assertContains(response, 'Contest3', count=1)
+        self.assertContains(response, 'Contest4', count=1)
+        self.assertLess(response.content.index('Contest3'),
+            response.content.index('Contest4'))
+        self.assertLess(response.content.index('Contest4'),
+            response.content.index('Contest2'))

@@ -402,6 +402,41 @@ class TestContestViews(TestCase):
         self.assertEqual(len(response.context['contests']), 2)
         self.assertIn('Invisible Contest', response.content)
 
+        contest2 = Contest(id='c2', name='Contest2',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        contest2.save()
+        contest2.creation_date = datetime(2002, 1, 1, tzinfo=utc)
+        contest2.save()
+        contest3 = Contest(id='c3', name='Contest3',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        contest3.save()
+        contest3.creation_date = datetime(2004, 1, 1, tzinfo=utc)
+        contest3.save()
+        contest4 = Contest(id='c4', name='Contest4',
+            controller_name='oioioi.contests.tests.PrivateContestController')
+        contest4.save()
+        contest4.creation_date = datetime(2003, 1, 1, tzinfo=utc)
+        contest4.save()
+        response = self.client.get(reverse('select_contest'))
+        self.assertEqual(len(response.context['contests']), 5)
+        self.assertEquals(list(response.context['contests']),
+            list(Contest.objects.order_by('-creation_date').all()))
+        self.assertContains(response, 'Contest2', count=1)
+        self.assertContains(response, 'Contest3', count=1)
+        self.assertContains(response, 'Contest4', count=1)
+        self.assertLess(response.content.index('Contest3'),
+            response.content.index('Contest4'))
+        self.assertLess(response.content.index('Contest4'),
+            response.content.index('Contest2'))
+
+        contest2.creation_date = datetime(2003, 6, 1, tzinfo=utc)
+        contest2.save()
+        response = self.client.get(reverse('select_contest'))
+        self.assertLess(response.content.index('Contest3'),
+            response.content.index('Contest2'))
+        self.assertLess(response.content.index('Contest2'),
+            response.content.index('Contest4'))
+
     def test_submission_view(self):
         contest = Contest.objects.get()
         submission = Submission.objects.get(pk=1)
