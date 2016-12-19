@@ -10,6 +10,7 @@ from oioioi.contests.models import Contest, Round, ProblemInstance, Submission
 from oioioi.mailsubmit.models import MailSubmissionConfig, MailSubmission
 from oioioi.mailsubmit.utils import mail_submission_hashes
 from oioioi.participants.models import Participant
+from oioioi.problems.models import Problem
 
 
 class MailSubmitFileMixin(object):
@@ -164,3 +165,38 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
             self.assertEqual(200, response.status_code)
 
             self.assertEqual(MailSubmission.objects.count(), 1)
+
+    def test_mailsubmissions_list(self):
+        c1 = Contest(id='contest1', name='Contest1', controller_name=
+            'oioioi.participants.tests.ParticipantsContestController')
+        c1.save()
+        c2 = Contest(id='contest2', name='Contest2', controller_name=
+            'oioioi.participants.tests.ParticipantsContestController')
+        c2.save()
+        p = Problem.objects.get()
+        pi1 = ProblemInstance(contest=c1, problem=p,
+            short_name='problem_instance1')
+        pi1.save()
+        pi2 = ProblemInstance(contest=c2, problem=p,
+            short_name='problem_instance2')
+        pi2.save()
+        u = User.objects.get(username='test_user')
+        f = ContentFile('aaa', name='bbbb.cpp')
+        ms1 = MailSubmission(problem_instance=pi1, user=u)
+        ms1.source_file.save(f.name, f)
+        ms1.save()
+        ms2 = MailSubmission(problem_instance=pi2, user=u)
+        ms2.source_file.save(f.name, f)
+        ms2.save()
+
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:mailsubmit_mailsubmission_changelist',
+            kwargs={'contest_id': 'contest1'})
+        response = self.client.get(url)
+        self.assertContains(response, 'problem_instance1')
+        self.assertNotContains(response, 'problem_instance2')
+        url = reverse('oioioiadmin:mailsubmit_mailsubmission_changelist',
+            kwargs={'contest_id': 'contest2'})
+        response = self.client.get(url)
+        self.assertContains(response, 'problem_instance2')
+        self.assertNotContains(response, 'problem_instance1')

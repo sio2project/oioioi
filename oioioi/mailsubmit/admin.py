@@ -92,8 +92,8 @@ class MailSubmissionAdmin(admin.ModelAdmin):
             accept_mail_submission(request, mailsubmission)
     accept_action.short_description = _("Accept selected submissions")
 
-    def queryset(self, request):
-        queryset = super(MailSubmissionAdmin, self).queryset(request)
+    def get_queryset(self, request):
+        queryset = super(MailSubmissionAdmin, self).get_queryset(request)
         queryset = queryset.filter(problem_instance__contest=request.contest)
         queryset = queryset.order_by('-id')
         return queryset
