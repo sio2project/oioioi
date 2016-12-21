@@ -57,7 +57,7 @@ class TestModels(TestCase):
 
 class TestScores(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission']
+                'test_problem_instance', 'test_submission']
 
     def test_integer_score(self):
         s1 = IntegerScore(1)
@@ -114,6 +114,50 @@ def render_contest_id_view(request):
     t = Template('{{ contest.id }}')
     print RequestContext(request)
     return HttpResponse(t.render(RequestContext(request)))
+
+class TestSubmissionListOrder(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission',
+                'test_another_submission', 'test_submissions_CE']
+
+    def test_score_order(self):
+        self.client.login(username='test_admin')
+        url = reverse('oioioiadmin:contests_submission_changelist',
+                kwargs={'contest_id': 'c'})
+
+        # 7 is the number of score column.
+        # Order by score ascending, null score should be below OK.
+        response = self.client.get(url + "?o=-7")
+
+        self.check_order_in_response(response, True,
+                                'Submission with CE should be displayed at '
+                                'the bottom with this order.')
+
+        # Order by score descending, null score should be above OK.
+        response = self.client.get(url + "?o=7")
+
+        self.check_order_in_response(response, False, 'Submission with CE '
+                                'should be displayed first with this order')
+
+    @nottest
+    def check_order_in_response(self, response, is_descending, error_msg):
+        # Cut off part of the response that is above submission table because
+        # it can provide irrelevant noise.
+        table_content = response.content[response.content
+                                         .index('grp-changelist-results'):]
+        test_OK = 'OK'
+        test_CE = 'Compilation failed'
+
+        self.assertIn(test_OK, table_content,
+                      'Fixtures should contain submission with OK')
+        self.assertIn(test_CE, table_content,
+                      'Fixtures should contain submission with CE')
+
+        test_OK_index = table_content.index(test_OK)
+        test_CE_index = table_content.index(test_CE)
+
+        self.assertEquals(is_descending, test_OK_index < test_CE_index,
+                          error_msg)
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)

@@ -12,6 +12,8 @@ from django.shortcuts import redirect, render
 from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_links, make_html_link
@@ -557,7 +559,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     def score_display(self, instance):
         return instance.get_score_display() or ''
     score_display.short_description = _("Score")
-    score_display.admin_order_field = 'score'
+    score_display.admin_order_field = 'score_with_nulls_smallest'
 
     def contest_display(self, instance):
         return instance.problem_instance.contest
@@ -611,6 +613,11 @@ class SubmissionAdmin(admin.ModelAdmin):
             queryset = queryset \
                        .filter(problem_instance__contest=request.contest)
         queryset = queryset.order_by('-id')
+
+        # Because nulls are treated as highest by default,
+        # this is a workaround to make them smaller than other values.
+        queryset = queryset.annotate(score_with_nulls_smallest=
+                                     Coalesce('score', Value('')))
         return queryset
 
     def lookup_allowed(self, key, value):
