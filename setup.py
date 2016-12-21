@@ -30,7 +30,9 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django>=1.8.9,<1.9",
+        # Django < 1.8.15 is vulnerable to CSRF when used with Google Analytics:
+        # https://www.djangoproject.com/weblog/2016/sep/26/security-releases/
+        "Django>=1.8.15,<1.9",
         "pytz>=2013b",
         "sqlalchemy",
         "BeautifulSoup",
