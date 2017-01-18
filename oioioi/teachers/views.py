@@ -24,6 +24,11 @@ from oioioi.base.permissions import enforce_condition, not_anonymous, \
     is_superuser, make_request_condition
 from oioioi.contests.utils import is_contest_admin, contest_exists
 
+# This import seems unused, but in fact it's needed
+# The code from widgets.py registers the widgets
+# so that it can be used in user-created messages
+import widgets
+
 
 @make_request_condition
 def is_teachers_contest(request):
