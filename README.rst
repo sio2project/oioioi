@@ -228,16 +228,7 @@ Production configuration
 Setting up judging machines
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Before setting up judging machines, you need to configure the RabbitMQ
-server to accept remote connections. This can be done by creating a
-new user account or by allowing the default *guest* account to connect
-from a remote host, by creating the configuration file
-*/etc/rabbitmq/rabbitmq.config* with the following content::
-
-  [{rabbit, [{loopback_users, []}]}].
-
-and restarting the RabbitMQ server. Then on every juding machine do the
-following:
+On every judging machine do the following:
 
 #. Create a new user account for the judging processes and switch to it.
 
@@ -246,30 +237,40 @@ following:
      virtualenv venv
      . venv/bin/activate
 
-#. Install the *sioworkers* package::
+#. Download and install the *sioworkers* package::
 
-     pip install sioworkers
+     git clone https://github.com/sio2project/sioworkers
+     cd sioworkers
+     python setup.py install
 
-#. Start the worker process::
+#. Copy and adjust configuration files::
 
-     sio-celery-worker amqp://guest:guest@[server]:5672//
+     cp config/supervisord.conf{.example,}
+     cp config/supervisord-conf-vars.conf{.example,}
 
-   The passed argument must point to the RabbitMQ server configured on the
-   server machine.
+Modify SIOWORKERSD_HOST and FILETRACKER_URL variables in
+*config/supervisord-conf-vars.conf*. By default, sioworkersd is run
+by supervisor on the same host as OIOIOI (SIO2). Filetracker server is also run
+there, by default on port 9999. You should consider changing WORKER_CONCURRENCY
+to smaller value if you are judging problems without oitimetool (variable
+SAFE_EXEC_MODE in *deployment/settings.py* on OIOIOI host).
 
-#. That's all. You probably want to have the worker started automatically when
-   system starts. We do not have a ready-made solution for this yet. Sorry!
+#. Start the supervisor::
 
-The worker assumes that the Filetracker server is running on the same server as
-RabbitMQ, on the default port 9999. If this is not the case, you should pass
-the Filetracker server URL in the *FILETRACKER_URL* environment variable.
+     ./supervisor.sh start
+
+#. You probably want to have the worker started automatically when system
+   starts. In order to have so, add the following line to the sioworker user's
+   crontab (``crontab -e``)::
+
+     @reboot <deployment_folder>/supervisor.sh start
 
 Final notes
 ~~~~~~~~~~~
 
 It is strongly recommended to install the *librabbitmq* Python module (on the
-server *and the worker machines*). We observed some not dispatched evaluation
-requests when running celery with its default AMQP binding library::
+server). We observed some not dispatched evaluation requests when running
+celery with its default AMQP binding library::
 
   pip install librabbitmq
 
