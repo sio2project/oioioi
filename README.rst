@@ -248,12 +248,13 @@ On every judging machine do the following:
      cp config/supervisord.conf{.example,}
      cp config/supervisord-conf-vars.conf{.example,}
 
-Modify SIOWORKERSD_HOST and FILETRACKER_URL variables in
-*config/supervisord-conf-vars.conf*. By default, sioworkersd is run
-by supervisor on the same host as OIOIOI (SIO2). Filetracker server is also run
-there, by default on port 9999. You should consider changing WORKER_CONCURRENCY
-to smaller value if you are judging problems without oitimetool (variable
-SAFE_EXEC_MODE in *deployment/settings.py* on OIOIOI host).
+   Modify SIOWORKERSD_HOST and FILETRACKER_URL variables in
+   *config/supervisord-conf-vars.conf*. By default, sioworkersd is run
+   by supervisor on the same host as OIOIOI (SIO2). Filetracker server is also
+   run there, by default on port 9999. You should consider changing
+   WORKER_CONCURRENCY to smaller value if you are judging problems without
+   oitimetool (variable SAFE_EXEC_MODE in *deployment/settings.py* on OIOIOI
+   host).
 
 #. Start the supervisor::
 
