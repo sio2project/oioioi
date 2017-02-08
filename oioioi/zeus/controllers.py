@@ -1,18 +1,11 @@
-from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.contests.controllers import submission_template_context
 from oioioi.evalmgr import recipe_placeholder
 from oioioi.programs.controllers import ProgrammingProblemController, \
         ProgrammingContestController
-from oioioi.zeus.admin import ZeusProblemAdminMixin
-from oioioi.zeus.models import ZeusProblemData, ZeusTestRunProgramSubmission, \
-        ZeusTestRunReport
-from oioioi.zeus.utils import has_any_zeus_testrun_problem, is_zeus_problem
+from oioioi.zeus.models import ZeusProblemData
+from oioioi.zeus.utils import is_zeus_problem
 
 
 class ZeusProblemController(ProgrammingProblemController):
@@ -25,11 +18,14 @@ class ZeusProblemController(ProgrammingProblemController):
             .get_or_create(problem=self.problem)
         environ['zeus_id'] = zeus_problem.zeus_id
         environ['zeus_problem_id'] = zeus_problem.zeus_problem_id
+        environ.setdefault('evalmgr_extra_args', {})['queue'] = 'evalmgr-zeus'
 
     def generate_recipe(self, kinds):
         recipe_body = [
         ]
 
+        # NOTE this will do nothing if the contest type is ACM
+        # and kinds=['FULL']
         if 'INITIAL' in kinds:
             recipe_body.extend(
                 [
@@ -53,9 +49,8 @@ class ZeusProblemController(ProgrammingProblemController):
                     ('mark_submission_in_progress',
                         'oioioi.submitsqueue.handlers.mark_submission_state',
                         dict(state='PROGRESS-RESUMED')),
-                    ('initial_import_tests',
-                        'oioioi.zeus.handlers.import_results',
-                        dict(kind='INITIAL', map_to_kind='EXAMPLE')),
+                    ('initial_import_results',
+                        'oioioi.zeus.handlers.import_results'),
                     ('initial_update_tests_set',
                         'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='EXAMPLE')),
@@ -96,8 +91,7 @@ class ZeusProblemController(ProgrammingProblemController):
                         'oioioi.submitsqueue.handlers.mark_submission_state',
                         dict(state='PROGRESS-RESUMED')),
                     ('final_import_results',
-                        'oioioi.zeus.handlers.import_results',
-                        dict(kind='NORMAL')),
+                        'oioioi.zeus.handlers.import_results'),
                     ('final_update_tests_set',
                         'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='NORMAL')),
@@ -145,15 +139,14 @@ class ZeusProblemController(ProgrammingProblemController):
                     ('mark_submission_in_progress',
                         'oioioi.submitsqueue.handlers.mark_submission_state',
                         dict(state='PROGRESS-RESUMED')),
-                    ('initial_import_tests',
-                        'oioioi.zeus.handlers.import_results',
-                        dict(kind='INITIAL', map_to_kind='EXAMPLE')),
+                    ('import_results',
+                        'oioioi.zeus.handlers.import_results'),
                     ('initial_update_tests_set',
                         'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='EXAMPLE')),
-                    ('final_import_tests',
-                        'oioioi.zeus.handlers.import_results',
-                        dict(kind='NORMAL')),
+                    #('final_import_tests', TODO this does nothing, remove it
+                    #    'oioioi.zeus.handlers.import_results',
+                    #    dict(kind='NORMAL')),
                     ('final_update_tests_set',
                         'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='NORMAL')),
@@ -186,114 +179,15 @@ class ZeusProblemController(ProgrammingProblemController):
         return {k: languages[k] for k in languages
                 if k in settings.ZEUS_ALLOWED_LANGUAGES}
 
-    def mixins_for_admin(self):
-        from oioioi.programs.admin import LibraryProblemDataAdminMixin
-        return super(ZeusProblemController, self).mixins_for_admin() + \
-                (ZeusProblemAdminMixin, LibraryProblemDataAdminMixin)
-
-
-class ZeusTestRunProblemControllerMixin(object):
-    def fill_evaluation_environ(self, environ, submission, **kwargs):
-        self.generate_base_environ(environ, submission, **kwargs)
-        if environ['submission_kind'] != 'TESTRUN':
-            return super(ZeusTestRunProblemControllerMixin, self) \
-                .fill_evaluation_environ(environ, submission, **kwargs)
-
-        recipe_body = [
-            ('submit_testrun_job',
-                'oioioi.zeus.handlers.submit_testrun_job'),
-            recipe_placeholder('before_testrun_async'),
-            ('mark_submission_waiting',
-                'oioioi.submitsqueue.handlers.mark_submission_state',
-                dict(state='WAITING')),
-            ('save_async_job',
-                'oioioi.zeus.handlers.save_env',
-                dict(kind='TESTRUN')),
-
-            # current job ends here, the following will be asynchronous
-            ('mark_submission_in_progress',
-                'oioioi.submitsqueue.handlers.mark_submission_state',
-                dict(state='PROGRESS-RESUMED')),
-            ('import_results',
-                'oioioi.zeus.handlers.import_results',
-                dict(kind='TESTRUN')),
-            ('grade_submission',
-                'oioioi.testrun.handlers.grade_submission'),
-            ('make_report',
-                'oioioi.zeus.handlers.make_zeus_testrun_report'),
-        ]
-        environ['recipe'].extend(recipe_body)
-        environ['zeus_metadata_decoder'] = \
-                'oioioi.zeus.handlers.testrun_metadata'
-
-ZeusProblemController.mix_in(ZeusTestRunProblemControllerMixin)
-
 
 class ZeusContestControllerMixin(object):
-    def get_testrun_library_limit(self):
-        return 100 * 1000  # in bytes
+    allow_to_late_mixins = True
 
-    def adjust_submission_form(self, request, form, problem_instance):
-        super(ZeusContestControllerMixin, self) \
-                .adjust_submission_form(request, form, problem_instance)
+    def use_spliteval(self, submission):
+        if is_zeus_problem(submission.problem_instance.problem):
+            return False
+        return super(ZeusContestControllerMixin, self) \
+                .use_spliteval(submission)
 
-        if form.kind != 'TESTRUN' or not has_any_zeus_testrun_problem(request):
-            return
-
-        def validate_library_file_size(file):
-            if file.size > self.get_testrun_library_limit():
-                raise ValidationError(_("Library file size limit exceeded."))
-
-        form.fields['library'] = forms.FileField(allow_empty_file=True,
-                validators=[validate_library_file_size], label=_("Library"),
-                help_text=_("Your solution will be compiled with this file "
-                            "as the library header."
-                            "You can implement required functions here."))
-
-    def create_testrun(self, request, problem_instance, form_data,
-            commit=True):
-        if not is_zeus_problem(problem_instance.problem):
-            return super(ZeusContestControllerMixin, self).create_testrun(
-                    request, problem_instance, form_data, commit)
-
-        submission = super(ZeusContestControllerMixin, self).create_testrun(
-                request, problem_instance, form_data, commit=False,
-                model=ZeusTestRunProgramSubmission)
-
-        # TODO: if is task with library
-        if 'library' in form_data:
-            library_file = form_data['library']
-            submission.library_file.save(library_file.name, library_file)
-
-        if commit:
-            submission.save()
-            submission.problem_instance.controller.judge(submission)
-        return submission
-
-    def render_submission(self, request, submission):
-        if submission.kind != 'TESTRUN' or \
-                not is_zeus_problem(submission.problem_instance.problem):
-            return super(ZeusContestControllerMixin, self) \
-                    .render_submission(request, submission)
-
-        if not isinstance(submission, ZeusTestRunProgramSubmission):
-            submission = ZeusTestRunProgramSubmission.objects \
-                    .get(id=submission.id)
-        return render_to_string('zeus/submission_header.html',
-            context_instance=RequestContext(request,
-                {'submission': submission_template_context(request,
-                    submission),
-                'supported_extra_args':
-                    self.get_supported_extra_args(submission)}))
-
-    def _render_testrun_report(self, request, report, testrun_report,
-            template='testrun/report.html'):
-        try:
-            testrun_report = testrun_report.zeustestrunreport
-            template = 'zeus/report.html'
-        except ZeusTestRunReport.DoesNotExist:
-            pass
-        return super(ZeusContestControllerMixin, self)._render_testrun_report(
-                request, report, testrun_report, template)
 
 ProgrammingContestController.mix_in(ZeusContestControllerMixin)

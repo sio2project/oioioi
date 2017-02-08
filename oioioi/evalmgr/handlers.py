@@ -13,6 +13,8 @@ def postpone(env, **extra_args):
     env['recipe'] = []
     logger.debug('Postponing evaluation of %(env)r', {'env': saved_env})
     async_result = evalmgr.evalmgr_job.apply_async((saved_env,), **extra_args)
+    if 'evalmgr_extra_args' in env:
+        extra_args.update(env['evalmgr_extra_args'])
     evalmgr._run_evaluation_postponed_handlers(async_result, saved_env)
     return env
 

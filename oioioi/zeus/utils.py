@@ -1,7 +1,6 @@
-from oioioi.base.permissions import make_request_condition
-from oioioi.base.utils import request_cached
+from django.core.signing import Signer, BadSignature
+
 from oioioi.problems.models import Problem
-from oioioi.testrun.utils import testrun_problem_instances
 from oioioi.zeus.models import ZeusProblemData
 
 
@@ -20,12 +19,17 @@ def filter_zeus_problem_instances(problem_instances):
     return [pi for pi in problem_instances if pi.problem in problems]
 
 
-@request_cached
-def zeus_testrun_problem_instances(request):
-    return filter_zeus_problem_instances(testrun_problem_instances(request))
+ZEUS_URL_SALT = 'zeus_url_salt'
 
 
-@make_request_condition
-@request_cached
-def has_any_zeus_testrun_problem(request):
-    return len(zeus_testrun_problem_instances(request)) > 0
+def zeus_url_signature(submission_id):
+    signer = Signer(salt=ZEUS_URL_SALT)
+    return signer.sign(submission_id)
+
+
+def verify_zeus_url_signature(submission_id, signature):
+    signer = Signer(salt=ZEUS_URL_SALT)
+    try:
+        return signer.unsign(signature) == submission_id
+    except BadSignature:
+        return False

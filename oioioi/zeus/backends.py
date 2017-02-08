@@ -4,13 +4,11 @@ import urllib2
 import httplib
 import logging
 import pprint
+import time
 from urlparse import urljoin
 
 from django.conf import settings
-from django.db import transaction
 from django.utils.module_loading import import_string
-
-from oioioi.zeus.models import ZeusFetchSeq
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +17,6 @@ zeus_language_map = {
     'c': 'C',
     'cc': 'CPP',
     'cpp': 'CPP',
-    'pas': 'PAS',
 }
 
 
@@ -99,104 +96,98 @@ class EagerHTTPBasicAuthHandler(urllib2.BaseHandler):
 class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
         self.url, user, passwd = server_info
-        self.seq, _c = ZeusFetchSeq.objects.get_or_create(zeus_id=zeus_id)
         auth_handler = EagerHTTPBasicAuthHandler(user, passwd)
-        self.opener = urllib2.build_opener(auth_handler)
+        self.opener = urllib2.build_opener(auth_handler,
+                urllib2.HTTPSHandler())
 
-    def _send(self, url, data=None, method='GET', retries=None, **kwargs):
+    def _send(self, url, data=None, retries=None, **kwargs):
         """Send the encoded ``data`` to given URL."""
         timeout = getattr(settings, 'ZEUS_CONNECTION_TIMEOUT', 60)
         retries = retries or getattr(settings, 'ZEUS_SEND_RETRIES', 3)
+        retry_sleep = getattr(settings, 'ZEUS_RETRY_SLEEP', 1)
 
         assert retries > 0
-        assert data is None or method == 'POST', \
-                ("Incorrect method: %s" % method)
 
-        if data is None:
-            req = urllib2.Request(url=url)             # GET
-        else:
-            req = urllib2.Request(url=url, data=data)  # POST
+        req = urllib2.Request(url=url, data=data)  # POST
 
-        for _i in xrange(retries):
+        for i in xrange(retries):
             try:
                 f = self.opener.open(req, timeout=timeout)
                 return f.getcode(), f.read()
+            except urllib2.HTTPError as e:
+                # Custom format for HTTPError,
+                # as default does not say anything.
+                fmt, args = "HTTPError(%s): %s", (str(e.code), str(e.reason))
+                logger.error(fmt, *args)
+                if i == retries-1:
+                    raise ZeusError(type(e), fmt % args)
             except (urllib2.URLError, httplib.HTTPException) as e:
                 logger.error("%s exception while querying %s", url, type(e),
                              exc_info=True)
-        raise ZeusError(type(e), e)
+                if i == retries-1:
+                    raise ZeusError(type(e), e)
+            time.sleep(retry_sleep)
 
-    def _encode_and_send(self, url, data=None, method='GET', **kwargs):
+    def _encode_and_send(self, url, data=None, **kwargs):
         """Encodes the ``data`` dictionary and sends it to the given URL."""
-        json_data = _json_base64_encode(data) if data else None
-        code, res = self._send(url, json_data, method, **kwargs)
+
+        assert data is not None
+        json_data = _json_base64_encode(data)
+        code, res = self._send(url, json_data, **kwargs)
         decoded_res = _json_base64_decode(res)
 
         logger.info("Received response with code=%d: %s", code,
                 pprint.pformat(decoded_res, indent=2))
         return code, decoded_res
 
-    def send_regular(self, zeus_problem_id, kind, source_file, language):
+    def send_regular(self, zeus_problem_id, kind, source_file, language,
+                     submission_id, return_url):
         assert kind in ('INITIAL', 'NORMAL'), ("Invalid kind: %s" % kind)
         assert language in zeus_language_map, \
                 ("Invalid language: %s" % language)
-        url = urljoin(self.url, 'problem/%d/job/%s/' % (zeus_problem_id, kind))
+        url = urljoin(self.url, 'dcj_problem/%d/submissions' %
+                      (zeus_problem_id,))
         with source_file as f:
             data = {
+                'submission_type': Base64String('SMALL' if kind == 'INITIAL'
+                                                else 'LARGE'),
+                'return_url': Base64String(return_url),
+                'username': Base64String(submission_id), # not used by zeus,
+                # only for debugging
+                'metadata': Base64String('HASTA LA VISTA, BABY'), # not used
+                # by zeus, but zeus sends back meaningful metadata
                 'source_code': Base64String(f.read()),
                 'language': Base64String(zeus_language_map[language]),
             }
-        code, res = self._encode_and_send(url, data, method='POST')
+        code, res = self._encode_and_send(url, data)
         if code != 200:
             raise ZeusError(res.get('error', None), code)
-        return _get_key(res, 'check_uid')
+        return _get_key(res, 'submission_id')
 
-    def send_testrun(self, zeus_problem_id, source_file, language, input_file,
-                     library_file):
-        assert language in zeus_language_map, \
-                ("Invalid language: %s" % language)
-        url = urljoin(self.url, 'problem/%d/job/TESTRUN/' % zeus_problem_id)
 
-        with source_file as src:
-            with input_file as inp:
-                data = {
-                    'source_code': Base64String(src.read()),
-                    'input_test': Base64String(inp.read()),
-                    'language': Base64String(zeus_language_map[language]),
-                }
-                if library_file is not None:
-                    with library_file as lib:
-                        data.update({'library': Base64String(lib.read())})
+class ZeusTestServer(ZeusServer):
+    """ Useful for manual debugging
+        In order to use it, add:
 
-        code, res = self._encode_and_send(url, data, method='POST')
-        if code != 200:
-            raise ZeusError(res.get('error', None), code)
-        return _get_key(res, 'check_uid')
+        'mock_server': ('__use_object__',
+                           'oioioi.zeus.backends.ZeusTestServer',
+                           ('', '', '')),
 
-    def fetch_results(self):
-        """Fetches the results from remote server.
-           This operation may be blocking.
-        """
-        url = urljoin(self.url, 'reports_since/%d/' % self.seq.next_seq)
-        code, res = self._encode_and_send(url, retries=1)
-        if code != 200:
-            raise ZeusError(res.get('error', None), code)
-        return _get_key(res, 'next_seq'), _get_key(res, 'reports')
+        to your ZEUS_INSTANCES dict in settings.py and make sure
+        that your ZEUS_PUSH_GRADE_CALLBACK_URL is correctly set.
+    """
+    def _send(self, url, data=None, retries=None, **kwargs):
+        retries = retries or getattr(settings, 'ZEUS_SEND_RETRIES', 3)
+        assert retries > 0
 
-    @transaction.atomic
-    def commit_fetch(self, seq):
-        """Shall be called after calling fetch_results, if all results have
-           been saved successfully.
+        decoded_data = _json_base64_decode(data)
 
-           ``seq`` - as returned by fetch_results
-        """
-        self.seq.next_seq = seq
-        self.seq.save()
+        command = 'curl -H "Content-Type: application/json" -X ' + \
+                'POST -d \'{"compilation_output":"Q1BQ"}\' %s' % \
+                decoded_data['return_url']
 
-    def download_output(self, output_id):
-        """Downloads and returns file containing stdout for test run."""
-        url = urljoin(self.url, 'full_stdout/%d/' % output_id)
-        code, res = self._encode_and_send(url)
-        if code != 200:
-            raise ZeusError(res.get('error', None), code)
-        return _get_key(res, 'full_stdout')
+        print "Encoded data: ", data
+        print "Decoded data: ", decoded_data
+        print "In order to push grade (CE) for the submission sent, call: "
+        print command
+        return 200, _json_base64_encode({'submission_id': 19123})

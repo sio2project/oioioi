@@ -52,6 +52,14 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-lowprio.log
 {% if not settings.SPLITEVAL_EVALMGR %}exclude=true{% endif %}
 
+[program:evalmgr-zeus]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-zeus -c 1
+startretries=0
+stopwaitsecs=15
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus.log
+{% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
+
 [program:prizesmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q prizesmgr -c 1
 startretries=0
@@ -73,12 +81,6 @@ command=filetracker-server -L /dev/stderr -d {{ settings.MEDIA_ROOT }} -l {{ set
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/filetracker.log
 {% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
-
-[program:zeus-fetcher]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py zeus_fetcher
-redirect_stderr=true
-stdout_logfile={{ PROJECT_DIR }}/logs/zeus-fetcher.log
-{% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
 
 [program:notifications-server]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications_server

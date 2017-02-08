@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 
 from oioioi.sinolpack.package import SinolPackageCreator, SinolPackage, \
         SinolPackageBackend
+from oioioi.zeus.models import ZeusProblemData
 
 
 logger = logging.getLogger(__name__)
@@ -26,7 +27,15 @@ class ZeusPackage(SinolPackage):
             folder = toplevel_folders[0]
         return folder
 
+    def _save_zeus_data(self):
+        problem_data, _created = ZeusProblemData.objects \
+                .get_or_create(problem=self.problem)
+        problem_data.zeus_id = self.env['zeus_id']
+        problem_data.zeus_problem_id = self.env['zeus_problem_id']
+        problem_data.save()
+
     def process_package(self):
+        self._save_zeus_data()
         self._process_config_yml()
         self._detect_full_name()
         self._detect_library()

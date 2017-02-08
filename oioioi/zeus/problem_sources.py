@@ -26,8 +26,8 @@ class ZeusProblemSource(UploadedPackageSource):
                 path, package, existing_problem, original_filename)
         env['zeus_id'] = form.cleaned_data['zeus_id']
         env['zeus_problem_id'] = form.cleaned_data['zeus_problem_id']
-        env['post_upload_handlers'].insert(0,
-                'oioioi.zeus.handlers.save_zeus_data')
+        # env['post_upload_handlers'].insert(0,
+        #         'oioioi.zeus.handlers.save_zeus_data')
         return env
 
     def make_form(self, request, contest, existing_problem=None):

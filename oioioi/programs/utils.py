@@ -6,8 +6,8 @@ from django.shortcuts import get_object_or_404
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import aggregate_statuses
-from oioioi.programs.models import ProgramSubmission, ReportActionsConfig
-
+from oioioi.programs.models import ProgramSubmission, LibraryProblemData, \
+        ReportActionsConfig
 
 def sum_score_aggregator(group_results):
     if not group_results:
@@ -136,4 +136,13 @@ def has_report_actions_config(problem):
     try:
         return bool(problem.report_actions_config)
     except ReportActionsConfig.DoesNotExist:
+        return False
+
+def is_problem_with_library(problem):
+    if isinstance(problem, (int, basestring)):
+        return LibraryProblemData.objects.filter(problem_id=problem).exists()
+
+    try:
+        return bool(problem.libraryproblemdata)
+    except LibraryProblemData.DoesNotExist:
         return False

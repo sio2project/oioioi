@@ -47,7 +47,7 @@ def _make_filename(env, base_name):
     return '%s/%s-%s' % (env['eval_dir'], env['job_id'], base_name)
 
 
-def _if_compiled(fn):
+def _skip_on_compilation_error(fn):
     """A decorator which skips the decorated function if the
        compilation fails.
 
@@ -101,7 +101,7 @@ def compile_end(env, **kwargs):
     return env
 
 
-@_if_compiled
+@_skip_on_compilation_error
 @transaction.atomic
 def collect_tests(env, **kwargs):
     """Collects tests from the database and converts them to
@@ -171,7 +171,7 @@ def collect_tests(env, **kwargs):
     return env
 
 
-@_if_compiled
+@_skip_on_compilation_error
 def run_tests(env, kind=None, **kwargs):
     """Runs tests and saves their results into the environment
 
@@ -248,7 +248,7 @@ def run_tests(env, kind=None, **kwargs):
     return env
 
 
-@_if_compiled
+@_skip_on_compilation_error
 def run_tests_end(env, **kwargs):
     not_to_judge = env['workers_jobs.not_to_judge']
     del env['workers_jobs.not_to_judge']
@@ -262,7 +262,7 @@ def run_tests_end(env, **kwargs):
     return env
 
 
-@_if_compiled
+@_skip_on_compilation_error
 def grade_tests(env, **kwargs):
     """Grades tests using a scoring function.
 
@@ -310,7 +310,7 @@ def grade_tests(env, **kwargs):
     return env
 
 
-@_if_compiled
+@_skip_on_compilation_error
 def grade_groups(env, **kwargs):
     """Grades ungraded groups using a aggregating function.
 

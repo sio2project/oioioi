@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 6
+INSTALLATION_CONFIG_VERSION = 7
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -408,12 +408,17 @@ MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
 ZEUS_INSTANCES = {
 }
 
-ZEUS_ALLOWED_LANGUAGES = ['C', 'C++', 'Pascal']
+ZEUS_ALLOWED_LANGUAGES = ['C', 'C++']
+
+# URL prefix (protocol, hostname and port)
+# hit by the Zeus callback after a submission is judged
+ZEUS_PUSH_GRADE_CALLBACK_URL = 'https://sio2.dasie.mimuw.edu.pl'
 
 # Delay between consecutive http requests for results.
 ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
 ZEUS_CONNECTION_TIMEOUT = 10  # seconds
 ZEUS_SEND_RETRIES = 3
+ZEUS_RETRY_SLEEP = 1  # second
 
 # Filelock
 FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')

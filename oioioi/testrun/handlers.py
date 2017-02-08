@@ -1,7 +1,7 @@
 from django.db import transaction
 from django.utils.text import Truncator
 
-from oioioi.programs.handlers import _if_compiled, _make_base_report
+from oioioi.programs.handlers import _skip_on_compilation_error, _make_base_report
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunConfig, \
     TestRunReport
 from oioioi.filetracker.utils import django_to_filetracker_path, \
@@ -9,7 +9,7 @@ from oioioi.filetracker.utils import django_to_filetracker_path, \
 from oioioi.filetracker.client import get_client
 
 
-@_if_compiled
+@_skip_on_compilation_error
 @transaction.atomic
 def make_test(env, **kwargs):
     """Creates a testcase *test* from the user input and converts it to

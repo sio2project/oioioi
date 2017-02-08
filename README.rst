@@ -483,6 +483,39 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 	{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
 
+#. * Added *evalmg-zeus* entry
+     to *deployment/supervisord.conf*::
+
+        [program:evalmgr-zeus]
+        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l debug -Q evalmgr-zeus -c 1
+        startretries=0
+        stopwaitsecs=15
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus.log
+        {% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
+
+#. * Deleted *zeus-fetcher* entry from *deployment/supervisord.conf*.
+
+#. * Added *ZEUS_PUSH_GRADE_CALLBACK_URL* entry to *deployment/settings.py*.::
+
+        ZEUS_PUSH_GRADE_CALLBACK_URL = 'https://sio2.dasie.mimuw.edu.pl'
+
+#. * Added logging to file for logger *oioioi.zeus* in
+     *deployment/settings.py*.::
+
+        LOGGING['handlers']['zeus_file'] = {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '__DIR__/logs/zeus.log',
+            'maxBytes': 1024 * 1024 * 5, # 50 MB same as default in supervisord
+            'backupCount': 10, # same as in supervisord
+            'formatter': 'date_and_level',
+        }
+        LOGGING['loggers']['oioioi.zeus'] = {
+            'handlers': ['zeus_file'],
+            'level': 'DEBUG',
+        }
+
 Usage
 -----
 

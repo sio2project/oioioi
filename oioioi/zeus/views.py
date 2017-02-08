@@ -1,81 +1,79 @@
-from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
-from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _
+import json
+import logging
+from django.core.exceptions import PermissionDenied
+from django.db import IntegrityError
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
-from oioioi.base.permissions import enforce_condition
-from oioioi.contests.utils import get_submission_or_error, can_enter_contest, \
-        contest_exists
-from oioioi.filetracker.utils import stream_file
-from oioioi.programs.utils import decode_str
-from oioioi.testrun.views import get_testrun_report_or_404, \
-        get_preview_size_limit
-from oioioi.zeus.backends import get_zeus_server
-from oioioi.zeus.models import ZeusTestRunProgramSubmission, ZeusTestRunReport
+from oioioi.zeus.backends import _get_key, _json_base64_decode
+from oioioi.zeus.models import ZeusAsyncJob
+from oioioi.zeus.utils import verify_zeus_url_signature
+from oioioi.evalmgr.handlers import postpone
 
-
-@enforce_condition(contest_exists & can_enter_contest)
-def show_library_file_view(request, submission_id):
-    submission = get_submission_or_error(request, submission_id,
-            ZeusTestRunProgramSubmission)
-    data = submission.library_file.read(get_preview_size_limit())
-    data, decode_error = decode_str(data)
-    size = submission.library_file.size
-    download_url = reverse('zeus_download_testrun_library',
-        kwargs={'contest_id': request.contest.id,
-                'submission_id': submission_id})
-    return TemplateResponse(request, 'testrun/data.html', {
-        'header': _("Library"),
-        'data': data,
-        'left': size - get_preview_size_limit(),
-        'decode_error': decode_error,
-        'download_url': download_url
-    })
+logger = logging.getLogger(__name__)
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def download_library_file_view(request, submission_id):
-    submission = get_submission_or_error(request, submission_id,
-            ZeusTestRunProgramSubmission)
+# View for use as Zeus callback
 
-    # TODO: filename
-    return stream_file(submission.library_file, name='lib.h')
+@csrf_exempt
+@require_POST
+def push_grade(request, check_uid, signature):
+    # TODO: might use some kind of url signing decorator and skip
+    # arguments from url
+    if not verify_zeus_url_signature(check_uid, signature):
+        raise PermissionDenied
 
+    # This message may be useful for debugging in case when decoding fails
+    logger.info('BEFORE DECODING BODY')
+    body = _json_base64_decode(request.body)
+    logger.info(' >>>> ')
+    logger.info(body)
+    logger.info(' <<<< ')
 
-@enforce_condition(contest_exists & can_enter_contest)
-def show_output_file_view(request, submission_id,
-        testrun_report_id=None):
-    submission = get_submission_or_error(request, submission_id,
-            ZeusTestRunProgramSubmission)
-    result = get_testrun_report_or_404(request, submission, testrun_report_id,
-            ZeusTestRunReport)
-    data = result.output_file.read(get_preview_size_limit())
-    data, decode_error = decode_str(data)
-    size = result.full_out_size
-    download_url = reverse('zeus_download_testrun_output',
-        kwargs={'contest_id': request.contest.id,
-                'submission_id': submission_id})
-    return TemplateResponse(request, 'testrun/data.html', {
-        'header': _("Output"),
-        'data': data,
-        'left': size - len(data),
-        'decode_error': decode_error,
-        'download_url': download_url
-    })
+    if 'compilation_output' in body:
+        compilation_result = 'CE'
+    else:
+        compilation_result = 'OK'
 
 
-@enforce_condition(contest_exists & can_enter_contest)
-def download_output_file_view(request, submission_id,
-        testrun_report_id=None):
-    submission = get_submission_or_error(request, submission_id,
-            ZeusTestRunProgramSubmission)
-    result = get_testrun_report_or_404(request, submission, testrun_report_id,
-            ZeusTestRunReport)
+    if compilation_result == 'OK':
+        reports = _get_key(body, 'tests_info')
+    else:
+        reports = []
 
-    if result.output_file.size != result.full_out_size:
-        zeus_server = get_zeus_server(
-                submission.problem_instance.problem.zeusproblemdata.zeus_id)
-        file = zeus_server.download_output(int(result.full_out_handle))
-        result.output_file.save('full_out', ContentFile(file))
+    try:
+        async_job, created = ZeusAsyncJob.objects.select_for_update() \
+                             .get_or_create(check_uid=check_uid)
+    except IntegrityError:
+        # This should never happen.
+        logger.error("IntegrityError while saving results for %s",
+                     check_uid, exc_info=True)
+        logger.error("Received reports:\n%s", reports)
+        return HttpResponse("Recorded!")
 
-    return stream_file(result.output_file, name='output.out')
+    if async_job.resumed:
+        logger.debug("Got results for %s again, ignoring", check_uid)
+        return HttpResponse("Recorded!")
+
+    if not created:
+        logger.info("Resuming job %s", check_uid)
+        env = json.loads(async_job.environ)
+        env.setdefault('zeus_results', [])
+        env['compilation_result'] = compilation_result
+        env['compilation_message'] = body.get('compilation_output', '')
+        env['zeus_results'].extend(list(reports))
+        postpone(env)
+        async_job.environ = json.dumps(env)
+        async_job.resumed = True
+        async_job.save()
+    else:
+        # The code below solves a race condition in case Zeus
+        # does the callback before ZeusAsyncJob is created in handlers.
+        async_job.environ = json.dumps({'zeus_results': list(reports)})
+        async_job.save()
+
+    # TODO: return a brief text response in a case of a failure
+    # (Internal Server Error or Permission Denied).
+    # Currently we respond with the default human-readable HTML.
+    return HttpResponse("Recorded!")

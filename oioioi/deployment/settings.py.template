@@ -112,6 +112,21 @@ SEND_USER_ACTIVATION_EMAIL = False
 # able to access filetracker server.
 #FILETRACKER_URL = 'http://127.0.0.1:9999'
 
+# The logs for one specific logger 'oioioi.zeus' will be
+# stored in a specific file: `PROJECT_DIR/logs/zeus.log`.
+LOGGING['handlers']['zeus_file'] = {
+    'level': 'INFO',
+    'class': 'logging.handlers.RotatingFileHandler',
+    'filename': '__DIR__/logs/zeus.log',
+    'maxBytes': 1024 * 1024 * 5, # 50 MB same as default in supervisord
+    'backupCount': 10, # same as in supervisord
+    'formatter': 'date_and_level',
+}
+LOGGING['loggers']['oioioi.zeus'] = {
+    'handlers': ['zeus_file'],
+    'level': 'DEBUG',
+}
+
 # On which interface should the sioworkers receiver listen. You should
 # set the address to 0.0.0.0 if you want remote workers to access
 # your server.
@@ -315,6 +330,10 @@ SHARING_SERVERS = (
 ZEUS_INSTANCES = {
 #    'zeus_id': ('zeus_url', 'zeus_login', 'zeus_secret'),
 }
+
+# URL prefix (protocol, hostname and port)
+# hit by the Zeus callback after a submission is judged
+#ZEUS_PUSH_GRADE_CALLBACK_URL = 'https://sio2.dasie.mimuw.edu.pl'
 
 # Complaints
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'

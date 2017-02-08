@@ -169,30 +169,33 @@ Zeus integration (zeus)
 Zeus instances are configured in ``settings.ZEUS_INSTANCES``, which is a dict
 mapping ``zeus_id`` - unique identifier of a zeus instance - to ``(zeus_url,
 zeus_login, zeus_secret)`` - base URL for zeus api (*ZBU*) and credentials.
+It is also possible to use a mock instance (``ZeusTestServer``)
+which allows manual testing for development purposes.
 
 API specification
 .................
 
 Communication with zeus is done over HTTPS protocol, in a REST-like style. Data
-are encoded using JSON. OIOIOI authorizes itself to zeus using HTTP Basic
-Authentication, with login and secret fixed for a contest.
+is encoded using JSON. OIOIOI authorizes itself to zeus using HTTP Basic
+Authentication, with login and secret fixed for a zeus instance.
 
-Prefix **?** means optional attribute, prefix **T** marks attribute only for
-testrun.
+Prefix **?** means optional attribute.
 
 Sending submissions
 ~~~~~~~~~~~~~~~~~~~
 
 :Request:
 
-|    POST *ZBU*/problem/*zeus_problem_id*/job/*INITIAL|NORMAL|TESTRUN*/
+|    POST *ZBU*/dcj_problem/*zeus_problem_id*/submissions
 
 :Data sent:
 
 |   {
+|       "submission_type": submission_type :: Base64String(SMALL|LARGE),
+|       "return_url": return_url :: Base64String,
+|       "username": username :: Base64String,
+|       "metadata": metadata :: Base64String,
 |       "source_code": source_code :: Base64String,
-|       **T** "library": library_generating_input :: Base64String,
-|       **T** "input_test" input_for_library :: Base64String,
 |       "language": source_language :: Base64String(CPP|...),
 |   }
 
@@ -200,80 +203,64 @@ Sending submissions
 
 Code 200 and data:
 
-|    { "check_uid": unique_job_id :: Uint }
+|    { "submission_id": unique_job_id :: Uint }
 
 or code 4xx|5xx and data:
 
 |    { **?** "error": error_description :: Base64String }
 
-Fetching results
-~~~~~~~~~~~~~~~~
+``username`` and ``metadata`` fields are not used by Zeus
+and sent for debugging purposes only.
 
-Fetching results is done using long polling.
 
-:Request:
+Receiving results
+~~~~~~~~~~~~~~~~~
 
-|   GET *ZBU*/reports_since/*last_seq*/
 
-:Result:
+Zeus hits the "return_url" from submission data once it is graded.
 
-Code 200 and data:
+:Data received:
 
-|    {
-|        "next_seq": next_sequential_number :: Int,
-|        "reports": list_of_reports :: [Report]
-|    }
+|   {
+|       "compilation_output": output :: Base64String,
+|   }
 
-where
+in case of compilation failure or
 
-|    Report = {
-|        "check_uid": job_id :: Int,
-|        **T** "stdout_uid": unique_output_id :: Int,
-|        "compilation_successful": was_compilation_successful :: Bool,
-|        "compilation_message": compiler_result :: Base64String,
-|        "report_kind": check_kind :: Base64String(INITIAL|NORMAL|TESTRUN),
-|        "status": test_status :: Base64String(OK|WA|TLE|RE|RV|MSE|MCE),
-|        "result_string": status_description :: Base64String,
-|        "metadata": more_data_about_test :: Base64String,
-|        **T** "stdout": first_10kB_of_output :: Base64String
-|        **T** "stdout_size": size_of_full_stdout_in_bytes :: Int,
-|        "execution_time_ms": max_of_times_at_all_machines :: Int,
+|   {
+|       "tests_info": list_of_results :: [TestInfo],
+|   }
+
+in case of compilation success, where
+
+|    TestInfo = {
 |        "time_limit_ms": execution_time_limit :: Int,
 |        "memory_limit_byte": memory_limit :: Int,
+|        "verdict": test_status :: Base64String(OK|WA|TLE|RE|RV|OLE|MSE|MCE),
+|        "runtime": max_of_times_at_all_machines :: Int,
+|        "metadata": more_data_about_test :: Base64String,
+|        **?** "nof_nodes": number_of_nodes :: Int,
 |    }
 
-or code 4xx|5xx and data:
 
-|    { **?** "error": error_description :: Base64String }
+:Our response:
 
-Each check_uid will appear in at most one result - results for given job will
-be sent together, when all are ready.
+Code 200 and ``HttpResponse("Recorded!")``
+or code 4xx|5xx and a lot of HTML (for example the one which normally displays
+a message **Internal Server Error** in a browser).
 
 *MSE* and *MCE* are statuses meaning that size or count of outgoing messages
 sent by submitted program has exceeded the limit.
 
-Metadata are subject to coordination between judges and contest admins, they
-are just passed through zeus. They are designed to contain additional data
-about grouping, scoring etc. Currently we expect them to be in format:
+Metadata is subject to coordination between judges and contest admin.
+It may be passed through zeus, but in the most recent workflow
+we sent meaningless metadata to zeus and received meaningful metadata
+(zeus admins were provided with a file containing metadata for each test).
+It is designed to contain additional data
+about grouping, scoring etc. Currently we expect it to be in format:
 
 | "*test name*,\ *group name*,\ *max score*"
 
 Test name will be shown to users. All tests with the same, non-empty group name
 will be grouped together. All tests in group shall have the same max score.
-
-Fetching full output
-~~~~~~~~~~~~~~~~~~~~
-
-:Request:
-
-|   GET *ZBU*/full_stdout/*stdout_uid*/
-
-:Result:
-
-Code 200 and data:
-
-|   { "full_stdout" : full_stdout_limited_to_1MB :: Base64String }
-
-or code 4xx|5xx and data:
-
-|    { **?** "error": error_description :: Base64String }
+Example tests are expected to be in the group ``0``.

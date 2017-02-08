@@ -158,9 +158,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         environ['recipe'].insert(0, ('wait_for_submission_in_db',
                 'oioioi.contests.handlers.wait_for_submission_in_db'))
 
+        evalmgr_extra_args = environ.get('evalmgr_extra_args', {})
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
-        async_result = evalmgr.evalmgr_job.delay(environ)
+        async_result = evalmgr.evalmgr_job.apply_async(
+                (environ,), **evalmgr_extra_args)
 
         picontroller.submission_queued(submission, async_result)
 

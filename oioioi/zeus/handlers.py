@@ -1,40 +1,36 @@
 import json
 import logging
+import random
 import socket
 from smtplib import SMTPException
 
-from django.core.files.base import ContentFile
+from django.conf import settings
 from django.core.mail import mail_admins
+from django.core.urlresolvers import reverse
 from django.db import transaction, IntegrityError
 from django.forms.models import model_to_dict
-from django.utils.text import Truncator
+from django.utils.crypto import get_random_string
 from django.utils.module_loading import import_string
 
 from oioioi.base.utils import naturalsort_key
-from oioioi.problems.models import Problem
-from oioioi.programs.handlers import _make_base_report, _if_compiled
+from oioioi.programs.handlers import _skip_on_compilation_error
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.zeus.backends import get_zeus_server
-from oioioi.zeus.models import ZeusTestRunReport, ZeusAsyncJob, \
-        ZeusTestRunProgramSubmission, ZeusProblemData
+from oioioi.zeus.models import ZeusAsyncJob, ZeusProblemData
+from oioioi.zeus.utils import zeus_url_signature
 
 
 DEFAULT_METADATA_DECODER = 'oioioi.zeus.handlers.from_csv_metadata'
 logger = logging.getLogger(__name__)
 
 
-def testrun_metadata(_metadata):
-    """Mock metadata decoder for using with testrun."""
-    return {
-        'name': 'test',
-        'group': '',
-        'max_score': 0,
-    }
-
-
 def from_csv_metadata(metadata):
-    data = metadata.split(',')
-    test, group, max_score = [f.strip() for f in data]
+    try:
+        data = metadata.split(',')
+        test, group, max_score = [f.strip() for f in data]
+    except StandardError:
+        test, group, max_score = \
+            ('unknown-%d' % random.randint(1, 100000)), '', '1'
     if group == '':
         group = test
     return {
@@ -44,11 +40,13 @@ def from_csv_metadata(metadata):
     }
 
 
+@_skip_on_compilation_error
 @transaction.atomic
 def submit_job(env, kind=None, **kwargs):
     """Submits the job to Zeus for given ``kind``.
 
        Used ``environ`` keys:
+         * ``contest_id``
          * ``submission_id``
          * ``language``
          * ``zeus_id``
@@ -58,38 +56,28 @@ def submit_job(env, kind=None, **kwargs):
           * ``zeus_check_uids`` - dictionary mapping grading kind to
                                  Zeus's ``check_uid``
     """
-    assert kind is not None
     zeus = get_zeus_server(env['zeus_id'])
     ps = ProgramSubmission.objects.get(id=env['submission_id'])
-    check_uid = zeus.send_regular(kind=kind, source_file=ps.source_file,
-            zeus_problem_id=env['zeus_problem_id'], language=env['language'])
+    check_uid = get_random_string(length=16)
+
+
+    return_url = settings.ZEUS_PUSH_GRADE_CALLBACK_URL + reverse(
+        'zeus_push_grade_callback',
+        kwargs={
+            'check_uid': check_uid,
+            'signature': zeus_url_signature(check_uid)
+        }
+    )
+    zeus_submission_id = zeus.send_regular(kind=kind,
+            source_file=ps.source_file,
+            zeus_problem_id=env['zeus_problem_id'], language=env['language'],
+            submission_id=env['submission_id'], return_url=return_url)
+    env.setdefault('zeus_submission_ids', {})[kind] = zeus_submission_id
     env.setdefault('zeus_check_uids', {})[kind] = check_uid
     return env
 
 
-@transaction.atomic
-def submit_testrun_job(env, **kwargs):
-    """Submits the testrun job to Zeus.
-
-       Used ``environ`` keys:
-         * ``submission_id``
-         * ``language``
-         * ``zeus_id``
-         * ``zeus_problem_id``
-
-       Altered ``environ`` keys:
-          * ``zeus_check_uids`` - dictionary mapping grading kind to
-                                 Zeus's ``check_uid``
-    """
-    zeus = get_zeus_server(env['zeus_id'])
-    ps = ZeusTestRunProgramSubmission.objects.get(id=env['submission_id'])
-    check_uid = zeus.send_testrun(source_file=ps.source_file,
-            zeus_problem_id=env['zeus_problem_id'], language=env['language'],
-            input_file=ps.input_file, library_file=ps.library_file)
-    env.setdefault('zeus_check_uids', {})['TESTRUN'] = check_uid
-    return env
-
-
+@_skip_on_compilation_error
 @transaction.atomic
 def save_env(env, kind=None, **kwargs):
     """Saves asynchronous job's environment in the database
@@ -98,7 +86,7 @@ def save_env(env, kind=None, **kwargs):
 
        This handler will save current job's status in
        :class:`~oioioi.zeus.models.ZeusAsyncJob` objects for later
-       retrieval in results fetcher. After that, the job can be simply
+       retrieval. When the push_grade view is hit, the job can be simply
        continued with ``evalmgr.evalmgr_job.delay(zeus_async_job.environ)``.
        The ``zeus_async_job.check_uid`` is taken from
        ``environ['zeus_check_uids`][kind]``.
@@ -131,19 +119,30 @@ def save_env(env, kind=None, **kwargs):
         assert not async_job.resumed, ("Oops, got uid %s twice?" % check_uid)
         logger.info("Resuming job %s from save_env", check_uid)
         saved_env = json.loads(async_job.environ)
+        saved_env.setdefault('zeus_results', [])
         env.setdefault('zeus_results', [])
         env['zeus_results'].extend(saved_env['zeus_results'])
+        async_job.environ = json.dumps(env)
         async_job.resumed = True
         async_job.save()
     return env
 
 
-def import_results(env, kind=None, map_to_kind=None, **kwargs):
-    """Imports the results returned by Zeus.
+MAP_VERDICT_TO_STATUS = {
+    "OK": "OK",
+    "Wrong answer": "WA",
+    "Time limit exceeded": "TLE",
+    "Runtime error": "RE",
+    "Rule violation": "RV",
+    "Output limit exceeded": "OLE",
+    "Messages size limit exceeded": "MSE",
+    "Messages count limit exceeded": "MCE",
+    "Compilation error": "CE"
+}
 
-       If ``kind`` is specified, it will only look for results with given kind.
-       If ``map_to_kind`` is specified, all matching tests will be imported
-       with kind replaced with ``map_to_kind``.
+
+def import_results(env, **kwargs):
+    """Imports the results returned by Zeus.
 
        The ``env['zeus_metadata_decoder']``, which is used by this ``Handler``,
        should be a path to a function which gets Zeus metadata for test
@@ -153,12 +152,12 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
        defined as below).
 
        Used ``environ`` keys:
-         * ``zeus_results`` - populated by results fetcher
+         * ``zeus_results`` - retrieved from Zeus callback
+
+         * ``compilation_result`` - may be OK if the file compiled
+                                    successfully or CE otherwise.
 
        Produced ``environ`` keys:
-          * env['compilation_result'] - may be OK if the file compiled
-                                        successfully or CE otherwise.
-          * env['compilation_message'] - contains compiler stdout and stderr
 
           * ``tests`` - a dictionary mapping test names into
             dictionaries with following keys:
@@ -191,11 +190,7 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
               ``zeus_test_result``
                 raw result returned by Zeus
     """
-    zeus_results = [r for r in env['zeus_results'] if r['report_kind'] == kind]
-    # Assuming compilation statuses are consistent
-    env['compilation_result'] = \
-            'OK' if zeus_results[0].get('compilation_successful') else 'CE'
-    env['compilation_message'] = zeus_results[0].get('compilation_message')
+    zeus_results = env['zeus_results']
 
     if env['compilation_result'] != 'OK':
         return env
@@ -205,7 +200,7 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
 
     tests = env.setdefault('tests', {})
     test_results = env.setdefault('test_results', {})
-    for result in zeus_results:
+    for order, result in enumerate(zeus_results):
         test = decoder(result['metadata'])
         error = "Not enough data decoded from: %s" % result['metadata']
         assert 'name' in test, error
@@ -214,92 +209,40 @@ def import_results(env, kind=None, map_to_kind=None, **kwargs):
         if test['name'] in test_results:
             continue
 
+        if test['group'] == '0':
+            kind = 'EXAMPLE'
+        else:
+            kind = 'NORMAL'
+
         test.update({
             'zeus_metadata': result['metadata'],
-            'kind': map_to_kind if map_to_kind else result['report_kind'],
+            'kind': kind,
             'exec_time_limit': result['time_limit_ms'],
             'exec_memory_limit': result['memory_limit_byte'] / 1024,
+            'nodes': result.get('nof_nodes'),
+            'to_judge': True,
         })
         tests[test['name']] = test
 
         test_result = {
-            'result_code': result['status'],
-            'result_string': result['result_string'],
-            'time_used': result['execution_time_ms'],
+            'result_code': MAP_VERDICT_TO_STATUS.get(result['verdict'], 'SE'),
+            'result_string': '',
+            'time_used': result['runtime'],
             'zeus_test_result': result,
+            'order': order,
         }
 
-        # Fill in time_used if none given e. g. when timing machinery didn't
-        # start yet or failed.
-        if test_result['time_used'] is None:
-            if result['status'] == 'TLE':
-                test_result['time_used'] = test['exec_time_limit']
-            else:
-                test_result['time_used'] = 0
+        # Fix/hack? for missing time_limit
+        if test_result['time_used'] is None or test_result['time_used'] == '':
+            test_result['time_used'] = test['exec_time_limit'] \
+                    if test_result['result_code'] == 'TLE' else 0
 
         test_results[test['name']] = test_result
 
     return env
 
 
-@transaction.atomic
-def make_zeus_testrun_report(env, **kwargs):
-    """Builds entities for Zeus-testrun reports in a database.
-
-       Used ``environ`` keys:
-           * ``tests``
-           * ``test_results``
-           * ``status``
-           * ``score``
-           * ``compilation_result``
-           * ``compilation_message``
-           * ``submission_id``
-
-       Produced ``environ`` keys:
-           * ``report_id``: id of the produced
-             :class:`~oioioi.contests.models.SubmissionReport`
-    """
-    _submission, submission_report = _make_base_report(env, 'TESTRUN')
-
-    if env['compilation_result'] != 'OK':
-        return env
-
-    test_name = env['tests'].keys()[0]
-    test = env['tests'][test_name]
-    test_result = env['test_results'][test_name]
-    zeus_result = test_result['zeus_test_result']
-
-    comment = test_result.get('result_string', '')
-    if comment.lower() == 'ok':  # Annoying
-        comment = ''
-
-    testrun_report = ZeusTestRunReport(submission_report=submission_report)
-    testrun_report.status = env['status']
-    testrun_report.comment = Truncator(comment).chars(
-            ZeusTestRunReport._meta.get_field('comment').max_length)
-    testrun_report.time_used = test_result['time_used']
-    testrun_report.test_time_limit = test.get('exec_time_limit')
-    testrun_report.full_out_size = zeus_result['stdout_size']
-    # The server to download from: submission.problem_instance.problem
-    testrun_report.full_out_handle = zeus_result['stdout_uid']
-    # Output truncated to first 10kB
-    testrun_report.output_file.save('out', ContentFile(zeus_result['stdout']))
-    testrun_report.save()
-    return env
-
-
-@transaction.atomic
-def save_zeus_data(env):
-    problem = Problem.objects.get(id=env['problem_id'])
-    problem_data, _created = ZeusProblemData.objects \
-            .get_or_create(problem=problem)
-    problem_data.zeus_id = env['zeus_id']
-    problem_data.zeus_problem_id = env['zeus_problem_id']
-    problem_data.save()
-    return env
-
-
-@_if_compiled
+@_skip_on_compilation_error
 @transaction.atomic
 def update_problem_tests_set(env, kind, **kwargs):
     """Creates or updates problem :class:`oioioi.programs.models.Test` objects
@@ -310,12 +253,17 @@ def update_problem_tests_set(env, kind, **kwargs):
        Considers only tests with given ``kind``.
 
        Used ``environ`` keys:
+           * ``problem_id``
            * ``tests``
            * ``zeus_problem_id``
            * ``zeus_id``
     """
 
-    data = ZeusProblemData.objects.get(zeus_id=env['zeus_id'],
+    if env['compilation_result'] != 'OK':
+        return
+
+    data = ZeusProblemData.objects.get(problem_id=env['problem_id'],
+                                       zeus_id=env['zeus_id'],
                                        zeus_problem_id=env['zeus_problem_id'])
     problem = data.problem
 
@@ -333,7 +281,7 @@ def update_problem_tests_set(env, kind, **kwargs):
         updated = False
         test = env_tests[name]
         instance, created = Test.objects.select_for_update().get_or_create(
-            problem=problem, name=name)
+            problem_instance=problem.main_problem_instance, name=name)
         env['tests'][name]['id'] = instance.id
         old_dict = model_to_dict(instance, exclude=exclude)
 
@@ -364,13 +312,19 @@ def update_problem_tests_set(env, kind, **kwargs):
                 updated_tests.append((name, old_dict, new_dict))
 
     # Delete nonexistent tests
-    for test in Test.objects.filter(problem=problem, kind=kind) \
+    for test in Test.objects.filter(
+            problem_instance=problem.main_problem_instance, kind=kind) \
             .exclude(name__in=test_names):
         deleted_tests.append((test.name, model_to_dict(test, exclude=exclude)))
         tests_set_changed = True
         test.delete()
 
     if tests_set_changed:
+        # NOTE one could be tempted to call
+        # update_all_probleminstances_after_reupload(problem) here
+        # but this would be a bad idea - the tests are 'changed' at least
+        # when the first submission to the problem gets judged - before
+        # we have no information about them.
         logger.info("%s: %s tests set changed", problem.short_name, kind)
 
         title = "Zeus problem %s: %s tests set changed" \
