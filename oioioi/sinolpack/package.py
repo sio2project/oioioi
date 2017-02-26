@@ -17,16 +17,16 @@ from django.contrib.auth.models import User
 from oioioi.base.utils import naturalsort_key, generate_key
 from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.execute import execute, ExecuteError
-from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage, \
-        ProblemSite
-from oioioi.problems.package import ProblemPackageBackend, \
-        ProblemPackageError
+
+from oioioi.problems.models import Problem, ProblemAttachment, \
+    ProblemPackage, ProblemSite, ProblemStatement
+from oioioi.problems.package import ProblemPackageBackend, ProblemPackageError
 from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
-        LibraryProblemData
+    LibraryProblemData
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.sinolpack.utils import add_extra_files
 from oioioi.filetracker.utils import stream_file, django_to_filetracker_path, \
-        filetracker_to_django_file
+    filetracker_to_django_file
 from oioioi.filetracker.client import get_client
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 
@@ -689,7 +689,29 @@ class SinolPackage(object):
                                      kind=kinds[short_kind][1])
 
             instance.source_file.save(name, File(open(path, 'rb')))
-            logger.info("%s: model solution: %s", self.filename, name)
+            logger.info('%s: model solution: %s', self.filename, name)
+
+    def _process_attachments(self):
+        # Remove previously added attachments (if any)
+        problem_attachments = ProblemAttachment.objects.filter(
+            problem=self.problem)
+        if problem_attachments is not None:
+            problem_attachments.delete()
+
+        attachments_dir = os.path.join(self.rootdir, 'attachments')
+        if not os.path.isdir(attachments_dir):
+            return
+        attachments = [attachment for attachment in os.listdir(attachments_dir)
+                if os.path.isfile(os.path.join(attachments_dir, attachment))]
+        if len(attachments) == 0:
+            return
+
+        for attachment in attachments:
+            path = os.path.join(attachments_dir, attachment)
+            instance = ProblemAttachment(problem=self.problem,
+                    description=attachment)
+            instance.content.save(attachment, File(open(path, 'rb')))
+            logger.info('%s: attachment: %s', path, attachment)
 
     def _save_original_package(self):
         original_package, created = \
@@ -710,6 +732,7 @@ class SinolPackage(object):
         self._generate_tests()
         self._process_checkers()
         self._process_model_solutions()
+        self._process_attachments()
         self._save_original_package()
 
     def unpack(self, env, package):

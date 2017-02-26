@@ -111,6 +111,47 @@ class TestSinolPackage(TestCase):
         test = Test.objects.filter(memory_limit=132000)
         self.assertEqual(test.count(), 5)
 
+    def test_attachments(self):
+        filename = get_test_filename('test_simple_package_attachments.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.attachments.all().count(), 1)
+
+    def test_attachments_no_directory(self):
+        filename = get_test_filename('test_simple_package.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.attachments.all().count(), 0)
+
+    def test_attachments_empty_directory(self):
+        filename = get_test_filename(
+            'test_simple_package_attachments_empty.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.attachments.all().count(), 0)
+
+    def test_attachments_reupload_same_attachments(self):
+        filename = get_test_filename('test_simple_package_attachments.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        filename = get_test_filename('test_simple_package_attachments.zip')
+        call_command('updateproblem', str(problem.id), filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.attachments.all().count(), 1)
+
+    def test_attachments_reupload_no_attachments(self):
+        filename = get_test_filename('test_simple_package_attachments.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        filename = get_test_filename(
+            'test_simple_package_attachments_empty.zip')
+        call_command('updateproblem', str(problem.id), filename)
+        problem = Problem.objects.get()
+        self.assertEqual(problem.attachments.all().count(), 0)
+
+
     @attr('slow')
     @both_configurations
     @override_settings(CONTEST_MODE=ContestMode.neutral)

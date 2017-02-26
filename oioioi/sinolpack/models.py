@@ -3,7 +3,8 @@ import yaml
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.problems.models import Problem, make_problem_filename
+from oioioi.problems.models import Problem, ProblemPackage, \
+    make_problem_filename
 from oioioi.filetracker.fields import FileField
 
 
@@ -37,7 +38,7 @@ class ExtraFile(models.Model):
 
 class OriginalPackage(models.Model):
     problem = models.ForeignKey(Problem)
-    problem_package = models.ForeignKey('problems.ProblemPackage', blank=True,
+    problem_package = models.ForeignKey(ProblemPackage, blank=True,
             null=True)
 
     class Meta(object):
