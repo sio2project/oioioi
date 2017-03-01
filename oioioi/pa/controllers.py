@@ -215,7 +215,7 @@ class PAFinalsContestController(ACMContestController):
         return True
 
     def can_see_livedata(self, request):
-        return can_enter_contest(request)
+        return True
 
     def is_onsite(self):
         return True
