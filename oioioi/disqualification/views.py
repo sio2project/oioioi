@@ -17,5 +17,7 @@ def disqualification_fragment(request):
         .filter(problem_instance__contest=request.contest) \
         .order_by('-date').select_related()
     submissions = cc.filter_my_visible_submissions(request, submissions)
+    if not submissions:
+        return None
 
     return cc.render_disqualifications(request, submissions)

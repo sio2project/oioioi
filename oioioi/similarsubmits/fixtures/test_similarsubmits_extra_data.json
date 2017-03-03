@@ -1,0 +1,73 @@
+[
+  {
+    "pk": 2004,
+    "model": "auth.user",
+    "fields": {
+      "username": "test_user4",
+      "first_name": "Test",
+      "last_name": "User 3",
+      "is_active": true,
+      "is_superuser": false,
+      "is_staff": false,
+      "last_login": "2013-07-31T20:27:58.768Z",
+      "groups": [],
+      "user_permissions": [],
+      "password": "",
+      "email": "test_user3@example.com",
+      "date_joined": "2012-08-31T20:27:58.768Z"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+       "problem_instance": 1,
+       "kind": "NORMAL",
+       "comment": "",
+       "score": "int:0000000000000000034",
+       "user": 1001,
+       "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+       "problem_instance": 1,
+       "kind": "NORMAL",
+       "comment": "",
+       "score": "int:0000000000000000034",
+       "user": 1002,
+       "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+       "problem_instance": 1,
+       "kind": "NORMAL",
+       "comment": "",
+       "score": "int:0000000000000000034",
+       "user": 1003,
+       "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+       "problem_instance": 1,
+       "kind": "NORMAL",
+       "comment": "",
+       "score": "int:0000000000000000034",
+       "user": 2004,
+       "date": "2012-06-03T22:07:07.516Z"
+    }
+  }
+]
