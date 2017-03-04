@@ -7,8 +7,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.utils import all_public_results_visible, \
-        is_contest_admin, is_contest_observer, can_enter_contest
+from oioioi.contests.utils import all_non_trial_public_results_visible, \
+        is_contest_admin, is_contest_observer
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.participants.controllers import ParticipantsController, \
         OnsiteContestControllerMixin
@@ -114,7 +114,12 @@ class PAContestController(ProgrammingContestController):
                 .can_submit(request, problem_instance, check_round_times)
 
     def can_see_publicsolutions(self, request, round):
-        return all_public_results_visible(request)
+        if all_non_trial_public_results_visible(request):
+            # Do not show solutions for trial rounds that has future
+            # publication date (e.g. not set).
+            return self.get_round_times(request, round). \
+                    public_results_visible(request.timestamp)
+        return False
 
     def solutions_must_be_public(self, qs):
         return qs.filter(user__isnull=False, user__is_superuser=False,

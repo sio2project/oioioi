@@ -26,7 +26,8 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         can_enter_contest, rounds_times, can_see_personal_data, \
-        administered_contests
+        administered_contests, all_public_results_visible, \
+        all_non_trial_public_results_visible
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -1516,6 +1517,48 @@ class TestPublicResults(TestCase):
         round.public_results_date = datetime(2012, 9, 20, 8, 0, tzinfo=utc)
         round.save()
         self._check_public_results([False, False, True])
+
+    def test_all_results_visible(self):
+        def fake_request(timestamp):
+            request = RequestFactory().request()
+            request.contest = Contest.objects.get(id='c')
+            request.user = AnonymousUser()
+            request.timestamp = timestamp
+            return request
+
+        contest = Contest.objects.get()
+        contest.controller_name = \
+          'oioioi.contests.tests.tests.ContestWithPublicResultsController'
+        contest.save()
+
+        self.assertFalse(all_public_results_visible(fake_request(
+            datetime(2012, 7, 31, 21, 0, 0, tzinfo=utc))))
+
+        round1 = Round.objects.get()
+        round1.public_results_date = datetime(2012, 8, 1, 12, 0, 0, tzinfo=utc)
+        round1.save()
+
+        self.assertFalse(all_public_results_visible(fake_request(
+            datetime(2012, 7, 31, 21, 0, 0, tzinfo=utc))))
+        self.assertTrue(all_public_results_visible(fake_request(
+            datetime(2012, 8, 1, 12, 30, 0, tzinfo=utc))))
+
+        round2 = Round(contest=round1.contest, name="Round 2",
+                start_date=round1.start_date, results_date=round1.results_date,
+                public_results_date=None, is_trial=True)
+        round2.save()
+
+        self.assertFalse(all_public_results_visible(fake_request(
+            datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))))
+        self.assertTrue(all_non_trial_public_results_visible(fake_request(
+            datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))))
+
+        round2.public_results_date = datetime(2012, 8, 2, 12, 0, 0, tzinfo=utc)
+        round2.save()
+
+        self.assertTrue(all_public_results_visible(fake_request(
+            datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))))
+
 
 
 class TestContestLinks(TestCase):

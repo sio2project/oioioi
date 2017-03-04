@@ -128,18 +128,31 @@ def has_any_active_round(request):
     return False
 
 
+def _public_results_visible(request, **kwargs):
+    controller = request.contest.controller
+    for round in Round.objects.filter(contest=request.contest, **kwargs):
+        rtimes = controller.get_round_times(request, round)
+        if not rtimes.public_results_visible(request.timestamp):
+            return False
+    return True
+
+
 @make_request_condition
 @request_cached
 def all_public_results_visible(request):
     """Checks if results of all rounds of the current contest are visible to
        public.
     """
-    controller = request.contest.controller
-    for round in Round.objects.filter(contest=request.contest):
-        rtimes = controller.get_round_times(request, round)
-        if not rtimes.public_results_visible(request.timestamp):
-            return False
-    return True
+    return _public_results_visible(request)
+
+
+@make_request_condition
+@request_cached
+def all_non_trial_public_results_visible(request):
+    """Checks if results of all non-trial rounds of the current contest are
+       visible to public.
+    """
+    return _public_results_visible(request, is_trial=False)
 
 
 @make_request_condition
