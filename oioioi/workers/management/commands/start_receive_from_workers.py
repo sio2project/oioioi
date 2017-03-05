@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
 import oioioi
+import oioioi.evalmgr.handlers
 import BaseHTTPServer
 import SocketServer
 import logging
@@ -29,7 +30,12 @@ class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             if 'workers_jobs.extra_args' in env:
                 del env['workers_jobs.extra_args']
             assert 'workers_jobs.results' in env or 'error' in env
-            oioioi.evalmgr.evalmgr_job.delay(env)
+
+            # HACKHACK: Temporary fix for SIO-1877 - call postpone instead of
+            # evalmgr_job, see discussion:
+            # https://groups.google.com/forum/#!topic/sio2-project/PrFjPMawMP0
+            oioioi.evalmgr.handlers.postpone(env)
+
             self.send_response(200, 'OK')
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
