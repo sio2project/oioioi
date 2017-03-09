@@ -28,7 +28,7 @@ from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionForm, GetUserInfoForm
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
-        SubmissionReport, ContestAttachment
+        SubmissionReport, ContestAttachment, UserResultForProblem
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import visible_contests, can_enter_contest, \
         can_see_personal_data, is_contest_admin, has_any_submittable_problem, \
@@ -73,14 +73,25 @@ def get_contest_permissions(request, response):
 def problems_list_view(request):
     controller = request.contest.controller
     problem_instances = visible_problem_instances(request)
-    problems_statements = [
+
+    # Problem statements in order
+    # 1) problem instance
+    # 2) statement_visible
+    # 3) round end time
+    # 4) user result
+    # Sorted by (start_date, end_date, round name, problem name)
+    problems_statements = sorted([
         (
             pi,
             controller.can_see_statement(request, pi),
-            controller.get_round_times(request, pi.round)
+            controller.get_round_times(request, pi.round),
+            UserResultForProblem.objects.filter(user=request.user,
+                problem_instance=pi).first()
         )
         for pi in problem_instances
-    ]
+    ], key=lambda p: (p[2].get_start(), p[2].get_end(), p[0].round.name,
+                      p[0].short_name))
+
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     return TemplateResponse(request, 'contests/problems_list.html',
         {'problem_instances': problems_statements,

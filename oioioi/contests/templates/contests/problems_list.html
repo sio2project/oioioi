@@ -14,30 +14,47 @@
     <thead>
         <tr>
             <th style="min-width: 60px">{% trans "Symbol" %}</th>
-            <th style="min-width: 300px">{% trans "Name" %}</th>
-            {% if show_rounds %}
-            <th style="min-width: 100px">{% trans "Round" %}</th>
-            <th style="min-width: 100px">{% trans "End of the round" %}</th>
-            {% endif %}
+            <th style="min-width: 200px">{% trans "Name" %}</th>
+            <th>{% trans "Score" %}</th>
         </tr>
     </thead>
     <tbody>
-        {% for pi, statement_visible, round_time in problem_instances %}
-        {% if statement_visible %}
-        {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
-        {% endif %}
-        <tr>
-            <td>{{ pi.get_short_name_display }}</td>
-            <td>{% if statement_visible %}<a href="{{ link }}">{% endif %}{{ pi.problem.name }}{% if statement_visible %}</a>{% endif %}</td>
+        {% for pi, statement_visible, round_time, result in problem_instances %}
+
             {% if show_rounds %}
-            <td>{{ pi.round }}</td>
-            <td>
-                {% blocktrans with end_time=round_time.get_end|default_if_none:"Not set" %}
-                {{ end_time }}
-                {% endblocktrans %}
-            </td>
+                {% ifchanged pi.round %}
+                    <tr>
+                        <td colspan="3">
+                            <b>{{ pi.round }}</b>
+                            {% if round_time.get_end %}
+                                <i>({{ round_time.get_end|date:"j F Y, H:i" }})</i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endifchanged %}
             {% endif %}
-        </tr>
+            <tr>
+                <td>{{ pi.get_short_name_display }}</td>
+                <td>
+                    {% if statement_visible %}
+                        {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
+                        <a href="{{ link }}">{{ pi.problem.name }}</a>
+                    {% else %}
+                        {{ pi.problem.name }}
+                    {% endif %}
+                </td>
+                <td style="text-align: right">
+                    {% if result %}
+                        {% if result.score == result.submission_report.score_report.max_score %}
+                            <div class="label label-success"> {{ result.score }}</div>
+                        {% elif result.score > 0 %}
+                            <div class="label label-warning"> {{ result.score }}</div>
+                        {% else %}
+                            <div class="label label-important"> {{ result.score }}</div>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
         {% endfor %}
     </tbody>
 </table>
