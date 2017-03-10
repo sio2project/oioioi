@@ -481,7 +481,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 #. * Added new condition to *sioworkersd* in *deployment/supervisord.conf*
      and corresponding entry in *deployment/settings.py*::
 
-	{% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
+        {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
 
 #. * Added *evalmg-zeus* entry
      to *deployment/supervisord.conf*::
@@ -494,13 +494,13 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus.log
         {% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
 
-#. * Deleted *zeus-fetcher* entry from *deployment/supervisord.conf*.
+   * Deleted *zeus-fetcher* entry from *deployment/supervisord.conf*.
 
-#. * Added *ZEUS_PUSH_GRADE_CALLBACK_URL* entry to *deployment/settings.py*.::
+   * Added *ZEUS_PUSH_GRADE_CALLBACK_URL* entry to *deployment/settings.py*.::
 
         ZEUS_PUSH_GRADE_CALLBACK_URL = 'https://sio2.dasie.mimuw.edu.pl'
 
-#. * Added logging to file for logger *oioioi.zeus* in
+   * Added logging to file for logger *oioioi.zeus* in
      *deployment/settings.py*.::
 
         LOGGING['handlers']['zeus_file'] = {
