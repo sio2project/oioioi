@@ -360,3 +360,15 @@ class TestPAContestInfo(TestCase):
         url = reverse('contest_info', kwargs={'contest_id': c.id})
         response = self.client.get(url)
         self.assertEqual(response['Access-Control-Allow-Origin'], '*')
+
+
+class TestPASafeExecModes(TestCase):
+    fixtures = ['test_pa_contests_safe_exec_mode']
+
+    def test_pa_quals_controller_safe_exec_mode(self):
+        c = Contest.objects.get(pk="quals")
+        self.assertEqual(c.controller.get_safe_exec_mode(), 'cpu')
+
+    def test_pa_finals_controller_safe_exec_mode(self):
+        c = Contest.objects.get(pk="finals")
+        self.assertEqual(c.controller.get_safe_exec_mode(), 'cpu')

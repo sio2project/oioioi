@@ -395,6 +395,15 @@ class TestContestController(TestCase):
             self.assertEqual(contest.controller.order_rounds_by_focus(
                 FakeRequest(date, contest), rounds), expected_order)
 
+    def test_safe_exec_mode(self):
+        # CAUTION: 'vcpu' is default value with an important reason.
+        #          CHANGE ONLY IF YOU KNOW WHAT YOU ARE DOING.
+        #          If you do so, don't forget to update another controllers
+        #          which are using default value and have to use 'vcpu' mode
+        #          like OIContestController and TeacherContestController.
+        contest = Contest.objects.get()
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
+
 
 class TestContestViews(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

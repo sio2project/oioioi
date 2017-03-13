@@ -69,6 +69,7 @@ class ProgrammingProblemController(ProblemController):
             environ['report_kinds'] = ['HIDDEN']
 
     def generate_base_environ(self, environ, submission, **kwargs):
+        contest = submission.problem_instance.contest
         self.generate_initial_evaluation_environ(environ, submission)
         environ['recipe'] = [
                 ('compile',
@@ -87,7 +88,7 @@ class ProgrammingProblemController(ProblemController):
         if getattr(settings, 'USE_UNSAFE_EXEC', False):
             environ['exec_mode'] = 'unsafe'
         else:
-            environ['exec_mode'] = settings.SAFE_EXEC_MODE
+            environ['exec_mode'] = contest.controller.get_safe_exec_mode()
 
         environ['untrusted_checker'] = not settings.USE_UNSAFE_CHECKER
 

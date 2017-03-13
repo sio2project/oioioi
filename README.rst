@@ -253,8 +253,8 @@ On every judging machine do the following:
    by supervisor on the same host as OIOIOI (SIO2). Filetracker server is also
    run there, by default on port 9999. You should consider changing
    WORKER_CONCURRENCY to smaller value if you are judging problems without
-   oitimetool (variable SAFE_EXEC_MODE in *deployment/settings.py* on OIOIOI
-   host).
+   oitimetool (depends on rules of concrete contest and USE_UNSAFE_EXEC
+   in *deployment/settings.py* on OIOIOI host).
 
 #. Start the supervisor::
 
@@ -515,6 +515,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
             'handlers': ['zeus_file'],
             'level': 'DEBUG',
         }
+
+#. * Removed *SAFE_EXEC_MODE* entry from *deployment/settings.py*.
 
 Usage
 -----

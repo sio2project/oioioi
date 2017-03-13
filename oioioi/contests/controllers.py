@@ -806,6 +806,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return test_report.submission_report.submission.problem \
                 .controller._is_partial_score(test_report)
 
+    def get_safe_exec_mode(self):
+        """Determines execution mode when `USE_UNSAFE_EXEC` is False.
+
+           Return 'vcpu' if you want to use oitimetool. Otherwise return 'cpu'.
+        """
+        return 'vcpu'
 
 
 class PastRoundsHiddenContestControllerMixin(object):

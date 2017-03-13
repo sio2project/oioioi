@@ -145,6 +145,10 @@ class PAContestController(ProgrammingContestController):
                 env)
         env['division'] = form.cleaned_data['division']
         env['post_upload_handlers'] += ['oioioi.pa.handlers.save_division']
+
+    def get_safe_exec_mode(self):
+        return 'cpu'
+
 PAContestController.mix_in(SplitEvalContestControllerMixin)
 
 
@@ -242,5 +246,8 @@ class PAFinalsContestController(ACMContestController):
 
         return round.end_date - \
                datetime.timedelta(minutes=frozen_ranking_minutes)
+
+    def get_safe_exec_mode(self):
+        return 'cpu'
 
 PAFinalsContestController.mix_in(OnsiteContestControllerMixin)

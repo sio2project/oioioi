@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 7
+INSTALLATION_CONFIG_VERSION = 8
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -256,7 +256,6 @@ PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',
 )
 
-SAFE_EXEC_MODE = 'vcpu'
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas']}
 USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False

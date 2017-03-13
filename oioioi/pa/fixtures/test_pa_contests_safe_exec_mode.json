@@ -1,0 +1,20 @@
+[
+  {
+    "pk": "quals",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Qualification phase of contest",
+      "controller_name": "oioioi.pa.controllers.PAContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": "finals",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Final phase of contest",
+      "controller_name": "oioioi.pa.controllers.PAFinalsContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  }
+]
