@@ -18,6 +18,8 @@ def sum_score_aggregator(group_results):
     max_scores = [ScoreValue.deserialize(result['max_score'])
               for result in group_results.itervalues()]
 
+    # the sum below needs a start value of an appropriate type,
+    # the default zero is not suitable
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
     status = aggregate_statuses([result['status']
@@ -73,7 +75,7 @@ def min_group_scorer(test_results):
 def discrete_test_scorer(test, result):
     status = result['result_code']
     max_score = test['max_score']
-    score = (status == 'OK') and max_score or 0
+    score = max_score if status == 'OK' else 0
     return IntegerScore(score), IntegerScore(max_score), status
 
 
