@@ -16,7 +16,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, AnonymousUser
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
-from oioioi.base.utils import group_cache
 from oioioi.contests.models import ProblemInstance, UserResultForProblem, \
         Submission
 from oioioi.contests.controllers import ContestController, \
@@ -25,7 +24,6 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         contest_exists, can_enter_contest
 from oioioi.filetracker.utils import make_content_disposition_header
 
-from oioioi.base.utils.cache_generator import CacheGenerator
 from oioioi.rankings.models import Ranking, RankingPage
 
 

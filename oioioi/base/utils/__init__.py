@@ -7,7 +7,6 @@ import base64
 import shutil
 import tempfile
 import functools
-import weakref
 import urllib
 from contextlib import contextmanager
 from importlib import import_module
@@ -574,21 +573,6 @@ def allow_cross_origin(arg='*'):
     if callable(arg):
         return allow_cross_origin()(arg)
     return add_header('Access-Control-Allow-Origin', arg)
-
-
-def multiton(cls):
-    """Multiton design pattern.
-       Decorated classes must have a get_instance_name static method.
-    """
-    instances = weakref.WeakValueDictionary()
-
-    def get_instance(*args, **kwargs):
-        instance_name = cls.get_instance_name(*args, **kwargs)
-        i = instances.get(instance_name)
-        if i is None:
-            i = instances[instance_name] = cls(*args, **kwargs)
-        return i
-    return get_instance
 
 
 def generate_key():

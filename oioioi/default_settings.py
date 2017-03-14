@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 8
+INSTALLATION_CONFIG_VERSION = 9
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -418,9 +418,6 @@ ZEUS_RESULTS_FETCH_DELAY = 3  # seconds
 ZEUS_CONNECTION_TIMEOUT = 10  # seconds
 ZEUS_SEND_RETRIES = 3
 ZEUS_RETRY_SLEEP = 1  # second
-
-# Filelock
-FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
 
 # Cache
 CACHES = {

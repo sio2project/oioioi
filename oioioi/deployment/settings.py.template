@@ -339,11 +339,6 @@ ZEUS_INSTANCES = {
 #COMPLAINTS_EMAIL = 'email_to_send_complaints_to'
 #COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
-# Filelock
-# Absolute path to the directory where files used for process synchronization
-# will be placed.
-#FILELOCK_BASEDIR = os.path.join(tempfile.gettempdir(), 'oioioi-filelocks')
-
 # Cache
 # To use the more efficient memcached, install it and uncomment the following:
 #CACHES = {

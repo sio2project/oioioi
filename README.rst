@@ -518,6 +518,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Removed *SAFE_EXEC_MODE* entry from *deployment/settings.py*.
 
+#. * Removed *FILELOCK_BASEDIR* entry from *deployment/settings.py*.
+
 Usage
 -----
 

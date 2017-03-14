@@ -8,7 +8,6 @@ from django.contrib import messages
 
 from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.menu import menu_registry
-from oioioi.base.utils.cache_generator import CacheGenerator
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
