@@ -60,7 +60,7 @@ function make_load_chart(ajax_url, target_div) {
                 name: gettext("Capacity"),
             },
             {
-                name: gettext("Busy workers"),
+                name: gettext("Task load"),
             }]
         });
     });

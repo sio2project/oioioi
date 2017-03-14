@@ -101,12 +101,16 @@ def show_info_about_workers(request):
 @enforce_condition(is_superuser)
 def get_load_json(request):
     data = get_info_about_workers()
-    cap = 0
+    capacity = 0
     load = 0
     for i in data:
-        cap += min(1, i['info'].get('concurrency', 1))
-        load += len(i['tasks'])
-    return JsonResponse({'capacity': cap, 'load': load})
+        concurrency = int(i['info']['concurrency'])
+        capacity += concurrency
+        if bool(i['exclusive']):
+            load += concurrency
+        else:
+            load += len(i['tasks'])
+    return JsonResponse({'capacity': capacity, 'load': load})
 
 
 system_admin_menu_registry.register('workers_management_admin',
