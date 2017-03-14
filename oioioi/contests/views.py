@@ -1,7 +1,4 @@
 from operator import itemgetter
-import sys
-import zipfile
-import mimetypes
 
 from django.conf import settings
 from django.contrib import messages
@@ -12,12 +9,9 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils import translation
 from django.utils.translation import ungettext_lazy, ugettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.http import Http404
 from django.utils.safestring import mark_safe
-from django.core.exceptions import SuspiciousOperation
 from oioioi.status.registry import status_registry
 
 from oioioi.base.menu import menu_registry

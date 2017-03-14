@@ -200,7 +200,10 @@ def result_color_class(raw_score):
     if raw_score in [None, '']:
         return ''
 
-    score = raw_score.to_int()
+    if callable(getattr(raw_score, 'to_int', None)):
+        score = raw_score.to_int()
+    else:
+        score = int(raw_score)
 
     if isinstance(raw_score, IntegerScore):
         score_max_value = 100

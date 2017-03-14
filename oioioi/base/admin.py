@@ -38,12 +38,14 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
     allow_too_late_mixins = True
 
     def response_change(self, request, obj):
-        if '_continue' in request.POST and '_popup' not in request.REQUEST:
+        not_popup = '_popup' not in request.GET and \
+                    '_popup' not in request.POST
+        if '_continue' in request.POST and not_popup:
             return HttpResponseRedirect(request.get_full_path())
         if 'came_from' in request.GET and '_continue' not in request.POST \
                 and '_saveasnew' not in request.POST \
                 and '_addanother' not in request.POST:
-            return safe_redirect(request, request.GET['came_from'])
+            return safe_redirect(request, request.GET.get('came_from'))
         return super(ModelAdmin, self).response_change(request, obj)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
@@ -52,13 +54,15 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
         if isinstance(response, TemplateResponse) \
                 and 'came_from' in request.GET:
             response.context_data['form_url'] += '?' + \
-                    urllib.urlencode({'came_from': request.GET['came_from']})
+                    urllib.urlencode({
+                        'came_from': request.GET.get('came_from')
+                    })
         return response
 
     def response_delete(self, request):
         opts = self.model._meta
         if 'came_from' in request.GET:
-            return safe_redirect(request, request.GET['came_from'])
+            return safe_redirect(request, request.GET.get('came_from'))
         if not self.has_change_permission(request):
             return HttpResponseRedirect(reverse('admin:index',
                                             current_app=self.admin_site.name))
@@ -104,7 +108,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
             "admin/delete_confirmation.html"
         ], context, current_app=self.admin_site.name)
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         """Returns a list of fields passed to queryset.select_related
            By default - empty list. Override this method (instead of
            get_queryset()) to pass another field to the select_related.
@@ -113,7 +117,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
 
     def get_queryset(self, request):
         qs = super(ModelAdmin, self).get_queryset(request)
-        list_select_related = self.get_list_select_related()
+        list_select_related = self.get_custom_list_select_related()
         if list_select_related:
             return qs.select_related(*list_select_related)
         else:

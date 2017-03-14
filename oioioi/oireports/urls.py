@@ -1,7 +1,9 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.oireports.views',
-    url(r'^oireports/$', 'oireports_view', name='oireports'),
-    url(r'^get_report_users/$', 'get_report_users_view',
+from oioioi.oireports import views
+
+contest_patterns = [
+    url(r'^oireports/$', views.oireports_view, name='oireports'),
+    url(r'^get_report_users/$', views.get_report_users_view,
         name='get_report_users'),
-)
+]

@@ -55,7 +55,7 @@ class TestRankingViews(TestCase):
             result.user = user
             result.problem_instance = pis
             result.status = 'OK'
-            result.score = 'int:%s' % score
+            result.score = IntegerScore(score)
             result.save()
             return user
 

@@ -1,8 +1,8 @@
-{% load i18n portal_url simple_tags %}
+{% load menu check_perm i18n all_with_prefix portal_url simple_filters simple_tags %}
 
 <a class="oioioi-navbar__brand" href="{% url 'index' contest_id=None %}">{{ site_name }}</a>
 
-<div class="oioioi-navbar__menu dropdown">{% load menu check_perm i18n all_with_prefix listutil active_url %}
+<div class="oioioi-navbar__menu dropdown">
     <a href="#" type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
         <span class="sr-only">{% trans "Toggle navigation" %}</span>
         <span class="glyphicon glyphicon-menu-hamburger"></span>

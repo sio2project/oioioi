@@ -20,12 +20,14 @@ class SimpleContestForm(forms.ModelForm):
         # javascript with prepopulated fields functionality.
         fields = ['controller_name', 'name', 'id']
 
-    start_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            label=_("Start date"))
-    end_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False, label=_("End date"))
-    results_date = forms.DateTimeField(widget=widgets.AdminSplitDateTime,
-            required=False, label=_("Results date"))
+    start_date = forms.SplitDateTimeField(
+        label=_("Start date"), widget=widgets.AdminSplitDateTime())
+    end_date = forms.SplitDateTimeField(
+        required=False, label=_("End date"),
+        widget=widgets.AdminSplitDateTime())
+    results_date = forms.SplitDateTimeField(
+        required=False, label=_("Results date"),
+        widget=widgets.AdminSplitDateTime())
 
     def _generate_default_dates(self):
         now = timezone.now()

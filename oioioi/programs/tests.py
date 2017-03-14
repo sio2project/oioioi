@@ -672,7 +672,7 @@ class TestNotifications(TestCase):
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
         make_report({'compilation_result': 'OK', 'submission_id': 1,
-            'status': 'OK', 'score': '', 'max_score': '',
+            'status': 'OK', 'score': None, 'max_score': None,
             'compilation_message': '', 'tests': {}, 'rejudge': False},
             'INITIAL')
 

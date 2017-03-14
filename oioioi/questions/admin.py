@@ -40,8 +40,8 @@ class MessageAdmin(admin.ModelAdmin):
     def add_view(self, request, form_url='', extra_context=None):
         return redirect('add_contest_message', contest_id=request.contest.id)
 
-    def get_list_select_related(self):
-        return super(MessageAdmin, self).get_list_select_related() \
+    def get_custom_list_select_related(self):
+        return super(MessageAdmin, self).get_custom_list_select_related() \
                 + ['author', 'problem_instance', 'contest']
 
     def change_view(self, request, object_id, form_url='', extra_context=None):

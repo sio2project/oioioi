@@ -71,8 +71,8 @@ class ScoresRevealSubmissionAdminMixin(object):
     reveal_display.admin_order_field = 'revealed'
     reveal_display.boolean = True
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         return super(ScoresRevealSubmissionAdminMixin, self). \
-                get_list_select_related() + ['revealed']
+                   get_custom_list_select_related() + ['revealed']
 
 SubmissionAdmin.mix_in(ScoresRevealSubmissionAdminMixin)

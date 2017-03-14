@@ -1,7 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-noncontest_patterns = patterns('oioioi.notifications.views',
-                               url(r'^notifications/authenticate/$',
-                                   'notifications_authenticate_view',
-                                   name='notifications_authenticate'),
-                               )
+from oioioi.notifications import views
+
+noncontest_patterns = [
+    url(r'^notifications/authenticate/$',
+        views.notifications_authenticate_view,
+        name='notifications_authenticate'),
+]

@@ -1,5 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
-urlpatterns = patterns('oioioi.ctimes.views',
-    url(r'^ctimes/$', 'ctimes_view', name='ctimes')
-)
+from oioioi.ctimes import views
+
+urlpatterns = [
+    url(r'^ctimes/$', views.ctimes_view, name='ctimes')
+]

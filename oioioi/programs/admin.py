@@ -244,9 +244,9 @@ class ModelSubmissionAdminMixin(object):
     user_full_name.admin_order_field = \
             SubmissionAdmin.user_full_name.admin_order_field
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         return super(ModelSubmissionAdminMixin, self) \
-                .get_list_select_related() \
+                .get_custom_list_select_related() \
                 + ['programsubmission',
                    'programsubmission__modelprogramsubmission']
 

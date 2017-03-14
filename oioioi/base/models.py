@@ -1,5 +1,5 @@
+from importlib import import_module
 from django.conf import settings
-from django.utils.importlib import import_module
 
 # pylint: disable=unused-import
 # Important. This import is to register signal handlers. Do not remove it.

@@ -3,6 +3,8 @@ from oioioi.default_settings import *
 
 TIME_ZONE = 'UTC'
 
+SITE_ID = 1
+
 ADMINS = (
     ('Test admin', 'admin@example.com'),
 )
@@ -57,11 +59,12 @@ INSTALLED_APPS = (
     'oioioi.livedata',
 ) + INSTALLED_APPS
 
-TEMPLATE_CONTEXT_PROCESSORS += (
+TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'oioioi.contestlogo.processors.logo_processor',
     'oioioi.contestlogo.processors.icon_processor',
     'oioioi.globalmessage.processors.global_message_processor',
-)
+    'oioioi.portals.processors.portal_processor',
+]
 
 AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',

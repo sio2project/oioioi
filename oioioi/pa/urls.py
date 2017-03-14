@@ -1,5 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.pa.views',
-    url(r'^contest_info/$', 'contest_info_view', name='contest_info')
-)
+from oioioi.pa import views
+
+contest_patterns = [
+    url(r'^contest_info/$', views.contest_info_view, name='contest_info')
+]

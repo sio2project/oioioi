@@ -1,33 +1,27 @@
 from datetime import timedelta
-import json
 import logging
-import pprint
 
 from django.db import transaction
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from django.utils import timezone
 from django.utils.translation import ugettext_noop, ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins, \
         get_user_display_name
 from oioioi.contests.models import Submission, Round, UserResultForRound, \
-        UserResultForProblem, FailureReport, SubmissionReport, \
-        UserResultForContest, submission_kinds, ProblemStatementConfig, \
-        RoundTimeExtension
+        UserResultForProblem, UserResultForContest, submission_kinds, \
+        ProblemStatementConfig, RoundTimeExtension
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.models import Contest
 from oioioi.contests.utils import visible_problem_instances, rounds_times, \
         generic_rounds_times, is_contest_admin, is_contest_observer, \
         last_break_between_rounds, has_any_active_round
 from oioioi.problems.controllers import ProblemController
-from oioioi import evalmgr
 
 
 logger = logging.getLogger(__name__)
@@ -581,7 +575,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 .filter(user=result.user) \
                 .filter(problem_instance__round=result.round) \
                 .values_list('score', flat=True)
-        result.score = self._sum_scores(map(ScoreValue.deserialize, scores))
+        result.score = self._sum_scores(scores)
 
     def update_user_result_for_contest(self, result):
         """Updates a :class:`~oioioi.contests.models.UserResultForContest`.
@@ -597,7 +591,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 .filter(round__contest=result.contest) \
                 .filter(round__is_trial=False) \
                 .values_list('score', flat=True)
-        result.score = self._sum_scores(map(ScoreValue.deserialize, scores))
+        result.score = self._sum_scores(scores)
 
     def update_user_results(self, user, problem_instance):
         """Updates score for problem instance, round and contest.

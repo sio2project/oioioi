@@ -1,5 +1,7 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-urlpatterns = patterns('oioioi.clock.views',
-    url(r'^admin/time/$', 'admin_time', name='admin_time'),
-)
+from oioioi.clock import views
+
+urlpatterns = [
+    url(r'^admin/time/$', views.admin_time, name='admin_time'),
+]

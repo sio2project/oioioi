@@ -34,8 +34,8 @@ class OISubmitSubmissionAdminMixin(object):
     received_suspected.allow_tags = True
     received_suspected.short_description = _("Received suspected")
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         return super(OISubmitSubmissionAdminMixin, self) \
-                .get_list_select_related() + ['oisubmitextradata']
+                .get_custom_list_select_related() + ['oisubmitextradata']
 
 SubmissionAdmin.mix_in(OISubmitSubmissionAdminMixin)

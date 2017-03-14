@@ -81,7 +81,7 @@ def _get_user_hints(substr, queryset, user_field_name=None):
 @jsonify
 def get_user_hints_view(request, request_field_name, queryset=None,
         user_field_name=None):
-    user_hints = _get_user_hints(request.REQUEST.get(request_field_name, ''),
+    user_hints = _get_user_hints(request.GET.get(request_field_name, ''),
             queryset, user_field_name)
     if user_hints is None:
         raise Http404

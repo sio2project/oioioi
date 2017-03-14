@@ -1,10 +1,13 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.similarsubmits.views',
-    url(r'^(?P<entry_id>\d+)/mark_guilty/$', 'mark_guilty_view',
+from oioioi.similarsubmits import views
+
+
+contest_patterns = [
+    url(r'^(?P<entry_id>\d+)/mark_guilty/$', views.mark_guilty_view,
         name='mark_guilty'),
-    url(r'^(?P<entry_id>\d+)/mark_not_guilty/$', 'mark_not_guilty_view',
+    url(r'^(?P<entry_id>\d+)/mark_not_guilty/$', views.mark_not_guilty_view,
         name='mark_not_guilty'),
-    url(r'^bulk_add/$', 'bulk_add_similarities_view',
+    url(r'^bulk_add/$', views.bulk_add_similarities_view,
         name='bulk_add_similarities')
-)
+]

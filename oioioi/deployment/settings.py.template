@@ -20,6 +20,7 @@ if DEBUG:
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
+SITE_ID = 1
 
 # The website address as it will be displayed to users in some places,
 # including but not limited to the mail notifications.
@@ -296,13 +297,14 @@ PROBLEMSET_LINK_VISIBLE = True
 # Set to True to allow every logged in user to add problems directly to Problemset
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 
-TEMPLATE_CONTEXT_PROCESSORS += (
+TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #    'oioioi.contestlogo.processors.logo_processor',
 #    'oioioi.contestlogo.processors.icon_processor',
 #    'oioioi.avatar.processors.gravatar',
 #    'oioioi.notifications.processors.notification_processor',
 #    'oioioi.globalmessage.processors.global_message_processor',
-)
+#    'oioioi.portals.processors.portal_processor',
+]
 
 MIDDLEWARE_CLASSES += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',

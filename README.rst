@@ -318,6 +318,16 @@ Then run::
 
 and restart the judging machines.
 
+Upgrading from django 1.8
+~~~~~~~~~~~~~~~~~~~~~~~~~
+Please make sure to reinstall all packages to avoid compatibility issues.::
+
+  pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
+  pip install -I --force-reinstall -r requirements.txt
+  ./manage.py migrate
+  ./manage.py collectstatic
+  ./manage.py supervisor restart all
+
 Upgrading from an old version
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -644,6 +654,30 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
                  'propagate': False,
              }
          }
+
+#. * Upgrade to django 1.9 requires following changes in the config file
+
+     * TEMPLATE_* variables got replaced with TEMPLATE array
+       TEMPLATE_CONTEXT_PROCESSORS should be changed to.::
+
+        TEMPLATES[0]['OPTIONS']['context_processors'] += [
+        #    'oioioi.contestlogo.processors.logo_processor',
+        #    'oioioi.contestlogo.processors.icon_processor',
+        #    'oioioi.avatar.processors.gravatar',
+        #    'oioioi.notifications.processors.notification_processor',
+        #    'oioioi.globalmessage.processors.global_message_processor',
+        ]
+
+    * Settings should now declare an explicit SITE_ID, you can check your
+      site id via management console.::
+
+        $ ./manage.py shell
+        >>> Site.objects.get().id
+        1
+
+      The returned id should be added to your config file.::
+
+        SITE_ID = 1
 
 Usage
 -----

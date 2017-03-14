@@ -1,11 +1,10 @@
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import render_to_response, redirect, render
+from django.shortcuts import redirect, render
 from django.http import HttpResponse, HttpResponseForbidden
-from django.template import TemplateDoesNotExist, RequestContext
+from django.template import RequestContext
 from django.template.response import TemplateResponse
 from django.template.loader import render_to_string
-from django.views.defaults import page_not_found
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
 from django.core.exceptions import SuspiciousOperation
@@ -14,11 +13,11 @@ from django.contrib.auth.views import logout as auth_logout, \
                                       login as auth_login
 from django.views.decorators.vary import vary_on_headers, vary_on_cookie
 from django.views.decorators.cache import cache_control
+from django.views.defaults import page_not_found
+
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
-from oioioi.contests.models import Contest
-from oioioi.base.forms import UserForm
 from oioioi.base.utils import jsonify, generate_key
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.preferences import PreferencesFactory
@@ -63,11 +62,11 @@ def handler500(request):
         return plain_resp
 
 
-def handler404(request):
+def handler404(request, exception):
     if request.is_ajax():
         return HttpResponse('404 Not Found', status=404,
                             content_type='text/plain')
-    return page_not_found(request)
+    return page_not_found(request, exception)
 
 
 def handler403(request):
@@ -111,7 +110,7 @@ def logout_view(request):
 
 def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
     if request.user.is_authenticated():
-        redirect_to = request.REQUEST.get(redirect_field_name, None)
+        redirect_to = request.GET.get(redirect_field_name, None)
         return safe_redirect(request, redirect_to)
     else:
         return auth_login(request, extra_context=site_name(request), **kwargs)

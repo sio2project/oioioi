@@ -1,123 +1,56 @@
 {% extends "base-with-menu.html" %}
-{% load admin_static i18n grp_tags compress %}
+{% load i18n static %}
 
-{% block extrahead %}
-    <meta name="robots" content="NONE,NOARCHIVE" />
+{% block adminhead %}
+    {% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+    <title>{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}" />
+    {% block extrastyle %}{% endblock %}
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}" />{% endif %}
+    {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 
-    <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% static "grappelli/" %}{% endfilter %}";</script>
-    <script type="text/javascript">window.__admin_utc_offset__ = "{% filter escapejs %}{% now "Z" %}{% endfilter %}";</script>
-    <script type="text/javascript" charset="utf-8">
-        // GLOBALS
-        var grappelli = {},
-            ADMIN_URL = "{% url 'admin:index' %}",
-            MODEL_URL_ARRAY = {% if user.is_staff %}{% get_content_types %}{% else %}[]{% endif %},
-            DATE_FORMAT = "{% get_date_format %}",
-            TIME_FORMAT = "{% get_time_format %}",
-            DATETIME_FORMAT = "{% get_datetime_format %}";
-    </script>
-    <!-- jQuery, jQuery-UI -->
-    <script src="{% static "grappelli/jquery/jquery-2.1.4.min.js" %}" type="text/javascript"></script>
-    <script src="{% static "grappelli/jquery/ui/jquery-ui.min.js" %}" type="text/javascript"></script>
-    {% if debug %}
-        <!-- Grappelli Main JS -->
-        <script src="{% static "grappelli/js/grappelli.js" %}" type="text/javascript"></script>
-        <!-- Grappelli jQuery Plugins, Widgets -->
-        <script src="{% static "grappelli/js/jquery.grp_collapsible.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_collapsible_group.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_timepicker.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_related_fk.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_related_m2m.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_related_generic.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_autocomplete_fk.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_autocomplete_m2m.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_autocomplete_generic.js" %}" type="text/javascript"></script>
-        <script src="{% static "grappelli/js/jquery.grp_inline.js" %}" type="text/javascript"></script>
-    {% else %}
-        <!-- Grappelli Minified -->
-        <script src="{% static "grappelli/js/grappelli.min.js" %}" type="text/javascript"></script>
-    {% endif %}
+    <style>
+        body { padding-top: 67px }
+        .submit-row a.deletelink { height: auto }
+    </style>
 {% endblock %}
-
-{% block styles %}
-    <link href="{% static "grappelli/jquery/ui/jquery-ui.min.css" %}" rel="stylesheet" type="text/css" media="screen" />
-    {% if LANGUAGE_BIDI %}
-        <link href="{% static "grappelli/stylesheets/mueller/grid/output-rtl.css" %}" rel="stylesheet" type="text/css" media="screen" />
-        <link href="{% block stylesheet_rtl %}{% static "grappelli/stylesheets/rtl.css" %}{% endblock %}" rel="stylesheet" type="text/css" media="screen" />
-    {% else %}
-        <link href="{% static "grappelli/stylesheets/mueller/grid/output.css" %}" rel="stylesheet" type="text/css" media="screen" />
-    {% endif %}
-    {{ block.super }}
-    {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}grappelli/scss/admin.scss">
-    {% endcompress %}
-{% endblock %}
-
-{% block scripts %}
-    {% block javascripts %}
-        <script type="text/javascript" charset="utf-8">
-            (function($) {
-                $(document).ready(function() {
-                    $("#grp-navigation .grp-collapse").grp_collapsible();
-                })(grp.jQuery);
-            });
-        </script>
-        <script type="text/javascript" charset="utf-8">
-            // By default when pulldown is higher than grapelli content it
-            // will be limited to height of grp content and have ugly scroll.
-            // This code set height of grp content large enough for pulldown.
-            $(document).ready(function() {
-                const grpContent = $('#grp-content');
-                const pulldownContent = $('.grp-pulldown-content');
-                const titleHeight = $('#grp-content-title').height();
-                const bottomPadding = 100;
-
-                $(".grp-pulldown-handler").click(function() {
-                    var contentHeight = grpContent.height();
-                    var pulldownHeight = pulldownContent.height();
-
-                    if (contentHeight < pulldownHeight) {
-                        grpContent.height(pulldownHeight + titleHeight +
-                            bottomPadding);
-                    }
-                });
-            });
-        </script>
-        {% endblock %}
-    {{ block.super }}
-{% endblock %}
-
-{% block flash %}{% endblock %}
-
-{% block main-content-style %}{{ block.super }} table-responsive{% endblock %}
 
 {% block main-content %}
-    <article id="grp-content" class="{% block content-class %}{% endblock %}">
-        <!-- MESSAGES -->
+    <div id="container">
+
+        {% if not is_popup %}
+        <!-- Header -->
+        <!-- END Header -->
+        {% block breadcrumbs %}
+        <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        {% if title %} &rsaquo; {{ title }}{% endif %}
+        </div>
+        {% endblock %}
+        {% endif %}
+
         {% block messages %}
             {% if messages %}
-                <ul class="grp-messagelist">
-                    <!-- NOTE: no message|capfirst by purpose, because it does not work in some languages -->
-                    {% for message in messages %}
-                        <li{% if message.tags %} class="grp-{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
+            <ul class="messagelist">{% for message in messages %}
+              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|capfirst }}</li>
+            {% endfor %}</ul>
             {% endif %}
-        {% endblock %}
+        {% endblock messages %}
 
-        <!-- CONTENT TITLE -->
-        <header id="grp-content-title">
+        <!-- Content -->
+        <div id="content" class="{% block coltype %}colM{% endblock %}">
             {% block pretitle %}{% endblock %}
             {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+            {% block content %}
             {% block object-tools %}{% endblock %}
-        </header>
-
-        <!-- CONTENT-CONTAINER -->
-        <div id="grp-content-container">
-                {% block content %}
-                    {{ content }}
-                    {% block filters %}{% endblock %}
-                {% endblock %}
+            {{ content }}
+            {% endblock %}
+            {% block sidebar %}{% endblock %}
+            <br class="clear" />
         </div>
+        <!-- END Content -->
 
-    </article>
+        {% block footer %}<div id="footer"></div>{% endblock %}
+    </div>
 {% endblock %}

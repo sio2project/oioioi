@@ -1,7 +1,7 @@
 import mimetypes
 import urllib
 
-from django.core.servers.basehttp import FileWrapper
+from wsgiref.util import FileWrapper
 from django.core.files.storage import default_storage
 from django.core.files import File
 from django.http import StreamingHttpResponse

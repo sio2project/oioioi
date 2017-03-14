@@ -8,7 +8,7 @@ from django.db import transaction
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from oioioi.evalmgr import delay_environ
+from oioioi.evalmgr.tasks import delay_environ
 
 
 class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):

@@ -24,13 +24,15 @@ class GlobalMessageAdmin(admin.ModelAdmin):
         return False
 
     def get_urls(self):
-        pk = GlobalMessage.get_singleton().pk
+        # Global Message singleton always has primary_key = 1
+        # @see GlobalMessage.get_singleton
+        pk = '1'
         urls = super(GlobalMessageAdmin, self).get_urls()
 
         custom_urls = [
             url(r'^$',
                 self.admin_site.admin_view(self.change_view),
-                {'object_id': str(pk)}),
+                {'object_id': pk}),
         ]
 
         return custom_urls + urls

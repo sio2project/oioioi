@@ -1,7 +1,6 @@
 import json
 import sio.workers.runner
 import sio.celery.job
-import oioioi
 
 from django.db import transaction
 from django.conf import settings
@@ -14,6 +13,9 @@ from xmlrpclib import Server
 # this assumption, even a single call to LocalClient.build would break that
 # code.
 from threading import Lock
+
+from oioioi.evalmgr.tasks import delay_environ
+
 _local_backend_lock = Lock()
 
 
@@ -42,7 +44,7 @@ class LocalBackend(object):
         if 'workers_jobs.extra_args' in env:
             del env['workers_jobs.extra_args']
         with transaction.atomic():
-            oioioi.evalmgr.delay_environ(env)
+            delay_environ(env)
 
 
 class SioworkersdBackend(object):

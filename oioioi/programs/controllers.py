@@ -31,7 +31,7 @@ from oioioi.programs.problem_instance_utils import \
         get_language_by_extension
 from oioioi.programs.utils import has_report_actions_config
 from oioioi.filetracker.utils import django_to_filetracker_path
-from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
+from oioioi.evalmgr.tasks import recipe_placeholder, add_before_placeholder, \
         extend_after_placeholder
 
 logger = logging.getLogger(__name__)

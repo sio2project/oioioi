@@ -1,7 +1,7 @@
 from functools import partial
 import urllib
 
-from django.conf.urls import patterns
+from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import unquote, quote
@@ -99,7 +99,8 @@ class RoundInline(admin.StackedInline):
         fields_no_public_results = ['name', 'start_date', 'end_date',
             'results_date', 'is_trial']
 
-        if request.contest.controller.separate_public_results():
+        if request.contest is not None and request.contest.controller\
+                .separate_public_results():
             fdsets = [(None, {'fields': fields})]
         else:
             fdsets = [(None, {'fields': fields_no_public_results})]
@@ -346,8 +347,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             del actions['delete_selected']
         return actions
 
-    def get_list_select_related(self):
-        return super(ProblemInstanceAdmin, self).get_list_select_related() \
+    def get_custom_list_select_related(self):
+        return super(ProblemInstanceAdmin, self)\
+                   .get_custom_list_select_related() \
                 + ['contest', 'round', 'problem']
 
     def get_queryset(self, request):
@@ -466,8 +468,9 @@ class SubmissionAdmin(admin.ModelAdmin):
         return list_filter
 
     def get_urls(self):
-        urls = patterns('',
-                        (r'^rejudge/$', self.rejudge_view))
+        urls = [
+            url(r'^rejudge/$', self.rejudge_view),
+        ]
         return urls + super(SubmissionAdmin, self).get_urls()
 
     def rejudge_view(self, request):
@@ -608,8 +611,8 @@ class SubmissionAdmin(admin.ModelAdmin):
                                                   uses_is_active)})
     rejudge_action.short_description = _("Rejudge selected submissions")
 
-    def get_list_select_related(self):
-        return super(SubmissionAdmin, self).get_list_select_related() \
+    def get_custom_list_select_related(self):
+        return super(SubmissionAdmin, self).get_custom_list_select_related() \
                 + ['user', 'problem_instance', 'problem_instance__problem',
                    'problem_instance__contest']
 
@@ -719,8 +722,9 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
         return super(RoundTimeExtensionAdmin, self) \
                 .formfield_for_foreignkey(db_field, request, **kwargs)
 
-    def get_list_select_related(self):
-        return super(RoundTimeExtensionAdmin, self).get_list_select_related() \
+    def get_custom_list_select_related(self):
+        return super(RoundTimeExtensionAdmin, self)\
+                   .get_custom_list_select_related() \
                 + ['user', 'round__contest']
 
 contest_site.contest_register(RoundTimeExtension, RoundTimeExtensionAdmin)

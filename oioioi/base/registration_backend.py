@@ -1,8 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.conf import settings
+from django.contrib.auth.views import password_reset
+from django.contrib.sites.requests import RequestSite
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import TemplateView
-from django.contrib.sites.models import RequestSite
 from django.contrib.auth.models import User
 from registration import signals
 from registration.models import RegistrationProfile
@@ -38,29 +39,27 @@ class RegistrationView(DefaultRegistrationView):
                                         request=request)
         return user
 
-
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^register/$',
-        RegistrationView.as_view(),
-        name='registration_register'),
-)
+        RegistrationView.as_view(), name='registration_register'),
+]
 
 if not settings.SEND_USER_ACTIVATION_EMAIL:
-    urlpatterns += patterns('',
+    urlpatterns += [
         url(r'^register/complete/$',
             TemplateView.as_view(template_name=
                     'registration/registration_and_activation_complete.html'),
                 name='registration_complete'),
-    )
+    ]
 
-urlpatterns += patterns('',
+urlpatterns += [
     url(r'^password/reset/$',
-        'django.contrib.auth.views.password_reset',
+        password_reset,
         {
             'password_reset_form': OioioiPasswordResetForm,
             'post_reset_redirect': reverse_lazy('auth_password_reset_done'),
         },
         name="auth_password_reset")
-)
+]
 
 urlpatterns += registration.backends.default.urls.urlpatterns

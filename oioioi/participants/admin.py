@@ -57,8 +57,8 @@ class ParticipantAdmin(admin.ModelAdmin):
     user_full_name.short_description = _("User name")
     user_full_name.admin_order_field = 'user__last_name'
 
-    def get_list_select_related(self):
-        return super(ParticipantAdmin, self).get_list_select_related() \
+    def get_custom_list_select_related(self):
+        return super(ParticipantAdmin, self).get_custom_list_select_related() \
                 + ['contest', 'user']
 
     def get_list_display(self, request):
@@ -281,10 +281,10 @@ class OnsiteRegistrationParticipantAdmin(ParticipantAdmin):
     search_fields = ParticipantAdmin.search_fields \
             + ['participants_onsiteregistration__number']
 
-    def get_list_select_related(self):
-        return super(OnsiteRegistrationParticipantAdmin, self) \
-                .get_list_select_related() + \
-                ['participants_onsiteregistration',
+    def get_custom_list_select_related(self):
+        return super(OnsiteRegistrationParticipantAdmin, self)\
+               .get_custom_list_select_related() \
+               + ['participants_onsiteregistration',
                  'participants_onsiteregistration__region']
 
     def number(self, instance):

@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
@@ -106,7 +106,7 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
 
     def get_urls(self):
         urls = super(SuspendJudgeProblemInstanceAdminMixin, self).get_urls()
-        extra_urls = patterns('',
+        extra_urls = [
             url(r'(?P<problem_instance_id>\d+)/resume_and_rejudge/$',
                 self.resume_and_rejudge_view,
                 name='suspendjudge_resume_and_rejudge'),
@@ -119,7 +119,7 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
             url(r'(?P<problem_instance_id>\d+)/suspend_all_but_init/$',
                 self.suspend_all_but_init_view,
                 name='suspendjudge_suspend_all_but_init')
-        )
+        ]
         return extra_urls + urls
 
 ProblemInstanceAdmin.mix_in(SuspendJudgeProblemInstanceAdminMixin)

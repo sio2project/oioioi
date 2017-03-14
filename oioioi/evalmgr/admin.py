@@ -99,7 +99,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
 
     def __init__(self, *args, **kwargs):
         super(SystemJobsQueueAdmin, self).__init__(*args, **kwargs)
-        self.list_display_links = (None, )
+        self.list_display_links = None
 
     def _get_link(self, caption, app, *args, **kwargs):
         url = reverse(app, args=args, kwargs=kwargs)
@@ -180,9 +180,9 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return True
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         return super(SystemJobsQueueAdmin, self) \
-            .get_list_select_related() + [
+            .get_custom_list_select_related() + [
                     'submission__problem_instance',
                     'submission__problem_instance__contest',
                     'submission__problem_instance__problem',
@@ -207,6 +207,7 @@ class ContestJobsQueueAdmin(SystemJobsQueueAdmin):
         super(ContestJobsQueueAdmin, self).__init__(*args, **kwargs)
         self.list_display = [x for x in self.list_display
                              if x not in ('contest', 'celery_task_id_link')]
+        self.list_display_links = None
         self.list_filter = self.list_filter + [UserListFilter]
 
     def has_change_permission(self, request, obj=None):

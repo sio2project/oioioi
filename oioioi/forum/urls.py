@@ -1,37 +1,39 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 
-forum_patterns = patterns('oioioi.forum.views',
-    url(r'^$', 'forum_view',
-        name='forum'),
+from oioioi.forum import views
+
+forum_patterns = [
+    url(r'^$',
+        views.forum_view, name='forum'),
     url(r'^lock/$',
-        'lock_forum_view', name='forum_lock'),
+        views.lock_forum_view, name='forum_lock'),
     url(r'^unlock/$',
-        'unlock_forum_view', name='forum_unlock'),
+        views.unlock_forum_view, name='forum_unlock'),
     url(r'^(?P<category_id>\d+)/$',
-        'category_view', name='forum_category'),
+        views.category_view, name='forum_category'),
     url(r'^(?P<category_id>\d+)/delete/$',
-        'delete_category_view', name='forum_category_delete'),
+        views.delete_category_view, name='forum_category_delete'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/$',
-        'thread_view', name='forum_thread'),
+        views.thread_view, name='forum_thread'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/delete/$',
-        'delete_thread_view', name='forum_thread_delete'),
+        views.delete_thread_view, name='forum_thread_delete'),
     url(r'^(?P<category_id>\d+)/add_thread/$',
-        'thread_add_view', name='forum_add_thread'),
+        views.thread_add_view, name='forum_add_thread'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/edit/$',
-        'edit_post_view', name='forum_post_edit'),
+        views.edit_post_view, name='forum_post_edit'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/delete/$',
-        'delete_post_view', name='forum_post_delete'),
+        views.delete_post_view, name='forum_post_delete'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/report/$',
-        'report_post_view', name='forum_post_report'),
+        views.report_post_view, name='forum_post_report'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/unreport/'
         r'$',
-        'unreport_post_view', name='forum_post_unreport'),
+        views.unreport_post_view, name='forum_post_unreport'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/hide/$',
-        'hide_post_view', name='forum_post_hide'),
+        views.hide_post_view, name='forum_post_hide'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/$',
-        'show_post_view', name='forum_post_show'),
-)
+        views.show_post_view, name='forum_post_show'),
+]
 
-contest_patterns = patterns('oioioi.forum.views',
+contest_patterns = [
     url(r'^forum/', include(forum_patterns)),
-)
+]

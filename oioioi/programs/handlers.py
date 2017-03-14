@@ -11,7 +11,7 @@ from django.utils.module_loading import import_string
 from django.conf import settings
 
 from oioioi.base.utils import make_html_link
-from oioioi.evalmgr import transfer_job
+from oioioi.evalmgr.tasks import transfer_job
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport

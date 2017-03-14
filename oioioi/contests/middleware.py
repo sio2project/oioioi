@@ -85,7 +85,6 @@ class CurrentContestMiddleware(object):
 
     def process_request(self, request):
         contest = None
-        contest_id = None
         m = contest_re.match(request.path)
 
         if m is not None:

@@ -20,7 +20,7 @@ class GlobalMessage(models.Model):
 
     @staticmethod
     def get_singleton():
-        msg, _ = GlobalMessage.objects.get_or_create()
+        msg, _ = GlobalMessage.objects.get_or_create(pk=1)
         return msg
 
     def __str__(self):

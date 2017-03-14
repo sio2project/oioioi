@@ -1,4 +1,5 @@
-from oioioi.evalmgr import add_before_recipe_entry, add_before_placeholder
+from oioioi.evalmgr.tasks import add_before_recipe_entry, \
+    add_before_placeholder
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -9,7 +10,7 @@ class SuspendJudgeContestControllerMixin(object):
 
     def finalize_evaluation_environment(self, environ):
         super(SuspendJudgeContestControllerMixin, self) \
-                .finalize_evaluation_environment(environ)
+            .finalize_evaluation_environment(environ)
         try:
             add_before_recipe_entry(environ, 'compile', (
                 'check_problem_instance_state',

@@ -1,7 +1,7 @@
+from wsgiref.util import FileWrapper
 from django.core.files.storage import default_storage
 from django.http import Http404, StreamingHttpResponse
 from django.core.exceptions import PermissionDenied
-from django.core.servers.basehttp import FileWrapper
 import mimetypes
 
 

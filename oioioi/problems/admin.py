@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.admin.utils import unquote
 from django.contrib.admin.actions import delete_selected
 from django.contrib import messages
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.utils.encoding import force_unicode
 from django.db.models import Q
 
@@ -231,10 +231,10 @@ class BaseProblemAdmin(admin.MixinsAdmin):
 
     def get_urls(self):
         urls = super(BaseProblemAdmin, self).get_urls()
-        extra_urls = patterns('',
+        extra_urls = [
             url(r'^(\d+)/download/$', self.download_view,
                 name='problems_problem_download')
-        )
+        ]
         return extra_urls + urls
 
 admin.site.register(Problem, BaseProblemAdmin)
@@ -261,7 +261,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
 
     def __init__(self, *args, **kwargs):
         super(ProblemPackageAdmin, self).__init__(*args, **kwargs)
-        self.list_display_links = [None]
+        self.list_display_links = None
 
     def has_add_permission(self, request):
         return False
@@ -337,9 +337,10 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         return super(ProblemPackageAdmin, self).get_list_display(request) \
                 + [self.actions_field(request.contest)]
 
-    def get_list_select_related(self):
-        return super(ProblemPackageAdmin, self).get_list_select_related() \
-                + ['problem', 'problem__contest']
+    def get_custom_list_select_related(self):
+        return \
+            super(ProblemPackageAdmin, self).get_custom_list_select_related()\
+            + ['problem', 'problem__contest']
 
 admin.site.register(ProblemPackage, ProblemPackageAdmin)
 
@@ -362,6 +363,10 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
             if x not in ['contest', 'celery_task_id']]
     list_filter = [x for x in ProblemPackageAdmin.list_filter
             if x != 'contest']
+
+    def __init__(self, *args, **kwargs):
+        super(ContestProblemPackageAdmin, self).__init__(*args, **kwargs)
+        self.list_display_links = None
 
     def get_queryset(self, request):
         qs = super(ContestProblemPackageAdmin, self).get_queryset(request)

@@ -86,9 +86,9 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
     submission_problem_instance.admin_order_field = \
         'submission__problem_instance'
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         return super(SubmissionsSimilarityEntryAdmin, self) \
-                .get_list_select_related() + [
+                .get_custom_list_select_related() + [
                     'submission', 'submission__user',
                     'submission__problem_instance'
                 ]

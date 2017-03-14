@@ -1,6 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
+from oioioi.timeline import views
 
 
-contest_patterns = patterns('oioioi.timeline.views',
-    url(r'^admin/timeline/$', 'timeline_view', name='timeline_view'),
-)
+contest_patterns = [
+    url(r'^admin/timeline/$', views.timeline_view, name='timeline_view'),
+]

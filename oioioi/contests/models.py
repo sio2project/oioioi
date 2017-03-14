@@ -17,14 +17,13 @@ from django.utils.translation import ugettext_lazy as _, ungettext
 from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
 from oioioi.base.menu import menu_registry, MenuItem
 from oioioi.base.utils import strip_num_or_hash
-from oioioi.contests.fields import ScoreField
 from oioioi.contests.problem_instance_controller import \
         ProblemInstanceController
-from oioioi.filetracker.fields import FileField
 from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
+from oioioi.filetracker.fields import FileField
 
 
 def make_contest_filename(instance, filename):

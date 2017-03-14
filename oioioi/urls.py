@@ -1,9 +1,11 @@
 from django.conf import settings
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, url
 from importlib import import_module
 from django.contrib import admin as django_admin
+from django.views import i18n
 
 from oioioi.base import registration_backend
+from oioioi.filetracker.views import raw_file_view
 
 django_admin.autodiscover()
 
@@ -15,15 +17,15 @@ js_info_dict = {
     'packages': ('oioioi',),
 }
 
-urlpatterns = patterns('',
-    (r'^jsi18n/$', 'django.views.i18n.javascript_catalog', js_info_dict),
-)
+urlpatterns = [
+    url(r'^jsi18n/$', i18n.javascript_catalog, js_info_dict),
+]
 
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns += patterns('',
+    urlpatterns += [
         url(r'^__debug__/', include(debug_toolbar.urls)),
-    )
+    ]
 
 for app in settings.INSTALLED_APPS:
     if app.startswith('oioioi.'):
@@ -38,10 +40,7 @@ for app in settings.INSTALLED_APPS:
             pass
 
 urlpatterns.extend([
-    url(r'^grappelli/', include('grappelli.urls')),
-
-    url(r'^file/(?P<filename>.*)/$',
-        'oioioi.filetracker.views.raw_file_view'),
+    url(r'^file/(?P<filename>.*)/$', raw_file_view),
 ])
 
 urlpatterns += registration_backend.urlpatterns

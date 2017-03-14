@@ -117,9 +117,9 @@ class OIRegistrationParticipantAdmin(ParticipantAdmin):
     list_filter = ParticipantAdmin.list_filter \
             + ['oi_oiregistration__school__province']
 
-    def get_list_select_related(self):
+    def get_custom_list_select_related(self):
         return super(OIRegistrationParticipantAdmin, self) \
-                .get_list_select_related() + ['oi_oiregistration',
+                .get_custom_list_select_related() + ['oi_oiregistration',
                                               'oi_oiregistration__school']
 
     def school_name(self, instance):

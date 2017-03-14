@@ -1,5 +1,7 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.oisubmit.views',
-    url(r'^oisubmit/$', 'oisubmit_view', name='oisubmit'),
-)
+from oioioi.oisubmit import views
+
+contest_patterns = [
+    url(r'^oisubmit/$', views.oisubmit_view, name='oisubmit'),
+]

@@ -16,7 +16,7 @@ from oioioi.programs.controllers import ProgrammingContestController, \
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
-from oioioi.evalmgr import extend_after_placeholder
+from oioioi.evalmgr.tasks import extend_after_placeholder
 from oioioi.programs.models import CompilationReport
 from oioioi.base.utils.archive import Archive
 from oioioi.programs.problem_instance_utils import \

@@ -1,6 +1,9 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.testspackages.views',
-    url(r'^tests/$', 'tests_view', name='tests'),
-    url(r'^tests/(?P<package_id>\d+)/$', 'test_view', name='test'),
-)
+from oioioi.testspackages import views
+
+
+contest_patterns = [
+    url(r'^tests/$', views.tests_view, name='tests'),
+    url(r'^tests/(?P<package_id>\d+)/$', views.test_view, name='test'),
+]

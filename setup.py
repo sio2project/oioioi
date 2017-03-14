@@ -30,15 +30,13 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        # Django < 1.8.15 is vulnerable to CSRF when used with Google Analytics:
-        # https://www.djangoproject.com/weblog/2016/sep/26/security-releases/
-        "Django>=1.8.15,<1.9",
+        "Django>=1.9,<1.10",
         "pytz>=2013b",
         "sqlalchemy",
         "BeautifulSoup",
         "PyYAML",
         "python-dateutil",
-        # Earlier versions of django-nose are incompatible with Django 1.8
+        # Earlier versions of django-nose are incompatible with Django 1.9
         "django-nose>=1.4",
         "nose-picker>=0.5.3",
 
@@ -49,8 +47,6 @@ setup(
         "django-supervisor",
         "linaro-django-pagination",
         "django-compressor>=1.4,<1.6",
-        # https://github.com/sehmaschine/django-grappelli/issues/659
-        "django-grappelli==2.8.2",
         "django-overextends>=0.4.1",
         "pygments",
         "django-libsass>=0.7",
@@ -83,7 +79,7 @@ setup(
 
         "django-gravatar2",
 
-        "django-mptt<0.8.0",
+        "django-mptt>=0.8.7",
 
         "mistune",
 

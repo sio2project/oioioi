@@ -10,7 +10,7 @@ from django.db import transaction
 from django.forms.models import model_to_dict
 from django.utils.module_loading import import_string
 
-from oioioi import evalmgr
+from oioioi.evalmgr.tasks import transfer_job as evalmgr_transfer_job
 from oioioi.base.utils import naturalsort_key
 from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.programs.handlers import _skip_on_compilation_error
@@ -48,7 +48,7 @@ def submit_job(env, submission, kind):
     """
     with submission.source_file as f:
         source_code = f.read()
-    return evalmgr.transfer_job(env,
+    return evalmgr_transfer_job(env,
             'oioioi.zeus.handlers.transfer_job',
             'oioioi.zeus.handlers.restore_job',
             transfer_kwargs={'kind': kind, 'source_code': source_code})

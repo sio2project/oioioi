@@ -48,8 +48,9 @@ class MailSubmissionAdmin(admin.ModelAdmin):
     actions = ['accept_action']
     search_fields = ['user__username', 'user__last_name']
 
-    def get_list_select_related(self):
-        return super(MailSubmissionAdmin, self).get_list_select_related() \
+    def get_custom_list_select_related(self):
+        return super(MailSubmissionAdmin, self)\
+                   .get_custom_list_select_related() \
             + ['user', 'accepted_by', 'problem_instance__problem',
                'submission',
                'submission__problem_instance',

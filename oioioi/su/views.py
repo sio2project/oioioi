@@ -31,8 +31,10 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
 
     su_to_user(request, user, form.cleaned_data['backend'])
 
-    if redirect_field_name in request.REQUEST:
-        next_page = request.REQUEST[redirect_field_name]
+    if redirect_field_name in request.GET:
+        next_page = request.GET[redirect_field_name]
+    elif redirect_field_name in request.POST:
+        next_page = request.POST[redirect_field_name]
 
     request.session[REDIRECTION_AFTER_SU_KEY] = 'PRE_SU'
 
@@ -44,8 +46,10 @@ def su_view(request, next_page=None, redirect_field_name=REDIRECT_FIELD_NAME):
 def su_reset_view(request, next_page=None,
         redirect_field_name=REDIRECT_FIELD_NAME):
     reset_to_real_user(request)
-    if redirect_field_name in request.REQUEST:
-        next_page = request.REQUEST[redirect_field_name]
+    if redirect_field_name in request.GET:
+        next_page = request.GET[redirect_field_name]
+    elif redirect_field_name in request.POST:
+        next_page = request.POST[redirect_field_name]
 
     return safe_redirect(request, next_page)
 

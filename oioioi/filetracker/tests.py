@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from django.utils import unittest
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db.models.fields.files import FieldFile, FileField
@@ -84,7 +83,7 @@ class TestFileField(TestCase):
                 filetracker_to_django_file('/foo/bar', storage=storage)))
 
 
-class TestFileStorage(unittest.TestCase):
+class TestFileStorage(TestCase):
     def _test_file_storage(self, storage):
         data = 'eloziom'
         path = 'my/path'
@@ -161,7 +160,7 @@ class TestFileFixtures(TestCase):
         self.assertEqual(instance.file_field.read(), 'whatever\x01\xff')
 
 
-class TestFileUtils(unittest.TestCase):
+class TestFileUtils(TestCase):
     def test_content_disposition(self):
         value = make_content_disposition_header('inline', u'EURO rates.txt')
         self.assertIn('inline', value)

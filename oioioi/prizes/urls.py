@@ -1,8 +1,11 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
+
+from oioioi.prizes import views
 
 
-contest_patterns = patterns('oioioi.prizes.views',
-    url(r'^prizes/$', 'prizes_view', name='default_prizes'),
-    url(r'^prizes/(?P<key>\d+)/$', 'prizes_view', name='prizes'),
-    url(r'^prizes/download_report/(?P<pg_id>\d+)/$', 'download_report_view'),
-)
+contest_patterns = [
+    url(r'^prizes/$', views.prizes_view, name='default_prizes'),
+    url(r'^prizes/(?P<key>\d+)/$', views.prizes_view, name='prizes'),
+    url(r'^prizes/download_report/(?P<pg_id>\d+)/$',
+        views.download_report_view),
+]

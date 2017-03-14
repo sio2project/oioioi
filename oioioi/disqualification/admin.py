@@ -75,9 +75,10 @@ class DisqualificationAdmin(admin.ModelAdmin):
     guilty_text.short_description = _("Guilty")
     guilty_text.admin_order_field = 'guilty'
 
-    def get_list_select_related(self):
-        return super(DisqualificationAdmin, self).get_list_select_related() + \
-            ['submission', 'user', 'submission__problem_instance']
+    def get_custom_list_select_related(self):
+        return super(DisqualificationAdmin, self)\
+               .get_custom_list_select_related() \
+               + ['submission', 'user', 'submission__problem_instance']
 
     def get_queryset(self, request):
         return super(DisqualificationAdmin, self).get_queryset(request) \

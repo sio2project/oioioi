@@ -1,8 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+
 from oioioi.portals import views
 
 
-noncontest_patterns = patterns('oioioi.portals.views',
+noncontest_patterns = [
     url(r'^create_global_portal/$', views.create_global_portal_view,
         name='create_global_portal'),
     url(r'^portal/(?P<portal_path>.*)$', views.global_portal_view,
@@ -14,4 +15,4 @@ noncontest_patterns = patterns('oioioi.portals.views',
     url(r'^move_node/$', views.move_node_view, name='move_node'),
     url(r'^render_markdown/$', views.render_markdown_view,
         name='render_markdown')
-)
+]

@@ -7,6 +7,10 @@ from oioioi.prizes.models import PrizeGiving, Prize, PrizeForUser
 from oioioi.prizes.forms import PrizeGivingForm, PrizeInlineFormSet
 
 
+def is_contest(request):
+    return request is not None and request.contest is not None
+
+
 class PrizeGivingInline(admin.TabularInline):
     model = PrizeGiving
     form = PrizeGivingForm
@@ -25,10 +29,12 @@ class PrizeGivingInline(admin.TabularInline):
         return None
     state_with_link.short_description = _("state")
 
-    def formfield_for_choice_field(self, db_field, request, **kwargs):
-        if db_field.name == 'key':
-            kwargs['choices'] = [(key, value[0]) for key, value in
-                    request.contest.controller.get_prizes_distributors()
+    def formfield_for_choice_field(self, db_field, request=None, **kwargs):
+        kwargs['choices'] = []
+        if db_field.name == 'key' and is_contest(request):
+            kwargs['choices'] = [
+                (key, value[0]) for key, value in
+                request.contest.controller.get_prizes_distributors()
                     .iteritems()]
         return super(PrizeGivingInline, self).formfield_for_choice_field(
                 db_field, request, **kwargs)
@@ -39,8 +45,8 @@ class PrizeInline(admin.TabularInline):
     formset = PrizeInlineFormSet
     extra = 0
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'prize_giving':
+    def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
+        if db_field.name == 'prize_giving' and is_contest(request):
             kwargs['queryset'] = \
                     PrizeGiving.objects.filter(contest=request.contest)
         return super(PrizeInline, self) \

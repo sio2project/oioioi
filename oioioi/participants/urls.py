@@ -1,11 +1,14 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.participants.views',
-    url(r'^register/$', 'registration_view', name='participants_register'),
-    url(r'^unregister/$', 'unregistration_view',
+from oioioi.participants import views
+
+contest_patterns = [
+    url(r'^register/$', views.registration_view,
+        name='participants_register'),
+    url(r'^unregister/$', views.unregistration_view,
         name='participants_unregister'),
-    url(r'^participants_data/$', 'participants_data',
+    url(r'^participants_data/$', views.participants_data,
         name='participants_data'),
-    url(r'^participants_data_csv/$', 'participants_data_csv',
+    url(r'^participants_data_csv/$', views.participants_data_csv,
         name='participants_data_csv'),
-)
+]

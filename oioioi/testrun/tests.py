@@ -10,7 +10,7 @@ from django.utils.timezone import utc
 
 from oioioi.testrun import handlers
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
-from oioioi.evalmgr import create_environ
+from oioioi.evalmgr.tasks import create_environ
 from oioioi.base.tests import check_not_accessible, check_ajax_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.filetracker.client import get_client

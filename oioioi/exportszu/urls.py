@@ -1,6 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.exportszu.views',
-    url(r'^export_submissions/$', 'export_submissions_view',
+from oioioi.exportszu import views
+
+contest_patterns = [
+    url(r'^export_submissions/$', views.export_submissions_view,
         name='export_submissions'),
-)
+]

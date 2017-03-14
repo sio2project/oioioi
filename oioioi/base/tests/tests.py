@@ -16,7 +16,6 @@ from django.core.exceptions import PermissionDenied
 from django.core import mail
 from django.core.files.uploadedfile import TemporaryUploadedFile, \
         SimpleUploadedFile
-from django.utils import unittest
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
 from django.test.client import RequestFactory
@@ -145,8 +144,10 @@ class TestIndexNoContest(TestCase):
 
 class TestMainPage(TestCase):
     fixtures = ('test_users',)
+    custom_templates = settings.TEMPLATES
+    custom_templates[0]['DIRS'].append(os.path.join(basedir, 'templates'))
 
-    @override_settings(TEMPLATE_DIRS=(os.path.join(basedir, 'templates'),))
+    @override_settings(TEMPLATES=custom_templates)
     def test_custom_main_page(self):
         @register_main_page_view(order=0,
                                  condition=Condition(lambda request: False))
@@ -157,11 +158,13 @@ class TestMainPage(TestCase):
         def accessible(request):
             return TemplateResponse(request, 'index.html')
 
-        response = self.client.get('/')
-        self.assertIn('This is a test index template', response.content)
-
-        unregister_main_page_view(inaccessible)
-        unregister_main_page_view(accessible)
+        try:
+            response = self.client.get('/')
+            self.assertIn('This is a test index template', response.content)
+        finally:
+            # Perform cleanup regardless of the test failure/success
+            unregister_main_page_view(inaccessible)
+            unregister_main_page_view(accessible)
 
 
 class TestOrderedRegistry(TestCase):
@@ -351,7 +354,7 @@ class TestErrorHandlers(TestCase):
         self.assertEqual(req.META['IS_AUTHENTICATED'], 'False')
 
 
-class TestUtils(unittest.TestCase):
+class TestUtils(TestCase):
     def test_classinit(self):
         TestUtils.classinit_called_counter = 0
         try:
@@ -503,7 +506,7 @@ else:
         self.assertEqual(ret, 0)
 
 
-class TestAllWithPrefix(unittest.TestCase):
+class TestAllWithPrefix(TestCase):
     def test_all_with_prefix(self):
         t = Template('{% load all_with_prefix %}{% all_with_prefix a_ %}')
         context = Context(dict(a_foo='foo', a_bar='bar', b_baz='baz'))
@@ -522,7 +525,7 @@ class TestDottedFieldSubclass(TestDottedFieldClass):
     description = 'Description'
 
 
-class TestFields(unittest.TestCase):
+class TestFields(TestCase):
     def test_dotted_name_field(self):
         field = DottedNameField('oioioi.base.tests.tests.TestDottedFieldClass')
         field.validate('oioioi.base.tests.tests.TestDottedFieldSubclass', None)
@@ -531,7 +534,7 @@ class TestFields(unittest.TestCase):
         with self.assertRaises(ValidationError):
             field.validate('oioioi.base.tests.tests.TestDottedFieldClass',
                            None)
-        self.assertEqual(list(field.choices),
+        self.assertEqual(list(field.get_choices(include_blank=False)),
                 [('oioioi.base.tests.tests.TestDottedFieldSubclass',
                     TestDottedFieldSubclass.description)])
 
@@ -545,7 +548,7 @@ class TestFields(unittest.TestCase):
                 sys.modules)
 
 
-class TestEnumField(unittest.TestCase):
+class TestEnumField(TestCase):
     def setUp(self):
         self.registry = EnumRegistry()
         self.registry.register('OK', 'OK')
@@ -571,7 +574,7 @@ class TestEnumField(unittest.TestCase):
         self.assertEqual(first_serialized, second_serialized)
 
 
-class TestExecute(unittest.TestCase):
+class TestExecute(TestCase):
     def test_echo(self):
         self.assertEqual("foo\n", execute("echo foo"))
 
@@ -608,7 +611,7 @@ class TestExecute(unittest.TestCase):
                 cwd=os.path.dirname(__file__)), open(__file__, 'rb').read())
 
 
-class TestMisc(unittest.TestCase):
+class TestMisc(TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
         reload(oioioi.test_settings)
@@ -680,7 +683,7 @@ class TestRegistration(TestCase):
         self._assert_user_active()
 
 
-class TestArchive(unittest.TestCase):
+class TestArchive(TestCase):
     good_files = ['archive.tgz', 'archive.zip']
     bad_files = ['archive-with-symlink.tgz', 'archive-with-hardlink.tgz']
     base_dir = os.path.join(os.path.dirname(__file__), 'files')

@@ -3,15 +3,12 @@ import uuid
 import os.path
 
 from django.db import transaction
-from django.utils import unittest
 from django.test.utils import override_settings
-from django.test import SimpleTestCase
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Submission, Contest
-from oioioi import evalmgr
-from oioioi.evalmgr import transfer_job, create_environ
+from oioioi.evalmgr.tasks import transfer_job, create_environ, delay_environ
 from oioioi.evalmgr.models import SavedEnviron
 from oioioi.filetracker.client import get_client
 from oioioi.programs.controllers import ProgrammingContestController
@@ -20,9 +17,9 @@ from oioioi.evalmgr.utils import mark_job_state
 from oioioi.evalmgr.models import QueuedJob
 
 
-def delay_environ(*args, **kwargs):
+def delay_environ_wrapper(*args, **kwargs):
     with transaction.atomic():
-        result = evalmgr.delay_environ(*args, **kwargs)
+        result = delay_environ(*args, **kwargs)
     return result
 
 
@@ -62,25 +59,25 @@ def rest_handler(env, **kwargs):
     return env
 
 
-class TestLocalJobs(unittest.TestCase):
+class TestLocalJobs(TestCase):
     def test_evalmgr_job(self):
         env = create_environ()
         env.update(dict(recipe=hunting, area='forest'))
-        env = delay_environ(env).get()
+        env = delay_environ_wrapper(env).get()
         self.assertEqual('Hedgehog hunted.', env['output'])
 
     def test_cascade_job(self):
         env = create_environ()
         env.update(dict(recipe=hunting, area='forest'))
-        env = delay_environ(env).get()
+        env = delay_environ_wrapper(env).get()
         self.assertEqual('Hedgehog hunted.', env['output'])
 
     def test_multiple_jobs(self):
-        city_result = delay_environ(
+        city_result = delay_environ_wrapper(
                 dict(job_id=42, recipe=hunting, area='city'))
-        forest_result = delay_environ(
+        forest_result = delay_environ_wrapper(
                 dict(job_id=43, recipe=hunting, area='forest'))
-        jungle_result = delay_environ(
+        jungle_result = delay_environ_wrapper(
                 dict(job_id=44, recipe=hunting, area='jungle'))
         self.assertEqual('Hedgehog hunted.', forest_result.get()['output'])
         self.assertEqual('Epic fail.', city_result.get()['output'])
@@ -137,7 +134,7 @@ def _uuid():
     return uuid.uuid4().hex
 
 
-class TestRemoteJobs(SimpleTestCase):
+class TestRemoteJobs(TestCase):
 
     base_dir = os.path.dirname(__file__)
     local_source_file = os.path.join(base_dir, 'files/solution.c')
@@ -194,7 +191,7 @@ class TestRemoteJobs(SimpleTestCase):
 
     def test_full_source_file_evaluation(self):
         env = self.evaluation_env.copy()
-        env = delay_environ(env).get()
+        env = delay_environ_wrapper(env).get()
         self.assertEqual('OK', env['result_code'])
 
     def test_multiple_source_file_evaluation(self):
@@ -204,8 +201,8 @@ class TestRemoteJobs(SimpleTestCase):
             local_source_file=self.local_wrong_source_file,
             remote_source_file=self.remote_wrong_source_file
         )
-        good_result = delay_environ(good_env)
-        wrong_result = delay_environ(wrong_env)
+        good_result = delay_environ_wrapper(good_env)
+        wrong_result = delay_environ_wrapper(wrong_env)
         self.assertEqual('OK', good_result.get()['result_code'])
         self.assertEqual('WA', wrong_result.get()['result_code'])
 
@@ -236,7 +233,7 @@ def set_mood(env, **kwargs):
     return env
 
 
-class TestErrorBehavior(unittest.TestCase):
+class TestErrorBehavior(TestCase):
     error_handlers = [
             ('Call police',
                 'oioioi.evalmgr.tests.tests.police_handler'),
@@ -279,14 +276,14 @@ class TestErrorBehavior(unittest.TestCase):
             env['job_id'] = 42
             env['case'] = case
             with self.assertRaises(exception):
-                delay_environ(env).get()
+                delay_environ_wrapper(env).get()
             if status:
                 self.assertEqual(status, police_files[case]['suspect_status'])
             if mood:
                 self.assertEqual(mood, police_files[case]['suspect_mood'])
 
 
-class TestAsyncJobs(unittest.TestCase):
+class TestAsyncJobs(TestCase):
     transferred_environs = []
 
     def _prepare(self):
@@ -301,22 +298,22 @@ class TestAsyncJobs(unittest.TestCase):
 
     def test_transfer_job(self):
         env = self._prepare()
-        env = delay_environ(env).get()
+        env = delay_environ_wrapper(env).get()
         res = TestAsyncJobs.transferred_environs.pop()
         self.assertIsNotNone(res)
         self.assertFalse(env['resumed'])
         self.assertIn('saved_environ_id', res)
-        env = delay_environ(res).get()
+        env = delay_environ_wrapper(res).get()
         self.assertTrue(env['resumed'])
 
     def test_environ_save(self):
         env = self._prepare()
-        env = delay_environ(env).get()
+        env = delay_environ_wrapper(env).get()
         res = TestAsyncJobs.transferred_environs.pop()
         self.assertEqual(SavedEnviron.objects.count(), 1)
         self.assertEqual(
                 SavedEnviron.objects.get().id, res['saved_environ_id'])
-        env = delay_environ(res).get()
+        env = delay_environ_wrapper(res).get()
         self.assertTrue(env['resumed'])
         self.assertEqual(SavedEnviron.objects.count(), 0)
 
@@ -324,29 +321,29 @@ class TestAsyncJobs(unittest.TestCase):
         env = self._prepare()
         env['transfer_successful'] = False
         with self.assertRaises(RuntimeError):
-            env = delay_environ(env).get()
+            env = delay_environ_wrapper(env).get()
         self.assertEqual(SavedEnviron.objects.count(), 0)
 
     def test_job_resumed_twice(self):
         env = self._prepare()
-        env = delay_environ(env).get()
+        env = delay_environ_wrapper(env).get()
         self.assertEqual(SavedEnviron.objects.count(), 1)
         res = TestAsyncJobs.transferred_environs.pop()
-        env = delay_environ(copy.deepcopy(res)).get()
+        env = delay_environ_wrapper(copy.deepcopy(res)).get()
         self.assertTrue(env['resumed'])
         self.assertEqual(SavedEnviron.objects.count(), 0)
         self.assertIn('saved_environ_id', res)
-        self.assertIsNone(delay_environ(res))
+        self.assertIsNone(delay_environ_wrapper(res))
         self.assertEqual(SavedEnviron.objects.count(), 0)
 
     def test_saved_environ_id(self):
         env = self._prepare()
         ids = []
         for _ in range(2):
-            delay_environ(copy.deepcopy(env)).get()
+            delay_environ_wrapper(copy.deepcopy(env)).get()
             res = TestAsyncJobs.transferred_environs.pop()
             ids.append(res['saved_environ_id'])
-            delay_environ(res).get()
+            delay_environ_wrapper(res).get()
         self.assertNotEqual(ids[0], ids[1])
 
 

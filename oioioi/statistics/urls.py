@@ -1,9 +1,12 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url
 
-contest_patterns = patterns('oioioi.statistics.views',
+from oioioi.statistics import views
+
+
+contest_patterns = [
     url(r'^stat/(?P<category>[a-zA-Z]+)/(?P<object_name>[a-z0-9_-]+)$',
-        'statistics_view', name='statistics_view'),
-    url(r'^stat/(?P<category>[a-zA-Z]+)$', 'statistics_view',
+        views.statistics_view, name='statistics_view'),
+    url(r'^stat/(?P<category>[a-zA-Z]+)$', views.statistics_view,
         name='statistics_view_without_object'),
-    url(r'^stat/$', 'statistics_view', name='statistics_main'),
-)
+    url(r'^stat/$', views.statistics_view, name='statistics_main'),
+]

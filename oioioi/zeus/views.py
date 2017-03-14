@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 
 from oioioi.zeus.backends import _get_key, _json_base64_decode
 from oioioi.zeus.utils import verify_zeus_url_signature
-from oioioi.evalmgr import delay_environ
+from oioioi.evalmgr.tasks import delay_environ
 
 logger = logging.getLogger(__name__)
 

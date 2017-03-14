@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.fields import BLANK_CHOICE_DASH, exceptions
+from django.utils.encoding import smart_text
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 from django.forms import ValidationError
@@ -26,15 +28,103 @@ class DottedNameField(models.CharField):
 
     description = _("Dotted name of some Python object")
 
-    __metaclass__ = models.SubfieldBase
-
     def __init__(self, superclass, *args, **kwargs):
         kwargs['max_length'] = 255
-        kwargs['choices'] = self._generate_choices()
         models.CharField.__init__(self, *args, **kwargs)
 
         self.superclass_name = superclass
         self._superclass = superclass
+
+        # In Django 1.9 choices array is calculated when referenced (even in
+        # models file, which caused circular dependencies. Actual choices are
+        # populated in `get_choices` and `validate` via `_generate_choices`.
+        # The assignment below notifies django to use <select> type input in
+        # admin interface.
+        self.choices = (('dummy', 'Dummy'),)
+
+    # pylint: disable=W0102
+    def get_choices(self, include_blank=True, blank_choice=BLANK_CHOICE_DASH,
+                    limit_choices_to=None):
+        """
+        Copied from Field and replaced self.choices with generate_choices
+        to avoid circular dependency.
+        """
+        blank_defined = False
+        _choices = self._generate_choices()
+        # pylint: disable=W0125
+        choices = list(_choices) if _choices else []
+        named_groups = choices and isinstance(choices[0][1], (list, tuple))
+        if not named_groups:
+            for choice, __ in choices:
+                if choice in ('', None):
+                    blank_defined = True
+                    break
+
+        first_choice = (blank_choice if include_blank and
+                                        not blank_defined else [])
+        # pylint: disable=W0125
+        if _choices:
+            return first_choice + choices
+        rel_model = self.remote_field.model
+        limit_choices_to = limit_choices_to or self.get_limit_choices_to()
+        if hasattr(self.remote_field, 'get_related_field'):
+            lst = [(getattr(x, self.remote_field.get_related_field().attname),
+                    smart_text(x))
+                   for x in rel_model._default_manager.complex_filter(
+                    limit_choices_to)]
+        else:
+            lst = [(x._get_pk_val(), smart_text(x))
+                   for x in rel_model._default_manager.complex_filter(
+                    limit_choices_to)]
+        return first_choice + lst
+
+    def validate(self, value, model_instance):
+        # Our custom validation
+        try:
+            obj = import_string(value)
+        except Exception:
+            raise ValidationError(_("Object %s not found") % (value,))
+
+        superclass = self._get_superclass()
+        if not issubclass(obj, superclass):
+            raise ValidationError(_("%(value)s is not a %(class_name)s")
+                    % dict(value=value, class_name=superclass.__name__))
+
+        if getattr(obj, 'abstract', False):
+            raise ValidationError(_("%s is an abstract class and cannot be "
+                "used") % (value,))
+
+        # Code below copied from Field and replaced self.choices with
+        # generate_choices to avoid circular dependency.
+        _choices = self._generate_choices()
+        if not self.editable:
+            # Skip validation for non-editable fields.
+            return
+
+        if _choices and value not in self.empty_values:
+            for option_key, option_value in _choices:
+                if isinstance(option_value, (list, tuple)):
+                    # This is an optgroup, so look inside the group for
+                    # options.
+                    # pylint: disable=W0612
+                    for optgroup_key, optgroup_value in option_value:
+                        if value == optgroup_key:
+                            return
+                elif value == option_key:
+                    return
+            raise exceptions.ValidationError(
+                self.error_messages['invalid_choice'],
+                code='invalid_choice',
+                params={'value': value},
+            )
+
+        if value is None and not self.null:
+            raise exceptions.ValidationError(self.error_messages['null'],
+                                             code='null')
+
+        if not self.blank and value in self.empty_values:
+            raise exceptions.ValidationError(self.error_messages['blank'],
+                                             code='blank')
 
     def _get_superclass(self):
         if isinstance(self._superclass, basestring):
@@ -57,21 +147,6 @@ class DottedNameField(models.CharField):
         superclass = self._get_superclass()
         superclass.load_subclasses()
         return super(DottedNameField, self).to_python(value)
-
-    def validate(self, value, model_instance):
-        try:
-            obj = import_string(value)
-        except Exception:
-            raise ValidationError(_("Object %s not found") % (value,))
-
-        superclass = self._get_superclass()
-        if not issubclass(obj, superclass):
-            raise ValidationError(_("%(value)s is not a %(class_name)s")
-                    % dict(value=value, class_name=superclass.__name__))
-
-        if getattr(obj, 'abstract', False):
-            raise ValidationError(_("%s is an abstract class and cannot be "
-                "used") % (value,))
 
     def deconstruct(self):
         name, path, args, kwargs = super(DottedNameField, self).deconstruct()
@@ -135,8 +210,8 @@ class EnumField(models.CharField):
                     (registry,)
             kwargs['max_length'] = registry.max_length
             kwargs['choices'] = self._generate_choices()
-        models.CharField.__init__(self, *args, **kwargs)
         self.registry = registry
+        models.CharField.__init__(self, *args, **kwargs)
 
     def _generate_choices(self):
         for item in self.registry.entries:

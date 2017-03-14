@@ -13,10 +13,9 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 16
+INSTALLATION_CONFIG_VERSION = 17
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',)
 
 # Site name displayed in the title and used by sioworkersd
@@ -90,43 +89,49 @@ UNCACHED_TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-TEMPLATE_LOADERS = (
-    ('django.template.loaders.cached.Loader', UNCACHED_TEMPLATE_LOADERS),
-)
-
 PROBLEMSET_LINK_VISIBLE = True
 
 PROBLEM_TAGS_VISIBLE = False
 
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-    'oioioi.su.processors.real_user',
-    'oioioi.base.processors.base_url',
-    'oioioi.base.processors.side_menus',
-    'oioioi.base.processors.site_name',
-    'oioioi.jotform.processors.jotform',
-    'oioioi.contests.processors.register_current_contest',
-    'oioioi.contests.processors.register_recent_contests',
-    'oioioi.contestexcl.processors.register_contest_exclusive',
-    'oioioi.problems.processors.dangling_problems_processor',
-    'oioioi.problems.processors.problemset_link_visible_processor',
-    'oioioi.problems.processors.problems_need_rejudge_processor',
-    'oioioi.problems.processors.can_add_to_problemset_processor',
-    'oioioi.questions.processors.navbar_tip_processor',
-    'oioioi.analytics.processors.analytics_processor',
-    'oioioi.status.processors.status_processor',
-    'oioioi.programs.processors.drag_and_drop_processor',
-    'oioioi.portals.processors.portal_processor',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            'templates',
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.core.context_processors.debug',
+                'django.core.context_processors.i18n',
+                'django.core.context_processors.media',
+                'django.core.context_processors.static',
+                'django.core.context_processors.tz',
+                'django.core.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+                'oioioi.su.processors.real_user',
+                'oioioi.base.processors.base_url',
+                'oioioi.base.processors.side_menus',
+                'oioioi.base.processors.site_name',
+                'oioioi.jotform.processors.jotform',
+                'oioioi.contests.processors.register_current_contest',
+                'oioioi.contests.processors.register_recent_contests',
+                'oioioi.contestexcl.processors.register_contest_exclusive',
+                'oioioi.problems.processors.dangling_problems_processor',
+                'oioioi.problems.processors.problemset_link_visible_processor',
+                'oioioi.problems.processors.problems_need_rejudge_processor',
+                'oioioi.problems.processors.can_add_to_problemset_processor',
+                'oioioi.questions.processors.navbar_tip_processor',
+                'oioioi.analytics.processors.analytics_processor',
+                'oioioi.status.processors.status_processor',
+                'oioioi.programs.processors.drag_and_drop_processor',
+            ],
+        },
+    },
+]
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -196,7 +201,6 @@ INSTALLED_APPS = (
     'kombu.transport.django',
     'djsupervisor',
     'registration',
-    'grappelli',
     'django_nose',
     'django_extensions',
     'debug_toolbar',
@@ -214,6 +218,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -372,13 +377,13 @@ BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
 # pylint: disable=undefined-variable
 
 CELERY_IMPORTS += [
-    'oioioi.evalmgr',
+    'oioioi.evalmgr.tasks',
     'oioioi.problems.unpackmgr',
     'oioioi.prizes.models',
 ]
 
 CELERY_ROUTES.update({
-    'oioioi.evalmgr.evalmgr_job': dict(queue='evalmgr'),
+    'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
     'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
     'oioioi.prizes.models.prizesmgr_job': dict(queue='prizesmgr'),
 })

@@ -1,5 +1,8 @@
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 
-urlpatterns = patterns('oioioi.status.views',
-    url(r'^status/$', 'get_status_view', name='get_status'),
-)
+from oioioi.status import views
+
+
+urlpatterns = [
+    url(r'^status/$', views.get_status_view, name='get_status'),
+]

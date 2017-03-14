@@ -13,9 +13,9 @@ from django.utils.safestring import mark_safe
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
 from oioioi.contests.models import Submission, SubmissionReport, \
-        UserResultForProblem, FailureReport, ProblemInstance
+        UserResultForProblem, FailureReport
 from oioioi.contests.scores import IntegerScore
-from oioioi import evalmgr
+from oioioi.evalmgr.tasks import create_environ, delay_environ
 from oioioi.problems.utils import can_admin_problem
 from django.utils.translation import ugettext_lazy as _
 
@@ -131,7 +131,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         return ['C', 'C++', 'Pascal']
 
     def judge(self, submission, extra_args=None, is_rejudge=False):
-        environ = evalmgr.create_environ()
+        environ = create_environ()
         environ['extra_args'] = extra_args or {}
         environ['is_rejudge'] = is_rejudge
         picontroller = submission.problem_instance.controller
@@ -174,7 +174,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         evalmgr_extra_args = environ.get('evalmgr_extra_args', {})
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
-        evalmgr.delay_environ(environ, **evalmgr_extra_args)
+        delay_environ(environ, **evalmgr_extra_args)
 
     def mixins_for_admin(self):
         """Returns an iterable of mixins to add to the default
