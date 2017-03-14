@@ -2,6 +2,7 @@ import os
 from collections import defaultdict
 
 from datetime import datetime
+import re
 
 from django.conf import settings
 from django.test import RequestFactory
@@ -119,18 +120,29 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
 
         self.client.login(username='test_admin')
         response = self.client.get(url)
+
+        no_whitespaces_content = re.sub(r"\s*", "", response.content)
         for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<',
                 '>0<']:
-            self.assertIn(element, response.content)
-        self.assertEqual(response.content.count('subm_status subm_INI_OK'), 0)
-        self.assertEqual(response.content.count('subm_status subm_INI_ERR'), 1)
-        self.assertEqual(response.content.count('subm_status subm_OK25'), 8)
-        self.assertEqual(response.content.count('subm_status subm_WA'), 5)
-        self.assertNotIn('subm_WA25', response.content)
-        self.assertNotIn('subm_WA50', response.content)
-        self.assertNotIn('subm_ ', response.content)
-        self.assertEqual(response.content.count('subm_status subm_CE'), 2)
-        self.assertEqual(response.content.count('>10.00s<'), 5)
+            self.assertIn(element, no_whitespaces_content)
+
+        self.assertEqual(response.content
+                         .count('submission--INI_OK'), 0)
+        self.assertEqual(response.content
+                         .count('submission--INI_ERR'), 1)
+        self.assertEqual(response.content
+                         .count('submission--OK25'), 8)
+        self.assertEqual(response.content
+                         .count('submission--WA'), 5)
+        self.assertEqual(response.content
+                         .count('submission--CE'), 2)
+
+        self.assertNotIn('submission--WA25', response.content)
+        self.assertNotIn('submission--WA50', response.content)
+        self.assertNotIn('submission-- ', response.content)
+        self.assertNotIn('submission-- ', response.content)
+
+        self.assertEqual(no_whitespaces_content.count('>10.00s<'), 5)
 
 
 class TestHeaderLinks(TestCase):
@@ -216,9 +228,9 @@ class TestOtherSubmissions(TestCase):
                 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
-        self.assertIn('other-submissions', response.content)
-        self.assertIn('subm_status subm_OK', response.content)
-        self.assertIn('subm_status subm_CE', response.content)
+        self.assertIn('Other submissions for this problem', response.content)
+        self.assertIn('submission--OK', response.content)
+        self.assertIn('submission--CE', response.content)
 
     def test_admin(self):
         self._test_get('test_admin')
@@ -238,8 +250,9 @@ class TestNoOtherSubmissions(TestCase):
                 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('other-submissions', response.content)
-        self.assertIn('subm_status subm_OK', response.content)
+        self.assertNotIn('Other submissions for this problem',
+                         response.content)
+        self.assertIn('submission--OK', response.content)
 
     def test_admin(self):
         self._test_get('test_admin')
@@ -286,11 +299,16 @@ class TestDiffView(TestCase):
                      'submission1_id': submission2.id,
                      'submission2_id': submission1.id}
         response = self.client.get(reverse('source_diff', kwargs=kwargs))
-        self.assertContains(response, reverse('source_diff', kwargs=kwargsrev))
-        self.assertIn('diff-line left', response.content)
-        self.assertIn('diff-line right', response.content)
-        self.assertIn('diff-num left', response.content)
-        self.assertIn('diff-num right', response.content)
+        self.assertContains(response, reverse('source_diff',
+                                              kwargs=kwargsrev))
+        self.assertIn('diff-highlight diff-highlight__line left',
+                      response.content)
+        self.assertIn('diff-highlight diff-highlight__line right',
+                      response.content)
+        self.assertIn('diff-highlight diff-highlight__num left',
+                      response.content)
+        self.assertIn('diff-highlight diff-highlight__num right',
+                      response.content)
 
 
 class TestSubmission(TestCase, SubmitFileMixin):
@@ -487,7 +505,7 @@ class TestSubmissionAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('(sum.c)', response.content)
         self.assertIn('test_user', response.content)
-        self.assertIn('subm_status subm_OK', response.content)
+        self.assertIn('submission--OK', response.content)
         self.assertIn('submission_diff_action', response.content)
 
 
@@ -939,8 +957,11 @@ class TestAdminInOutDownload(TestCase):
         # test download in / out hrefs visibility
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count('>out</a>'), 6)
-        self.assertEqual(response.content.count('>in</a>'), 6)
+
+        no_whitespaces_content = re.sub(r"\s*", "", response.content)
+
+        self.assertEqual(no_whitespaces_content.count('>out</a>'), 6)
+        self.assertEqual(no_whitespaces_content.count('>in</a>'), 6)
 
 
 class ContestWithJudgeInfoController(ProgrammingContestController):

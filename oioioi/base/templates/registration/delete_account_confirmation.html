@@ -4,20 +4,21 @@
 {% block title %}{% trans "Confirm deletion" %}{% endblock %}
 
 {% block content %}
-<div class="empty-space-filler">
-    <form action="" method="post" class="form-horizontal">{% csrf_token %}
-        <input type="hidden" name="post" value="yes" />
-        <div class="control-group">
-                <h2>{% trans "Confirm deletion" %}</h2>
-        </div>
-        <div class="control-group">
-                <p>{% trans "You are going to delete your account. It cannot be undone." %}
-                <p>{% trans "Are you sure?" %}
-        </div>
-        <div class="form-actions" style="padding-left: 150px; padding-right: 150px;">
-            <button type="submit" class="btn btn-danger" style="float: left">{% trans "Yes, I'm sure" %}</button>
-            <button type="button" class="btn" onclick="history.back()" style="float: right">{% trans "No, go back" %}</button>
-        </div>
-    </form>
-</div>
+    <div class="alert alert-danger text-center">
+        <h1>{% trans "Confirm deletion" %}</h1>
+        <p>{% trans "You are going to delete your account. It cannot be undone." %}
+        <p>{% trans "Are you sure?" %}
+        <form method="post" class="empty-space-filler">
+            {% csrf_token %}
+            <input type="hidden" name="post" value="yes" />
+            <div class="btn-group">
+                <button type="submit" class="btn btn-danger">
+                    {% trans "Yes, I'm sure" %}
+                </button>
+                <button class="btn btn-default" onclick="history.back()">
+                    {% trans "No, go back" %}
+                </button>
+            </div>
+        </form>
+    </div>
 {% endblock %}

@@ -1,0 +1,13 @@
+{% load i18n %}
+
+{% if is_oisubmit %}
+    {% if received_suspected %}
+        <span class="text-danger" data-toggle="tooltip" data-placement="top" title="{{ comments }}">
+            {% trans "Yes" %}
+        </span>
+    {% else %}
+        <span>{% trans "No" %}</span>
+    {% endif %}
+{% else %}
+    <span>&mdash;</span>
+{% endif %}

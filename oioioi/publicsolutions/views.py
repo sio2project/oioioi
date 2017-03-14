@@ -41,7 +41,7 @@ def list_solutions_view(request):
                            .exists(),
     }
 
-    return TemplateResponse(request, 'publicsolutions/list_solutions.html',
+    return TemplateResponse(request, 'publicsolutions/list-solutions.html',
                             context)
 
 

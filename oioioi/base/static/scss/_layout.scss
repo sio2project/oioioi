@@ -1,0 +1,37 @@
+@import "utility";
+
+.nav-content {
+  padding-top: $padding-large-vertical;
+}
+
+.nav-margin {
+  margin-top: $padding-large-vertical;
+  margin-bottom: $padding-large-vertical;
+}
+
+.empty-space-filler {
+  margin-top: $padding-large-vertical;
+}
+
+.empty-space-filler-bottom {
+  margin-bottom: $padding-large-vertical;
+}
+
+.no-left-padding {
+  padding-left: 0;
+}
+
+.h-scrollable {
+  overflow-x: auto;
+}
+
+.help-inline {
+  @extend .help-block;
+  display: inline;
+}
+
+@media (min-width: $screen-sm-min) {
+  .form-inline .form-group:not(:first-child) {
+    margin-left: 2em;
+  }
+}

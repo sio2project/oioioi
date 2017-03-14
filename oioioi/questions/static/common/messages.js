@@ -108,35 +108,21 @@ function dismissNewMessageAlert(id) {
     $("#alert_" + id).fadeOut();
 }
 
-$.fn.toggleChevron = function() {
-    return $(this).attr('class') == 'icon-chevron-up' ?
-            $(this).chevronExpand() : $(this).chevronCollapse();
-}
-
-$.fn.chevronCollapse = function() {
-    return $(this).attr('class', 'icon-chevron-up');
-}
-
-$.fn.chevronExpand = function() {
-    return $(this).attr('class', 'icon-chevron-down');
-}
-
 $.fn.setMsgHeight = function() {
     $(this).children('td').css('height', $(this).find('div').css('height'));
 }
 
 $(document).ready(function() {
-    var msgs = $("[id*='hidden_message_']");
-    var msg_bars = $("[id*='message_']");
-    var msg_buttons = $("[id*='show_message_']");
-    var expand_text = gettext("Expand all messages");
-    var collapse_text = gettext("Collapse all messages");
-    var single_expand_text = gettext("Expand message");
-    var single_collapse_text = gettext("Collapse message");
-    var expand = true;
-    var btn = $('a#expand_messages');
-    var speed = 200;
-    var message_on_expand = function(msg) {
+    const msgs = $("[id*='hidden_message_']");
+    const msg_bars = $("[id*='message_']");
+    const single_expand_text = gettext("Expand message");
+    const single_collapse_text = gettext("Collapse message");
+    let can_expand = true;
+    const btn_expand = $('#expand_message');
+    const btn_collapse = $('#collapse_message');
+    const distance_between_buttons = 4;
+    const speed = 200;
+    const message_on_expand = function(msg) {
         if ($(msg).attr("data-is-new") == 1)
         {
             $.ajax({
@@ -146,54 +132,59 @@ $(document).ready(function() {
 
             $(msg).removeAttr("data-visit-url");
             $(msg).attr("data-is-new", 0);
-            $(msg).prev().find(".new-msg-label").remove();
+            $(msg).prev().find("#new-msg-label").remove();
         }
     };
 
-    btn.text(expand_text);
-    msg_buttons.attr('title', single_expand_text);
-    msgs.find('div').css('position', 'absolute');
+    // Let two buttons lay one over another.
+    btn_collapse.css('margin-left', -btn_expand.outerWidth() -
+        distance_between_buttons);
 
-    btn.click(function() {
-        if (expand)
-            msgs.each(function() {
+    // It must be set as visibility (not toggle()) because we want buttons
+    // to be just invisible.
+    btn_collapse.css('visibility', 'hidden');
+
+    btn_expand.click(function() {
+        if (can_expand) {
+            msgs.each(function () {
                 $(this).show(speed);
                 $(this).setMsgHeight();
                 message_on_expand(this);
             });
-        else
+
+            $(this).css('visibility', 'hidden');
+            btn_collapse.css('visibility', 'visible');
+        }
+
+        can_expand = false;
+    });
+
+    btn_collapse.click(function() {
+        if (!can_expand) {
             msgs.hide(speed);
+            $(this).css('visibility', 'hidden');
+            btn_expand.css('visibility', 'visible');
+        }
 
-
-        $(this).text(expand ? collapse_text : expand_text);
-        msg_buttons.children('i').each(function() {
-            if (expand)
-                $(this).chevronCollapse();
-            else
-                $(this).chevronExpand();
-        });
-        expand = !expand;
+        can_expand = true;
     });
 
-    msg_bars.mouseenter(function() {
-        $(this).children('td#msg_buttons').fadeTo(1, 1);
-    });
-
-    msg_bars.mouseleave(function() {
-        $(this).children('td#msg_buttons').fadeTo(1, 0);
-    });
-
-    msg_buttons.click(function() {
+    msg_bars.click(function() {
         var s = $(this).attr('id');
+        // 8 is the length of "message_"
+        var message_number = parseInt(s.substring(8, s.length));
         var hidden_msg =
-                $('#hidden_message_' + parseInt(s.substring(13, s.length)));
+                $('#hidden_message_' + message_number);
 
         hidden_msg.toggle(speed);
         hidden_msg.setMsgHeight();
         message_on_expand(hidden_msg);
 
-        $(this).children('i').toggleChevron();
         $(this).attr('title', $(this).attr('title') == single_expand_text ?
                 single_collapse_text : single_expand_text);
+    });
+
+    msg_bars.find('a').click(function(e) {
+        e.stopPropagation();
     });
 });

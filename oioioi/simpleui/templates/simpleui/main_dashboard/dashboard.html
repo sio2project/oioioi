@@ -4,17 +4,17 @@
 {% block title %}{% trans "Teacher dashboard" %}{% endblock %}
 
 {% block styles %}
-    {{ block.super }}
-    {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}simpleui/simpleui.less">
-        <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}simpleui/main_dashboard.css">
-    {% endcompress %}
+{{ block.super }}
+{% compress css %}
+    <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/simpleui.scss">
+    <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/main_dashboard.scss">
+{% endcompress %}
 {% endblock %}
 
 {% block container-class %}simpleui__container{% endblock %}
 
 {% block body %}
-<div class="contest top-row">
+<div class="contest">
     <header class="contest__header">
         <h1 class="inline-menu__name contest__name">{% trans "Teacher dashboard" %}</h1>
         <div class="inline-menu">
@@ -58,7 +58,7 @@
     <script type="text/javascript" src="{{ STATIC_URL }}simpleui/main_dashboard.js"></script>
     {% if are_contests_limited %}
         <div class="limited_contests">
-            <a class="btn btn-primary" href="{% url 'select_contest' %}">
+            <a role="button" class="btn btn-primary" href="{% url 'select_contest' %}">
                 {% trans "Show all contests" %}
             </a>
         </div>

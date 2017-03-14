@@ -1,0 +1,9 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Add news" %}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Add news" %}</h1>
+    {% include "newsfeed/news-form.html" %}
+{% endblock %}

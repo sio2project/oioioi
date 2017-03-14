@@ -6,9 +6,9 @@ from django import forms
 
 class DateTimePicker(forms.widgets.DateTimeInput):
     class Media(object):
-        js = ['bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker-oioioi.js',
-              'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker-oioioi-run.js',
-              'bootstrap-datetimepicker-oioioi/locales.js']
+        js = ['bootstrap-datetimepicker-oioioi/moment.min.js',
+              'bootstrap-datetimepicker-oioioi/pl.js',
+              'bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.js']
         css = {'all': ('bootstrap-datetimepicker-oioioi/bootstrap-datetimepicker.min.css',)}
 
     def __init__(self, *args, **kwargs):

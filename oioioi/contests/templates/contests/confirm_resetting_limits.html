@@ -3,26 +3,35 @@
 
 {% block title %}{% trans "Confirm resetting limits" %}{% endblock %}
 
-{% block content %}
-<div class="empty-space-filler">
-    <form action="" method="post" class="form-horizontal">{% csrf_token %}
-        <input type="hidden" name="post" value="yes" />
-        <div class="control-group">
-                <h2>{% trans "Confirm resetting limits" %}</h2>
-        </div>
-        <div class="control-group">
-                <p>{% trans "You are going to reset time and memory limits and point" %}
-                    {% trans "scores of all tests for problem" %} {{ probleminstance }}.
-                <br>
-                    {% trans "Limits and scores for this problem will be replaced by limits setted on" %}
-                    <a href="{% url 'problem_site' probleminstance.problem.problemsite.url_key %}">{% trans "problem site" %}</a>.
-                </p>
-                <p>{% trans "Are you sure?" %}</p>
-        </div>
-        <div class="form-actions" style="padding-left: 150px; padding-right: 150px;">
-            <button type="submit" class="btn btn-danger" style="float: left">{% trans "Yes, I am sure." %}</button>
-            <button type="button" class="btn" onclick="history.back()" style="float: right">{% trans "No, go back" %}</button>
-        </div>
-    </form>
-</div>
+{% block main-content %}
+
+<h1>{% trans "Confirm resetting limits" %}</h1>
+
+<p>
+    {% url 'problem_site' probleminstance.problem.problemsite.url_key as url %}
+    {% blocktrans %}
+        You are going to reset time and memory limits and point
+        scores of all tests for problem {{ probleminstance }}.
+        <br>
+        Limits and scores for this problem will be replaced by limits setted on
+        <a href="{{ url }}">
+            {{ problem site }}
+        </a>.
+    {% endblocktrans %}
+</p>
+
+<p>{% trans "Are you sure?" %}</p>
+
+<form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="post" value="yes" />
+    <div class="form-group">
+        <button type="submit" class="btn btn-danger">
+            {% trans "Yes, I am sure." %}
+        </button>
+        <button type="button" class="btn btn-default" onclick="history.back()">
+            {% trans "No, go back" %}
+        </button>
+    </div>
+</form>
 {% endblock %}

@@ -17,7 +17,7 @@ def registration_notice_fragment(request):
             and not is_contest_admin(request) \
             and not is_participant(request) \
             and rc.can_register(request):
-        return render_to_string('pa/registration_notice.html',
+        return render_to_string('pa/registration-notice.html',
             context_instance=RequestContext(request))
     else:
         return None

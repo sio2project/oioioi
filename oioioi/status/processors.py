@@ -12,10 +12,10 @@ def status_processor(request):
         return {}
 
     def outdated_generator():
-        return render_to_string('status/outdated_modal.html')
+        return render_to_string('status/outdated-modal.html')
 
     def status_generator():
-        return render_to_string('status/initial_status.html',
+        return render_to_string('status/initial-status.html',
             {'status': get_status(request)})
 
     # Well, we want to generate the status JSON as late as possible, for the

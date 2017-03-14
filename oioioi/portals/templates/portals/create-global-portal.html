@@ -5,7 +5,7 @@
 
 {% block content %}
     <p>{% trans "The global portal does not exist yet. Do you want to create it?" %}</p>
-    <form method="post" action="">
+    <form method="post">
          {% csrf_token %}
          <button type="submit" class="btn btn-primary" name="confirmation" value="">{% trans "Yes" %}</button>
          <button type="submit" class="btn btn-primary">{% trans "No" %}</button>

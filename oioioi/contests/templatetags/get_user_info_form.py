@@ -5,7 +5,7 @@ from django.conf import settings
 register = template.Library()
 
 
-@register.inclusion_tag('contests/user_info_dropdown_form.html',
+@register.inclusion_tag('contests/navbar-user-info-form.html',
                         takes_context=True)
 def user_info_dropdown_form(context):
     return {

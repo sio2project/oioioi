@@ -2,7 +2,7 @@
 {% load check_perm %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 
-<div class="alert alert-danger alert-block disqualification-box">
+<div class="alert alert-danger">
     <h4>{% trans "Disqualification" %}</h4>
     {% blocktrans %}
     <p>

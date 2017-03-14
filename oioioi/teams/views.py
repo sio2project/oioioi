@@ -78,7 +78,7 @@ def create_team_view(request):
                      kwargs={'contest_id': request.contest.id}))
     else:
         team_create_form = CreateTeamForm()
-    return TemplateResponse(request, 'teams/create_team.html',
+    return TemplateResponse(request, 'teams/create-team.html',
                                 {'form': team_create_form})
 
 
@@ -94,8 +94,8 @@ def join_team_view(request, join_key):
         return HttpResponseRedirect(reverse('team_view',
                                    kwargs={'contest_id': request.contest.id}))
     else:
-        members = team_members_names(team)
-        return TemplateResponse(request, 'teams/confirm_join_team.html',
+        members = team_members_names(request=request, team=team)
+        return TemplateResponse(request, 'teams/confirm-join-team.html',
                                 {'join_key': join_key, 'members': members,
                                  'name': team.name})
 

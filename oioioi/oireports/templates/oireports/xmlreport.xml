@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-{% load i18n %}
-{% load runtimeformat %}
-{% load xmlreport_result %}
+{% load i18n runtimeformat xmlreport_result %}
 <siorpt>
 
 {% if rows %}
@@ -44,7 +42,7 @@
     </rpt>
     {% endfor %}
 {% else %}
-{% blocktrans %}Strange, there is no one in this report{% endblocktrans %}
+    {% blocktrans %}Strange, there is no one in this report{% endblocktrans %}
 {% endif %}
 
 </siorpt>

@@ -139,7 +139,7 @@ def add_or_update_problem(request, contest, template):
 @transaction.non_atomic_requests
 def add_or_update_problem_view(request):
     return add_or_update_problem(request, request.contest,
-                                 'problems/add_or_update.html')
+                                 'problems/add-or-update.html')
 
 
 def get_problem_queryset_by_tag(datadict):
@@ -164,7 +164,7 @@ def problemset_generate_view(request, page_title, problems):
     form = ProblemsetSourceForm("")
 
     return TemplateResponse(request,
-       'problems/problemset/problem_list.html',
+       'problems/problemset/problem-list.html',
       {'problems': problems,
        'page_title': page_title,
        'select_problem_src': request.GET.get('select_problem_src'),
@@ -227,7 +227,7 @@ def problem_site_view(request, site_key):
         tab_link_params['key'] = tab.key
         return request.path + '?' + urllib.urlencode(tab_link_params)
 
-    return tabbed_view(request, 'problems/problemset/problem_site.html',
+    return tabbed_view(request, 'problems/problemset/problem-site.html',
             context, problem_site_tab_registry, tab_kwargs, build_link)
 
 
@@ -255,7 +255,7 @@ def problemset_add_to_contest_view(request, site_key):
     administered = administered_contests(request)
     administered = sorted(administered,
         key=lambda x: x.creation_date, reverse=True)
-    return TemplateResponse(request, 'problems/problemset/select_contest.html',
+    return TemplateResponse(request, 'problems/problemset/select-contest.html',
                             {'site_key': site_key,
                              'administered_contests': administered,
                              'problem_name': problem_name})
@@ -290,7 +290,7 @@ def problemset_add_or_update_problem_view(request):
         raise PermissionDenied
 
     return add_or_update_problem(request, None,
-                                 'problems/problemset/add_or_update.html')
+                                 'problems/problemset/add-or-update.html')
 
 
 def model_solutions_view(request, problem_instance_id):

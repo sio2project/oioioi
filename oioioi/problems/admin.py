@@ -286,7 +286,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
     def colored_status(self, instance):
         status_to_str = {'OK': 'ok', '?': 'in_prog', 'ERR': 'err'}
         package_status = status_to_str[instance.status]
-        return '<span class="subm_admin prob_pack_%s">%s</span>' % \
+        return '<span class="submission-admin prob-pack--%s">%s</span>' % \
                 (package_status, force_unicode(instance.get_status_display()))
     colored_status.allow_tags = True
     colored_status.short_description = _("Status")

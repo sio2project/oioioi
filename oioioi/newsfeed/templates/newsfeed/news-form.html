@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<form method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans 'Submit' %}
+        </button>
+    </div>
+</form>
+
+{% include "ingredients/markdown-editor.html" %}
+<script>
+    $(function () {
+        $("#id_content").markdown();
+    });
+</script>

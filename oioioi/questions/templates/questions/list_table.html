@@ -1,60 +1,69 @@
-{% load i18n check_perm get_user_name %}
+{% load i18n check_perm get_user_name compress %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-{% if records %}
-{% endif %}
-<table class="{% block table-classes %}table auto-width row-links{% endblock %}">
-    <thead>
-        <tr>
-            {% if not hide_author %}<th style="min-width: 130px">{% trans "Author" %}</th>{% endif %}
-            <th style="min-width: 120px">{% trans "Date" %}</th>
-            {% if is_admin %}
-            <th style="min-width: 100px">{% trans "Publication date" %}</th>
-            {% endif %}
-            <th style="min-width: 80px">{% trans "Category" %}</th>
-            <th style="min-width: 250px">
-                {% trans "Topic" %}
-                <a class="btn btn-small expand_button" id="expand_messages">
-                    <span class="toolbar-button-text"></span>
-                </a>
-            </th>
-            {% if is_admin %}
-            <th style="min-width: 50px">{% trans "Kind" %}</th>
-            {% endif %}
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in records %}
-        {% with record.message as msg %}
-        {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
-        {% url 'message_visit' contest_id=contest.id message_id=record.link_message.id as visit_link %}
-        <tr class="{% if record.needs_reply %}error{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}" id="message_{{ msg.id }}">
-            {% if not hide_author %}<td>{% full_name msg.author %}</td>{% endif %}
-            {% if is_admin %}
-            <td><a href="{{ link }}">{{ msg.date }}</a></td>
-            <td>{% if msg.pub_date %}<a href="{{ link }}">{{ msg.pub_date }}</a>{% endif %}</td>
-            {% else %}
-            <td><a href="{{ link }}">{{ msg.get_user_date }}</a></td>
-            {% endif %}
-            <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
-            <td>{% if not record.read and not is_admin %}<span class="label label-info new-msg-label">{% trans "NEW" %}</span> {% endif %}<a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a></td>
-            {% if is_admin %}
-            <td><span class="label {% if record.needs_reply %}label-important{% endif %}">{{ msg.kind }}</span></td>
-            {% endif %}
-            <td class="message_buttons" style="background: none" id="msg_buttons">
-                <a class="btn btn-mini" id="show_message_{{ msg.id }}">
-                    <i class="icon-chevron-down"></i>
-                </a>
-            </td>
-        </tr>
-        <tr
-          {% if not record.read and not is_admin %}data-visit-url="{{ visit_link }}"{% endif %}
-          data-is-new="{% if not record.read and not is_admin %}1{% else %}0{% endif %}" id="hidden_message_{{ msg.id }}"
-          style="display: none">
-            <td colspan="{% if is_admin %}5{% else %}3{% endif %}" ><div>{{ msg.content|urlize|linebreaks }}</div></td>
-            <td style="border: none"></td>
-        </tr>
-        {% endwith %}
-        {% endfor %}
-    </tbody>
-</table>
+
+
+<div class="table-responsive">
+    <table class="{% block table-classes %}table{% endblock %}">
+        <thead>
+            <tr>
+                {% if not hide_author %}<th>{% trans "Author" %}</th>{% endif %}
+                <th>{% trans "Date" %}</th>
+                {% if is_admin %}
+                <th>{% trans "Publication date" %}</th>
+                {% endif %}
+                <th>{% trans "Category" %}</th>
+                <th class="oioioi-th-with-button">
+                    <span>{% trans "Topic" %}</span>
+                    <button class="btn btn-sm btn-default" id="expand_message">
+                        <span>{% trans 'Expand all messages' %}</span>
+                    </button>
+                    <button class="btn btn-sm btn-default" id="collapse_message">
+                        <span>{% trans 'Collapse all messages' %}</span>
+                    </button>
+                </th>
+                {% if is_admin %}
+                <th>{% trans "Kind" %}</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            {% with record.message as msg %}
+            {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
+            {% url 'message_visit' contest_id=contest.id message_id=record.link_message.id as visit_link %}
+            <tr class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}" id="message_{{ msg.id }}">
+                {% if not hide_author %}<td>{% full_name msg.author %}</td>{% endif %}
+                {% if is_admin %}
+                    <td><a href="{{ link }}">{{ msg.date }}</a></td>
+                    <td>{% if msg.pub_date %}<a href="{{ link }}">{{ msg.pub_date }}</a>{% endif %}</td>
+                {% else %}
+                    <td><a href="{{ link }}">{{ msg.get_user_date }}</a></td>
+                {% endif %}
+                <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
+                <td>
+                    {% if not record.read and not is_admin %}
+                        <span class="label label-info" id="new-msg-label">{% trans "NEW" %}</span>
+                    {% endif %}
+                    <a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a>
+                </td>
+                {% if is_admin %}
+                    <td>
+                        <span class="label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
+                            {{ msg.kind }}
+                        </span>
+                    </td>
+                {% endif %}
+            </tr>
+            <tr
+            {% if not record.read and not is_admin %}data-visit-url="{{ visit_link }}"{% endif %}
+            data-is-new="{% if not record.read and not is_admin %}1{% else %}0{% endif %}" id="hidden_message_{{ msg.id }}"
+            class="collapse">
+                <td colspan="{% if is_admin %}6{% else %}4{% endif %}">
+                    <div>{{ msg.content|urlize|linebreaks }}</div>
+                </td>
+            </tr>
+            {% endwith %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

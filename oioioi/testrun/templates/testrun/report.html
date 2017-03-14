@@ -1,61 +1,65 @@
-{% load i18n %}
-{% load runtimeformat %}
-{% load check_perm %}
+{% load i18n runtimeformat check_perm %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 
 <h4>{% trans "Test run report" %}</h4>
 
 {% if compilation_report.status != 'OK' %}
-<p>{% trans "Compilation failed." %}</p>
-<pre class="hscroll">
-{{ compilation_report.compiler_output }}
-</pre>
+    <p>{% trans "Compilation failed." %}</p>
+    <pre>
+        {{ compilation_report.compiler_output }}
+    </pre>
 {% else %}
-<table class="table auto-width dense space-columns full-grid results">
-    <thead>
-        <tr>
-            {% block thead_tr %}
-            <th class="subm_margin"></th>
-            <th style="min-width: 80px">{% trans "Input" %}</th>
-            <th style="min-width: 200px">{% trans "Result" %}</th>
-            <th style="min-width: 110px">{% trans "Time" %}</th>
-            <th style="min-width: 80px">{% trans "Output" %}</th>
-            {% endblock %}
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            {% block tbody_tr %}
-            <td class="subm_margin subm_{{ testrun_report.status }}"></td>
-            <td>
-                {% if not input_is_zip %}
-                <button type="button" class="btn" data-async-toggle="collapse" data-target="#input_data"><i class="icon-chevron-up"></i></button>
-                {% endif %}
-                <a class="btn" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
-            </td>
-            <td class="subm_status subm_{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
-            <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
-            <td>
-                <button type="button" class="btn" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}"><i class="icon-chevron-down"></i></button>
-                {% if is_admin %}
-                    <a class="btn" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}"><i class="icon-download-alt"></i></a>
-                {% else %}
-                    <a class="btn" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}"><i class="icon-download-alt"></i></a>
-                {% endif %}
-            </td>
-            {% endblock %}
-        </tr>
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-condensed submission">
+        <thead>
+            <tr>
+                {% block thead_tr %}
+                <th class="submission__margin"></th>
+                <th>{% trans "Input" %}</th>
+                <th>{% trans "Result" %}</th>
+                <th>{% trans "Time" %}</th>
+                <th>{% trans "Output" %}</th>
+                {% endblock %}
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% block tbody_tr %}
+                <td class="submission__margin submission--{{ testrun_report.status }}"></td>
+                <td>
+                    {% if not input_is_zip %}
+                    <button type="button" class="btn btn-xs btn-default" data-async-toggle="collapse" data-target="#input_data">
+                        <span class="glyphicon glyphicon-chevron-up"></span>
+                    </button>
+                    {% endif %}
+                    <a role="button" class="btn btn-xs btn-default" href="{% url 'download_testrun_input' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+                        <span class="glyphicon glyphicon-download-alt"></span>
+                    </a>
+                </td>
+                <td class="submission__status submission--{{ testrun_report.status }}">{{ testrun_report.get_status_display }}</td>
+                <td>{{ testrun_report.time_used|runtimeformat }}/{{ testrun_report.test_time_limit|runtimeformat }}</td>
+                <td>
+                    <button type="button" class="btn btn-xs btn-default" data-async-toggle="collapse" data-target="#{{ output_container_id_prefix }}{{ testrun_report.id }}">
+                        <span class="glyphicon glyphicon-chevron-down"></span>
+                    </button>
+                    {% if is_admin %}
+                        <a role="button" class="btn btn-xs btn-default" href="{% url 'download_specific_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id testrun_report_id=testrun_report.id%}">
+                            <span class="glyphicon glyphicon-download-alt"></span>
+                        </a>
+                    {% else %}
+                        <a role="button" class="btn btn-xs btn-default" href="{% url 'download_testrun_output' contest_id=contest.id submission_id=testrun_report.submission_report.submission.id %}">
+                            <span class="glyphicon glyphicon-download-alt"></span>
+                        </a>
+                    {% endif %}
+                </td>
+                {% endblock %}
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 {% if testrun_report.comment %}
-<div class="test-comments">
-    <ul>
-        <li>
-            <span class="test">{{ testrun_report.comment }}</span>
-        </li>
-    </ul>
-</div>
+    <p><strong>{% trans 'Comment' %}:</strong> {{ testrun_report.comment }}</p>
 {% endif %}
 
 {% block output_collapse %}

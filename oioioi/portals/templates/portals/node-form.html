@@ -1,100 +1,69 @@
 {% extends "portals/base-node.html" %}
 {% load i18n %}
 
-{% block scripts %}
-    {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/urlify.js"></script>
-    <script type="text/javascript">
-        $(function() {
-            var short_name = $('#id_short_name');
-            if(short_name.length) {
-                $('#id_full_name').keyup(function() {
-                    short_name.val(URLify($(this).val()));
-                });
-            }
-        });
-    </script>
-
-    <link rel="stylesheet" href="{{ STATIC_URL }}portals/editor.css" />
-    <script type="text/javascript" src="{{ STATIC_URL }}portals/editor.js"></script>
-    <script>
-        $(function() {
-            var togglePreview = function(editor) {
-                var toolbar = editor.toolbar.preview;
-                var parse = editor.constructor.markdown;
-                var cm = editor.codemirror;
-                var wrapper = cm.getWrapperElement();
-                var preview = wrapper.lastChild;
-                if (!/editor-preview/.test(preview.className)) {
-                    preview = document.createElement('div');
-                    preview.className = 'editor-preview';
-                    wrapper.appendChild(preview);
-                }
-                if (/editor-preview-active/.test(preview.className)) {
-                    preview.className = preview.className.replace(
-                        /\s*editor-preview-active\s*/g, ''
-                    );
-                    toolbar.className = toolbar.className.replace(/\s*active\s*/g, '');
-                } else {
-                    /* When the preview button is clicked for the first time,
-                    * give some time for the transition from editor.css to fire
-                    * and the view to slide from right to left,
-                    * instead of just appearing.
-                    */
-                    setTimeout(function() {preview.className += ' editor-preview-active'}, 1);
-                    toolbar.className += ' active';
-                }
-                var text = cm.getValue();
-                $.post("{% url 'render_markdown' %}", {markdown: text, csrfmiddlewaretoken: '{{ csrf_token }}'}, function(data) {
-                    preview.innerHTML = data.rendered;
-                })
-            }
-
-            var editor = new Editor({
-                element: document.getElementById('{{ form.panel_code.id_for_label }}'),
-                toolbar: [
-                    {name: 'bold', action: Editor.toggleBold},
-                    {name: 'italic', action: Editor.toggleItalic},
-                    '|',
-                    {name: 'quote', action: Editor.toggleBlockquote},
-                    {name: 'unordered-list', action: Editor.toggleUnOrderedList},
-                    {name: 'ordered-list', action: Editor.toggleOrderedList},
-                    '|',
-                    {name: 'link', action: Editor.drawLink},
-                    {name: 'image', action: Editor.drawImage},
-                    '|',
-                    {name: 'info', action: 'http://lab.lepture.com/editor/markdown'},
-                    {name: 'preview', action: togglePreview},
-                    {name: 'question'},
-                    {name: 'fullscreen', action: Editor.toggleFullScreen}
-                ]
-            });
-            editor.render();
-
-            $('.editor-toolbar a.icon-question').tooltip({
-                title: 'You can add a YouTube video using Markdown Tag [[YouTube|<url>]] ' +
-                       'and a problem table (its early, modest version) using ' +
-                       '[[ProblemTable|url1;url2;...]]',
-                placement: 'top',
-            });
-        });
-    </script>
-    <style>
-        .control-group [class^="icon-"], [class*=" icon-"] {
-            background-image: none;
-        }
-    </style>
-{% endblock %}
-
 {% block panel %}
     <h2>{% block form_header %}{% endblock %}</h2>
-    <form method="post" action="" class="form-horizontal">
+    <form method="post">
         {% csrf_token %}
-        <fieldset>
-            {% include 'ingredients/form.html' %}
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
-            </div>
-        </fieldset>
+        {% include 'ingredients/form.html' %}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        </div>
     </form>
+
+    {% include "ingredients/markdown-editor.html" %}
+    <script>
+        $(function() {
+            $("#{{ form.panel_code.id_for_label }}").markdown({
+                onPreview: function(e) {
+                    const originalContent = e.getContent();
+                    let rendered = originalContent;
+
+                    $.ajax({
+                      type: 'POST',
+                      url: '{% url "render_markdown" %}',
+                      data: {
+                          markdown: originalContent,
+                          csrfmiddlewaretoken: '{{ csrf_token }}'
+                      },
+                      success: function (data) {
+                            console.log('fun');
+                          rendered = data.rendered;
+                      },
+                      async: false
+                    });
+                    return rendered;
+                },
+                additionalButtons: [
+                    [
+                        {
+                            name: "oioioiGroup",
+                            data: [
+                                {
+                                    name: "cmdYoutube",
+                                    title: "YouTube",
+                                    icon: {
+                                        glyph: 'glyphicon glyphicon-play'
+                                    },
+                                    callback: function (e) {
+                                        e.replaceSelection('[[YouTube|<url>]]');
+                                    }
+                                },
+                                {
+                                    name: "cmdProblemTable",
+                                    title: "Problem Table",
+                                    icon: {
+                                        glyph: 'glyphicon glyphicon-align-justify'
+                                    },
+                                    callback: function (e) {
+                                        e.replaceSelection('[[ProblemTable|url1;url2;...]]');
+                                    }
+                                },
+                            ]
+                        }
+                    ]
+                ]
+            })
+        });
+    </script>
 {% endblock %}

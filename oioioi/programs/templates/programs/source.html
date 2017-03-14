@@ -8,14 +8,16 @@
 </style>
 {% endblock %}
 
-{% block title %}{% blocktrans %}Source code for submission {{ submission_id }}{% endblocktrans %}{% endblock %}
+{% block title %}
+{% blocktrans %}Source code for submission {{ submission_id }}{% endblocktrans %}
+{% endblock %}
 
-{% block content %}
+{% block main-content %}
     {% if decode_error %}
         {% include "programs/file_decoding_error.html" %}
     {% endif %}
     {% if is_source_safe %}
-        {{ source|safe }}
+        <div class="h-scrollable">{{ source|safe }}</div>
     {% else %}
         <pre>{{ source }}</pre>
     {% endif %}

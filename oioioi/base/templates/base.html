@@ -1,74 +1,113 @@
 <!DOCTYPE html>
 
-{% load i18n all_with_prefix common_media compress site_displayed %}
+{% load i18n all_with_prefix common_media compress simple_tags get_clocks get_su %}
 {% site_displayed_tag %}
 
 <html lang="{{ LANGUAGE_CODE|default:"en" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
     <head>
     {% block head %}
         <title>{% block title %}{% trans "Main page" %}{% endblock %} - {{ site_name }}</title>
-        {% block styles %}
-        {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}less/style.less">
-        {% common_styles %}
-        {% endcompress %}
-        {% endblock %}
-
         <meta charset="UTF-8">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="shortcut icon" href="{{ STATIC_URL }}favicon.ico" />
 
-        {% block scripts %}
-        <script type="text/javascript">var oioioi_base_url = "{{ base_url|escapejs }}";</script>
+        {% comment %}
+        Load jQuery because inlined scripts in some views depends on it.
+        Some scripts depends on events triggered by views so they also must be includede here.
+        {% endcomment %}
         {% compress js %}
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/lang_select_pro.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/csrf_link_protect.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-dropdown.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-button.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-modal.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-tooltip.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-popover.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-transition.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-typeahead.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap-collapse.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-async-collapsible.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>
-        <script type="text/javascript" src="{{ STATIC_URL }}js/menu.js"></script>
-        <script type="text/javascript">
-            $(function () {
-                $("[data-toggle='tooltip']").tooltip();
-            });
-        </script>
-        {% common_scripts %}
+            <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.9.1.min.js"></script>
+            {% common_scripts %}
         {% endcompress %}
-        <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
 
+        {% block styles %}
+            {% compress css %}
+                <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}scss/style.scss">
+                {% common_styles %}
+            {% endcompress %}
         {% endblock %}
+
         {% all_with_prefix extra_head_ %}
+
+        {% block extrahead %}{% endblock %}
     {% endblock %}
     </head>
     <body class="{% block body-class %}{% endblock %}">
         <div class="wrapper">
-            {% all_with_prefix extra_body_ %}
-            {% block navbar %}
-            {% include "ingredients/navbar.html" %}
-            {% endblock %}
+            {# We cannot move it into seperate file, because blocks has be overriden by extending this template #}
+            <header id="oioioi-navbar" class="oioioi-navbar hidden-print
+            {% if request.session.admin_time %} oioioi-navbar--admin-time {% endif %}
+            {% if is_under_su %} oioioi-navbar--admin-su {% endif %} {% block navbar-class %}{% endblock %}">
 
-            <div class="{% block container-class %}container{% endblock %} body">
+                {% block navbar-menu %}
+                <a class="oioioi-navbar__brand oioioi-navbar__brand--always" href="{% url 'index' contest_id=None %}">{{ site_name }}</a>
+                {% endblock %}
+
+                <div class="oioioi-navbar__contests">
+                    {% include "ingredients/navbar-contests.html" %}
+                </div>
+
+                <div class="oioioi-navbar__extra">
+                    {% all_with_prefix extra_navbar_left_ %}
+                    {% block navbar-left-extras %}{% endblock %}
+                </div>
+
+                <div class="oioioi-navbar__flex"></div>
+
+                <div class="oioioi-navbar__countdown">
+                    {% navbar_countdown %}
+                </div>
+
+                <div class="oioioi-navbar__flex"></div>
+
+                <div class="oioioi-navbar__extra">
+                    {% all_with_prefix extra_navbar_right_ %}
+                    {% block navbar-right-extras %}{% endblock %}
+                    {% if real_user.is_superuser %}
+                        {% navbar_admin_clock %}
+                    {% else %}
+                        {% navbar_clock %}
+                    {% endif %}
+                </div>
+
+                <div class="oioioi-navbar__user">
+                    {% block navbar_user_panel %}
+                        {% include "ingredients/navbar-user.html" %}
+                    {% endblock %}
+                </div>
+            </header>
+
+            <div class="{% block container-class %}container-fluid{% endblock %} body">
+                {% all_with_prefix extra_body_ %}
                 {% block body %}
                 {% endblock %}
             </div>
 
-            <footer class="hidden-print">
-                {% block footer %}
+            {% block footer %}
                 {% include "ingredients/footer.html" %}
-                {% endblock %}
-            </footer>
-            {% all_with_prefix extra_footer_ %}
+            {% endblock %}
         </div>
+        {% block scripts %}
+            <script type="text/javascript">const oioioi_base_url = "{{ base_url|escapejs }}";</script>
+            {% compress js %}
+                <script type="text/javascript" src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-typeahead.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.cookie.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/utils.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/csrf_link_protect.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/language-picker.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.storageapi.min.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-table-responsive-dropdown-fix.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap-async-collapsible.js"></script>
+                <script type="text/javascript" src="{{ STATIC_URL }}js/menu.js"></script>
+                <script type="text/javascript">
+                    $(function () {
+                        $("[data-toggle='tooltip']").tooltip();
+                    });
+                </script>
+            {% endcompress %}
+            <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
+        {% endblock %}
     </body>
 </html>

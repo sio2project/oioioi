@@ -5,34 +5,34 @@
 
 {% block title %}{% trans "Tests" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Tests" %}</h2>
-{% if tests %}
-<div class="paginated-list">
-{% autopaginate tests tests_on_page %}
-{% paginate %}
-<table class="table auto-width row-links">
-    <thead>
-        <tr>
-            <th style="min-width: 100px">{% trans "File" %}</th>
-            <th style="min-width: 300px">{% trans "Description" %}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for test in tests %}
-        <tr>
-            <td><a href="{{ test.link }}">{{ test.name }}</a></td>
-            <td>{{ test.description }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% paginate %}
-</div>
-{% else %}
-<div class="empty-space-filler">
-    {% blocktrans %}No tests are available.{% endblocktrans %}
-</div>
-{% endif %}
+{% block main-content %}
+    <h2>{% trans "Tests" %}</h2>
+    {% if tests %}
+        {% autopaginate tests tests_on_page %}
+        {% paginate %}
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{% trans "File" %}</th>
+                            <th>{% trans "Description" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for test in tests %}
+                        <tr>
+                            <td><a href="{{ test.link }}">{{ test.name }}</a></td>
+                            <td>{{ test.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% paginate %}
+    {% else %}
+        <div class="alert alert-info">
+            {% blocktrans %}No tests are available.{% endblocktrans %}
+        </div>
+    {% endif %}
 {% endblock %}
 

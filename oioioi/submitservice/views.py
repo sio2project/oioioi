@@ -97,7 +97,7 @@ def view_user_token(request):
         current_token.save()
     else:
         current_token = current_token[0]
-    return TemplateResponse(request, 'submitservice/view_user_token.html',
+    return TemplateResponse(request, 'submitservice/view-user-token.html',
                             {'token': current_token.token,
                              'contest_url': request.build_absolute_uri(reverse(
                                  'oioioi.contests.views.default_contest_view',

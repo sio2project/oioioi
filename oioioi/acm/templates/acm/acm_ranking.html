@@ -1,59 +1,70 @@
 {% load i18n check_perm get_user_name static %}
 
 {% if rows %}
-{% if frozen %}
-    <div class="alert alert-info">{% trans "The ranking is frozen." %}</div>
-{% endif %}
-<table class="{% block table-classes %}acm-ranking table auto-width dense{% endblock %}">
-    <thead>
-        <tr>
-            <th style="min-width: 30px">#</th>
-            <th class="acm_user" style="min-width: 120px">{% trans "User" %}</th>
-            <th class="acm_count" style="min-width: 40px">{% trans "Score" %}</th>
-            <th class="acm_total_time" style="min-width: 40px">{% trans "Time" %}</th>
-            {% for pi, statement_visible in problem_instances %}
-            {% if statement_visible %}
-            {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
-            {% endif %}
-            <th class="acm_result" style="min-width: 40px" {% if pi.round.is_trial %} class="trial-round" {% endif %} >{% if statement_visible %}<a href="{{ link }}">{% endif %}{{ pi.get_short_name_display }}{% if statement_visible %}</a>{% endif %}</th>
-            {% endfor %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in rows %}
-        <tr>
-            <td>{{ row.place }}</td>
-            <td class="acm_user">{% public_name row.user %}</td>
-            <td class="acm_count">{{ row.sum.problems_solved }}</td>
-            <td class="acm_total_time">{{ row.sum.total_time_repr }} </td>
+    {% if frozen %}
+        <div class="alert alert-info">{% trans "The ranking is frozen." %}</div>
+    {% endif %}
+    <div class="table-responsive">
+        <table class="{% block table-classes %}table table-condensed submission{% endblock %}">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{% trans "User" %}</th>
+                    <th class="text-center">{% trans "Score" %}</th>
+                    <th class="text-right">{% trans "Time" %}</th>
+                    {% for pi, statement_visible in problem_instances %}
+                        {% if statement_visible %}
+                            {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
+                        {% endif %}
+                        <th class="text-center {% if pi.round.is_trial %}trial-round{% endif %}">
+                            {% if statement_visible %}
+                                <a href="{{ link }}">
+                            {% endif %}
+                                    {{ pi.get_short_name_display }}
+                            {% if statement_visible %}
+                                </a>
+                            {% endif %}
+                        </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr>
+                        <td>{{ row.place }}</td>
+                        <td>{% public_name row.user %}</td>
+                        <td class="text-center"><strong>{{ row.sum.problems_solved }}</strong></td>
+                        <td class="text-right">{{ row.sum.total_time_repr }}</td>
 
-            {% for result in row.results %}
-                <td class="acm_result{% if result.problem_instance.round.is_trial %} trial-round{% endif %}">
-                {% if result and result.score.problems_solved %}
-                    <div class="acm_tries subm_status subm_OK">
-                        <span class="result" data-username="{{ row.user.username }}" data-result_url="{{ result.url }}">
-                            {{ result.score.penalties_count|add:"1" }}
-                        </span>
-                    </div>
-                    <div class="acm_time">({{ result.score.time_passed_repr }})</div>
-                {% elif is_admin and result %}
-                    <div class="acm_tries subm_status subm_IGN">
-                        <span class="result" data-username="{{ row.user.username }}" data-result_url="{{ result.url }}">
-                            ({{ result.score.penalties_count }})
-                        </span>
-                    </div>
-                {% else %}
-                    <div class="acm_no_score"> &#8211 </div>
-                {% endif %} </td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+                        {% for result in row.results %}
+                            <td class="text-center {% if result.problem_instance.round.is_trial %}trial-round{% endif %}">
+                                {% if result and result.score.problems_solved %}
+                                    <div class="result {% if result and result.score.problems_solved %}submission--OK{% elif is_admin and result %}submission--IGN{% endif %}"
+                                          data-username="{{ row.user.username }}"
+                                          data-result_url="{{ result.url }}">
+                                        {{ result.score.penalties_count|add:"1" }}
+                                    </div>
+                                    <div>({{ result.score.time_passed_repr }})</div>
+                                {% elif is_admin and result %}
+                                   <div class="result"
+                                         data-username="{{ row.user.username }}"
+                                         data-result_url="{{ result.url }}">
+                                        ({{ result.score.penalties_count }})
+                                    </div>
+                                {% else %}
+                                    &#8211;
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
-<div class="empty-space-filler">
-    {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
-</div>
+    <div class="empty-space-filler alert alert-info">
+        {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
+    </div>
 {% endif %}
 
-<script type="text/javascript" src="{% static "rankings/ranking_links.js" %}"></script>
+<script type="text/javascript" src="{% static 'rankings/ranking_links.js' %}"></script>

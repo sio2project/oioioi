@@ -1,6 +1,6 @@
 {% load i18n get_user_name %}
 
-<table class="{% block table-classes %}table submissions_list{% endblock %}">
+<table class="{% block table-classes %}table{% endblock %}">
     <thead>
         <tr>
             <th></th>
@@ -15,7 +15,7 @@
     <tbody>
         {% for record in submissions %}
         <tr class="subm_kind_{{ record.submission.kind }}">
-            <td class="subm_margin subm_{{ record.submission.status }}"
+            <td class="submission__margin submission--{{ record.submission.status }}"
                     id="submission{{ record.submission.id }}_margin"></td>
             <td>
                 {% if record.submission.user %}

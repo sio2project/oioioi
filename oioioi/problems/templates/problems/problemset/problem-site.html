@@ -1,0 +1,89 @@
+{% extends "problems/problemset/base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block main_content %}
+
+<h3 class="problemset__problem-site">
+    <span>{{ problem }}</span>
+    <span class="pull-right">
+        {% if administered_recent_contests %}
+        <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {% trans "Add to contest" %}
+                <span class="add-contest-caret caret"></span>
+                <span class="hidden loading-spinner job-active"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li class="dropdown-header">{% trans "Choose contest" %}</li>
+                {% for contest in administered_recent_contests %}
+                    <li>
+                        <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
+                           data-urlkey="{{ problem.problemsite.url_key }}">{{ contest.name }}</a>
+                    </li>
+                {% endfor %}
+                <li role="separator" class="divider"></li>
+                <li>
+                    <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                    {% trans "More..." %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% elif show_add_button %}
+            <a type="button" class="btn btn-default"
+               href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                {% trans "Add to contest" %}
+            </a>
+        {% endif %}
+
+        {% if can_admin_problem %}
+        <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {% trans "Actions" %} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-right">
+                <li>
+                    <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">{% trans "Edit problem" %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance.id %}">{% trans "Edit tests" %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">{% trans "Reupload problem" %}</a>
+                </li>
+                <li>
+                    <a href="{% url 'model_solutions' problem_instance_id=problem.main_problem_instance.id %}">{% trans "Show model solutions" %}</a>
+                </li>
+                {% if package %}
+                <li>
+                    <a href="{% url 'oioioi.problems.views.download_problem_package_view' package_id=package.id %}">{% trans "Download problem package" %}</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+        {% endif %}
+    </span>
+</h3>
+
+<ul class="nav nav-tabs">
+    {% for tab in tabs %}
+        {% if tab.obj.key != "secret_key" or not problem.is_public %}
+        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
+            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+<div class="nav-content">
+    {{ content }}
+</div>
+
+<form id="add_to_contest" method="post" class="hidden">
+    {% csrf_token %}
+    <input id="url_key" name="url_key" type="hidden">
+</form>
+
+<script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/add-to-contest.js"></script>
+
+{% endblock %}

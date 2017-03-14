@@ -1,0 +1,17 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Edit dashboard message" %}{% endblock %}
+
+{% block main-content %}
+<h2>{% trans "Edit dashboard message" %}</h2>
+<form enctype="multipart/form-data" method="POST" action="#">
+    {% csrf_token %}
+    {% include "ingredients/form.html" with inline=True %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Save" %}
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -218,6 +218,6 @@ class TestTeamsListView(TestCase):
         response = self.client.get(reverse('teams_list',
                 kwargs={'contest_id': contest.id}), follow=True)
 
-        self.assertIn('<li>test_team</li>', response.content)
-        self.assertIn('<li>Test Team1</li>', response.content)
-        self.assertIn('<li>Test Team2</li>', response.content)
+        self.assertIn('test_team', response.content)
+        self.assertIn('Test Team1', response.content)
+        self.assertIn('Test Team2', response.content)

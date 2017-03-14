@@ -1,10 +1,11 @@
+/*jshint multistr: true */
 $(document).ready(function() {
-    window.init_timeline = function(lang_code, $timeline_form,
-                                               server_timezone) {
+    window.init_timeline = function(
+            lang_code, $timeline_form, server_timezone) {
 
-        var $timeline = $timeline_form.find('#timeline');
+        var $timeline = $timeline_form.find('.oioioi-timeline');
 
-        var DATE_FORMAT = 'yyyy-MM-dd hh:mm';
+        var DATE_FORMAT = 'YYYY-MM-DD HH:mm';
         // the fraction of the timeline height that is taken by the gaps
         var DATE_RANGE_GAP = 1/7;
         var ONE_DAY = 24 * 60 * 60 * 1000;
@@ -15,7 +16,7 @@ $(document).ready(function() {
         // Scrolling animation time
         var SCROLLING_TIME = 500;
 
-        var ROUND_BAR_CLASS = 'round-bar';
+        var ROUND_BAR_CLASS = 'oioioi-timeline__round-bar';
         var ROUND_BAR_HTML = '<div class="' + ROUND_BAR_CLASS + '"></div>';
         var ROUND_GROUP_WIDTH = 35;
         var ROUND_BAR_WIDTH = 30;
@@ -27,13 +28,14 @@ $(document).ready(function() {
         // we use this to correct event-margin position offset
         var CONNECTOR_EVENT_MARGIN = 1;
         var CONNECTOR_HTML = $.map(['event', 'left', 'mid', 'right'],
-                function(type) {
-                    return '<div class="connector connector-' + type +
-                            '"></div>';
-                });
+            function(type) {
+                return '<div class="oioioi-timeline__connector ' +
+                        'oioioi-timeline__connector--' + type + '"></div>';
+            }
+        );
 
         var POPOVER_CONTENT = gettext('Change date in a datebox by clicking \
-the corresponding <span class="icon-calendar"></span> button. \
+the corresponding <span class="glyphicon glyphicon-calendar"></span> button. \
 You can also use the keyboard: \
 <br> \
 <ul> \
@@ -45,13 +47,13 @@ You can also use the keyboard: \
 You can filter events by clicking the vertical bar representing a round. \
 <hr> \
 If you want to split a date group, click the corresponding \
-<span class="icon-resize-vertical"></span> button.'
+<span class="glyphicon glyphicon-resize-vertical"></span> button.'
         );
 
-        var SEPARATOR_HTML = '<div class="separator"></div>';
+        var SEPARATOR_HTML = '<div class="oioioi-timeline__separator"></div>';
 
-        var NOW_BAR_HTML = '<div id="now-bar"><small>' + gettext("now") +
-                '</small></div>';
+        var NOW_BAR_HTML = '<div class="oioioi-timeline__now-bar"><small>' +
+            gettext("now") + '</small></div>';
 
 
         var DATEBOX_HEIGHT = 35;
@@ -86,6 +88,9 @@ If you want to split a date group, click the corresponding \
             'linear-gradient(to bottom, ',
         ];
 
+        var DIM_CLASS = 'oioioi-timeline__round-group--dim';
+        var UNDIM_CLASS = 'oioioi-timeline__round-group--undim';
+
         var min_date;
         var max_date;
         // length of the time axis
@@ -99,8 +104,11 @@ If you want to split a date group, click the corresponding \
 
         function get_gradient(id) {
             var col1 = PALETTE[id];
-            var col2 = [col1[0], Math.min(255, col1[1] + GREEN_OFFSET),
-                   col1[2]];
+            var col2 = [
+                col1[0],
+                Math.min(255, col1[1] + GREEN_OFFSET),
+                col1[2]
+            ];
             return rgb_to_string(col1) + ', ' + rgb_to_string(col2);
         }
 
@@ -125,20 +133,24 @@ If you want to split a date group, click the corresponding \
         }
 
         function set_date($datebox, new_date) {
-            $datebox.children('.date').data('datetimepicker')
-                    .setDate(new_date);
+            $datebox
+                .children('.date')
+                .data('DateTimePicker')
+                .setDate(new_date);
         }
 
         function set_width($datebox) {
+            let width = $datebox.find('.oioioi-timeline__date-title').width();
             new_width = Math.max(parseInt($datebox.css('min-width'), 10),
-                    INPUT_WIDTH + $datebox.find('.date-title').width());
+                INPUT_WIDTH + width);
             $datebox.css('width', new_width);
         }
 
         function get_dates_range() {
-            var dates = $timeline.find('.datebox').map(function() {
-                return get_date($(this));
-            });
+            var dates = $timeline.find('.oioioi-timeline__datebox')
+                .map(function() {
+                    return get_date($(this));
+                });
 
             return {
                 min_date: new Date(Math.min.apply(null, dates)),
@@ -148,40 +160,42 @@ If you want to split a date group, click the corresponding \
 
         function update_date_range() {
             var range = get_dates_range();
-            var date_delta = range['max_date'].getTime() -
-                    range['min_date'].getTime();
+            var date_delta = range.max_date.getTime() -
+                range.min_date.getTime();
             // calculate the gap in ms so that the gaps in the begining an in
             // the end of the timeline take in total DATE_RANGE_GAP fraction
             // of total height of the timeline, but not less then ONE_DAY
             var date_range_gap_in_ms = Math.max(date_delta * DATE_RANGE_GAP /
-                    (2 - 2 * DATE_RANGE_GAP), ONE_DAY);
-            min_date = new Date(range['min_date'].getTime() -
-                    date_range_gap_in_ms);
-            max_date = new Date(range['max_date'].getTime() +
-                    date_range_gap_in_ms);
+                (2 - 2 * DATE_RANGE_GAP), ONE_DAY);
+            min_date = new Date(range.min_date.getTime() -
+                date_range_gap_in_ms);
+            max_date = new Date(range.max_date.getTime() +
+                date_range_gap_in_ms);
         }
 
         function date_to_position(date) {
             return timeline_height * (date.getTime() - min_date.getTime()) /
-                    (max_date.getTime() - min_date.getTime());
+                (max_date.getTime() - min_date.getTime());
         }
 
         function create_round_bars() {
             var left = 0;
             var max_width = 0;
-            $timeline.children('.round-group').each(function() {
-                var $this = $(this);
-                $this.css('left', left);
-                left += ROUND_GROUP_WIDTH;
-                var $round_label = $this.find('.round-label');
-                if ($round_label.length > 0) {
-                    $this.append(ROUND_BAR_HTML);
-                    max_width = Math.max(max_width,
-                        $round_label.find('strong').width());
-                }
-            });
+            $timeline.children('.oioioi-timeline__round-group')
+                .each(function() {
+                    var $this = $(this);
+                    $this.css('left', left);
+                    left += ROUND_GROUP_WIDTH;
+                    var $round_label = $this.find(
+                        '.oioioi-timeline__round-label');
+                    if ($round_label.length > 0) {
+                        $this.append(ROUND_BAR_HTML);
+                        max_width = Math.max(max_width,
+                            $round_label.find('strong').width());
+                    }
+                });
             max_width = max_width / Math.sqrt(2) + LABEL_GAP;
-            var $wrapper = $timeline_form.find('#timeline-wrapper');
+            var $wrapper = $timeline_form.find('.oioioi-timeline');
             var current_margin = parseInt($wrapper.css('margin-top'));
             if (max_width > current_margin) {
                 $wrapper.css('margin-top', max_width);
@@ -190,38 +204,47 @@ If you want to split a date group, click the corresponding \
 
         function assign_colors() {
             var color_id = 0;
-            $timeline.find('.round-group').each(function() {
+            $timeline.find('.oioioi-timeline__round-group').each(function() {
                 var color_string = rgb_to_string(PALETTE[color_id])
-                $(this).find('.round-bar').css('background', color_string);
-                $(this).find('.round-label').css('color', color_string);
-                set_gradient($(this).find('.datebox'), color_id);
+                $(this).find('.oioioi-timeline__round-bar')
+                    .css('background', color_string);
+                $(this).find('.oioioi-timeline__round-label')
+                    .css('color', color_string);
+                set_gradient($(this)
+                    .find('.oioioi-timeline__datebox'), color_id);
                 color_id = (color_id + 1) % PALETTE.length;
             });
         }
 
         function adjust_bar_positions() {
-            $timeline.children('.round-group').each(function() {
-                var $this = $(this);
-                if ($this.children('.round-bar').length > 0) {
-                    var start_date = get_date($this.children(
-                            ".datebox[data-timeline-type=start]"));
-                    var end_date = get_date($this.children(
-                            ".datebox[data-timeline-type=end]"));
-                    var start_y, end_y;
-                    if (start_date !== null) {
-                        start_y = date_to_position(start_date);
-                    } else {
-                        start_y = 0;
-                    }
-                    if (end_date !== null) {
-                        end_y = date_to_position(end_date);
-                    } else {
-                        end_y = timeline_height;
-                    }
-                    $this.children('.round-bar').css(
+            $timeline
+                .children('.oioioi-timeline__round-group')
+                .each(function() {
+                    var $this = $(this);
+                    var roundBarLength = $this.children(
+                        '.oioioi-timeline__round-bar').length;
+                    if (roundBarLength > 0) {
+                        var start_date = get_date($this.children(
+                            ".oioioi-timeline__datebox" +
+                                "[data-timeline-type=start]"));
+                        var end_date = get_date($this.children(
+                            ".oioioi-timeline__datebox" +
+                                "[data-timeline-type=end]"));
+                        var start_y, end_y;
+                        if (start_date !== null) {
+                            start_y = date_to_position(start_date);
+                        } else {
+                            start_y = 0;
+                        }
+                        if (end_date !== null) {
+                            end_y = date_to_position(end_date);
+                        } else {
+                            end_y = timeline_height;
+                        }
+                        $this.children('.oioioi-timeline__round-bar').css(
                             {top: start_y, height: end_y - start_y});
-                }
-            });
+                    }
+                });
         }
 
         function compare_dateboxes($a, $b) {
@@ -232,7 +255,7 @@ If you want to split a date group, click the corresponding \
             var o2 = $b.attr('data-timeline-order');
             if (o1 !== o2) return o1 - o2;
             return $a.attr('data-timeline-entry-num') -
-                    $b.attr('data-timeline-entry-num');
+                $b.attr('data-timeline-entry-num');
         }
 
         function compare_dates(a, b) {
@@ -251,21 +274,27 @@ If you want to split a date group, click the corresponding \
 
         function adjust_connectors($datebox, datebox_left, y_offset,
                 overlapping) {
-            var $event = $datebox.children('.connector-event');
-            var $left = $datebox.children('.connector-left');
-            var $mid = $datebox.children('.connector-mid');
-            var $right = $datebox.children('.connector-right');
+            var $event = $datebox.children(
+                '.oioioi-timeline__connector--event');
+            var $left = $datebox.children(
+                '.oioioi-timeline__connector--left');
+            var $mid = $datebox.children(
+                '.oioioi-timeline__connector--mid');
+            var $right = $datebox.children(
+                '.oioioi-timeline__connector--right');
             var $group = $datebox.parent();
             var len_r = $group.position().left +
-                    overlapping * CONNECTOR_DISPLACEMENT;
+                overlapping * CONNECTOR_DISPLACEMENT;
             var len_l = datebox_left - len_r;
             $left.css({left: -datebox_left, width: len_l, top: -y_offset});
             $mid.css({left: -len_r, height: y_offset, top: -y_offset});
             $right.css({left: -len_r, width: len_r});
-            var has_event = $(datebox_groups[$datebox.attr('id')]).filter(
+            var has_event = $(datebox_groups[$datebox.attr('id')])
+                .filter(
                     function() {
                         return $(this).attr('data-timeline-type') === 'None';
-                    }).length > 0;
+                    }
+                ).length > 0;
             if (has_event) {
                 $event.css({left: -datebox_left,
                         top: -(y_offset + CONNECTOR_EVENT_MARGIN)});
@@ -303,9 +332,10 @@ If you want to split a date group, click the corresponding \
         }
 
         function adjust_datebox_positions() {
-            var datebox_array =
-                    $timeline.find('.datebox').get().sort(compare_dates);
-            var rounds_num = $timeline.children('.round-group').length;
+            var datebox_array = $timeline.find('.oioioi-timeline__datebox')
+                .get().sort(compare_dates);
+            var rounds_num =
+                $timeline.children('.oioioi-timeline__round-group').length;
             var current_top = 0;
             var max_nonempty_top = 0;
             var overlapping = 0;
@@ -320,8 +350,8 @@ If you want to split a date group, click the corresponding \
                 if (!$this.is(':visible')) {
                     return true;
                 }
-                var my_left = datebox_left -
-                        $this.parents('.round-group').position().left;
+                var roundGroupLeft = $this.parents(
+                    '.oioioi-timeline__round-group').position().left;
                 var my_date = get_date($this);
                 var target_position;
                 var my_top;
@@ -341,16 +371,13 @@ If you want to split a date group, click the corresponding \
                     overlapping = 0;
                 }
                 $this.css({left: datebox_left, top: my_top});
-                // Move the date-picking dropdown menu together with the
-                // datebox
-                $this.children('.date').data('datetimepicker').place();
                 set_width($this);
                 if (my_date !== null) {
-                    $this.children('.connector').show();
+                    $this.children('.oioioi-timeline__connector').show();
                     adjust_connectors($this, datebox_left,
                             my_top - target_position, overlapping);
                 } else {
-                    $this.children('.connector').hide();
+                    $this.children('.oioioi-timeline__connector').hide();
                     empty_boxes++;
                 }
                 $this.find('input').attr('tabindex', tabindex);
@@ -359,15 +386,15 @@ If you want to split a date group, click the corresponding \
             });
             // we have to stretch timeline due to empty dateboxes.
             $timeline.css('height', DATEBOX_HEIGHT +
-                    Math.max(current_top, timeline_height))
-            $timeline.find('.separator').css('top',
-                    Math.max(max_nonempty_top, timeline_height) +
-                    NO_DATE_GAP / 2);
-            $timeline.find('#now-bar').css('width', datebox_left);
+                Math.max(current_top, timeline_height));
+            $timeline.find('.oioioi-timeline__separator').css('top',
+                Math.max(max_nonempty_top, timeline_height) + NO_DATE_GAP / 2);
+            $timeline.find('.oioioi-timeline__now-bar')
+                .css('width', datebox_left);
         }
 
         function adjust_now_bar() {
-            var $now_bar = $timeline.find('#now-bar');
+            var $now_bar = $timeline.find('.oioioi-timeline__now-bar');
             var now_position = date_to_position(new Date());
             if (now_position >= 0 && now_position <= timeline_height) {
                 $now_bar.show();
@@ -389,7 +416,8 @@ If you want to split a date group, click the corresponding \
             $(datebox_groups[$datebox.attr('id')]).each(function() {
                 var $this = $(this);
                 set_date($this, new_date);
-                $this.find('input').addClass('date-changed');
+                $this.find('input').addClass(
+                    'oioioi-timeline__date-input--date-changed');
             });
         }
 
@@ -405,32 +433,35 @@ If you want to split a date group, click the corresponding \
 
                     $.each(in_group, function() {
                         var $this = $(this);
-                        var title = $this.find('.date-title').text();
+                        var title = $this.find('.oioioi-timeline__date-title')
+                                .text();
                         if ($this.attr('id') === $main_datebox.attr('id')) {
-                            $this.addClass('datebox-group');
+                            $this.addClass('oioioi-timeline__datebox-group');
                         } else {
                             secondary_titles.push(title);
                             $this.hide();
                         }
                     });
                     var all_titles = ' | ' + secondary_titles.reduce(
-                            function(prev, curr) {
+                        function(prev, curr) {
                                 return prev + ', ' + curr;
-                        });
-                    $main_datebox.find('.date-title small').text(all_titles);
+                        }
+                    );
+                    $main_datebox.find('.oioioi-timeline__date-title small')
+                        .text(all_titles);
                     // swap datebox_groups between $first_datebox and
                     // $main_datebox
                     datebox_groups[$first_datebox.attr('id')] =
-                            [$first_datebox];
+                        [$first_datebox];
                     datebox_groups[$main_datebox.attr('id')] = in_group;
                 }
             });
         }
 
         function create_groups() {
-            $timeline.find('.round-group').each(function() {
-                var datebox_array = $(this).find('.datebox').get().sort(
-                        compare_dates);
+            $timeline.find('.oioioi-timeline__round-group').each(function() {
+                var datebox_array = $(this).find('.oioioi-timeline__datebox')
+                    .get().sort(compare_dates);
                 var prev_date = null;
                 var prev_datebox_id = null;
                 $.each(datebox_array, function() {
@@ -457,19 +488,18 @@ If you want to split a date group, click the corresponding \
         }
 
         function create_connectors() {
-            $timeline.find('.datebox').each(function() {
+            $timeline.find('.oioioi-timeline__datebox').each(function() {
                 $(this).append(CONNECTOR_HTML);
             });
         }
 
         function create_hint() {
-            $timeline_form.find('input.btn-hint').popover({
+            $timeline_form.find('.btn-hint').popover({
                 animation: false,
                 html: true,
                 placement: 'bottom',
                 trigger: 'manual',
-                content: POPOVER_CONTENT,
-                container: '#timeline-wrapper'
+                content: POPOVER_CONTENT
             });
         }
 
@@ -478,9 +508,9 @@ If you want to split a date group, click the corresponding \
         }
 
         function split_group($datebox) {
-            $datebox.removeClass('datebox-group');
+            $datebox.removeClass('oioioi-timeline__datebox-group');
             var my_id = $datebox.attr('id');
-            $datebox.find('.date-title small').text('');
+            $datebox.find('.oioioi-timeline__date-title small').text('');
             $.each(datebox_groups[my_id], function() {
                 $(this).show();
             });
@@ -489,7 +519,7 @@ If you want to split a date group, click the corresponding \
 
         function change_group_state($group, type) {
             $group.find('.date').each(function() {
-                var data = $(this).data('datetimepicker');
+                var data = $(this).data('DateTimePicker');
                 if (type) {
                     data.disable();
                 } else {
@@ -499,13 +529,13 @@ If you want to split a date group, click the corresponding \
         }
 
         function change_dim_state(type) {
-            $timeline.find('.round-group').each(function() {
+            $timeline.find('.oioioi-timeline__round-group').each(function() {
                 var $this = $(this);
-                $this.removeClass('undim');
+                $this.removeClass(UNDIM_CLASS);
                 if (type) {
-                    $this.addClass('dim');
+                    $this.addClass(DIM_CLASS);
                 } else {
-                    $this.removeClass('dim');
+                    $this.removeClass(DIM_CLASS);
                 }
                 change_group_state($this, type);
             });
@@ -518,7 +548,8 @@ If you want to split a date group, click the corresponding \
                     (evtobj.ctrlKey || evtobj.metaKey)) ||
                     e.which === jQuery.ui.keyCode.ESCAPE) {
                 e.preventDefault();
-                var $datebox = $(e.target).parents('.datebox');
+                var $datebox = $(e.target)
+                    .parents('.oioioi-timeline__datebox');
                 if ($datebox.length === 1 &&
                         $timeline.has($datebox).length === 1) {
                     set_date($datebox, get_date($datebox));
@@ -546,10 +577,13 @@ If you want to split a date group, click the corresponding \
         }
 
         function set_timeline_height() {
+            var dateboxLength = $timeline.find('.oioioi-timeline__datebox')
+                .length;
             timeline_height = Math.max(timeline_height,
-                    $timeline.find('.datebox').length * DATEBOX_HEIGHT);
+                dateboxLength * DATEBOX_HEIGHT);
             $timeline.css('height', timeline_height);
-            $timeline.find('.round-group').css('height', timeline_height);
+            $timeline.find('.oioioi-timeline__round-group')
+                .css('height', timeline_height);
         }
 
         function init() {
@@ -567,8 +601,8 @@ If you want to split a date group, click the corresponding \
             // init datepickers
             $timeline.find('.date').datetimepicker({
                 format: DATE_FORMAT,
-                language: lang_code,
-                pickSeconds: false
+                locale: lang_code,
+                keyBinds: ''
             });
 
             // connect equal dates
@@ -578,38 +612,44 @@ If you want to split a date group, click the corresponding \
             change_date_handler();
 
             // adjust y position and date range on date change
-            $timeline.find('.datebox').on('changeDate', function(e) {
-                var $this = $(this);
-                var old_top = $this.offset().top;
-                set_group_date($this, e.date);
-                change_date_handler();
-                // Don't scroll down to an empty datebox
-                if (get_date($datebox) !== null) {
-                    scroll_to_see($this, old_top);
-                    acquire_focus($this);
-                }
-            });
+            $timeline
+                .find('.oioioi-timeline__datebox')
+                .on('changeDate', function(e) {
+                    var $this = $(this);
+                    var old_top = $this.offset().top;
+                    set_group_date($this, e.date);
+                    change_date_handler();
+                    // Don't scroll down to an empty datebox
+                    if (get_date($datebox) !== null) {
+                        scroll_to_see($this, old_top);
+                        acquire_focus($this);
+                    }
+                });
 
             // set click events
-            $timeline.find('.round-group').on('click', function() {
-                var $this = $(this);
-                if ($this.hasClass('undim')) {
-                    // undim all groups
-                    change_dim_state(false);
-                } else {
-                    // dim all groups but this one
-                    change_dim_state(true);
-                    $this.removeClass('dim');
-                    $this.addClass('undim');
-                    change_group_state($this, false);
-                }
-            });
+            $timeline
+                .find('.oioioi-timeline__round-group')
+                .on('click', function() {
+                    var $this = $(this);
+                    if ($this.hasClass(UNDIM_CLASS)) {
+                        // undim all groups
+                        change_dim_state(false);
+                    } else {
+                        // dim all groups but this one
+                        change_dim_state(true);
+                        $this.removeClass(DIM_CLASS);
+                        $this.addClass(UNDIM_CLASS);
+                        change_group_state($this, false);
+                    }
+                });
 
-            $timeline.find('.datebox').on('click', function(e) {
-                e.stopPropagation();
-            });
+            $timeline
+                .find('.oioioi-timeline__datebox')
+                .on('click', function(e) {
+                    e.stopPropagation();
+                });
 
-            $timeline_form.find('input.btn-reset').on('click', function() {
+            $timeline_form.find('.btn-reset').on('click', function() {
                 location.reload();
             });
 
@@ -617,13 +657,16 @@ If you want to split a date group, click the corresponding \
                 $timeline.find('input').prop('disabled', false);
             });
 
-            $timeline.find('.group-delete-btn').on('click', function() {
-                var $datebox = $(this).parents('.datebox');
-                if ($datebox.hasClass('datebox-group')) {
-                    split_group($datebox);
-                    change_date_handler();
-                }
-            });
+            $timeline
+                .find('.oioioi-timeline__group-delete-btn')
+                .on('click', function() {
+                    var $datebox = $(this)
+                        .parents('.oioioi-timeline__datebox');
+                    if ($datebox.hasClass('oioioi-timeline__datebox-group')) {
+                        split_group($datebox);
+                        change_date_handler();
+                    }
+                });
 
             $timeline.find('input').keypress(function(e) {
                 // we don't want Enter keypress to cause form submission
@@ -637,10 +680,10 @@ If you want to split a date group, click the corresponding \
 
             $(window).on('click', function(e) {
                 var $target = $(e.target);
-                if ($target.is('input.btn-hint')) {
+                if ($target.is('.btn-hint')) {
                     $target.popover('toggle');
                 } else if ($target.parents('.popover.in').length === 0) {
-                    $timeline_form.find('input.btn-hint').popover('hide');
+                    $timeline_form.find('.btn-hint').popover('hide');
                 }
             });
 

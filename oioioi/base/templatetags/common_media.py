@@ -16,9 +16,9 @@ def generate_styles():
         if path.endswith('.css'):
             lines.append('<link charset="utf-8" rel="stylesheet" '
                     'type="text/css" href="{{ STATIC_URL }}%s">' % (path,))
-        elif path.endswith('.less'):
+        elif path.endswith('.scss'):
             lines.append('<link charset="utf-8" rel="stylesheet" '
-                    'type="text/less" href="{{ STATIC_URL }}%s">' % (path,))
+                    'type="text/x-scss" href="{{ STATIC_URL }}%s">' % (path,))
     return '\n'.join(lines)
 
 

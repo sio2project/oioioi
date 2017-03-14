@@ -1,23 +1,23 @@
-{% load jsonify %}
+{% load simple_filters %}
+
 <script type="text/javascript">
-$(function() {
-    var data_string = "{{ options|jsonify|escapejs }}";
+    $(function() {
+        const dataJSON = "{{ options|jsonify|escapejs }}";
 
-    {% if options.functions %}
-        var functions = {{ options.functions|json_parse }};
-        var data = JSON.parse(data_string, function (key, value) {
-            if (functions.hasOwnProperty(value)) {
-                value = new Function(functions[value]);
-            }
-            return value;
-        });
-    {% else %}
-        data = JSON.parse(data_string);
-    {% endif %}
+        {% if options.functions %}
+            let functions = {{ options.functions|json_parse }};
+            const data = JSON.parse(dataJSON, function (key, value) {
+                if (functions.hasOwnProperty(value)) {
+                    value = new Function(functions[value]);
+                }
+                return value;
+            });
+        {% else %}
+            const data = JSON.parse(dataJSON);
+        {% endif %}
 
-    $('#{{ plot_name_id|escapejs }}').highcharts(data);
-});
+        $('#{{ plot_name_id|escapejs }}').highcharts(data);
+    });
 </script>
 
-<div id="{{ plot_name_id }}" class="highcharts_plot">
-</div>
+<div id="{{ plot_name_id }}" class="highcharts_plot"></div>

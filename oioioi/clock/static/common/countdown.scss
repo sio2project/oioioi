@@ -1,0 +1,26 @@
+@import "scss/utility";
+
+$countdown-height: 10px !default;
+
+$countdown-fill-empty-color: $gray-lighter !default;
+
+$countdown-fill-success: $brand-success !default;
+$countdown-fill-warning: $brand-warning !default;
+$countdown-fill-danger: $brand-danger !default;
+
+$countdown-time-full-width: 550px !default;
+
+.countdown-time {
+  max-width: $countdown-time-full-width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.countdown-progress {
+  @include absolute(100%, 0, auto, 0);
+
+  background: $countdown-fill-empty-color;
+  border-radius: 0;
+  height: $countdown-height;
+}

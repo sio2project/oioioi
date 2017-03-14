@@ -16,7 +16,7 @@ def add_news_view(request):
     else:
         form = NewsForm()
     return TemplateResponse(request,
-                            'newsfeed/news_add.html', {'form': form})
+                            'newsfeed/news-add.html', {'form': form})
 
 
 @enforce_condition(is_superuser)
@@ -37,7 +37,7 @@ def edit_news_view(request, news_id):
     else:
         form = NewsForm(instance=news_item)
     return TemplateResponse(request,
-                            'newsfeed/news_edit.html', {'form': form})
+                            'newsfeed/news-edit.html', {'form': form})
 
 
 def newsfeed_view(request):

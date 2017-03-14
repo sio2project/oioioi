@@ -2,8 +2,6 @@
 
 <h4>{% trans "Other submissions for this problem" %}</h4>
 
-<div class="paginated-list other-submissions">
 {% autopaginate submissions submissions_on_page %}
 {% include "programs/my_submissions_table_diff.html" %}
 {% paginate %}
-</div>

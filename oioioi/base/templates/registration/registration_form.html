@@ -3,35 +3,31 @@
 
 {% block title %}
     {% if not user.is_authenticated %}
-    {% trans 'Registration' %}
+    {% trans "Registration" %}
     {% else %}
-    {% trans 'Edit your profile' %}
+    {% trans "Edit your profile" %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
+    {% if not user.is_authenticated %}
+        <h1>{% trans "Registration" %}</h1>
+    {% else %}
+        <h1>{% trans "Edit your profile" %}</h1>
+    {% endif %}
 
-{% if not user.is_authenticated %}
-<h1>{% trans 'Registration' %}</h1>
-{% else %}
-<h1>{% trans 'Edit your profile' %}</h1>
-{% endif %}
+    {% if not form.instance %}
+        <p>{% trans "Please fill the form below to register." %}</p>
+    {% endif %}
 
-{% if not form.instance %}
-<p>{% trans "Please fill the form below to register." %}</p>
-{% endif %}
-
-<form action="" method="post" class="form-horizontal">
-    {% csrf_token %}
-    <fieldset>
+    <form method="post">
+        {% csrf_token %}
         {% include "ingredients/form.html" %}
-    </fieldset>
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans 'Submit' %}" />
-        {% if user.is_authenticated %}
-        <a href="/delete_account" class="btn btn-danger" style="float:right">{% trans 'Delete account' %}</a>
-        {% endif %}
-    </div>
-</form>
-
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+            {% if user.is_authenticated %}
+                <a role="button" href="/delete_account" class="btn btn-danger pull-right">{% trans "Delete account" %}</a>
+            {% endif %}
+        </div>
+    </form>
 {% endblock %}

@@ -73,14 +73,6 @@ Vagrant.configure("2") do |config|
     sudo apt-get install -y libstdc++6:i386
     sudo apt-get install -y zlib1g:i386
 
-    sudo apt-get install -y nodejs
-    sudo apt-get install -y node
-    sudo apt-get install -y npm
-    sudo ln -vfs /usr/bin/nodejs /usr/bin/node
-    sudo ln -vfs /usr/bin/nodejs /usr/sbin/node #????
-    sudo npm -g install less
-
-
     echo "* configuring rabbitmq-server"
     echo "[{rabbit, [{tcp_listeners, [5672]}, {loopback_users, []}]}]." | \
         sudo tee /etc/rabbitmq/rabbitmq.config

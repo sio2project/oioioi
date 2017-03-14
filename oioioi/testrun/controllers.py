@@ -212,8 +212,7 @@ class TestRunContestControllerMixin(object):
         sbm_testrun = submission.programsubmission. \
                       testrunprogramsubmission
 
-
-        return render_to_string('testrun/submission_header.html',
+        return render_to_string('testrun/submission-header.html',
             context_instance=RequestContext(request,
                 {'submission': submission_template_context(request,
                     sbm_testrun),

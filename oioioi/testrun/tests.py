@@ -1,4 +1,5 @@
 # coding: utf-8
+import re
 from datetime import datetime
 import os
 
@@ -36,8 +37,10 @@ class TestTestrunViews(TestCase):
             self.assertContains(submission_view, 'OK')
             submission_view = self.client.get(reverse('my_submissions',
                 kwargs={'contest_id': submission.problem_instance.contest.id}))
-            self.assertContains(submission_view, 'subm_OK"')
-            self.assertContains(submission_view, 'OK\n            </td>')
+            self.assertContains(submission_view, 'submission--OK"')
+
+            no_whitespaces = re.sub(r'\s*', '', submission_view.content)
+            self.assertIn('>OK</td>', no_whitespaces)
 
     def test_input_views(self):
         self.client.login(username='test_user')

@@ -17,7 +17,7 @@ class OiSubmitContestControllerMixin(object):
         def _get_extra(s):
             return getattr(submission.oisubmitextradata, s, '')
 
-        return render_to_string('oisubmit/submission_footer.html',
+        return render_to_string('oisubmit/submission-footer.html',
             context_instance=RequestContext(request, {
                 'received_suspected': _get_extra('received_suspected'),
                 'comments': _get_extra('comments'),

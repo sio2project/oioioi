@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset=utf-8 />	
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		 		
-	<link href="{{ STATIC_URL }}liveranking/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
-	<script>
+    <meta charset=utf-8 />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="{{ STATIC_URL }}liveranking/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <script>
         BOMB_PENALTY = {{ bomb_penalty }};
         FREEZE_TIME = {{ freeze_time }};
         ROUND_LENGTH = {{ round_length }};
@@ -13,65 +13,65 @@
         EVENTS_SENDER_URL = "{% url 'livedata_events_view' contest_id=contest.id round_id=round.id %}";
         MAX_REFRESH_RATE = {{ max_refresh_rate }};
     </script>
-	<script src="{{ STATIC_URL }}liveranking/js/jq.js"></script>
-	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/d3.js"></script>
-	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/utils.js"></script>			
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAcmvis.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAdapter.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CModel.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CRanking.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CClock.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CDonut.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CFlash.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CPanel.js"></script>		
-	<script>						
-		var acmvis = new CAcmvis();
-		var isStarted = false;
-		$(document).ready(function() {		
-			$(document).keydown(function(e){									
-				if (e.keyCode == 32 && !isStarted) { // <-- ruszamy na spacje					
-					isStarted = true;				
-					acmvis.autoDonuts('#donut1', '#donut2', 5000);			
-					acmvis.addFlash("#flash", 1000);
-					return false;
-				}
-			});				
-		});		
-	</script>	
-	<style>
-		body {
-			text-align: center;			
-		}
-		#donut1, #donut2 {
-			display: inline-block;
-			position: relative;
-			width: 480px;
-			height: 480px;			
-		}
-		#flash {
-			position: absolute;
-			top: -100%;		
-			left: 0px;
-			width: 100%;
-			height: 100%;
-			color: white;
-			background-color: green;
-			text-align: center;
-			line-height: 300px;
-			font-size: 150px;
-			font-family: Candara;
-			z-index: 10000;
-		}
-		#flash.visible {
-			top:0px;		
-		}
-	</style>
+    <script src="{{ STATIC_URL }}liveranking/js/jq.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/d3.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/utils.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAcmvis.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAdapter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CRanking.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CClock.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CDonut.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CFlash.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CPanel.js"></script>
+    <script>
+        var acmvis = new CAcmvis();
+        var isStarted = false;
+        $(document).ready(function() {
+            $(document).keydown(function(e){
+                if (e.keyCode == 32 && !isStarted) { // <-- ruszamy na spacje
+                    isStarted = true;
+                    acmvis.autoDonuts('#donut1', '#donut2', 5000);
+                    acmvis.addFlash("#flash", 1000);
+                    return false;
+                }
+            });
+        });
+    </script>
+    <style>
+        body {
+            text-align: center;
+        }
+        #donut1, #donut2 {
+            display: inline-block;
+            position: relative;
+            width: 480px;
+            height: 480px;
+        }
+        #flash {
+            position: absolute;
+            top: -100%;
+            left: 0px;
+            width: 100%;
+            height: 100%;
+            color: white;
+            background-color: green;
+            text-align: center;
+            line-height: 300px;
+            font-size: 150px;
+            font-family: Candara;
+            z-index: 10000;
+        }
+        #flash.visible {
+            top:0px;
+        }
+    </style>
 </head>
 <body>
-	<div id="header"></div>
-	<div id="donut1"></div>
-	<div id="donut2"></div>
-	<div id="flash"></div>
-	<div id="footer"></div>
+    <div id="header"></div>
+    <div id="donut1"></div>
+    <div id="donut2"></div>
+    <div id="flash"></div>
+    <div id="footer"></div>
 </body>
 </html>

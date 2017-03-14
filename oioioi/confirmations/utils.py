@@ -2,12 +2,12 @@ import hashlib
 import logging
 import sys
 import dateutil.parser
+import itertools
 
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.core import signing
 
-from oioioi.dashboard.views import grouper
 from oioioi.programs.models import ProgramSubmission
 
 
@@ -56,6 +56,13 @@ def submission_receipt_proof(submission):
     }
     proof = sign_submission_metadata(proof_data)
     return proof_data, proof
+
+
+# http://stackoverflow.com/questions/1624883/alternative-way-to-split-a-list-into-groups-of-n
+def grouper(n, iterable, fillvalue=None):
+    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+    args = [iter(iterable)] * n
+    return list(itertools.izip_longest(*args, fillvalue=fillvalue))
 
 
 def format_proof(proof):

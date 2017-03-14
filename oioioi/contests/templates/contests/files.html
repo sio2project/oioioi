@@ -5,19 +5,20 @@
 
 {% block title %}{% trans "Files" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Files" %}</h2>
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
-{% if is_admin %}
-<div class="corner-icons">
-    <ul>
-        <li><a class="btn btn-small" href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
-                <i class="icon-upload"></i>
-                <span class="toolbar-button-text">{% trans "Add file" %}</span>
-            </a>
-        </li>
-    </ul>
-</div>
-{% endif %}
-{% include "problems/files.html" %}
+{% block main-content %}
+    <div class="clearfix">
+        {% check_perm 'contests.contest_admin' for contest as is_admin %}
+        {% if is_admin %}
+            <div class="pull-right">
+                <a role="button" class="btn btn-sm btn-default"
+                    href="{% url 'oioioiadmin:contests_contest_change' contest.id %}">
+                    <span class="glyphicon glyphicon-upload"></span>
+                    {% trans "Add file" %}
+                </a>
+            </div>
+        {% endif %}
+        <h1 class="pull-left">{% trans "Files" %}</h1>
+    </div>
+
+    {% include "problems/files.html" %}
 {% endblock %}

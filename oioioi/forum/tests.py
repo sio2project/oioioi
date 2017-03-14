@@ -228,6 +228,7 @@ class TestThread(TestCase):
         url = reverse('forum_thread', kwargs={'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
         response = self.client.post(url, follow=True)
-        regexp = r".* was reported.+?by.+?<a.+?>%s %s</a>.*" % (name, surname)
-        pattern = re.compile(regexp, re.MULTILINE | re.DOTALL)
-        self.assertTrue(pattern.match(response.content))
+
+        reported_pattern = r"was reported\s*by\s*<a[^>]*>\s*%s %s\s*<\/a>" \
+                           % (name, surname)
+        self.assertTrue(re.search(reported_pattern, response.content))

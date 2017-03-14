@@ -3,9 +3,9 @@
 
 {% block title %}{% trans "Upload solution for postal submission" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Postal submission" %}</h2>
-<div class="reading-width">
+{% block main-content %}
+<h1>{% trans "Postal submission" %}</h1>
+<div>
     {% blocktrans %}
     <p>You do not like fiddling with pendrives and CD-ROMs in the mail, do you?
     We don't, too.</p>
@@ -19,19 +19,14 @@
     <p>If for some reason you would like to use the standard procedure, with CD-ROMs
     or pendrives, you still can.</p>
     {% endblocktrans %}
-    <script>
-    $(handle_prog_lang_updates);
-    </script>
-    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    <form enctype="multipart/form-data" method="post">
         {% csrf_token %}
-        <div class="control-group">
-            <div class="controls">
-            </div>
-        </div>
         {% include "ingredients/form.html" %}
-        <div class="form-actions">
-            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
         </div>
     </form>
 </div>
+
+<script type="text/javascript" src="{{ STATIC_URL }}programs/submit.js"></script>
 {% endblock %}

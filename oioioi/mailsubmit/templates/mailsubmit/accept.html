@@ -1,53 +1,49 @@
-{% extends "base.html" %}
+{% extends "simple-centered.html" %}
 
 {% load i18n %}
 
-{% block body %}
-<div class="row top-row">
-    <div class="span8 offset2">
-        <div class="accept-mailsubmit-form-header">
-            {% include "ingredients/flash.html" %}
-
-            {% for error in form.non_field_errors %}
-            <div class="alert alert-error">
-                {{ error }}
-            </div>
-            {% endfor %}
-
-            {% for field in form.visible_fields %}
-                {% for error in field.errors %}
-                    <div class="alert alert-error">
-                        {{ field.label }}: {{ error }}
+{% block content %}
+<div class="well text-center">
+    <form method="post" class="form-inline">
+        {% csrf_token %}
+        {% include "ingredients/flash.html" %}
+        {% if form.non_field_errors %}
+            <div class="form-group">
+                {% for error in form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                        <span class="sr-only">{% trans "Error" %}:</span>
+                        {{ error }}
                     </div>
                 {% endfor %}
-            {% endfor %}
-        </div>
-    </div>
-    <div class="well span8 offset2 central-well">
-        <form action="" method="post" class="form-inline accept-mailsubmit-form">
-            {% csrf_token %}
-            <fieldset>
-                <p>{% blocktrans %}Please enter postal submission confirmation code to accept.{% endblocktrans %}</p>
+            </div>
+        {% endif %}
 
-                <div>
-                    <input id="id_mailsubmission_id" name="mailsubmission_id" type="text" value="{{ form.mailsubmission_id.value }}" class="input-mini"> /
-                    <input id="id_submission_hash" name="submission_hash" type="text" value="{{ form.submission_hash.value }}" maxlength="{{ HASH_LENGTH }}" class="input-small">
-                    <input id="id_submit" type="submit" class="btn btn-primary" style="margin-left: 20px; width: 100px;" value="{% trans "Submit" %}">
+        {% for field in form.visible_fields %}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    {{ field.label }}: {{ error }}
                 </div>
+            {% endfor %}
+        {% endfor %}
 
-                <script>
-                    $(function() {
-                        $('#id_mailsubmission_id').focus().keydown(function(event) {
-                            if (event.which == 191) {
-                                /* Slash */
-                                $('#id_submission_hash').focus();
-                                event.preventDefault();
-                            }
-                        });
-                    });
-                </script>
-            </fieldset>
-        </form>
-    </div>
+        <p>{% blocktrans %}Please enter postal submission confirmation code to accept.{% endblocktrans %}</p>
+        <div class="form-group">
+            <input id="id_mailsubmission_id" name="mailsubmission_id" type="text" value="{{ form.mailsubmission_id.value }}" class="form-control input-sm"> /
+            <input id="id_submission_hash" name="submission_hash" type="text" value="{{ form.submission_hash.value }}" maxlength="{{ HASH_LENGTH }}" class="form-control input-sm">
+        </div>
+        <button id="id_submit" type="submit" class="btn btn-primary btn-sm">{% trans "Submit" %}</button>
+        <script>
+            $(function() {
+                $('#id_mailsubmission_id').focus().keydown(function(event) {
+                    if (event.which === 191) {
+                        /* Slash */
+                        $('#id_submission_hash').focus();
+                        event.preventDefault();
+                    }
+                });
+            });
+        </script>
+    </form>
 </div>
 {% endblock %}

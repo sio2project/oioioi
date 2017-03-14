@@ -4,18 +4,19 @@
 
 {% block title %}{% trans "My submissions" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "My submissions" %}</h2>
-<div class="corner-icons">
-    <ul>
-        <li><a class="btn btn-small" href="{% url 'submit' contest_id=contest.id %}">
-                <i class="icon-upload"></i>
-                <span class="toolbar-button-text">{% trans "Submit" %}</span>
+{% block main-content %}
+    <div class="clearfix">
+        <div class="pull-right">
+            <a role="button"
+               class="btn btn-sm btn-default"
+               href="{% url 'submit' contest_id=contest.id %}">
+                <span class="glyphicon glyphicon-upload"></span>
+                {% trans "Submit" %}
             </a>
-        </li>
-    </ul>
-</div>
-{{ header }}
+        </div>
+        <h1 class="pull-left">{% trans "My submissions" %}</h1>
+    </div>
 
-{% include "problems/submissions.html" %}
+    {{ header }}
+    {% include "problems/submissions.html" %}
 {% endblock %}

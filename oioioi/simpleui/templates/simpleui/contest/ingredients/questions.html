@@ -1,16 +1,17 @@
 {% load i18n check_perm get_user_name %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-{% if records %}
-{% endif %}
-<table class="{% block table-classes %}table{% endblock %}">
+
+<table class="{% block table-classes %}table table-responsive{% endblock %}">
     <thead>
         <tr>
-            {% if not hide_author %}<th>{% trans "Author" %}</th>{% endif %}
+            {% if not hide_author %}
+                <th>{% trans "Author" %}</th>
+            {% endif %}
             <th>{% trans "Date" %}</th>
             <th>{% trans "Category" %}</th>
             <th>{% trans "Topic" %}</th>
             {% if is_admin %}
-            <th>{% trans "Kind" %}</th>
+                <th>{% trans "Kind" %}</th>
             {% endif %}
         </tr>
     </thead>
@@ -23,17 +24,29 @@
             {% if not hide_author %}<td>{% full_name msg.author %}</td>{% endif %}
             <td><a href="{{ link }}">{{ msg.date }}</a></td>
             <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
-            <td>{% if not record.read and not is_admin %}<span class="label label-info new-msg-label">{% trans "NEW" %}</span> {% endif %}<a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a></td>
+            <td>
+                {% if not record.read and not is_admin %}
+                    <span class="label label-info" id="new-msg-label">
+                        {% trans "NEW" %}
+                    </span>
+                {% endif %}
+                <a href="{{ link }}">{{ msg.topic|truncatechars:80 }}</a>
+            </td>
             {% if is_admin %}
-            <td><span class="label {% if record.needs_reply %}label-important{% endif %}">{{ msg.kind }}</span></td>
+                <td>
+                    <span class="label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
+                        {{ msg.kind }}
+                    </span>
+                </td>
             {% endif %}
         </tr>
         <tr
           {% if not record.read and not is_admin %}data-visit-url="{{ visit_link }}"{% endif %}
           data-is-new="{% if not record.read and not is_admin %}1{% else %}0{% endif %}" id="hidden_message_{{ msg.id }}"
-          style="display: none">
-            <td colspan="{% if is_admin %}5{% else %}3{% endif %}" ><div>{{ msg.content|urlize|linebreaks }}</div></td>
-            <td style="border: none"></td>
+          class="collapse">
+            <td colspan="{% if is_admin %}5{% else %}3{% endif %}">
+                <div>{{ msg.content|urlize|linebreaks }}</div>
+            </td>
         </tr>
         {% endwith %}
         {% endfor %}

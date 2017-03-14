@@ -44,13 +44,6 @@ top_links_registry.register('ranking', _("Ranking"),
         order=300)
 
 
-# http://stackoverflow.com/questions/1624883/alternative-way-to-split-a-list-into-groups-of-n
-def grouper(n, iterable, fillvalue=None):
-    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
-    return list(itertools.izip_longest(*args, fillvalue=fillvalue))
-
-
 @enforce_condition(contest_exists & is_contest_admin)
 def dashboard_message_edit_view(request):
     instance, _created = DashboardMessage.objects.get_or_create(
@@ -62,7 +55,7 @@ def dashboard_message_edit_view(request):
             return redirect('contest_dashboard', contest_id=request.contest.id)
     else:
         form = DashboardMessageForm(request, instance=instance)
-    return TemplateResponse(request, 'dashboard/edit_dashboard_message.html',
+    return TemplateResponse(request, 'dashboard/dashboard-message-edit.html',
             {'form': form})
 
 
@@ -87,17 +80,17 @@ def dashboard_message_fragment(request):
         'content': content,
         'is_admin': is_admin,
     }
-    return render_to_string('dashboard/dashboard_message.html',
+    return render_to_string('dashboard/dashboard-message.html',
         context_instance=RequestContext(request, context))
 
 
 @dashboard_headers_registry.register_decorator(order=100)
 def top_links_fragment(request):
-    top_links = grouper(3, top_links_registry.template_context(request))
+    top_links = top_links_registry.template_context(request)
     context = {
         'top_links': top_links,
     }
-    return render_to_string('dashboard/top_links.html',
+    return render_to_string('dashboard/dashboard-actions.html',
         context_instance=RequestContext(request, context))
 
 
@@ -121,7 +114,7 @@ def submissions_fragment(request):
         'submissions': submissions,
         'show_scores': show_scores
     }
-    return render_to_string('dashboard/submissions.html',
+    return render_to_string('dashboard/dashboard-submissions.html',
         context_instance=RequestContext(request, context))
 
 
@@ -151,7 +144,7 @@ def public_contest_dashboard_view(request):
     fragments = [gen(request) for gen in dashboard_registry]
     fragments = [frag for frag in fragments if frag is not None]
     if not fragments:
-        fragments = [render_to_string('dashboard/no_fragments.html',
+        fragments = [render_to_string('dashboard/dashboard-empty.html',
             context_instance=RequestContext(request))]
     context = {
         'headers': headers,

@@ -1,28 +1,34 @@
 {% load i18n check_perm get_user_name %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% check_perm "contests.contest_admin" for contest as is_admin %}
 
-<div class="message {% if is_reply %}message_reply {% endif %}{% if is_admin %}admin {% endif %}{% if message.kind == 'PUBLIC' %}message_reply_public {% endif %}{% if has_replies %}message_has_replies{% endif %}">
+<div class="oioioi-message {% if is_reply %}oioioi-message--reply {% endif %}{% if message.kind == 'PUBLIC' %}oioioi-message--reply-public {% endif %}{% if has_replies %}oioioi-message--has-replies{% endif %}">
     {% if is_admin %}
-    <div class="message_actions">
-        <a class="action" href="{% url 'oioioiadmin:questions_message_change' message.id %}"><i class="icon-edit"></i></a>
-        <a class="action" href="{% url 'oioioiadmin:questions_message_delete' message.id %}"><i class="icon-remove"></i></a>
-    </div>
+        <div class="oioioi-message__actions pull-left">
+            <a class="oioioi-message__action" href="{% url "oioioiadmin:questions_message_change" message.id %}">
+                <span class="glyphicon glyphicon-edit"></span>
+            </a>
+            <a class="oioioi-message__action" href="{% url "oioioiadmin:questions_message_delete" message.id %}">
+                <span class="glyphicon glyphicon-remove"></span>
+            </a>
+        </div>
     {% endif %}
-    <div class="message_container">
-        <p class="message_info">
-        {% full_name message.author %}
-        |
-        {% if is_admin %}
-        <span class="message_timestamp">{{ message.date }}{% if message.pub_date %}, {% trans "publication" %} {{ message.pub_date }}{% endif %}</span>
-        {% else %}
-        <span class="message_timestamp">{{ message.get_user_date }}</span>
-        {% endif %}
-
-        <span class="label {% if record.needs_reply %}label-important{% endif %}">{{ message.get_kind_display }}</span>
-        </p>
-        <p class="message_body">{{ message.content|urlize }}</p>
-        {% if not is_reply %}
-            <div style="display: none" class="message_to_quote">{{ message.to_quote }}</div>
-        {% endif %}
-    </div>
+    <p class="oioioi-message__info">
+        <small class="text-muted">
+            {% full_name message.author %} |
+            <span class="oioioi-message__timestamp">
+                {% if is_admin %}
+                    {{ message.date }}{% if message.pub_date %}, {% trans "publication" %} {{ message.pub_date }}{% endif %}
+                {% else %}
+                    {{ message.get_user_date }}
+                {% endif %}
+            </span>
+        </small>
+        <span class="oioioi-message__label label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
+            {{ message.get_kind_display }}
+        </span>
+    </p>
+    <p class="oioioi-message__body">{{ message.content|urlize }}</p>
+    {% if not is_reply %}
+        <div class="hidden message_to_quote">{{ message.to_quote }}</div>
+    {% endif %}
 </div>

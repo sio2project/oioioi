@@ -1,0 +1,49 @@
+{% load i18n %}
+{% load check_perm %}
+{% load get_user_name %}
+
+<a href="#forum-anchor-{{ post.id }}">#{{ post.id }}</a>
+| {% full_name post.author %} | {% trans "Added" %}: {{ post.add_date }}
+{% if post.edited %}
+    | {% trans "Last edit" %}: {{ post.last_edit_date }}
+{% endif %}
+{% if not is_locked and post.author == user or is_admin %}
+    | <a href="{% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
+        {% trans "edit" %}
+      </a>
+    {% if forloop.last and post.can_be_removed %}
+        | <a href="{% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
+            <span class="glyphicon glyphicon-trash"></span>
+          </a>
+    {% endif %}
+{% endif %}
+{% if not post.hidden %}
+    {% if is_admin %}
+        | <a href="#" data-post-url="{% url 'forum_post_hide' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
+            {% trans "hide" %}
+          </a>
+        {% if post.reported %}
+            | <a href="#" data-post-url="{% url 'forum_post_unreport' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
+                {% trans "dismiss report" %}
+             </a>
+        {% endif %}
+    {% elif not user.is_anonymous and not post.reported %}
+        | <a href="#" data-post-url="{% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
+            {% trans "report" %}
+          </a>
+    {% endif %}
+    {% if post.reported %}
+        |
+        <span class="text-danger">
+            {% trans "This post was reported" %}
+            {% if is_admin %}
+                {% trans "by" %}
+                {% if post.reported_by %}
+                    {% full_name post.reported_by %}
+                {% else %}
+                    {% trans "unknown" %}
+                {% endif %}
+            {% endif %}
+        </span>
+    {% endif %}
+{% endif %}

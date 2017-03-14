@@ -1,0 +1,69 @@
+{% load i18n %}
+{% load runtimeformat %}
+
+
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered table-report submission">
+        <thead>
+            <tr>
+                <th class="submission__margin submission--{{ test.status }}"></th>
+                <th>{% trans "Test" %}</th>
+                <th>{% trans "Result" %}</th>
+                <th>{% trans "Time" %}</th>
+                {% if show_scores %}
+                    <th>{% trans "Score" %}</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+                {% for test in group.tests %}
+                    <tr class="test-row-{{ group.report.id }}">
+                        <td class="submission__margin submission--{{ test.status }}"></td>
+                        <td class="test-actions-toggler {% if is_admin %}fix-pull-right{% endif %}">
+                            {{ test.test_name }}
+                            <span class="test-actions pull-right">
+                                {% if test.test %}
+                                    <small>
+                                        {% if is_admin %}
+                                            <a title="{% trans 'Download output for this test' %}"
+                                               href="{% url 'download_output_file' test_id=test.test.id %}">
+                                                out
+                                            </a>
+                                            <a title="{% trans 'Download input for this test' %}"
+                                               href="{% url 'download_input_file' test_id=test.test.id %}">
+                                                in
+                                            </a>
+                                        {% endif %}
+                                        {% if allow_download_out and test.generate_status == 'OK' %}
+                                            <a title="{% trans 'Download user output for this test' %}"
+                                               href="{% url 'download_user_output' testreport_id=test.id %}">
+                                                usr-out
+                                            </a>
+                                        {% endif %}
+                                    </small>
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td class="submission--{{ test.status }}">
+                            {{ test.get_status_display }}
+                        </td>
+                        <td>
+                            {% if is_admin or test.status != 'TLE' %}
+                                {{ test.time_used|runtimeformat }}
+                            {% else %}-.--s
+                            {% endif %}/ {{ test.test_time_limit|runtimeformat }}
+                        </td>
+                        {% if show_scores and forloop.first %}
+                            <td class="group-score text-right" rowspan="{{ group.tests|length }}">
+                                {% if group.report.score %}
+                                    {{ group.report.score }} / {{ group.report.max_score }}
+                                {% endif %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

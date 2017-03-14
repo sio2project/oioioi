@@ -4,7 +4,7 @@ from django.utils import timezone
 register = template.Library()
 
 
-@register.inclusion_tag('clock/navbar_clock.html', takes_context=True)
+@register.inclusion_tag('clock/navbar-clock.html', takes_context=True)
 def navbar_clock(context):
     timestamp = getattr(context['request'], 'timestamp', None)
     if not timestamp:
@@ -16,13 +16,13 @@ def navbar_clock(context):
             'is_admin_time_set': False}
 
 
-@register.inclusion_tag('clock/navbar_admin_clock.html', takes_context=True)
+@register.inclusion_tag('clock/navbar-admin-clock.html', takes_context=True)
 def navbar_admin_clock(context):
     result = navbar_clock(context)
     result['path'] = context['request'].get_full_path()
     return result
 
 
-@register.inclusion_tag('clock/navbar_countdown.html', takes_context=True)
+@register.inclusion_tag('clock/navbar-countdown.html', takes_context=True)
 def navbar_countdown(context):
     return {}

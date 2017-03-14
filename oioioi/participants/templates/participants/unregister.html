@@ -3,27 +3,18 @@
 
 {% block title %}{% trans "Confirm unregistration" %}{% endblock %}
 
-{% block content %}
-<div class="well span10 offset1 central-well">
-    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+{% block main-content %}
+<div class="well text-center">
+    <h1>{% trans "Confirm unregistration" %}</h1>
+    <p>{% trans "Are you sure to unregister from the current contest?" %}</p>
+    <form method="post">
+        {% csrf_token %}
         <input type="hidden" name="post" value="yes" />
-        <div class="control-group">
-            <div class="controls">
-                <h2>{% trans "Confirm unregistration" %}</h2>
-            </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <p>
-                    {% trans "Are you sure to unregister from the current contest?" %}
-                </p>
-            </div>
-        </div>
-        <div class="form-actions">
+        <div class="form-group">
             <button type="submit" class="btn btn-danger">
                 {% trans "Yes, I'm sure" %}
             </button>
-            <button type="button" class="btn" onclick="history.back()">
+            <button type="button" class="btn btn-default" onclick="history.back()">
                 {% trans "No, go back" %}
             </button>
         </div>

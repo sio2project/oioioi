@@ -1,0 +1,48 @@
+{% load i18n portal_url simple_tags %}
+
+<div class="panel panel-default">
+    <div class="panel-heading">{% trans "Navigation" %}</div>
+    <div class="list-group">
+        {% if current_node.is_root_node and current_node.is_leaf_node %}
+            <a class="list-group-item active" href="{% portal_url node=current_node %}">{{ current_node.full_name }}</a>
+        {% else %}
+            {% for node in current_node.get_ancestors_including_self %}
+                {% if not node.is_leaf_node %}
+                    {% if node.get_siblings %}
+                        <div class="list-group-item dropdown">
+                            <button class="btn dropdown-toggle {% if node == current_node %}btn-primary{% else %}btn-default{% endif %}"
+                                    type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{ node.full_name }} <span class="glyphicon glyphicon-chevron-right pull-right"></span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                {% for sibling in node.get_siblings_including_self %}
+                                    <li><a href="{% portal_url node=sibling %}">{{ sibling.full_name }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% portal_url node=node %}" class="list-group-item {% if node == current_node %}active{% endif %}">
+                            {{ node.full_name }}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="panel panel-default">
+        {% if not current_node.is_leaf_node %}
+            <div class="panel-heading">{{ current_node.full_name }}</div>
+            <div class="list-group"></div>
+            {% for node in current_node.get_children %}
+                <a class="list-group-item" href="{% portal_url node=node %}">{{ node.full_name }}</a>
+            {% endfor %}
+        {% else %}
+            <div class="panel-heading">{{ current_node.parent.full_name }}</div>
+            <div class="list-group"></div>
+            {% for node in current_node.get_siblings_including_self %}
+                <a class="list-group-item {% if node == current_node %}active{% endif %}"
+                   href="{% portal_url node=node %}">{{ node.full_name }}</a>
+            {% endfor %}
+        {% endif %}
+    {% endif %}
+</div>

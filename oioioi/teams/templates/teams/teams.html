@@ -1,21 +1,27 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
-{% load pagination_tags %}
 
 {% block title %}{% trans "Teams" %}{% endblock %}
 
-{% block content %}
-
-<h2>{{ name }}</h2>
-<ul>
+{% block main-content %}
+    <h1>{% trans "Teams" %}</h1>
     {% for team in teams %}
-    <li>{{ team.name }}</li>
-    <ul>
-        {% for member in team.members %}
-        <li>{{ member }}</li>
-        {% endfor %}
-    </ul>
+        <h2>{{ team.name }}</h2>
+        <table class="table table--auto-width">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{% trans "User" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for member in team.members %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ member }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     {% endfor %}
-</ul>
-
 {% endblock %}

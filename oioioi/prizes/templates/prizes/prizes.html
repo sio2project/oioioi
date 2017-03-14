@@ -3,22 +3,21 @@
 
 {% block title %}{% trans "Prizes" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Prizes" %}</h2>
-<br>
+{% block main-content %}
+    <h1>{% trans "Prizes" %}</h1>
 
-{% if groups|length > 1 %}
-<div>
-    <ul class="nav nav-pills inline-nav">
-        {% for group in groups %}
-        <li{% if group.ids.0 == key %} class="active"{% endif %}><a href="{% url 'prizes' contest_id=contest.id key=group.ids.0 %}">{{ group.name }}</a></li>
+    {% if groups|length > 1 %}
+        <ul class="nav nav-pills">
+            {% for group in groups %}
+            <li{% if group.ids.0 == key %} class="active"{% endif %}><a href="{% url 'prizes' contest_id=contest.id key=group.ids.0 %}">{{ group.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="nav-content">
+        {% regroup pfus by prize as prize_list %}
+        {% for prize in prize_list %}
+            {% include "prizes/table.html" %}
         {% endfor %}
-    </ul>
-</div>
-{% endif %}
-
-{% regroup pfus by prize as prize_list %}
-{% for prize in prize_list %}
-    {% include "prizes/table.html" %}
-{% endfor %}
+    </div>
 {% endblock %}

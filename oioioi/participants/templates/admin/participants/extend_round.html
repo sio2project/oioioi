@@ -3,14 +3,16 @@
 
 {% block title %}{% trans "Extend round for participants" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Extend round for participants" %}</h2>
-<form action="" method="post" class="form-horizontal">
+{% block main-content %}
+<h1>{% trans "Extend round for participants" %}</h1>
+<form method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
     <input type="hidden" name="action" value="extend_round" />
-    <div class="form-actions">
-        <input type="submit" name="submit" class="btn btn-primary" value="{% trans "Extend" %}" />
+    <div class="form-group">
+        <button type="submit" name="submit" class="btn btn-primary">
+            {% trans "Extend" %}
+        </button>
     </div>
 </form>
 {% endblock %}

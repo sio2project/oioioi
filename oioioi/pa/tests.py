@@ -1,5 +1,6 @@
 import json
 import urllib
+import re
 from datetime import datetime
 
 from django.test import RequestFactory
@@ -177,18 +178,25 @@ class TestPARanking(TestCase):
         self.client.login(username='test_user')
         with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             response = self.client.get(self._ranking_url(3))
-            self.assertContains(response, '<td>Test User</td>')
+            # Test User should be present in the ranking.
+            self.assertTrue(re.search('<td[^>]*>Test User</td>',
+                                      response.content))
             # Test User 2 scored 0 points for the only task in the round.
-            self.assertNotContains(response, '<td>Test User 2</td>')
+            self.assertFalse(re.search('<td[^>]*>Test User 2</td>',
+                                       response.content))
 
     def test_ranking_ordering(self):
 
         def check_order(response, expected):
             prev_pos = 0
             for user in expected:
-                pattern = '<td>%s</td>' % (user,)
+                pattern = '<td[^>]*>%s</td>' % (user,)
+                pattern_match = re.search(pattern, response.content)
+
+                self.assertTrue(pattern_match)
                 self.assertIn(user, response.content)
-                pos = response.content.find(pattern)
+
+                pos = pattern_match.start()
                 self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
                     'position' % (user,)))
                 prev_pos = pos

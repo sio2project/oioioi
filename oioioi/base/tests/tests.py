@@ -104,18 +104,13 @@ class TestIndex(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertIn('been logged out', response.content)
 
-    def test_language_flags(self):
-        response = self.client.get('/', follow=True)
-        for lang_code, _lang_name in settings.LANGUAGES:
-            self.assertIn(lang_code + '.png', response.content)
-
     def test_index(self):
         with self.assertNumQueriesLessThan(90):
             self.client.login(username='test_user')
             response = self.client.get('/', follow=True)
             self.assertNotIn('navbar-login', response.content)
             self.assertNotIn('System Administration', response.content)
-        with self.assertNumQueriesLessThan(70):
+        with self.assertNumQueriesLessThan(75):
             self.client.login(username='test_admin')
             response = self.client.get('/', follow=True)
             self.assertNotIn('navbar-login', response.content)
@@ -730,7 +725,7 @@ class TestAdmin(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('User: test_user', response.content)
-        self.assertIn('central-well', response.content)
+        self.assertIn('well', response.content)
         response = self.client.post(url, {'post': 'yes'}, follow=True)
         self.assertIn('was deleted successfully', response.content)
         self.assertEqual(User.objects.filter(username='test_user').count(), 0)
@@ -1005,9 +1000,9 @@ class TestLoginChange(TestCase):
 
             response = self.client.get(self.url_edit_profile)
             # The html strings underneath may change with any django upgrade.
-            self.assertIn('<input id="id_username" maxlength="30" name='
-                    '"username" type="text" value="%s" />' % l,
-                    response.content)
+            self.assertIn('<input class="form-control" id="id_username" '
+                    'maxlength="30" name="username" type="text" '
+                    'value="%s" />' % l, response.content)
 
             self.client.post(self.url_edit_profile, {'username': 'valid_user'},
                     follow=True)
@@ -1018,9 +1013,9 @@ class TestLoginChange(TestCase):
                     response.content)
 
             response = self.client.get(self.url_edit_profile)
-            self.assertIn('<input id="id_username" maxlength="30" name='
-                    '"username" type="text"'
-                    ' value="valid_user" readonly />', response.content)
+            self.assertIn('<input class="form-control" id="id_username" '
+                    'maxlength="30" name="username" type="text" '
+                    'value="valid_user" readonly />', response.content)
 
     def test_login_cannot_change_from_valid(self):
         for l in self.valid_logins:
@@ -1028,9 +1023,9 @@ class TestLoginChange(TestCase):
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
-            self.assertIn('<input id="id_username" maxlength="30" name='
-                    '"username" type="text" value="%s" readonly />'
-                    % l, response.content)
+            self.assertIn('<input class="form-control" id="id_username" '
+                          'maxlength="30" name="username" type="text" '
+                          'value="%s" readonly />' % l, response.content)
 
             response = self.client.post(self.url_edit_profile,
                     {'username': 'valid_user'}, follow=True)

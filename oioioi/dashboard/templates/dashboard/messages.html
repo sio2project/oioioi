@@ -1,8 +1,4 @@
 {% load i18n %}
 
 <h2>{% trans "Questions and news" %}</h2>
-<div class="row">
-    <div class="span11 offset1">
-        {% include "dashboard/questions_table.html" %}
-    </div>
-</div>
+{% include "questions/list_table.html" %}

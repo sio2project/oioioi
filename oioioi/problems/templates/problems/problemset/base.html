@@ -1,83 +1,69 @@
 {% extends "base.html" %}
-{% load i18n %}
+{% load i18n simple_tags %}
 
-{% block title %}
-Problemset
-{% endblock %}
+{% block title %}Problemset{% endblock %}
 
-{% block container-class %}
-{% endblock %}
+{% block container-class %}{% endblock %}
 
 
 {% block body %}
-<div class="row-fluid top-row" style="
-    margin-top: 40px;
-    padding-top: 23px;
-">
-    <div class="navbar navbar-inner hidden-print" style="
-        margin-right: 20px;
-        margin-left: 20px;
-    ">
-
-        <a class="brand" style="color: #333333"
-            href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-            {% endif %}">
-            Problemset
-        </a>
-
-        {% if show_search_bar %}
-        <form class="navbar-search pull-right form-search" id="problemsite_tag_search-form" style="margin-right: 60px;">
-            <div class="input-append">
-                <input type="text" id="problemsite_tag_search" name="tag_search" class="search-query" data-hints-url="{% url "get_tag_hints" %}" autocomplete="off" placeholder="Search by tag" value="{{ tag_search }}" />
+<div class="container">
+    <div class="row">
+    {% if show_search_bar %}
+         <form id="problemsite_tag_search-form" class="col-md-4 col-sm-6 col-xs-12">
+            <div class="input-group">
+                <input type="search" class="form-control search-query" id="problemsite_tag_search" name="tag_search"
+                       data-hints-url="{% url "get_tag_hints" %}" autocomplete="off" placeholder="Search by tag" value="{{ tag_search }}">
                 {% if request.GET.select_problem_src %}
-                <input type="hidden" name="select_problem_src" value="{{ request.GET.select_problem_src }}" />
+                    <input type="hidden" name="select_problem_src" value="{{ request.GET.select_problem_src }}" />
                 {% endif %}
                 <script>init_tag_selection('problemsite_tag_search');</script>
-                <button type="submit" class="btn"><i class="icon-search"></i></button>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
+                </span>
             </div>
-        </form>
-        {% endif %}
+         </form>
+    {% endif %}
+    </div>
 
-        <div class="span12" style="margin-left: 0px">
-            <ul class="nav navbar-nav">
-                <li><a href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-                {% endif %}">
+    <ul class="nav nav-pills nav-justified nav-margin">
+        <li role="presentation">
+            <a href="{% url 'problemset_main' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
                 {% trans "Public problems" %}
-                </a>
-                {% if user.is_authenticated %}
-                <li><a
-                href="{% url 'problemset_my_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-                {% endif %}">
-                    {% trans "My problems" %}
-                </a></li>
-                {% if user.is_superuser %}
-                <li><a
-                href="{% url 'problemset_all_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-                {% endif %}">
-                {% trans "All problems" %}
-                </a>
-                {% endif %}
-                    {% if can_add_to_problemset %}
-                    <li><a
-                    href="{% url 'problemset_add_or_update' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}
-                    {% endif %}">
-                        {% trans "Add problem" %}
-                    </a></li>
-                    {% endif %}
-                {% endif %}
-                <li><a href="/">{% trans "Main page" %}</a>
-            </ul>
-        </div>
+            </a>
+        </li>
 
-    </div>
+        {% if user.is_authenticated %}
+            <li role="presentation" class="{% active_url 'problemset_my_problems' %}">
+                <a href="{% url 'problemset_my_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                    {% trans "My problems" %}
+                </a>
+            </li>
+
+            {% if user.is_superuser %}
+                <li role="presentation" class="{% active_url 'problemset_all_problems' %}">
+                    <a href="{% url 'problemset_all_problems' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                        {% trans "All problems" %}
+                    </a>
+                </li>
+            {% endif %}
+            {% if can_add_to_problemset %}
+            <li role="presentation" class="{% active_url 'problemset_add_or_update' %}">
+                <a href="{% url 'problemset_add_or_update' %}{% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                    {% trans "Add problem" %}
+                </a>
+            </li>
+            {% endif %}
+        {% endif %}
+        <li role="presentation"><a href="/">{% trans "Main page" %}</a>
+    </ul>
 </div>
+
+
 <div class="container">
-    <div class="row-fluid">
-        <div class="main-content pagination-centered">
-        {% include "ingredients/flash.html" %}
+    <h3>{{ page_title }}</h3>
+    {% include "ingredients/flash.html" %}
         {% block main_content %}
-        {% endblock %}
-        </div>
-    </div>
+    {% endblock %}
 </div>
 {% endblock %}

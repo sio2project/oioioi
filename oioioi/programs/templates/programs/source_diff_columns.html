@@ -1,8 +1,9 @@
-<td class="linenos"><div class="linenodiv diff-highlight"><pre>
-{% for line in source %}<span class="diff-num {{line.css_class}}">{{ line.number }}</span>
+
+<div class="line-numbers diff-highlight"><pre>
+{% for line in source %}<span class="diff-highlight diff-highlight__num {{line.css_class}}">{{ line.number }}</span>
 {% endfor %}
-</pre></div></td>
-<td class="code"><div class="syntax-highlight diff-highlight"><pre>
-{% for line in source %}<span class="diff-line {{line.css_class}}">{{line.text}}</span>
+</pre></div>
+<div class="code diff-highlight"><pre>
+{% for line in source %}<span class="diff-highlight diff-highlight__line {{line.css_class}}">{{ line.text }}</span>
 {% endfor %}
-</pre></div></td>
+</pre></div>

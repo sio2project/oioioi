@@ -1,16 +1,15 @@
-{% extends "simple-centered-wide.html" %}
+{% extends "simple-centered.html" %}
 {% load i18n %}
 
-{% load staticfiles %}
-<link rel="stylesheet" type="text/css" href="{% static 'newsfeed/newsfeed.css' %}" />
+{% block title %}{% trans "Newsfeed"%}{% endblock %}
 
 {% block content %}
+    <h1>{% trans "Newsfeed" %}</h1>
+    {% if request.user.is_superuser %}
+        <a role="button" class="btn btn-success" href="{% url 'add_news' %}">{% trans "Add news" %}</a>
+    {% endif %}
 
-{% if request.user.is_superuser %}
-<p class="news-add-link"><a href="{% url 'add_news' %}">{% trans "Add news" %}</a></p>
-{% endif %}
-{% for news_item in news_list %}
-    {% include 'newsfeed/widgets/news.html' with news=news_item request=request %}
-{% endfor %}
-
+    {% for news_item in news_list %}
+        {% include 'newsfeed/widgets/news.html' with news=news_item request=request %}
+    {% endfor %}
 {% endblock %}

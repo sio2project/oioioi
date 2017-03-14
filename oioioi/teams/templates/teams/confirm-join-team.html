@@ -1,0 +1,31 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Teams" %}{% endblock %}
+
+{% block main-content %}
+    <h1>{% trans "Join team" %}</h1>
+    <h2>{{ name }}</h2>
+
+    <table class="table table--auto-width">
+        <thead>
+            <tr>
+                <th class="text-right">#</th>
+                <th>{% trans "User" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+                <tr>
+                    <td class="text-right">{{ forloop.counter }}</td>
+                    <td>{{ member }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form method="post" action="{% url 'join_team' contest_id=contest.id join_key=join_key%}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-lg">{% trans "Join this team!" %}</button>
+    </form>
+{% endblock %}

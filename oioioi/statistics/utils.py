@@ -18,10 +18,10 @@ def render_head(requirements):
             unique.add(name)
             ext = name.split('.')[-1].strip().lower()
             if ext == 'css':
-                result += render_to_string('statistics/include_css.html',
+                result += render_to_string('statistics/include-css.html',
                                            {'file_name': prefix+name})
             if ext == 'js':
-                result += render_to_string('statistics/include_js.html',
+                result += render_to_string('statistics/include-js.html',
                                            {'file_name': prefix+name})
     return result
 

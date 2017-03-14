@@ -1,0 +1,6 @@
+{% load simple_filters %}
+<script>
+    $(function() {
+        $(window).trigger('initialStatus', {{ status|json_parse }});
+    });
+</script>

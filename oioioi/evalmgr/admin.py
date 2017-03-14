@@ -159,7 +159,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     user.short_description = _("User")
 
     def colored_state(self, instance):
-        return '<span class="subm_admin subm_%s">%s</span>' % \
+        return '<span class="submission-admin submission--%s">%s</span>' % \
             (instance.state, force_unicode(instance.get_state_display()))
     colored_state.allow_tags = True
     colored_state.short_description = _("Status")

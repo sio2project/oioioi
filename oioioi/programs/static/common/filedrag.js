@@ -3,21 +3,29 @@ var ddzone_hide_timeout = null;
 $(function() {
     if (window.File && window.FileList && window.FileReader) {
 
-        if (!$('#ddzone')) {
+        const dropZoneArea = $('#drop-zone-area');
+
+        if (!dropZoneArea) {
             return;
         }
 
-        $('html').on('dragover', ShowDdzone);
-        // prevent opening in browser file dropped not in drop area
-        $('html').on('drop', HideDdzone);
-        $('input[type=file]').on('dragover', DdzoneException);
-        $('input[type=file]').on('drop', DdzoneException);
-        $('#ddzone').on('dragover', ShowDdzone);
-        $('#droparea').on('dragover', ShowDdzone);
-        $('#droparea').on('dragover', DropAreaHover);
-        $('#droparea').on('dragleave', DropAreaHover);
-        $('#droparea').on('drop', DropedFileHandler);
-        $('html').on('dragleave', HideDdzone);
+        $('html')
+            .on('dragover', ShowDdzone)
+            .on('dragleave', HideDdzone)
+            // Prevent opening files dropped outside drop area.
+            .on('drop', HideDdzone);
+
+
+        $('input[type=file]')
+            .on('dragover', DdzoneException)
+            .on('drop', DdzoneException);
+
+        dropZoneArea
+            .on('dragover', ShowDdzone)
+            .on('dragover', DropAreaHover)
+            .on('dragleave', HideDdzone)
+            .on('dragleave', DropAreaHover)
+            .on('drop', DropedFileHandler);
     }
 });
 
@@ -25,10 +33,15 @@ $(function() {
 function DropAreaHover(e) {
     e.stopPropagation();
     e.preventDefault();
-    if ( e.type == 'dragover' ) {
-        $('#droparea').addClass('hover');
+
+    const dropZoneDisplayedContent = $('#drop-zone-displayed-content');
+
+    if (e.type == 'dragover') {
+        dropZoneDisplayedContent.addClass('drop-zone__message--hover');
     } else {
-        $('#droparea').removeClass();
+        dropZoneDisplayedContent
+            .removeClass('drop-zone__message--hover')
+            .removeClass('drop-zone__message--error');
     }
 }
 
@@ -40,7 +53,7 @@ function ShowDdzone(e) {
     // Do not show drag-and-drop if not dropping files.
     // This explicit loop is needed on Firefox, where types is not
     // an array, but an object.
-    var types = e.originalEvent.dataTransfer.types;
+    const types = e.originalEvent.dataTransfer.types;
     var has_file = false;
     console.log(types);
     for (var i = 0; i < types.length; i++) {
@@ -53,9 +66,11 @@ function ShowDdzone(e) {
         return;
     }
 
-    $('#droparea').removeClass()
-    $('#dropmsg').html(gettext("Drop file here"));
-    $('#ddzone').show();
+    $('#drop-zone-displayed-content')
+        .removeClass('drop-zone__message--hover')
+        .removeClass('drop-zone__message--error');
+
+    $('#drop-zone-area').show();
     clearTimeout(ddzone_hide_timeout);
 }
 
@@ -67,17 +82,21 @@ function HideDdzone(e) {
     e.stopPropagation();
     e.preventDefault();
     filedragHide();
+    $('#drop-zone-displayed-content').html(gettext("Drop file here"));
 }
 
 function filedragHide() {
     ddzone_hide_timeout = setTimeout(function() {
-        $('#ddzone').hide();
+        $('#drop-zone-area').hide();
     }, 100);
 }
 
 function filedragNotifyErr(message) {
-    $('#droparea').removeClass('hover').addClass('error');
-    $('#dropmsg').html(message);
+    $('#drop-zone-displayed-content')
+        .removeClass('drop-zone__message--hover')
+        .addClass('drop-zone__message--error')
+        .html(message);
+
     setTimeout(filedragHide, 1500);
 }
 
@@ -88,8 +107,8 @@ function DropedFileHandler(e) {
     e.preventDefault();
 
     // fetch FileList object
-    var org = e.originalEvent;
-    var files = org.target.files || org.dataTransfer.files;
+    const org = e.originalEvent;
+    const files = org.target.files || org.dataTransfer.files;
 
     if (files.length != 1) {
         filedragNotifyErr(gettext("Drop one file."));
@@ -114,10 +133,10 @@ function DropedFileHandler(e) {
 
 // output file information
 function filedragParseFile(file) {
-    var reader = new FileReader();
+    const reader = new FileReader();
     reader.onload = function(e) {
-        $('#dropped_solution').val(e.target.result);
-        $('#dropped_solution_name').val(file.name);
+        $('#dropped-solution').val(e.target.result);
+        $('#dropped-solution-name').val(file.name);
         $('#upload').submit();
     }
     reader.readAsText(file);

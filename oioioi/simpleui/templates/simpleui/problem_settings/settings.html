@@ -6,8 +6,8 @@
 {% block styles %}
     {{ block.super }}
     {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/less" href="{% static 'simpleui/simpleui.less' %}">
-        <link charset="utf-8" rel="stylesheet" type="text/less" href="{% static 'simpleui/problem_settings/problem_settings.less' %}">
+        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/simpleui.scss">
+        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/problem_settings/problem_settings.scss">
     {% endcompress %}
 {% endblock %}
 
@@ -21,7 +21,7 @@
 {% block container-class %}simpleui__container{% endblock %}
 
 {% block body %}
-    <div class="settings top-row">
+    <div class="settings">
         <header class="settings__header">
             <h1>{{ problem.name }} ({{problem_instance.short_name}})</h1>
         </header>
@@ -33,7 +33,7 @@
 
                 <section class="settings__general">
                     <h2>{% trans "General" %}</h2>
-                    <div class="form-horizontal content-box">
+                    <div>
                         {% include "simpleui/forms/form_field.html" with field=pif.round %}
                         {% include "simpleui/forms/form_field.html" with field=pif.submissions_limit %}
                     </div>
@@ -50,12 +50,12 @@
                 </section>
             {% endfor %}
 
-            <section class="settings__tests content-box">
+            <section class="settings__tests">
                 <h2>{% trans "Tests" %}</h2>
                 {% include "simpleui/problem_settings/ingredients/tests.html" %}
             </section>
             <section class="settings__actions">
-                <a class="btn btn-danger" href="{% url 'oioioiadmin:contests_probleminstance_delete' problem_instance.id %}">
+                <a role="button" class="btn btn-danger" href="{% url 'oioioiadmin:contests_probleminstance_delete' problem_instance.id %}">
                     {% trans 'Delete' %}
                 </a>
                 <button type="submit" class="btn btn-primary">{% trans 'Save' %}</button>

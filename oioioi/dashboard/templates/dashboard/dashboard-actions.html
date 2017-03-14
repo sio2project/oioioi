@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if top_links|length > 0 %}
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="#">{% trans "Dashboard" %}</a></li>
+        {% for item in top_links %}
+            {% if item %}
+                <li role="presentation">
+                    <a href="{{ item.url }}">{{ item.text }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+{% endif %}

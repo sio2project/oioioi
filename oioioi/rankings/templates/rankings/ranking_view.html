@@ -1,34 +1,37 @@
 {% extends "base-with-menu.html" %}
-{% load i18n %}
-{% load check_perm %}
+{% load i18n check_perm simple_filters %}
 
 {% block title %}{% trans "Ranking" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-<h2>{% trans "Ranking" %}</h2>
-<div class="corner-icons">
-{% if is_admin %}
-    {% if key %}
-    <a class="btn btn-small" href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
-        <i class="icon-download"></i>
-        <span class="toolbar-button-text">{% trans "Export to CSV" %}</span>
-    </a>
-    {% endif %}
-{% endif %}
-{% if form and user.is_authenticated and not is_admin %}
-    <a class="btn btn-small" href="{% url 'ranking' contest_id=contest.id key=key %}?user={{ request.user.username }}">
-        <i class="icon-search"></i>
-        <span class="toolbar-button-text">{% trans "Find my place" %}</span>
-    </a>
-{% endif %}
+<div class="clearfix">
+    <div class="pull-right">
+        {% if is_admin and key %}
+            <a role="button" class="btn btn-sm btn-default"
+                href="{% url 'ranking_csv' contest_id=contest.id key=key %}">
+                <span class="glyphicon glyphicon-download"></span>
+                {% trans "Export to CSV" %}
+            </a>
+        {% endif %}
+        {% if form and user.is_authenticated and not is_admin %}
+            <a role="button" class="btn btn-sm btn-default"
+                href="{% url 'ranking' contest_id=contest.id key=key %}?user={{ request.user.username }}">
+                <span class="glyphicon glyphicon-search"></span>
+                {% trans "Find my place" %}
+            </a>
+        {% endif %}
+    </div>
+    <h1 class="pull-left">{% trans "Ranking" %}</h1>
 </div>
 
 {% if choices|length > 1 %}
 <div>
-    <ul class="nav nav-pills inline-nav">
+    <ul class="nav nav-pills">
         {% for choice in choices %}
-        <li {% if choice.0 == key %}class="active"{% endif %}><a href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a></li>
+            <li role="presentation" {% if choice.0 == key %}class="active"{% endif %}>
+                <a href="{% url 'ranking' contest_id=contest.id key=choice.0 %}">{{ choice.1 }}</a>
+            </li>
         {% endfor %}
     </ul>
 </div>
@@ -36,20 +39,12 @@
 
 {% if form %}
     {% if is_admin %}
-    <div class="search-for-user">
-        <form class="form-horizontal">
-            <div class="control-group {% if form.user.errors %}error{% endif %}">
-                <label for="{{ form.user.auto_id }}" class="control-label">{{ form.user.label }}</label>
-                <div class="controls">
-                    {{ form.user }}
-                    <button class="btn" type="submit">{% trans "Find" %}</button>
-                    {% for error in form.user.errors %}
-                    <span class="help-inline">{{ error }}</span>
-                    {% endfor %}
-                </div>
-            </div>
+        <form class="form-inline nav-content">
+            {% include "ingredients/form.html" with inline=True %}
+            <button class="btn btn-default" type="submit">
+                {% trans "Find" %}
+            </button>
         </form>
-    </div>
     {% endif %}
     <script>
     $(document).ready(function() {

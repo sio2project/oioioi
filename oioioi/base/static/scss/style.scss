@@ -1,0 +1,19 @@
+@import "utility";
+
+// Import Bootstrap
+@import "../bootstrap/stylesheets/bootstrap";
+@import "scss/bootstrap-fixes";
+
+@import "scss/footer";
+@import "scss/navbar";
+@import "scss/table";
+@import "scss/layout";
+@import "scss/markdown-editor";
+
+body {
+  min-width: $oioioi-body-min-width;
+}
+
+form {
+  max-width: $oioioi-form-max-width;
+}

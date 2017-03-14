@@ -1,0 +1,15 @@
+$rotation-interval: 1s !default;
+
+@keyframes loading-rotate-animation {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn.loading .glyphicon {
+  animation: loading-rotate-animation $rotation-interval linear infinite;
+}

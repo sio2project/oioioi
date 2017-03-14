@@ -1,13 +1,6 @@
 {% overextends 'problems/submit.html' %}
 {% load gamification_widgets compress %}
 
-{% block styles %}
-{{ block.super }}
-{% compress css %}
-<link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}gamification/less/exp_indicator.less">
-{% endcompress %}
-{% endblock %}
-
 {% block scripts %}
 {{ block.super }}
 <script type="text/javascript" src="{{ STATIC_URL }}gamification/js/exp_indicator.js"></script>

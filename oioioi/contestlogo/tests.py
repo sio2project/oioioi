@@ -42,7 +42,6 @@ class TestProcessorsWithoutUploadedFiles(TestCase):
                 'oioioi.contestlogo.tests.ContestControllerWithoutDefaults'
         contest.save()
         response = self._render_menu()
-        self.assertNotIn('id="contestlogo"', response)
         self.assertNotIn('class="contesticon"', response)
 
     def test_with_defaults(self):
@@ -51,7 +50,6 @@ class TestProcessorsWithoutUploadedFiles(TestCase):
                 'oioioi.contestlogo.tests.ContestControllerWithDefaults'
         contest.save()
         response = self._render_menu()
-        self.assertIn('id="contestlogo"', response)
         self.assertIn('/some/URL/', response)
 
         self.assertIn('class="contesticon"', response)
@@ -72,7 +70,6 @@ class TestProcessorsWithUploadedFiles(TestCase):
                 'oioioi.contestlogo.tests.ContestControllerWithDefaults'
         contest.save()
         response = self._render_menu()
-        self.assertIn('id="contestlogo"', response)
         self.assertNotIn('/some/URL/', response)
         self.assertIn('/c/c/logo/', response)
 

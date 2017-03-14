@@ -13,7 +13,7 @@
 
 {% block title %}{% trans "Register to the contest" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 <h2>{% trans "Register to the contest" %}</h2>
 
 {% if not participant %}
@@ -22,15 +22,15 @@
     </p>
 {% endif %}
 
-<form action="" method="post" class="form-horizontal">
+<form method="post">
     {% csrf_token %}
-    <fieldset>
-        {% include "ingredients/form.html" %}
-    </fieldset>
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}" />
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Submit" %}
+        </button>
         {% if can_unregister %}
-            <a class="btn btn-danger pull-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
+            <a role="button" class="btn btn-danger pull-right" href="{% url 'participants_unregister' contest_id=contest.id %}">
                 {% trans "Unregister" %}
             </a>
         {% endif %}

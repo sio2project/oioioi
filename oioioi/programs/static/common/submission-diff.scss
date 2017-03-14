@@ -1,0 +1,40 @@
+@import "scss/style";
+
+$left-diff-text: #b94a48 !default;
+$left-diff-background: #f2dede !default;
+$right-diff-text: #468847 !default;
+$right-diff-background: #dff0d8 !default;
+
+$source-line-numbers-margin: 5px !default;
+
+.diff-highlight {
+  & .diff-highlight__line {
+      &.left {
+        background: $left-diff-background;
+      }
+      &.right {
+        background: $right-diff-background;
+      }
+  }
+  & .diff-highlight__num {
+      &.left {
+        color: $left-diff-text;
+      }
+      &.right {
+        color: $right-diff-text;
+      }
+      &.left,
+      &.right {
+        font-weight: bold;
+      }
+  }
+
+  &.line-numbers {
+    float: left;
+    margin-right: $source-line-numbers-margin;
+    pre {
+      display: inline-block;
+    }
+  }
+}
+

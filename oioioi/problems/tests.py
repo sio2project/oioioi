@@ -591,7 +591,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
         self.assertIn("Add problem", response.content)
-        self.assertIn('problems/problemset/add_or_update.html',
+        self.assertIn('problems/problemset/add-or-update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)
@@ -765,7 +765,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
                 follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add_or_update.html',
+        self.assertIn('problems/add-or-update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)
@@ -889,8 +889,8 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_main, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Add problem', response.content)
-        self.assertIn('<h1>Welcome to problemset, the place where all'
-            ' the problems are.</h1>', response.content)
+        self.assertIn('Welcome to problemset, the place where all'
+            ' the problems are.', response.content)
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 
@@ -917,8 +917,8 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_main, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Add problem', response.content)
-        self.assertIn('<h1>Welcome to problemset, the place where all'
-            ' the problems are.</h1>', response.content)
+        self.assertIn('Welcome to problemset, the place where all'
+            ' the problems are.', response.content)
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 
@@ -1015,7 +1015,8 @@ class TestAddToContestFromProblemset(TestCase):
         url += '?problem_name=sum'
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('to add sum problem to', str(response.content))
+        self.assertIn('to add <code>sum</code> problem to',
+                      str(response.content))
         # This time we should be able to fill the form
         self.assertIn('data-addorupdate', str(response.content))
         self.assertIn('data-urlkey', str(response.content))

@@ -1,50 +1,61 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
+{% block scripts %}
+{{ block.super }}
+{{ form.media }}
+{% endblock %}
+
 {% block title %}{% trans "Change message" %}{% endblock %}
-{% block content %}
-    <h2 style="margin-bottom: 20px">{% trans "Change message" %}</h2>
+
+{% block main-content %}
+    <h1>{% trans "Change message" %}</h1>
     {% if message.top_reference %}
-    <div style="margin-top: 20px; margin-bottom: 20px">
-        <small>{% trans "This message is a reply to the following:" %}</small>
-        {% include "questions/single_message.html" with message=message.top_reference %}
-    </div>
+        <div>
+            <small>{% trans "This message is a reply to the following:" %}</small>
+            {% include "questions/single_message.html" with message=message.top_reference %}
+        </div>
     {% endif %}
-    <form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+    <form enctype="multipart/form-data" method="post">
         {% csrf_token %}
-        <div class="control-group">
+        <div class="form-group">
             <label for="id_author" class="control-label">{% trans "Author" %}</label>
-            <div class="controls">
-                <label id="id_author">{{ message.author.username }}{% if message.author.get_full_name %} ({{ message.author.get_full_name }}){% endif %}</label>
-            </div>
-            <label for="message_date" class="control-label">{% trans "Date" %}</label>
-            <div class="controls">
-                <label id="message_date">{{ message.date }}</label>
-            </div>
-            <label for="message_contest" class="control-label">{% trans "Contest" %}</label>
-            <div class="controls">
-                <label id="message_contest">{{ message.contest.name }}</label>
+            <div id="id_author">
+                {{ message.author.username }}{% if message.author.get_full_name %} ({{ message.author.get_full_name }}){% endif %}
             </div>
         </div>
-        {% include "ingredients/form.html" with focus="textarea#id_content" %}
+        <div class="form-group">
+            <label for="message_date" class="control-label">{% trans "Date" %}</label>
+            <div id="message_date">{{ message.date }}</div>
+        </div>
+        <div class="form-group">
+            <label for="message_contest" class="control-label">{% trans "Contest" %}</label>
+            <div id="message_contest">{{ message.contest.name }}</div>
+        </div>
+        {% include "ingredients/form.html" with focus="#id_content" %}
         {% if message.top_reference %}
-            <div class="control-group">
-                <a tabindex="1000" id="respond_inline" class="controls" href="javascript:add_question_content();">
+            <div class="form-group">
+                <button type="button" class="btn btn-default btn-sm" tabindex="-1" id="respond_inline" onclick="add_question_content();">
+                    <span class="glyphicon glyphicon-pencil"></span>
                     {% blocktrans %}Add question content{% endblocktrans %}
-                </a>
+                </button>
             </div>
         {% endif %}
-        <div class="form-actions">
-            <input type="submit" class="btn btn-primary" value="{% trans "Save" %}">
-            <div class="right-side">
-                <a class="btn btn-primary" href="history/">{% trans "History" %}</a>
-                <a class="btn btn-danger" href="delete/">{% trans "Delete" %}</a>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                {% trans "Save" %}
+            </button>
+            <div class="pull-right">
+                <a role="button" class="btn btn-primary" href="history/">{% trans "History" %}</a>
+                <a role="button" class="btn btn-danger" href="delete/">{% trans "Delete" %}</a>
             </div>
         </div>
     </form>
 {% if message.top_reference %}
-<script type="text/javascript">
-    $(function() {scroll_to('textarea#id_content');});
-</script>
+    <script type="text/javascript">
+        $(function() {
+            scroll_to('#id_content');
+        });
+    </script>
 {% endif %}
 {% endblock %}

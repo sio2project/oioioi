@@ -1,0 +1,47 @@
+@import "bootstrap/stylesheets/bootstrap/mixins";
+@import "scss/utility/variables";
+@import "bootstrap/stylesheets/bootstrap/variables";
+
+// Sets position absolute
+@mixin absolute($top: auto, $right: auto, $bottom: auto, $left: auto) {
+  bottom: $bottom;
+  left: $left;
+  position: absolute;
+  right: $right;
+  top: $top;
+}
+
+// Sets position fixed
+@mixin fixed($top: auto, $right: auto, $bottom: auto, $left: auto) {
+  bottom: $bottom;
+  left: $left;
+  position: fixed;
+  right: $right;
+  top: $top;
+}
+
+// Sets display to flex and align-items to center
+@mixin centered-flex() {
+  align-items: center;
+  display: flex;
+}
+
+// Sets block height and line-height to the same value
+@mixin centered-block($height) {
+  display: block;
+  height: $height;
+  line-height: $height;
+}
+
+// Sets width and height to a given size
+@mixin square($size) {
+  height: $size;
+  width: $size;
+}
+
+@mixin input-block-level {
+  @include box-sizing(border-box); // Makes inputs behave like true block-level elements
+  display: block;
+  min-height: $input-height-base; // Make inputs at least the height of their button counterpart (base line-height + padding + border)
+  width: 100%;
+}

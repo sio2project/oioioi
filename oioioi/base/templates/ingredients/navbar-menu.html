@@ -1,0 +1,43 @@
+{% load menu check_perm i18n all_with_prefix simple_filters simple_tags %}
+
+<a href="#" type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <span class="sr-only">{% trans "Toggle navigation" %}</span>
+    <span class="glyphicon glyphicon-menu-hamburger"></span>
+</a>
+<ul class="dropdown-menu">
+    {% all_with_prefix extra_menu_top_ %}
+
+    {% if side_menus|length > 1 %}
+        {% for registry in side_menus %}
+            {% generate_menu registry %}
+            {% if menu %}
+                <li class="dropdown-header">{{ registry.text }}</li>
+                {% for item in menu %}
+                    <li class="{% active_url item.url %}">
+                        <a href="{{ item.url }}" {{ item.attrs }}>
+                            {% if item.icon %}
+                                <span class="glyphicon glyphicon-{{ item.icon }}"></span>
+                            {% endif %}
+                            {{ item.text }}
+                        </a>
+                    </li>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        {% generate_menu side_menus|first %}
+        {% for item in menu %}
+            <li id="{{ item.name }}" class="{% active_url item.url %}">
+                <a href="{{ item.url }}" {{ item.attrs }}>
+                    {% if menu_icons %}
+                        {{ menu_icons|cyclic_lookup:forloop.counter0 }}
+                    {% endif %}
+                    {{ item.text }}
+                </a>
+            </li>
+        {% endfor %}
+
+    {% endif %}
+
+    {% all_with_prefix extra_menu_bottom_ %}
+</ul>

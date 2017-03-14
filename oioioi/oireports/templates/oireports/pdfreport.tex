@@ -1,9 +1,7 @@
-{% load i18n %}
-{% load runtimeformat %}
-{% load latex_escape %}
+{% load i18n runtimeformat simple_filters %}
 
 {% if rows %}
-{% include 'oireports/pdfreport_head.tex' %}
+{% include 'oireports/pdfreport-head.tex' %}
     \begin{document}
     {% for row in rows %}
         \userno{ {{ row.user.id|latex_escape }} }

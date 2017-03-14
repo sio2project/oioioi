@@ -1,4 +1,5 @@
 {% load i18n %}
+
 <script>
 {% for record in submissions %}
     $(document).ready(function() {
@@ -6,54 +7,80 @@
         $("[id^=submission{{ record.submission.id }}]").click(function() {
             {% url 'get_report_HTML' submission_id=record.submission.id as link %}
             $("#report{{ record.submission.id }}div").load("{{ link }}");
-            $("#report{{ record.submission.id }}").toggle("slow");
+            $("#report{{ record.submission.id }}div").addClass("col-lg-6");
+            $("#report{{ record.submission.id }}").toggle("fast");
         });
     });
     {% endfor %}
 </script>
 
-<table class="{% block table-classes %}table auto-width dense space-columns submissions_list{% endblock %}">
-    <thead>
-        <tr>
-            <th></th>
-            <th style="min-width: 150px">{% trans "Submission time" %}</th>
-            {% if not inside_problem_view %}
-            <th style="min-width: 120px">{% trans "Problem" %}</th>
-            {% endif %}
-            <th style="min-width: 150px">{% trans "Kind" %}</th>
-            <th style="min-width: 200px">{% trans "Status" %}</th>
-            {% if show_scores %}
-            <th style="min-width: 60px">{% trans "Score" %}</th>
-            {% endif %}
-            {% block more-headers-after %}{% endblock %}
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in submissions %}
-        <tr class="subm_kind_{{ record.submission.kind }}">
-            <td class="subm_margin {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"
-                    id="submission{{ record.submission.id }}_margin"></td>
-            <td><a href="{{ record.link }}">{{ record.submission.get_date_display }}</a></td>
-            {% if not inside_problem_view %}
-            <td id="submission{{ record.submission.id }}_problem_instance">{{ record.submission.problem_instance }}</td>
-            {% endif %}
-            <td id="submission{{ record.submission.id }}_kind">{{ record.submission.get_kind_display }}</td>
-            <td class="subm_status {% if record.can_see_status %}subm_{{ record.submission.status }}{% endif %}"
-                    id="submission{{ record.submission.id }}_status">
-                {% if record.can_see_status %}{{ record.submission.get_status_display }}{% endif %}
-            </td>
-            {% if show_scores %}
-            <td id="submission{{ record.submission.id }}_score">{% if record.can_see_score %}{{ record.submission.get_score_display|default_if_none:'' }}{% endif %}</td>
-            {% endif %}
-            {% block more-columns-after %}{% endblock %}
-        </tr>
-        {% if record.can_see_comment %}
-        <tr id="report{{ record.submission.id }}" style=""><td colspan=6>
-            <div class="table-content" style="max-width: 940px" id="report{{ record.submission.id }}div">
-            <center>{% trans "No reports are available" %}</center>
-            </div>
-        </td></tr>
-        {% endif %}
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="{% block table-classes %}table table-condensed submission{% endblock %}">
+        <thead>
+            <tr>
+                <th class="submission__margin submission--{{ record.submission.status }}"></th>
+                <th>{% trans "Submission time" %}</th>
+                {% if not inside_problem_view %}
+                    <th>{% trans "Problem" %}</th>
+                {% endif %}
+                <th>{% trans "Kind" %}</th>
+                <th>{% trans "Status" %}</th>
+                {% if show_scores %}
+                    <th>{% trans "Score" %}</th>
+                {% endif %}
+                {% block more-headers-after %}{% endblock %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in submissions %}
+                <tr>
+                    {% if can_admin %}
+                        <td id="submission{{ record.submission.id }}-icon">
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+                        </td>
+                    {% else %}
+                        <td class="{% if record.can_see_status %}submission__margin submission--{{ record.submission.status }}{% endif %}"></td>
+                    {% endif %}
+                    <td><a href="{{ record.link }}">
+                        {{ record.submission.get_date_display }}
+                    </a></td>
+                    {% if not inside_problem_view %}
+                        <td id="submission{{ record.submission.id }}-problem-instance">
+                            {{ record.submission.problem_instance }}
+                        </td>
+                    {% endif %}
+                    <td id="submission{{ record.submission.id }}-kind">
+                        {{ record.submission.get_kind_display }}
+                    </td>
+                    <td id="submission{{ record.submission.id }}-status"
+                        class="{% if record.can_see_status %}submission--{{ record.submission.status }}{% endif %}">
+                        {% if record.can_see_status %}
+                            {{ record.submission.get_status_display }}
+                        {% endif %}
+                    </td>
+                    {% if show_scores %}
+                        <td id="submission{{ record.submission.id }}-score">
+                            {% if record.can_see_score %}
+                                {{ record.submission.get_score_display|default_if_none:'' }}
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                    {% block more-columns-after %}{% endblock %}
+                </tr>
+                {% if record.can_see_comment %}
+                    <tr class="padded-collapsing-content">
+                        <td colspan="100">
+                            <div id="report{{ record.submission.id }}">
+                                  <div id="report{{ record.submission.id }}div">
+                                      <div class="text-center">
+                                          {% trans "No reports are available" %}
+                                      </div>
+                                  </div>
+                            </div>
+                        </td>
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -5,89 +5,50 @@
 
 {% block title %}{% trans "Thread" %}: {{ thread.name }}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-<h2>{% trans "Thread" %}: {{ thread.name }}</h2>
-<div class="breadcrumb">
-    <li>
-        <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
-        <span class="divider">|</span>
-    </li>
-    <li>
-        <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
-        <span class="divider">|</span>
-    </li>
-    <li>
-        <span>{{ thread.name }}</span>
-    </li>
-</div>
-{% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
-<ul class="forum-list">
-    {% for p in post_set %}
-        <li class="forum-item {% if p.hidden %} forum-hidden-post{% endif %}" id="forum-post-{{ p.id }}">
-            <div class="forum-container">
-                {% if p.hidden %}
-                    <p class="forum-hidden-notice">
-                        {% trans "This post was hidden by the contest administrator" %}
-                        {% if is_admin %}
-                        <a href="#" data-post-url="{% url 'forum_post_show' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-ok"></i> {% trans "unhide" %}</a>
-                        |
-                        <a href="#" data-toggle="collapse" data-target="#forum-post-{{ p.id }} > .forum-content-row"><i class="icon-resize-full"></i> {% trans "expand" %}</a>
-                        {% endif %}
-                    </p>
-                {% endif %}
-                {% if is_admin or not p.hidden %}
-                    <div class="forum-content-row{% if p.hidden %} collapse {% endif %}">
-                        {{ p.content|urlize|linebreaksbr }}
+
+<article class="col-md-10">
+    <h2>{% trans "Thread" %}: {{ thread.name }}</h2>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
+        </li>
+        <li>
+            <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
+        </li>
+        <li>
+            {{ thread.name }}
+        </li>
+    </ol>
+    {% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
+    <div class="panel-group">
+        {% for post in post_set %}
+            <div class="panel panel-default" id="forum-post-{{ post.id }}">
+                <div class="anchor-jump-fix" id="forum-anchor-{{ post.id }}"></div>
+                {% if post.hidden %}
+                    <div class="panel-heading">
+                        {% include "forum/thread-element-heading.html" with post=post %}
                     </div>
                 {% endif %}
-                <div class="forum-info-row">
-                    <a href="#forum-post-{{ p.id }}">#{{ p.id }}</a> | {% full_name p.author %} | {% trans "Added" %}: {{ p.add_date }}
-                    {% if p.edited %}
-                        | {% trans "Last edit" %}: {{ p.last_edit_date }}
-                    {% endif %}
-                    {% if not is_locked or is_admin %}
-                        {% if is_admin or p.author == user %}
-                        | <a href="{% url 'forum_post_edit' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "edit" %}</a>
-                        {% endif %}
-                        {% if is_admin or p.author == user and forloop.last and p.can_be_removed %}
-                        | <a href="{% url 'forum_post_delete' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}"><i class="icon-trash"></i></a>
-                        {% endif %}
-                    {% endif %}
-                    {% if not p.hidden %}
-                        {% if is_admin %}
-                        | <a href="#" data-post-url="{% url 'forum_post_hide' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "hide" %}</a>
-                            {% if p.reported %}
-                        |    <a href="#" data-post-url="{% url 'forum_post_unreport' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "dismiss report" %}</a>
-                            {% endif %}
-                        {% elif not user.is_anonymous and not p.reported %}
-                        | <a href="#" data-post-url="{% url 'forum_post_report' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=p.id %}">{% trans "report" %}</a>
-                        {% endif %}
-                        {% if p.reported %}
-                        | {% trans "This post was reported" %}
-                          {% if is_admin %}
-                            by
-                            {% if p.reported_by %}
-                              {% full_name p.reported_by %}
-                            {% else %}
-                              {% trans "unknown" %}
-                            {% endif %}
-                          {% endif %}
-                        {% endif %}
-                    {% endif %}
+                <div class="panel-body {% if post.hidden %} collapse {% endif %}">
+                    {{ post.content|urlize|linebreaksbr }}
+                </div>
+                <div class="panel-footer forum-panel-footer">
+                    {% include "forum/thread-element-footer.html" with post=post %}
                 </div>
             </div>
-        </li>
-    {% endfor %}
-</ul>
-{% if form %}
-    <h4>{% trans "New post" %}</h4>
-    <form action="" method="post" class="form-horizontal">
-        {% csrf_token %}
-        {% include "ingredients/form.html" with focus=False %}
-        <div class="form-actions">
-            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
-        </div>
-    </form>
-{% endif %}
+        {% endfor %}
+    </div>
+    {% if form %}
+        <h4>{% trans "New post" %}</h4>
+        <form method="post">
+            {% csrf_token %}
+            {% include "ingredients/form.html" with focus=False display_labels=False %}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
+            </div>
+        </form>
+    {% endif %}
+</article>
 {% endblock %}

@@ -1,0 +1,26 @@
+@import "scss/utility";
+@import "bootstrap/stylesheets/bootstrap/type";
+@import "bootstrap/stylesheets/bootstrap/grid";
+
+.round {
+  &__header {
+    margin-bottom: 20px;
+  }
+
+  &__name {
+    display: inline-block;
+    margin-right: 5px;
+  }
+
+  &__menu {
+    display: inline-block;
+  }
+
+  &__problems {
+    @include make-row;
+  }
+
+  &__info {
+    @extend .text-muted;
+  }
+}

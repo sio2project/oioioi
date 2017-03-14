@@ -1,15 +1,14 @@
 {% load i18n %}
 
 {% if contest_id %}
-<div id="ddzone">
-    <form id="upload" name="uploadform" action="{% url 'submit' contest_id=contest_id %}" method="POST" enctype="multipart/form-data">
+<div id="drop-zone-area" class="drop-zone">
+    <form id="upload" name="uploadform"
+          action="{% url 'submit' contest_id=contest_id %}" method="POST"
+          enctype="multipart/form-data">
         {% csrf_token %}
-        <input type="hidden" id="dropped_solution" name="dropped_solution"/>
-        <input type="hidden" id="dropped_solution_name" name="dropped_solution_name"/>
+        <input type="hidden" id="dropped-solution" name="dropped_solution"/>
+        <input type="hidden" id="dropped-solution-name" name="dropped_solution_name"/>
     </form>
-    <div id="droparea">
-        <div id="dropmsg">
-        </div>
-    </div>
+    <div id="drop-zone-displayed-content" class="drop-zone__message"></div>
 </div>
 {% endif %}

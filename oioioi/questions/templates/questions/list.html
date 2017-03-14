@@ -5,40 +5,37 @@
 
 {% block title %}{% trans "Questions and news" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Questions and news" %}</h2>
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
-{% if user.is_authenticated %}
-<div class="corner-icons">
-    <ul>
-        <li>
-            {% if is_admin %}
-            <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
-                <i class="icon-comment"></i>
-                <span class="toolbar-button-text">{% trans "Add news" %}</span>
-            </a>
-            {% elif categories %}
-            <a class="btn btn-small" href="{% url 'add_contest_message' contest_id=contest.id %}">
-                <i class="icon-question-sign"></i>
-                <span class="toolbar-button-text">{% trans "Ask a question" %}</span>
-            </a>
-            {% endif %}
-        </li>
-        {% if is_admin %}
-        <li>
-            <a class="btn btn-small" href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
-                <i class="icon-pencil"></i>
-                <span class="toolbar-button-text">{% trans "Edit reply templates" %}</span>
-            </a>
-        </li>
+{% block main-content %}
+    <div class="clearfix">
+        {% if user.is_authenticated %}
+            <div class="pull-right">
+                {% check_perm 'contests.contest_admin' for contest as is_admin %}
+                {% if is_admin %}
+                    <a role="button" class="btn btn-sm btn-default"
+                        href="{% url 'add_contest_message' contest_id=contest.id %}">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        {% trans "Add news" %}
+                    </a>
+                    <a role="button" class="btn btn-sm btn-default"
+                        href="{% url 'oioioiadmin:questions_replytemplate_changelist' %}">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        {% trans "Edit reply templates" %}
+                    </a>
+                {% elif categories %}
+                    <a role="button" class="btn btn-sm btn-default"
+                        href="{% url 'add_contest_message' contest_id=contest.id %}">
+                        <span class="glyphicon glyphicon-question-sign"></span>
+                        {% trans "Ask a question" %}
+                    </a>
+                {% endif %}
+            </div>
         {% endif %}
-    </ul>
-</div>
-{% endif %}
-{% if records %} <div class="paginated-list"> {% endif %}
+        <h1 class="pull-left">{% trans "Questions and news" %}</h1>
+    </div>
+
     <div class="message-filter questions_filter">
-        <form enctype="multipart/form-data" action="" class="form-horizontal">
-            {% include "ingredients/form.html" with focus=False %}
+        <form enctype="multipart/form-data" class="form-inline">
+            {% include "ingredients/form.html" with focus=False inline=True %}
         </form>
         <script>
             $(function() {
@@ -48,15 +45,14 @@
             });
         </script>
     </div>
-{% if records %}
-    {% autopaginate records questions_on_page %}
-    {% paginate %}
-    {% include "questions/list_table.html" %}
-    {% paginate %}
-</div>
-{% else %}
-<div class="empty-space-filler">
-    {% blocktrans %}No questions or news yet.{% endblocktrans %}
-</div>
-{% endif %}
+    {% if records %}
+        {% autopaginate records questions_on_page %}
+        {% paginate %}
+        {% include "questions/list_table.html" %}
+        {% paginate %}
+    {% else %}
+        <p class="text-center">
+            {% blocktrans %}No questions or news yet.{% endblocktrans %}
+        </p>
+    {% endif %}
 {% endblock %}

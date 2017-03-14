@@ -3,13 +3,17 @@
 
 {% check_perm 'contests.contest_admin' for request.contest as is_admin %}
 
-<h4>{% trans "Participant info" %}:</h4>
-{% if is_admin %}
-<div class="corner-icons" style="margin-bottom: -28px;">
-    <a class="btn btn-small" href="{% url 'oioioiadmin:participants_participant_change' participant.id %}">
-        <span class="toolbar-button-text">{% trans "Edit Participant object" %}</span>
-    </a>
+<div class="clearfix">
+    {% if is_admin %}
+        <div class="pull-right">
+            <a role="button" class="btn btn-sm btn-default"
+                href="{% url 'oioioiadmin:participants_participant_change' participant.id %}">
+                {% trans "Edit Participant object" %}
+            </a>
+        </div>
+    {% endif %}
+    <h2 class="pull-left">{% trans "Participant info" %}:</h2>
 </div>
-{% endif %}
+
 <p>{% trans "Anonymous" %}: {{ participant.anonymous }}</p>
 <p>{% trans "Status" %}: {{ participant.status }}</p>

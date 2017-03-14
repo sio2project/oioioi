@@ -1,0 +1,17 @@
+@import "scss/navbar";
+
+.forum-hidden-notice {
+  font-weight: bold;
+  color: gray;
+}
+
+.forum-panel-footer {
+  font-size: small;
+  color: gray;
+}
+
+// Workaround for anchors hiding below nav-bar.
+.anchor-jump-fix {
+  margin-top: -$oioioi-navbar-height;
+  margin-bottom: $oioioi-navbar-height;
+}

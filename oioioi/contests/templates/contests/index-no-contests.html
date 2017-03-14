@@ -2,33 +2,33 @@
 
 {% load i18n %}
 
-{% block navbar %}
-{% if user.is_anonymous %}
-{% include "ingredients/navbar-with-login-box.html" %}
-{% else %}
-{% include "ingredients/navbar.html" %}
-{% endif %}
+{% block navbar_user_panel %}
+    {% if user.is_anonymous %}
+        {% include "ingredients/navbar-user-login.html" %}
+    {% else %}
+        {% include "ingredients/navbar-user.html" %}
+    {% endif %}
 {% endblock %}
 
 {% block content %}
 {% url 'oioioiadmin:contests_contest_add' as new_contest_link %}
 {% url 'auth_login' as login_link %}
 {% url 'registration_register' as reg_link %}
-<div class="empty-space-filler">
+<div class="empty-space-filler text-center">
     {% if user.is_superuser %}
-    {% blocktrans %}
-    <p>This is a new OIOIOI installation. Begin by <a href="{{ new_contest_link }}">creating
-        a new contest</a>.
-    {% endblocktrans %}
+        {% blocktrans %}
+            <p>This is a new OIOIOI installation. Begin by <a href="{{ new_contest_link }}">creating
+                a new contest</a>.</p>
+        {% endblocktrans %}
     {% elif user.is_anonymous %}
-    {% blocktrans %}
-    <p>There are no contests available to logged out users.
-    <p>Please <a href="{{ login_link }}">log in</a> or <a href="{{ reg_link }}">register</a>.
-    {% endblocktrans %}
+        {% blocktrans %}
+            <p>There are no contests available to logged out users.</p>
+            <p>Please <a href="{{ login_link }}">log in</a> or <a href="{{ reg_link }}">register</a>.</p>
+        {% endblocktrans %}
     {% else %}
-    {% blocktrans %}
-    <p>There are no contests available.
-    {% endblocktrans %}
+        {% blocktrans %}
+            <p>There are no contests available.</p>
+        {% endblocktrans %}
     {% endif %}
 </div>
 {% endblock %}

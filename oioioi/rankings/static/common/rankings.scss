@@ -1,0 +1,33 @@
+@import "scss/navbar";
+@import "scss/utility";
+
+$ranking-highlighted-user: #DFF0D8 !default;
+$table-ranking-max-username-width: 200px !default;
+$outdated-ranking-msg-top: $oioioi-navbar-height + $countdown-height !default;
+$ranking-cell-width: 100px !default;
+
+.table-ranking {
+  .trial-round {
+    color: grey;
+  }
+  .highlighted {
+    background-color: $ranking-highlighted-user !important;
+  }
+  td, th {
+    width: $ranking-cell-width;
+  }
+  td {
+    white-space: nowrap;
+  }
+  .user-cell {
+    @include text-overflow();
+    max-width: $table-ranking-max-username-width;
+  }
+}
+
+.outdated-ranking-msg-float {
+    position: fixed;
+    width: inherit;
+    top: $outdated-ranking-msg-top;
+    z-index: 10000;
+}

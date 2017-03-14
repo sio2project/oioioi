@@ -1,7 +1,9 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
-{% block title %}{% blocktrans with submission.id as id %}Submission {{ id }}{% endblocktrans %}{% endblock %}
+{% block title %}
+{% blocktrans with submission.id as id %}Submission {{ id }}{% endblocktrans %}
+{% endblock %}
 
 {% block scripts %}
     {{ block.super }}
@@ -19,47 +21,64 @@
     {% endif %}
 {% endblock %}
 
-{% block content %}
-<h2>{% trans "Submission" %} {{ submission.id }}</h2>
-{{ header }}
-{% for report in reports %}
-    {{ report }}
-{% endfor %}
-
-{% if can_admin %}
-<h4><button type="button" class="btn btn-small" data-toggle="collapse" data-target="#hidden_reports"><i class="icon-chevron-down"></i></button> <span class="expand-label">{% trans "Hidden reports" %}</span></h4>
-<div id="hidden_reports" class="collapse">
-    <table class="table auto-width dense space-columns full-grid">
-        <thead>
-            <tr>
-                <th style="min-width: 30px">{% trans "Actions" %}</th>
-                <th style="min-width: 30px">{% trans "ID" %}</th>
-                <th style="min-width: 70px">{% trans "Creation date" %}</th>
-                <th style="min-width: 150px">{% trans "Kind" %}</th>
-                <th style="min-width: 80px">{% trans "Status" %}</th>
-                <th style="min-width: 80px">{% trans "Score" %}</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for report in all_reports %}
-            <tr>
-                <td>
-                    <button type="button" class="btn btn-small" data-async-toggle="collapse" data-parent-toggle="collapse" data-target="#hidden_report_{{ report.id }}"><i class="icon-chevron-down"></i></button>
-                </td>
-                <td>{{ report.id }}</td>
-                <td>{{ report.creation_date }}</td>
-                <td>{{ report.get_kind_display }}</td>
-                <td>{{ report.get_status_display }}</td>
-                <td>{{ report.score_report.get_score_display }}</td>
-            </tr>
-            <tr>
-                <td colspan="6" style="display: none"><div id="hidden_report_{{ report.id }}" data-loadurl="{% url 'report' submission_id=submission.id report_id=report.id %}" class="collapse"></div></td>
-            </tr>
+{% block main-content %}
+<article>
+    {{ header }}
+    <div class="row">
+        {% for report in reports %}
+            <div class="{% if submission.status != 'CE' and  submission.status != 'SE' %}col-lg-6{% endif %}">
+                {{ report }}
+            </div>
         {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endif %}
-
-{{ footer }}
+    </div>
+    {% if can_admin %}
+        <h4>
+            <button type="button" class="btn btn-default btn-sm"
+                    data-toggle="collapse" data-target="#hidden-reports">
+                <span class="glyphicon glyphicon-chevron-down"></span>
+            </button>
+            <span>{% trans "Hidden reports" %}</span>
+        </h4>
+        <div id="hidden-reports" class="collapse table-responsive">
+            <table class="table table-condensed">
+                <thead>
+                    <tr>
+                        <th>{% trans "Actions" %}</th>
+                        <th>{% trans "ID" %}</th>
+                        <th>{% trans "Creation date" %}</th>
+                        <th>{% trans "Kind" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Score" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in all_reports %}
+                        <tr>
+                            <td>
+                                <button type="button" class="btn btn-default btn-sm"
+                                        data-async-toggle="collapse"
+                                        data-target="#hidden-report-{{ report.id }}">
+                                    <span class="glyphicon glyphicon-chevron-down"></span>
+                                </button>
+                            </td>
+                            <td>{{ report.id }}</td>
+                            <td>{{ report.creation_date }}</td>
+                            <td>{{ report.get_kind_display }}</td>
+                            <td>{{ report.get_status_display }}</td>
+                            <td>{{ report.score_report.get_score_display }}</td>
+                        </tr>
+                        <tr class="padded-collapsing-content">
+                            <td colspan=100>
+                                <div id="hidden-report-{{ report.id }}"
+                                     data-loadurl="{% url 'report' submission_id=submission.id report_id=report.id %}"
+                                     class="collapse col-lg-6"></div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    {{ footer }}
+</article>
 {% endblock %}

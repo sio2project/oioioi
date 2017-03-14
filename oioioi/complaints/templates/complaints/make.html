@@ -3,23 +3,21 @@
 
 {% block title %}{% trans "Make complaint" %} - {% trans "Complaints" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 <h1>{% trans "Complaint form" %}</h1>
 
-<form action="" method="post" class="form-horizontal">
+<form method="post">
     {% csrf_token %}
-    <fieldset>
-        <div class="controls">
-            {% blocktrans %}<p>Please write your complaint in the box. Specify as
-            many details, as possible.<br /> This increases the chances that the complaint
-            will actually be accepted as valid.</p>{% endblocktrans %}
-        </div>
-
-        {% include "ingredients/form.html" %}
-    </fieldset>
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary"
-            value="{% trans "Make a complaint" %}" />
+    <div class="form-group">
+        {% blocktrans %}<p>Please write your complaint in the box. Specify as
+        many details, as possible.<br> This increases the chances that the complaint
+        will actually be accepted as valid.</p>{% endblocktrans %}
+    </div>
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Make a complaint" %}
+        </button>
     </div>
 </form>
 

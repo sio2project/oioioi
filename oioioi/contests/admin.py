@@ -554,7 +554,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     problem_instance_display.admin_order_field = 'problem_instance'
 
     def status_display(self, instance):
-        return '<span class="subm_admin subm_status subm_%s">%s</span>' % \
+        return '<span class="submission-admin ' \
+               'submission submission--%s">%s</span>' % \
                 (instance.status, conditional_escape(force_unicode(
                     instance.get_status_display())))
     status_display.allow_tags = True

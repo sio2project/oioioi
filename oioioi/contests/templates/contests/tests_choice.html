@@ -4,26 +4,28 @@
 
 {% block title %}{% trans "My submissions" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 
 <h2>{% trans "Rejudge" %}</h2>
 
-<form action="rejudge/" method="POST">
+<form action="rejudge/" method="POST" class="form-list-unstyled">
     {% csrf_token %}
     {% trans "Select type of rejudge:" %}
-    <div class="no-list-style radio">
+    <ul class="radio">
         {{ form.rejudge_type }}
-    </div>
+    </ul>
     {% if form.tests %}
         {% trans "Tests:" %}
-        <div class="no-list-style checkbox" id="test_list">
+        <ul class="checkbox list-grid" id="test_list">
             {{ form.tests }}
-        </div>
+        </ul>
     {% endif %}
-    <div style="display: none">
+    <div class="hidden">
         {{ form.submissions }}
     </div>
-    <input type="submit" class="btn btn-primary"/>
+    <div class="form-group">
+        <input type="submit" class="btn btn-primary"/>
+    </div>
 </form>
 
 {% endblock %}

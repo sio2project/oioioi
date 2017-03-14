@@ -1,0 +1,40 @@
+{% load simple_filters %}
+
+{% for error in form.non_field_errors %}
+<div class="alert alert-danger">
+    {{ error }}
+</div>
+{% endfor %}
+
+{% for field in form.hidden_fields %}
+    {{ field }}
+{% endfor %}
+
+{% for field in form.visible_fields %}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.auto_id }}" class="col-sm-2 control-label">{{ field.label }}</label>
+        <div class="col-sm-10">
+            {{ field|add_class:"form-control" }}
+        </div>
+        {% for error in field.errors %}
+            <span class="help-block">{{ error }}</span>
+        {% endfor %}
+        {% if field.help_text %}
+            <span class="help-block">{{ field.help_text }}</span>
+        {% endif %}
+    </div>
+{% endfor %}
+
+{% if focus != False %}
+    <script>
+        $(function() {
+            {% if focus %}
+                $('{{ focus }}').focus();
+            {% else %}
+                if ($(':focus').length === 0) {
+                    $(':input:visible:first').focus();
+                }
+            {% endif %}
+        })
+    </script>
+{% endif %}

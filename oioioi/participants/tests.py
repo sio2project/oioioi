@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from datetime import datetime
 
 from django.core.urlresolvers import reverse
@@ -553,8 +554,13 @@ class TestAnonymousParticipants(TestCase):
 
         with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('>test_user</a>', response.content)
-            self.assertIn('>Test User</a>', response.content)
+
+            user_pattern = r'>\s*%s\s*</a>'
+
+            self.assertFalse(re.search(user_pattern % ('test_user',),
+                                       response.content))
+            self.assertTrue(re.search(user_pattern % ('Test User',),
+                                       response.content))
 
     def test_anonymous_participants(self):
         contest = Contest.objects.get()
@@ -574,11 +580,16 @@ class TestAnonymousParticipants(TestCase):
 
         with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('>test_user</a>', response.content)
-            self.assertIn('>Test User</a>', response.content)
+            user_pattern = r'>\s*%s\s*</a>'
 
-            self.assertIn('>test_user2</a>', response.content)
-            self.assertNotIn('>Test User 2</a>', response.content)
+            self.assertFalse(re.search(user_pattern % ('test_user',),
+                                       response.content))
+            self.assertTrue(re.search(user_pattern % ('Test User',),
+                                       response.content))
+            self.assertTrue(re.search(user_pattern % ('test_user2',),
+                                       response.content))
+            self.assertFalse(re.search(user_pattern % ('Test User 2',),
+                                       response.content))
 
             # Edit contest registration
             self._register(u2, anonymous=False, possible=True)
@@ -587,8 +598,11 @@ class TestAnonymousParticipants(TestCase):
 
             self.client.login(username='test_contest_admin')
             response = self.client.get(url)
-            self.assertNotIn('>test_user2</a>', response.content)
-            self.assertIn('>Test User 2</a>', response.content)
+            self.assertFalse(re.search(user_pattern % ('test_user2',),
+                                      response.content))
+
+            self.assertTrue(re.search(user_pattern % ('Test User 2',),
+                                       response.content))
 
     def test_user_info_page(self):
         contest = Contest.objects.get()
@@ -603,7 +617,7 @@ class TestAnonymousParticipants(TestCase):
                                            'user_id': user.id})
         self.client.login(username='test_admin')
         response = self.client.get(url)
-        self.assertIn('<h4>Participant info:</h4>', response.content)
+        self.assertIn('Participant info', response.content)
 
 
 class TestParticipantsDataViews(TestCase):

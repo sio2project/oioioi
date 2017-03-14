@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<table class="table content-box" id="tag_table">
+<table class="table" id="tag_table">
     <thead>
         <tr>
             <th>{% trans "Name" %}</th>
@@ -32,7 +32,7 @@
         {% endfor %}
         <tr id="new_tag_row">
             <td>
-                <input type="text" id="new_tag_name" />
+                <input type="text" class="form-control" id="new_tag_name" />
             </td>
             <td>
                 <button type="button" class="btn btn-primary create_tag">{% trans "Add" %}</button>

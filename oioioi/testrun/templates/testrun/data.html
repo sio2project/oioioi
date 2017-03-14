@@ -5,19 +5,19 @@
 {% if decode_error %}
     {% include "programs/file_decoding_error.html" %}
 {% endif %}
-<pre class="hscroll">
-{{ data }}
-</pre>
+<pre>{{ data }}</pre>
 {% if left > 0 %}
-<div class="alert alert-info">
-    <small>{% blocktrans count left=left %}
-        One byte truncated.
-    {% plural %}
-        Bytes truncated: {{ left }}.
-    {% endblocktrans %}
-    {% blocktrans %}
-        You can download the entire file
-        <a href="{{ download_url }}">here</a>.
-    {% endblocktrans %}</small>
-</div>
+    <div class="alert alert-info">
+        <small>
+            {% blocktrans count left=left %}
+                One byte truncated.
+            {% plural %}
+                Bytes truncated: {{ left }}.
+            {% endblocktrans %}
+            {% blocktrans %}
+                You can download the entire file
+                <a href="{{ download_url }}">here</a>.
+            {% endblocktrans %}
+        </small>
+    </div>
 {% endif %}

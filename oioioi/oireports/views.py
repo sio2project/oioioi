@@ -40,7 +40,7 @@ def _users_in_contest(request, region=None):
         kwargs={'contest_id': request.contest.id}),
     order=440)
 @enforce_condition(contest_exists & is_contest_admin)
-@enforce_condition(has_any_rounds, 'oireports/no_reports.html')
+@enforce_condition(has_any_rounds, 'oireports/no-reports.html')
 def oireports_view(request):
     if request.method == 'POST':
         form = OIReportForm(request, request.POST)
@@ -56,7 +56,7 @@ def oireports_view(request):
                 raise SuspiciousOperation
     else:
         form = OIReportForm(request)
-    return TemplateResponse(request, 'oireports/report_options.html', {
+    return TemplateResponse(request, 'oireports/report-options.html', {
             'form': form,
             'CONTEST_REPORT_KEY': CONTEST_REPORT_KEY
     })

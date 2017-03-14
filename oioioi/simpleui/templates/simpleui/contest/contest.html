@@ -6,8 +6,8 @@
 {% block styles %}
     {{ block.super }}
     {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/less" href="{% static 'simpleui/simpleui.less' %}">
-        <link charset="utf-8" rel="stylesheet" type="text/less" href="{% static 'simpleui/contest/contest.less' %}">
+        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/simpleui.scss">
+        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/contest/contest.scss">
     {% endcompress %}
 {% endblock %}
 
@@ -27,7 +27,7 @@
 {% block container-class %}simpleui__container{% endblock %}
 
 {% block body %}
-    <div class="contest top-row">
+    <div class="contest">
         <header class="contest__header">
             <h1 class="inline-menu__name contest__name">{{ contest }}</h1>
             <div class="inline-menu">
@@ -61,7 +61,7 @@
             <div class="inline-menu">
                 <a href="{% url 'oioioiadmin:contests_submission_changelist' %}">{% trans "Show all" %}</a>
             </div>
-            <div class="table__wrapper">
+            <div class="table-responsive">
                 {% include "simpleui/contest/ingredients/submissions.html" %}
             </div>
         </section>
@@ -71,7 +71,7 @@
             <div class="inline-menu">
                 <a href="{% url 'contest_messages' %}">{% trans "Show all" %}</a>
             </div>
-            <div class="table__wrapper">
+            <div class="table-responsive">
                 {% include "simpleui/contest/ingredients/questions.html" %}
             </div>
         </section>

@@ -1,0 +1,11 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "No test run problems" %} - {% trans "Test run" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Test run" %}</h1>
+<div class="alert alert-info">
+    {% trans 'Sorry, there are no problems for which you could run your own test...' %}
+</div>
+{% endblock %}

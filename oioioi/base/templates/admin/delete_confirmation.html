@@ -3,25 +3,20 @@
 
 {% block title %}{% trans "Confirm deletion" %}{% endblock %}
 
-{% block content %}
-<div class="well span10 offset1 central-well">
-    <form action="" method="post" class="form-horizontal">{% csrf_token %}
+{% block main-content %}
+<div class="well text-center">
+    <form method="post" class="">{% csrf_token %}
         <input type="hidden" name="post" value="yes" />
-        <div class="control-group">
-            <div class="controls">
-                <h2>{% trans "Confirm deletion" %}</h2>
-            </div>
+        <div class="form-group">
+            <h2>{% trans "Confirm deletion" %}</h2>
         </div>
-        <div class="control-group">
-            <div class="controls">
-                <p>{% trans "You chose the following object to delete:" %}
-                <ul><li>{{ object_name|capfirst }}: {{ object }}</li></ul>
-                <p>{% trans "Are you sure?" %}
-            </div>
+        <div class="form-group">
+            <p>{% trans "Are you sure that you want to delete the following object?" %}</p>
+            <p><strong>{{ object_name|capfirst }}: {{ object }}</strong></p>
         </div>
-        <div class="form-actions">
+        <div class="form-group">
             <button type="submit" class="btn btn-danger">{% trans "Yes, I'm sure" %}</button>
-            <button type="button" class="btn" onclick="history.back()">{% trans "No, go back" %}</button>
+            <button type="button" class="btn btn-default" onclick="history.back()">{% trans "No, go back" %}</button>
         </div>
     </form>
 </div>

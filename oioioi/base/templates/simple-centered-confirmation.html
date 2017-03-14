@@ -2,19 +2,19 @@
 {% load i18n %}
 
 {% block content %}
-<div class="empty-space-filler">
-    <h2>{% block title %}{% trans "Confirm your action" %}{% endblock %}</h2>
+<div class="text-center">
+    <h1>{% block title %}{% trans "Confirm your action" %}{% endblock %}</h1>
     <p>
         {% block help_text %}
             {% trans "The action you are trying to complete needs additional confirmation." %}
         {% endblock %}
     </p>
 
-    <form method="post" action="">
+    <form method="post">
         {% csrf_token %}
         {% block buttons %}
             <input type="hidden" name="confirmation_sent" value="">
-            <button type="submit" class="btn btn-primary btn-block btn-large" name="confirmation" value="">
+            <button type="submit" class="btn btn-primary btn-block btn-lg" name="confirmation" value="">
                 {% block proceed_label %}{% trans "Confirm" %}{% endblock %}
             </button>
             <button type="submit" class="btn btn-block">

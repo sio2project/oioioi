@@ -1,0 +1,7 @@
+@import "common/submission-colors";
+
+.submission {
+  &--TESTRUN_OK {
+    @include submission($submission-green, $submission-green-gradient-to);
+  }
+}

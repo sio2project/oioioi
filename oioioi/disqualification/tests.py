@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -10,7 +11,7 @@ from oioioi.disqualification.models import Disqualification
 
 def _disqualify_contestwide():
     disqualification = Disqualification(
-        user=User.objects.get(username='test_user'),
+        user=User.objects.get(username="test_user"),
         contest=Contest.objects.get(),
         title="I cannot tell!",
         content="Suffice to say, is one of the words "
@@ -19,9 +20,9 @@ def _disqualify_contestwide():
 
 
 class TestContestController(TestCase):
-    fixtures = ['test_contest', 'test_users', 'test_submission',
-        'test_full_package', 'test_problem_instance',
-        'test_another_submission', 'test_submission_disqualification']
+    fixtures = ["test_contest", "test_users", "test_submission",
+        "test_full_package", "test_problem_instance",
+        "test_another_submission", "test_submission_disqualification"]
 
     def _get_fake_request(self, user, contest):
         def wrapped():
@@ -33,7 +34,7 @@ class TestContestController(TestCase):
         return wrapped
 
     def test_disqualified(self):
-        user = User.objects.get(username='test_user')
+        user = User.objects.get(username="test_user")
         contest = Contest.objects.get()
         controller = contest.controller
         submission = Submission.objects.get(id=1)
@@ -57,7 +58,7 @@ class TestContestController(TestCase):
         self.assertNotIn(user, controller.exclude_disqualified_users(
             User.objects.all()))
 
-        other_contest = Contest(name='finding_another_shrubbery',
+        other_contest = Contest(name="finding_another_shrubbery",
                                 controller_name=contest.controller_name,
                                 creation_date=contest.creation_date)
         other_contest.save()
@@ -66,7 +67,7 @@ class TestContestController(TestCase):
             other_fake_request(), user))
 
     def test_not_disqualified(self):
-        user = User.objects.get(username='test_user2')
+        user = User.objects.get(username="test_user2")
         contest = Contest.objects.get()
         controller = contest.controller
         submission = Submission.objects.get(id=2)
@@ -86,7 +87,7 @@ class TestContestController(TestCase):
     def test_disqualified_contestwide(self):
         Disqualification.objects.all().delete()
         _disqualify_contestwide()
-        user = User.objects.get(username='test_user')
+        user = User.objects.get(username="test_user")
         contest = Contest.objects.get()
         controller = contest.controller
         submission = Submission.objects.get(id=1)
@@ -103,12 +104,16 @@ class TestContestController(TestCase):
 
 
 class TestViews(TestCase):
-    fixtures = ['test_contest', 'test_users', 'test_full_package',
-        'test_problem_instance', 'test_submission', 'test_another_submission',
-        'test_submission_disqualification']
+    fixtures = ["test_contest", "test_users", "test_full_package",
+        "test_problem_instance", "test_submission", "test_another_submission",
+        "test_submission_disqualification"]
 
     def setUp(self):
-        self.contest_kwargs = {'contest_id': Contest.objects.get().id}
+        self.contest_kwargs = {"contest_id": Contest.objects.get().id}
+
+    @staticmethod
+    def remove_whitespaces(response):
+        return re.sub(r'\s*', '', response.content)
 
     def _assert_disqualification_box(self, response_callback):
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -117,8 +122,8 @@ class TestViews(TestCase):
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
             self.assertNotContains(response, "Score")
-            self.assertNotContains(response, '>34</td>')
-            self.assertNotContains(response, '>42</td>')
+            self.assertNotIn(">34<", self.remove_whitespaces(response))
+            self.assertNotIn(">42<", self.remove_whitespaces(response))
 
         _disqualify_contestwide()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -127,8 +132,9 @@ class TestViews(TestCase):
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
-            self.assertNotContains(response, '>34</td>')
-            self.assertNotContains(response, '>42</td>')
+
+            self.assertNotIn(">34<", self.remove_whitespaces(response))
+            self.assertNotIn(">42<", self.remove_whitespaces(response))
 
         Disqualification.objects.filter(submission__isnull=False).delete()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -138,68 +144,68 @@ class TestViews(TestCase):
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
             # Even disqualified users can see their score
-            self.assertContains(response, '>34</td>')
+            self.assertIn(">34<", self.remove_whitespaces(response))
 
     def test_dashboard(self):
-        self.client.login(username='test_user')
-        response_cb = lambda: self.client.get(reverse('contest_dashboard',
+        self.client.login(username="test_user")
+        response_cb = lambda: self.client.get(reverse("contest_dashboard",
                                            kwargs=self.contest_kwargs),
                                    follow=True)
         self._assert_disqualification_box(response_cb)
 
     def test_my_submissions(self):
-        self.client.login(username='test_user')
-        response_cb = lambda: self.client.get(reverse('my_submissions',
+        self.client.login(username="test_user")
+        response_cb = lambda: self.client.get(reverse("my_submissions",
             kwargs=self.contest_kwargs))
 
         self._assert_disqualification_box(response_cb)
 
     def test_submission(self):
-        self.client.login(username='test_user')
+        self.client.login(username="test_user")
         submission = Submission.objects.get(id=1)
 
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
-            response = self.client.get(reverse('submission',
-                kwargs={'submission_id': submission.id,
-                        'contest_id': Contest.objects.get().id}))
+            response = self.client.get(reverse("submission",
+                kwargs={"submission_id": submission.id,
+                        "contest_id": Contest.objects.get().id}))
             self.assertContains(response, "Disqualification")
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
-            self.assertNotContains(response, '>34</td>')
+            self.assertNotIn(">34<", self.remove_whitespaces(response))
 
         # Not disqualified submission
         submission = Submission.objects.get(id=2)
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
-            response = self.client.get(reverse('submission',
-                kwargs={'submission_id': submission.id,
-                        'contest_id': Contest.objects.get().id}))
+            response = self.client.get(reverse("submission",
+                kwargs={"submission_id": submission.id,
+                        "contest_id": Contest.objects.get().id}))
             self.assertNotContains(response, "Disqualification")
             self.assertNotContains(response, "Ni in code")
             self.assertNotContains(response, "ninininini")
-            self.assertNotContains(response, '>42</td>')
-            self.assertContains(response, 'Submission 2')
+            self.assertNotIn(">42<", self.remove_whitespaces(response))
+            self.assertContains(response, "Submission 2")
 
     def test_ranking(self):
         contest = Contest.objects.get()
-        url = reverse('default_ranking', kwargs={'contest_id': contest.id})
+        url = reverse("default_ranking", kwargs={"contest_id": contest.id})
 
-        self.client.login(username='test_admin')
+        self.client.login(username="test_admin")
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, "Test User")
             self.assertContains(response, "disqualified")
 
-        self.client.login(username='test_user')
+        self.client.login(username="test_user")
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = self.client.get(url)
             self.assertNotContains(response, "Test User")
 
     def test_ranking_csv(self):
         contest = Contest.objects.get()
-        url = reverse('ranking_csv', kwargs={'contest_id': contest.id,
-                                             'key': 'c'})
+        url = reverse("ranking_csv", kwargs={"contest_id": contest.id,
+                                             "key": "c"})
 
-        self.client.login(username='test_admin')
+        self.client.login(username="test_admin")
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, "Test")

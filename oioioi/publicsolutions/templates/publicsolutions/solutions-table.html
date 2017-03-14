@@ -1,0 +1,29 @@
+{% load i18n get_user_name %}
+
+<div class="table-responsive">
+    <table class="{% block table-classes %}table table-condensed{% endblock %}">
+        <thead>
+            <tr>
+                <th>{% trans "Problem" %}</th>
+                <th>{% trans "Contestant" %}</th>
+                <th>{% trans "Score" %}</th>
+                <th>{% trans "Operations" %}</th>
+                {% block more-headers-after %}{% endblock %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for submission in submissions %}
+                {% if submission.user %}
+                    {% url 'show_submission_source' contest_id=contest.id submission_id=submission.id as link %}
+                    <tr>
+                        <td>{{ submission.problem_instance }}</td>
+                        <td>{% public_name submission.user %}</td>
+                        <td>{{ submission.get_score_display|default_if_none:"&ndash;" }}</td>
+                        <td><a href="{{ link }}">{% trans "solution" %}</a></td>
+                        {% block more-columns-after %}{% endblock %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -2,14 +2,16 @@
 {% for suffix, opts, selected in options %}
 <p>
 <select name="{{ attr.name }}{{ suffix }}" id="{{ attr.id }}{{ suffix }}">
-    {% for x, y in opts %}
-    <option value="{{x}}" {% if x == selected %}selected{% endif %}>
-    {{y}}
-    </option>
+    {% for value, option in opts %}
+        <option value="{{ value }}" {% if x == selected %}selected{% endif %}>
+            {{ option }}
+        </option>
     {% endfor %}
 </select>
 </p>
 {% endfor %}
 {% if show_add_new %}
-    {% blocktrans %}If you can not find your school on the list, please <input type="submit" class="btn btn-link btn-link-nopadding" name="_add_school" value="add it" />.{% endblocktrans %}
+    {% blocktrans %}
+        If you can not find your school on the list, please <button type="submit" class="btn btn-xs btn-link" name="_add_school">add it</button>.
+    {% endblocktrans %}
 {% endif %}

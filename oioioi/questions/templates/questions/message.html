@@ -8,13 +8,31 @@
 {% if form %}{{ form.media }}{% endif %}
 {% endblock %}
 
-{% block content %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% block main-content %}
+{% check_perm "contests.contest_admin" for contest as is_admin %}
 
-<h3 class="message_topic">
-    {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
-    {{ message.topic }}
-</h3>
+<div class="clearfix">
+    {% if is_admin %}
+        <div class="pull-right">
+            <a role="button" class="btn btn-sm btn-default" href="{% url 'user_info' message.author_id %}">
+                <span class="glyphicon glyphicon-user"></span>
+                {% trans "Display user" %}
+            </a>
+            {% if message.can_have_replies %}
+                <a role="button" class="btn btn-sm btn-default" href="javascript:scroll_and_focus('#id_content');">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    {% trans "Reply" %}
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <h1 class="message_topic pull-left">
+        {% if message.problem_instance %}{{ message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
+        {{ message.topic }}
+    </h1>
+</div>
+
+
 {% if is_admin %}
 <script type="text/javascript">
     var alertText = '<div class="alert alert-info" id="alert_%id%">' +
@@ -25,75 +43,68 @@
         '{% trans "Dismiss" %}' +
         '</button><p></div>';
 
-    $(function() { $("#disabled-text").hide(); });
-    $(function() { beginCheckAnswersInMeantime('{% url 'check_new_messages' contest_id=contest.id topic_id=message.id %}', {{ timestamp }}) });
+    $(function() {
+        $("#disabled-text").hide();
+    });
+    $(function() {
+        beginCheckAnswersInMeantime('{% url 'check_new_messages' contest_id=contest.id topic_id=message.id %}', {{ timestamp }});
+    });
 </script>
-
-<div class="corner-icons">
-    <ul>
-        <li>
-            <a class="btn btn-small" href="{% url 'user_info' message.author_id %}">
-                <i class="icon-user"></i>
-                <span class="toolbar-button-text">{% trans "Display user" %}</span>
-            </a>
-        </li>
-        {% if message.can_have_replies %}
-        <li>
-            <a class="btn btn-small" href="javascript:scroll_and_focus('#id_content');">
-                <i class="icon-pencil"></i>
-                <span class="toolbar-button-text">{% trans "Reply" %}</span>
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-</div>
 {% endif %}
+
 {% include "questions/single_message.html" with message=message is_reply=False has_replies=replies %}
 {% for message in replies %}
 {% include "questions/single_message.html" with message=message is_reply=True has_replies=False %}
 {% endfor %}
+
 {% if form %}
-<div class="message message_reply">
-    <div class="message_container">
-    <p class="message_info message_info_new">
-        <span class="label label-inverse">{% trans "New reply" %}</span>
+<div class="oioioi-message--reply">
+    <p class="oioioi-message__info oioioi-message__info--new">
+        <span class="oioioi-message__label label label-default">{% trans "New reply" %}</span>
     </p>
-    <form enctype="multipart/form-data" id="reply_form" method="post" class="form-horizontal">
+    <form enctype="multipart/form-data" id="reply_form" method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" with focus=False %}
-        <div class="control-group"><div class="controls">
-            <div class="btn-group include-template">
-                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" tabindex="1000" href="#"><i class="icon-pencil"></i> {% trans "Include template" %} <span class="caret"></span></a>
+        <div class="form-group">
+            <div class="include-template btn-group">
+                <button type="button" class="btn btn-sm btn-default dropdown-toggle"
+                    data-toggle="dropdown" tabindex="-1" aria-expanded="false">
+                    <span class="glyphicon glyphicon-pencil"></span>
+                    {% trans "Include template" %} <span class="caret"></span>
+                </button>
                 <ul class="dropdown-menu template-replies">
                     <script>
-                        $(function() { get_reply_templates("{% url 'get_reply_templates' contest_id=contest.id %}",
-                                                           "{% url 'increment_template_usage' contest_id=contest.id %}"); });
+                        $(function() {
+                            get_reply_templates("{% url 'get_reply_templates' contest_id=contest.id %}",
+                                                "{% url 'increment_template_usage' contest_id=contest.id %}");
+                        });
                     </script>
                 </ul>
             </div>
-            <a tabindex="1000" id="respond_inline" class="btn btn-small" href="javascript:add_question_content();">
-                <i class="icon-pencil"></i> {% trans "Respond inline" %}
-            </a>
-        </div></div>
-        <div id="alerts" class="controls"></div>
-        <div class="form-actions">
+            <button type="button" tabindex="-1" id="respond_inline" class="btn btn-default btn-sm" onclick="add_question_content();">
+                <span class="glyphicon glyphicon-pencil"></span>
+                {% trans "Respond inline" %}
+            </button>
+        </div>
+        <div id="alerts"></div>
+        <div class="form-group">
             <input type="hidden" id="just_reload" name="just_reload" value="no">
             <input type="submit" id="submitter" class="btn btn-primary" value="{% trans "Submit" %}">
-            <span class="pull-right">
-            <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
-            <label class="no_left_padding checkbox inline" for="id_fake_save_template">{% trans "Save as template" %}</label>
-            <script>
-                $(function() {
-                    $('#id_fake_save_template').change(function() {
-                        $('#id_save_template').val(this.checked);
-                  });
-                });
-            </script>
-            </span>
+            <div class="pull-right checkbox">
+                <label for="id_fake_save_template">
+                    <input id="id_fake_save_template" name="fake_save_template" type="checkbox">
+                    {% trans "Save as template" %}
+                </label>
+                <script>
+                    $(function() {
+                        $('#id_fake_save_template').change(function() {
+                            $('#id_save_template').val(this.checked);
+                        });
+                    });
+                </script>
+            </div>
         </div>
     </form>
-
-</div>
 </div>
 {% endif %}
 {% endblock %}

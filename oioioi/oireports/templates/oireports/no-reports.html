@@ -1,0 +1,11 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "No reports available" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Report" %}</h1>
+<div class="alert alert-info">
+    {% blocktrans %}No reports available.{% endblocktrans %}
+</div>
+{% endblock %}

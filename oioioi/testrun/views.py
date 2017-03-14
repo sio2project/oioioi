@@ -21,7 +21,7 @@ from oioioi.testrun.utils import has_any_testrun_problem, \
     order=300)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(has_any_testrun_problem,
-                   template='testrun/no_testrun_problems.html')
+                   template='testrun/no-testrun-problems.html')
 def testrun_submit_view(request):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES,

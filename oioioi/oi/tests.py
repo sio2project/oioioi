@@ -1,5 +1,6 @@
 # ~*~ coding: utf-8 ~*~
 import os
+import re
 from datetime import datetime, timedelta
 
 from django.test.utils import override_settings
@@ -185,7 +186,7 @@ class TestOIRegistration(TestCase):
 
         self.assertContains(response, 'Postal code')
         self.assertContains(response, reg_data['address'])
-        self.assertContains(response, 'selected>\n    Lady of the Lake')
+        self.assertContains(response, 'Lady of the Lake')
 
 
 class TestOIViews(TestCase):
@@ -252,7 +253,9 @@ class TestOIViews(TestCase):
             self.assertContains(response, "No rankings available.")
             self.client.login(username='test_admin')
             response = self.client.get(url)
-            self.assertContains(response, '>Test User</a>')
+
+            user_pattern = r'>\s*Test User\s*</a>'
+            self.assertTrue(re.search(user_pattern, response.content))
 
 
 class TestSchoolAdding(TestCase):

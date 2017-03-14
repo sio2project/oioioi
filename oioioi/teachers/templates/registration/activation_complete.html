@@ -4,11 +4,15 @@
 {% block title %}{% trans 'Registration complete' %}{% endblock %}
 
 {% block content %}
-<div class="empty-space-filler">
+<div class="text-center">
     <p>{% trans "Your account is now active. You may go ahead and log in now." %}</p>
     <p>
-        <a href="{% url 'auth_login' %}" class="btn btn-primary">{% trans "Log in" %}</a>
-        <a href="{% url 'add_teacher' %}" class="btn">{% trans "Request teacher account" %}</a>
+        <a role="button" href="{% url 'auth_login' %}" class="btn btn-primary">
+            {% trans "Log in" %}
+        </a>
+        <a role="button" href="{% url 'add_teacher' %}" class="btn btn-default">
+            {% trans "Request teacher account" %}
+        </a>
     </p>
 </div>
 {% endblock %}

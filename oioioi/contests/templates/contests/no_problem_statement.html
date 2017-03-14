@@ -3,7 +3,7 @@
 
 {% block title %}{% trans "Problem statement" %}{% endblock %}
 
-{% block content %}
-<h2>{{ problem_instance }}</h2>
-{% include "problems/no_problem_statement.html" %}
+{% block main-content %}
+<h1>{{ problem_instance }}</h1>
+{% include "problems/no-problem-statement.html" %}
 {% endblock %}

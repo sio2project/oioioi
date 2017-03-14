@@ -1,23 +1,14 @@
 {% load i18n %}
 
-{% block styles %}
-{% endblock %}
-
-{% block scripts %}
-<script type="text/javascript">
-$(handle_prog_lang_updates);
-</script>
-{% endblock %}
-
-<h2>{% trans "Submit solution" %}</h2>
-<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+<h1>{% trans "Submit solution" %}</h1>
+<form enctype="multipart/form-data" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
-    <div class="form-actions">
+    <div class="form-group">
         {% block submit_btn %}
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+            <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
         {% endblock %}
     </div>
 </form>
 
-<hr />
+<script type="text/javascript" src="{{ STATIC_URL }}programs/submit.js"></script>

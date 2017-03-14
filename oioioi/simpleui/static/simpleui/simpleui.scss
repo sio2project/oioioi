@@ -1,0 +1,74 @@
+@import "scss/utility";
+@import "bootstrap/stylesheets/bootstrap/grid";
+
+$font-size-h1: floor(($font-size-base * 1.7));
+$font-size-h2: floor(($font-size-base * 1.25));
+$font-size-h3: $font-size-base;
+$font-size-h4: $font-size-base;
+$font-size-h5: $font-size-base;
+$font-size-h6: ceil(($font-size-base * .85));
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+.simpleui {
+  &__container {
+    @extend .container-fluid;
+    max-width: 1400px;
+  }
+}
+
+.inline-menu {
+  display: inline-block;
+
+  &__name {
+    display: inline-block;
+    margin-right: 5px;
+  }
+}
+
+.table {
+  td {
+    border: none;
+    padding: 5px 8px;
+  }
+}
+
+h1 { font-size: $font-size-h1; }
+h2 { font-size: $font-size-h2; }
+h3 { font-size: $font-size-h3; }
+h4 { font-size: $font-size-h4; }
+h5 { font-size: $font-size-h5; }
+h6 { font-size: $font-size-h6; }
+
+h1, .h1,
+h2, .h2,
+h3, .h3 {
+  margin-top: $line-height-computed;
+  margin-bottom: ($line-height-computed / 2);
+  line-height: $headings-line-height;
+
+  small,
+  .small {
+    font-size: 65%;
+  }
+}
+
+h4, .h4,
+h5, .h5,
+h6, .h6 {
+  margin-top: ($line-height-computed / 2);
+  margin-bottom: ($line-height-computed / 2);
+
+  small,
+  .small {
+    font-size: 75%;
+  }
+}

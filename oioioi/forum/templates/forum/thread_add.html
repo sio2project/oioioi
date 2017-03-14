@@ -4,28 +4,26 @@
 
 {% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
-<h2>{% trans "Add thread" %}</h2>
-<div class="breadcrumb">
+<h1>{% trans "Add thread" %}</h1>
+<ol class="breadcrumb">
     <li>
         <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
-        <span class="divider">|</span>
     </li>
     <li>
         <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
-        <span class="divider">|</span>
     </li>
     <li>
         <span>{% trans "Add thread" %}</span>
     </li>
-</div>
+</ol>
 
-<form action="" method="post" class="form-horizontal">
+<form method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">{% trans "Submit" %}</button>
     </div>
 </form>
 {% endblock %}

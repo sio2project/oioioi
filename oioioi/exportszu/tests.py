@@ -115,7 +115,8 @@ class TestExportSubmissionsView(TestCase):
         self.client.login(username='test_admin')
         response = self.client.get('/c/c/dashboard/')
         self.assertInHTML(
-            '<a href="/c/c/export_submissions/">Export submissions</a>',
+            '<a href="/c/c/export_submissions/" class="list-group-item " >\n'
+            'Export submissions\n</a>',
             response.content)
 
     def test_download(self):

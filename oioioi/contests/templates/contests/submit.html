@@ -3,16 +3,17 @@
 
 {% block title %}{% trans "Submit solution" %}{% endblock %}
 
-{% block content %}
-<script>
-$(handle_prog_lang_updates);
-</script>
+{% block main-content %}
 <h2>{% trans "Submit solution" %}</h2>
-<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+<form enctype="multipart/form-data" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">
+            {% trans "Submit" %}
+        </button>
     </div>
 </form>
+
+<script type="text/javascript" src="{{ STATIC_URL }}programs/submit.js"></script>
 {% endblock %}

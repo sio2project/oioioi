@@ -1,0 +1,32 @@
+{% load i18n staticfiles simple_filters %}
+
+<p>
+    <a role="button" class="btn btn-default" href="{% url 'problemset_main' %}">
+        {% trans "Choose problem from problemset" %}
+    </a>
+    <a role="button" class="btn btn-default" href="#" id="secret-key-show">
+        {% trans "I have a secret key!" %}
+    </a>
+</p>
+
+<form id="secret-key-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-group {% if form.url_key.errors %}has-error{% endif %}">
+        <label for="{{ form.url_key.auto_id }}">{{ form.url_key.label }}</label>
+       {{ form.url_key|add_class:"form-control"}}
+
+        {% for error in form.url_key.errors %}
+        <span class="help-inline">{{ error }}</span>
+        {% endfor %}
+        {% if form.url_key.help_text %}
+        <p class="help-block">{{ form.url_key.help_text }}</p>
+        {% endif %}
+    </div>
+
+    <button type="submit" id="secret-key-submit" type="submit" class="btn btn-primary long-job">
+        {% trans "Submit" %}
+    </button>
+</form>
+
+<script type="text/javascript" src="{{ STATIC_URL }}problems/problemset-source.js"></script>

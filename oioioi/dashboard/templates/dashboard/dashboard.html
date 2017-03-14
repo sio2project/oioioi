@@ -1,14 +1,10 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
-{% block styles %}
-{{ block.super }}
-<link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}dashboard/style.css">
-{% endblock %}
-
 {% block title %}{% trans "Contest dashboard" %}{% endblock %}
 
-{% block content %}
-{% for header in headers %}{{ header }}{% endfor %}
-{% for fragment in fragments %}{{ fragment }}{% endfor %}
+{% block main-content %}
+    {% for header in headers %}{{ header }}{% endfor %}
+    <h1>{{ contest }}</h1>
+    {% for fragment in fragments %}{{ fragment }}{% endfor %}
 {% endblock %}

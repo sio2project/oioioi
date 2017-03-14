@@ -1,0 +1,30 @@
+@import "scss/utility";
+@import "scss/style";
+
+$list-grid-column-min-width: 70px !default;
+$list-grid-column-count: 5 !default;
+
+.table .report-group-score {
+  vertical-align: middle;
+  text-align: right;
+}
+
+.list-grid {
+    columns: $list-grid-column-min-width $list-grid-column-count;
+}
+
+.table-condensed .padded-collapsing-content {
+  > * {
+    padding: 0;
+  }
+
+  .collapsing, .in {
+    padding: $table-condensed-cell-padding;
+  }
+}
+
+.form-list-unstyled {
+  ul {
+    @extend .list-unstyled;
+  }
+}

@@ -3,16 +3,25 @@
 
 {% block title %}{% trans "Bulk add similar submits" %}{% endblock %}
 
-{% block content %}
-    <h2>{% trans "Bulk add similar submits" %}</h2>
-    <div class="corner-icons">
-            <a class="btn btn-small" href="{% url 'oioioiadmin:similarsubmits_submissionssimilaritygroup_add' %}"><i class="icon-plus"></i> {% trans "Add by selecting" %}</a>
+{% block main-content %}
+    <div class="clearfix">
+        <div class="pull-right">
+            <a role="button" class="btn btn-sm btn-default"
+                href="{% url 'oioioiadmin:similarsubmits_submissionssimilaritygroup_add' %}">
+                <span class="glyphicon glyphicon-plus"></span>
+                {% trans "Add by selecting" %}
+            </a>
+        </div>
+        <h1 class="pull-left">{% trans "Bulk add similar submits" %}</h1>
     </div>
-    <form method="post" action="" class="form-horizontal">
+
+    <form method="post">
         {% csrf_token %}
         {% include "ingredients/form.html" %}
-        <div class="form-actions">
-            <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                {% trans "Submit" %}
+            </button>
         </div>
     </form>
 {% endblock %}

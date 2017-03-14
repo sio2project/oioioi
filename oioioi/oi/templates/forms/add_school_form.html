@@ -3,24 +3,22 @@
 
 {% block title %}{% trans "Add school" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 <h1>{% trans "Add a school" %}</h1>
-<form id="add-school-form" class="form-horizontal" action="" method="post">
+<p>{% trans "Please provide the official name of the school, as well as contact details." %}</p>
+<form id="add-school-form" method="post">
     {% csrf_token %}
-    <fieldset>
-        <div class="controls">
-            {% blocktrans %}<p>Please provide the official name of the school, as well as contact details.</p>{% endblocktrans %}
-        </div>
-
-        {% include "ingredients/form.html" %}
-    </fieldset>
-    <div class="form-actions">
-        <button id="add-school-button" type="submit" class="btn btn-primary"  data-loading-text="{% trans "Please, wait a while..." %}">{% trans "Add it" %}</button>
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button id="add-school-button" type="submit" class="btn btn-primary"
+            data-loading-text="{% trans "Please, wait a while..." %}">
+            {% trans "Add it" %}
+        </button>
         <script type="text/javascript">
             $(document).ready(function() {
-                var bind_form_validation = function() {
+                const bindFormValidation = function() {
                     $('#add-school-form').one('submit', function() {
-                        var form = this;
+                        const form = this;
                         $('#add-school-button').button('loading');
                         $('.schools-similar-list').load(
                             '{% url 'schools_similar' %}',
@@ -38,7 +36,7 @@
                     });
                 };
 
-                $('#confirm-modal').on('hide', function() {
+                $('#confirm-modal').on('hide.bs.modal', function() {
                     bind_form_validation();
                 });
                 bind_form_validation();
@@ -47,15 +45,21 @@
     </div>
 
     <!-- Modal -->
-    <div id="confirm-modal" class="modal hide fade" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="confirm-modal-label" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="confirm-modal-label">{% trans "Confirm" %}</h3>
-        </div>
-        <div class="modal-body schools-similar-list"></div>
-        <div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "No, go back" %}</button>
-            <input type="submit" class="btn btn-primary" value="{% trans "Yes, I'm sure. Add that school." %}">
+    <div id="confirm-modal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">{% trans "Confirm" %}</h4>
+                </div>
+                <div class="modal-body schools-similar-list"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "No, go back" %}</button>
+                    <button type="submit" class="btn btn-primary">{% trans "Yes, I'm sure. Add that school." %}</button>
+                </div>
+            </div>
         </div>
     </div>
 

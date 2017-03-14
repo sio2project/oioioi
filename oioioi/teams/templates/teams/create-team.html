@@ -1,0 +1,17 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+
+{% block title %}{% trans "Create a team" %}{% endblock %}
+
+{% block main-content %}
+<h1>{% trans "Create a team" %}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
+    </div>
+</form>
+{% endblock %}

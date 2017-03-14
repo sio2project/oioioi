@@ -1,44 +1,62 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
-{% load pagination_tags %}
 
 {% block title %}{% trans "Teams" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
+    <h1>{{ name }}</h1>
+    <h2>{% trans "Team members" %}</h2>
 
-<h2>{{ name }}</h2>
-<ul>
-    {% for member in members %}
-    <li>{{ member }}</li>
-    {% endfor %}
-</ul>
+    <table class="table table--auto-width">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>{% trans "User" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in members %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ member }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-{% if show_invite %}
-<p>
-    {% blocktrans %}There are still free places in your team. Invite your friends using the link:{% endblocktrans %}
-</p>
-<pre>{{ join_link }}</pre>
-<p class="alert">
-    {% blocktrans %}<strong>Note:</strong> The team can be modified until the first submission only.{% endblocktrans %}
-</p>
-{% endif %}
+    {% if show_invite %}
+        <h2>{% trans "Invite members" %}</h2>
+        <p>{% blocktrans %}There are still free places in your team. Invite your friends using the link:{% endblocktrans %}</p>
+        <div class="form-inline empty-space-filler-bottom">
+            <div class="form-group">
+                <label for="join_link">{% trans 'Join link' %}</label>
+                <input type="text" id="join_link" class="form-control" disabled value="{{ join_link }}">
+            </div>
+        </div>
+        <div class="alert alert-info">
+            {% blocktrans %}<strong>Note:</strong> The team can be modified until the first submission only.{% endblocktrans %}
+        </div>
+    {% endif %}
 
-{% if show_delete %}
-<p>
-    {% blocktrans %}You are the only member of the team, so you can delete the team.{% endblocktrans %}
-    <a class="btn btn-danger pull-right" href="{% url 'delete_team' contest_id=contest.id %}">
-                {% trans "Delete" %}
-    </a>
-</p>
-{% endif %}
+    {% if show_delete or show_quit %}
+        {% if show_delete %}
+            <p>
+                {% blocktrans %}You are the only member of the team, so you can delete the team.{% endblocktrans %}
+            </p>
+            <p>
+                <a role="button" class="btn btn-danger" href="{% url 'delete_team' contest_id=contest.id %}">
+                    {% trans "Delete" %}
+                </a>
+            </p>
+        {% endif %}
 
-{% if show_quit %}
-<p>
-    <a class="btn btn-danger pull-right" href="{% url 'quit_team' contest_id=contest.id %}">
+        {% if show_quit %}
+        <p>
+            <a role="button" class="btn btn-danger" href="{% url 'quit_team' contest_id=contest.id %}">
                 {% trans "Leave the team" %}
-    </a>
-</p>
-{% endif %}
-
+            </a>
+        </p>
+        {% endif %}
+    {% endif %}
 
 {% endblock %}

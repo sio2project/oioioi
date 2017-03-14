@@ -4,19 +4,23 @@
 
 {% block title %}{% trans "Maintenance mode" %}{% endblock %}
 
-{% block content %}
-<h2>{% trans "Maintenance mode" %}</h2>
+{% block main-content %}
+<h1>{% trans "Maintenance mode" %}</h1>
 <form method="post">
     {% csrf_token %}
-    <div>
+    <div class="form-group">
         <label for="maintenance_message">{% trans "Maintenance mode message" %}</label>
-        <textarea type="text" class="monospace input-xxlarge" rows="10" name="message" id="maintenance_message" placeholder="Tell users why the site is off...">{{ message }}</textarea>
+        <textarea type="text" rows="5" class="form-control"
+                  placeholder="{% trans 'Tell users why the site is off...' %}"
+                  name="message" id="maintenance_message">{{ message }}</textarea>
     </div>
-    <div>
-        <button type="submit" class="btn btn-primary" name="set_button">{% trans "Set" %}</button>
-        {% if state %}
-        <button type="submit" class="btn btn-primary" name="turn_off_button">{% trans "Turn off" %}</button>
-        {% endif %}
-    </div>
+    <button type="submit" class="btn btn-danger" name="set_button">
+        {% trans "Set" %}
+    </button>
+    {% if state %}
+        <button type="submit" class="btn btn-primary" name="turn_off_button">
+            {% trans "Turn off" %}
+        </button>
+    {% endif %}
 </form>
 {% endblock %}

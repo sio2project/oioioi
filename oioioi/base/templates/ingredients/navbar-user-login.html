@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<div class="dropdown">
+    <a href="#" id="navbar-username" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+        <span class="glyphicon glyphicon-user"></span>
+        <span>{% trans "Log in" %}</span>
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu pull-right">
+        <li class="navbar-form">
+            <form id="navbar-login" class="navbar-login" action="{% url 'auth_login' %}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control" placeholder="{% trans "Login" %}">
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" placeholder="{% trans "Password" %}">
+                </div>
+                <a role="button" class="btn btn-default" href="{% url 'registration_register' %}">{% trans "Register" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
+            </form>
+        </li>
+        {% include "ingredients/language-picker.html" %}
+    </ul>
+</div>

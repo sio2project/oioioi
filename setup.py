@@ -60,6 +60,7 @@ setup(
         "django-grappelli==2.8.2",
         "django-overextends>=0.4.1",
         "pygments",
+        "django-libsass>=0.7",
 
         "django-debug-toolbar>=1.4",
         "django-extensions>=1.0.0",
@@ -122,7 +123,6 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'django-staticfiles-lessc = oioioi.base.lessc:main',
             'oioioi-create-config = oioioi.deployment.create_config:main',
         ],
     },

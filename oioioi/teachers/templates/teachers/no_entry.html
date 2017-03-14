@@ -3,9 +3,9 @@
 
 {% block content %}
 {% url 'select_contest' as link %}
-<div class="empty-space-filler">
-    {% blocktrans %}<p>You are not registered to this contest.
-    <p>Please ask your teacher for instructions on how to register or <a href="{{ link }}">choose another contest</a>.
+<div class="text-center">
+    {% blocktrans %}<p>You are not registered to this contest.</p>
+    <p>Please ask your teacher for instructions on how to register or <a href="{{ link }}">choose another contest</a>.</p>
     {% endblocktrans %}
 </div>
 {% endblock %}

@@ -1,5 +1,6 @@
-<li>
-    <a href="{{ link }}" id="{{ id | default_if_none:'' }}">
-        <span class="label label-important">{{ text | default_if_none:'' }}</span>
-    </a>
-</li>
+<a href="{{ link | default_if_none:'#'  }}" {% if id %}id="{{ id }}"{% endif %}>
+    <span class="label label-danger"
+            data-toggle="tooltip" data-placement="bottom" title="{{ text | default_if_none:'' }}">
+        {{ text | default_if_none:'' }}
+    </span>
+</a>

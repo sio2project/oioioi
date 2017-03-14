@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
@@ -7,10 +8,13 @@ from django.contrib.auth.models import User
 from django.http import QueryDict
 from django.conf import settings
 
+from oioioi.base.templatetags.simple_filters import result_color_class
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now, \
         check_not_accessible
 from oioioi.contests.models import Contest, UserResultForProblem, \
         ProblemInstance
+from oioioi.contests.scores import IntegerScore
+from oioioi.pa.score import PAScore
 from oioioi.rankings.controllers import DefaultRankingController
 from oioioi.rankings.models import Ranking, RankingPage, recalculate, \
         choose_for_recalculation
@@ -19,6 +23,9 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 VISIBLE_TASKS = ["zad1", "zad2"]
 HIDDEN_TASKS = ["zad3", "zad4"]
+
+USER_CELL_PATTERN = '<td[^>]*>%s</td>'  # Pattern accepting classes in td.
+USER_CELL_PATTERN_LEFT = '<td[^>]*>%s'  # Some tests need this tag opened.
 
 
 class StatementHiderForContestController(ProgrammingContestController):
@@ -90,8 +97,7 @@ class TestRankingViews(TestCase):
         self.assertNotIn('User is not in the ranking.', response.content)
 
         # Contest admin shouldn't see 'Find my position' button
-        self.assertNotIn('<span class="toolbar-button-text">' +
-                         'Find my place</span>', response.content)
+        self.assertNotIn('Find my place', response.content)
 
         for i in xrange(number_of_users):
             user = users[i]
@@ -109,8 +115,7 @@ class TestRankingViews(TestCase):
         # Normal user shouldn't see the form
         self.assertNotIn('<div class="search-for-user">', response.content)
         # Normal user should see 'Find my position' button
-        self.assertIn('<span class="toolbar-button-text">' +
-                      'Find my place</span>', response.content)
+        self.assertIn('Find my place', response.content)
 
         # Test if users[0] can find himself
         response = self.client.get(get_url_for_user(users[user_num].username))
@@ -148,7 +153,9 @@ class TestRankingViews(TestCase):
         self.client.login(username='test_user')
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('<td>Test Admin</td>', response.content)
+
+            self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
+                                       response.content))
             self.assertNotContains(response, 'Export to CSV')
 
         # Ok, so now we make test_admin a regular user.
@@ -162,24 +169,29 @@ class TestRankingViews(TestCase):
             self.assertIn('rankings/ranking_view.html',
                     [t.name for t in response.templates])
             self.assertEqual(len(response.context['choices']), 3)
-            self.assertEqual(response.content.count('<td>Test User'), 1)
-            self.assertNotIn('<td>Test Admin</td>', response.content)
+            self.assertEqual(len(re.findall(USER_CELL_PATTERN % ('Test User',),
+                                            response.content)), 1)
+
+            self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
+                                       response.content))
 
         with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             expected_order = ['Test User', 'Test User 2', 'Test Admin']
             prev_pos = 0
             for user in expected_order:
-                pattern = '<td>%s</td>' % (user,)
-                self.assertIn(user, response.content)
-                pos = response.content.find(pattern)
+                pattern = USER_CELL_PATTERN % (user,)
+                pattern_match = re.search(pattern, response.content)
+                self.assertTrue(pattern_match)
+                pos = pattern_match.start()
                 self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
                     'position' % (user,)))
                 prev_pos = pos
 
             response = self.client.get(reverse('ranking',
                 kwargs={'contest_id': contest.id, 'key': '1'}))
-            self.assertEqual(response.content.count('<td>Test User'), 1)
+            self.assertEqual(len(re.findall(
+                USER_CELL_PATTERN_LEFT % ('Test User',), response.content)), 1)
 
         # Test visibility of links to problem statements
         contest.controller_name = \
@@ -190,10 +202,12 @@ class TestRankingViews(TestCase):
             response = self.client.get(url)
 
             for task in VISIBLE_TASKS:
-                self.assertIn(task + '</a></th>', response.content)
+                self.assertTrue(re.search(task + r'\s*</a>\s*</th>',
+                                          response.content))
 
             for task in HIDDEN_TASKS:
-                self.assertIn(task + '</th>', response.content)
+                self.assertTrue(re.search(task + r'\s*</th>',
+                                          response.content))
 
     def test_ranking_csv_view(self):
         contest = Contest.objects.get()
@@ -379,3 +393,33 @@ class TestRankingsdFrontend(TestCase):
         response = self.client.get(ranking_url + '?page=2')
         self.assertContains(response,
                 "You have requested a non-existent ranking page")
+
+
+class TestResultColorClassFilter(TestCase):
+    def test_integer_scores(self):
+        self._test_scores(10, IntegerScore)
+
+    def test_pa_scores(self):
+        self._test_scores(1, self.pa_score_factory)
+
+    def _test_scores(self, score_multiply, score_class_factory):
+        values = [0, 1, 2, 3, 5, 8, 10]
+        results = ['WA', 'OK0', 'OK0', 'OK25', 'OK50', 'OK75', 'OK100']
+
+        for value, result in zip(values, results):
+            self.check_score_color(value * score_multiply,
+                                   'submission--' + result,
+                                   score_class_factory)
+
+    @staticmethod
+    def pa_score_factory(int_score):
+        return PAScore(IntegerScore(int_score))
+
+    def test_empty_scores(self):
+        self.assertEquals(result_color_class(''), '')
+        self.assertEquals(result_color_class(None), '')
+
+    def check_score_color(self, int_score,
+                          color_class_name, score_class_factory):
+        score = score_class_factory(int_score)
+        self.assertEquals(result_color_class(score), color_class_name)

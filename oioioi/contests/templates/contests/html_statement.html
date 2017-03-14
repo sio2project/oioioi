@@ -1,8 +1,10 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
-{% block title %}{{ problem_name }} - {% trans "Problem statement" %}{% endblock %}
+{% block title %}
+{{ problem_name }} - {% trans "Problem statement" %}
+{% endblock %}
 
-{% block content %}
+{% block main-content %}
 {{ content }}
 {% endblock %}

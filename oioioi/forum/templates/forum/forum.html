@@ -4,70 +4,87 @@
 
 {% block title %}{{ forum }} - {% trans "Forum" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 {% check_perm 'contests.contest_admin' for contest as is_admin %}
 {% if not forum_error %}
-    <h2>{% trans "Forum" %}: {{ forum }}</h2>
-    {% if is_admin %}
-    <div class="corner-icons">
-        <ul>
-            <li>
-                <a href="{% url 'oioioiadmin:forum_category_add' %}" class="btn btn-small">{% trans "Add new category" %}</a>
-            </li>
-            {% if not is_locked %}
-                <li>
-                    <a href="#" data-post-url="{% url 'forum_lock' contest_id=contest.id %}" class="btn btn-small">{% trans "Lock forum now" %}</a>
-                </li>
-            {% else %}
-                <li>
-                    <a href="#" data-post-url="{% url 'forum_unlock' contest_id=contest.id %}" class="btn btn-small">{% trans "Unlock forum now" %}</a>
-                </li>
-            {% endif %}
-        </ul>
+    <div class="clearfix">
+        {% if is_admin %}
+            <div class="pull-right">
+                <a role="button" class="btn btn-sm btn-default"
+                    href="{% url 'oioioiadmin:forum_category_add' %}">
+                    {% trans "Add new category" %}
+                </a>
+                {% if not is_locked %}
+                    <a role="button" class="btn btn-sm btn-default" href="#"
+                        data-post-url="{% url 'forum_lock' contest_id=contest.id %}">
+                        {% trans "Lock forum now" %}
+                    </a>
+                {% else %}
+                    <a role="button" class="btn btn-sm btn-default" href="#"
+                        data-post-url="{% url 'forum_unlock' contest_id=contest.id %}">
+                        {% trans "Unlock forum now" %}
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+        <h1 class="pull-left">{% trans "Forum" %}: {{ forum }}</h1>
     </div>
-    {% endif %}
-    <div class="breadcrumb">
-        <li>
-            <span>{{ forum }}</span>
-        </li>
-    </div>
+
+    <ol class="breadcrumb">
+        <li>{{ forum }}</li>
+    </ol>
+
     {% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
     {% if category_set.exists %}
-    <table class="table auto-width row-links">
-        <thead>
-            <tr>
-                <th style="min-width: 300px">{% trans "Category" %}</th>
-                <th style="min-width: 60px">{% trans "Threads" %}</th>
-                <th style="min-width: 60px">{% trans "Posts" %}</th>
-                {% if is_admin %}
-                    <th style="min-width: 60px">{% trans "Options" %}</th>
-                    <th style="min-width: 60px">{% trans "Reported posts" %}</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for c in category_set %}
-            <tr>
-                <td><a href="{% url 'forum_category' contest_id=contest.id category_id=c.id %}">{{ c.name }}</a></td>
-                <td>{{ c.count_threads }}</td>
-                <td>{{ c.count_posts }}</td>
-                {% if is_admin %}
-                    <td>
-                        <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}"><i class="icon-trash"></i></a>
-                    </td>
-                    <td {% if c.count_reported > 0 %}class="reported_counter"{% endif %}>
-                        {{ c.count_reported }}
-                    </td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        <div class="table-responsive">
+            <table class="table auto-width">
+                <thead>
+                    <tr>
+                        <th class="{% if is_admin %} col-sm-4 {% else %} col-xs-8 {% endif %}">
+                            {% trans "Category" %}
+                        </th>
+                        <th>{% trans "Threads" %}</th>
+                        <th>{% trans "Posts" %}</th>
+                        {% if is_admin %}
+                            <th>{% trans "Options" %}</th>
+                            <th>{% trans "Reported posts" %}</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in category_set %}
+                        <tr>
+                            <td>
+                                <a class="show"
+                                   href="{% url 'forum_category' contest_id=contest.id category_id=c.id %}">
+                                    {{ c.name }}
+                                </a>
+                            </td>
+                            <td>{{ c.count_threads }}</td>
+                            <td>{{ c.count_posts }}</td>
+                            {% if is_admin %}
+                                <td>
+                                    <a href="#" data-post-url="{% url 'forum_category_delete'
+                                        contest_id=contest.id category_id=c.id %}">
+                                        <span class="glyphicon glyphicon-trash"></span>
+                                    </a>
+                                </td>
+                                <td>
+                                    <div {% if c.count_reported > 0 %}class="label label-danger"{% endif %}>
+                                        {{ c.count_reported }}
+                                    </div>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% else %}
         <h5>{% trans "There is no category in the forum, sorry." %}</h5>
     {% endif %}
 {% else %}
-    <h2>{% trans "Forum" %}</h2>
+    <h1>{% trans "Forum" %}</h1>
     <h5>{{ forum_error }}</h5>
 {% endif %}
 {% endblock %}

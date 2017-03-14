@@ -1,0 +1,7 @@
+@import "scss/utility";
+.notifications {
+  .notifications-label {
+    @include absolute(2.2em, 0);
+    z-index: 1;
+  }
+}

@@ -20,7 +20,7 @@ class RemoteProblemForm(ProblemUploadForm):
         super(RemoteProblemForm, self).__init__(*args, **kwargs)
         self.clients = clients
 
-        help_text = render_to_string('sharingcli/form_help_text.html',
+        help_text = render_to_string('sharingcli/form-help.html',
             {'clients': clients})
         self.fields['url'].help_text = mark_safe(help_text)
 

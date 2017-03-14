@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -22,9 +23,9 @@ class TestScoresReveal(TestCase):
         response = self.client.get(submission_url)
         self.assertEqual(response.status_code, 200)
         if success:
-            self.assertIn('</i> Reveal score</a>', response.content)
+            self.assertIn('</span> Reveal score', response.content)
         else:
-            self.assertNotIn('</i> Reveal score</a>', response.content)
+            self.assertNotIn('</span> Reveal score', response.content)
 
         url = reverse('submission_score_reveal', kwargs=kwargs)
         response = self.client.post(url, follow=True)
@@ -56,7 +57,8 @@ class TestScoresReveal(TestCase):
     def test_simple_reveal(self):
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
             response = self.reveal_submit(1)
-            self.assertIn('<tr><td>34</td></tr>', response.content)
+
+            self.assertIn('34', response.content)
 
     def test_disable_time(self):
         contest = Contest.objects.get()
@@ -118,5 +120,7 @@ class TestScoresReveal(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIn('already used <strong>1</strong> out of 2 reveals.',
                           response.content)
-            self.assertIn('<td>100</td>', response.content)
+
+            no_whitespaces_response = re.sub(r'\s*', '', response.content)
+            self.assertIn('<td>100</td>', no_whitespaces_response)
             self.reveal_submit(5, success=False)

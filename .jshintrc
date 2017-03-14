@@ -9,6 +9,7 @@
     "jquery": true,
     "browser": true,
     "laxbreak": true,
+    "esnext": true,
     "globals":
     {
         "gettext": false, "ngettext": false, "interpolate": false,

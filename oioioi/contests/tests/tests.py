@@ -1,4 +1,5 @@
 # pylint: disable=abstract-method
+import re
 from datetime import datetime
 from functools import partial
 from django.core import mail
@@ -508,17 +509,27 @@ class TestContestViews(TestCase):
             return len([t for t in response.templates if t.name == name])
         self.assertEqual(count_templates('programs/submission_header.html'), 1)
         self.assertEqual(count_templates('programs/report.html'), 2)
+
+        td_pattern_with_class = r'<td[^>]*>\s*%s'
+
         for t in ['0', '1ocen', '1a', '1b', '2', '3']:
-            self.assertIn('<td>%s' % (t,), response.content)
-        self.assertEqual(response.content.count('34/34'), 1)
-        self.assertEqual(response.content.count('0/33'), 2)
-        self.assertEqual(response.content.count('0/0'), 2)
-        self.assertEqual(response.content.count(
-            '<td class="subm_status subm_OK">OK</td>'), 5)  # One in the header
-        self.assertEqual(response.content.count(
-            '<td class="subm_status subm_RE">Runtime error</td>'), 1)
-        self.assertEqual(response.content.count(
-            '<td class="subm_status subm_WA">Wrong answer</td>'), 1)
+            self.assertTrue(re.search(td_pattern_with_class % (t,),
+                                      response.content))
+
+        self.assertEqual(response.content.count('34 / 34'), 1)
+        self.assertEqual(response.content.count('0 / 33'), 2)
+        self.assertEqual(response.content.count('0 / 0'), 2)
+
+        status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
+        ok_match = re.findall(status_pattern % ('OK', 'OK'), response.content)
+        re_match = re.findall(status_pattern % ('RE', 'Runtime error'),
+                              response.content)
+        wa_match = re.findall(status_pattern % ('WA', 'Wrong answer'),
+                              response.content)
+
+        self.assertEqual(len(ok_match), 5)  # One in the header
+        self.assertEqual(len(re_match), 1)
+        self.assertEqual(len(wa_match), 1)
         self.assertIn('program exited with code 1', response.content)
 
     def test_submissions_permissions(self):
@@ -548,6 +559,10 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance', 'test_submission', 'test_extra_rounds',
             'test_permissions']
+
+    @staticmethod
+    def remove_ws(response):
+        return re.sub(r'\s*', '', response.content)
 
     def test_problems_visibility(self):
         contest = Contest.objects.get()
@@ -581,24 +596,25 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
             self.assertIn('contests/my_submissions.html',
                     [t.name for t in response.templates])
-            self.assertEqual(response.content.count('>34</td>'), 2)
+
+            self.assertEqual(self.remove_ws(response).count('>34<'), 2)
 
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 4)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 4)
 
         with fake_time(datetime(2012, 7, 31, 20, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn('>34</td>', response.content)
+            self.assertNotIn('>34<', self.remove_ws(response))
             self.assertNotIn('Score', response.content)
 
         with fake_time(datetime(2012, 7, 31, 21, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 1)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
         with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 2)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 2)
 
         round4 = Round.objects.get(pk=4)
         user = User.objects.get(username='test_user')
@@ -607,7 +623,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
         with fake_time(datetime(2012, 7, 31, 22, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 1)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
         round4.end_date = datetime(2012, 8, 10, 0, 0, tzinfo=utc)
         round4.results_date = datetime(2012, 8, 10, 0, 10, tzinfo=utc)
@@ -618,18 +634,18 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
         with fake_time(datetime(2012, 8, 10, 0, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 1)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
         ext.extra_time = 20
         ext.save()
 
         with fake_time(datetime(2012, 8, 10, 0, 15, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 1)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 1)
 
         with fake_time(datetime(2012, 8, 10, 0, 21, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(response.content.count('>34</td>'), 2)
+            self.assertEqual(self.remove_ws(response).count('>34<'), 2)
 
     def test_mixin_past_rounds_hidden_during_prep_time(self):
         contest = Contest.objects.get()
@@ -817,7 +833,6 @@ class TestRejudgeAndFailure(TestCase):
         self.client.login(username='test_admin')
         response = self.client.get(rejudge_url)
         self.assertEqual(405, response.status_code)
-        self.assertNotIn('My submissions', response.content)
         self.assertIn('OIOIOI', response.content)
         self.assertIn('method is not allowed', response.content)
         self.assertIn('Log out', response.content)

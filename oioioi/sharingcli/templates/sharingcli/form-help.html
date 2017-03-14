@@ -1,0 +1,10 @@
+{% load i18n %}
+<p>
+    {% trans "Paste a link to a task from one of the following supported sites:" %}
+</p>
+
+<ul>
+    {% for client in clients %}
+    <li><a href="{{ client.site_url }}">{{ client.site_url }}</a></li>
+    {% endfor %}
+</ul>

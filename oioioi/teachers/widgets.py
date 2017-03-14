@@ -36,6 +36,6 @@ class ContestSelectionWidget(object):
             request.user.is_authenticated() and
             bool(Teacher.objects.filter(user=request.user, is_active=False))
         }
-        return render_to_string('portals/widgets/contest_selection.html',
+        return render_to_string('teachers/widgets/contest-selection.html',
                                 RequestContext(request, context))
 register_widget(ContestSelectionWidget())

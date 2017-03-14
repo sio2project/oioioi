@@ -1,12 +1,11 @@
 {% extends "simple-centered.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Account deleted successfully" %}{% endblock %}
+{% block title %}{% trans "Account succesfully deleted" %}{% endblock %}
 
 {% block content %}
-
-<h1>{% trans "Account deleted successfully" %}</h1>
-
-<p>{% trans "Your account has been deleted successfully" %}</p>
-
+    <div class="alert alert-info text-center">
+        <h1>{% trans "Account succesfully deleted" %}</h1>
+        <p>{% trans "Your account has been succesfully deleted" %}</p>
+    </div>
 {% endblock %}

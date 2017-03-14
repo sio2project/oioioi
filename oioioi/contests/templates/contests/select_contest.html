@@ -1,24 +1,36 @@
-{% extends "simple-centered.html" %}
+{% extends "base-with-menu.html" %}
 {% load i18n %}
 
 {% block title %}{% trans 'Select contest' %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 
-<h1>{% trans 'Select contest' %}</h1>
+<article>
+    <h1>{% trans 'Select contest' %}</h1>
 
-<table class="table">
-    <thead>
-        <tr><th style="width: 100px">{% trans "ID" %}</th><th>{% trans "Name" %}</th></tr>
-    </thead>
-    <tbody>
-        {% for contest in contests %}
-        <tr>
-            <td>{{ contest.id }}</td>
-            <td><a href="{% url 'default_contest_view' contest_id=contest.id %}">{{ contest.name }}</a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "Name" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contest in contests %}
+                    <tr>
+                        <td>{{ contest.id }}</td>
+                        <td>
+                            <a class="fill-clickable"
+                               href="{% url 'default_contest_view' contest_id=contest.id %}">
+                                {{ contest.name }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</article>
 
 {% endblock %}

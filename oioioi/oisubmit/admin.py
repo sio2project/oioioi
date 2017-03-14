@@ -24,7 +24,7 @@ class OISubmitSubmissionAdminMixin(object):
         comments = getattr(instance.oisubmitextradata, 'comments', '')
         comments = [SUSPICION_REASONS[c] for c in comments.split(',') if c]
         comments = '<br />'.join(map(unicode, comments))
-        return render_to_string('received_suspected.html',
+        return render_to_string('received-suspected.html',
                 {'received_suspected': received_suspected,
                 'is_oisubmit': is_oisubmit, 'comments': comments})
     received_suspected.allow_tags = True

@@ -1,0 +1,39 @@
+{% load i18n %}
+
+{% if contest %}
+    {% if contest_exclusive %}
+        <a href="#">{{ contest.name }}</a>
+    {% else %}
+        <div class="dropdown {% if not user.is_anonymous and recent_contests and contest != recent_contests.0 %}open{% endif %}">
+            <a href="#" class="contest-picker dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                <div class="contest-name">{{ contest.name }}</div> <div class="caret"></div>
+            </a>
+            <ul class="dropdown-menu">
+                {% if recent_contests %}
+                    {% for contest in recent_contests %}
+                        <li><a href="{% url 'default_contest_view' contest_id=contest.id %}">{{ contest.name }}</a></li>
+                    {% endfor %}
+                    <li><a href="{% url 'select_contest' %}">{% trans "Other..." %}</a></li>
+                {% else %}
+                    <li><a href="{% url 'select_contest' %}">{% trans "Switch contest" %}</a></li>
+                {% endif %}
+
+                {% if user.is_superuser %}
+                    {% if recent_contests %}
+                        <li role="separator" class="divider"></li>
+                    {% endif %}
+                    <li>
+                        <a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create a new contest" %}</a>
+                    </li>
+                {% endif %}
+
+                {% if is_problemset_link_visible %}
+                    <li role="separator" class="divider"></li>
+                    <li><a href="{% url 'problemset_main' %}">{% trans "Problemset" %}</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    {% endif %}
+{% elif navbar_location %}
+    <a href="#">{{ navbar_location }}</a>
+{% endif %}

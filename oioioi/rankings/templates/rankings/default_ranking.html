@@ -1,46 +1,53 @@
-{% load i18n pagination_tags get_user_name static %}
+{% load i18n pagination_tags get_user_name static simple_filters %}
 
 {% if rows %}
-<div class="paginated-list">
-{% autopaginate rows participants_on_page %}
-{% paginate %}
-<table class="{% block table-classes %}ranking table table-striped auto-width dense{% endblock %}">
-    <thead>
-        <tr>
-            <th style="min-width: 50px" class="text-right">#</th>
-            <th style="min-width: 120px">{% trans "User" %}</th>
-            {% for pi, statement_visible in problem_instances %}
-            {% if statement_visible %}
-            {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
-            {% endif %}
-            <th style="min-width: 40px" class="text-right{% if pi.round.is_trial %} trial-round{% endif %}" >{% if statement_visible %}<a href="{{ link }}">{% endif %}{{ pi.get_short_name_display }}{% if statement_visible %}</a>{% endif %}</th>
-            {% endfor %}
-            <th style="min-width: 50px" class="text-right">{% trans "Sum" %}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in rows %}
-        <tr id="ranking_row_{{ row.user.id }}" class="{% block row-classes %}{% endblock %}">
-            <td class="text-right">{{ row.place }}</td>
-            <td>{% public_name row.user %}</td>
-            {% for result in row.results %}
-            <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round{% endif %}" >
-                <span class="result" data-username="{{ row.user.username }}" data-result_url="{{ result.url }}">
-                    {{ result.score|default_if_none:'' }}
-                </span>
-            </td>
-            {% endfor %}
-            <td class="text-right">{{ row.sum }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% paginate %}
-</div>
+    <div class="pull-left nav-content table-responsive">
+        {% autopaginate rows participants_on_page %}
+        {% paginate %}
+        <table class="{% block table-classes %}table table-ranking table-striped table-condensed submission{% endblock %}">
+            <thead>
+                <tr>
+                    <th class="text-right">#</th>
+                    <th>{% trans "User" %}</th>
+                    {% for pi, statement_visible in problem_instances %}
+                        {% if statement_visible %}
+                            {% url 'problem_statement' contest_id=contest.id problem_instance=pi.short_name as link %}
+                        {% endif %}
+                        <th class="text-right{% if pi.round.is_trial %} trial-round{% endif %}">
+                            {% if statement_visible %}<a href="{{ link }}">{% endif %}
+                                {{ pi.get_short_name_display }}
+                            {% if statement_visible %}</a>{% endif %}
+                        </th>
+                    {% endfor %}
+                    <th class="text-right">{% trans "Sum" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                    <tr id="ranking_row_{{ row.user.id }}" class="{% block row-classes %}{% endblock %}">
+                        <td class="text-right">{{ row.place }}</td>
+                        <td class="user-cell">{% public_name row.user %}</td>
+                        {% for result in row.results %}
+                            <td class="text-right{% if result.problem_instance.round.is_trial %} trial-round
+                                                 {% else %} {{ result.score|result_color_class }}{% endif %}">
+                                <span data-username="{{ row.user.username }}"
+                                      data-result_url="{{ result.url }}">
+                                    {{ result.score|default_if_none:'' }}
+                                </span>
+                            </td>
+                        {% endfor %}
+                        <td class="text-right">{{ row.sum }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% paginate %}
+    </div>
 {% else %}
-<div class="empty-space-filler">
-    {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
-</div>
+    <div class="empty-space-filler alert alert-info">
+        {% blocktrans %}Strange, there is no one in this ranking...{% endblocktrans %}
+    </div>
 {% endif %}
 
-<script type="text/javascript" src="{% static "rankings/ranking_links.js" %}"></script>
+<script type="text/javascript" src="{% static 'rankings/ranking_links.js' %}"></script>
+

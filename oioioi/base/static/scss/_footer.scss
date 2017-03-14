@@ -1,0 +1,21 @@
+@import "utility";
+
+$oioioi-footer-bg: #f5f5f5 !default;
+$oioioi-footer-height: 60px !default;
+
+html {
+  min-height: 100%;
+  position: relative;
+}
+
+body {
+  margin-bottom: $oioioi-footer-height;
+}
+
+.footer {
+  @include absolute(auto, 0, 0, 0);
+  @include centered-flex();
+  background-color: $oioioi-footer-bg;
+  height: $oioioi-footer-height;
+  justify-content: center;
+}

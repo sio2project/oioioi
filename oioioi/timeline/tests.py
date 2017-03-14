@@ -145,7 +145,7 @@ class TestChangingDates(TestCase):
         new_dates[invalid_item_id] = invalid_date
 
         response = self._send_post(contest, data=new_dates,
-                                   admin_assertin='error')
+                                   admin_assertin='alert-danger')
 
         for item in date_registry.tolist(contest.id):
             obj = item['model'].objects.get(pk=item['id'])

@@ -1,274 +1,407 @@
 $(function() {
-    // Note that const is not supported on IE as of 02.2014.
-    var FULL_TEXT_WIDTH = 550;
-    var SHORT_TEXT_WIDTH = 250;
-    var DISPLAY_TIME = 10;
-    var CACHE_DETECT_TIME = 3000;
+    // DOM elements
+    const navbar = $('#main-navbar');
+    const navbarFlexSpace = $('.oioioi-navbar__flex');
 
-    var round_duration_in_s;
-    var is_time_admin;
-    var is_admin_time_set;
-    var were_admin_time_set;
-    var were_time;
-    var delay_in_ms = 0;
-    var countdown_date;
-    var ms_from_epoch;
-    var round_name;
-    var previous_user_time;
+    const countdownTime = $('#countdown-time');
+    const countdownProgress = $('#countdown-progress');
+    const countdownProgressFill = countdownProgress.find('.progress-bar');
+    const countdownProgressText = countdownProgressFill.find('span');
 
-    function updateClock() {
+    const clock = $('#clock');
+    const adminClock = $('#admin-clock');
+    const adminTime = $('#admin-time');
+    const adminTimeLabel = $('#admin-time-label');
+
+    // Constants
+    const CACHE_DETECT_TIME = 3000;
+    const DISPLAY_TIME = 10;
+    // Should match scss `$countdown-time-full-width` property
+    const FULL_TEXT_WIDTH = 550;
+
+    // Enum to indicate countdown display type
+    const CountdownType = {
+        NONE: 0,
+        PROGRESS: 1,
+        TEXT: 2
+    };
+
+    // Duration of current round (in seconds)
+    let roundDuration;
+    // Round name
+    let roundName;
+    // Date until we countdown to
+    let countdownDate;
+
+    // Current timestamp (milliseconds)
+    let timestamp;
+    // Time calculated in previous `update()` call
+    let previousUserTime;
+
+    // Indicates whether user has privileges to change time
+    let isTimeAdmin;
+    // Indicates whether the time has been changed by admin
+    let isAdminTimeSet;
+    // Delay (in seconds) between the actual time and the one set by admin
+    let delay = 0;
+
+    /**
+     * Updates clock and progress bar.
+     * Called every second.
+     */
+    function update() {
         // If we detect a long time interval between subsequent
-        // updateClock() calls, we detect a cached version of the webpage
+        // `update()` calls, we detect a cached version of the page
         // and send a request to resynchronize time with server
-        var user_time = new Date().getTime();
-        if (typeof previous_user_time != 'undefined') {
-            if (user_time - previous_user_time > CACHE_DETECT_TIME) {
-                $(window).trigger('updateStatusRequest');
-            }
+        let userTime = new Date().getTime();
+        if (previousUserTime !== null
+                && userTime - previousUserTime > CACHE_DETECT_TIME) {
+            $(window).trigger('updateStatusRequest');
         }
-        previous_user_time = user_time;
-        var time = new Date(user_time + delay_in_ms);
-        $('#clock').text(time.toLocaleTimeString());
-        var s_from_epoch = Math.floor((new Date().getTime() +
-            delay_in_ms) / 1000);
-        var remaining_seconds = countdown_date - s_from_epoch;
+        previousUserTime = userTime;
 
-        BarEnum = {none: 0, progressbar: 1, text_only: 2};
-        var visible_bar = BarEnum.none;
+        updateClockTime(new Date(userTime + delay));
 
-        if (remaining_seconds >= -DISPLAY_TIME) {
-            var countdown = remaining_seconds;
-            var countdown_destination;
-            var countdown_dest_short;
-            if (round_duration_in_s) {
-                countdown_destination = gettext("end of the %(round_name)s")
-                    .fmt({round_name: round_name});
-                countdown_dest_short = gettext("to the end");
-                visible_bar = BarEnum.progressbar;
-            } else {
-                countdown_destination = gettext("start of the %(round_name)s")
-                    .fmt({round_name: round_name});
-                countdown_dest_short = gettext("to the start");
-                visible_bar = BarEnum.text_only;
-            }
+        timestamp = userTime + delay;
+        const remainingSeconds = countdownDate - Math.floor(timestamp / 1000);
 
-            var seconds = countdown % 60;
-            var seconds_str = ngettext("%(seconds)s second ",
-                "%(seconds)s seconds ", seconds).fmt({seconds: seconds});
-            var seconds_short =
-                gettext("%(seconds)ss ").fmt({seconds: seconds});
+        updateCountdown(remainingSeconds);
+    }
 
-            countdown = Math.floor(countdown / 60);
-            var minutes = countdown % 60;
-            var minutes_str = ngettext("%(minutes)s minute ",
-                "%(minutes)s minutes ", minutes).fmt({minutes: minutes});
-            var minutes_short =
-                gettext("%(minutes)sm ").fmt({minutes: minutes});
+    /**
+     * Coverts datetime object into YYYY-MM-DD HH:mm:ss string
+     * @param time: Date
+     * @returns {string} formatted date
+     */
+    function getDatetimeString(time) {
+        return time.getFullYear() + '-' + time.getMonth() + '-'
+            + time.getDay() + ' ' + time.getHours() + ':'
+            + time.getMinutes() + ':' + time.getSeconds();
+    }
 
-            countdown = Math.floor(countdown / 60);
-            var hours = countdown % 24;
-            var hours_str = ngettext("%(hours)s hour ", "%(hours)s hours ",
-                hours).fmt({hours: hours});
-            var hours_short = gettext("%(hours)sh ").fmt({hours: hours});
+    /**
+     * Updates the text in #clock node
+     * @param time: Date
+     */
+    function updateClockTime(time) {
+        clock.text(time.toLocaleTimeString());
+    }
 
-            countdown = Math.floor(countdown / 24);
-            var days = countdown;
-            var days_str = ngettext("%(days)s day ", "%(days)s days ",
-                days).fmt({days: days});
-            var days_short = gettext("%(days)sd ").fmt({days: days});
+    /**
+     * Updates countdown text and progress fill
+     * @param remainingSeconds: number
+     */
+    function updateCountdown(remainingSeconds) {
+        const countdownParams = getCountdownParams(remainingSeconds);
 
-            var countdown_text;
-            var countdown_short;
-            if (days > 0) {
-                var countdown_days = days_str + hours_str + minutes_str +
-                    seconds_str;
-                countdown_short = days_short + hours_short + minutes_short +
-                    seconds_short + countdown_dest_short;
-                countdown_text = ngettext(
-                    "%(countdown_days)sleft to the %(countdown_destination)s.",
-                    "%(countdown_days)sleft to the %(countdown_destination)s.",
-                    days).fmt({countdown_days: countdown_days,
-                    countdown_destination: countdown_destination,
-                    round_name: round_name});
-            } else if (hours > 0) {
-                var countdown_hours = hours_str + minutes_str + seconds_str;
-                countdown_short = hours_short + minutes_short + seconds_short +
-                    countdown_dest_short;
-                countdown_text = ngettext(
-                    "%(countdown_hours)sleft to the %(countdown_destination)s.",
-                    "%(countdown_hours)sleft to the %(countdown_destination)s.",
-                    hours).fmt({countdown_hours: countdown_hours,
-                    countdown_destination: countdown_destination});
-            } else if (minutes > 0) {
-                var countdown_minutes = minutes_str + seconds_str;
-                countdown_short = minutes_short + seconds_short +
-                    countdown_dest_short;
-                countdown_text = ngettext(
-                    "%(countdown_minutes)sleft to the %(countdown_destination)s.",
-                    "%(countdown_minutes)sleft to the %(countdown_destination)s.",
-                    minutes).fmt({countdown_minutes: countdown_minutes,
-                    countdown_destination: countdown_destination});
-            } else if (seconds >= 0) {
-                var countdown_seconds = seconds_str;
-                countdown_short = seconds_short + countdown_dest_short;
-                countdown_text = ngettext(
-                    "%(countdown_seconds)sleft to the %(countdown_destination)s.",
-                    "%(countdown_seconds)sleft to the %(countdown_destination)s.",
-                    seconds).fmt({countdown_seconds: countdown_seconds,
-                    countdown_destination: countdown_destination});
-            } else {
-                if (round_duration_in_s) {
-                    countdown_text = gettext("The round is over!");
-                    visible_bar = BarEnum.progressbar;
-                } else {
-                    countdown_text = gettext("The round has started!");
-                    visible_bar = BarEnum.text_only;
-                }
-                countdown_short = countdown_text;
-            }
+        // Hide elements and exit
+        if (countdownParams.countdownType === CountdownType.NONE) {
+            countdownTime.css('visibility', 'hidden');
+            countdownProgressFill.css('visibility', 'hidden');
+            return;
         }
 
-        var bar_width = $('#navbar-progress').width();
-        if (bar_width >= SHORT_TEXT_WIDTH && visible_bar != BarEnum.none) {
-            if (visible_bar == BarEnum.progressbar) {
-                $('#navbar-progressbar').removeClass('textbar')
-            } else {
-                $('#navbar-progressbar').addClass('textbar');
-            }
-            $('#navbar-progressbar').css('visibility', 'visible');
+        // Show countdown text
+        countdownTime.css('visibility', 'visible');
+        const flexSpaceAvailable = navbarFlexSpace.width() * 2;
+        const spaceAvailable = countdownTime.width() + flexSpaceAvailable;
+
+        if (spaceAvailable > FULL_TEXT_WIDTH) {
+            countdownTime.text(countdownParams.countdownText);
         } else {
-            $('#navbar-progressbar').css('visibility', 'hidden');
+            countdownTime.text(countdownParams.countdownShort);
         }
 
-        if (visible_bar == BarEnum.progressbar) {
-            var elapsed_part = 1 - remaining_seconds / round_duration_in_s;
-            var red;
-            var green;
-            if (elapsed_part < 0.5) {
-                red = Math.floor(510 * elapsed_part);
-                green = 255;
-            } else {
-                red = 255;
-                green = Math.floor(510 * (1 - elapsed_part));
-            }
-            var blue = 0;
-            var bar_color = 'rgb(' + red + ',' + green +',' + blue + ')';
-            $('#navbar-bar').css({
-                "background": bar_color,
-                "width": Math.floor(elapsed_part * 100) + "%"
-            });
+        // If text only hide progress and exit
+        if (countdownParams.countdownType === CountdownType.TEXT) {
+            countdownProgressFill.css('visibility', 'hidden');
+            return;
         }
 
-        if (bar_width >= FULL_TEXT_WIDTH) {
-            $('#countdown').text(countdown_text);
+        // Show countdown progress
+        countdownProgressFill.css('visibility', 'visible');
+        const completion = 1 - remainingSeconds / roundDuration;
+
+        countdownProgressFill.width((completion * 100) + '%');
+        countdownProgressFill.attr('aria-valuenow',
+            Math.floor(completion * 100));
+        countdownProgressText.text(Math.floor(completion * 100) + "%");
+
+        if (completion < 0.5) {
+            countdownProgressFill.removeClass('progress-bar-warning');
+            countdownProgressFill.removeClass('progress-bar-danger');
+            countdownProgressFill.addClass('progress-bar-success');
+        } else if (completion < 0.8) {
+            countdownProgressFill.removeClass('progress-bar-success');
+            countdownProgressFill.removeClass('progress-bar-danger');
+            countdownProgressFill.addClass('progress-bar-warning');
         } else {
-            $('#countdown').text(countdown_short);
+            countdownProgressFill.removeClass('progress-bar-success');
+            countdownProgressFill.removeClass('progress-bar-warning');
+            countdownProgressFill.addClass('progress-bar-danger');
         }
     }
 
-    var update_interval = null;
+    /**
+     * Starts up the clock interval.
+     */
+    let updateClockInterval = null;
     function startClock() {
-        clearInterval(update_interval);
-        update_interval = setInterval(function() {
-            if (is_admin_time_set) {
-                clearInterval(update_interval);
-                update_interval = null;
+        clearInterval(updateClockInterval);
+        updateClockInterval = setInterval(function() {
+            if (isAdminTimeSet) {
+                clearInterval(updateClockInterval);
+                updateClockInterval = null;
             } else {
-                updateClock();
+                update();
             }
         }, 1000);
     }
 
-    var admin_clock = $('#admin-clock');
-    //admin-clock exists only if real_user is a superuser
-    if (admin_clock.length == 1) {
-        admin_clock.on('click', function() {
-            var time;
-            if (is_admin_time_set) {
-                time = new Date(ms_from_epoch);
+    /**
+     * Creates datetime string accepted by #admin-time input
+     * @param time: Date
+     * @returns {string} datetime in format (yyyy-mm-dd hh:mm:ss)
+     */
+    function getAdminTimeFormat(time) {
+        return time.getFullYear() +
+        "-" + ("0" + (time.getMonth() + 1)).slice(-2) +
+        "-" + ("0" + time.getDate()).slice(-2) +
+        " " + ("0" + time.getHours()).slice(-2) +
+        ":" + ("0" + time.getMinutes()).slice(-2) +
+        ":" + ("0" + time.getSeconds()).slice(-2);
+    }
+
+    /**
+     * Sets admin clock click event listener to update admin time change
+     * input to the current time.
+     */
+    function setAdminClockClickListener() {
+        if (!adminClock) {
+            return;
+        }
+
+        adminClock.on('click', function() {
+            let adminTimeValue = null;
+            if (isAdminTimeSet) {
+                adminTimeValue = new Date(timestamp);
             } else {
-                time = new Date(new Date().getTime() + delay_in_ms);
+                adminTimeValue = new Date(new Date().getTime() + delay);
             }
-            $('#admin-time').val(time.getFullYear() +
-                "-" + ("0" + (time.getMonth() + 1)).slice(-2) +
-                "-" + ("0" + time.getDate()).slice(-2) +
-                " " + ("0" + time.getHours()).slice(-2) +
-                ":" + ("0" + time.getMinutes()).slice(-2) +
-                ":" + ("0" + time.getSeconds()).slice(-2));
+            adminTime.val(getAdminTimeFormat(adminTimeValue));
         });
     }
 
-    function synchronizeTimeWithServer(data) {
-        is_admin_time_set = data.is_admin_time_set;
-        ms_from_epoch = data.time * 1000;
-        var new_delay = ms_from_epoch - new Date().getTime();
-        if (Math.abs(new_delay - delay_in_ms) > 1000) {
-            delay_in_ms = new_delay;
+    /**
+     * Calculates user local variables based on server response.
+     * @param data Server response data
+     */
+    function synchronizeTime(data) {
+        isAdminTimeSet = data.is_admin_time_set;
+        timestamp = data.time * 1000;
+
+        const newDelay = timestamp - new Date().getTime();
+        if (Math.abs(newDelay - delay) > 1000) {
+            delay = newDelay;
         }
-        var start_date = data.round_start_date;
-        var end_date = data.round_end_date;
-        if (end_date) {
-            countdown_date = end_date;
-            round_duration_in_s = end_date - start_date;
-        } else if (start_date) {
-            countdown_date = start_date;
-            round_duration_in_s = null;
+
+        const startDate = data.round_start_date;
+        const endDate = data.round_end_date;
+
+        if (endDate) {
+            countdownDate = endDate;
+            roundDuration = endDate - startDate;
+        } else if (startDate) {
+            countdownDate = startDate;
+            roundDuration = null;
         }
-        if (data.round_name) {
-            round_name = data.round_name;
-        }
+
+        roundName = data.round_name;
     }
 
+    /**
+     * Calculates admin local variables based on server response.
+     * @param data Server response data
+     */
     function synchronizeAdminTime(data) {
-        is_admin_time_set = data.is_admin_time_set;
-        if (is_admin_time_set) {
-            var time = new Date(data.time * 1000);
-            updateClock(); // update progressbar
-            $('#clock').text(time.toLocaleDateString() +
-                " " + time.toLocaleTimeString());
-            if (!$('#main-navbar').hasClass('admin-time-set')) {
-                $('#main-navbar').addClass('admin-time-set');
-                $('#admin-time-label').show();
-            }
-        } else if ($('#main-navbar').hasClass('admin-time-set')) {
-            startClock();
-            $('#main-navbar').removeClass('admin-time-set');
-            $('#admin-time-label').hide();
-        }
+        isAdminTimeSet = data.is_admin_time_set;
+        const time = new Date(data.time * 1000);
 
-        if (is_admin_time_set != were_admin_time_set ||
-                (is_admin_time_set && were_time != data.time)) {
-            if ($('#admin-time-reason').length === 0) {
-                $('<p id="admin-time-reason"></p>').text(
-                        gettext("Reason: Admin-time status has changed.")
-                    ).appendTo('#modal-outdated .modal-body');
-            }
-            $('#admin-time-reason').show();
-            $('#modal-outdated').modal('show');
-        } else {
-            $('#admin-time-reason').hide();
+        if (isAdminTimeSet) {
+            update();
+            clock.text(getDatetimeString(time));
+            navbar.addClass('navbar-admin-time');
+            adminTimeLabel.removeClass('hidden');
+        } else if (navbar.hasClass('navbar-admin-time')) {
+            startClock();
+            navbar.removeClass('navbar-admin-time');
+            adminTimeLabel.addClass('hidden');
         }
     }
 
-    $(window).one('initialStatus', function(ev, data){
-        were_admin_time_set = data.is_admin_time_set;
-        were_time = data.time;
-        is_time_admin = data.is_time_admin;
-        synchronizeTimeWithServer(data);
-        updateClock();
+    /**
+     * Calculates countdown type (display mode NONE|PROGRESS|TEXT), and text
+     * to display in `countdownTime` (with short version for smaller devices).
+     * @param remainingSeconds
+     * @returns {{countdownType, countdownText, countdownShort}}
+     */
+    function getCountdownParams(remainingSeconds) {
+        let countdownType = CountdownType.NONE;
+        let countdownText = '';
+        let countdownShort = '';
+
+        if (remainingSeconds >= -DISPLAY_TIME) {
+            let countdown = remainingSeconds;
+            let countdownDestination;
+            let countdownDestinationShort;
+
+            if (roundDuration) {
+                countdownDestination = gettext(
+                "end of the %(round_name)s").fmt({
+                    round_name: roundName
+                });
+                countdownDestinationShort = gettext("to the end");
+                countdownType = CountdownType.PROGRESS;
+            } else {
+                countdownDestination = gettext(
+                "start of the %(round_name)s").fmt({
+                    round_name: roundName
+                });
+                countdownDestinationShort = gettext("to the start");
+                countdownType = CountdownType.TEXT;
+            }
+
+            // Save text for seconds
+            const seconds = countdown % 60;
+            const secondsText = ngettext(
+            "%(seconds)s second ",
+            "%(seconds)s seconds ",
+            seconds).fmt({
+                seconds: seconds
+            });
+            const secondsShortText = gettext("%(seconds)ss ")
+                .fmt({ seconds: seconds });
+
+            // Save text for minutes
+            countdown = Math.floor(countdown / 60);
+            const minutes = countdown % 60;
+            const minutesText = ngettext(
+            "%(minutes)s minute ",
+            "%(minutes)s minutes ",
+            minutes).fmt({
+                minutes: minutes
+            });
+            const minutesShortText = gettext("%(minutes)sm ")
+                .fmt({ minutes: minutes });
+
+            // Save text for hours
+            countdown = Math.floor(countdown / 60);
+            const hours = countdown % 24;
+            const hoursText = ngettext(
+            "%(hours)s hour ", "%(hours)s hours ",
+            hours).fmt({
+                hours: hours
+            });
+            const hoursShort = gettext("%(hours)sh ")
+                .fmt({ hours: hours });
+
+            // Save text for days
+            countdown = Math.floor(countdown / 24);
+            const days = countdown;
+            const daysText = ngettext(
+            "%(days)s day ",
+            "%(days)s days ",
+            days).fmt({
+                days: days
+            });
+            const daysShort = gettext("%(days)sd ")
+                .fmt({ days: days });
+
+            if (days > 0) {
+                const countdownDays = daysText + hoursText + minutesText
+                    + secondsText;
+                countdownShort = daysShort + hoursShort + minutesShortText
+                    + secondsShortText + countdownDestinationShort;
+                countdownText = ngettext(
+                "%(countdown_days)sleft to the %(countdown_destination)s.",
+                "%(countdown_days)sleft to the %(countdown_destination)s.",
+                days).fmt({
+                    countdown_days: countdownDays,
+                    countdown_destination: countdownDestination,
+                    round_name: roundName
+                });
+            } else if (hours > 0) {
+                const countdownHours = hoursText + minutesText + secondsText;
+                countdownShort = hoursShort + minutesShortText
+                    + secondsShortText + countdownDestinationShort;
+                countdownText = ngettext(
+                "%(countdown_hours)sleft to the %(countdown_destination)s.",
+                "%(countdown_hours)sleft to the %(countdown_destination)s.",
+                hours).fmt({
+                    countdown_hours: countdownHours,
+                    countdown_destination: countdownDestination
+                });
+            } else if (minutes > 0) {
+                const countdownMinutes = minutesText + secondsText;
+                countdownShort = minutesShortText + secondsShortText
+                    + countdownDestinationShort;
+                countdownText = ngettext(
+                "%(countdown_minutes)sleft to the %(countdown_destination)s.",
+                "%(countdown_minutes)sleft to the %(countdown_destination)s.",
+                minutes).fmt({
+                    countdown_minutes: countdownMinutes,
+                    countdown_destination: countdownDestination
+                });
+            } else if (seconds >= 0) {
+                const countdownSeconds = secondsText;
+                countdownShort = secondsShortText + countdownDestinationShort;
+                countdownText = ngettext(
+                "%(countdown_seconds)sleft to the %(countdown_destination)s.",
+                "%(countdown_seconds)sleft to the %(countdown_destination)s.",
+                seconds).fmt({
+                    countdown_seconds: countdownSeconds,
+                    countdown_destination: countdownDestination
+                });
+            } else if (roundDuration) {
+                countdownText = gettext("The round is over!");
+                countdownType = CountdownType.PROGRESS;
+                countdownShort = countdownText;
+            } else {
+                countdownText = gettext("The round has started!");
+                countdownType = CountdownType.TEXT;
+                countdownShort = countdownText;
+            }
+        }
+
+        return {
+            countdownType: countdownType,
+            countdownText: countdownText,
+            countdownShort: countdownShort
+        };
+    }
+
+    /* Initialize event listeners */
+
+    setAdminClockClickListener();
+
+    $(window).one('initialStatus', function(event, data) {
+        isTimeAdmin = data.is_time_admin;
+        synchronizeTime(data);
+        update();
         startClock();
-        if (is_time_admin) {
+
+        if (isTimeAdmin) {
             synchronizeAdminTime(data);
         }
     });
 
-    $(window).on('updateStatus', function(ev, data){
-        if (!('time' in data))
-            return;
+    $(window).on('updateStatus', function(event, data) {
+         if ('time' in data) {
+            synchronizeTime(data);
 
-        synchronizeTimeWithServer(data);
-        if (is_time_admin) {
-            synchronizeAdminTime(data);
+            if (isTimeAdmin) {
+                synchronizeAdminTime(data);
+            }
         }
     });
 });

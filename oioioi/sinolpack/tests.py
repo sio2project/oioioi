@@ -390,7 +390,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
                 follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add_or_update.html',
+        self.assertIn('problems/add-or-update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)
@@ -426,7 +426,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add_or_update.html',
+        self.assertIn('problems/add-or-update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         response = self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)
@@ -555,7 +555,7 @@ class TestLimits(TestCase):
         url = response.redirect_chain[-1][0]
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('problems/add_or_update.html',
+        self.assertIn('problems/add-or-update.html',
                 [getattr(t, 'name', None) for t in response.templates])
         return self.client.post(url,
                 {'package_file': open(filename, 'rb')}, follow=True)

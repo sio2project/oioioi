@@ -1,0 +1,132 @@
+@import "scss/utility";
+
+$timeline-side-color: #006dcc !default;
+$timeline-datechanged-bg-color: #f9ffd0 !default;
+
+$timeline-border-width: $padding-small-horizontal !default;
+$timeline-left-offset: 30px !default;
+$timeline-full-left-offset: $timeline-left-offset + 2 * $timeline-border-width !default;
+
+$timeline-round-bar-color: $gray-lighter !default;
+$timeline-round-bar-width: 28px !default;
+$timeline-round-bar-gutter: 2px !default;
+$timeline-round-bar-full-width: $timeline-round-bar-width + $timeline-round-bar-gutter !default;
+$timeline-round-bar-offset: 1px !default;
+
+$timeline-input-height: 34px !default;
+$timeline-input-left-margin: 8px !default;
+
+$timeline-now-line-color: #9ecfff !default;
+$timeline-connector-color: $gray-light !default;
+$timeline-connector-event-color: $brand-danger !default;
+$timeline-connector-width: 2px !default;
+
+$timeline-group-delete-btn-margin: 8px !default;
+
+.oioioi-timeline {
+  border-left: $timeline-border-width solid $timeline-side-color;
+  border-radius: $timeline-border-width;
+  position: relative;
+  user-select: none;
+
+  &__now-bar {
+    border-bottom: $border-radius-small dotted $timeline-now-line-color;
+    left: -$timeline-full-left-offset;
+    position: absolute;
+  }
+
+  &__separator {
+    border-bottom: 1px solid $gray-lighter;
+    left: -$timeline-full-left-offset;
+    position: absolute;
+    width: 100%;
+  }
+
+  &__datebox {
+    border-radius: $border-radius-base;
+    cursor: default;
+    height: $timeline-input-height;
+    position: absolute;
+  }
+
+  &__calendar-icon {
+    width: auto;
+  }
+
+  &__date-input {
+    width: auto;
+
+    &--date-changed {
+      background-color: $timeline-datechanged-bg-color;
+    }
+  }
+
+  &__date-title {
+    line-height: $timeline-input-height;
+    margin-left: $timeline-input-left-margin;
+    white-space: nowrap;
+  }
+
+  &__group-delete-btn {
+    cursor: pointer;
+    margin-right: $timeline-group-delete-btn-margin;
+    margin-top: $timeline-group-delete-btn-margin;
+  }
+
+  &__datebox > &__group-delete-btn {
+    display: none;
+  }
+
+  &__datebox-group > &__group-delete-btn {
+    display: block;
+  }
+
+  &__round-group {
+    background: $timeline-round-bar-color;
+    cursor: pointer;
+    position: absolute;
+    width: $timeline-round-bar-full-width;
+
+    &--dim {
+      opacity: .1;
+    }
+  }
+
+  &__round-label {
+    left: -40px;
+    position: absolute;
+    top: -150px;
+    transform: rotate(-45deg);
+    width: 350px;
+  }
+
+  &__round-bar {
+    left: $timeline-round-bar-offset;
+    position: absolute;
+    width: $timeline-round-bar-width;
+  }
+
+  &__connector {
+    background: $timeline-connector-color;
+    cursor: default;
+    height: $timeline-connector-width;
+    position: absolute;
+    width: $timeline-connector-width;
+    z-index: 2;
+  }
+
+  &__connector--event {
+    background: $timeline-connector-event-color;
+    height: $timeline-connector-width * 2;
+    width: $timeline-round-bar-full-width;
+    z-index: 3;
+  }
+
+  &__wrapper {
+    padding-left: $timeline-border-width + $timeline-left-offset;
+  }
+}
+
+.bootstrap-datetimepicker-widget {
+  color: $text-color;
+}

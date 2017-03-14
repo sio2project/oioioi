@@ -3,72 +3,32 @@
 
 {% block title %}{{ current_node.full_name }}{% endblock %}
 
-{% block styles %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_URL }}common/widgets.css">
-{% endblock %}
-
 {% block menu %}
-    <ul class="nav nav-list portal-menu-high portal-menu-path">
-        {% if current_node.is_root_node and current_node.is_leaf_node %}
-            <li class="active">
-                <a href="{% portal_url node=current_node %}">{{ current_node.full_name }}</a>
-            </li>
-        {% else %}
-            {% for node in current_node.get_ancestors_including_self %}
-                {% if not node.is_leaf_node %}
-                <li class="{% if node == current_node %}active{% endif %} {% if node.get_siblings %}dropdown{% endif %}">
-                    <a href="{% portal_url node=node %}"{% if node.get_siblings %} class="dropdown-toggle"{% endif %}>
-                        <i class="icon-chevron-down"></i>{{ node.full_name }}
-                    </a>
-                    {% if node.get_siblings %}
-                        <ul class="dropdown-menu portal-menu-high portal-menu-siblings">
-                            {% for sibling in node.get_siblings_including_self %}
-                                <li><a href="{% portal_url node=sibling %}">{{ sibling.full_name }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </li>
-                {% endif %}
-            {% endfor %}
-            <li class="portal-menu-low">
-                <ul class="nav nav-list">
-                    {% if not current_node.is_leaf_node %}
-                        {% for node in current_node.get_children %}
-                            <li><a href="{% portal_url node=node %}">{{ node.full_name }}</a></li>
-                        {% endfor %}
-                    {% else %}
-                        {% for node in current_node.get_siblings_including_self %}
-                            <li{% if node == current_node %} class="active"{% endif %}><a href="{% portal_url node=node %}">{{ node.full_name }}</a></li>
-                        {% endfor %}
-                    {% endif %}
-                </ul>
-            </li>
-        {% endif %}
-    </ul>
+    {% include "portals/menu.html" %}
 {% endblock %}
 
-{% block content %}
+{% block navbar-menu %}
+    {% include "portals/navbar-menu.html" %}
+{% endblock %}
+
+{% block main-content %}
     {% generate_menu portal_admin_menu %}
     {% if menu %}
-        <ul class="nav nav-pills pull-right portal-admin-menu">
+        <ul class="nav nav-tabs nav-margin">
             {% for item in menu %}
                 {{ item.name }}
                 <li{% if item.url == request.get_full_path %} class="active"{% endif %}>
                     <a href="{{ item.url }}" {{ item.attrs }}>
                         {% if item.icon %}
-                            <i class="icon-{{ item.icon }}"></i>
+                            <span class="glyphicon glyphicon-{{ item.icon }}"></span>
                         {% endif %}
                         {{ item.text }}
                     </a>
                 </li>
             {% endfor %}
         </ul>
-        <div class="clearfix"></div>
-        <hr class="divider">
     {% endif %}
-    <div>
-        {% block panel %}
-        {% endblock %}
-    </div>
+    <section>
+        {% block panel %}{% endblock %}
+    </section>
 {% endblock %}

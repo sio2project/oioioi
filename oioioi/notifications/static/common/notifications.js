@@ -1,4 +1,4 @@
-var notificationsClient;
+let notificationsClient; // jshint ignore:line
 
 function NotificationsClient(serverUrl, sessionId) {
     this.NUMBER_BADGE_ID = "#notifications_number";
@@ -14,10 +14,10 @@ function NotificationsClient(serverUrl, sessionId) {
     this.DEBUG = true;
     this.NOTIF_SERVER_URL = serverUrl;
     this.NOTIF_SESSION = sessionId;
-    this.CONTENT_ENTRY = '<tr><td class="%(notclass)s"><a href="%(address)s" ' + '' +
-        'id="notif_msg_%(id)s">...</a><br/>' +
+    this.CONTENT_ENTRY = '<li class="%(notclass)s"><a href="%(address)s" ' +
+        'id="notif_msg_%(id)s">...' +
         '<span class="notification-details">%(details)s</span>' +
-        '</td><td class="notification-time">%(time)s</td></tr>';
+        '<time class="notification-time">%(time)s</time></a></li>';
     this.socket = undefined;
     this.notifCount = 0;
     this.unconfirmedMessages = [];
@@ -26,8 +26,7 @@ function NotificationsClient(serverUrl, sessionId) {
     this.translationQueue = {};
     this.renderSuspended = false;
 
-    if (typeof(io) === 'undefined')
-    {
+    if (typeof(io) === 'undefined') {
         this.setErrorState();
         return;
     }
@@ -55,7 +54,7 @@ NotificationsClient.prototype.notifWatchdog = function() {
 };
 
 NotificationsClient.prototype.clearNumberBadgeClasses = function() {
-    this.NUMBER_BADGE.removeClass("label-primary");
+    this.NUMBER_BADGE.removeClass("label-default");
     this.NUMBER_BADGE.removeClass("label-success");
     this.NUMBER_BADGE.removeClass("label-warning");
 };
@@ -81,35 +80,35 @@ NotificationsClient.prototype.resolveMessageText =
         if (!this.translationQueue[originalText]) {
             this.translationQueue[originalText] = [];
 
-            var dispatchCallbacks = (function(text, cacheTranslation) {
+            const dispatchCallbacks = (function(text, cacheTranslation) {
                 if (cacheTranslation)
                     this.translationCache[originalText] = text;
-                var queue = this.translationQueue[originalText];
-                for (var i = 0; i < queue.length; i++)
+                const queue = this.translationQueue[originalText];
+                for (let i = 0; i < queue.length; i++)
                     queue[i]();
                 delete this.translationQueue[originalText];
             }).bind(this);
 
             $.get('/translate/', {query: originalText}, 'json')
                 .success(function (data) {
-                    var text = interpolate(data.answer, args, true);
+                    const text = interpolate(data.answer, args, true);
                     dispatchCallbacks(text, true);
                 })
                 .fail(function (err) {
                     console.warn('Translation failed!' + err);
-                    var text = interpolate(originalText, args, true);
+                    const text = interpolate(originalText, args, true);
                     dispatchCallbacks(text, false);
                 });
         }
         // Every query that had a cache miss adds itself to the queue
-        var callback = this.setTranslatedText.bind(this, messageId,
+        const callback = this.setTranslatedText.bind(this, messageId,
                                                    originalText);
         this.translationQueue[originalText].push(callback);
     };
 
 NotificationsClient.prototype.authenticate = function() {
-    var me = this;
-    var sid = this.NOTIF_SESSION;
+    let me = this;
+    const sid = this.NOTIF_SESSION;
     this.socket.emits("authenticate", {session_id: sid});
     this.socket.on("authenticate", function(result)
     {
@@ -127,24 +126,24 @@ NotificationsClient.prototype.authenticate = function() {
 NotificationsClient.prototype.updateNotifCount = function() {
     this.NUMBER_BADGE.text(this.notifCount);
     this.clearNumberBadgeClasses();
-    this.NUMBER_BADGE.addClass(this.notifCount > 0 ? "label-success" : "label-primary");
+    this.NUMBER_BADGE.addClass(this.notifCount > 0 ? "label-success"
+        : "label-default");
 };
 
 NotificationsClient.prototype.renderMessages = function() {
     if (this.renderSuspended)
         return;
-    var msgs = this.messages;
-    var content = '<colgroup><col/><col width="100px"/></colgroup>';
-    var wereMessages;
-    var msgsSorted = Object.keys(this.messages)
+    const msgs = this.messages;
+    let content = '';
+    let wereMessages;
+    let msgsSorted = Object.keys(this.messages)
          .sort(function(a,b) {
             return Number(msgs[b].date) - Number(msgs[a].date);
         });
 
-    for (var msgKeyId in msgsSorted) {
-        var msgKey = msgsSorted[msgKeyId];
+    for (let msgKey of msgsSorted) {
         wereMessages = true;
-        var msg = this.messages[msgKey];
+        const msg = this.messages[msgKey];
         content += interpolate(this.CONTENT_ENTRY,
             {
                 address: msg.address || '#',
@@ -156,21 +155,22 @@ NotificationsClient.prototype.renderMessages = function() {
 
     }
 
-    this.NO_NOTIFICATIONS.toggle(!wereMessages);
     this.TABLE_NOTIFICATIONS.html(content);
-    for (var msgKeyId in msgsSorted) {
-        var msgKey = msgsSorted[msgKeyId];
+    for (let msgKey of msgsSorted) {
         this.resolveMessageText(msgKey,
             this.messages[msgKey].message,
             this.messages[msgKey].arguments);
     }
+    if (!wereMessages) {
+        this.TABLE_NOTIFICATIONS.append(this.NO_NOTIFICATIONS);
+    }
 };
 
 function notifs_getDateTimeOf(timeOfMsg) {
-    var t = function(time) { return time < 10 ? "0" + time : time; };
-    var dateOfMsg = new Date(timeOfMsg);
-    var now = new Date();
-    if (false || Date.now() - timeOfMsg < 24 * 60 * 60 * 1000) {
+    const t = function(time) { return time < 10 ? "0" + time : time; };
+    const dateOfMsg = new Date(timeOfMsg);
+
+    if (Date.now() - timeOfMsg < 24 * 60 * 60 * 1000) {
         return interpolate("%s:%s", [t(dateOfMsg.getHours()), t(dateOfMsg.getMinutes())]);
     }
     else {
@@ -229,31 +229,30 @@ function MessageManager(notificationsClient) {
 }
 
 MessageManager.prototype.cleanCache = function() {
-    var dateHourAgo = Date.now() - 60 * 60 * 1000;
-    var keys = $.localStorage.keys();
-    for (var keyId in keys) {
-        var key = keys[keyId];
-        var keyInfo = key.split('_');
-        if (keyInfo[0] != "notif")
+    const dateHourAgo = Date.now() - 60 * 60 * 1000;
+    const keys = $.localStorage.keys();
+    for (let key of keys) {
+        let keyInfo = key.split('_');
+        if (keyInfo[0] !== "notif")
             continue;
         if (Number(keyInfo[1]) < dateHourAgo)
             $.localStorage.remove(key);
     }
-}
+};
 
 MessageManager.prototype.onMessageReceived = function(message) {
     this.client.onMessageReceived(message);
-}
+};
 
 MessageManager.prototype.notifyClientOfOfflineMessages = function() {
     this.cleanCache();
     this.client.renderSuspended = true;
-    var keys = $.localStorage.keys().filter(function(k) {
+    const keys = $.localStorage.keys().filter(function(k) {
         return k.indexOf("notif") === 0;
     });
-    for (var keyId in keys) {
-        this.client.onMessageReceived($.localStorage.get(keys[keyId]), true);
+    for (let key of keys) {
+        this.client.onMessageReceived($.localStorage.get(key), true);
     }
     this.client.renderSuspended = false;
     this.client.renderMessages();
-}
+};

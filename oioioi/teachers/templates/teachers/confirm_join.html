@@ -19,8 +19,8 @@
 {% block buttons %}
     {% if is_teacher_registration %}
         <button type="submit" class="btn btn-primary" name="register_as" value="teacher">{% trans "Register as a teacher" %}</button>
-        <button type="submit" class="btn" name="register_as" value="pupil">{% trans "Register as a pupil" %}</button>
+        <button type="submit" class="btn btn-default" name="register_as" value="pupil">{% trans "Register as a pupil" %}</button>
     {% else %}
-        <button type="submit" class="btn btn-primary btn-block btn-large" name="register_as" value="pupil">{% trans "Register!" %}</button>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" name="register_as" value="pupil">{% trans "Register!" %}</button>
     {% endif %}
 {% endblock %}

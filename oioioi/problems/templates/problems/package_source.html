@@ -1,8 +1,0 @@
-{% load i18n %}
-<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
-    {% csrf_token %}
-    {% include "ingredients/form.html" %}
-    <div class="form-actions">
-        <input type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
-    </div>
-</form>

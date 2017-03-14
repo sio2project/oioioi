@@ -1,0 +1,53 @@
+{% load i18n %}
+
+{% if contests %}
+    <div class="text-center">
+        <p>
+            <a role="button" href="{% url 'default_contest_view' contest_id=default_contest.id %}" class="btn btn-primary btn-lg">
+                {% trans "Proceed to the default contest:" %}<br>
+                <small>{{ default_contest.name }}</small>
+            </a>
+        </p>
+        {% if contests|length > 1 or contests.0 != contest %}
+            <p>{% trans "Or select one of the following:" %}</p>
+            <ul class="list-unstyled">
+                {% for c in contests %}
+                {% if c != default_contest %}
+                <li><a href="{% url 'default_contest_view' contest_id=c.id %}">{{ c.name }}</a></li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if is_teacher %}
+            <a role="button" href="{% url 'oioioiadmin:contests_contest_add' %}" class="btn btn-default">
+                {% trans "Create a new contest" %}
+            </a>
+        {% endif %}
+        {% if more_contests %}
+            <a role="button" href="{% url 'select_contest' %}" class="btn btn-default">
+                {% trans "Show all contests" %}
+            </a>
+        {% endif %}
+    </div>
+{% else %}
+    {% if is_teacher %}
+        <p>{% trans "You have teacher's access." %}</p>
+        <p>
+            <a role="button" href="{% url 'oioioiadmin:contests_contest_add' %}" class="btn btn-primary btn-lg">
+                {% trans "Create a new contest" %}
+            </a>
+        </p>
+    {% else %}
+        <p>{% trans "There are no contests you could take part in." %}</p>
+        {% if is_inactive_teacher %}
+            <p>{% trans "Your request for teacher's access awaits administrators approval." %}</p>
+        {% else %}
+            <p>{% trans "Ask your teacher for a registration link" %}</p>
+            {% url 'add_teacher' as add_teacher_url %}
+            {% blocktrans %}
+                <h5>Are you a teacher?</h5>
+                <a href="{{ add_teacher_url }}">Ask</a> administrators for teacher's access.
+            {% endblocktrans %}
+        {% endif %}
+    {% endif %}
+{% endif %}

@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load check_perm %}
+
+<p class="forum-hidden-notice">
+    {% trans "This post was hidden by the contest administrator" %}
+    {% if is_admin %}
+        <a href="#" data-post-url="{% url 'forum_post_show' contest_id=contest.id category_id=category.id thread_id=thread.id post_id=post.id %}">
+            <span class="glyphicon glyphicon-ok"></span> {% trans "unhide" %}
+        </a>
+        |
+        <a href="#forum-anchor-{{ post.id }}" data-toggle="collapse" data-target="#forum-post-{{ post.id }} > .panel-body">
+            <span class="glyphicon glyphicon-resize-full"></span> {% trans "expand" %}
+        </a>
+    {% endif %}
+</p>

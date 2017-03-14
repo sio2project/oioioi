@@ -3,11 +3,15 @@
 {% load i18n %}
 
 {% block content %}
-<div class="empty-space-filler">
-    <p>{% trans "500 &mdash; Holy guacamole, internal server error!" %}</p>
+    <div class="text-center">
+        <p>{% trans "500 &mdash; Holy guacamole, internal server error!" %}</p>
+    </div>
+
     {% if user.is_superuser %}
-    <pre id="traceback500" class="scroll-x">{{ traceback }}</pre>
+        <pre id="traceback500" class="scroll-x">{{ traceback }}</pre>
     {% endif %}
-    <p><small>{% trans "A report has been emailed to the admins. They will love it." %}</small></p>
-</div>
+
+    <div class="text-center">
+        <p><small>{% trans "A report has been emailed to the admins. They will love it." %}</small></p>
+    </div>
 {% endblock %}

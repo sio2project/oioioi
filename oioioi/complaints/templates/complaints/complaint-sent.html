@@ -1,0 +1,14 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Complaints" %}{% endblock %}
+
+{% block content %}
+<div class="alert alert-info">
+    {% blocktrans %}
+    <p>Your complaint has been sent. You should get it by e-mail shortly.</p>
+    <p>If in any case you reply to an e-mail related to the complaint,
+        <u>please keep <strong>{{ complaints_email }}</strong> in CC.</u></p>
+    {% endblocktrans %}
+</div>
+{% endblock %}

@@ -3,29 +3,37 @@
 
 {% block title %}{% trans "Attach problem" %}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 <h2>
     {% trans "Choose contest to attach problem" %} {{ problem_instance }}:
 </h2>
-<table class="table auto-width">
-    <thead>
-        <tr>
-            <th style="min-width: 100px">{% trans "Contest id" %}</th>
-            <th style="min-width: 300px">{% trans "Name" %}</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for contest in contest_list %}
-        <tr>
-            <td>{{ contest.id }}</td>
-            <td><a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
-                {{ contest.name }}
-            </a></td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+
+<div class="table-responsive row">
+    <div class="col-sm-6">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Contest id" %}</th>
+                    <th>{% trans "Name" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contest in contest_list %}
+                    <tr>
+                        <td>{{ contest.id }}</td>
+                        <td><a href="{% url 'reattach_problem_confirm' problem_instance.id contest.id %}">
+                            {{ contest.name }}
+                        </a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% if not full_list %}
-    <a href="{% url 'reattach_problem_contest_list' problem_instance.id 'full' %}">{% trans "More" %}</a>
+    <a class="btn btn-default"
+       href="{% url 'reattach_problem_contest_list' problem_instance.id 'full' %}">
+        {% trans "More" %}
+    </a>
 {% endif %}
 {% endblock %}

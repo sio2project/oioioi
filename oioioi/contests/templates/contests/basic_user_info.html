@@ -4,15 +4,22 @@
 {% check_perm 'contests.personal_data' for request.contest as can_see_personal_data %}
 {% check_perm 'contests.contest_admin' for request.contest as is_admin %}
 
-<h2>{{ target_user_name }}</h2>
-{% if is_admin %}
-<div class="corner-icons">
-    <a class="btn btn-small" href="{% url 'oioioiadmin:auth_user_change' target_user.id %}">
-        <span class="toolbar-button-text">{% trans "Edit user" %}</span>
-    </a>
+<div class="clearfix">
+    {% if is_admin %}
+        <div class="pull-right">
+            <a role="button"
+               class="btn btn-sm btn-default"
+               href="{% url 'oioioiadmin:auth_user_change' target_user.id %}">
+                <span class="glyphicon glyphicon-pencil"></span>
+                {% trans "Edit user" %}
+            </a>
+        </div>
+    {% endif %}
+    <h1 class="pull-left">{{ target_user_name }}</h1>
 </div>
-{% endif %}
 <p>{% trans "Username" %}: <strong>{{ target_user.username }}</strong></p>
 <p>{% trans "User id" %}: <strong>{{ target_user.id }}</strong></p>
-{% if request.user.is_superuser or can_see_personal_data %}<p>{% trans "e-mail" %}: <strong>{{ target_user.email }}</strong></p>{% endif %}
+{% if request.user.is_superuser or can_see_personal_data %}
+    <p>{% trans "e-mail" %}: <strong>{{ target_user.email }}</strong></p>
+{% endif %}
 <hr>

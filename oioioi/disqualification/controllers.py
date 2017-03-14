@@ -107,7 +107,7 @@ class DisqualificationContestControllerMixin(object):
         template = 'disqualification/generic.html'
 
         if is_contest_admin(request):
-            template = 'disqualification/generic_admin.html'
+            template = 'disqualification/generic-admin.html'
 
         return render_to_string(template,
             context_instance=RequestContext(request, {
@@ -164,7 +164,7 @@ class DisqualificationContestControllerMixin(object):
         if not disqualified_submissions and not contestwide:
             return None
 
-        return render_to_string('disqualification/my_submissions.html',
+        return render_to_string('disqualification/my-submissions.html',
             context_instance=RequestContext(request, {
                 'submissions': disqualified_submissions,
                 'contestwide': contestwide,
@@ -216,7 +216,7 @@ class WithDisqualificationRankingControllerMixin(object):
 
         request = self._fake_request(page)
         data['is_admin'] = self.is_admin_key(key)
-        return render_to_string('disqualification/default_ranking.html',
+        return render_to_string('disqualification/default-ranking.html',
             context_instance=RequestContext(request, data))
 
     def _get_csv_header(self, key, data):

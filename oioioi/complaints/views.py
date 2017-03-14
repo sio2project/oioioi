@@ -67,10 +67,10 @@ def email_template_context(request, message):
 
 def notify_complainer(request, body, message_id, ref_id):
     context = email_template_context(request, body)
-    subject = render_to_string('complaints/email_subject.txt', context)
+    subject = render_to_string('complaints/email-subject.txt', context)
     subject = settings.COMPLAINTS_SUBJECT_PREFIX + \
             ' '.join(subject.strip().splitlines())
-    body = render_to_string('complaints/complainer_email.txt', context)
+    body = render_to_string('complaints/complainer-email.txt', context)
 
     message = EmailMessage(subject, body, settings.COMPLAINTS_EMAIL,
             (request.user.email,),
@@ -84,10 +84,10 @@ def notify_complainer(request, body, message_id, ref_id):
 
 def notify_jury(request, body, message_id, ref_id):
     context = email_template_context(request, body)
-    subject = render_to_string('complaints/email_subject.txt', context)
+    subject = render_to_string('complaints/email-subject.txt', context)
     subject = settings.COMPLAINTS_SUBJECT_PREFIX + \
             ' '.join(subject.strip().splitlines())
-    body = render_to_string('complaints/jury_email.txt', context)
+    body = render_to_string('complaints/jury-email.txt', context)
 
     message = EmailMessage(subject, body, settings.SERVER_EMAIL,
             (settings.COMPLAINTS_EMAIL,),
@@ -98,7 +98,7 @@ def notify_jury(request, body, message_id, ref_id):
 
 
 def complaint_sent(request):
-    return TemplateResponse(request, 'complaints/complaint_sent.html',
+    return TemplateResponse(request, 'complaints/complaint-sent.html',
         {'complaints_email': settings.COMPLAINTS_EMAIL})
 
 

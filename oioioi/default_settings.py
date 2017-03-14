@@ -163,8 +163,10 @@ WSGI_APPLICATION = 'wsgi.application'
 COMPRESS_ENABLED = True
 COMPRESS_PARSER = 'compressor.parser.BeautifulSoupParser'
 COMPRESS_PRECOMPILERS = (
-    ('text/less', 'django-staticfiles-lessc {infile} {outfile}'),
+    ('text/x-scss', 'django_libsass.SassCompiler'),
 )
+
+LIBSASS_PRECISION = 8
 
 INSTALLED_APPS = (
     'oioioi.filetracker',
@@ -204,6 +206,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',

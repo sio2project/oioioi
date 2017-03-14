@@ -10,15 +10,15 @@
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block content %}
+{% block main-content %}
 
 <h2>{{ title }}</h2>
-<form enctype="multipart/form-data" method="post" action="" class="form-horizontal">
+<form enctype="multipart/form-data" method="post">
     {% csrf_token %}
     <div id="alerts"></div>
-    {% include "ingredients/form.html" %}
-    <div class="form-actions">
-        <input id="submitter" type="submit" class="btn btn-primary" value="{% trans "Submit" %}">
-    </div>
+    {% include "ingredients/form.html" with inline=True %}
+    <button type="submit" class="btn btn-primary">
+        {% trans "Submit" %}
+    </button>
 </form>
 {% endblock %}

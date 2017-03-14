@@ -3,21 +3,27 @@
 {% block body-class %}body-with-menu{% endblock %}
 {% block container-class %}container-fluid{% endblock %}
 
-{% block body %}
-<div class="{% block row-class %}row-fluid{% endblock %} top-row">
-    <div id="menu_div" class="span3 hidden-print">
-        {% block menu %}
-        {% include "ingredients/menu.html" %}
-        {% endblock %}
-    </div>
-    <div class="{% block main_content_style %}span9{% endblock %} span-fixed-sidebar main-content">
-        {% include "ingredients/flash.html" %}
-        {% block content %}
-        {% endblock %}
-    </div>
+{% block navbar-menu %}
+<a class="oioioi-navbar__brand" href="{% url 'index' contest_id=None %}">{{ site_name }}</a>
+
+<div class="oioioi-navbar__menu dropdown">
+    {% include "ingredients/navbar-menu.html" %}
 </div>
 {% endblock %}
 
-{% block footer %}
-{% include "ingredients/footer_sidebar.html" %}
+{% block body %}
+<div class="{% block row-class %}row{% endblock %}">
+    <nav id="menu" class="col-md-3 col-lg-2 hidden-sm hidden-xs">
+        {% block menu %}
+            {% include "ingredients/menu.html" %}
+        {% endblock %}
+    </nav>
+
+    <section class="{% block main-content-style %}col-md-9 col-lg-10{% endblock %} main-content">
+        {% block flash %}
+            {% include "ingredients/flash.html" %}
+        {% endblock %}
+        {% block main-content %}{% endblock %}
+    </section>
+</div>
 {% endblock %}

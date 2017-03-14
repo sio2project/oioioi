@@ -1,0 +1,42 @@
+@import "scss/utility";
+
+.oioioi-message {
+  &--has-replies &__body {
+    color: $gray-light;
+  }
+
+  &__actions {
+    padding-top: $padding-base-vertical;
+  }
+
+  &__info {
+    border-bottom: 1px solid $brand-info;
+    padding-bottom: $padding-base-vertical;
+    text-align: right;
+  }
+
+  &__timestamp {
+    font-style: italic;
+  }
+
+  &__label {
+    margin-left: $padding-large-vertical;
+  }
+
+  &__body {
+    font-family: $font-family-monospace;
+    white-space: pre-wrap;
+  }
+
+  &__action {
+    color: $text-color;
+  }
+
+  &--reply {
+    padding-left: $padding-large-horizontal;
+  }
+
+  &--reply &__info {
+    border-color: $brand-warning;
+  }
+}

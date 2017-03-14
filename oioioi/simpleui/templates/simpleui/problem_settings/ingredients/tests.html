@@ -1,6 +1,6 @@
-{% load i18n %}
+{% load i18n simple_filters %}
 
-<div class="table__wrapper">
+<div class="table-responsive">
   <table class="table">
       <thead>
           <tr>
@@ -28,14 +28,14 @@
                  </td>
                   <td class="test__time">
                       {{ test.time_limit.errors }}
-                      {{ test.time_limit }}
+                      {{ test.time_limit|add_class:"form-control" }}
                   </td>
                   <td class="test__memory">
                       {{ test.memory_limit.errors }}
-                      {{ test.memory_limit }}
+                      {{ test.memory_limit|add_class:"form-control" }}
                   </td>
                   <td class="test__points">
-                      {{ test.max_score }}
+                      {{ test.max_score|add_class:"form-control" }}
                   </td>
                   <td>
                       {{ test.kind.as_hidden }}

@@ -1,0 +1,57 @@
+{% load i18n %}
+
+<div>
+    <h4>{% trans "Score revealing" %}</h4>
+    <p>
+        {% blocktrans count counter=scores_reveals_limit %}
+            You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveal.
+        {% plural %}
+            You have already used <strong>{{ scores_reveals }}</strong> out of {{ counter }} reveals.
+        {% endblocktrans %}
+    </p>
+
+    {% if submission.submission.revealed %}
+        <p><strong>{% trans "Score" %}:</strong> {{ submission.submission.get_score_display }}</p>
+    {% else %}
+        {% if can_reveal %}
+            {% if scores_reveals_disable_time %}
+                <p>
+                    {% blocktrans count counter=scores_reveals_disable_time %}
+                        Scores reveal will be disabled during the last <strong>minute</strong> of the round.
+                    {% plural %}
+                        Scores reveal will be disabled during the last <strong>{{ counter }}</strong> minutes of the round.
+                    {% endblocktrans %}
+                </p>
+            {% endif %}
+
+            <p>
+                <a href="#reveal_confirmation" class="btn btn-default" role="button" data-toggle="modal">
+                    <span class="glyphicon glyphicon-align-left"></span> {% trans "Reveal score" %}
+                </a>
+            </p>
+            <div id="reveal_confirmation" class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">{% trans "Reveal score" %}</h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>{% blocktrans %}You are going to reveal your score. <br>Would you like to proceed?{% endblocktrans %}</p>
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{% url 'submission_score_reveal' submission_id=submission.submission.id contest_id=submission.submission.problem_instance.contest.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="button" class="btn btn-default" data-dismiss="modal">{% trans "No" %}</button>
+                                <button type="submit" class="btn btn-primary">{% trans "Yes" %}</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <p>{{ can_reveal_reason }}</p>
+        {% endif %}
+    {% endif %}
+
+</div>

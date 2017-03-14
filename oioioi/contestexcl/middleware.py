@@ -67,7 +67,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             activate_contest(request, None)
             auth.logout(request)
             return TemplateResponse(request,
-                    'contestexcl/exclusive_contests_error.html')
+                    'contestexcl/exclusive-contests-error.html')
         elif len(qs) == 1:
             contest = qs[0]
             if request.contest != contest:
@@ -117,13 +117,13 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
         context = self._error_email_context(request, contests)
         message = self._error_email_message(context)
         subject = render_to_string(
-                'contestexcl/exclusive_contests_error_subject.txt')
+                'contestexcl/exclusive-contests-error-subject.txt')
         subject = ' '.join(subject.strip().splitlines())
         mail_admins(subject, message)
 
     def _error_email_message(self, context):
         return render_to_string(
-            'contestexcl/exclusive_contests_error_email.txt',
+            'contestexcl/exclusive-contests-error-email.txt',
             context
         )
 

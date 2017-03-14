@@ -1,24 +1,18 @@
-{% load staticfiles %}
-{% load i18n %}
+{% load i18n staticfiles %}
 
-<link rel="stylesheet" type="text/css" href="{% static "notifications/notifications.css" %}">
 <script src="{{ notif_server_url }}socket.io/socket.io.js"></script>
-<script type="text/javascript" src="{% static "common/notifications.js" %}"></script>
 <script>
     $(document).ready(function() {
         notificationsClient = new NotificationsClient('{{ notif_server_url }}', '{{ notifications_session_id }}');
     });
 </script>
 
-<li id="notifications_panel" class="notifications dropdown">
+<a href="#" id="notifications_panel" class="notifications dropdown">
     <div data-toggle="dropdown" id="notifications_dropdown" class="dropdown-toggle">
-        <span class="label label-primary" id="notifications_number">...</span>
+        <span id="notifications_number" class="label label-default notifications-label">...</span>
+        <span class="glyphicon glyphicon-comment"></span>
     </div>
-    <ul class="dropdown-menu notifications-balloon">
-        <li>
-           <table id="balloon_table_notifications" class="table table-striped table-hover">
-           </table>
-           <p id="info_no_notifications">{% trans "You have no new notifications." %}</p>
-        </li>
+    <ul class="dropdown-menu pull-right" id="balloon_table_notifications">
+        <li id="info_no_notifications" class="dropdown-header">{% trans "You have no new notifications." %}</li>
     </ul>
-</li>
+</a>

@@ -1,0 +1,35 @@
+@import "scss/style";
+
+$grapelli-table-cell-margin: 10px !default;
+
+.test-actions {
+  visibility: hidden;
+}
+
+.test-actions-toggler:hover {
+  .test-actions {
+    visibility: visible;
+  }
+}
+
+.table-report {
+  // In table-report with table-responsive firefox makes new line for
+  // test-actions used with pull-right on sm display.
+  // This is a workaround for this.
+  .fix-pull-right {
+    white-space: normal !important;
+  }
+  .group-score {
+    vertical-align: middle;
+  }
+}
+
+.force-text-right {
+  text-align: right !important;
+}
+
+.submission-admin {
+  display: block;
+  padding: $grapelli-table-cell-margin !important;
+  margin: -$grapelli-table-cell-margin !important;
+}

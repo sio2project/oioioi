@@ -1,0 +1,31 @@
+{% load i18n %}
+{% load check_perm %}
+
+{% with ctx.user as user %}
+
+{% check_perm 'contests.contest_admin' for ctx.contest as is_admin %}
+{% check_perm 'contests.personal_data' for ctx.contest as can_see_personal_data %}
+
+{% if ctx.contest %}
+    {% if is_admin or can_see_personal_data %}
+        <li class="divider" role="separator"></li>
+        <li class="navbar-form">
+            <form action="{% url 'user_info_redirect' contest_id=ctx.contest.id %}"
+                  method="post"
+                  id="user_info_dropdown_form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="user-info">{% trans "Username" %}</label>
+                    <input type="text" name="user" id="user-info" class="form-control"
+                           placeholder="{% trans 'Show info about...' %}"
+                           data-hints-url="{% url 'contest_user_hints' contest_id=ctx.contest.id %}"
+                           autocomplete="off">
+                </div>
+                <button type="submit" class="btn btn-block btn-default">{% trans "Show user info" %}</button>
+                <script>init_user_selection("user-info", {{ num_hints }})</script>
+            </form>
+        </li>
+    {% endif %}
+{% endif %}
+
+{% endwith %}

@@ -1,0 +1,90 @@
+@import "scss/utility";
+
+$submission-blue: #bbbbff !default;
+$submission-blue-gradient-to: #ccccff !default;
+$submission-green: #bbeebb !default;
+$submission-green-gradient-to: #ccffcc !default;
+$submission-red: #ffbbbb !default;
+$submission-red-gradient-to: #ffcccc !default;
+$submission-yellow: #ffd894 !default;
+$submission-yellow-gradient-to: #ffe9a5 !default;
+$submission-grey: #e0eee0 !default;
+$submission-grey-gradient-to: #eeeeee !default;
+$submission-OK0: #ffffbb !default;
+$submission-OK0-gradient-to: #d0ffd0 !default;
+$submission-OK25: #eeffbb !default;
+$submission-OK25-gradient-to: #c0ffc0 !default;
+$submission-OK50: #ddffbb !default;
+$submission-OK50-gradient-to: #b8ffb8 !default;
+$submission-OK75: #ccffbb !default;
+$submission-OK75-gradient-to: #dfffdf !default;
+$submission-OK100: #bbeebb !default;
+$submission-OK100-gradient-to: #eeffee !default;
+
+$submission-margin-min-width: 20px !default;
+
+@mixin submission($color, $color-gradient-to) {
+  background: $color;
+
+  &.submission__margin {
+    @include gradient-horizontal($color, $color-gradient-to);
+  }
+
+  &.submission__status {
+    background: lighten($color, 5%);
+  }
+}
+
+.submission {
+  &__margin {
+    min-width: $submission-margin-min-width;
+    padding: 0;
+  }
+
+  &--WA,
+  &--RE,
+  &--RV,
+  &--INI_ERR {
+    @include submission($submission-red, $submission-red-gradient-to);
+  }
+
+  &--CE,
+  &--MLE,
+  &--TLE,
+  &--OLE {
+    @include submission($submission-yellow, $submission-yellow-gradient-to);
+  }
+
+  &--SE {
+    @include submission($submission-blue, $submission-blue-gradient-to);
+  }
+
+  &--IGN {
+    @include submission($submission-grey, $submission-grey-gradient-to);
+  }
+
+  &--OK,
+  &--INI_OK {
+    @include submission($submission-green, $submission-green-gradient-to);
+  }
+
+  &--OK0 {
+    @include submission($submission-OK0, $submission-OK0-gradient-to);
+  }
+
+  &--OK25 {
+    @include submission($submission-OK25, $submission-OK25-gradient-to);
+  }
+
+  &--OK50 {
+    @include submission($submission-OK50, $submission-OK50-gradient-to);
+  }
+
+  &--OK75 {
+    @include submission($submission-OK75, $submission-OK75-gradient-to);
+  }
+
+  &--OK100 {
+    @include submission($submission-OK100, $submission-OK100-gradient-to);
+  }
+}

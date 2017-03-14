@@ -1,8 +1,0 @@
-{% load i18n %}
-<div class="hero-unit">
-    {% url 'participants_register' contest_id=contest.id as reg_url %}
-    {% blocktrans %}
-        <strong>Heads up!</strong> In order to be able to send solutions fill the
-         <a style='text-decoration:underline' href="{{ reg_url }}">contest registration form</a>.
-    {% endblocktrans %}
-</div>

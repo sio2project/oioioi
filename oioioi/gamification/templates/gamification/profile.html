@@ -8,14 +8,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}gamification/js/profile.js"></script>
 {% endblock %}
 
-{% block styles %}
-{{ block.super }}
-{% compress css %}
-<link charset="utf-8" rel="stylesheet" type="text/less" href="{{ STATIC_URL }}gamification/less/profile.less">
-{% endcompress %}
-{% endblock %}
-
-{% block content %}
+{% block main-content %}
 <div id="user-info-top">
     <div id="experience-widget">
         {% experience_widget_big shown_user %}

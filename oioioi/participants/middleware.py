@@ -49,7 +49,7 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
 
     def _error_email_message(self, context):
         return render_to_string(
-            'participants/exclusive_contests_error_email.txt',
+            'participants/exclusive-contests-error-email.txt',
             context
         )
 ExclusiveContestsMiddleware \

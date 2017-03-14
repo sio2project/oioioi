@@ -1,0 +1,39 @@
+$oioioi-table-narrow-max-width: $screen-sm-min !default;
+
+.table--borderless > tbody > tr > td,
+.table--borderless > tbody > tr > th,
+.table--borderless > tfoot > tr > td,
+.table--borderless > tfoot > tr > th,
+.table--borderless > thead > tr > td,
+.table--borderless > thead > tr > th {
+    border: none;
+}
+
+.table--auto-width {
+  width: auto;
+}
+
+.table--narrow {
+  max-width: $oioioi-table-narrow-max-width;
+}
+
+@media screen and (max-width: $screen-sm-min) {
+  .table--narrow {
+    max-width: none;
+  }
+}
+
+.table-responsive thead th {
+  white-space: nowrap;
+}
+
+// By default bootstrap's text-center centers only td.
+.table--center {
+  td, th {
+    text-align: center;
+  }
+}
+
+.well .table {
+  margin-bottom: 0;
+}

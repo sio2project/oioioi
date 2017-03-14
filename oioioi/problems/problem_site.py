@@ -61,7 +61,7 @@ def problem_site_statement(request, problem):
     statement = query_statement(problem.id)
     if not statement:
         statement_html = render_to_string(
-                'problems/no_problem_statement.html',
+                'problems/no-problem-statement.html',
                 {'problem': problem})
     elif statement.extension == '.zip':
         response = problem_site_statement_zip_view(request,
@@ -71,7 +71,7 @@ def problem_site_statement(request, problem):
         statement_url = reverse('problem_site_external_statement',
                 kwargs={'site_key': problem.problemsite.url_key})
         statement_html = render_to_string(
-                'problems/external_statement.html',
+                'problems/external-statement.html',
                 {'problem': problem, 'statement_url': statement_url})
 
     return statement_html
@@ -136,5 +136,5 @@ def problem_site_submit(request, problem):
 
 @problem_site_tab(_("Secret key"), key='secret_key', order=500)
 def problem_site_secret_key(request, problem):
-    return TemplateResponse(request, 'problems/secret_key.html',
+    return TemplateResponse(request, 'problems/secret-key.html',
         {'site_key': problem.problemsite.url_key})

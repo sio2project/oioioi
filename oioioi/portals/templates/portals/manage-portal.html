@@ -57,16 +57,6 @@
     </script>
 {% endblock %}
 
-{% block styles %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{{ STATIC_URL }}portals/jqtree.css">
-    <style type="text/css">
-        .jqtree-element {
-            display: inline-block;
-        }
-    </style>
-{% endblock %}
-
 {% block content %}
     <h2>{% trans "Manage portal" %}</h2>
     <p>{% trans "Drag and drop nodes to reorganize the portal structure." %}</p>
@@ -74,6 +64,9 @@
     </div>
     <hr class="divider">
     <div class="pull-right">
-        <a href="{% portal_url portal=portal action='delete_portal' %}" class="btn btn-danger">{% trans "Delete portal" %}</a>
+        <a role="button" href="{% portal_url portal=portal action='delete_portal' %}" class="btn btn-danger">
+            {% trans "Delete portal" %}
+        </a>
     </div>
+    <link rel="stylesheet" href="{{ STATIC_URL }}portals/jqtree.css">
 {% endblock %}

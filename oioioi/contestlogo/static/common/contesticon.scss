@@ -1,0 +1,9 @@
+@import "scss/utility";
+
+$oioioi-contesticon-max-width: 32px !default;
+$oioioi-contesticon-margin-right: 10px !default;
+
+.contesticon img {
+  max-width: $oioioi-contesticon-max-width;
+  margin-right: $oioioi-contesticon-margin-right;
+}

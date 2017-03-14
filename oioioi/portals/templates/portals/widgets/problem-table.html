@@ -1,0 +1,22 @@
+{% load i18n %}
+
+<table class="table table-condensed table--auto-width table--borderless">
+    <thead>
+        <tr>
+            <th>{{ header }}</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for problem in problems %}
+        <tr>
+            <td><a href="{{ problem.url }}">{{ problem.name }}</a></td>
+            <td>
+                {% if problem.score_exists %}
+                    <a class="label label-default" href="{{ problem.submission_url }}">{{ problem.score }}</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<table class="table content-box" id="attachment_table">
+<table class="table" id="attachment_table">
     <thead>
         <tr>
             <th>{% trans "File" %}</th>
@@ -44,10 +44,10 @@
         {% endfor %}
         <tr id="new_attachment_row">
             <td>
-                <input type="file" id="new_attachment_file" />
+                <input type="file" class="form-control" id="new_attachment_file" />
             </td>
             <td>
-                <input type="text" id="new_attachment_description" />
+                <input type="text" class="form-control" id="new_attachment_description" />
             </td>
             <td>
                 <button type="button" class="btn btn-primary create_attachment">{% trans "Add" %}</button>

@@ -286,7 +286,7 @@ def contest_files_view(request):
     add_category_field = round_file_exists or problem_files.exists()
     rows = [{
         'category': cf.round if cf.round else '',
-        'name': cf.filename,
+        'name': cf.download_name,
         'description': cf.description,
         'link': reverse('contest_attachment',
             kwargs={'contest_id': request.contest.id, 'attachment_id': cf.id}),
@@ -294,7 +294,7 @@ def contest_files_view(request):
         } for cf in contest_files]
     rows += [{
         'category': pf.problem,
-        'name': pf.filename,
+        'name': pf.download_name,
         'description': pf.description,
         'link': reverse('problem_attachment',
             kwargs={'contest_id': request.contest.id, 'attachment_id': pf.id}),

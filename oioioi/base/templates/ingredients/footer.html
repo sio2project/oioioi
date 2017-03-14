@@ -1,4 +1,10 @@
-{% load i18n %}
-{% blocktrans %}
-<p>Powered by <a href="https://www.github.com/sio2project/oioioi">OIOIOI</a>, from the <a href="http://sio2project.mimuw.edu.pl">SIO2 Project</a>.</p>
-{% endblocktrans %}
+{% load i18n all_with_prefix %}
+<footer class="footer container-fluid">
+  <span class="text-muted">
+    {% blocktrans %}
+      Powered by <a href="https://www.github.com/sio2project/oioioi">OIOIOI</a>,
+      from the <a href="http://sio2project.mimuw.edu.pl">SIO2 Project</a>.
+    {% endblocktrans %}
+  </span>
+  {% all_with_prefix extra_footer_ %}
+</footer>

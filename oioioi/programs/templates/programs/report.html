@@ -1,116 +1,26 @@
 {% load i18n %}
 {% load runtimeformat %}
 
-{% if report.kind == 'INITIAL' %}
-<h4>{% trans "Initial testing report" %}</h4>
-{% elif report.kind == 'NORMAL' %}
-<h4>{% trans "Final testing report" %}</h4>
-{% elif report.kind == 'HIDDEN' %}
-<h4>{% trans "Hidden testing report" %}</h4>
-{% elif report.kind == 'FULL' %}
-<h4>{% trans "Full testing report" %}</h4>
-{% else %}
-<h4>{% trans "Report:" %} {{ report.kind }}</h4>
-{% endif %}
-
-{% if compilation_report.status != 'OK' %}
-<p>{% trans "Compilation failed." %}</p>
-<pre class="hscroll">
-{{ compilation_report.compiler_output }}
-</pre>
-{% else %}
-    <table class="table auto-width dense space-columns full-grid results">
-        <thead>
-            <tr>
-                <th></th>
-                <th class="subm_margin" style="min-width: 80px">{% trans "Test" %}</th>
-                <th style="min-width: 200px">{% trans "Result" %}</th>
-                <th style="min-width: 110px">{% trans "Time" %}</th>
-                {% if show_scores %}
-                <th style="min-width: 60px">{% trans "Score" %}</th>
-                {% endif %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for group in groups %}
-                {% for test in group.tests %}
-                <tr class="test_row_{{ group.report.id }}">
-                    <td class="subm_margin subm_{{ test.status }}"></td>
-                    <td>{{ test.test_name }}
-                        <div class="test_actions">
-                            {% if test.test %}
-                                {% if is_admin %}
-                                    <a title="{% trans "Download output for this test" %}" href="{% url 'download_output_file' test_id=test.test.id %}">out</a>
-                                    <a title="{% trans "Download input for this test" %}" href="{% url 'download_input_file' test_id=test.test.id %}">in</a><br>
-                                {% endif %}
-                                {% if allow_download_out and test.generate_status == 'OK' %}
-                                    <a title="{% trans "Download user output for this test" %}" href="{% url 'download_user_output' testreport_id=test.id %}">usr-out</a>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                    </td>
-                    <td class="subm_status subm_{{ test.status }}">{{ test.get_status_display }}</td>
-                    <td>{% if is_admin or test.status != 'TLE' %}{{ test.time_used|runtimeformat }}{% else %}-.--s{% endif %}/{{ test.test_time_limit|runtimeformat }}</td>
-                    {% if show_scores and forloop.first %}
-                        <td class="groupscore" rowspan="{{ group.tests|length }}">{% if group.report.score %}{{ group.report.score }}/{{ group.report.max_score }}{% endif %}</td>
-                    {% endif %}
-                </tr>
-                {% endfor %}
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <script type="text/javascript">
-        var test_rows = $("[class*='test_row_']");
-
-        test_rows.mouseenter(function() {
-            $(this).find('.test_actions').css('visibility', 'visible');
-        });
-
-        test_rows.mouseleave(function() {
-            $(this).find('.test_actions').css('visibility', 'hidden');
-        });
-    </script>
-
-<div class="test-comments">
-    <ul>
-        {% for group in groups %}
-            {% for test in group.tests %}
-                {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
-                <li>
-                    <span class="id">{{ test.test_name }}</span>
-                    {% if allow_download_out and test.test %}
-                        {% if test.generate_status == 'OK' %}
-                            <a class="id" href="{% url 'download_user_output' testreport_id=test.id %}" title="{% trans "Download user output for this test" %}">[download out]</a>
-                        {% elif test.generate_status == '?' %}
-                            <span class="id">[{% trans "processing" %}]</span>
-                        {% else %}
-                            <a class="id" href="#" data-post-url="{% url 'generate_user_output' testreport_id=test.id %}" title="{% trans "Generate user output for this test" %}">[generate out]</a>
-                        {% endif %}
-                    {% endif %}
-                    {% if allow_test_comments %}
-                    <span class="test">{{ test.comment }}</span>
-                    {% endif %}
-                </li>
-                {% endif %}
-            {% endfor %}
-        {% endfor %}
-    </ul>
-    {% if allow_download_out %}
-        {% if all_outs_generated %}
-            <a class="btn btn-small" title="{% trans "Download all user outputs for this test report" %}" href="{% url 'download_user_output' submission_report_id=report.id %}">
-                <i class="icon-download"></i>
-                <span class="toolbar-button-text">{% trans "Download all" %}</span>
-            </a>
-        {% else %}
-            <a class="btn btn-small" title="{% trans "Generate all user outputs for this test report" %}" data-post-url="{% url 'generate_user_output' submission_report_id=report.id %}">
-                <i class="icon-circle-arrow-down"></i>
-                <span class="toolbar-button-text">{% trans "Generate all" %}</span>
-            </a>
-        {% endif %}
+<article>
+    {% if report.kind == 'INITIAL' %}
+        <h4>{% trans "Initial testing report" %}</h4>
+    {% elif report.kind == 'NORMAL' %}
+        <h4>{% trans "Final testing report" %}</h4>
+    {% elif report.kind == 'HIDDEN' %}
+        <h4>{% trans "Hidden testing report" %}</h4>
+    {% elif report.kind == 'FULL' %}
+        <h4>{% trans "Full testing report" %}</h4>
+    {% else %}
+        <h4>{% trans "Report:" %} {{ report.kind }}</h4>
     {% endif %}
-</div>
 
-
-
-{% endif %}
+    {% if compilation_report.status != 'OK' %}
+        <p>{% trans "Compilation failed." %}</p>
+        <pre>
+            {{ compilation_report.compiler_output }}
+        </pre>
+    {% else %}
+        {% include "programs/report-body.html" %}
+        {% include "programs/report-comments.html" with groups=groups %}
+    {% endif %}
+</article>

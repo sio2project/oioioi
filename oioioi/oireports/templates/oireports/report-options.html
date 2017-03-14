@@ -1,0 +1,86 @@
+{% extends "base-with-menu.html" %}
+{% load i18n simple_filters %}
+
+{% block title %}{% trans "Report" %}{% endblock %}
+
+{% block main-content %}
+<h2>{% trans "Report" %}</h2>
+<form method="post">
+    {% csrf_token %}
+    {% for field in form.control_fields %}
+        <div class="form-group">
+            <label for="{{ field.auto_id }}" class="control-label">
+                {{ field.label }}
+            </label>
+            {{ field | add_class:"form-control" }}
+        </div>
+    {% endfor %}
+    <div id="single_report_controller" class="form-group {% if form.single_report_user.errors %}has-error{% endif %}">
+        <div class="checkbox">
+            <label>
+                {{ form.is_single_report }}
+                {% trans "Single user" %}
+            </label>
+        </div>
+        <div id="report_user">
+            {{ form.single_report_user | add_class:"form-control" }}
+            {% for error in form.single_report_user.errors %}
+                <span class="help-inline">{{ error }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    <ul class="list-inline">
+        {% for field in form.testgroup_fields %}
+            <li>
+                <div class="well well-sm round_{{ field.field.round }}">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" class="control_checkbox" data-selector="{{ field.html_name }}"/>
+                            {{ field.label }}
+                        </label>
+                    </div>
+                    {{ field }}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">{% trans "Generate report" %}</button>
+    </div>
+</form>
+<script>
+    $(document).ready(function() {
+        $('#report_user').toggle($('input[name="is_single_report"]').is(':checked'));
+        $('input[name="is_single_report"]').click(function() {
+            if (this.checked) {
+                $('#report_user').show();
+                $('#report_user input').focus();
+            } else {
+                $('#report_user').hide();
+                $('#report_user input').val('');
+            }
+        });
+        $('.control_checkbox').click(function() {
+            var task_selector = $(this).data('selector');
+            task_selector = 'input[id*="' + task_selector + '"]'
+            $(task_selector).prop('checked', $(this).is(':checked'));
+        });
+        $('select[name="report_round"]').change(function() {
+            var round = $('select[name="report_round"] option:selected').val();
+            if (round == '{{ CONTEST_REPORT_KEY }}') {
+                $('div[class*="round_"]').show();
+            } else {
+                $('div[class*="round_"]').each(function() {
+                    if ($(this).hasClass('round_' + round)) {
+                        $(this).show();
+                    } else {
+                        $(this).find('input[type="checkbox"]:checked').removeAttr('checked');
+                        $(this).hide();
+                    }
+                });
+            }
+        });
+        $('select[name="report_round"]').change();
+    });
+</script>
+{% endblock %}

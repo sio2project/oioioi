@@ -79,7 +79,7 @@ class PackageSource(ProblemSource):
     short_description = _("Upload package")
 
     #: Template to use for rendering the form.
-    template_name = 'problems/package_source.html'
+    template_name = 'problems/package-source.html'
 
     def make_form(self, request, contest, existing_problem=None):
         """Creates a form, which can be later filled in by the user with
@@ -239,7 +239,7 @@ class ProblemsetSource(ProblemSource):
 
     def view(self, request, contest, existing_problem=None):
         if not contest:
-            messages.error(request, _("Option not available"))
+            messages.warning(request, _("Option not available"))
             path = request.path
             if existing_problem:
                 path += '?' + urlencode({'problem': existing_problem.id})
@@ -261,9 +261,9 @@ class ProblemsetSource(ProblemSource):
         if request.POST:
             if not Problem.objects.filter(problemsite__url_key=url_key) \
                     .exists():
-                messages.error(request, _('Given url key is invalid'))
+                messages.warning(request, _('Given url key is invalid'))
                 return TemplateResponse(request,
-                        "problems/problemset_source.html",
+                        "problems/problemset-source.html",
                         post_data)
 
             problem = Problem.objects.get(problemsite__url_key=url_key)
@@ -283,5 +283,5 @@ class ProblemsetSource(ProblemSource):
             return safe_redirect(request, reverse(
                     'oioioiadmin:contests_probleminstance_changelist'))
 
-        return TemplateResponse(request, "problems/problemset_source.html",
+        return TemplateResponse(request, "problems/problemset-source.html",
                                 post_data)

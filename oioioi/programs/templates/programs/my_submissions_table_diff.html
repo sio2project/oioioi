@@ -5,6 +5,9 @@
     <th>{% trans "Actions" %}</th>
 {% endblock %}
 {% block more-columns-after %}
-    {% url 'source_diff' contest_id=contest.id submission1_id=record.submission.id submission2_id=main_submission_id as diff_link %}
-    <td><a href="{{ diff_link }}">{% trans "Diff submissions" %}</a></td>
+    <td>
+        <a href="{% url 'source_diff' contest_id=contest.id submission1_id=record.submission.id submission2_id=main_submission_id %}">
+            {% trans "Diff submissions" %}
+        </a>
+    </td>
 {% endblock %}

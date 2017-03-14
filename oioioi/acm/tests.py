@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
@@ -20,17 +21,21 @@ from oioioi.contests.models import Contest
 class TestACMRanking(TestCase):
     fixtures = ['acm_test_full_contest']
 
+    @staticmethod
+    def remove_whitespaces(content):
+        return re.sub(r'\s*', '', content)
+
     def assertActiveTaskIn(self, task, content):
-        self.assertIn(task + '</a></th>', content)
+        self.assertIn(task + '</a></th>', self.remove_whitespaces(content))
 
     def assertActiveTaskNotIn(self, task, content):
-        self.assertNotIn(task + '</a></th>', content)
+        self.assertNotIn(task + '</a></th>', self.remove_whitespaces(content))
 
     def assertInactiveTaskIn(self, task, content):
-        self.assertIn(task + '</th>', content)
+        self.assertIn(task + '</th>', self.remove_whitespaces(content))
 
     def assertInactiveTaskNotIn(self, task, content):
-        self.assertNotIn(task + '</th>', content)
+        self.assertNotIn(task + '</th>', self.remove_whitespaces(content))
 
     def test_fixture(self):
         self.assertTrue(Contest.objects.exists())

@@ -1,11 +1,11 @@
 {% load i18n %}
 
 <div class="round__header">
-    <div class="btn-group round__name">
-        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+    <div class="dropdown round__name">
+        <button class="btn btn-default dropdown-toggle" data-toggle="dropdown">
             {{ selected_round.round }}
             <span class="caret"></span>
-        </a>
+        </button>
         <ul class="dropdown-menu">
             {% for round, round_time in round_times %}
                 <li>

@@ -1,0 +1,71 @@
+@import "scss/utility";
+@import "bootstrap/stylesheets/bootstrap/grid";
+
+.problem {
+  border: 1px solid black;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  padding: 13px 20px 20px;
+  position: relative;
+
+  &__container {
+    @include make-xs-column(12);
+    @include make-sm-column(6);
+    @include make-md-column(4);
+    @include make-lg-column(3);
+  }
+
+  &__header {
+    display: flex;
+  }
+
+  &__name {
+    display: inline-block;
+    margin-top: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__solved {
+    border: 1px solid black;
+    border-radius: 7px;
+    display: inline-block;
+    flex-shrink: 0;
+    font-size: .8em;
+    font-weight: bold;
+    height: 100%;
+    line-height: 18px;
+    margin-left: 7px;
+    padding: 0 4px;
+
+    &--low {
+      background-color: #ed050b;
+      color: white;
+    }
+
+    &--medium {
+      background-color: #ffd405;
+    }
+
+    &--high {
+      background-color: #17b304;
+      color: white;
+    }
+  }
+
+  &__settings {
+    display: inline-block;
+    float: right;
+    margin-left: 5px;
+    right: 0;
+    top: 0;
+  }
+
+  &__stats {
+    svg {
+      overflow: visible;
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<div class="dropdown">
+    <a href="#" id="admin-clock" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+        <span id="admin-time-label" class="label label-primary {% if not is_admin_time_set %}hidden{% endif %}"
+                data-toggle="tooltip" data-placement="bottom" title="{% trans "Admin time" %}">
+            <span class="label-short glyphicon glyphicon-time"></span>
+            <span class="label-full">{% trans "Admin time" %}</span>
+        </span>
+        <time id="clock">{{ current_time }}</time>
+        <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu pull-right">
+        <li class="navbar-form">
+            <form action="{% url 'admin_time' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ path }}">
+
+                <div class="form-group">
+                    <label for="admin-time">{% trans "Admin time:" %}</label>
+                    <input type="text" name="admin-time" id="admin-time" class="form-control"
+                        placeholder="{% trans "(yyyy-mm-dd hh:mm:ss)" %}"/>
+                </div>
+
+                <div class="btn-group btn-group-justified" role="group">
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-primary" type="submit" name="ok-button">{% trans "Ok" %}</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-default" type="submit" name="reset-button">{% trans "Reset" %}</button>
+                    </div>
+                </div>
+            </form>
+        </li>
+    </ul>
+</div>

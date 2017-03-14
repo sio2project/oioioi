@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset=utf-8 />	
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />		 					
-	<link href="{{ STATIC_URL }}liveranking/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
-	<script>
+    <meta charset=utf-8 />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="{{ STATIC_URL }}liveranking/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" />
+    <script>
         BOMB_PENALTY = {{ bomb_penalty }};
         FREEZE_TIME = {{ freeze_time }};
         ROUND_LENGTH = {{ round_length }};
@@ -13,62 +13,59 @@
         EVENTS_SENDER_URL = "{% url 'livedata_events_view' contest_id=contest.id round_id=round.id %}";
         MAX_REFRESH_RATE = {{ max_refresh_rate }};
     </script>
-	<script src="{{ STATIC_URL }}liveranking/js/jq.js"></script>
-	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/d3.js"></script>
-	<script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/utils.js"></script>			
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAcmvis.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAdapter.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CModel.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CRanking.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CClock.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CDonut.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CFlash.js"></script>		
-	<script type="text/javascript" src="{{ STATIC_URL }}liveranking/CPanel.js"></script>		
-	<script>				
+    <script src="{{ STATIC_URL }}liveranking/js/jq.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/d3.js"></script>
+    <script language="javascript" type="text/javascript" src="{{ STATIC_URL }}liveranking/js/utils.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAcmvis.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CAdapter.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CModel.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CRanking.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CClock.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CDonut.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CFlash.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}liveranking/CPanel.js"></script>
+    <script>
         var acmvis = new CAcmvis();
-		$(document).ready(function() {							
-			acmvis.simpleRanking('#ranking');
-		});		
-	</script>
-	<style>	
-	body {
-		color: black;
-	}
-	.row, .headerRow {
-		position: absolute;
-		height: 50px;
-	}
-	.row > * {
-		height: 50px;
-		line-height: 50px;
-	}
-	.teamToTask, .teamToTask, .name, .score, .time, .header, .rank{		
-		position: absolute;
-		display: block;		
-		top: 0px;
-		text-align: center;
-	}	
-	#ranking {		
-		position: relative;
-		width: 1000px;
-		margin: 0px auto;
-	}
-	
-	
-	.row .name, .headerRow .name {
-		width: 148px !important;
-	}
-	
-	#ranking .teamToTask, #ranking .header.task{
-		width: 88px !important;
-	}
-	</style>
+        $(document).ready(function() {
+            acmvis.simpleRanking('#ranking');
+        });
+    </script>
+    <style>
+    body {
+        color: black;
+    }
+    .row, .headerRow {
+        position: absolute;
+        height: 50px;
+    }
+    .row > * {
+        height: 50px;
+        line-height: 50px;
+    }
+    .teamToTask, .teamToTask, .name, .score, .time, .header, .rank{
+        position: absolute;
+        display: block;
+        top: 0px;
+        text-align: center;
+    }
+    #ranking {
+        position: relative;
+        width: 1000px;
+        margin: 0px auto;
+    }
+
+    .row .name, .headerRow .name {
+        width: 148px !important;
+    }
+
+    #ranking .teamToTask, #ranking .header.task{
+        width: 88px !important;
+    }
+    </style>
 </head>
 <body>
-	<!--<span onclick='hop();' style="z-index: 10000; background: blue;">HOP</span>-->	
-	<div id="header"></div>
-	<div id="ranking" style="z-index: 0; ">
-	</div>	
-	<div id="footer"></div>
+    <div id="header"></div>
+    <div id="ranking" style="z-index: 0;"></div>
+    <div id="footer"></div>
 </body>
 </html>

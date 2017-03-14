@@ -846,6 +846,10 @@ class ProgrammingContestController(ContestController):
             cc = request.contest.controller
             queryset = cc.filter_my_visible_submissions(request, queryset)
         show_scores = bool(queryset.filter(score__isnull=False))
+
+        can_admin = \
+            can_admin_problem_instance(request, submission.problem_instance)
+
         if not queryset.exists():
             return super_footer
         return super_footer + render_to_string(
@@ -854,6 +858,7 @@ class ProgrammingContestController(ContestController):
                         'submissions': [submission_template_context(request, s)
                                  for s in queryset],
                         'show_scores': show_scores,
+                        'can_admin': can_admin,
                         'main_submission_id': submission.id,
                         'submissions_on_page': getattr(settings,
                             'SUBMISSIONS_ON_PAGE', 15)}))

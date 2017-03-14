@@ -3,15 +3,14 @@
 {% load i18n %}
 
 {% block content %}
-<h2>{{ title }}</h2>
-<form action="{{ action }}" method="post" class="form-horizontal">
-    {% csrf_token %}
-    <fieldset>
+    <h1>{{ title }}</h1>
+    <form action="{{ action }}" method="post">
+        {% csrf_token %}
         {% include "ingredients/form.html" %}
-        <div class="form-actions">
-            <input type="submit" class="btn btn-primary"
-            value="{{ submit_button_value|default:_("Submit") }}">
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                {{ submit_button_value|default:_("Submit") }}
+            </button>
         </div>
-    </fieldset>
-</form>
+    </form>
 {% endblock %}

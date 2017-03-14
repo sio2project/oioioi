@@ -117,7 +117,7 @@ class ScoresRevealContestControllerMixin(object):
             submission.problem_instance)
         can_reveal, reason = self.can_reveal(request, submission)
 
-        return render_to_string('scoresreveal/submission_footer.html',
+        return render_to_string('scoresreveal/submission-footer.html',
             context_instance=RequestContext(request,
                 {'submission': submission_template_context(request,
                  submission.programsubmission),

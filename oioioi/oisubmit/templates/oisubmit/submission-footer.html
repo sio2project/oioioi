@@ -1,0 +1,32 @@
+{% load i18n %}
+<h4> {% trans "OI submit data" %} </h4>
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <th>{% trans "Suspected" %}</th>
+            {% if received_suspected %}
+                <th>{% trans "Reason" %}</th>
+            {% endif %}
+            <th>{% trans "Local time" %}</th>
+            <th>{% trans "SIO time" %}</th>
+            <th>{% trans "Server time" %}</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {% if received_suspected %}
+                        {% trans "Yes" %}
+                    {% else %}
+                        {% trans "No" %}
+                    {% endif %}
+                </td>
+                {% if received_suspected %}
+                    <td>{{ comments }}</td>
+                {% endif %}
+                <td>{{ localtime }}</td>
+                <td>{{ siotime }}</td>
+                <td>{{ servertime }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

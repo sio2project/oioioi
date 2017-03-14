@@ -23,7 +23,7 @@ class PortalInlineGrammar(InlineGrammar):
 
 class PortalRenderer(Renderer):
     def block_center(self, text):
-        return render_to_string('portals/widgets/block_center.html',
+        return render_to_string('portals/widgets/block-center.html',
                                 {'content': mark_safe(text)})
 
 
@@ -196,6 +196,6 @@ class ProblemTableWidget(object):
         if m.group(1):
             header = m.group(1)[1:]
 
-        return render_to_string('portals/widgets/problem_table.html',
+        return render_to_string('portals/widgets/problem-table.html',
                                 {'problems': rows, 'header': header})
 register_widget(ProblemTableWidget())

@@ -1,10 +1,7 @@
 {% extends "base.html" %}
 
+{% block container-class %}container{% endblock %}
+
 {% block body %}
-<div class="row top-row">
-    <div class="span8 offset2">
-        {% block content %}
-        {% endblock %}
-    </div>
-</div>
+    {% block content %}{% endblock %}
 {% endblock %}
