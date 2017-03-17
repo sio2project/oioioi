@@ -85,7 +85,12 @@ def problems_list_view(request):
             pi,
             controller.can_see_statement(request, pi),
             controller.get_round_times(request, pi.round),
-            UserResultForProblem.objects.filter(user=request.user,
+
+            # Because this view can be accessed by an anynomous user we can't
+            # use `user=request.user` (it would cause TypeError). Suprisingly
+            # using request.user.id is ok since for AnynomousUser id is set
+            # to None.
+            UserResultForProblem.objects.filter(user__id=request.user.id,
                 problem_instance=pi).first()
         )
         for pi in problem_instances
@@ -96,6 +101,7 @@ def problems_list_view(request):
     return TemplateResponse(request, 'contests/problems_list.html',
         {'problem_instances': problems_statements,
          'show_rounds': show_rounds,
+         'show_scores': request.user.is_authenticated(),
          'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100)})
 
 
