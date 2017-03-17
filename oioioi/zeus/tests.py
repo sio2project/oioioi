@@ -4,6 +4,7 @@ import urllib
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase, TestsUtilsMixin
+from oioioi.evalmgr.models import SavedEnviron
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.problems.models import Problem
 from oioioi.programs.models import ProgramSubmission
@@ -11,7 +12,7 @@ from oioioi.sinolpack.tests import get_test_filename
 from oioioi.zeus.backends import _json_base64_encode, _json_base64_decode, \
                                  Base64String, ZeusServer
 from oioioi.zeus.controllers import ZeusProblemController
-from oioioi.zeus.models import ZeusAsyncJob, ZeusProblemData
+from oioioi.zeus.models import ZeusProblemData
 from oioioi.zeus.utils import zeus_url_signature, verify_zeus_url_signature
 # Import qualified to prevent nose from thinking that
 # '(^|_)test*' functions are tests
@@ -23,9 +24,9 @@ class ZeusDummyServer(ZeusServer):
     def __init__(self, zeus_id, server_info):
         pass
 
-    def send_regular(self, zeus_problem_id, kind, source_file, language,
+    def send_regular(self, zeus_problem_id, kind, source_code, language,
                     submission_id, return_url):
-        return 1917141 if kind == 'INITIAL' else 909941
+        pass
 
 
 def _updated_copy(dict1, dict2):
@@ -95,33 +96,6 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         check_str('1b,1,99', '1b', '1', 99)
         check_str('test32d  ,  ,  123', 'test32d', 'test32d', 123)
 
-    def test_submit_job(self):
-        env = {
-            'submission_id': 1,
-            'language': 'cpp',
-            'zeus_id': 'dummy',
-            'zeus_problem_id': 1,
-            'contest_id': 'c',
-        }
-        env = handlers.submit_job(env, kind='INITIAL')
-        self.assertEqual(env['zeus_submission_ids']['INITIAL'], 1917141)
-        env = handlers.submit_job(env, kind='NORMAL')
-        self.assertEqual(env['zeus_submission_ids']['INITIAL'], 1917141)
-        self.assertEqual(env['zeus_submission_ids']['NORMAL'], 909941)
-
-    def test_save_env(self):
-        env = {
-            'recipe': (('1kg_of_flour', 'take.and.put.it.in.a.bowl'),),
-            'zeus_check_uids': {'NORMAL': 909941, 'X': 1337},
-            'eggs_available': True,
-        }
-        env = handlers.save_env(env, kind='NORMAL')
-        self.assertEquals(len(env['recipe']), 0)
-        job = ZeusAsyncJob.objects.get(check_uid=909941)
-        saved_env = json.loads(job.environ)
-        self.assertTrue(saved_env['eggs_available'])
-        self.assertEquals(len(saved_env['recipe']), 1)
-
     def _get_base_test_info(self, metadata=''):
         return {
             'verdict': 'OK',
@@ -189,19 +163,19 @@ class ZeusViewsTest(TestCase):
         submission = ProgramSubmission.objects.get()
         problem = Problem.objects.get(id=1)
         problem.controller_name = \
-                'oioioi.zeus.controllers.ZeusProblemController'
+                'oioioi.zeus.tests.ZeusProblemController'
         problem.save()
         ZeusProblemController(problem).judge(submission)
-        self.assertEqual(ZeusAsyncJob.objects.count(), 1)
+        self.assertEqual(SavedEnviron.objects.count(), 1)
 
-        job = ZeusAsyncJob.objects.get()
-        env = json.loads(job.environ)
-        check_uid = env['zeus_check_uids']['INITIAL']
-        signature = zeus_url_signature(check_uid)
+        saved_environ = SavedEnviron.objects.get()
+        saved_environ_id = saved_environ.id
+        signature = zeus_url_signature(saved_environ_id)
 
         url = reverse('oioioi.zeus.views.push_grade',
-                kwargs={'check_uid': check_uid,
-                        'signature': signature})
+                kwargs={
+                    'saved_environ_id': saved_environ_id,
+                    'signature': signature})
         data = {u'compilation_output': Base64String("CE")}
         response = self.client.post(url, _json_base64_encode(data),
                 follow=True, content_type="application/json")
@@ -232,4 +206,4 @@ class TestZeusProblemUpload(TestCase):
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 2)
         self.assertEqual(ZeusProblemData.objects.count(), 1)
-        self.assertEqual(ZeusAsyncJob.objects.count(), 2)
+        self.assertEqual(SavedEnviron.objects.count(), 2)

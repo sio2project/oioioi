@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('contests', '0007_auto_20161214_1411'),
-        ('submitsqueue', '0002_auto_20161214_1411'),
+        ('evalmgr', '0001_initial'),
         ('zeus', '0002_auto_20150414_1950'),
     ]
 

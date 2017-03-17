@@ -794,12 +794,10 @@ class BrokenContestController(ProgrammingContestController):
     def fill_evaluation_environ(self, environ, submission):
         super(BrokenContestController, self).fill_evaluation_environ(environ,
                 submission)
-        environ['recipe'] = [
-                (
-                    'failing_handler',
-                    'oioioi.contests.tests.tests.failing_handler'
-                ),
-            ]
+        environ.setdefault('recipe', []).append((
+            'failing_handler',
+            'oioioi.contests.tests.tests.failing_handler'
+            ))
 
 
 class TestRejudgeAndFailure(TestCase):

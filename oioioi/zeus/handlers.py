@@ -1,4 +1,3 @@
-import json
 import logging
 import random
 import socket
@@ -7,16 +6,16 @@ from smtplib import SMTPException
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
-from django.db import transaction, IntegrityError
+from django.db import transaction
 from django.forms.models import model_to_dict
-from django.utils.crypto import get_random_string
 from django.utils.module_loading import import_string
 
+from oioioi import evalmgr
 from oioioi.base.utils import naturalsort_key
 from oioioi.programs.handlers import _skip_on_compilation_error
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.zeus.backends import get_zeus_server
-from oioioi.zeus.models import ZeusAsyncJob, ZeusProblemData
+from oioioi.zeus.models import ZeusProblemData
 from oioioi.zeus.utils import zeus_url_signature
 
 
@@ -42,89 +41,53 @@ def from_csv_metadata(metadata):
 
 @_skip_on_compilation_error
 @transaction.atomic
-def submit_job(env, kind=None, **kwargs):
-    """Submits the job to Zeus for given ``kind``.
-
-       Used ``environ`` keys:
-         * ``contest_id``
-         * ``submission_id``
-         * ``language``
-         * ``zeus_id``
-         * ``zeus_problem_id``
-
-       Altered ``environ`` keys:
-          * ``zeus_check_uids`` - dictionary mapping grading kind to
-                                 Zeus's ``check_uid``
+def submit_job(env, kind):
+    """Recipe handler that sends the job to Zeus.
     """
-    zeus = get_zeus_server(env['zeus_id'])
-    ps = ProgramSubmission.objects.get(id=env['submission_id'])
-    check_uid = get_random_string(length=16)
+    submission = ProgramSubmission.objects.get(id=env['submission_id'])
+    with submission.source_file as f:
+        source_code = f.read()
+    return evalmgr.transfer_job(env,
+            'oioioi.zeus.handlers.transfer_job',
+            'oioioi.zeus.handlers.restore_job',
+            transfer_kwargs={'kind': kind, 'source_code': source_code})
 
+
+def transfer_job(env, kind, source_code):
+    """"Sends the job to Zeus for given ``kind``.
+
+        Used ``env`` keys:
+          * ``submission_id``
+          * ``language``
+          * ``saved_environ_id``
+          * ``zeus_problem_id``
+          * ``zeus_id``
+    """
+    # Env is already saved in evalmgr, use saved_environ_id to
+    # identify results.
+    zeus = get_zeus_server(env['zeus_id'])
+    saved_environ_id = env['saved_environ_id']
 
     return_url = settings.ZEUS_PUSH_GRADE_CALLBACK_URL + reverse(
         'zeus_push_grade_callback',
         kwargs={
-            'check_uid': check_uid,
-            'signature': zeus_url_signature(check_uid)
+            'saved_environ_id': saved_environ_id,
+            'signature': zeus_url_signature(saved_environ_id)
         }
     )
-    zeus_submission_id = zeus.send_regular(kind=kind,
-            source_file=ps.source_file,
-            zeus_problem_id=env['zeus_problem_id'], language=env['language'],
-            submission_id=env['submission_id'], return_url=return_url)
-    env.setdefault('zeus_submission_ids', {})[kind] = zeus_submission_id
-    env.setdefault('zeus_check_uids', {})[kind] = check_uid
-    return env
+
+    zeus.send_regular(kind=kind,
+            return_url=return_url,
+            source_code=source_code,
+            zeus_problem_id=env['zeus_problem_id'],
+            language=env['language'],
+            submission_id=['submission_id'])
 
 
-@_skip_on_compilation_error
-@transaction.atomic
-def save_env(env, kind=None, **kwargs):
-    """Saves asynchronous job's environment in the database
-       for later retrieval, clearing current recipe. This allows to submit
-       results from another process, without having evalmgr actively waiting.
-
-       This handler will save current job's status in
-       :class:`~oioioi.zeus.models.ZeusAsyncJob` objects for later
-       retrieval. When the push_grade view is hit, the job can be simply
-       continued with ``evalmgr.evalmgr_job.delay(zeus_async_job.environ)``.
-       The ``zeus_async_job.check_uid`` is taken from
-       ``environ['zeus_check_uids`][kind]``.
-
-       If results happen to be already in db, job is not suspended.
-
-       Used ``environ`` keys:
-         * ``recipe``
-         * ``zeus_check_uids`` - asynchronous jobs objects
-
-       Altered ``environ`` keys:
-         * ``recipe``
-    """
-    assert kind is not None
-    check_uid = env['zeus_check_uids'][kind]
-    try:
-        async_job, created = ZeusAsyncJob.objects.select_for_update() \
-                .get_or_create(check_uid=check_uid)
-    except IntegrityError:
-        # This should never happen.
-        logger.error("IntegrityError while saving job for uid %s", check_uid,
-                     exc_info=True)
-        logger.error("Environ:\n%s", json.dumps(env))
-        raise
-    if created:
-        async_job.environ = json.dumps(env)
-        async_job.save()
-        env['recipe'] = []
-    else:
-        assert not async_job.resumed, ("Oops, got uid %s twice?" % check_uid)
-        logger.info("Resuming job %s from save_env", check_uid)
-        saved_env = json.loads(async_job.environ)
-        saved_env.setdefault('zeus_results', [])
-        env.setdefault('zeus_results', [])
-        env['zeus_results'].extend(saved_env['zeus_results'])
-        async_job.environ = json.dumps(env)
-        async_job.resumed = True
-        async_job.save()
+def restore_job(env, results_env):
+    env['compilation_result'] = results_env['compilation_result']
+    env['compilation_message'] = results_env['compilation_message']
+    env.setdefault('zeus_results', []).extend(results_env['reports'])
     return env
 
 

@@ -2,7 +2,10 @@ import json
 import sio.workers.runner
 import sio.celery.job
 import oioioi
+
+from django.db import transaction
 from django.conf import settings
+
 from xmlrpclib import Server
 
 
@@ -38,7 +41,8 @@ class LocalBackend(object):
         del env["workers_jobs"]
         if 'workers_jobs.extra_args' in env:
             del env['workers_jobs.extra_args']
-        oioioi.evalmgr.evalmgr_job.delay(env)
+        with transaction.atomic():
+            oioioi.evalmgr.delay_environ(env)
 
 
 class CeleryBackend(object):
@@ -67,7 +71,8 @@ class CeleryBackend(object):
         del env["workers_jobs"]
         if 'workers_jobs.extra_args' in env:
             del env['workers_jobs.extra_args']
-        oioioi.evalmgr.evalmgr_job.delay(env)
+        with transaction.atomic():
+            oioioi.evalmgr.delay_environ(env)
 
 
 class SioworkersdBackend(object):

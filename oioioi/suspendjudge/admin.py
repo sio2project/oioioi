@@ -9,7 +9,7 @@ from oioioi.base.permissions import enforce_condition
 from oioioi.contests.admin import ProblemInstanceAdmin
 from oioioi.contests.models import Submission, ProblemInstance
 from oioioi.contests.utils import is_contest_admin, contest_exists
-from oioioi.submitsqueue.models import QueuedSubmit
+from oioioi.evalmgr.models import QueuedJob
 from oioioi.suspendjudge.utils import is_suspended, is_suspended_on_init
 from oioioi.suspendjudge.models import SuspendedProblem
 
@@ -26,14 +26,14 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
             .delete()
 
     def _rejudge(self, instance_id):
-        suspended = Submission.objects.filter(queuedsubmit__state="SUSPENDED",
+        suspended = Submission.objects.filter(queuedjob__state="SUSPENDED",
                                               problem_instance=instance_id)
         for submission in suspended:
-            QueuedSubmit.objects.filter(submission=submission).delete()
+            QueuedJob.objects.filter(submission=submission).delete()
             submission.problem_instance.controller.judge(submission)
 
     def _clear_queue(self, instance_id):
-        QueuedSubmit.objects.filter(submission__problem_instance=instance_id,
+        QueuedJob.objects.filter(submission__problem_instance=instance_id,
                                     state="SUSPENDED").delete()
 
     def _suspend(self, problem_instance_id, suspend_init_tests=True):

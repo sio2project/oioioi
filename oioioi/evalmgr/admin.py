@@ -1,8 +1,11 @@
+import functools
+
 from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
 from django.contrib.admin import SimpleListFilter
 from django.utils.encoding import force_unicode
 from django.db import transaction
+from djcelery.models import TaskState
 
 from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
@@ -10,9 +13,7 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.submitsqueue.models import QueuedSubmit
-
-from djcelery.models import TaskState
+from oioioi.evalmgr.models import QueuedJob
 
 
 class UserListFilter(SimpleListFilter):
@@ -20,7 +21,7 @@ class UserListFilter(SimpleListFilter):
     parameter_name = 'user'
 
     def lookups(self, request, model_admin):
-        users = list(set(QueuedSubmit.objects
+        users = list(set(QueuedJob.objects
                          .filter(submission__problem_instance__contest=
                                  request.contest)
                          .values_list('submission__user__id',
@@ -46,7 +47,7 @@ class ProblemNameListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         # Unique problem names
-        p_names = list(set(QueuedSubmit.objects
+        p_names = list(set(QueuedJob.objects
                            .filter(submission__problem_instance__contest=
                                    request.contest)
                            .values_list(
@@ -62,7 +63,34 @@ class ProblemNameListFilter(SimpleListFilter):
             return queryset
 
 
-class SystemSubmitsQueueAdmin(admin.ModelAdmin):
+def _require_submission(function):
+    @functools.wraps(function)
+    def decorated(self, instance):
+        if instance.submission is None:
+            return None
+        return function(self, instance)
+    return decorated
+
+
+def _require_problem_instance(function):
+    @functools.wraps(function)
+    def decorated(self, instance):
+        if instance.submission.problem_instance is None:
+            return None
+        return function(self, instance)
+    return _require_submission(decorated)
+
+
+def _require_contest(function):
+    @functools.wraps(function)
+    def decorated(self, instance):
+        if instance.submission.problem_instance.contest is None:
+            return None
+        return function(self, instance)
+    return _require_problem_instance(decorated)
+
+
+class SystemJobsQueueAdmin(admin.ModelAdmin):
     list_display = ['submit_id', 'colored_state', 'contest',
                     'problem_instance', 'user', 'creation_date',
                     'celery_task_id_link']
@@ -70,7 +98,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     actions = ['remove_from_queue', 'delete_selected']
 
     def __init__(self, *args, **kwargs):
-        super(SystemSubmitsQueueAdmin, self).__init__(*args, **kwargs)
+        super(SystemJobsQueueAdmin, self).__init__(*args, **kwargs)
         self.list_display_links = (None, )
 
     def _get_link(self, caption, app, *args, **kwargs):
@@ -95,6 +123,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     celery_task_id_link.admin_order_field = 'celery_task_id'
     celery_task_id_link.short_description = _("Celery task id")
 
+    @_require_contest
     def submit_id(self, instance):
         res = instance.submission.id
         return self._get_link(res, 'submission',
@@ -104,6 +133,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     submit_id.admin_order_field = 'submission__id'
     submit_id.short_description = _("Submission id")
 
+    @_require_contest
     def problem_instance(self, instance):
         res = instance.submission.problem_instance
         return self._get_link(res, 'problem_statement',
@@ -113,6 +143,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     problem_instance.admin_order_field = 'submission__problem_instance'
     problem_instance.short_description = _("Problem")
 
+    @_require_contest
     def contest(self, instance):
         return self._get_link(instance.submission.problem_instance.contest,
                               'default_contest_view',
@@ -121,6 +152,7 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
     contest.admin_order_field = 'submission__problem_instance__contest'
     contest.short_description = _("Contest")
 
+    @_require_submission
     def user(self, instance):
         return instance.submission.user
     user.admin_order_field = 'submission__user'
@@ -142,14 +174,14 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
         _("Remove selected submissions from the queue")
 
     def get_queryset(self, request):
-        qs = super(SystemSubmitsQueueAdmin, self).get_queryset(request)
+        qs = super(SystemJobsQueueAdmin, self).get_queryset(request)
         return qs.exclude(state='CANCELLED')
 
     def has_delete_permission(self, request, obj=None):
         return True
 
     def get_list_select_related(self):
-        return super(SystemSubmitsQueueAdmin, self) \
+        return super(SystemJobsQueueAdmin, self) \
             .get_list_select_related() + [
                     'submission__problem_instance',
                     'submission__problem_instance__contest',
@@ -157,22 +189,22 @@ class SystemSubmitsQueueAdmin(admin.ModelAdmin):
                     'submission__user']
 
 
-admin.site.register(QueuedSubmit, SystemSubmitsQueueAdmin)
-system_admin_menu_registry.register('queuedsubmit_admin',
+admin.site.register(QueuedJob, SystemJobsQueueAdmin)
+system_admin_menu_registry.register('queuedjob_admin',
         _("Evaluation queue"), lambda request: reverse(
-            'oioioiadmin:submitsqueue_queuedsubmit_changelist'),
+            'oioioiadmin:evalmgr_queuedjob_changelist'),
         order=60)
 
 
-class ContestQueuedSubmit(QueuedSubmit):
+class ContestQueuedJob(QueuedJob):
     class Meta(object):
         proxy = True
-        verbose_name = _("Contest Queued Submit")
+        verbose_name = _("Contest Queued Jobs")
 
 
-class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
+class ContestJobsQueueAdmin(SystemJobsQueueAdmin):
     def __init__(self, *args, **kwargs):
-        super(ContestSubmitsQueueAdmin, self).__init__(*args, **kwargs)
+        super(ContestJobsQueueAdmin, self).__init__(*args, **kwargs)
         self.list_display = [x for x in self.list_display
                              if x not in ('contest', 'celery_task_id_link')]
         self.list_filter = self.list_filter + [UserListFilter]
@@ -183,13 +215,13 @@ class ContestSubmitsQueueAdmin(SystemSubmitsQueueAdmin):
         return is_contest_admin(request)
 
     def get_queryset(self, request):
-        qs = super(ContestSubmitsQueueAdmin, self).get_queryset(request)
+        qs = super(ContestJobsQueueAdmin, self).get_queryset(request)
         return qs.filter(submission__problem_instance__contest=request.contest)
 
 
-contest_site.contest_register(ContestQueuedSubmit, ContestSubmitsQueueAdmin)
-contest_admin_menu_registry.register('queuedsubmit_admin',
+contest_site.contest_register(ContestQueuedJob, ContestJobsQueueAdmin)
+contest_admin_menu_registry.register('queuedjob_admin',
         _("Evaluation queue"), lambda request: reverse(
-            'oioioiadmin:submitsqueue_contestqueuedsubmit_changelist'),
+            'oioioiadmin:evalmgr_contestqueuedjob_changelist'),
         condition=(lambda request: not request.user.is_superuser),
         order=60)

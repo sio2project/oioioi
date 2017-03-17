@@ -11,7 +11,6 @@ class ZeusProblemController(ProgrammingProblemController):
 
     def generate_base_environ(self, environ, submission, **kwargs):
         self.generate_initial_evaluation_environ(environ, submission)
-        environ['recipe'] = []
         zeus_problem, _created = ZeusProblemData.objects \
             .get_or_create(problem=self.problem)
         environ['zeus_id'] = zeus_problem.zeus_id
@@ -19,8 +18,7 @@ class ZeusProblemController(ProgrammingProblemController):
         environ.setdefault('evalmgr_extra_args', {})['queue'] = 'evalmgr-zeus'
 
     def generate_recipe(self, kinds):
-        recipe_body = [
-        ]
+        recipe_body = []
 
         # NOTE this will do nothing if the contest type is ACM
         # and kinds=['FULL']
@@ -31,22 +29,7 @@ class ZeusProblemController(ProgrammingProblemController):
                     ('initial_submit_job',
                         'oioioi.zeus.handlers.submit_job',
                         dict(kind='INITIAL')),
-                    recipe_placeholder('before_initial_async'),
-                    ('mark_submission_waiting',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='WAITING')),
-                    ('initial_save_async_job',
-                        'oioioi.zeus.handlers.save_env',
-                        dict(kind='INITIAL')),
-                    ('dump',
-                        'oioioi.evalmgr.handlers.dump_env',
-                        dict(message="AFTER INITIAL")),
 
-
-                    # current job ends here, the following will be asynchronous
-                    ('mark_submission_in_progress',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='PROGRESS-RESUMED')),
                     ('initial_import_results',
                         'oioioi.zeus.handlers.import_results'),
                     ('initial_update_tests_set',
@@ -73,21 +56,7 @@ class ZeusProblemController(ProgrammingProblemController):
                     ('final_submit_job',
                         'oioioi.zeus.handlers.submit_job',
                         dict(kind='NORMAL')),
-                    recipe_placeholder('before_final_async'),
-                    ('mark_submission_waiting',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='WAITING')),
-                    ('final_save_async_job',
-                        'oioioi.zeus.handlers.save_env',
-                        dict(kind='NORMAL')),
-                    ('dump',
-                        'oioioi.evalmgr.handlers.dump_env',
-                        dict(message="AFTER NORMAL")),
 
-                    # current job ends here, the following will be asynchronous
-                    ('mark_submission_in_progress',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='PROGRESS-RESUMED')),
                     ('final_import_results',
                         'oioioi.zeus.handlers.import_results'),
                     ('final_update_tests_set',
@@ -107,44 +76,21 @@ class ZeusProblemController(ProgrammingProblemController):
         if 'HIDDEN' in kinds:
             recipe_body.extend(
                 [
+                    recipe_placeholder('before_initial_tests'),
                     ('initial_submit_job',
                         'oioioi.zeus.handlers.submit_job',
                         dict(kind='INITIAL')),
-                    recipe_placeholder('before_initial_async'),
-                    ('initial_save_async_job',
-                        'oioioi.zeus.handlers.save_env',
-                        dict(kind='INITIAL')),
-                    ('mark_submission_waiting',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='WAITING')),
 
-                    # current job ends here, the following will be asynchronous
-                    ('mark_submission_in_progress',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='PROGRESS-RESUMED')),
+                    recipe_placeholder('before_final_tests'),
                     ('final_submit_job',
                         'oioioi.zeus.handlers.submit_job',
                         dict(kind='NORMAL')),
-                    recipe_placeholder('before_final_async'),
-                    ('mark_submission_waiting',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='WAITING')),
-                    ('final_save_async_job',
-                        'oioioi.zeus.handlers.save_env',
-                        dict(kind='NORMAL')),
 
-                    # another asynchronous part
-                    ('mark_submission_in_progress',
-                        'oioioi.submitsqueue.handlers.mark_submission_state',
-                        dict(state='PROGRESS-RESUMED')),
                     ('import_results',
                         'oioioi.zeus.handlers.import_results'),
                     ('initial_update_tests_set',
                         'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='EXAMPLE')),
-                    #('final_import_tests', TODO this does nothing, remove it
-                    #    'oioioi.zeus.handlers.import_results',
-                    #    dict(kind='NORMAL')),
                     ('final_update_tests_set',
                         'oioioi.zeus.handlers.update_problem_tests_set',
                         dict(kind='NORMAL')),
@@ -166,7 +112,8 @@ class ZeusProblemController(ProgrammingProblemController):
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         self.generate_base_environ(environ, submission, **kwargs)
 
-        environ['recipe'].extend(self.generate_recipe(environ['report_kinds']))
+        environ.setdefault('recipe', []).extend(
+                self.generate_recipe(environ['report_kinds']))
 
         environ.setdefault('group_scorer',
             'oioioi.programs.utils.min_group_scorer')

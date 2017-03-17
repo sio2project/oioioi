@@ -12,6 +12,7 @@ from oioioi.contests.handlers import update_user_results
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.contests.tests import SubmitFileMixin
 from oioioi.contests.current_contest import ContestMode
+from oioioi.evalmgr import create_environ
 from oioioi.participants.models import Participant
 from oioioi.oi.models import School, OIRegistration
 from oioioi.oi.management.commands import import_schools
@@ -459,7 +460,7 @@ class TestIgnoringCE(TestCase):
         contest.controller.name = controller_name
         contest.save()
 
-        test_env = {}
+        test_env = create_environ()
         test_env['problem_instance_id'] = 1
         test_env['round_id'] = 1
         test_env['contest_id'] = contest.id

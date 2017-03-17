@@ -1,5 +1,4 @@
 import os
-import json
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -11,7 +10,6 @@ from oioioi.programs.models import TestReport
 
 
 check_django_app_dependencies(__name__, ['oioioi.testrun'], strict=True)
-check_django_app_dependencies(__name__, ['oioioi.submitsqueue'])
 
 
 submission_statuses.register('MSE', _("Outgoing message size limit exceeded"))
@@ -23,28 +21,6 @@ class ZeusProblemData(models.Model):
     zeus_id = models.CharField(max_length=255)
     zeus_problem_id = models.IntegerField(default=0)
 
-
-class ZeusAsyncJob(models.Model):
-    check_uid = models.CharField(primary_key=True, max_length=255)
-    environ = models.TextField()
-    resumed = models.BooleanField(default=False)
-
-    @property
-    def env(self):
-        return json.loads(self.environ)
-
-    @property
-    def submission_id(self):
-        return self.env.get('submission_id', None)
-
-    @property
-    def zeus_problem_id(self):
-        return self.env.get('zeus_problem_id', None)
-
-    def __repr__(self):
-        res = 'Resumed' if self.resumed else ''
-        return '%sJob(%s, subm=%s, problem=%s)' % (res, self.check_uid,
-                self.submission_id, self.zeus_problem_id)
 
 def make_custom_library_filename(instance, filename):
     if not instance.id:

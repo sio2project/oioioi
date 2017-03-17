@@ -533,20 +533,6 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
-    def submission_queued(self, submission, async_result):
-        """This method gets called right after the submission becomes scheduled
-           in the queue with async_result from delay.
-        """
-        pass
-
-    def submission_unqueued(self, submission, job_id):
-        """This method gets called right after the submission had been judged
-           and is about to leave the assigned workers.
-
-           This hook gets called AFTER submission_judged.
-        """
-        pass
-
     def submission_judged(self, submission, rejudged=False):
         if submission.user is not None and not rejudged:
             logger.info("Submission %(submission_id)d by user %(username)s"

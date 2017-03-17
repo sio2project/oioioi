@@ -9,6 +9,7 @@ from django.utils.timezone import utc
 
 from oioioi.testrun import handlers
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
+from oioioi.evalmgr import create_environ
 from oioioi.base.tests import check_not_accessible, check_ajax_not_accessible
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.filetracker.client import get_client
@@ -212,7 +213,7 @@ class TestHandlers(TestCase):
     def test_handlers(self):
         submission = TestRunProgramSubmission.objects.get(pk=1)
 
-        environ = {}
+        environ = create_environ()
         environ['job_id'] = 'job_id'
         environ['submission_id'] = submission.id
         environ['submission_kind'] = submission.kind

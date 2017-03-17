@@ -1,9 +1,11 @@
 from celery.exceptions import Ignore
 
+from django.db import transaction
+
 from oioioi.contests.models import Submission
 from oioioi.programs.models import ModelProgramSubmission
 from oioioi.suspendjudge.models import SuspendedProblem
-from oioioi.submitsqueue.handlers import mark_submission_state
+from oioioi.evalmgr.utils import mark_job_state
 
 
 def _is_suspended(problem_instance_id, suspend_init_tests=None):
@@ -36,10 +38,14 @@ def _is_model_solution(env):
 
 
 def check_problem_instance_state(env, suspend_init_tests=None, **kwargs):
-    if _is_suspended(env['problem_instance_id'], suspend_init_tests) and not \
-            _is_hidden_rejudge(env) and not _is_admin_submission(env) and not \
-            _is_model_solution(env):
-        mark_submission_state(env, 'SUSPENDED', **kwargs)
+    suspend = False
+    with transaction.atomic():
+        if _is_suspended(env['problem_instance_id'], suspend_init_tests) and \
+                not _is_hidden_rejudge(env) and \
+                not _is_admin_submission(env) and \
+                not _is_model_solution(env):
+            mark_job_state(env, 'SUSPENDED')
+            suspend = True
+    if suspend:
         raise Ignore
-
     return env

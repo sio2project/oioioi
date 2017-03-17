@@ -140,25 +140,24 @@ class ZeusServer(object):
                 pprint.pformat(decoded_res, indent=2))
         return code, decoded_res
 
-    def send_regular(self, zeus_problem_id, kind, source_file, language,
+    def send_regular(self, zeus_problem_id, kind, source_code, language,
                      submission_id, return_url):
         assert kind in ('INITIAL', 'NORMAL'), ("Invalid kind: %s" % kind)
         assert language in zeus_language_map, \
                 ("Invalid language: %s" % language)
         url = urljoin(self.url, 'dcj_problem/%d/submissions' %
                       (zeus_problem_id,))
-        with source_file as f:
-            data = {
-                'submission_type': Base64String('SMALL' if kind == 'INITIAL'
-                                                else 'LARGE'),
-                'return_url': Base64String(return_url),
-                'username': Base64String(submission_id), # not used by zeus,
-                # only for debugging
-                'metadata': Base64String('HASTA LA VISTA, BABY'), # not used
-                # by zeus, but zeus sends back meaningful metadata
-                'source_code': Base64String(f.read()),
-                'language': Base64String(zeus_language_map[language]),
-            }
+        data = {
+            'submission_type': Base64String('SMALL' if kind == 'INITIAL'
+                                            else 'LARGE'),
+            'return_url': Base64String(return_url),
+            'username': Base64String(submission_id),  # not used by zeus,
+            # only for debugging
+            'metadata': Base64String('HASTA LA VISTA, BABY'),  # not used
+            # by zeus, but zeus sends back meaningful metadata
+            'source_code': Base64String(source_code),
+            'language': Base64String(zeus_language_map[language]),
+        }
         code, res = self._encode_and_send(url, data)
         if code != 200:
             raise ZeusError(res.get('error', None), code)

@@ -1,15 +1,13 @@
-import json
 import logging
+
 from django.core.exceptions import PermissionDenied
-from django.db import IntegrityError
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
 from oioioi.zeus.backends import _get_key, _json_base64_decode
-from oioioi.zeus.models import ZeusAsyncJob
 from oioioi.zeus.utils import verify_zeus_url_signature
-from oioioi.evalmgr.handlers import postpone
+from oioioi.evalmgr import delay_environ
 
 logger = logging.getLogger(__name__)
 
@@ -18,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 @csrf_exempt
 @require_POST
-def push_grade(request, check_uid, signature):
+def push_grade(request, saved_environ_id, signature):
     # TODO: might use some kind of url signing decorator and skip
     # arguments from url
-    if not verify_zeus_url_signature(check_uid, signature):
+    if not verify_zeus_url_signature(saved_environ_id, signature):
         raise PermissionDenied
 
     # This message may be useful for debugging in case when decoding fails
@@ -31,49 +29,16 @@ def push_grade(request, check_uid, signature):
     logger.info(body)
     logger.info(' <<<< ')
 
+    # Create a small ``env`` that will be used to resume the job. Actuall
+    # results processing is done in oioioi.zeus.handlers.restore_job.
+    env = {'saved_environ_id': saved_environ_id}
     if 'compilation_output' in body:
-        compilation_result = 'CE'
+        env['compilation_result'] = 'CE'
+        env['reports'] = []
     else:
-        compilation_result = 'OK'
+        env['compilation_result'] = 'OK'
+        env['reports'] = list(_get_key(body, 'tests_info'))
+    env['compilation_message'] = body.get('compilation_output', '')
 
-
-    if compilation_result == 'OK':
-        reports = _get_key(body, 'tests_info')
-    else:
-        reports = []
-
-    try:
-        async_job, created = ZeusAsyncJob.objects.select_for_update() \
-                             .get_or_create(check_uid=check_uid)
-    except IntegrityError:
-        # This should never happen.
-        logger.error("IntegrityError while saving results for %s",
-                     check_uid, exc_info=True)
-        logger.error("Received reports:\n%s", reports)
-        return HttpResponse("Recorded!")
-
-    if async_job.resumed:
-        logger.debug("Got results for %s again, ignoring", check_uid)
-        return HttpResponse("Recorded!")
-
-    if not created:
-        logger.info("Resuming job %s", check_uid)
-        env = json.loads(async_job.environ)
-        env.setdefault('zeus_results', [])
-        env['compilation_result'] = compilation_result
-        env['compilation_message'] = body.get('compilation_output', '')
-        env['zeus_results'].extend(list(reports))
-        postpone(env)
-        async_job.environ = json.dumps(env)
-        async_job.resumed = True
-        async_job.save()
-    else:
-        # The code below solves a race condition in case Zeus
-        # does the callback before ZeusAsyncJob is created in handlers.
-        async_job.environ = json.dumps({'zeus_results': list(reports)})
-        async_job.save()
-
-    # TODO: return a brief text response in a case of a failure
-    # (Internal Server Error or Permission Denied).
-    # Currently we respond with the default human-readable HTML.
-    return HttpResponse("Recorded!")
+    delay_environ(env)
+    return HttpResponse('Recorded!')

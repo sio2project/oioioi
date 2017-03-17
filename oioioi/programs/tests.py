@@ -1021,7 +1021,7 @@ class TestRejudge(TestCase, SubmitFileMixin):
         self._test_rejudge(['0', '1ocen', '1b', '3'],
                            ['0', '1a', '1b', '2'],
                            'FULL',
-                           {},
+                           [],
                            [],
                            ['0', '1a', '1b', '2'])
 
@@ -1036,14 +1036,14 @@ class TestRejudge(TestCase, SubmitFileMixin):
         self._test_rejudge(['0', '1ocen', '1b', '3'],
                            ['0', '1ocen', '1b', '3'],
                            'JUDGED',
-                           {'0', '1a', '2', '3'},
+                           ['0', '1a', '2', '3'],
                            ['1ocen', '1b'],
                            ['0', '3'])
 
         self._test_rejudge(['0', '1ocen', '1b', '3'],
                            [],
                            'JUDGED',
-                           {'0', '1a', '2', '3'},
+                           ['0', '1a', '2', '3'],
                            ['1ocen', '1b'],
                            ['0', '3'])
 
@@ -1051,7 +1051,7 @@ class TestRejudge(TestCase, SubmitFileMixin):
         self._test_rejudge(['0', '1ocen', '1b', '3'],
                            ['0', '1a', '1b', '2', '3'],
                            'NEW',
-                           {},
+                           [],
                            ['0', '1b', '3'],
                            ['1a', '2'])
 

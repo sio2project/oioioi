@@ -22,10 +22,12 @@ from oioioi.base.utils.archive import Archive, ArchiveException
 
 class TestRunProblemControllerMixin(object):
     def fill_evaluation_environ(self, environ, submission, **kwargs):
-        self.generate_base_environ(environ, submission, **kwargs)
-        if environ['submission_kind'] != 'TESTRUN':
+        if submission.kind != 'TESTRUN':
             return super(TestRunProblemControllerMixin, self) \
                 .fill_evaluation_environ(environ, submission, **kwargs)
+        # This *must be* called after that if above, we do not want
+        # `generate_base_environ` to be called twice per environ.
+        self.generate_base_environ(environ, submission, **kwargs)
 
         recipe_body = [
                 ('make_test',

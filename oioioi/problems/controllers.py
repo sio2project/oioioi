@@ -110,15 +110,15 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
-    def submission_queued(self, submission, async_result):
-        """This method gets called right after the submission becomes scheduled
-           in the queue with async_result from delay. It gets called only for
-           submissions send without a contest
+    def get_safe_exec_mode(self):
+        """Determines execution mode when `USE_UNSAFE_EXEC` is False.
+
+           Return 'vcpu' if you want to use oitimetool. Otherwise return 'cpu'.
         """
-        pass
+        return 'vcpu'
 
     def judge(self, submission, extra_args=None, is_rejudge=False):
-        environ = {}
+        environ = evalmgr.create_environ()
         environ['extra_args'] = extra_args or {}
         environ['is_rejudge'] = is_rejudge
         picontroller = submission.problem_instance.controller
@@ -161,10 +161,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         evalmgr_extra_args = environ.get('evalmgr_extra_args', {})
         logger.debug("Judging submission #%d with environ:\n %s",
                 submission.id, pprint.pformat(environ, indent=4))
-        async_result = evalmgr.evalmgr_job.apply_async(
-                (environ,), **evalmgr_extra_args)
-
-        picontroller.submission_queued(submission, async_result)
+        evalmgr.delay_environ(environ, **evalmgr_extra_args)
 
     def mixins_for_admin(self):
         """Returns an iterable of mixins to add to the default

@@ -37,7 +37,6 @@ INSTALLED_APPS = (
     'oioioi.ctimes',
     'oioioi.acm',
     'oioioi.suspendjudge',
-    'oioioi.submitsqueue',
     'oioioi.submitservice',
     'oioioi.timeline',
     'oioioi.statistics',

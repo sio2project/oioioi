@@ -3,6 +3,7 @@ from oioioi.base.tests import TestCase
 from django.core.urlresolvers import reverse
 
 from oioioi.contests.models import ProblemInstance, Contest, Submission
+from oioioi.evalmgr import create_environ
 from oioioi.suspendjudge.handlers import check_problem_instance_state
 from oioioi.programs.controllers import ProgrammingContestController
 
@@ -44,9 +45,8 @@ class TestSuspending(TestSuspendjudgeSuper):
         submission = Submission.objects.get()
         controller = ProgrammingContestController(contest)
 
-        env = {}
-        env['recipe'] = [('dummy', 'dummy')]
-        env['postpone_handlers'] = [('dummy', 'dummy')]
+        env = create_environ()
+        env.setdefault('recipe', []).append(('dummy', 'dummy'))
         env['extra_args'] = []
         controller.fill_evaluation_environ(env, submission)
         controller.finalize_evaluation_environment(env)
@@ -64,7 +64,8 @@ class TestSuspending(TestSuspendjudgeSuper):
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         self._empty_post('test_admin', 'suspend_all', problem_instance)
-        env = {'problem_instance_id': problem_instance.id, 'job_id': 'dummy',
+        env = {'problem_instance_id': problem_instance.id,
+               'job_id': 'dummy', 'celery_task_id': 'dummy',
                'submission_id': 1, 'is_rejudge': False,
                'report_kinds': ['INITIAL', 'NORMAL']}
         with self.assertRaises(Ignore):

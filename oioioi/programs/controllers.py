@@ -71,7 +71,7 @@ class ProgrammingProblemController(ProblemController):
     def generate_base_environ(self, environ, submission, **kwargs):
         contest = submission.problem_instance.contest
         self.generate_initial_evaluation_environ(environ, submission)
-        environ['recipe'] = [
+        environ.setdefault('recipe', []).extend([
                 ('compile',
                     'oioioi.programs.handlers.compile'),
                 ('compile_end',
@@ -81,14 +81,15 @@ class ProgrammingProblemController(ProblemController):
 
                 ('delete_executable',
                     'oioioi.programs.handlers.delete_executable'),
-            ]
-        environ['error_handlers'] = [('delete_executable',
-                    'oioioi.programs.handlers.delete_executable')]
+            ])
+        environ.setdefault('error_handlers', []).append((
+            'delete_executable', 'oioioi.programs.handlers.delete_executable'))
 
         if getattr(settings, 'USE_UNSAFE_EXEC', False):
             environ['exec_mode'] = 'unsafe'
         else:
-            environ['exec_mode'] = contest.controller.get_safe_exec_mode()
+            environ['exec_mode'] = \
+                    submission.problem_instance.controller.get_safe_exec_mode()
 
         environ['untrusted_checker'] = not settings.USE_UNSAFE_CHECKER
 

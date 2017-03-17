@@ -81,7 +81,6 @@ def call_submission_judged(env, **kwargs):
     assert contest.id == env['contest_id']
     contest.controller.submission_judged(submission,
             rejudged=env['is_rejudge'])
-    contest.controller.submission_unqueued(submission, env['job_id'])
     return env
 
 

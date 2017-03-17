@@ -1,3 +1,8 @@
+import logging
+import functools
+from collections import defaultdict
+import types
+
 from django.db import transaction
 from django.core.urlresolvers import reverse
 from django.utils.text import Truncator
@@ -6,21 +11,15 @@ from django.utils.module_loading import import_string
 from django.conf import settings
 
 from oioioi.base.utils import make_html_link
-from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
+from oioioi.evalmgr import transfer_job
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
 from oioioi.programs.models import CompilationReport, TestReport, \
         GroupReport, Test, UserOutGenStatus
-from oioioi.problems.models import Problem
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path, \
         filetracker_to_django_file
-
-import logging
-import functools
-from collections import defaultdict
-import types
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +88,9 @@ def compile(env, **kwargs):
     if 'language' in env and 'compiler' not in env:
         compilation_job['compiler'] = 'default-' + env['language']
     env['workers_jobs'] = {'compile': compilation_job}
-    return env
+    return transfer_job(env,
+            'oioioi.sioworkers.handlers.transfer_job',
+            'oioioi.sioworkers.handlers.restore_job')
 
 
 def compile_end(env, **kwargs):
@@ -245,7 +246,9 @@ def run_tests(env, kind=None, **kwargs):
     env['workers_jobs'] = jobs
     env['workers_jobs.extra_args'] = extra_args
     env['workers_jobs.not_to_judge'] = not_to_judge
-    return env
+    return transfer_job(env,
+            'oioioi.sioworkers.handlers.transfer_job',
+            'oioioi.sioworkers.handlers.restore_job')
 
 
 @_skip_on_compilation_error

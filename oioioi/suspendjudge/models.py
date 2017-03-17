@@ -3,12 +3,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import ProblemInstance
-from oioioi.submitsqueue.models import submission_states
+from oioioi.evalmgr.models import job_states
 
 
-check_django_app_dependencies(__name__, ['oioioi.submitsqueue'], strict=True)
-
-submission_states.register('SUSPENDED', _("Suspended"))
+job_states.register('SUSPENDED', _("Suspended"))
 
 
 class SuspendedProblem(models.Model):

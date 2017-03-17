@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'oioioi.dashboard',
     'oioioi.base',
     'oioioi.maintenancemode',
+    'oioioi.evalmgr',
 
     'djcelery',
     'kombu.transport.django',

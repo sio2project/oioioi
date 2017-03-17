@@ -6,6 +6,7 @@ from datetime import datetime
 
 from django.contrib.auth.models import User, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import transaction
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.core.urlresolvers import reverse
@@ -684,9 +685,10 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
                              contest.default_submissions_limit)
 
         # add probleminstances to round
-        for pi in ProblemInstance.objects.filter(contest__isnull=False):
-            pi.round = Round.objects.get()
-            pi.save()
+        with transaction.atomic():
+            for pi in ProblemInstance.objects.filter(contest__isnull=False):
+                pi.round = Round.objects.get()
+                pi.save()
 
         # we can see model solutions
         pi = ProblemInstance.objects.filter(contest__isnull=False)[0]
