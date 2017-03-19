@@ -23,42 +23,77 @@ $(function() {
 </div>
 
 
+{% if warning %}
+<div class="alert alert-warning">
+    {{ warning }}
+</div>
+{% endif %}
 
 {% if announce %}
 <div class="alert alert-info">
     {{ announce }}
 </div>
 {% endif %}
+
 <h2>{% trans "Workers list" %}</h2>
 
-<form method="post" action= {% url "show_workers" %} > {% csrf_token %}
-        <div class="row-fluid">
-            {% for w in workers %}
-                <div class = "span3"> <div class="well" style="height: 35vmin; overflow-y: scroll">
-                    <div style="width:100%; background-color">
-                        <span>{{ w.name }}</span>
-                        <input type="checkbox" name="work-{{ w.name }}" style="float:right"
-                            {% if readonly %} onclick="return false"{% endif %}
-                            {% if w.select %} checked style="opacity: .50;" {% endif %}>
-                    </div>
-                    <span>{% trans "RAM:" %} </span>{{ w.ram }} <br>
-                    <span>{% trans "Max number of tasks:" %} </span>{{ w.maxConcurr }} </br>
-                </div></div>
-                {% if forloop.counter|divisibleby:4 %}</div><div class="row-fluid">{% endif %}
-            {% endfor %}
-        </div>
-        <br>
-        <div class="row-fluid">
-            {% if delete %}
-                <button type="submit" name="confirm" value="1" class="btn btn-danger">{% trans "Confirm"%}</button>
-                <button type="submit" name="nothing" value="1" class="btn">{% trans "Go back"%}</button>
-            {% else %}
-                <button type="submit" name="delete" value="1" class="btn btn-danger">{% trans "Delete workers"%}</button>
-            {% endif %}
+<form method="post" action="{% url 'show_workers' %}">
+    {% csrf_token %}
 
+    <div class="row-fluid">
+        {% for w in workers %}
+        <div class="span3">
+            <div class="well well-small">
+                <table class="table table-condensed" style="margin-bottom: 0">
+                    <thead>
+                    <tr>
+                        <th colspan="2">
+                            {{ w.name }}
+                            <input
+                                type="checkbox"
+                                name="work-{{ w.name }}"
+                                style="float:right"
+                                {% if readonly %} onclick="return false"{% endif %}
+                                {% if w.select %} checked {% endif %} >
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{% trans "RAM" %}</td><td>{{ w.ram }}</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Concurrency" %}</td><td>{{ w.concurrency }}</td>
+                        </tr>
+                        <tr>
+                            <td>{% trans "Cpu exec" %}</td><td>{{ w.can_run_cpu_exec }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    <div>
+    {% if forloop.counter|divisibleby:4 %}
+    {# End row and start new one #}
+    </div>
+    <div class="row-fluid">
+    {% endif %}
+        {% endfor %}
+
+    </div>
+    <div class="row-fluid">
+        {% if delete %}
+        <button type="submit" name="confirm" value="1" class="btn btn-danger">
+            {% trans "Confirm"%}
+        </button>
+        <button type="submit" name="nothing" value="1" class="btn">
+            {% trans "Go back"%}
+        </button>
+        {% else %}
+        <button type="submit" name="delete" value="1" class="btn btn-danger">
+            {% trans "Delete workers"%}
+        </button>
+        {% endif %}
+    </div>
 </form>
-
 
 {% endblock %}

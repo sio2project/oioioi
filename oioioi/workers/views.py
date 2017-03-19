@@ -1,4 +1,5 @@
 import json
+from operator import itemgetter
 
 from django.shortcuts import render
 from django.core.urlresolvers import reverse
@@ -30,6 +31,7 @@ def del_worker(l):
 def show_info_about_workers(request):
     readonly = False
     announce = None
+    warning = None
     delete = False
     if request.method == 'POST':
         if request.POST.get('delete'):
@@ -50,15 +52,22 @@ def show_info_about_workers(request):
         result = {
             'name': d['name'],
             'ram': info.get('ram', '<unknown>'),
-            'maxConcurr': info.get('concurrency', '<unknown>'),
+            'concurrency': info['concurrency'],
+            'can_run_cpu_exec': info['can_run_cpu_exec'],
             'select': select,
         }
         return result
     workers_info = map(transform_dict, workers_info)
+
+    if not any(map(itemgetter('can_run_cpu_exec'), workers_info)) and \
+            not settings.USE_UNSAFE_EXEC:
+        warning = _("There aren't any workers allowed to run cpu-exec jobs.")
+
     context = {
         'workers': workers_info,
         'readonly': readonly,
         'announce': announce,
+        'warning': warning,
         'delete': delete,
     }
     return render(request, 'workers/list_workers.html', context)
