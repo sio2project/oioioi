@@ -57,6 +57,7 @@ def show_info_about_workers(request):
             'select': select,
         }
         return result
+    print(workers_info)
     workers_info = map(transform_dict, workers_info)
 
     if not any(map(itemgetter('can_run_cpu_exec'), workers_info)) and \

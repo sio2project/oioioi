@@ -1,0 +1,34 @@
+version: '3'
+services:
+  db:
+    image: library/postgres
+    restart: always
+    environment:
+      POSTGRES_USER: "oioioi"
+      POSTGRES_PASSWORD: "oioioi"
+      POSTGRES_DB: "oioioi"
+  web:
+    command: /sio2/oioioi/oioioi_init.sh
+    volumes:
+      - $PWD:/sio2/oioioi
+      - $PWD/logs/:/sio2/logs
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  worker:
+    command: /sio2/oioioi/worker_init.sh
+    volumes:
+      - $PWD:/sio2/oioioi
+      - $PWD/logs/:/sio2/logs
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+      - web
+    deploy:
+      replicas: 10

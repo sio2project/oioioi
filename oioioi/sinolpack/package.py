@@ -348,11 +348,11 @@ class SinolPackage(object):
             logger.warning("%s: compilation of file %s failed with code %s",
                     self.filename, filename, compilation_result)
             logger.warning("%s: compiler output: %r", self.filename,
-                    compilation_message)
+                          new_env)
 
             raise ProblemPackageError(_("Compilation of file %(filename)s "
                 "failed. Compiler output: %(output)s") % {
-                    'filename': filename, 'output': compilation_message})
+                    'filename': filename, 'output': new_env})
 
         # TODO Remeber about 'exec_info' when Java support is introduced.
         new_env['compiled_file'] = new_env['out_file']
