@@ -22,11 +22,6 @@ ProgrammingProblemController.mix_in(ScoresRevealProblemControllerMixin)
 
 
 class ScoresRevealContestControllerMixin(object):
-    def use_spliteval(self, submission):
-        return super(ScoresRevealContestControllerMixin, self) \
-                .use_spliteval(submission) and not ScoreRevealConfig.objects \
-                .filter(problem=submission.problem)
-
     def can_see_submission_score(self, request, submission):
         return super(ScoresRevealContestControllerMixin, self) \
             .can_see_submission_score(request, submission) or \

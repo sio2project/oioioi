@@ -61,7 +61,6 @@ Table of Contents
     sections/scoring
     sections/evaluation
     sections/problem_uploading
-    sections/spliteval
     sections/notifications
     sections/misc
     glossary

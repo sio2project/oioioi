@@ -17,7 +17,6 @@ from oioioi.participants.controllers import ParticipantsController, \
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.oi.models import OIRegistration
-from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 from oioioi.scoresreveal.utils import is_revealed
 
 
@@ -162,8 +161,6 @@ class OIContestController(ProgrammingContestController):
     def default_contesticons_urls(self):
         return ['%(url)simages/menu/menu-icon-%(i)d.png' %
                 {'url': settings.STATIC_URL, 'i': i} for i in range(1, 4)]
-
-OIContestController.mix_in(SplitEvalContestControllerMixin)
 
 
 class OIOnsiteContestController(OIContestController):

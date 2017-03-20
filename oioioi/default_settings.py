@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 9
+INSTALLATION_CONFIG_VERSION = 10
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -375,10 +375,6 @@ EVALMGR_CONCURRENCY = 1
 
 # Number of concurrently processed problem packages
 UNPACKMGR_CONCURRENCY = 1
-
-# Split-priority evaluation
-ENABLE_SPLITEVAL = False
-SPLITEVAL_EVALMGR = False
 
 SIOWORKERSD_URL = 'http://localhost:7889/'
 

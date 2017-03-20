@@ -44,14 +44,6 @@ stopwaitsecs=15
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
 
-[program:evalmgr-lowprio]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-lowprio -c {{ settings.EVALMGR_CONCURRENCY }}
-startretries=0
-stopwaitsecs=15
-redirect_stderr=true
-stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-lowprio.log
-{% if not settings.SPLITEVAL_EVALMGR %}exclude=true{% endif %}
-
 [program:evalmgr-zeus]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-zeus -c 1
 startretries=0

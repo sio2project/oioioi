@@ -520,6 +520,10 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Removed *FILELOCK_BASEDIR* entry from *deployment/settings.py*.
 
+#. * Removed *ENABLE_SPLITEVAL* and *SPLITEVAL_EVALMGR* entries from *deployment/settings.py*.
+
+   * Removed *evalmgr-lowprio* entry from *deployment/supervisord.conf*.
+
 Usage
 -----
 

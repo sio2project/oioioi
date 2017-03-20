@@ -2,10 +2,8 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.evalmgr import recipe_placeholder
-from oioioi.programs.controllers import ProgrammingProblemController, \
-        ProgrammingContestController
+from oioioi.programs.controllers import ProgrammingProblemController
 from oioioi.zeus.models import ZeusProblemData
-from oioioi.zeus.utils import is_zeus_problem
 
 
 class ZeusProblemController(ProgrammingProblemController):
@@ -178,16 +176,3 @@ class ZeusProblemController(ProgrammingProblemController):
     def filter_allowed_languages_dict(self, languages, problem_instance):
         return {k: languages[k] for k in languages
                 if k in settings.ZEUS_ALLOWED_LANGUAGES}
-
-
-class ZeusContestControllerMixin(object):
-    allow_to_late_mixins = True
-
-    def use_spliteval(self, submission):
-        if is_zeus_problem(submission.problem_instance.problem):
-            return False
-        return super(ZeusContestControllerMixin, self) \
-                .use_spliteval(submission)
-
-
-ProgrammingContestController.mix_in(ZeusContestControllerMixin)

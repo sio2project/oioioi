@@ -641,9 +641,6 @@ class ProgrammingContestController(ContestController):
         return problem_instance.problem.controller \
             ._get_language(source_file, problem_instance)
 
-    def use_spliteval(self, submission):
-        return True
-
     def fill_evaluation_environ(self, environ, submission):
         problem = submission.problem_instance.problem
         problem.controller.fill_evaluation_environ(environ, submission)

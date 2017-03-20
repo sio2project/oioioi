@@ -16,7 +16,6 @@ from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
 from oioioi.rankings.controllers import DefaultRankingController, \
         CONTEST_RANKING_KEY
-from oioioi.spliteval.controllers import SplitEvalContestControllerMixin
 from oioioi.pa.models import PAProblemInstanceData
 from oioioi.pa.score import PAScore
 
@@ -148,8 +147,6 @@ class PAContestController(ProgrammingContestController):
 
     def get_safe_exec_mode(self):
         return 'cpu'
-
-PAContestController.mix_in(SplitEvalContestControllerMixin)
 
 
 A_PLUS_B_RANKING_KEY = 'ab'

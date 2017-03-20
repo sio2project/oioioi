@@ -246,7 +246,6 @@ INSTALLED_APPS = (
 #    'oioioi.oisubmit',
 #    'oioioi.zeus',
 #    'oioioi.testrun',
-#    'oioioi.spliteval',
 #    'oioioi.printing',
 #    'oioioi.scoresreveal',
 #    'oioioi.oireports',
@@ -311,12 +310,6 @@ AUTHENTICATION_BACKENDS += (
 
 # Number of concurrently processed problem packages (default is 1).
 #UNPACKMGR_CONCURRENCY = 1
-
-# Uncomment the following lines to enable judging prioritisation.
-# Workers serving both high- and low-priority tasks should be started with
-# '-Q sioworkers,sioworkers-lowprio' commandline option.
-#ENABLE_SPLITEVAL = True
-#SPLITEVAL_EVALMGR = True
 
 PROBLEM_SOURCES += (
 #    'oioioi.sharingcli.problem_sources.RemoteSource',
