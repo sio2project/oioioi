@@ -17,10 +17,6 @@ def get_info_about_workers():
     return server.get_workers()
 
 
-def get_all_tags():
-    return server.list_tags()
-
-
 def get_all_names():
     return [i['name'] for i in get_info_about_workers()]
 
@@ -30,27 +26,12 @@ def del_worker(l):
         server.forget_worker(i)
 
 
-def del_tag_from_workers(tag, l):
-    server.del_tag(l, tag)
-
-
-def add_tag_to_workers(tag, l):
-    server.add_tag(l, tag)
-
-
 @enforce_condition(is_superuser)
 def show_info_about_workers(request):
     readonly = False
     announce = None
-    edit = False
     delete = False
-    all_tags = None
     if request.method == 'POST':
-        if request.POST.get('edit'):
-            readonly = True
-            announce = _("Select tag to add or remove from selected workers")
-            edit = True
-            all_tags = json.dumps(get_all_tags())
         if request.POST.get('delete'):
             readonly = True
             announce = _("""You are about to delete the selected workers.
@@ -61,18 +42,6 @@ def show_info_about_workers(request):
                 request.POST.get("work-%s" % x)]
             del_worker(selected)
             announce = _("Successfully deleted selected workers")
-        if request.POST.get('tagadd'):
-            tag_name = request.POST.get('tagname')
-            selected = [x for x in get_all_names() if
-                request.POST.get('work-%s' % x)]
-            add_tag_to_workers(tag_name, selected)
-            announce = _("Successfully added tag")
-        if request.POST.get('tagdelete'):
-            selected = [x for x in get_all_names() if
-                request.POST.get('work-%s' % x)]
-            tag_name = request.POST.get('tagname')
-            del_tag_from_workers(tag_name, selected)
-            announce = _("Successfully deleted tag")
     workers_info = get_info_about_workers()
 
     def transform_dict(d):
@@ -82,7 +51,6 @@ def show_info_about_workers(request):
             'name': d['name'],
             'ram': info.get('ram', '<unknown>'),
             'maxConcurr': info.get('concurrency', '<unknown>'),
-            'tags': d['tags'],
             'select': select,
         }
         return result
@@ -91,9 +59,7 @@ def show_info_about_workers(request):
         'workers': workers_info,
         'readonly': readonly,
         'announce': announce,
-        'edit': edit,
         'delete': delete,
-        'all_tags': all_tags
     }
     return render(request, 'workers/list_workers.html', context)
 
@@ -106,7 +72,7 @@ def get_load_json(request):
     for i in data:
         concurrency = int(i['info']['concurrency'])
         capacity += concurrency
-        if bool(i['exclusive']):
+        if bool(i['is_running_cpu_exec']):
             load += concurrency
         else:
             load += len(i['tasks'])
