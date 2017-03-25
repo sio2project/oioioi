@@ -129,3 +129,7 @@ class TestACMRanking(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn('0:02', response.content)
+
+    def test_safe_exec_mode(self):
+        contest = Contest.objects.get()
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'cpu')

@@ -41,6 +41,10 @@ class TestOIAdmin(TestCase):
         school = School.objects.get(postal_code='02-044')
         self.assertEquals(school.city, u'Bielsko-Biała Zdrój')
 
+    def test_safe_exec_mode(self):
+        contest = Contest.objects.get()
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
+
 
 class TestOIRegistration(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_schools']

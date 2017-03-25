@@ -26,3 +26,7 @@ class TestAMPPZContestController(TestCase):
                       kwargs={'contest_id': contest.id}), follow=True)
         self.assertContains(response, 'amppz/images/menu-icon')
         self.assertContains(response, 'amppz/images/logo')
+
+    def test_safe_exec_mode(self):
+        contest = Contest.objects.get()
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'cpu')
