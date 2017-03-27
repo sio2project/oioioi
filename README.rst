@@ -540,6 +540,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.db
         # (...)
 
+#. * Added commented out *OIOIOI_INSTANCE_PRIORITY_BONUS* and
+     *OIOIOI_INSTANCE_WEIGHT_BONUS* entries to *deployment/settings.py*.::
+
+        # Bonus to judging priority ang judging weight for each contest on this
+        # OIOIOI instance.
+        #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
+        #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
+
+   * Modified comment to *SITE_NAME* entry in *deployment/settings.py*.::
+
+        # Site name displayed in the title and used by sioworkersd
+        # to distinguish OIOIOI instances.
+        SITE_NAME = 'OIOIOI'
+
 Usage
 -----
 

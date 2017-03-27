@@ -143,8 +143,6 @@ class ContestLinkInline(admin.TabularInline):
 
 class ContestAdmin(admin.ModelAdmin):
     inlines = [RoundInline, AttachmentInline, ContestLinkInline]
-    fields = ['name', 'id', 'controller_name', 'default_submissions_limit',
-              'contact_email']
     readonly_fields = ['creation_date']
     prepopulated_fields = {'id': ('name',)}
     list_display = ['name', 'id', 'creation_date']
@@ -161,6 +159,13 @@ class ContestAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
+
+    def get_fields(self, request, obj=None):
+        fields = ['name', 'id', 'controller_name', 'default_submissions_limit',
+            'contact_email']
+        if request.user.is_superuser:
+            fields += ['judging_priority', 'judging_weight']
+        return fields
 
     def get_fieldsets(self, request, obj=None):
         if obj and not request.GET.get('simple', False):

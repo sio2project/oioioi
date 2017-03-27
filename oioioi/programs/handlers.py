@@ -23,8 +23,11 @@ from oioioi.filetracker.utils import django_to_filetracker_path, \
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_NORMAL_PRIORITY = 100
-DEFAULT_HIGH_PRIORITY = 50
+COMPILE_TASK_PRIORITY = 200
+EXAMPLE_TEST_TASK_PRIORITY = 300
+TESTRUN_TEST_TASK_PRIORITY = 300
+DEFAULT_TEST_TASK_PRIORITY = 100
+# There is also TASK_PRIORITY in oioioi/sinolpack/package.py.
 
 
 def _make_filename(env, base_name):
@@ -84,6 +87,7 @@ def compile(env, **kwargs):
 
     compilation_job = env.copy()
     compilation_job['job_type'] = 'compile'
+    compilation_job['task_priority'] = COMPILE_TASK_PRIORITY
     compilation_job['out_file'] = _make_filename(env, 'exe')
     if 'language' in env and 'compiler' not in env:
         compilation_job['compiler'] = 'default-' + env['language']
@@ -218,9 +222,6 @@ def run_tests(env, kind=None, **kwargs):
 
            If the dictionary already exists, new test results are appended.
     """
-    priority = DEFAULT_NORMAL_PRIORITY
-    if kind == 'INITIAL' or kind == 'EXAMPLE':
-        priority = DEFAULT_HIGH_PRIORITY
     jobs = dict()
     not_to_judge = []
     for test_name, test_env in env['tests'].iteritems():
@@ -231,9 +232,14 @@ def run_tests(env, kind=None, **kwargs):
             continue
         job = test_env.copy()
         job['job_type'] = (env.get('exec_mode', '') + '-exec').lstrip('-')
+        if kind == 'INITIAL' or kind == 'EXAMPLE':
+            job['task_priority'] = EXAMPLE_TEST_TASK_PRIORITY
+        elif env['submission_kind'] == 'TESTRUN':
+            job['task_priority'] = TESTRUN_TEST_TASK_PRIORITY
+        else:
+            job['task_priority'] = DEFAULT_TEST_TASK_PRIORITY
         job['exe_file'] = env['compiled_file']
         job['exec_info'] = env['exec_info']
-        job['priority'] = priority
         job['check_output'] = env.get('check_outputs', True)
         if env.get('checker'):
             job['chk_file'] = env['checker']

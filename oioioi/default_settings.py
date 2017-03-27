@@ -13,13 +13,14 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 11
+INSTALLATION_CONFIG_VERSION = 12
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 INTERNAL_IPS = ('127.0.0.1',)
 
-# Site name displayed in the title
+# Site name displayed in the title and used by sioworkersd
+# to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
 
 # Run uwsgi daemon. Shall be True, False or 'auto'.
@@ -479,3 +480,11 @@ MAINTENANCE_MODE_IGNORE_URLS = [
 # Domain to use for serving IP to hostname mappings
 # using ./manage.py ipauth-dnsserver
 IPAUTH_DNSSERVER_DOMAIN = None
+
+# Judging priority and weight settings
+DEFAULT_CONTEST_PRIORITY = 10
+DEFAULT_CONTEST_WEIGHT = 1000
+OIOIOI_INSTANCE_PRIORITY_BONUS = 0
+OIOIOI_INSTANCE_WEIGHT_BONUS = 0
+NON_CONTEST_PRIORITY = 0
+NON_CONTEST_WEIGHT = 1000

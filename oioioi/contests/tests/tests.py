@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.utils.timezone import utc, LocalTimezone
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.admin.utils import quote
+from django.conf import settings
 from nose.tools import nottest
 
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time, \
@@ -38,10 +39,15 @@ from oioioi.base.notification import NotificationHandler
 
 
 class TestModels(TestCase):
+
     def test_fields_autogeneration(self):
         contest = Contest()
         contest.save()
         self.assertEqual(contest.id, 'c1')
+        self.assertEqual(contest.judging_priority,
+            settings.DEFAULT_CONTEST_PRIORITY)
+        self.assertEqual(contest.judging_weight,
+            settings.DEFAULT_CONTEST_WEIGHT)
         round = Round(contest=contest)
         round.save()
         self.assertEqual(round.name, 'Round 1')
@@ -888,6 +894,9 @@ class TestContestAdmin(TestCase):
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Start date")
+        self.assertNotContains(response, "Judging priority")
+        self.assertNotContains(response, "Judging weight")
         post_data = {
                 'name': 'cname',
                 'id': 'cid',
@@ -907,6 +916,10 @@ class TestContestAdmin(TestCase):
         contest = Contest.objects.get()
         self.assertEqual(contest.id, 'cid')
         self.assertEqual(contest.name, 'cname')
+        self.assertEqual(contest.judging_priority,
+            settings.DEFAULT_CONTEST_PRIORITY)
+        self.assertEqual(contest.judging_weight,
+            settings.DEFAULT_CONTEST_WEIGHT)
         self.assertEqual(contest.round_set.count(), 1)
         round = contest.round_set.get()
         self.assertEqual(round.start_date,
@@ -921,6 +934,8 @@ class TestContestAdmin(TestCase):
         response = self.client.get(url)
         self.assertIn('2012-02-05', response.content)
         self.assertIn('06:07:08', response.content)
+        self.assertNotContains(response, "Judging priority")
+        self.assertNotContains(response, "Judging weight")
 
         post_data = {
                 'name': 'cname1',
@@ -1773,6 +1788,8 @@ class TestModifyContest(TestCase):
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Judging priority")
+        self.assertNotContains(response, "Judging weight")
         post_data = {
                 'name': 'Yet Another Contest',
                 'id': 'yac',
@@ -1792,11 +1809,21 @@ class TestModifyContest(TestCase):
         ContestPermission(user=User.objects.get(pk=1001), contest=contest,
             permission='contests.contest_admin').save()
 
+        url = reverse('oioioiadmin:contests_contest_change',
+            args=(quote('yac'),))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Judging priority")
+        self.assertContains(response, "Judging weight")
+
         self.client.login(username='test_user')
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote('yac'),)) + '?simple=true'
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Default submissions limit")
+        self.assertNotContains(response, "Judging priority")
+        self.assertNotContains(response, "Judging weight")
         post_data = {
                 'name': 'New Name',
                 'start_date_0': '2013-02-03',
@@ -1811,6 +1838,14 @@ class TestModifyContest(TestCase):
         contest = Contest.objects.get()
         self.assertEqual(contest.id, 'yac')
         self.assertEqual(controller_name, contest.controller_name)
+
+        url = reverse('oioioiadmin:contests_contest_change',
+            args=(quote('yac'),))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Default submissions limit")
+        self.assertNotContains(response, "Judging priority")
+        self.assertNotContains(response, "Judging weight")
 
 
 class TestRegistrationController(TestCase):

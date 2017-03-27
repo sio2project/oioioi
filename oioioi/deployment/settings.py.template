@@ -17,7 +17,8 @@ TEMPLATE_DEBUG = DEBUG
 if DEBUG:
     TEMPLATE_LOADERS = UNCACHED_TEMPLATE_LOADERS
 
-# Site name displayed in the title
+# Site name displayed in the title and used by sioworkersd
+# to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
 
 # Email addresses to send error message reports.
@@ -372,3 +373,8 @@ RAVEN_CONFIG = {
     'release': raven.fetch_git_sha(
         os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
 }
+
+# Bonus to judging priority ang judging weight for each contest on this
+# OIOIOI instance.
+#OIOIOI_INSTANCE_PRIORITY_BONUS = 0
+#OIOIOI_INSTANCE_WEIGHT_BONUS = 0

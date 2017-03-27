@@ -4,6 +4,7 @@ import os.path
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Max
 from django.db.models.signals import pre_save, post_save
@@ -59,6 +60,21 @@ class Contest(models.Model):
                 "to this contest (i.e. submission confirmations) "
                 "will have the return address set to this value. "
                 "Defaults to system admins address if left empty."))
+    judging_priority = models.IntegerField(
+            verbose_name=_("judging priority"),
+            default=settings.DEFAULT_CONTEST_PRIORITY,
+            help_text=_(
+                "Contest with higher judging priority is always judged "
+                "before contest with lower judging priority."))
+    judging_weight = models.IntegerField(
+            verbose_name=_("judging weight"),
+            default=settings.DEFAULT_CONTEST_WEIGHT,
+            validators=[MinValueValidator(1)],
+            help_text=_(
+                "If some contests have the same judging priority, the "
+                "judging resources are allocated proportionally to "
+                "their weights."
+            ))
 
     @property
     def controller(self):

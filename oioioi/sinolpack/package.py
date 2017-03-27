@@ -34,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_TIME_LIMIT = 10000
 DEFAULT_MEMORY_LIMIT = 66000
+TASK_PRIORITY = 500
 C_EXTRA_ARGS = ['-Wall', '-Wno-unused-result', '-Werror']
 PAS_EXTRA_ARGS = ['-Ci', '-Cr', '-Co', '-gl']
 
@@ -325,6 +326,7 @@ class SinolPackage(object):
 
         compilation_job = self.env.copy()
         compilation_job['job_type'] = 'compile'
+        compilation_job['task_priority'] = TASK_PRIORITY
         compilation_job['source_file'] = ft_source_name
         compilation_job['out_file'] = out_name
         lang = ext
@@ -400,6 +402,7 @@ class SinolPackage(object):
         env = self._find_and_compile('ingen')
         if env and not self.use_make:
             env['job_type'] = 'ingen'
+            env['task_priority'] = TASK_PRIORITY
             env['exe_file'] = env['compiled_file']
             env['re_string'] = re_string
             env['use_sandboxes'] = self.use_sandboxes
@@ -420,6 +423,7 @@ class SinolPackage(object):
         for outname, test in outs_to_make:
             job = env.copy()
             job['job_type'] = 'exec' if self.use_sandboxes else 'unsafe-exec'
+            job['task_priority'] = TASK_PRIORITY
             job['exe_file'] = env['compiled_file']
             job['upload_out'] = True
             job['in_file'] = django_to_filetracker_path(test.input_file)
@@ -438,6 +442,7 @@ class SinolPackage(object):
             for test in tests:
                 job = env.copy()
                 job['job_type'] = 'inwer'
+                job['task_priority'] = TASK_PRIORITY
                 job['exe_file'] = env['compiled_file']
                 job['in_file'] = django_to_filetracker_path(test.input_file)
                 job['use_sandboxes'] = self.use_sandboxes

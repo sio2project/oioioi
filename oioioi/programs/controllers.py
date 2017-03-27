@@ -63,6 +63,13 @@ class ProgrammingProblemController(ProblemController):
             environ['contest_id'] = contest.id
         environ['submission_owner'] = submission.user.username \
                                       if submission.user else None
+        environ['oioioi_instance'] = settings.SITE_NAME
+        environ['contest_priority'] = contest.judging_priority \
+            if contest is not None else settings.NON_CONTEST_PRIORITY
+        environ['contest_priority'] += settings.OIOIOI_INSTANCE_PRIORITY_BONUS
+        environ['contest_weight'] = contest.judging_weight \
+            if contest is not None else settings.NON_CONTEST_WEIGHT
+        environ['contest_weight'] += settings.OIOIOI_INSTANCE_WEIGHT_BONUS
 
         environ.setdefault('report_kinds', ['INITIAL', 'NORMAL'])
         if 'hidden_judge' in environ['extra_args']:

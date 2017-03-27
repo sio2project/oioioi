@@ -82,6 +82,11 @@ class SioworkersdBackend(object):
     def run_job(self, job, **kwargs):
         env = {'workers_jobs': {'dummy_name': job}}
         env['workers_jobs.extra_args'] = kwargs
+        env['oioioi_instance'] = settings.SITE_NAME
+        env['contest_priority'] = (settings.OIOIOI_INSTANCE_PRIORITY_BONUS +
+            settings.NON_CONTEST_PRIORITY)
+        env['contest_weight'] = (settings.OIOIOI_INSTANCE_WEIGHT_BONUS +
+            settings.NON_CONTEST_WEIGHT)
         ans = SioworkersdBackend.server.sync_run_group(json.dumps(env))
         if 'error' in ans:
             raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
@@ -91,6 +96,11 @@ class SioworkersdBackend(object):
     def run_jobs(self, dict_of_jobs, **kwargs):
         env = {'workers_jobs': dict_of_jobs,
                 'workers_jobs.extra_args': kwargs}
+        env['oioioi_instance'] = settings.SITE_NAME
+        env['contest_priority'] = (settings.OIOIOI_INSTANCE_PRIORITY_BONUS +
+            settings.NON_CONTEST_PRIORITY)
+        env['contest_weight'] = (settings.OIOIOI_INSTANCE_WEIGHT_BONUS +
+            settings.NON_CONTEST_WEIGHT)
         ans = SioworkersdBackend.server.sync_run_group(json.dumps(env))
         if 'error' in ans:
             raise RuntimeError('Error from workers:\n%s\nTB:\n%s' %
