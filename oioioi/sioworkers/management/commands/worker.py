@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+import json
 from xmlrpclib import Server
 
 class Command(BaseCommand):
@@ -18,10 +19,36 @@ class Command(BaseCommand):
             self.stdout.write('No workers connected.\n')
 
     def cmd_run(self, *args, **kwargs):
-        self.stdout.write(self.server.run(' '.join(args)))
+        if len(args) != 1:
+            self.stdout.write("Required exactly one argument - job env.\n")
+            return
+        self.stdout.write(self.server.run_group(json.dumps({
+            "workers_jobs": {
+                "worker.py-task": json.loads(args[0]),
+            }
+        })))
 
     def cmd_sync_run(self, *args, **kwargs):
-        self.stdout.write(repr(self.server.sync_run(' '.join(args))))
+        if len(args) != 1:
+            self.stdout.write("Required exactly one argument - job env.\n")
+            return
+        self.stdout.write(repr(self.server.sync_run_group(json.dumps({
+            "workers_jobs": {
+                "worker.py-task": json.loads(args[0]),
+            }
+        }))))
+
+    def cmd_run_group(self, *args, **kwargs):
+        if len(args) != 1:
+            self.stdout.write("Required exactly one argument - job env.\n")
+            return
+        self.stdout.write(self.server.run_group(args[0]))
+
+    def cmd_sync_run_group(self, *args, **kwargs):
+        if len(args) != 1:
+            self.stdout.write("Required exactly one argument - job env.\n")
+            return
+        self.stdout.write(repr(self.server.sync_run_group(args[0])))
 
     def cmd_queue(self, *args, **kwargs):
         q = self.server.get_queue()
