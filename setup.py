@@ -114,8 +114,8 @@ setup(
     # $ pip install -r requirements.txt
     #
     dependency_links=[
-        'http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.0.dev',
-        'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.0.dev',
+        'http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.3',
+        'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.1.0',
         'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
         'http://github.com/sio2project/linaro-django-pagination/zipball/master#egg=linaro-django-pagination',
     ],

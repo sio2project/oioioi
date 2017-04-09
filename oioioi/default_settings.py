@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 10
+INSTALLATION_CONFIG_VERSION = 11
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
