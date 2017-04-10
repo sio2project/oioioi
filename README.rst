@@ -32,7 +32,23 @@ runserver_cmd: runserver_plus  # use manage.py runserver_plus instead of manage.
 
 .. _vagrant: https://www.vagrantup.com/docs/
 
-Manual installation
+Docker Installation
+-------------------
+
+Additionally, there are available docker files to create images containing our services.
+
+To start with, create oioioi-base image with a command:
+```
+docker build -t oioioi-base -f Dockerfile.base .
+```
+
+Then run `docker-compose up` to start the infrastructure.
+
+To start additional number of workers, use `docker-compose scale worker=<number>` as described `here`_.
+
+.. _here: https://docs.docker.com/compose/reference/scale/
+
+Manual Installation
 -------------------
 
 It should be easier to begin with a separate folder at first::
