@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 13
+INSTALLATION_CONFIG_VERSION = 14
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -22,6 +22,7 @@ INTERNAL_IPS = ('127.0.0.1',)
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
+PUBLIC_ROOT_URL = 'http://localhost'
 
 # Run uwsgi daemon. Shall be True, False or 'auto'.
 # 'auto' means daemon will be run iff DEBUG is disabled.
@@ -491,3 +492,7 @@ OIOIOI_INSTANCE_PRIORITY_BONUS = 0
 OIOIOI_INSTANCE_WEIGHT_BONUS = 0
 NON_CONTEST_PRIORITY = 0
 NON_CONTEST_WEIGHT = 1000
+
+# Interval [in seconds] for mailnotifyd to wait before scanning the database
+# for new messages to notify about
+MAILNOTIFYD_INTERVAL = 60

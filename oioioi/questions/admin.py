@@ -14,7 +14,6 @@ from oioioi.questions.forms import ChangeContestMessageForm
 from oioioi.questions.models import Message, MessageNotifierConfig, \
                                     ReplyTemplate
 
-
 class MessageAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'topic', 'author']
     fields = ['date', 'author', 'contest', 'round', 'problem_instance',
@@ -60,7 +59,15 @@ class MessageAdmin(admin.ModelAdmin):
                         get_text_list(form.changed_data, _("and"))
                 else:
                     change_message = _("No fields changed.")
-                form.save()
+
+                if 'kind' in form.changed_data and \
+                        form.cleaned_data['kind'] == 'PUBLIC':
+                    msg = form.save(commit=False)
+                    msg.mail_sent = False
+                    msg.save()
+                else:
+                    form.save()
+
                 super(MessageAdmin, self).log_change(request, message,
                                                      change_message)
                 return redirect('contest_messages',

@@ -6,11 +6,12 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.db import IntegrityError
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.text import Truncator
+from django.views.decorators.http import require_http_methods
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.utils import jsonify
@@ -23,7 +24,8 @@ from oioioi.questions.utils import get_categories, log_addition, \
 from oioioi.questions.forms import AddContestMessageForm, AddReplyForm, \
     FilterMessageForm, FilterMessageAdminForm
 from oioioi.questions.models import Message, MessageView, ReplyTemplate, \
-    new_question_signal
+    QuestionSubscription
+from oioioi.questions.mails import new_question_signal
 
 
 def visible_messages(request, author=None, category=None):
@@ -113,10 +115,26 @@ def messages_view(request):
         messages = messages_template_context(
             request, visible_messages(request))
 
+    if request.user.is_authenticated():
+        subscribe_records = QuestionSubscription.objects.filter(
+            contest=request.contest, user=request.user
+        )
+        already_subscribed = len(subscribe_records) > 0
+        no_email = request.user.email is None
+    else:
+        already_subscribed = None
+        no_email = None
+
     return TemplateResponse(request, 'questions/list.html',
-        {'records': messages, 'form': form,
-         'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
-         'categories': get_categories(request)})
+        {
+            'records': messages, 'form': form,
+            'questions_on_page': getattr(settings, 'QUESTIONS_ON_PAGE', 30),
+            'categories': get_categories(request),
+            'already_subscribed': already_subscribed,
+            'no_email': no_email,
+            'onsite': request.contest.controller.is_onsite()
+        }
+    )
 
 
 def mark_messages_read(user, messages):
@@ -160,12 +178,14 @@ def message_view(request, message_id):
             message.can_have_replies:
         if request.method == 'POST':
             form = AddReplyForm(request, request.POST)
+
             if request.POST.get('just_reload') != 'yes' and form.is_valid():
                 instance = form.save(commit=False)
                 instance.top_reference = message
                 instance.author = request.user
                 instance.date = request.timestamp
                 instance.save()
+
                 log_addition(request, instance)
                 return redirect('contest_messages',
                         contest_id=request.contest.id)
@@ -265,3 +285,29 @@ def check_new_messages_view(request, topic_id):
               .filter(top_reference_id=topic_id)
               .filter(date__gte=unix_date)]
     return {'timestamp': request_time_seconds(request), 'messages': output}
+
+
+@require_http_methods(["GET", "POST"])
+def subscription(request):
+    mgr = QuestionSubscription.objects
+    ctxt = {'contest': request.contest, 'user': request.user}
+    entries = mgr.filter(**ctxt)
+    subscribed = entries.exists()
+
+    if request.POST:
+        should_add = request.POST['add_subscription'] == 'true'
+        incorrect = should_add == subscribed
+
+        if incorrect:
+            return HttpResponseBadRequest("Inconsistent POST request, "
+                "should_add = {}, subscribed = {}"
+                .format(should_add, subscribed)
+            )
+        elif not should_add:
+            entries.delete()
+        else:
+            QuestionSubscription.objects.create(**ctxt)
+
+        return HttpResponse("OK")
+    elif request.GET:
+        return HttpResponse(subscribed)

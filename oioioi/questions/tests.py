@@ -1,5 +1,7 @@
 import json
+import mock
 
+from django.core import mail
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -11,6 +13,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.base.notification import NotificationHandler
 from .views import visible_messages
+from oioioi.questions.management.commands.mailnotifyd import mailnotify
 
 from datetime import datetime
 
@@ -25,7 +28,8 @@ ProgrammingContestController.mix_in(TestContestControllerMixin)
 
 class TestQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-                'test_problem_instance', 'test_messages', 'test_templates']
+                'test_problem_instance', 'test_messages', 'test_templates',
+                'test_subscriptions']
 
     def test_visibility(self):
         contest = Contest.objects.get()
@@ -477,6 +481,46 @@ class TestQuestions(TestCase):
         data = json.loads(resp.content)['messages']
 
         self.assertEqual(data[1][0], u'private-answer')
+
+    def test_mail_notifications(self):
+        # Notify about a private message
+        message = Message.objects.get(pk=3)
+        mailnotify(message)
+        self.assertEquals(len(mail.outbox), 1)
+        m = mail.outbox[0]
+        self.assertIn("[OIOIOI][Test contest]", m.subject)
+        self.assertEquals("test_user@example.com", m.to[0])
+        self.assertIn("A new message has just appeared", m.body)
+        self.assertIn("private-answer-body", m.body)
+        # Do not notify about a question
+        question = Message.objects.get(pk=2)
+        mailnotify(question)
+        self.assertEquals(len(mail.outbox), 1)
+        # Do not notify again about the same question
+        with self.assertRaises(AssertionError):
+            mailnotify(message)
+        # Notify two users about a public message
+        pubmsg = Message.objects.get(pk=4)
+        mailnotify(pubmsg)
+        self.assertEquals(len(mail.outbox), 3)
+        m = mail.outbox[1]
+        mm = mail.outbox[2]
+        self.assertIn("[OIOIOI][Test contest]", m.subject)
+        self.assertEquals("test_user@example.com", m.to[0])
+        self.assertEquals("test_user2@example.com", mm.to[0])
+        self.assertIn("A new message has just appeared", m.body)
+        self.assertIn("public-answer-body", m.body)
+        self.assertEquals((m.subject, m.body), (mm.subject, mm.body))
+
+    def test_unseen_mail_notifications(self):
+        """Test whether the notifications are correctly *not* sent for messages
+        which are not visible to the user"""
+        mock_name = \
+            'oioioi.questions.management.commands.mailnotifyd.visible_messages'
+        with mock.patch(mock_name, return_value=Message.objects.none()):
+            message = Message.objects.get(pk=4)
+            mailnotify(message)
+            self.assertEquals(len(mail.outbox), 0)
 
 
 class TestUserInfo(TestCase):

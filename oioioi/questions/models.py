@@ -2,9 +2,9 @@ import logging
 
 from django.db import models
 from django.db.models import Q
-from django.dispatch import receiver, Signal
 from django.conf import settings
 from django.core.validators import MaxLengthValidator
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
@@ -15,7 +15,6 @@ from django.db.models.signals import post_save
 from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.base.fields import EnumRegistry, EnumField
 from oioioi.base.utils.validators import validate_whitespaces
-from oioioi.questions.utils import send_email_about_new_question
 
 message_kinds = EnumRegistry()
 message_kinds.register('QUESTION', _("Question"))
@@ -40,6 +39,8 @@ class Message(models.Model):
             verbose_name=_("date"))
     pub_date = models.DateTimeField(default=None, blank=True, null=True,
             verbose_name=_("publication date"))
+    mail_sent = models.BooleanField(default=False,
+            verbose_name=_("mail notification sent"))
 
     def save(self, *args, **kwargs):
         # Assert integrity in this Message
@@ -128,18 +129,6 @@ class MessageNotifierConfig(models.Model):
         verbose_name = _("notified about new questions")
         verbose_name_plural = _("notified about new questions")
 
-
-new_question_signal = Signal(providing_args=['request', 'instance'])
-
-
-@receiver(new_question_signal)
-def notify_about_new_question(sender, request, instance, **kwargs):
-    conf = MessageNotifierConfig.objects.filter(contest=instance.contest)
-    users_to_notify = [x.user for x in conf]
-    for u in users_to_notify:
-        send_email_about_new_question(u, request, instance)
-
-
 @receiver(post_save, sender=Message)
 def send_notification(sender, instance, created, **kwargs):
     # Don't send a notification when the message was just edited
@@ -184,3 +173,10 @@ def send_notification(sender, instance, created, **kwargs):
                               'question_instance': instance.top_reference,
                               'answer_instance': instance,
                               'user': instance.top_reference.author})
+
+
+# an e-mail notification will be spawned for every post
+# with Message.top_reference == EmailSubscription.opening_post
+class QuestionSubscription(models.Model):
+    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest)

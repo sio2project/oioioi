@@ -30,6 +30,12 @@ startretries=0
 redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/rankingsd.log
 
+[program:mailnotifyd]
+command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py mailnotifyd
+startretries=0
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
+
 [program:unpackmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
 startretries=0

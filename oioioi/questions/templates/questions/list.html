@@ -6,9 +6,88 @@
 {% block title %}{% trans "Questions and news" %}{% endblock %}
 
 {% block main-content %}
+    <script>
+    $(function() {
+        const sub_text = gettext("Subscribe");
+        const unsub_text = gettext("Unsubscribe");
+        const sub_url = 'subscription/';
+        const token = $.cookie('csrftoken');
+
+        let subscribed;
+
+        function set_sub_btn(subscribed) {
+            $('#sub-btn').attr('disabled', false)
+            $('#sub-text').text(subscribed ? unsub_text : sub_text);
+            $('#busy-indicator').addClass('hidden');
+            $('#envelope-icon').removeClass('hidden');
+        }
+
+        function sub_btn_busy() {
+            $('#sub-btn').attr('disabled', true)
+            $('#busy-indicator').removeClass('hidden');
+            $('#envelope-icon').addClass('hidden');
+        }
+
+        function show_banner(success, caption, text) {
+            const banner_showtime = 3000; // ms
+            var banner = success ? $('#sub-alert-success') : $('#sub-alert-warning')
+            banner.find('strong').text(caption)
+            banner.find('span').text(text)
+            banner.fadeIn();
+            window.setTimeout(function(){
+                banner.fadeOut();
+            }, banner_showtime);
+        }
+
+        function show_fail_banner() {
+            // this is translated inside show_banner
+            const caption = gettext("Inconsistent request!");
+            const text = gettext("There was an error processing your request. Please reload the page and try again.");
+            show_banner(false, caption, text);
+        }
+        function show_success_banner() {
+            // this is translated inside show_banner
+            const sub_text = gettext("You successfully subscribed");
+            const unsub_text = gettext("You successfully unsubscribed");
+            const caption = gettext("Success!");
+            show_banner(true, caption, subscribed ? sub_text : unsub_text);
+        }
+
+        function add_subscription() {
+            sub_btn_busy();
+            $.post(
+                sub_url,
+                {
+                    csrfmiddlewaretoken: token,
+                    add_subscription: !subscribed
+                }
+            ).done(function() {
+                subscribed = !subscribed;
+                set_sub_btn(subscribed);
+                show_success_banner();
+            }).fail(function() {
+                set_sub_btn(subscribed); // resets the button
+                show_fail_banner();
+            });
+        }
+
+        subscribed = '{{ already_subscribed }}' === 'True';
+        set_sub_btn(subscribed);
+        $('#sub-btn').click(add_subscription);
+    });
+    </script>
     <div class="clearfix">
         {% if user.is_authenticated %}
             <div class="pull-right">
+                {% if not onsite %}
+                    <button class="btn btn-sm btn-default" id="sub-btn"
+                            {% if no_email %} title="You need to add an e-mail address to your account" disabled {% endif %}
+                    >
+                        <span id="envelope-icon" class="glyphicon glyphicon-envelope"></span>
+                        <span id="busy-indicator" class="glyphicon glyphicon-refresh spinner hidden"></span>
+                        <span id="sub-text"></span>
+                    </button>
+                {% endif %}
                 {% check_perm 'contests.contest_admin' for contest as is_admin %}
                 {% if is_admin %}
                     <a role="button" class="btn btn-sm btn-default"
@@ -32,7 +111,12 @@
         {% endif %}
         <h1 class="pull-left">{% trans "Questions and news" %}</h1>
     </div>
-
+    <div id="sub-alert-success" class="alert alert-success collapse">
+        <strong></strong> <span></span>
+    </div>
+    <div id="sub-alert-warning" class="alert alert-warning collapse">
+        <strong></strong> <span></span>
+    </div>
     <div class="message-filter questions_filter">
         <form enctype="multipart/form-data" class="form-inline">
             {% include "ingredients/form.html" with focus=False inline=True %}
@@ -51,7 +135,7 @@
         {% include "questions/list_table.html" %}
         {% paginate %}
     {% else %}
-        <p class="text-center">
+        <p class="text-center empty-space-filler">
             {% blocktrans %}No questions or news yet.{% endblocktrans %}
         </p>
     {% endif %}
