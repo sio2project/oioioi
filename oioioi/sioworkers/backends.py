@@ -45,36 +45,6 @@ class LocalBackend(object):
             oioioi.evalmgr.delay_environ(env)
 
 
-class CeleryBackend(object):
-    """A backend which uses Celery for sioworkers jobs."""
-
-    def _delayed_job(self, job, **kwargs):
-        return sio.celery.job.sioworkers_job.apply_async(args=[job], **kwargs)
-
-    def run_job(self, job, **kwargs):
-        return self._delayed_job(job, **kwargs).get()
-
-    def run_jobs(self, dict_of_jobs, **kwargs):
-        async_jobs = dict()
-        for key, env in dict_of_jobs.iteritems():
-            async_jobs[key] = sio.celery.job.sioworkers_job.apply_async(
-                args=[env], **kwargs)
-        results = dict()
-        for key, async_job in async_jobs.iteritems():
-            results[key] = async_job.get()
-        return results
-
-    def send_async_jobs(self, env, **kwargs):
-        res = self.run_jobs(env['workers_jobs'],
-            **(env.get('workers_jobs.extra_args', dict())))
-        env['workers_jobs.results'] = res
-        del env["workers_jobs"]
-        if 'workers_jobs.extra_args' in env:
-            del env['workers_jobs.extra_args']
-        with transaction.atomic():
-            oioioi.evalmgr.delay_environ(env)
-
-
 class SioworkersdBackend(object):
     """A backend which collaborates with sioworkersd"""
     server = Server(settings.SIOWORKERSD_URL, allow_none=True)

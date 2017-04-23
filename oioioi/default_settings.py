@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 12
+INSTALLATION_CONFIG_VERSION = 13
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -224,7 +224,7 @@ NOSE_ARGS = (
     '-a!broken,!slow',
 )
 
-SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.CeleryBackend'
+SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.media_root_factory'
 DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 

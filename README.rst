@@ -554,6 +554,10 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         # to distinguish OIOIOI instances.
         SITE_NAME = 'OIOIOI'
 
+#. * Removed *CeleryBackend* from sioworkers backends, *SioworkersdBackend*
+     set as new default backend. Removed *[program:sioworkers]* entry from
+     *deployment/supervisord.conf*.
+
 Usage
 -----
 

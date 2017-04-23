@@ -60,14 +60,6 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/prizesmgr.log
 {% if 'oioioi.prizes' not in settings.INSTALLED_APPS %}exclude=true{% endif %}
 
-[program:sioworkers]
-command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q sioworkers -c 1
-startretries=0
-stopwaitsecs=15
-redirect_stderr=true
-stdout_logfile={{ PROJECT_DIR }}/logs/sioworkers.log
-{% if not settings.RUN_LOCAL_WORKERS or settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.CeleryBackend' %}exclude=true{% endif %}
-
 [program:filetracker-server]
 command=filetracker-server -L /dev/stderr -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
 redirect_stderr=true
