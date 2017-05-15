@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 14
+INSTALLATION_CONFIG_VERSION = 15
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -262,7 +262,11 @@ PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',
 )
 
-SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas']}
+# This setting is used for associating allowed programming languages with file
+# extensions. Allowed languages are determined by contest and problem
+# controllers.
+SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
+                          'Java': ['java']}
 USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False
 RUN_LOCAL_WORKERS = False
@@ -408,8 +412,6 @@ MEANTIME_ALERT_MESSAGE_SHORTCUT_LENGTH = 50
 # Zeus configuration
 ZEUS_INSTANCES = {
 }
-
-ZEUS_ALLOWED_LANGUAGES = ['C', 'C++']
 
 # URL prefix (protocol, hostname and port)
 # hit by the Zeus callback after a submission is judged

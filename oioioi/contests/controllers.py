@@ -799,6 +799,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return 'vcpu'
 
+    def get_allowed_languages(self):
+        """Determines which languages are allowed for submissions.
+        """
+        return ['C', 'C++', 'Pascal']
+
 
 class PastRoundsHiddenContestControllerMixin(object):
     """ContestController mixin that hides past rounds

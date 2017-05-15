@@ -25,6 +25,9 @@ from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.programs.models import ProgramSubmission, OutputChecker, \
         CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
         Submission, UserOutGenStatus
+from oioioi.programs.problem_instance_utils import \
+        get_allowed_languages_dict, get_allowed_languages_extensions, \
+        get_language_by_extension
 from oioioi.programs.utils import has_report_actions_config
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.evalmgr import recipe_placeholder, add_before_placeholder, \
@@ -295,30 +298,8 @@ class ProgrammingProblemController(ProblemController):
 
         submission.save()
 
-    def filter_allowed_languages_dict(self, languages, problem_instance):
-        return languages
-
     def get_submission_size_limit(self, problem_instance):
         return 102400  # in bytes
-
-    def get_allowed_languages_dict(self, problem_instance):
-        return getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-
-    def get_allowed_languages(self, problem_instance):
-        return problem_instance.controller \
-            .get_allowed_languages_dict(problem_instance).keys()
-
-    def get_allowed_extensions(self, problem_instance):
-        lang_exts = problem_instance.controller \
-            .get_allowed_languages_dict(problem_instance).values()
-        return [ext for lang in lang_exts for ext in lang]
-
-    def parse_language_by_extension(self, ext, problem_instance):
-        for lang, extension_list in problem_instance.controller \
-                .get_allowed_languages_dict(problem_instance).items():
-            if ext in extension_list:
-                return lang
-        return None
 
     def check_repeated_submission(self, request, problem_instance, form):
         return not can_admin_problem(request, problem_instance.problem) \
@@ -344,21 +325,19 @@ class ProgrammingProblemController(ProblemController):
 
         if not cleaned_data['prog_lang'] and is_file_chosen:
             ext = os.path.splitext(cleaned_data['file'].name)[1].strip('.')
-            cleaned_data['prog_lang'] = problem_instance.controller \
-                .parse_language_by_extension(ext, problem_instance)
+            cleaned_data['prog_lang'] = \
+                get_language_by_extension(problem_instance, ext)
 
         if not cleaned_data['prog_lang']:
             if is_code_pasted:
-                raise ValidationError(_("You have to choose programming "
-                                        "language."))
+                raise ValidationError(
+                    _("You have to choose programming language."))
             else:
                 raise ValidationError(_("Unrecognized file extension."))
 
         problem_instance = cleaned_data['problem_instance']
         controller = problem_instance.controller
-        langs = controller.filter_allowed_languages_dict(
-                controller.get_allowed_languages_dict(problem_instance),
-                problem_instance)
+        langs = get_allowed_languages_dict(problem_instance)
         if cleaned_data['prog_lang'] not in langs.keys():
             raise ValidationError(_("This language is not allowed for selected"
                                     " problem."))
@@ -409,7 +388,7 @@ class ProgrammingProblemController(ProblemController):
 
         file = form_data['file']
         if file is None:
-            lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+            lang_exts = get_allowed_languages_dict(problem_instance)
             extension = lang_exts[form_data['prog_lang']][0]
             file = ContentFile(form_data['code'], '__pasted_code.' + extension)
 
@@ -433,7 +412,7 @@ class ProgrammingProblemController(ProblemController):
 
         def validate_language(file):
             ext = controller._get_language(file, problem_instance)
-            if ext not in controller.get_allowed_extensions(problem_instance):
+            if ext not in get_allowed_languages_extensions(problem_instance):
                 raise ValidationError(_(
                     "Unknown or not supported file extension."))
 
@@ -459,7 +438,7 @@ class ProgrammingProblemController(ProblemController):
                     " You can paste the code below instead of"
                     " choosing file."
                     " <strong>Try drag-and-drop too!</strong>"
-                ) % (', '.join(controller.get_allowed_extensions(
+                ) % (', '.join(get_allowed_languages_extensions(
                         problem_instance))))
         )
         form.fields['code'] = forms.CharField(required=False,
@@ -470,8 +449,8 @@ class ProgrammingProblemController(ProblemController):
         )
 
         choices = [('', '')]
-        choices += [(lang, lang) for lang in controller.get_allowed_languages(
-                problem_instance)]
+        choices += [(lang, lang) for lang
+                    in problem_instance.controller.get_allowed_languages()]
         form.fields['prog_lang'] = forms.ChoiceField(required=False,
                 label=_("Programming language"),
                 choices=choices,
@@ -494,8 +473,7 @@ class ProgrammingProblemController(ProblemController):
                             parse_problem(problem)
                 if 'prog_lang' not in request.POST:
                     form.fields['prog_lang'].initial = \
-                            controller.parse_language_by_extension(ext,
-                                    problem_instance)
+                            get_language_by_extension(problem_instance, ext)
 
         if request.contest and is_contest_admin(request):
             form.fields['user'] = UserSelectionField(
@@ -637,10 +615,6 @@ class ProgrammingContestController(ContestController):
         return problem_instance.problem.controller \
             ._map_report_to_submission_status(status, problem_instance, kind)
 
-    def filter_allowed_languages_dict(self, languages, problem_instance):
-        return problem_instance.problem.controller \
-            .filter_allowed_languages_dict(languages, problem_instance)
-
     def get_compilation_result_size_limit(self, submission):
         return submission.problem_instance.problem.controller \
             .get_compilation_result_size_limit(submission)
@@ -673,22 +647,6 @@ class ProgrammingContestController(ContestController):
     def get_submission_size_limit(self, problem_instance):
         return problem_instance.problem.controller \
             .get_submission_size_limit(problem_instance)
-
-    def get_allowed_languages_dict(self, problem_instance):
-        return problem_instance.problem.controller \
-            .get_allowed_languages_dict(problem_instance)
-
-    def get_allowed_languages(self, problem_instance):
-        return problem_instance.problem.controller \
-            .get_allowed_languages(problem_instance)
-
-    def get_allowed_extensions(self, problem_instance):
-        return problem_instance.problem.controller \
-            .get_allowed_extensions(problem_instance)
-
-    def parse_language_by_extension(self, ext, problem_instance):
-        return problem_instance.problem.controller \
-            .parse_language_by_extension(ext, problem_instance)
 
     def adjust_submission_form(self, request, form, problem_instance):
         super(ProgrammingContestController, self) \

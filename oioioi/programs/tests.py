@@ -479,12 +479,11 @@ class TestSubmission(TestCase, SubmitFileMixin):
                 user='test_user')
         self._assertSubmitted(contest, response)
 
-    @override_settings(SUBMITTABLE_EXTENSIONS={'C': ['c']})
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         self._assertUnsupportedExtension(contest, problem_instance,
-                'xxx', 'cpp')
+                'xxx', 'inv4l1d_3xt')
         response = self.submit_file(contest, problem_instance, file_name='a.c')
         self._assertSubmitted(contest, response)
 

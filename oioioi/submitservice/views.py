@@ -16,6 +16,8 @@ from oioioi.submitservice.models import SubmitServiceToken
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import contest_exists, can_enter_contest, \
         visible_problem_instances
+from oioioi.programs.problem_instance_utils import \
+        get_allowed_languages_extensions
 
 
 class SubmitServiceException(Exception):
@@ -59,8 +61,7 @@ def submit_view(request):
             raise SubmitServiceException('NO_SUCH_PROBLEM', ', '.join([
                     x.short_name for x in visible_problem_instances(request)]))
 
-        lang_exts = sum(
-            getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values(), [])
+        lang_exts = get_allowed_languages_extensions(pi)
         if file_extension[1:] not in lang_exts:
             raise ValueError('UNSUPPORTED_EXTENSION')
 

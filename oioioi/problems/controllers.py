@@ -117,6 +117,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         return 'vcpu'
 
+    def get_allowed_languages(self):
+        """Determines which languages are allowed for submissions.
+        """
+        return ['C', 'C++', 'Pascal']
+
     def judge(self, submission, extra_args=None, is_rejudge=False):
         environ = evalmgr.create_environ()
         environ['extra_args'] = extra_args or {}

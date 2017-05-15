@@ -148,6 +148,9 @@ class PAContestController(ProgrammingContestController):
     def get_safe_exec_mode(self):
         return 'cpu'
 
+    def get_allowed_languages(self):
+        return ['C', 'C++', 'Pascal', 'Java']
+
 
 A_PLUS_B_RANKING_KEY = 'ab'
 B_RANKING_KEY = 'b'

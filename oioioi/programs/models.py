@@ -12,6 +12,7 @@ from oioioi.contests.models import Submission, SubmissionReport, \
         submission_statuses, submission_report_kinds, ProblemInstance, \
         submission_kinds
 from oioioi.contests.fields import ScoreField
+from oioioi.programs.problem_instance_utils import get_language_by_extension
 
 import os.path
 
@@ -189,8 +190,7 @@ class ProgramSubmission(Submission):
         return os.path.splitext(self.source_file.name)[1][1:]
 
     def get_language_display(self):
-        return self.problem.controller.parse_language_by_extension(
-               self.extension, self.problem_instance)
+        return get_language_by_extension(self.problem_instance, self.extension)
 
 
 class ModelProgramSubmission(ProgramSubmission):

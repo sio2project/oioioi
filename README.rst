@@ -545,6 +545,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Added `PUBLIC_ROOT_URL` to `deployment/settings.py`
 
+#. * Removed *SUBMITTABLE_EXTENSIONS* from *deployment/settings.py*.
+
 Usage
 -----
 

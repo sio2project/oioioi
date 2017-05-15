@@ -63,6 +63,14 @@ class MailSubmissionForm(forms.Form):
             raise ValidationError(getattr(decision, 'exc',
                                               _("Permission denied")))
 
+        if cleaned_data['prog_lang'] and \
+                cleaned_data['prog_lang'] not in \
+                pi.controller.get_allowed_languages():
+            self._errors['prog_lang'] = \
+                    self.error_class([_("Disallowed language")])
+            del cleaned_data['prog_lang']
+            return cleaned_data
+
         return ccontroller.validate_submission_form(self.request, pi, self,
                                                     cleaned_data)
 

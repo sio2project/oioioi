@@ -19,6 +19,8 @@ from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.evalmgr import extend_after_placeholder
 from oioioi.programs.models import CompilationReport
 from oioioi.base.utils.archive import Archive, ArchiveException
+from oioioi.programs.problem_instance_utils import \
+        get_allowed_languages_extensions
 
 class TestRunProblemControllerMixin(object):
     def fill_evaluation_environ(self, environ, submission, **kwargs):
@@ -134,7 +136,7 @@ class TestRunContestControllerMixin(object):
                 " extension. The following are recognized: %s, but allowed"
                 " languages may vary. You can paste the code below instead of"
                 " choosing file.") % (', '.join(
-                    self.get_allowed_extensions(problem_instance)))
+                    get_allowed_languages_extensions(problem_instance)))
 
         if 'kind' in form.fields:
             form.fields['kind'].choices = [('TESTRUN', _("Test run")), ]
