@@ -7,7 +7,7 @@ sudo apt install -y proot
 /sio2/oioioi/wait-for-it.sh -t 60 "db:5432"
 /sio2/oioioi/wait-for-it.sh -t 0  "web:8000"
 
-sudo chown -R oioioi:oioioi /sio2/
+mkdir -pv /sio2/logs/{supervisor,runserver,database}
 
 echo "LOG: Launching worker at `hostname`"
 export FILETRACKER_URL="http://web:9999"

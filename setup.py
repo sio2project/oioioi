@@ -64,6 +64,7 @@ setup(
         "nose-capturestderr",
         "nose-html",
         "nose-profile",
+        "nose-exclude",
 
         # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
         # ¯\_(ツ)_/¯

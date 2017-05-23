@@ -1,0 +1,9 @@
+FROM oioioi
+ARG oioioi_uid
+
+# This directory will be mounted from host by docker-compose
+RUN rm -r /sio2/oioioi
+
+# Change uid and permissions
+RUN usermod -u $oioioi_uid oioioi
+RUN chown -R oioioi:oioioi /sio2/ ~oioioi

@@ -1,0 +1,3 @@
+selenium==2.46.0
+nose
+nose-html

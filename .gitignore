@@ -14,3 +14,6 @@
 *.kdev*
 *~
 vagrant.yml
+/test_log.txt
+/test_screenshots.tar.gz
+/logs/

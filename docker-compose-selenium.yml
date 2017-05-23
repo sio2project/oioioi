@@ -1,0 +1,45 @@
+version: '3'
+services:
+  test-db:
+    image: library/postgres
+    restart: always
+    environment:
+      POSTGRES_USER: "oioioi"
+      POSTGRES_PASSWORD: ""
+      POSTGRES_DB: "oioioi"
+  test-web:
+    command: /sio2/oioioi/oioioi_init.sh
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+    depends_on:
+      - test-db
+    links:
+      - test-db:db
+  test-worker:
+    cap_add:
+      - ALL
+    command: /sio2/oioioi/worker_init.sh
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - test-db
+      - test-web
+    links:
+      - test-db:db
+      - test-web:web
+  selenium-hub:
+    image: selenium/hub
+    ports:
+      - "4444:4444"
+  selenium-firefox:
+    image: selenium/node-firefox
+    environment:
+      HUB_PORT_4444_TCP_ADDR: "hub"
+      HUB_PORT_4444_TCP_PORT: "4444"
+    links:
+      - selenium-hub:hub
+      - test-web:oioioi

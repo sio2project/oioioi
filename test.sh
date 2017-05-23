@@ -3,7 +3,8 @@
 cd "`dirname "$0"`"
 
 export DJANGO_SETTINGS_MODULE="oioioi.test_settings"
-django-admin.py test "$@";
+
+django-admin.py test --exclude-dir="oioioi_selenium/" "$@";
 # This holds the exit status of the last executed command
 # Be careful when inserting new commands in between
 # (you might want to && them together with the rest)
