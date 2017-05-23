@@ -11,8 +11,7 @@
 
   &__info {
     border-bottom: 1px solid $brand-info;
-    padding-bottom: $padding-base-vertical;
-    text-align: right;
+    padding: 0 $padding-large-vertical $padding-base-vertical;
   }
 
   &__timestamp {
@@ -20,7 +19,7 @@
   }
 
   &__label {
-    margin-left: $padding-large-vertical;
+    margin-right: $padding-large-vertical;
   }
 
   &__body {
