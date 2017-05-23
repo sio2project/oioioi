@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
@@ -25,3 +26,26 @@ class TestDashboardMessage(TestCase):
                 kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertIn('Test dashboard message', response.content)
+
+
+class TestMessagesSection(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_messages']
+
+    @override_settings(NUM_DASHBOARD_MESSAGES=5)
+    def test_show_more_button_visible(self):
+        self.client.login(username='test_user')
+        contest = Contest.objects.get()
+        url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Show more', response.content)
+
+    @override_settings(NUM_DASHBOARD_MESSAGES=6)
+    def test_show_more_button_not_visible(self):
+        self.client.login(username='test_user')
+        contest = Contest.objects.get()
+        url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Show more', response.content)

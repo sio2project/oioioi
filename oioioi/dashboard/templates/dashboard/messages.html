@@ -2,3 +2,10 @@
 
 <h2>{% trans "Questions and news" %}</h2>
 {% include "questions/list_table.html" %}
+
+{% if show_more_button %}
+    <div class="form-group">
+       <a href="{% url 'contest_messages' contest_id=contest.id %}"
+          role="button" class="btn btn-primary">{% trans "Show more" %}</a>
+    </div>
+{% endif %}

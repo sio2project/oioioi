@@ -121,11 +121,14 @@ def submissions_fragment(request):
 @dashboard_registry.register_decorator(order=200)
 def messages_fragment(request):
     messages = messages_template_context(request, visible_messages(request))
-    messages = messages[:getattr(settings, 'NUM_DASHBOARD_MESSAGES', 8)]
+    dashboard_msg_cnt_limit = getattr(settings, 'NUM_DASHBOARD_MESSAGES', 8)
+    show_more_button = len(messages) > dashboard_msg_cnt_limit
+    messages = messages[:dashboard_msg_cnt_limit]
     if not messages:
         return None
     context = {
         'records': messages,
+        'show_more_button': show_more_button,
     }
     return render_to_string('dashboard/messages.html',
         context_instance=RequestContext(request, context))
