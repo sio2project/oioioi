@@ -17,7 +17,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
 from oioioi.rankings.controllers import DefaultRankingController
 from oioioi.rankings.models import Ranking, RankingPage, recalculate, \
-        choose_for_recalculation
+        choose_for_recalculation, RankingRecalc
 from oioioi.programs.controllers import ProgrammingContestController
 
 
@@ -310,6 +310,24 @@ class TestRecalc(TestCase):
         recalc = choose_for_recalculation()
         self.assertIsNotNone(recalc)
 
+    def test_null_checking(self):
+        contest = Contest.objects.get()
+        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key')
+        self.assertIsNone(ranking.recalc_in_progress)
+        self.assertIsNone(ranking.recalc_in_progress_id)
+        ranking_recalc = RankingRecalc()
+        ranking_recalc.save()
+        ranking.recalc_in_progress = ranking_recalc
+        ranking.needs_recalculation = False
+        ranking.save()
+        self.assertIsNotNone(ranking.recalc_in_progress)
+        self.assertIsNotNone(ranking.recalc_in_progress_id)
+        ranking = Ranking.objects.get(pk=ranking.pk)
+        RankingRecalc.objects.filter(pk=ranking_recalc.pk).delete()
+        self.assertIsNotNone(ranking.recalc_in_progress_id)
+        with self.assertRaises(RankingRecalc.DoesNotExist):
+            bool(ranking.recalc_in_progress)
+        self.assertFalse(ranking.is_up_to_date())
 
 class TestRankingsdFrontend(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

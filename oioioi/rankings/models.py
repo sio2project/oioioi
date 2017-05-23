@@ -116,7 +116,8 @@ class Ranking(models.Model):
            If it is not up_to_date we still guarantee that the data is
            in consistent state from the last recalculation.
         """
-        return not self.needs_recalculation and not self.recalc_in_progress
+        return (not self.needs_recalculation and
+            self.recalc_in_progress_id is None)
 
     class Meta(object):
         unique_together = ('contest', 'key')
