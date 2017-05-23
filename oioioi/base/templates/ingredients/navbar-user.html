@@ -25,13 +25,6 @@
     <div class="dropdown">
         <a href="#" id="navbar-username" class="dropdown-toggle {% if avatar %}has-avatar{% endif %}"
            data-toggle="dropdown" role="button" aria-expanded="false">
-            {% if real_user.is_superuser and is_under_su %}
-                <span id="su-label" class="label label-danger"
-                        data-toggle="tooltip" data-placement="bottom" title="{% trans "Switched user" %}">
-                    <span class="label-short glyphicon glyphicon-sort"></span>
-                    <span class="label-full">{% trans "Switched user" %}</span>
-                </span>
-            {% endif %}
             {% is_maintenance_enabled as enabled %}
             {% if user.is_superuser and enabled %}
                 <span id="maintenance-label" class="label label-warning"
