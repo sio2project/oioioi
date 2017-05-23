@@ -21,6 +21,11 @@ if DEBUG:
 # to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
 
+# The website address as it will be displayed to users in some places,
+# including but not limited to the mail notifications.
+# Defaults to 'http://localhost'.
+#PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com'
+
 # Email addresses to send error message reports.
 ADMINS = (
     ('Your Name', 'youremail@example.com'),

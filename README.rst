@@ -543,7 +543,12 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      set as new default backend. Removed *[program:sioworkers]* entry from
      *deployment/supervisord.conf*.
 
-#. * Added `PUBLIC_ROOT_URL` to `deployment/settings.py`
+#. * Added *PUBLIC_ROOT_URL* to *deployment/settings.py*.::
+
+        # The website address as it will be displayed to users in some places,
+        # including but not limited to the mail notifications.
+        # Defaults to 'http://localhost'.
+        #PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com'
 
 #. * Removed *SUBMITTABLE_EXTENSIONS* from *deployment/settings.py*.
 

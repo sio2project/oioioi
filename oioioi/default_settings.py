@@ -22,6 +22,9 @@ INTERNAL_IPS = ('127.0.0.1',)
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
 SITE_NAME = 'OIOIOI'
+
+# The website address as it will be displayed to users in some places,
+# including but not limited to the mail notifications.
 PUBLIC_ROOT_URL = 'http://localhost'
 
 # Run uwsgi daemon. Shall be True, False or 'auto'.
