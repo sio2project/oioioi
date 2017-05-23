@@ -28,7 +28,7 @@ from oioioi.questions.models import Message, MessageView, ReplyTemplate, \
 from oioioi.questions.mails import new_question_signal
 
 
-def visible_messages(request, author=None, category=None):
+def visible_messages(request, author=None, category=None, kind=None):
     rounds_ids = [round.id for round in visible_rounds(request)]
     q_expression = Q(round_id__in=rounds_ids)
     if author:
@@ -41,6 +41,8 @@ def visible_messages(request, author=None, category=None):
         elif category_type == 'r':
             q_expression = q_expression & Q(round__id=category_id,
                                             problem_instance=None)
+    if kind:
+        q_expression = q_expression & Q(kind=kind)
     messages = Message.objects.filter(q_expression).order_by('-date')
     if not is_contest_admin(request):
         q_expression = Q(kind='PUBLIC')
@@ -109,8 +111,13 @@ def messages_view(request):
     if form.is_valid():
         category = form.cleaned_data['category']
         author = form.cleaned_data.get('author')
+        message_type = form.cleaned_data.get(
+            'message_type', FilterMessageForm.TYPE_ALL_MESSAGES)
+        message_kind = 'PUBLIC' if message_type == \
+            FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS else None
         messages = messages_template_context(
-            request, visible_messages(request, author, category))
+            request, visible_messages(request, author, category,
+                                      message_kind))
     else:
         messages = messages_template_context(
             request, visible_messages(request))

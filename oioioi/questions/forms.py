@@ -101,6 +101,13 @@ class ChangeContestMessageForm(AddContestMessageForm):
 
 
 class FilterMessageForm(forms.Form):
+    TYPE_ALL_MESSAGES = 'all'
+    TYPE_PUBLIC_ANNOUNCEMENTS = 'public'
+
+    message_type = forms.ChoiceField(
+        [(TYPE_ALL_MESSAGES, _("All messages")),
+         (TYPE_PUBLIC_ANNOUNCEMENTS, _("Public announcements"))],
+        label=_("Message type"), required=False)
     category = forms.ChoiceField([], label=_("Category"), required=False)
 
     def __init__(self, request, *args, **kwargs):

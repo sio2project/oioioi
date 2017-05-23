@@ -11,6 +11,7 @@ from oioioi.base.tests import TestCase, check_not_accessible, fake_time
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.models import Message, ReplyTemplate
+from oioioi.questions.forms import FilterMessageForm
 from oioioi.base.notification import NotificationHandler
 from .views import visible_messages
 from oioioi.questions.management.commands.mailnotifyd import mailnotify
@@ -481,6 +482,27 @@ class TestQuestions(TestCase):
         data = json.loads(resp.content)['messages']
 
         self.assertEqual(data[1][0], u'private-answer')
+
+    def test_message_type_filter(self):
+        contest = Contest.objects.get()
+        url = reverse('contest_messages', kwargs={'contest_id': contest.id})
+
+        # Admin and regular users have slightly different filter forms,
+        # so let's test both types of users.
+        for username in ['test_user', 'test_admin']:
+            self.client.login(username=username)
+            response = self.client.get(url,
+                {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('private-answer', response.content)
+            self.assertIn('public-answer', response.content)
+
+            response = self.client.get(url,
+                {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn('private-answer', response.content)
+            self.assertIn('public-answer', response.content)
+
 
     def test_mail_notifications(self):
         # Notify about a private message
