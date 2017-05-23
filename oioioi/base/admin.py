@@ -233,7 +233,7 @@ def collect_deleted_objects(modeladmin, request, queryset):
                     not model_admin.has_delete_permission(request, obj):
                 perms_needed.add(opts.verbose_name)
 
-        return '%s: %s' % (capfirst(opts.verbose_name),
+        return '%s: %s' % (capfirst(force_text(opts.verbose_name)),
                            force_text(obj))
 
     # Get a nested list of dependent objects
