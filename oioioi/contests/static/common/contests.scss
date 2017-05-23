@@ -3,6 +3,7 @@
 
 $list-grid-column-min-width: 70px !default;
 $list-grid-column-count: 5 !default;
+$list-subheader-bgcolor: #eee !default;
 
 .table .report-group-score {
   vertical-align: middle;
@@ -27,4 +28,8 @@ $list-grid-column-count: 5 !default;
   ul {
     @extend .list-unstyled;
   }
+}
+
+table.table-striped > tbody > tr.problemlist-subheader {
+    background-color: $list-subheader-bgcolor;
 }
