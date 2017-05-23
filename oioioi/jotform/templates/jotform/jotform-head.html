@@ -3,16 +3,17 @@
 <script type="text/javascript">
   function jotform_onload() {
     new JotformFeedback({
-      formId          : "{{ jotform_id }}",
-      buttonText      : "{{ _("Send Feedback")|escapejs }}",
-      base            : "//www.jotform.com/",
-      background      : "invalid",   // This enables styling with CSS
-      fontColor       : "invalid",
-      hoverBackground : "invalid",
-      hoverFtonColor  : "invalid",
-      buttonSide      : "right",
-      buttonAlign     : "bottom",
-      type            : false
+      windowTitleBgColor : "#ccc"
+      formId             : "{{ jotform_id }}",
+      buttonText         : "{{ _("Send Feedback")|escapejs }}",
+      base               : "//www.jotform.com/",
+      background         : "invalid",   // This enables styling with CSS
+      fontColor          : "invalid",
+      hoverBackground    : "invalid",
+      hoverFontColor     : "invalid",
+      buttonSide         : "right",
+      buttonAlign        : "bottom",
+      type               : false
     });
   }
 
