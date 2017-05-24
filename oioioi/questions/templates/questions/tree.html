@@ -1,0 +1,39 @@
+{% extends "base-with-menu.html" %}
+{% load i18n check_perm %}
+
+{% block title %}{{ message.topic }} - {% trans "Questions and news" %}{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+{% if form %}{{ form.media }}{% endif %}
+{% endblock %}
+
+{% block main-content %}
+{% check_perm "contests.contest_admin" for contest as is_admin %}
+
+<div class="clearfix">
+    <h1 class="message_topic pull-left">
+        All messages
+    </h1>
+</div>
+
+{% include "questions/filter_form.html" %}
+
+{% for entry in tree_list %}
+    <article>
+        <h2 class="message_topic">
+            {% if entry.message.problem_instance %}{{ entry.message.problem_instance.problem }}{% else %}{% trans "General" %}{% endif %}:
+            {{ entry.message.topic }}
+        </h2>
+        {% include "questions/single_message.html" with record=entry message=entry.message is_reply=False has_replies=entry.replies show_icon_hyperlink=True is_new=entry.is_new %}
+        {% for reply_entry in entry.replies %}
+            {% include "questions/single_message.html" with message=reply_entry.message is_reply=True has_replies=False show_icon_hyperlink=False is_new=reply_entry.is_new %}
+        {% endfor %}
+    </article>
+{% empty %}
+    <p class="text-center empty-space-filler">
+        {% blocktrans %}No questions or news yet.{% endblocktrans %}
+    </p>
+{% endfor %}
+
+{% endblock %}

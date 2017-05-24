@@ -3,9 +3,12 @@
 
 <div class="oioioi-message {% if is_reply %}oioioi-message--reply {% endif %}{% if message.kind == 'PUBLIC' %}oioioi-message--reply-public {% endif %}{% if has_replies %}oioioi-message--has-replies{% endif %}">
     <p class="oioioi-message__info">
-        <span class="oioioi-message__label label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
+        <span class="oioioi-message__label label {% if record.needs_reply and is_admin %}label-danger{% else %}label-default{% endif %}">
             {{ message.get_kind_display }}
         </span>
+        {% if is_new %}
+            <span class="oioioi-message__label label label-danger">{% trans "NEW" %}</span>
+        {% endif %}
         <small class="oioioi-message__postinfo text-muted">
             {% full_name message.author %} |
             <span class="oioioi-message__timestamp">
@@ -18,6 +21,11 @@
         </small>
         {% if is_admin %}
             <span class="oioioi-message__actions pull-right">
+                {% if show_icon_hyperlink %}
+                    <a class="oioioi-message__action" href="{% url "message" message.id %}">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                    </a>
+                {% endif %}
                 <a class="oioioi-message__action" href="{% url "oioioiadmin:questions_message_change" message.id %}">
                     <span class="glyphicon glyphicon-edit"></span>
                 </a>

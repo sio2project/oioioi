@@ -12,15 +12,7 @@
                 <th>{% trans "Publication date" %}</th>
                 {% endif %}
                 <th>{% trans "Category" %}</th>
-                <th class="oioioi-th-with-button">
-                    <span>{% trans "Topic" %}</span>
-                    <button class="btn btn-sm btn-default" id="expand_message">
-                        <span>{% trans 'Expand all messages' %}</span>
-                    </button>
-                    <button class="btn btn-sm btn-default" id="collapse_message">
-                        <span>{% trans 'Collapse all messages' %}</span>
-                    </button>
-                </th>
+                <th>{% trans "Topic" %}</th>
                 {% if is_admin %}
                 <th>{% trans "Kind" %}</th>
                 {% endif %}
@@ -30,8 +22,7 @@
             {% for record in records %}
             {% with record.message as msg %}
             {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
-            {% url 'message_visit' contest_id=contest.id message_id=record.link_message.id as visit_link %}
-            <tr class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}" id="message_{{ msg.id }}">
+            <tr class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
                 {% if not hide_author %}<td>{% full_name msg.author %}</td>{% endif %}
                 {% if is_admin %}
                     <td><a href="{{ link }}">{{ msg.date }}</a></td>
@@ -53,14 +44,6 @@
                         </span>
                     </td>
                 {% endif %}
-            </tr>
-            <tr
-            {% if not record.read and not is_admin %}data-visit-url="{{ visit_link }}"{% endif %}
-            data-is-new="{% if not record.read and not is_admin %}1{% else %}0{% endif %}" id="hidden_message_{{ msg.id }}"
-            class="collapse">
-                <td colspan="{% if is_admin %}6{% else %}4{% endif %}">
-                    <div>{{ msg.content|urlize|linebreaks }}</div>
-                </td>
             </tr>
             {% endwith %}
             {% endfor %}

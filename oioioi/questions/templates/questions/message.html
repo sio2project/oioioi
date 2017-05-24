@@ -52,9 +52,9 @@
 </script>
 {% endif %}
 
-{% include "questions/single_message.html" with message=message is_reply=False has_replies=replies %}
+{% include "questions/single_message.html" with message=message is_reply=False has_replies=replies show_icon_hyperlink=False is_new=False %}
 {% for message in replies %}
-{% include "questions/single_message.html" with message=message is_reply=True has_replies=False %}
+{% include "questions/single_message.html" with message=message is_reply=True has_replies=False show_icon_hyperlink=False is_new=False %}
 {% endfor %}
 
 {% if form %}

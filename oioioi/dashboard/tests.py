@@ -49,3 +49,11 @@ class TestMessagesSection(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Show more', response.content)
+
+    def test_show_all_button_visible(self):
+        self.client.login(username='test_user')
+        contest = Contest.objects.get()
+        url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Show all', response.content)

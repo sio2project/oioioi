@@ -1,0 +1,12 @@
+<div class="message-filter questions_filter">
+    <form enctype="multipart/form-data" class="form-inline">
+        {% include "ingredients/form.html" with focus=False inline=True %}
+    </form>
+    <script>
+        $(function() {
+            const submit = function() { this.form.submit(); };
+            $("#{{ form.category.auto_id }}").change(submit);
+            $("#{{ form.message_type.auto_id }}").change(submit);
+        });
+    </script>
+</div>

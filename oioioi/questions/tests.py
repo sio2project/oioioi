@@ -1,5 +1,6 @@
 import json
 import mock
+from copy import deepcopy
 
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -12,6 +13,7 @@ from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.questions.forms import FilterMessageForm
+from oioioi.questions.utils import unanswered_questions
 from oioioi.base.notification import NotificationHandler
 from .views import visible_messages
 from oioioi.questions.management.commands.mailnotifyd import mailnotify
@@ -503,7 +505,6 @@ class TestQuestions(TestCase):
             self.assertNotIn('private-answer', response.content)
             self.assertIn('public-answer', response.content)
 
-
     def test_mail_notifications(self):
         # Notify about a private message
         message = Message.objects.get(pk=3)
@@ -543,6 +544,146 @@ class TestQuestions(TestCase):
             message = Message.objects.get(pk=4)
             mailnotify(message)
             self.assertEquals(len(mail.outbox), 0)
+
+
+class TestAllMessagesView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_messages',
+                'test_second_user_messages']
+
+    def test_visible_messages(self):
+        contest = Contest.objects.get()
+        url = reverse('contest_all_messages',
+                      kwargs={'contest_id': contest.id})
+
+        visible_to_user = [
+            'general-question', 'problem-question',
+            'question-body', 'private-answer-body', 'public-answer-body',
+            'user2-public-answer-body',
+        ]
+        hidden_to_user = [
+            'user2-answered-question', 'user2-unanswered-question',
+            'user2-question-body', 'user2-private-answer-body',
+        ]
+        # Note: reply topics are not displayed and regular users can not see
+        #       questions of another users, so they can see reply as a single
+        #       message with its topic.
+        visible_for_non_admins = [
+            'user2-public-answer-topic',
+        ]
+        hidden_to_all = [
+            'user2-private-answer-topic',
+        ]
+
+        test_data = [{
+            'username': 'test_user',
+            'visible': visible_to_user + visible_for_non_admins,
+            'hidden': hidden_to_user + hidden_to_all,
+        }, {
+            'username': 'test_admin',
+            'visible': visible_to_user + hidden_to_user,
+            'hidden': visible_for_non_admins + hidden_to_all,
+        }]
+
+        for d in test_data:
+            self.client.login(username=d['username'])
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            for content in d['visible']:
+                self.assertIn(content, response.content)
+            for content in d['hidden']:
+                self.assertNotIn(content, response.content)
+
+    def test_marking_as_read(self):
+        contest = Contest.objects.get()
+        url = reverse('contest_all_messages',
+                      kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('NEW', response.content)
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('NEW', response.content)
+
+    def test_marking_as_needs_reply(self):
+        contest = Contest.objects.get()
+        url = reverse('contest_all_messages',
+                      kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        unanswered = unanswered_questions(Message.objects.all())
+        # We need additional modules like django-webtest or beuatiful soup
+        # to gracefully inspect HTML instead of template context
+        for entry in response.context['tree_list']:
+            self.assertEqual(entry['needs_reply'],
+                             entry['message'] in unanswered)
+
+    def test_messages_ordering(self):
+        contest = Contest.objects.get()
+        url = reverse('contest_all_messages',
+                      kwargs={'contest_id': contest.id})
+
+        test_data = [{
+            'username': 'test_user',
+            'sort_key': lambda x: (x['has_new_message'], x['needs_reply'],
+                                   x['timestamp']),
+            'visit_messages': [2, 7],
+        }, {
+            'username': 'test_admin',
+            'sort_key': lambda x: (x['needs_reply'], x['has_new_message'],
+                                   x['timestamp']),
+            'visit_messages': [2, 7],
+        }]
+
+        for d in test_data:
+            self.client.login(username=d['username'])
+            for mid in d['visit_messages']:
+                url_visit = reverse('message_visit',
+                                    kwargs={'contest_id': contest.id,
+                                            'message_id': mid})
+                response = self.client.get(url_visit)
+                self.assertEqual(response.status_code, 201)
+
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+
+            # We need additional modules like django-webtest or beuatiful soup
+            # to gracefully inspect HTML instead of template context
+            correct_tree_list = deepcopy(response.context['tree_list'])
+            correct_tree_list.sort(key=d['sort_key'], reverse=True)
+            for entry in correct_tree_list:
+                entry['replies'].sort(key=d['sort_key'], reverse=True)
+
+            self.assertEqual(response.context['tree_list'], correct_tree_list)
+
+    def test_filter_presence(self):
+        # Note: already tested in TestQuestions. Here, we are only testing
+        #       if filter form is supported in this view.
+        contest = Contest.objects.get()
+        url = reverse('contest_all_messages',
+                      kwargs={'contest_id': contest.id})
+
+        # Admin and regular users have slightly different filter forms,
+        # so let's test both types of users.
+        for username in ['test_user', 'test_admin']:
+            self.client.login(username=username)
+            response = self.client.get(url,
+                {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('private-answer', response.content)
+            self.assertIn('public-answer', response.content)
+
+            response = self.client.get(url,
+                {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn('private-answer', response.content)
+            self.assertIn('public-answer', response.content)
 
 
 class TestUserInfo(TestCase):

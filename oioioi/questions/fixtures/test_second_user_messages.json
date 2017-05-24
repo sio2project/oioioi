@@ -1,0 +1,66 @@
+[
+  {
+    "pk": 10,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "QUESTION",
+      "author": 1002,
+      "contest": "c",
+      "round": 1,
+      "topic": "user2-answered-question",
+      "top_reference": null,
+      "date": "2012-09-07T13:13:19.326Z",
+      "pub_date": null,
+      "content": "user2-question-body"
+    }
+  },
+  {
+    "pk": 11,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": 1,
+      "kind": "QUESTION",
+      "author": 1002,
+      "contest": "c",
+      "round": 1,
+      "topic": "user2-unanswered-question",
+      "top_reference": null,
+      "date": "2012-09-07T13:14:24.524Z",
+      "pub_date": null,
+      "content": "user2-question-body"
+    }
+  },
+  {
+    "pk": 12,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PRIVATE",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "user2-private-answer-topic",
+      "top_reference": 10,
+      "date": "2012-09-07T13:18:09.344Z",
+      "pub_date": null,
+      "content": "user2-private-answer-body"
+    }
+  },
+  {
+    "pk": 13,
+    "model": "questions.message",
+    "fields": {
+      "problem_instance": null,
+      "kind": "PUBLIC",
+      "author": 1000,
+      "contest": "c",
+      "round": 1,
+      "topic": "user2-public-answer-topic",
+      "top_reference": 10,
+      "date": "2012-09-07T13:19:56.261Z",
+      "pub_date": null,
+      "content": "user2-public-answer-body"
+    }
+  }
+]

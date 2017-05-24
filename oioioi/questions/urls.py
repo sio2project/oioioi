@@ -2,6 +2,8 @@ from django.conf.urls import patterns, include, url
 
 contest_patterns = patterns('oioioi.questions.views',
     url(r'^questions/$', 'messages_view', name='contest_messages'),
+    url(r'^questions/all/$', 'all_messages_view',
+        name='contest_all_messages'),
     url(r'^questions/(?P<message_id>\d+)/$', 'message_view', name='message'),
     url(r'^questions/(?P<message_id>\d+)/visit$', 'message_visit_view',
         name='message_visit'),

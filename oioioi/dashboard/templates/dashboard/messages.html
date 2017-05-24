@@ -3,9 +3,11 @@
 <h2>{% trans "Questions and news" %}</h2>
 {% include "questions/list_table.html" %}
 
-{% if show_more_button %}
-    <div class="form-group">
+<div class="form-group">
+    {% if show_more_button %}
        <a href="{% url 'contest_messages' contest_id=contest.id %}"
           role="button" class="btn btn-primary">{% trans "Show more" %}</a>
-    </div>
-{% endif %}
+    {% endif %}
+    <a href="{% url 'contest_all_messages' contest_id=contest.id %}"
+       role="button" class="btn btn-default">{% trans "Show all" %}</a>
+</div>

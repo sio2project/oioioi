@@ -98,11 +98,7 @@ def messages_template_context(request, messages):
     return to_display
 
 
-@menu_registry.register_decorator(_("Questions and news"), lambda request:
-        reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
-    order=450)
-@enforce_condition(contest_exists & can_enter_contest)
-def messages_view(request):
+def process_filter_form(request):
     if is_contest_admin(request):
         form = FilterMessageAdminForm(request, request.GET)
     else:
@@ -115,12 +111,23 @@ def messages_view(request):
             'message_type', FilterMessageForm.TYPE_ALL_MESSAGES)
         message_kind = 'PUBLIC' if message_type == \
             FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS else None
-        messages = messages_template_context(
-            request, visible_messages(request, author, category,
-                                      message_kind))
     else:
-        messages = messages_template_context(
-            request, visible_messages(request))
+        category = author = message_kind = None
+    return (form, {
+        'author': author,
+        'category': category,
+        'kind': message_kind,
+    })
+
+
+@menu_registry.register_decorator(_("Questions and news"), lambda request:
+        reverse('contest_messages', kwargs={'contest_id': request.contest.id}),
+    order=450)
+@enforce_condition(contest_exists & can_enter_contest)
+def messages_view(request):
+    form, vmsg_kwargs = process_filter_form(request)
+    messages = messages_template_context(
+        request, visible_messages(request, **vmsg_kwargs))
 
     if request.user.is_authenticated():
         subscribe_records = QuestionSubscription.objects.filter(
@@ -142,6 +149,55 @@ def messages_view(request):
             'onsite': request.contest.controller.is_onsite()
         }
     )
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+def all_messages_view(request):
+    def make_entry(m):
+        return {
+            'message': m,
+            'replies': [],
+            'timestamp': m.get_user_date(),    # only for messages ordering
+            'is_new': m in new_msgs,
+            'has_new_message': m in new_msgs,  # only for messages ordering
+            'needs_reply': m in unanswered,
+        }
+    form, vmsg_kwargs = process_filter_form(request)
+    vmessages = visible_messages(request, **vmsg_kwargs)
+    new_msgs = frozenset(new_messages(request, vmessages))
+    unanswered = unanswered_questions(vmessages)
+    tree = {m.id: make_entry(m) for m in vmessages if m.top_reference is None}
+
+    for m in vmessages:
+        if m.id in tree:
+            continue
+        entry = make_entry(m)
+        if m.top_reference_id in tree:
+            parent = tree[m.top_reference_id]
+            parent['replies'].append(entry)
+            parent['timestamp'] = max(parent['timestamp'], entry['timestamp'])
+            parent['has_new_message'] = max(parent['has_new_message'],
+                                            entry['has_new_message'])
+        else:
+            tree[m.id] = entry
+
+    if is_contest_admin(request):
+        sort_key = lambda x: (x['needs_reply'], x['has_new_message'],
+                              x['timestamp'])
+    else:
+        sort_key = lambda x: (x['has_new_message'], x['needs_reply'],
+                              x['timestamp'])
+    tree_list = sorted(tree.values(), key=sort_key, reverse=True)
+    for entry in tree_list:
+        entry['replies'].sort(key=sort_key, reverse=True)
+
+    if request.user.is_authenticated():
+        mark_messages_read(request.user, vmessages)
+
+    return TemplateResponse(request, 'questions/tree.html', {
+        'tree_list': tree_list,
+        'form': form,
+    })
 
 
 def mark_messages_read(user, messages):
