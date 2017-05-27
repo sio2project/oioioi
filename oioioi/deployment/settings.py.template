@@ -283,7 +283,6 @@ INSTALLED_APPS = (
 #    'oioioi.prizes',
 #    'oioioi.mailsubmit',
 #    'oioioi.portals',
-#    'oioioi.gamification',
 #    'oioioi.globalmessage',
 #    'oioioi.newsfeed',
 ) + INSTALLED_APPS
@@ -302,7 +301,6 @@ TEMPLATE_CONTEXT_PROCESSORS += (
 #    'oioioi.contestlogo.processors.icon_processor',
 #    'oioioi.avatar.processors.gravatar',
 #    'oioioi.notifications.processors.notification_processor',
-#    'oioioi.gamification.processors.miniprofile_processor',
 #    'oioioi.globalmessage.processors.global_message_processor',
 )
 

@@ -49,7 +49,6 @@ INSTALLED_APPS = (
     'oioioi.notifications',
     'oioioi.prizes',
     'oioioi.mailsubmit',
-    'oioioi.gamification',
     'oioioi.globalmessage',
     'oioioi.portals',
     'oioioi.workers',
