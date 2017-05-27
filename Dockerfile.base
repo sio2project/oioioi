@@ -27,11 +27,4 @@ RUN apt-get update
 RUN apt-get install -y libstdc++6:i386
 RUN apt-get install -y zlib1g:i386
 
-RUN apt-get install -y nodejs
-RUN apt-get install -y node
-RUN apt-get install -y npm
-RUN ln -vfs /usr/bin/nodejs /usr/bin/node
-RUN ln -vfs /usr/bin/nodejs /usr/sbin/node #????
-RUN npm -g install less
-
 RUN apt-get install -y sudo
