@@ -51,3 +51,11 @@ def media_root_factory():
     """A filetracker factory which sets up local client in
        ``settings.MEDIA_ROOT`` folder."""
     return filetracker.Client(cache_dir=settings.MEDIA_ROOT, remote_store=None)
+
+
+def remote_storage_factory():
+    """A filetracker factory which creates a client that uses only
+       the remote server at ``settings.FILETRACKER_URL``.
+    """
+    return filetracker.Client(
+            remote_url=settings.FILETRACKER_URL, local_store=None)
