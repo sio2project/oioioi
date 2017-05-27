@@ -17,23 +17,27 @@ import registration.views
 class RegistrationView(DefaultRegistrationView):
     form_class = RegistrationFormWithNames
 
-    def register(self, request, username, password1, email, first_name,
-            last_name, **kwargs):
-        user = User.objects.create_user(username, email, password1)
-        user.first_name = first_name
-        user.last_name = last_name
+    def register(self, form):
+        data = form.cleaned_data
+        request = self.request
+
+        user = User.objects.create_user(data['username'],
+                                        data['email'], data['password1'])
+        user.first_name = data['first_name']
+        user.last_name = data['last_name']
         user.is_active = not settings.SEND_USER_ACTIVATION_EMAIL
         user.save()
 
         registration_profile = RegistrationProfile.objects.create_profile(user)
         signals.user_registered.send(sender=self.__class__, user=user,
-                request=request)
+                                     request=request)
         if settings.SEND_USER_ACTIVATION_EMAIL:
             registration_profile.send_activation_email(RequestSite(request))
         else:
             signals.user_activated.send(sender=self.__class__, user=user,
-                request=request)
+                                        request=request)
         return user
+
 
 urlpatterns = patterns('',
     url(r'^register/$',

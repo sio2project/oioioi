@@ -42,14 +42,7 @@ setup(
         "django-nose>=1.4",
         "nose-picker>=0.5.3",
 
-        # The newer version changes API of RegistrationForm, causing the
-        # following error:
-        #
-        #   File lib/python2.7/site-packages/registration/views.py",
-        #        line 94, in form_valid
-        #       new_user = self.register(request, form)
-        #       TypeError: register() takes exactly 7 arguments (3 given)
-        "django-registration-redux==1.1",
+        "django-registration-redux>=1.6",
 
         "Celery>=3.1.15,<4.0.0",
         "django-celery>=3.1.15,<=3.1.17",
