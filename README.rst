@@ -24,11 +24,10 @@ Just enter the directory where Vagrantfile and this README are placed, and type:
 
 It will create an instance of virtual machine with web server and judges running.
 
-You can specify configuration in `vagrant.yml`. Supported configuration options (with example):
-```
-port: 8001  # run oioioi on port 8001 instead of the default 8000
-runserver_cmd: runserver_plus  # use manage.py runserver_plus instead of manage.py runserver
-```
+You can specify configuration in `vagrant.yml`. Supported configuration options (with example)::
+
+  port: 8001  # run oioioi on port 8001 instead of the default 8000
+  runserver_cmd: runserver_plus  # use manage.py runserver_plus instead of manage.py runserver
 
 .. _vagrant: https://www.vagrantup.com/docs/
 
@@ -37,10 +36,9 @@ Docker Installation
 
 Additionally, there are available docker files to create images containing our services.
 
-To start with, create oioioi-base image with a command:
-```
-docker build -t oioioi-base -f Dockerfile.base .
-```
+To start with, create oioioi-base image with a command::
+
+  docker build -t oioioi-base -f Dockerfile.base .
 
 Then run `docker-compose up` to start the infrastructure.
 
