@@ -266,7 +266,7 @@ class ProblemPackage(models.Model):
                             TRACEBACK_STACK_LIMIT)),
                         'traceback.txt')
                 logger.exception("Error processing package %s",
-                        package.package_file.name)
+                        package.package_file.name, extra={'omit_sentry': True})
             else:
                 package.status = 'OK'
 
