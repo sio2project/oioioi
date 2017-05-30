@@ -25,7 +25,6 @@ from oioioi.base.utils.validators import validate_whitespaces, \
         validate_db_string_id
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
-from oioioi.filetracker.fields import FileField
 
 
 def make_contest_filename(instance, filename):

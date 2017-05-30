@@ -43,6 +43,8 @@ class _FileDescriptor(files.FileDescriptor):
 class FileField(files.FileField):
     """A :class:`~django.db.models.FileField` with fixtures support.
 
+       Default value of max_length is increased from 100 to 255.
+
        Values of ``FileFields`` are serialized as::
 
          data:<filename>:<base64-encoded data>
@@ -56,6 +58,11 @@ class FileField(files.FileField):
 
     descriptor_class = _FileDescriptor
     attr_class = FieldFile
+
+    def __init__(self, *args, **kwargs):
+        # Default value max_length=100 is not sufficient.
+        kwargs.setdefault('max_length', 255)
+        super(FileField, self).__init__(*args, **kwargs)
 
     def get_prep_lookup(self, lookup_type, value):
         if hasattr(value, 'name') \
