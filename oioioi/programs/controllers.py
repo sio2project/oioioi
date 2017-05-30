@@ -16,6 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
 from oioioi.base.utils.user_selection import UserSelectionField
+from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
@@ -456,6 +457,7 @@ class ProgrammingProblemController(ProblemController):
                 choices=choices,
                 widget=forms.Select(attrs={'disabled': 'disabled'})
         )
+        narrow_input_field(form.fields['prog_lang'])
 
         if 'dropped_solution' in request.POST:
             form.fields['code'].initial = request.POST['dropped_solution']
@@ -482,6 +484,7 @@ class ProgrammingProblemController(ProblemController):
                             kwargs={'contest_id': request.contest.id}),
                     initial=request.user)
 
+
             def clean_user():
                 try:
                     user = form.cleaned_data['user']
@@ -500,6 +503,7 @@ class ProgrammingProblemController(ProblemController):
             form.fields['kind'] = forms.ChoiceField(choices=[
                 ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
                 initial=form.kind, label=_("Kind"))
+            narrow_input_fields([form.fields['kind'], form.fields['user']])
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance

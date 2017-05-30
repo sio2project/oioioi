@@ -5,9 +5,11 @@ from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField
+from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.contests.utils import submittable_problem_instances
 from oioioi.programs.models import Test
+
 
 class SimpleContestForm(forms.ModelForm):
     class Meta(object):
@@ -136,6 +138,8 @@ class SubmissionForm(forms.Form):
             pi_field.choices = [('', '')] + pi_choices
         else:
             pi_field.choices = pi_choices
+
+        narrow_input_field(pi_field)
 
         # adding additional fields, etc
         controller.adjust_submission_form(request, self, problem_instance)

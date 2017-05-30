@@ -1,4 +1,5 @@
 @import "utility";
+$oioioi-narrow-input-max-width: 300px !default;
 
 .nav-content {
   padding-top: $padding-large-vertical;
@@ -28,6 +29,10 @@
 .help-inline {
   @extend .help-block;
   display: inline;
+}
+
+.oioioi-narrow-input {
+  max-width: $oioioi-narrow-input-max-width;
 }
 
 @media (min-width: $screen-sm-min) {

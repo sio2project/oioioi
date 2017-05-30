@@ -2,6 +2,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField
+from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.widgets import DateTimePicker
 from oioioi.contests.models import Round, ProblemInstance
 from oioioi.contests.utils import is_contest_admin
@@ -29,6 +30,8 @@ class AddContestMessageForm(forms.ModelForm):
         else:
             self.fields['pub_date'].widget = DateTimePicker()
             self.fields['pub_date'].initial = timezone.now()
+            # DateTimePicker is always narrow,
+            # we don't mark it manually
 
         self.request = request
 
@@ -74,6 +77,7 @@ class AddReplyForm(AddContestMessageForm):
         del self.fields['category']
         self.fields['kind'].choices = \
                 [c for c in message_kinds.entries if c[0] != 'QUESTION']
+        narrow_input_field(self.fields['kind'])
 
     def save(self, commit=True, *args, **kwargs):
         instance = super(AddReplyForm, self) \

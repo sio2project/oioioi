@@ -3,7 +3,8 @@ from django.forms.utils import flatatt
 from django.template.loader import render_to_string
 from django import forms
 
-
+# passing classes through the usual attrs attribute won't work
+# since the template already specifies it
 class DateTimePicker(forms.widgets.DateTimeInput):
     class Media(object):
         js = ['bootstrap-datetimepicker-oioioi/moment.min.js',
