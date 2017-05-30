@@ -256,6 +256,12 @@ class OnsiteRegistrationInline(admin.TabularInline):
     def has_change_permission(self, request, obj=None):
         return is_contest_admin(request)
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "region":
+            kwargs["queryset"] = Region.objects.filter(contest=request.contest)
+        return super(OnsiteRegistrationInline, self). \
+            formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 class RegionFilter(RelatedFieldListFilter):
     def __init__(self, field, request, *args, **kwargs):
