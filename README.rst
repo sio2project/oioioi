@@ -482,7 +482,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
 
-#. * Added *evalmg-zeus* entry
+#. * Added *evalmgr-zeus* entry
      to *deployment/supervisord.conf*::
 
         [program:evalmgr-zeus]
