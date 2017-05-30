@@ -30,6 +30,11 @@ $oioioi-navbar-contest-xs-max-width: 120px !default;
 // Breakpoint at which countdown text gets hidden
 $oioioi-navbar-countdown-breakpoint: 640px !default;
 
+// For styling headers on small screen-sm-max
+$oioioi-navbar-dropdown-header-bgcolor: #e8e8e8 !default;
+$oioioi-navbar-dropdown-header-border: 2px solid #999999 !default;
+$oioioi-navbar-dropdown-header-margin-top: 12px !default;
+
 // Required for navbar-fixed-top
 body {
   padding-top: $navbar-height + $countdown-height + $padding-base-vertical * 2;
@@ -91,6 +96,7 @@ body {
   .dropdown-menu {
     max-height: calc(100vh - #{$navbar-height});
     overflow-y: auto;
+    padding-top: 0; // we don't want empty space before first header
   }
 
   .dropdown.open > a {
@@ -183,6 +189,16 @@ body {
     .dropdown > .contest-picker > .contest-name {
       max-width: $oioioi-navbar-contest-sm-max-width;
     }
+
+    .dropdown-header {
+      background-color: $oioioi-navbar-dropdown-header-bgcolor;
+      border-top: $oioioi-navbar-dropdown-header-border;
+      margin-top: $oioioi-navbar-dropdown-header-margin-top;
+      &:first-child {
+        margin-top: 0;
+      }
+    }
+
 
     .label-full {
       display: none;
