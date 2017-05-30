@@ -15,6 +15,7 @@ from oioioi.evalmgr import transfer_job
 from oioioi.contests.scores import ScoreValue, IntegerScore
 from oioioi.contests.models import Submission, SubmissionReport, \
         ScoreReport
+from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.programs.models import CompilationReport, TestReport, \
         GroupReport, Test, UserOutGenStatus
 from oioioi.filetracker.client import get_client
@@ -417,7 +418,8 @@ def grade_submission(env, kind='NORMAL', **kwargs):
     return env
 
 
-def _make_base_report(env, kind):
+@_get_submission_or_skip
+def _make_base_report(env, submission, kind):
     """Helper function making: SubmissionReport, ScoreReport,
        CompilationReport.
 
@@ -435,7 +437,6 @@ def _make_base_report(env, kind):
 
        Returns: tuple (submission, submission_report)
     """
-    submission = Submission.objects.get(id=env['submission_id'])
     submission_report = SubmissionReport(submission=submission)
     submission_report.kind = kind
     submission_report.save()
@@ -591,7 +592,8 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
 
 
 @transaction.atomic
-def insert_existing_submission_link(env, **kwargs):
+@_get_submission_or_skip
+def insert_existing_submission_link(env, src_submission, **kwargs):
     """Add comment to some existing submission with link to submission view
        of present submission.
 
@@ -607,7 +609,6 @@ def insert_existing_submission_link(env, **kwargs):
     submission_report_id = env['extra_args']['submission_report_id']
     submission_report = SubmissionReport.objects.get(id=submission_report_id)
     dst_submission = submission_report.submission
-    src_submission = Submission.objects.get(id=env['submission_id'])
     href = reverse('submission', kwargs={'submission_id': dst_submission.id,
                                          'contest_id': env['contest_id']})
     html_link = make_html_link(href, _("submission report") + ": " +

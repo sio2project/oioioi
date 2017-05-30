@@ -3,6 +3,7 @@ from celery.exceptions import Ignore
 from django.db import transaction
 
 from oioioi.contests.models import Submission
+from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.programs.models import ModelProgramSubmission
 from oioioi.suspendjudge.models import SuspendedProblem
 from oioioi.evalmgr.utils import mark_job_state
@@ -22,11 +23,11 @@ def _is_hidden_rejudge(env):
     return env['is_rejudge'] and 'HIDDEN' in env['report_kinds']
 
 
-def _is_admin_submission(env):
-    s = Submission.objects.get(pk=env['submission_id'])
-    if s.user is not None:
-        return s.user.has_perm('contests.contest_admin',
-                               s.problem_instance.contest)
+@_get_submission_or_skip
+def _is_admin_submission(env, submission):
+    if submission.user is not None:
+        return submission.user.has_perm('contests.contest_admin',
+                               submission.problem_instance.contest)
     return False
 
 

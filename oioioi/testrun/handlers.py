@@ -1,7 +1,8 @@
 from django.db import transaction
 from django.utils.text import Truncator
 
-from oioioi.programs.handlers import _skip_on_compilation_error, _make_base_report
+from oioioi.programs.handlers import _skip_on_compilation_error, \
+    _make_base_report, _get_submission_or_skip
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunConfig, \
     TestRunReport
 from oioioi.filetracker.utils import django_to_filetracker_path, \
@@ -11,7 +12,8 @@ from oioioi.filetracker.client import get_client
 
 @_skip_on_compilation_error
 @transaction.atomic
-def make_test(env, **kwargs):
+@_get_submission_or_skip(submission_class=TestRunProgramSubmission)
+def make_test(env, submission, **kwargs):
     """Creates a testcase *test* from the user input and converts it to
        evaluation environment.
 
@@ -22,7 +24,6 @@ def make_test(env, **kwargs):
        Produced ``environ`` keys:
           * ``tests``: a dictionary mapping test names to test envs
     """
-    submission = TestRunProgramSubmission.objects.get(id=env['submission_id'])
     assert submission.kind == 'TESTRUN'
     config = TestRunConfig.objects.get(problem__id=env['problem_id'])
 

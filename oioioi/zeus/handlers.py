@@ -12,6 +12,7 @@ from django.utils.module_loading import import_string
 
 from oioioi import evalmgr
 from oioioi.base.utils import naturalsort_key
+from oioioi.contests.handlers import _get_submission_or_skip
 from oioioi.programs.handlers import _skip_on_compilation_error
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.zeus.backends import get_zeus_server
@@ -41,10 +42,10 @@ def from_csv_metadata(metadata):
 
 @_skip_on_compilation_error
 @transaction.atomic
-def submit_job(env, kind):
+@_get_submission_or_skip(submission_class=ProgramSubmission)
+def submit_job(env, submission, kind):
     """Recipe handler that sends the job to Zeus.
     """
-    submission = ProgramSubmission.objects.get(id=env['submission_id'])
     with submission.source_file as f:
         source_code = f.read()
     return evalmgr.transfer_job(env,

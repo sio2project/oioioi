@@ -4,10 +4,12 @@ import traceback
 import pprint
 import socket
 import time
+from functools import wraps
 from smtplib import SMTPException
 from django.core.mail import mail_admins
 from django.db import transaction
-from oioioi.contests.models import Contest, ProblemInstance, Submission, \
+from oioioi.base.utils.db import require_transaction
+from oioioi.contests.models import ProblemInstance, Submission, \
         SubmissionReport, FailureReport
 
 logger = logging.getLogger(__name__)
@@ -15,6 +17,33 @@ logger = logging.getLogger(__name__)
 
 WAIT_FOR_SUBMISSION_RETRIES = 9
 WAIT_FOR_SUBMISSION_SLEEP_SECONDS = 1
+
+
+#TODO: Improve after migration to Python 3:
+#    def _get_submission_or_skip(*args, submission_class=Submission)
+def _get_submission_or_skip(*args, **kwargs):
+    submission_class = kwargs.get('submission_class', Submission)
+
+    def wrapper(fn):
+        """A decorator which tries to get a submission by id from env or skips
+           the decorated function if the submission doesn't exist.
+        """
+        @wraps(fn)
+        @require_transaction
+        def decorated(env, *args, **kwargs):
+            if 'submission_id' not in env:
+                return env
+            try:
+                submission = submission_class.objects.get(
+                        id=env['submission_id'])
+            except Submission.DoesNotExist:
+                return env
+            return fn(env, submission, *args, **kwargs)
+        return decorated
+
+    if len(args) == 1:
+        return wrapper(args[0])
+    return wrapper
 
 
 def wait_for_submission_in_db(env, **kwargs):
@@ -30,8 +59,8 @@ def wait_for_submission_in_db(env, **kwargs):
 
 
 @transaction.atomic
-def update_report_statuses(env, **kwargs):
-    submission = Submission.objects.get(id=env['submission_id'])
+@_get_submission_or_skip
+def update_report_statuses(env, submission, **kwargs):
     problem_instance = submission.problem_instance
     reports = SubmissionReport.objects.filter(submission=submission)
     problem_instance.controller.update_report_statuses(submission, reports)
@@ -39,8 +68,8 @@ def update_report_statuses(env, **kwargs):
 
 
 @transaction.atomic
-def update_submission_score(env, **kwargs):
-    submission = Submission.objects.get(id=env['submission_id'])
+@_get_submission_or_skip
+def update_submission_score(env, submission, **kwargs):
     problem_instance = submission.problem_instance
     problem_instance.controller.update_submission_score(submission)
     return env
@@ -48,7 +77,11 @@ def update_submission_score(env, **kwargs):
 
 def update_user_results(env, **kwargs):
     with transaction.atomic():
-        submission = Submission.objects.get(id=env['submission_id'])
+        try:
+            submission = Submission.objects.get(id=env['submission_id'])
+        except Submission.DoesNotExist:
+            return env
+
         user = submission.user
         if not user:
             return env
@@ -70,8 +103,8 @@ def update_user_results(env, **kwargs):
 
 
 @transaction.atomic
-def call_submission_judged(env, **kwargs):
-    submission = Submission.objects.get(id=env['submission_id'])
+@_get_submission_or_skip
+def call_submission_judged(env, submission, **kwargs):
     contest = submission.problem_instance.contest
 
     if contest is None:
@@ -85,7 +118,8 @@ def call_submission_judged(env, **kwargs):
 
 
 @transaction.atomic
-def create_error_report(env, exc_info, **kwargs):
+@_get_submission_or_skip
+def create_error_report(env, submission, exc_info, **kwargs):
     """Builds a :class:`oioioi.contests.models.SubmissionReport` for
        an evaulation which have failed.
 
@@ -96,14 +130,6 @@ def create_error_report(env, exc_info, **kwargs):
     logger.error("System Error evaluating submission #%s:\n%s",
             env.get('submission_id', '???'),
             pprint.pformat(env, indent=4), exc_info=exc_info)
-
-    if 'submission_id' not in env:
-        return env
-
-    try:
-        submission = Submission.objects.get(id=env['submission_id'])
-    except Submission.DoesNotExist:
-        return env
 
     submission_report = SubmissionReport(submission=submission)
     submission_report.kind = 'FAILURE'
@@ -117,21 +143,15 @@ def create_error_report(env, exc_info, **kwargs):
     return env
 
 
-def mail_admins_on_error(env, exc_info, **kwargs):
+@transaction.atomic
+@_get_submission_or_skip
+def mail_admins_on_error(env, submission, exc_info, **kwargs):
     """Sends email to all admins defined in settings.ADMINS on each
        grading error occurrence.
 
        USES
            * `env['submission_id']`
     """
-
-    # We don't want to spam admins when the evaluation of a deleted
-    # submission fails. See also SIO-1254.
-    try:
-        if 'submission_id' in env:
-            Submission.objects.get(id=env['submission_id'])
-    except Submission.DoesNotExist:
-        return env
 
     try:
         mail_admins("System Error evaluating submission #%s" %
