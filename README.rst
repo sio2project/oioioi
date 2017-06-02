@@ -580,6 +580,15 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         # Defaults to 'http://localhost'.
         #PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com'
 
+    * Added `mailnotifyd`, a backend for handling e-mail subscription to
+      *deployment/supervisord.conf*.::
+
+        [program:mailnotifyd]
+        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py mailnotifyd
+        startretries=0
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
+
 #. * Removed *SUBMITTABLE_EXTENSIONS* from *deployment/settings.py*.
 
 #. * If you want to use Sentry (crash reporting and aggregation platform) you
