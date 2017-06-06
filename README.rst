@@ -566,6 +566,64 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Removed *SUBMITTABLE_EXTENSIONS* from *deployment/settings.py*.
 
+#. * If you want to use Sentry (crash reporting and aggregation platform) you
+     need to:
+
+     * Correctly setup RAVEN_CONFIG (https://docs.sentry.io/quickstart/ should
+       help you).::
+
+         # Error reporting
+         import raven
+
+         RAVEN_CONFIG = {
+             # Won't do anything with no dsn
+             # tip: append ?timeout=5 to avoid dropouts during high reporting traffic
+             'dsn': 'enter_your_dsn_here',
+             # This should be a path to git repo
+             'release': raven.fetch_git_sha(
+                 os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
+         }
+
+     * Add new filter to the logging configuration.::
+
+         'filters': {
+             ...
+             'omit_sentry': {
+                 '()': 'oioioi.base.utils.log.OmitSentryFilter'
+             },
+         }
+
+     * Add Sentry handler.::
+
+         'handlers': {
+             ...
+             'sentry': {
+                 'level': 'ERROR',
+                 'filters': ['omit_sentry'],
+                 'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+             }
+         }
+
+     * Add Sentry handler to every logger.::
+
+         'handlers': ['console', 'sentry'],
+
+     * Add new loggers.::
+
+         'loggers': {
+             ...
+             'raven': {
+                 'handlers': ['console', 'mail_admins'],
+                 'level': 'DEBUG',
+                 'propagate': False,
+             },
+             'sentry.errors': {
+                 'handlers': ['console', 'mail_admins'],
+                 'level': 'DEBUG',
+                 'propagate': False,
+             }
+         }
+
 Usage
 -----
 
