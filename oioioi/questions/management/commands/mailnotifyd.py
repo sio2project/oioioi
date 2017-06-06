@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import datetime
 
+from django.db.models import Q
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
@@ -95,6 +96,12 @@ def fake_request(user, contest):
     return request
 
 
+def candidate_messages(timestamp):
+    return Message.objects.filter(mail_sent=False).filter(
+        Q(pub_date__lte=timestamp) | Q(pub_date=None)
+    )
+
+
 class Command(BaseCommand):
     help = _(
         """
@@ -107,10 +114,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         while True:
-            messages = Message.objects.filter(
-                mail_sent=False,
-                pub_date__lte=datetime.now()
-            )
-            for msg in messages:
+            for msg in candidate_messages(datetime.now()):
                 mailnotify(msg)
             time.sleep(settings.MAILNOTIFYD_INTERVAL)

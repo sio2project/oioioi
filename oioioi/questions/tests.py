@@ -16,7 +16,8 @@ from oioioi.questions.forms import FilterMessageForm
 from oioioi.questions.utils import unanswered_questions
 from oioioi.base.notification import NotificationHandler
 from .views import visible_messages
-from oioioi.questions.management.commands.mailnotifyd import mailnotify
+from oioioi.questions.management.commands.mailnotifyd import \
+    mailnotify, candidate_messages
 
 from datetime import datetime
 
@@ -505,7 +506,13 @@ class TestQuestions(TestCase):
             self.assertNotIn('private-answer', response.content)
             self.assertIn('public-answer', response.content)
 
-    def test_mail_notifications(self):
+    def test_candidate_notifications(self):
+        timestamp = datetime(2000, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
+        self.assertEquals(len(candidate_messages(timestamp)), 4)
+        timestamp = datetime(2015, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
+        self.assertEquals(len(candidate_messages(timestamp)), 9)
+
+    def test_mailnotify(self):
         # Notify about a private message
         message = Message.objects.get(pk=3)
         mailnotify(message)
