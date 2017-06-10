@@ -61,6 +61,7 @@ Table of Contents
     sections/scoring
     sections/evaluation
     sections/problem_uploading
+    sections/controllers
     sections/notifications
     sections/mixins
     sections/misc

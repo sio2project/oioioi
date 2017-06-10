@@ -1,26 +1,30 @@
 class ProblemInstanceController(object):
     """
-        ProblemInstanceController decides whether to call ProblemController
-        or ContestController. ProblemController will be chosen if and only if
-        contest does not exist (eg. for main_problem_instance).
+        ``ProblemInstanceController`` decides whether to call problem
+        controller or contest controller. Problem controller will be chosen
+        if the problem instance is not attached to any contest (eg. for
+        ``main_problem_instance``).
 
-        Every outside functions which want to call one of above controllers
-        and it is not clear that ContestController exists,
-        should call ProblemInstanceController, example:
-            problem_instace.contest.controller.get_submissions_limit() - WRONG
-            problem_instace.controller.get_submissions_limit() - GOOD
+        Outside functions which want to call one of the above controllers
+        and it is not clear that contest controller exists, should call
+        ``ProblemInstanceController``, example::
 
-        In its functions ContestController can call ProblemController,
-        but ProblemController should not call ContestController
+            problem_instance.contest.controller.get_submissions_limit()  # WRONG
+            problem_instance.controller.get_submissions_limit()  # GOOD
 
-        For visuals:
+        From its functions the contest controller can call the problem
+        controller, but the problem controller should not call the contest
+        controller.
+
+        For visuals::
+
             Call, for example *.get_submissions_limit()
-                            |
-                            V
-               ProblemInstanceController
-                 |                    |
-                 V                    V
-         ContestController  -->  ProblemController
+                                |
+                                V
+                   ProblemInstanceController
+                     |                    |
+                     V                    V
+            ContestController  -->  ProblemController
     """
     def __init__(self, problem_instance):
         self.problem_instance = problem_instance

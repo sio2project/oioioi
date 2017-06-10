@@ -24,10 +24,18 @@ logger = logging.getLogger(__name__)
 
 
 class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
-    """Every method contained by ProblemController are specific
-       for ProblemController or should be caled from ContestController,
-       but are necessery for main_problem_instace, which has no contest
-       (contest is None). In this case methods behave in default way.
+    """Defines rules for handling specific problem.
+
+       Every method should:
+
+       * be called from contest controller
+
+       * or be specific for problems that this controller controls
+
+       Please note that a global problem instance exists for each problem.
+       That problem instance has no contest (``contest`` is ``None``),
+       so methods can't be overridden by contest controller what means they
+       behave in a default way.
     """
 
     modules_with_subclasses = ['controllers']
