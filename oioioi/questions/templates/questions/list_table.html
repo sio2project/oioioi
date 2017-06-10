@@ -23,7 +23,15 @@
             {% with record.message as msg %}
             {% url 'message' contest_id=contest.id message_id=record.link_message.id as link %}
             <tr class="{% if record.needs_reply %}danger{% elif is_admin and msg.kind == 'PUBLIC' %}info{% endif %}">
-                {% if not hide_author %}<td>{% full_name msg.author %}</td>{% endif %}
+                {% if not hide_author %}
+                    <td>
+                        {% if is_admin and msg.top_reference %}
+                            {% full_name msg.top_reference.author %}
+                        {% else %}
+                            {% full_name msg.author %}
+                        {% endif %}
+                    </td>
+                {% endif %}
                 {% if is_admin %}
                     <td><a href="{{ link }}">{{ msg.date }}</a></td>
                     <td>{% if msg.pub_date %}<a href="{{ link }}">{{ msg.pub_date }}</a>{% endif %}</td>

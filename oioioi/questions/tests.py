@@ -379,6 +379,23 @@ class TestQuestions(TestCase):
         self.assertNotIn('public-answer', response.content)
         self.assertIn('private-answer', response.content)
 
+    def test_author_column(self):
+        contest = Contest.objects.get()
+        url = reverse('contest_messages',
+                      kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertEquals(200, response.status_code)
+        self.assertContains(response, 'Test Admin', 3)
+        self.assertContains(response, 'Test User', 3)
+
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+        self.assertEquals(200, response.status_code)
+        self.assertContains(response, 'Test Admin', 5)
+        self.assertContains(response, 'Test User', 1)
+
     def test_authors_list(self):
         self.client.login(username='test_admin')
         contest = Contest.objects.get()
