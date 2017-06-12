@@ -46,8 +46,8 @@ def recipe_placeholder(name):
 def create_environ():
     """Creates new environ, filling most basic fields. This fields can't be
        overwritten (they can be extended, etc):
-         - job_id
-         - error_handlers
+       - job_id
+       - error_handlers
     """
     return {'job_id': uuid4().urn,
             'error_handlers': [(
