@@ -99,7 +99,7 @@ class TestQuestions(TestCase):
                 [m.id for m in visible_messages(make_request('test_user'))])
         self.assertListEqual([5, 4],
                 [m.id for m in visible_messages(make_request('test_user2'))])
-        self.assertListEqual(range(9, 0, -1),
+        self.assertListEqual([9, 8, 7, 6, 5, 4, 10, 3, 2, 1],
                 [m.id for m in visible_messages(make_request('test_admin'))])
 
     def test_new_labels(self):
@@ -379,23 +379,6 @@ class TestQuestions(TestCase):
         self.assertNotIn('public-answer', response.content)
         self.assertIn('private-answer', response.content)
 
-    def test_author_column(self):
-        contest = Contest.objects.get()
-        url = reverse('contest_messages',
-                      kwargs={'contest_id': contest.id})
-
-        self.client.login(username='test_admin')
-        response = self.client.get(url)
-        self.assertEquals(200, response.status_code)
-        self.assertContains(response, 'Test Admin', 3)
-        self.assertContains(response, 'Test User', 3)
-
-        self.client.login(username='test_user')
-        response = self.client.get(url)
-        self.assertEquals(200, response.status_code)
-        self.assertContains(response, 'Test Admin', 5)
-        self.assertContains(response, 'Test User', 1)
-
     def test_authors_list(self):
         self.client.login(username='test_admin')
         contest = Contest.objects.get()
@@ -525,9 +508,16 @@ class TestQuestions(TestCase):
 
     def test_candidate_notifications(self):
         timestamp = datetime(2000, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
-        self.assertEquals(len(candidate_messages(timestamp)), 4)
+        self.assertEquals(len(candidate_messages(timestamp)), 5)
         timestamp = datetime(2015, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
-        self.assertEquals(len(candidate_messages(timestamp)), 9)
+        self.assertEquals(len(candidate_messages(timestamp)), 10)
+
+    def test_unescaped(self):
+        message = Message.objects.get(pk=10)
+        mailnotify(message)
+        m = mail.outbox[0]
+        self.assertIn(">", m.subject)
+        self.assertIn("& <> !! #$*&$!#", m.body)
 
     def test_mailnotify(self):
         # Notify about a private message

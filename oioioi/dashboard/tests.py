@@ -32,7 +32,7 @@ class TestMessagesSection(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
                 'test_problem_instance', 'test_messages']
 
-    @override_settings(NUM_DASHBOARD_MESSAGES=5)
+    @override_settings(NUM_DASHBOARD_MESSAGES=6)
     def test_show_more_button_visible(self):
         self.client.login(username='test_user')
         contest = Contest.objects.get()
@@ -41,7 +41,7 @@ class TestMessagesSection(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('Show more', response.content)
 
-    @override_settings(NUM_DASHBOARD_MESSAGES=6)
+    @override_settings(NUM_DASHBOARD_MESSAGES=7)
     def test_show_more_button_not_visible(self):
         self.client.login(username='test_user')
         contest = Contest.objects.get()

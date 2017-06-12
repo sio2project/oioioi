@@ -1,2 +1,4 @@
 {% load i18n %}
+{% autoescape off %}
 [OIOIOI][{{ msg.contest }}][{{ msg.problem_instance|default_if_none:_("General") }}] {{ msg.topic|truncatewords:8 }}
+{% endautoescape %}

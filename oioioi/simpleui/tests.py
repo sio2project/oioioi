@@ -59,6 +59,7 @@ class TestContestDashboard(TestCase):
         regex = re.compile(regex, self.compile_flags)
         self.assertTrue(regex.match(content))
 
+        # This test expects that there is no reply to the message with id=1
         message = Message.objects.get(id=1)
         regex = '.*<tr>.*General.*' + message.topic + '.*QUESTION.*</tr>.*'
         regex = re.compile(regex, self.compile_flags)

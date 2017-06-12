@@ -1,10 +1,10 @@
-{% load i18n simple_filters %}{% blocktrans %}A new message has just appeared in contest{% endblocktrans %} {{ msg.contest.name }}.
+{% autoescape off %}{% load i18n simple_filters %}{% blocktrans %}A new message has just appeared in contest{% endblocktrans %} {{ msg.contest.name }}.
 
 ================
 
 {{ msg.problem_instance|default_if_none:_("General") }}: {{ msg.topic }}
 
-{{ msg.content|safe|wordwrap:80|indent }}
+{{ msg.content|wordwrap:80|indent }}
 
 ================
 
@@ -13,7 +13,7 @@
 
 ================
 
-{{ msg.top_reference.content|safe|wordwrap:80|indent }}
+{{ msg.top_reference.content|wordwrap:80|indent }}
 
 ================
 {% endif %}
@@ -21,4 +21,4 @@
 {% trans 'The message is available at' %} {{ root }}{% url 'message' contest_id=msg.contest.id message_id=m_id %}
 
 {% trans "You're receiving this e-mail because you subscribed for notifications for contest" %} {{ msg.contest.name }}.
-{% trans 'You can visit' %} {{ root }}{% url 'contest_messages' contest_id=msg.contest.id %} {% trans 'to unsubscribe' %}
+{% trans 'You can visit' %} {{ root }}{% url 'contest_messages' contest_id=msg.contest.id %} {% trans 'to unsubscribe' %}{% endautoescape %}
