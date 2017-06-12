@@ -520,6 +520,8 @@ class TestQuestions(TestCase):
         self.assertIn("& <> !! #$*&$!#", m.body)
 
     def test_mailnotify(self):
+        def assertMessageId(id, body):
+            self.assertIn("/questions/{}/".format(id), body)
         # Notify about a private message
         message = Message.objects.get(pk=3)
         mailnotify(message)
@@ -529,13 +531,19 @@ class TestQuestions(TestCase):
         self.assertEquals("test_user@example.com", m.to[0])
         self.assertIn("A new message has just appeared", m.body)
         self.assertIn("private-answer-body", m.body)
+        # Private answer, the user has access to the top reference, so they
+        # should receive it in the e-mail
+        assertMessageId(message.top_reference.id, m.body)
+
         # Do not notify about a question
         question = Message.objects.get(pk=2)
         mailnotify(question)
         self.assertEquals(len(mail.outbox), 1)
+
         # Do not notify again about the same question
         with self.assertRaises(AssertionError):
             mailnotify(message)
+
         # Notify two users about a public message
         pubmsg = Message.objects.get(pk=4)
         mailnotify(pubmsg)
@@ -547,7 +555,17 @@ class TestQuestions(TestCase):
         self.assertEquals("test_user2@example.com", mm.to[0])
         self.assertIn("A new message has just appeared", m.body)
         self.assertIn("public-answer-body", m.body)
-        self.assertEquals((m.subject, m.body), (mm.subject, mm.body))
+        self.assertEquals(m.subject, mm.subject)
+        # the bodies should just differ by one character - the message id
+        # the link
+        self.assertEquals(len(m.body), len(mm.body))
+        num_different = \
+            sum(m.body[i] != mm.body[i] for i in range(len(m.body)))
+        self.assertEquals(num_different, 1)
+        # the author should receive the link to the top_reference
+        assertMessageId(pubmsg.top_reference.id, m.body)
+        # the non-author should receive the link to the answer
+        assertMessageId(pubmsg.id, mm.body)
 
     def test_unseen_mail_notifications(self):
         """Test whether the notifications are correctly *not* sent for messages

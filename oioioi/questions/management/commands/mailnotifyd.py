@@ -17,19 +17,12 @@ from oioioi.questions.views import visible_messages
 logger = logging.getLogger(__name__)
 
 
-def mailnotify(instance):
-    # We should only pass messages with unsent mail here, published in the past
-    # We check the visible_messages just to be fail safe.
-    assert not instance.mail_sent
-    # For some reason instance.pub_date is None if not explicitly set.
-    # It would be best to make it not-None by default (and set pub_date
-    # to equal creation date) but it is out of scope of this commit
-    # hence the first part of the assertion
-    assert instance.pub_date is None or instance.pub_date <= datetime.now()
-
-    m_id = instance.top_reference.id if instance.top_reference else instance.id
+def generate_notification(msg, user, mail):
+    m_id = msg.top_reference.id \
+        if msg.top_reference and allowed_to_see(msg.top_reference, user) \
+        else msg.id
     context = {
-        'msg': instance,
+        'msg': msg,
         'm_id': m_id,
         'root': settings.PUBLIC_ROOT_URL
     }
@@ -44,6 +37,19 @@ def mailnotify(instance):
         context
     )
 
+    return EmailMessage(subject=subject, body=body, to=[mail])
+
+
+def mailnotify(instance):
+    # We should only pass messages with unsent mail here, published in the past
+    # We check the visible_messages just to be fail safe.
+    assert not instance.mail_sent
+    # For some reason instance.pub_date is None if not explicitly set.
+    # It would be best to make it not-None by default (and set pub_date
+    # to equal creation date) but it is out of scope of this commit
+    # hence the first part of the assertion
+    assert instance.pub_date is None or instance.pub_date <= datetime.now()
+
     subscriptions = QuestionSubscription.objects \
         .filter(contest=instance.contest)
 
@@ -57,22 +63,22 @@ def mailnotify(instance):
 
         # if there are any users with e-mails
         for (user, mail) in mails:
-            try_sending(instance, user, subject, body, mail)
+            try_sending(instance, user, mail)
 
     elif instance.kind == 'PRIVATE':
         author = instance.top_reference.author
         subscriptions = subscriptions.filter(user=author)
         if subscriptions and author.email:
-            try_sending(instance, author, subject, body, author.email)
+            try_sending(instance, author, author.email)
     # if kind == 'QUESTION', then we simply ignore and mark as sent
 
     instance.mail_sent = True
     instance.save()
 
 
-def try_sending(msg, user, subject, body, mail):
+def try_sending(msg, user, mail):
     if allowed_to_see(msg, user):
-        email = EmailMessage(subject=subject, body=body, to=[mail])
+        email = generate_notification(msg, user, mail)
         email.send(fail_silently=True)
     else:
         # For some reason some message from the past is not
