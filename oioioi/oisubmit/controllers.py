@@ -5,6 +5,10 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class OiSubmitContestControllerMixin(object):
+    """ContestController mixin that adds extra information about submission
+       from the oisubmit app to the submission footer.
+    """
+
     def render_submission_footer(self, request, submission):
         super_footer = super(OiSubmitContestControllerMixin, self). \
                 render_submission_footer(request, submission)

@@ -3,6 +3,10 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class ConfirmationContestControllerMixin(object):
+    """Adds an option to contest controllers to send participants a proof of
+       receiving their submissions.
+    """
+
     def should_confirm_submission_receipt(self, request, submission):
         return False
 

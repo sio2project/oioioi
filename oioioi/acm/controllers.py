@@ -17,8 +17,7 @@ from oioioi.rankings.controllers import DefaultRankingController, \
 from oioioi.contests.models import SubmissionReport, Submission, \
         ProblemInstance, UserResultForProblem
 from oioioi.acm.score import BinaryScore, format_time, ACMScore
-from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        rounds_times
+from oioioi.contests.utils import rounds_times
 from oioioi.participants.controllers import ParticipantsController, \
         OpenParticipantsController
 from oioioi.participants.utils import is_participant
@@ -324,6 +323,11 @@ class ACMRankingController(DefaultRankingController):
 
 
 class NotificationsMixinForACMContestController(object):
+    """Modifies default contest notification settings from
+       :class:`~oioioi.contests.controllers.NotificationsMixinForContestController`.
+       It enables sending notifications about new public messages to all
+       participants and modifies submission notification messages so that
+    """
 
     def users_to_receive_public_message_notification(self):
         return self.registration_controller().filter_participants(User

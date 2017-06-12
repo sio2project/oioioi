@@ -52,6 +52,9 @@ class TeamsConfigInline(admin.TabularInline):
 
 
 class TeamsAdminMixin(object):
+    """Adds :class:`~oioioi.teams.models.TeamsConfig` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(TeamsAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [TeamsConfigInline]

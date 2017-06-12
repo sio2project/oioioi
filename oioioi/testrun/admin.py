@@ -20,6 +20,9 @@ class TestRunConfigInline(admin.TabularInline):
 
 
 class TestRunProgrammingProblemAdminMixin(object):
+    """Adds :class:`~oioioi.testrun.models.TestRunConfig` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(TestRunProgrammingProblemAdminMixin, self) \
             .__init__(*args, **kwargs)

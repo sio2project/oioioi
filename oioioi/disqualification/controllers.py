@@ -13,6 +13,10 @@ from oioioi.rankings.controllers import DefaultRankingController
 
 
 class DisqualificationContestControllerMixin(object):
+    """ContestController mixin that adds a disqualification functionality to
+       the contest.
+    """
+
     def is_submission_disqualified(self, submission):
         """Decides whether the submission is currently disqualified.
 
@@ -175,6 +179,9 @@ ContestController.mix_in(DisqualificationContestControllerMixin)
 
 
 class DisqualificationProgrammingContestControllerMixin(object):
+    """ContestController mixin that renders submission disqualification info.
+    """
+
     def render_submission(self, request, submission):
         prev = super(DisqualificationProgrammingContestControllerMixin, self) \
             .render_submission(request, submission)
@@ -192,6 +199,10 @@ ProgrammingContestController.mix_in(
 
 
 class WithDisqualificationRankingControllerMixin(object):
+    """RankingController mixin that manages disqualification module influence
+       on rankings.
+    """
+
     def _show_disqualified(self, key):
         """Decides if disqualified users should be included in the ranking.
 

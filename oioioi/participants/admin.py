@@ -321,6 +321,10 @@ class RegionListFilter(SimpleListFilter):
 
 
 class OnsiteSubmissionAdminMixin(object):
+    """Adds :class:`~oioioi.participants.admin.RegionListFilter` filter to
+       an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(OnsiteSubmissionAdminMixin, self).__init__(*args, **kwargs)
 
@@ -332,6 +336,9 @@ SubmissionAdmin.mix_in(OnsiteSubmissionAdminMixin)
 
 
 class UserWithParticipantsAdminMixin(object):
+    """Adds :class:`~oioioi.participants.models.Participant` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(UserWithParticipantsAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ParticipantInline]
@@ -339,6 +346,9 @@ admin.OioioiUserAdmin.mix_in(UserWithParticipantsAdminMixin)
 
 
 class ParticipantsRoundTimeExtensionMixin(object):
+    """Adds contest participants to an admin panel.
+    """
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'user':
             if contest_has_participants(request):

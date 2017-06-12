@@ -40,6 +40,10 @@ class ScoresRevealConfigInline(admin.TabularInline):
 
 
 class ScoresRevealProgrammingProblemAdminMixin(object):
+    """Adds :class:`~oioioi.scoresreveal.models.ScoreRevealConfig` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ScoresRevealProgrammingProblemAdminMixin, self) \
             .__init__(*args, **kwargs)
@@ -47,6 +51,9 @@ class ScoresRevealProgrammingProblemAdminMixin(object):
 
 
 class ScoresRevealSubmissionAdminMixin(object):
+    """Adds reveal info and filter to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ScoresRevealSubmissionAdminMixin, self).__init__(*args, **kwargs)
 

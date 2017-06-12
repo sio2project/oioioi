@@ -10,6 +10,9 @@ from oioioi.similarsubmits.models import SubmissionsSimilarityEntry, \
 
 
 class SimilarityDisqualificationMixin(object):
+    """ContestController mixin that sets up similarsubmits app.
+    """
+
     def is_submission_disqualified(self, submission):
         prev = super(SimilarityDisqualificationMixin, self) \
             .is_submission_disqualified(submission)

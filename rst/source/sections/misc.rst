@@ -2,14 +2,6 @@
 Miscellanea
 ===========
 
-Dynamic mixins
---------------
-
-.. currentmodule:: oioioi.base.utils
-
-.. autoclass:: oioioi.base.utils.ObjectWithMixins
-   :members:
-
 Getting current time
 --------------------
 

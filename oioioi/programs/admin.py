@@ -2,26 +2,20 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
 from django.db.models import Q
-from django.template.response import TemplateResponse
-from django.conf.urls import patterns, url
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
-from django.http import Http404
+from django.forms.models import BaseInlineFormSet
 
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.problems.admin import ProblemPackageAdmin, MainProblemInstanceAdmin
-from oioioi.programs.models import Test, ModelSolution, TestReport, \
-        GroupReport, ModelProgramSubmission, OutputChecker, \
+from oioioi.programs.models import Test, ModelSolution, OutputChecker, \
         LibraryProblemData, ReportActionsConfig
-from collections import defaultdict
-
-from django.forms.models import BaseInlineFormSet
 
 
 class TimeLimitFormset(BaseInlineFormSet):
@@ -159,12 +153,21 @@ class LibraryProblemDataInline(admin.TabularInline):
 
 
 class LibraryProblemDataAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.LibraryProblemData` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(LibraryProblemDataAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [LibraryProblemDataInline]
 
 
 class ProgrammingProblemAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.ReportActionsConfig`,
+       :class:`~oioioi.programs.models.OutputChecker` and
+       :class:`~oioioi.programs.models.LibraryProblemData` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ReportActionsConfigInline,
@@ -173,6 +176,9 @@ class ProgrammingProblemAdminMixin(object):
 
 
 class ProgrammingProblemInstanceAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.Test` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemInstanceAdminMixin, self). \
                 __init__(*args, **kwargs)
@@ -182,6 +188,9 @@ ProblemInstanceAdmin.mix_in(ProgrammingProblemInstanceAdminMixin)
 
 
 class ProgrammingMainProblemInstanceAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.Test` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ProgrammingMainProblemInstanceAdminMixin, self). \
                 __init__(*args, **kwargs)
@@ -191,6 +200,9 @@ MainProblemInstanceAdmin.mix_in(ProgrammingMainProblemInstanceAdminMixin)
 
 
 class ProblemPackageAdminMixin(object):
+    """Adds model solutions action to an admin panel.
+    """
+
     def inline_actions(self, package_instance, contest):
         actions = super(ProblemPackageAdminMixin, self) \
                 .inline_actions(package_instance, contest)
@@ -214,6 +226,9 @@ ProblemPackageAdmin.mix_in(ProblemPackageAdminMixin)
 
 
 class ModelSubmissionAdminMixin(object):
+    """Adds model submission to an admin panel.
+    """
+
     def user_full_name(self, instance):
         if not instance.user:
             instance = instance.programsubmission
@@ -239,6 +254,10 @@ SubmissionAdmin.mix_in(ModelSubmissionAdminMixin)
 
 
 class ProgramSubmissionAdminMixin(object):
+    """Adds submission diff action, language display and language filter to
+       an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ProgramSubmissionAdminMixin, self).__init__(*args, **kwargs)
         self.actions += ['submission_diff_action']

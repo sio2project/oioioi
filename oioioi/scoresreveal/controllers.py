@@ -8,10 +8,15 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.programs.controllers import ProgrammingProblemController, \
     ProgrammingContestController
 from oioioi.scoresreveal.utils import has_scores_reveal, is_revealed
-from oioioi.scoresreveal.models import ScoreReveal, ScoreRevealConfig
+from oioioi.scoresreveal.models import ScoreReveal
 
 
 class ScoresRevealProblemControllerMixin(object):
+    """ProblemController mixin that adds
+       :class:`~oioioi.scoresreveal.models.ScoreRevealConfig` to the contest's
+       admin panel.
+    """
+
     def mixins_for_admin(self):
         from oioioi.scoresreveal.admin import \
             ScoresRevealProgrammingProblemAdminMixin
@@ -22,6 +27,9 @@ ProgrammingProblemController.mix_in(ScoresRevealProblemControllerMixin)
 
 
 class ScoresRevealContestControllerMixin(object):
+    """ContestController mixin that sets up scoresreveal app.
+    """
+
     def can_see_submission_score(self, request, submission):
         return super(ScoresRevealContestControllerMixin, self) \
             .can_see_submission_score(request, submission) or \

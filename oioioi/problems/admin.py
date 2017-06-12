@@ -39,6 +39,10 @@ class StatementConfigInline(admin.TabularInline):
 
 
 class StatementConfigAdminMixin(object):
+    """Adds :class:`~oioioi.contests.models.ProblemStatementConfig` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [StatementConfigInline]

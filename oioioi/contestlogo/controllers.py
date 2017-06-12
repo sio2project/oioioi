@@ -2,6 +2,9 @@ from oioioi.contests.controllers import ContestController
 
 
 class LogoContestControllerMixin(object):
+    """Sets default empty contest logo and icons settings.
+    """
+
     def default_contestlogo_url(self):
         """Returns a URL of an image which will be used as the contest logo.
 

@@ -8,6 +8,13 @@ from oioioi.contests.models import Submission
 
 
 class BalloonsDeliveryACMControllerMixin(object):
+    """Creates a :class:`~oioioi.balloons.models.BalloonDelivery` object for
+       every submission that has been successfully judged, but only if it's
+       the first judged submission for that problem instance or
+       a `BalloonDelivery` object was already created for that problem
+       instance.
+    """
+
     def submission_judged(self, submission, rejudged=False):
         super(BalloonsDeliveryACMControllerMixin, self) \
                 .submission_judged(submission, rejudged)

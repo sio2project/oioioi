@@ -29,6 +29,10 @@ class MailSubmissionConfigInline(admin.TabularInline):
 
 
 class MailSubmissionConfigAdminMixin(object):
+    """Adds :class:`~oioioi.mailsubmit.models.MailSubmissionConfig` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(MailSubmissionConfigAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [MailSubmissionConfigInline]

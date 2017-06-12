@@ -5,6 +5,10 @@ from oioioi.oisubmit.err_dict import SUSPICION_REASONS
 
 
 class OISubmitSubmissionAdminMixin(object):
+    """Adds oisubmit specific information (e.g. suspected submissions) to
+       an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(OISubmitSubmissionAdminMixin, self).__init__(*args, **kwargs)
 

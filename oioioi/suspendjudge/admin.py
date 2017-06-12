@@ -15,6 +15,9 @@ from oioioi.suspendjudge.models import SuspendedProblem
 
 
 class SuspendJudgeProblemInstanceAdminMixin(object):
+    """Sets up admin panel for suspendjudge app.
+    """
+
     def __init__(self, *args, **kwargs):
         super(SuspendJudgeProblemInstanceAdminMixin, self).__init__(*args,
                                                                     **kwargs)

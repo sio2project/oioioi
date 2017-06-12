@@ -52,6 +52,10 @@ class TestsPackageInline(admin.TabularInline):
 
 
 class TestsPackageAdminMixin(object):
+    """Adds :class:`~oioioi.testspackages.models.TestsPackage` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(TestsPackageAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [TestsPackageInline]

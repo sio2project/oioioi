@@ -52,6 +52,10 @@ class SinolpackExtraFilesInline(admin.StackedInline):
 
 
 class SinolpackProblemAdminMixin(object):
+    """Adds :class:`~oioioi.sinolpack.models.ExtraConfig` and
+       :class:`~oioioi.sinolpack.models.ExtraFile` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(SinolpackProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + \

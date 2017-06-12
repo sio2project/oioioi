@@ -3,6 +3,10 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class SuspendJudgeContestControllerMixin(object):
+    """ContestController mixin that adds suspendjudge app's handlers to environ
+       recipe.
+    """
+
     def finalize_evaluation_environment(self, environ):
         super(SuspendJudgeContestControllerMixin, self) \
                 .finalize_evaluation_environment(environ)

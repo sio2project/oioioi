@@ -1,7 +1,6 @@
 from collections import defaultdict
 from operator import itemgetter
 import unicodecsv
-import math
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -10,18 +9,16 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.utils import timezone
-from django.utils.encoding import force_unicode, force_str
+from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User, AnonymousUser
 
 from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
-from oioioi.contests.models import ProblemInstance, UserResultForProblem, \
-        Submission
+from oioioi.contests.models import ProblemInstance, UserResultForProblem
 from oioioi.contests.controllers import ContestController, \
         ContestControllerContext
-from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        contest_exists, can_enter_contest
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.filetracker.utils import make_content_disposition_header
 
 from oioioi.rankings.models import Ranking, RankingPage
@@ -31,6 +28,9 @@ CONTEST_RANKING_KEY = 'c'
 
 
 class RankingMixinForContestController(object):
+    """ContestController mixin that sets up rankings app.
+    """
+
     def ranking_controller(self):
         """Return the actual :class:`RankingController` for the contest."""
         return DefaultRankingController(self.contest)

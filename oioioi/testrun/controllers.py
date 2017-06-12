@@ -18,11 +18,15 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.evalmgr import extend_after_placeholder
 from oioioi.programs.models import CompilationReport
-from oioioi.base.utils.archive import Archive, ArchiveException
+from oioioi.base.utils.archive import Archive
 from oioioi.programs.problem_instance_utils import \
         get_allowed_languages_extensions
 
 class TestRunProblemControllerMixin(object):
+    """ProblemController mixin that adds testrun handlers to the recipe and
+       adds testrun config to contest's admin panel.
+    """
+
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         if submission.kind != 'TESTRUN':
             return super(TestRunProblemControllerMixin, self) \
@@ -61,6 +65,9 @@ ProgrammingProblemController.mix_in(TestRunProblemControllerMixin)
 
 
 class TestRunContestControllerMixin(object):
+    """ContestController mixin that sets up testrun app for the contest.
+    """
+
     def fill_evaluation_environ_post_problem(self, environ, submission):
         if submission.kind != 'TESTRUN':
             return super(TestRunContestControllerMixin, self) \

@@ -44,6 +44,10 @@ admin.system_admin_menu_registry.register('teachers', _("Teachers"),
 
 
 class ContestAdminMixin(object):
+    """Adjusts contest admin panel for teachers app usage. Superusers continue
+       to work as usual but teachers have special options.
+    """
+
     def has_add_permission(self, request):
         if request.user.has_perm('teachers.teacher'):
             return True

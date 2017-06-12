@@ -62,6 +62,7 @@ Table of Contents
     sections/evaluation
     sections/problem_uploading
     sections/notifications
+    sections/mixins
     sections/misc
     glossary
 

@@ -42,6 +42,9 @@ class PAProblemInstanceInline(admin.TabularInline):
 
 
 class PAProblemInstanceAdminMixin(object):
+    """Adds :class:`~oioioi.pa.models.PAProblemInstanceData` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(PAProblemInstanceAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [PAProblemInstanceInline]

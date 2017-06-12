@@ -37,6 +37,10 @@ class ExclusivenessConfigInline(admin.TabularInline):
 
 
 class ContestAdminWithExclusivenessInlineMixin(object):
+    """Adds :class:`~oioioi.contestexcl.models.ExclusivenessConfig` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ContestAdminWithExclusivenessInlineMixin, self) \
             .__init__(*args, **kwargs)

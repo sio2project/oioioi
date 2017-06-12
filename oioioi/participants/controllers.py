@@ -203,14 +203,19 @@ def anonymous_participants(request):
 
 class EmailShowContestControllerMixin(object):
     """Contest controller defines whether in participants' data view email
-    should be shown. That is a case in OI-type contest.
+       should be shown. That is a case in OI-type contest.
     """
+
     show_email_in_participants_data = False
 
 ContestController.mix_in(EmailShowContestControllerMixin)
 
 
 class AnonymousContestControllerMixin(object):
+    """ContestController mixin that adds participants info for anonymous
+       contests.
+    """
+
     def get_user_public_name(self, request, user):
         assert self.contest == request.contest
         if request.user.is_superuser or can_see_personal_data(request) \
@@ -270,6 +275,9 @@ class OnsiteRegistrationController(ParticipantsController):
 
 
 class OnsiteContestControllerMixin(object):
+    """ContestController mixin that sets up an onsite contest.
+    """
+
     create_forum = False
 
     def registration_controller(self):

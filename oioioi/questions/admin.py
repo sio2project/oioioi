@@ -124,6 +124,10 @@ class MessageNotifierConfigInline(admin.TabularInline):
 
 
 class MessageNotifierContestAdminMixin(object):
+    """Adds :class:`~oioioi.questions.models.MessageNotifierConfig` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(MessageNotifierContestAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [MessageNotifierConfigInline]

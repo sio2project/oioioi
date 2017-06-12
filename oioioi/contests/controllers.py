@@ -857,6 +857,8 @@ class PastRoundsHiddenContestControllerMixin(object):
 
 
 class NotificationsMixinForContestController(object):
+    """Sets default contest notification settings.
+    """
 
     def users_to_receive_public_message_notification(self):
         """Decide if all users particiapting in a contest should be
@@ -878,8 +880,12 @@ ContestController.mix_in(NotificationsMixinForContestController)
 
 
 class ProblemUploadingContestControllerMixin(object):
+    """ContestController mixin that declares empty methods for extending
+       problem uploading process.
+    """
+
     def adjust_upload_form(self, request, existing_problem, form):
-        """Adjusts the problem upload form created by some sublcass of
+        """Adjusts the problem upload form created by some subclass of
            :class:`~oioioi.problems.problem_sources.PackageSource`.
 
            Called from

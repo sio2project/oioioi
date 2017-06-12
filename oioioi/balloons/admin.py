@@ -140,6 +140,10 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
 
 
 class BalloonsDeliveryAccessDataAdminMixin(object):
+    """Adds :class:`~oioioi.balloons.BalloonsDeliveryAccessData` fields to an
+       admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(BalloonsDeliveryAccessDataAdminMixin, self) \
             .__init__(*args, **kwargs)

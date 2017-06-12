@@ -32,6 +32,9 @@ class ZeusProblemDataInline(admin.StackedInline):
 
 
 class ZeusProblemAdminMixin(object):
+    """Adds :class:`~oioioi.zeus.models.ZeusProblemData` to an admin panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(ZeusProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = [ZeusProblemDataInline] + self.inlines

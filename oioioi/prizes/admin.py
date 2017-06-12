@@ -48,6 +48,11 @@ class PrizeInline(admin.TabularInline):
 
 
 class PrizesAdminMixin(object):
+    """Adds :class:`~oioioi.prizes.models.PrizeGiving` and
+       :class:`~oioioi.prizes.models.Prize` to an admin panel and prize giving
+       scheduling on save.
+    """
+
     def __init__(self, *args, **kwargs):
         super(PrizesAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [PrizeGivingInline, PrizeInline]

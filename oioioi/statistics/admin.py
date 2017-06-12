@@ -8,6 +8,10 @@ class StatisticsConfigInline(admin.TabularInline):
 
 
 class StatisticsAdminMixin(object):
+    """Adds :class:`~oioioi.statistics.models.StatisticsConfig` to an admin
+       panel.
+    """
+
     def __init__(self, *args, **kwargs):
         super(StatisticsAdminMixin, self) \
             .__init__(*args, **kwargs)

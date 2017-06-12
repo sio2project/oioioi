@@ -6,6 +6,10 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class SubmitServiceMixinForProgrammingContestController(object):
+    """ContestController mixin that adds information about the possibility to
+       submit solutions from terminal.
+    """
+
     def adjust_submission_form(self, request, form, problem_instance):
         super(SubmitServiceMixinForProgrammingContestController, self) \
             .adjust_submission_form(request, form, problem_instance)

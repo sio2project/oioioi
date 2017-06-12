@@ -20,6 +20,9 @@ def by_result_for_contest(pg):
 
 
 class PrizesControllerMixin(object):
+    """ContestController mixin that sets up default settings for prizes app.
+    """
+
     def get_prizes_distributors(self):
         """Returns a dictionary of functions distributing prizes.
 

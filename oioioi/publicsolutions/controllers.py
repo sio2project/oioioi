@@ -3,6 +3,8 @@ from oioioi.publicsolutions.utils import filter_public_solutions
 
 
 class PublicSolutionsContestControllerMixin(object):
+    """ContestController mixin that sets up publicsolutions app.
+    """
 
     def can_see_publicsolutions(self, request, round):
         """Determines whether solutions for the round have been published.

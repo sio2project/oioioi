@@ -4,6 +4,9 @@ from oioioi.participants.utils import is_onsite_contest
 
 
 class IpAuthSyncControllerMixin(object):
+    """ContestController mixin that sets up the ipauthsync app.
+    """
+
     def mixins_for_admin(self):
         from oioioi.ipauthsync.admin import \
                 ContestAdminWithIpAuthSyncInlineMixin
@@ -16,6 +19,10 @@ ContestController.mix_in(IpAuthSyncControllerMixin)
 
 
 class IpAuthSyncRegistrationControllerMixin(object):
+    """RegistrationController mixin that adds a functionality to validate IP
+       address.
+    """
+
     def ipauthsync_validate_ip(self, region, ip, user):
         """Validates IP reported by a region server.
 
