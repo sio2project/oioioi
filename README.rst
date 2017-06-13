@@ -5,10 +5,6 @@ OIOIOI
 .. image:: https://hudson.sio2project.mimuw.edu.pl/job/oioioi-nightly-unittests/badge/icon
    :target: https://hudson.sio2project.mimuw.edu.pl/job/oioioi-nightly-unittests/Unittests_Report/
 
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/sio2project/oioioi
-   :target: https://gitter.im/sio2project/oioioi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
 SIO2 is a free platform for carrying out algorithmic contests and OIOIOI is its
 main component — the web interface.
 
@@ -698,7 +694,6 @@ usage of OIOIOI, there are some places you can reach us through:
 
 * `our mailing list`_
 * `GitHub issues system`_ (English only)
-* `Gitter chat`_
 
 .. _official website: http://sio2project.mimuw.edu.pl
 .. _project documentation: http://oioioi.readthedocs.org/en/latest/
@@ -706,4 +701,3 @@ usage of OIOIOI, there are some places you can reach us through:
 
 .. _our mailing list: sio2-project@googlegroups.com
 .. _GitHub issues system: http://github.com/sio2project/oioioi/issues
-.. _Gitter chat: https://gitter.im/sio2project/oioioi
