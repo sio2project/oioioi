@@ -1015,7 +1015,7 @@ class TestAddToContestFromProblemset(TestCase):
         url += '?problem_name=sum'
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('to add <code>sum</code> problem to',
+        self.assertIn('to add the <code>sum</code> problem to',
                       str(response.content))
         # This time we should be able to fill the form
         self.assertIn('data-addorupdate', str(response.content))

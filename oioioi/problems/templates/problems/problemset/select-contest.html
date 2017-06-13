@@ -4,7 +4,7 @@
 
 {% block main_content %}
 
-<h3>{% trans 'Select contest to add' %} <code>{{ problem_name }}</code> {% trans 'problem to' %}</h3>
+<h3>{% blocktrans %}Select contest to add the <code>{{ problem_name }}</code> problem to {% endblocktrans %}</h3>
 
 {% if administered_contests %}
     <div class="table-responsive">
