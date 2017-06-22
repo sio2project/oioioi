@@ -2,6 +2,17 @@
 Miscellanea
 ===========
 
+Celery usages
+-------------
+This section briefly describes currently used applications of Celery across the infrastructure.
+
+- :doc:`Problem uploading </sections/problem_uploading>`
+- :doc:`Problem evaluation </sections/evaluation>`
+- Django bindings with `djcelery`_ for tasks and workers administration
+
+.. autoclass:: oioioi.celery.apps.CeleryAppConfig
+.. _djcelery: http://docs.celeryproject.org/en/latest/django/index.html
+
 Getting current time
 --------------------
 

@@ -11,7 +11,7 @@ There is also some documentation on the `OIOIOI Project Documentation Site
 Architecture Overview
 ---------------------
 
-.. _Django 1.8: https://docs.djangoproject.com/en/1.8/
+.. _Django 1.9: https://docs.djangoproject.com/en/1.9/
 .. _Django authentication: https://docs.djangoproject.com/en/1.7/topics/auth/
 .. _django-registration-redux: http://django-registration-redux.readthedocs.org/en/latest/
 .. _Django file storage: https://docs.djangoproject.com/en/1.7/topics/files/
@@ -42,8 +42,7 @@ components used:
   * but we also have an :doc:`evaluation manager </sections/evaluation>` running on
     Celery
 
-* We use `Celery`_ for the :doc:`problem uploading </sections/problem_uploading>`
-  process, too.
+* We use `Celery`_ in a :doc:`few more applications </sections/misc>`
 
 * Pagination with `django-pagination`_
 * Testing with `django-nose`_

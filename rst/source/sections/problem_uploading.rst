@@ -69,7 +69,12 @@ is to :func:`~oioioi.problems.unpackmgr.unpackmgr_job`.
 
 The above-mentioned ``post-upload handlers`` are functions, which accept an
 environment (a dictionary) as their only argument and return the modified
-environment.
+environment. Before the handlers are called,
+the following new ``env`` keys are produced:
+``job_id``: the ``Celery`` task id
+`problem_id``: id of the
+:class:`~oioioi.problems.models.ProblemPackage`
+instance, which was created or modified
 
 Normally, when you add a new :class:`~oioioi.problems.models.Problem`,
 you want to attach it to a specific :class:`~oioioi.contests.models.Round`
