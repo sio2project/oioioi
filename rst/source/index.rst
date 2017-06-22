@@ -20,6 +20,7 @@ Architecture Overview
 .. _djcelery: http://docs.celeryproject.org/en/latest/django/index.html
 .. _django-pagination: https://code.google.com/p/django-pagination/
 .. _django-nose: https://github.com/jbalogh/django-nose
+.. _selenium: http://www.seleniumhq.org/
 .. _Django i18n: https://docs.djangoproject.com/en/1.7/topics/i18n/
 .. _Transifex: https://www.transifex.com/projects/p/sio2project/
 
@@ -45,7 +46,7 @@ components used:
 * We use `Celery`_ in a :doc:`few more applications </sections/misc>`
 
 * Pagination with `django-pagination`_
-* Testing with `django-nose`_
+* Testing with `django-nose`_ and `selenium`_
 * Standard `Django i18n`_ with translations managed by `Transifex`_
 
 

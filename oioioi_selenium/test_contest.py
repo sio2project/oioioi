@@ -1,9 +1,9 @@
 from selenium.webdriver.support.ui import Select
 
-from . import TestCase
+from . import OIOIOISeleniumTestCase
 
 
-class TestSimpleContest(TestCase):
+class TestSimpleContest(OIOIOISeleniumTestCase):
     def test_contest(self):
         driver = self.driver
         driver.login("admin", "admin")

@@ -17,14 +17,23 @@ class WebDriver(webdriver.WebDriver):
         self.delete_all_cookies()
 
     def get(self, url):
+        """:param url: Url to load, may be absolute or local.
+        """
         if url[0:4] != 'http' and url[0:1] == '/':
             url = self.base_url + url
         return super(WebDriver, self).get(url)
 
     def wait_for_load(self):
+        """This method should be called every time Selenium should wait
+           for page to load. It should be used when page is loaded or
+           there's a need to wait for javascript.
+        """
         time.sleep(2)
 
     def login(self, username, password):
+        """Redirects to login page and submits form with given credentials.
+           :raises: Assertion error when login fails.
+        """
         self.get("/login/")
         self.submit_form({
             'username': username,
@@ -40,6 +49,9 @@ class WebDriver(webdriver.WebDriver):
         self.wait_for_load()
 
     def submit_form(self, data, submit="//form//button[@type='submit']"):
+        """:param data: Dict, element name -> element value.
+           :param submit: XPath to form submit button.
+        """
         for k, v in data.iteritems():
             elem = self.find_element_by_name(k)
             elem.clear()
@@ -73,7 +85,7 @@ class WrapTestsWithScreenshots(type):
         return type.__new__(mcs, class_name, class_parents, new_attrs)
 
 
-class TestCase(unittest.TestCase):
+class OIOIOISeleniumTestCaseBase(unittest.TestCase):
     __metaclass__ = WrapTestsWithScreenshots
 
     def setUp(self):
@@ -84,6 +96,14 @@ class TestCase(unittest.TestCase):
 
     def wait_for_action(self, action, timeout=60, period=2,
                         url=None, **kwargs):
+        """:param action: Function to run every `period` seconds, returns True\
+                  if expected behaviour was detected, None otherwise.
+           :param timeout: After this time test failure is raised.
+           :param period: After every `period` seconds action condition\
+                  is checked.
+           :param url: If not None this url will be loaded before checking.
+           :param kwargs: Arguments for action.
+        """
         for _ in range(0, timeout, period):
             time.sleep(period)
 
@@ -99,20 +119,30 @@ class TestCase(unittest.TestCase):
 
     @classmethod
     def get_next_id(cls):
+        """Should be used every time unique id number is needed.
+           :return: Next free id.
+        """
         cls.id_counter += 1
         return cls.id_counter
 
-    # Methods that simplify html elements accessing.
+
+class OIOIOISeleniumTestCase(OIOIOISeleniumTestCaseBase):
+    """Adds methods that simplify html elements accessing.
+    """
 
     def get_from_table(self, table, search, n=1):
-        """
-        Tr[] count starts from 1, not 0!
+        """:param table: XPath table identifier like "@id='result_list'".
+           :param n: search will be performed in nth row.
+                  Tr[] count starts from 1, not 0!
         """
         return self.driver.find_element_by_xpath(
             "//*[{}]/tbody/tr[{}]"
             "{}".format(table, n, search))
 
     def get_from_result_table(self, search, n=1):
+        """Just apply result table to
+           :meth:`.get_from_table`.
+        """
         return self.get_from_table("@id='result_list'", search, n)
 
     def get_primary_button_with_text(self, text, item=None):
@@ -124,8 +154,20 @@ class TestCase(unittest.TestCase):
 
     @staticmethod
     def xpath_contains(*args, **kwargs):
-        return TestCase.xpath_method('contains', *args, **kwargs)
+        """Return xpath contains method, see
+           :meth:`.xpath_method` for details.
+        """
+        return OIOIOISeleniumTestCase.xpath_method('contains', *args, **kwargs)
 
     @staticmethod
     def xpath_method(method, search, pref='//*', by='class'):
+        """:param method: XPath method name.
+           :param search: method argument.
+           :param pref: Query prefix, //* by default, may be ex. //div/button
+           :param by: Attribute to apply method to, may be 'class' or 'id' etc.
+           Return xpath method that has quite complicated body. Can be used
+           only as a standalone query. However, it's worth notice that xpath
+           methods may be easily connected with 'and' or 'or' ex.
+           //button[@class='clazz' and text()='sometext'].
+        """
         return "{}[{}(@{}, '{}')]".format(pref, method, by, search)

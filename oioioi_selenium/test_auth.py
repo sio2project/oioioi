@@ -1,7 +1,7 @@
-from . import TestCase
+from . import OIOIOISeleniumTestCase
 
 
-class TestAuth(TestCase):
+class TestAuth(OIOIOISeleniumTestCase):
     def test_registration(self):
         driver = self.driver
         username = "selenium" + str(self.get_next_id())

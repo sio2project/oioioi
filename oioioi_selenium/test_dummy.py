@@ -1,7 +1,7 @@
-from . import TestCase
+from . import OIOIOISeleniumTestCase
 
 
-class TestDummy(TestCase):
+class TestDummy(OIOIOISeleniumTestCase):
     def test_dummy(self):
         driver = self.driver
         driver.get("/")

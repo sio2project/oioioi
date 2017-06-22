@@ -26,7 +26,7 @@ Usage of ``timezone.now()`` is highly discouraged.
 .. autoclass:: oioioi.base.middleware.TimestampingMiddleware
 
 Current contest mechanism
--------------------------------
+-------------------------
 
 .. autoclass:: oioioi.contests.middleware.CurrentContestMiddleware
 
@@ -267,3 +267,8 @@ about grouping, scoring etc. Currently we expect it to be in format:
 Test name will be shown to users. All tests with the same, non-empty group name
 will be grouped together. All tests in group shall have the same max score.
 Example tests are expected to be in the group ``0``.
+
+.. SELENIUM SECTION
+
+.. include:: ../../../oioioi_selenium/README.rst
+
