@@ -16,13 +16,13 @@ class ZeusPackage(SinolPackage):
     controller_name = 'oioioi.zeus.controllers.ZeusProblemController'
     package_backend_name = 'oioioi.zeus.package.ZeusPackageBackend'
 
-    def _find_main_folder(self):
+    def _find_main_dir(self):
         files = map(os.path.normcase, self.archive.filenames())
         files = map(os.path.normpath, files)
         toplevel_folders = set(f.split(os.sep)[0] for f in files)
         toplevel_folders = filter(slug_re.match, toplevel_folders)
 
-        folder = super(ZeusPackage, self)._find_main_folder()
+        folder = super(ZeusPackage, self)._find_main_dir()
         if not folder and len(toplevel_folders) > 0:
             folder = toplevel_folders[0]
         return folder
@@ -34,7 +34,7 @@ class ZeusPackage(SinolPackage):
         problem_data.zeus_problem_id = self.env['zeus_problem_id']
         problem_data.save()
 
-    def process_package(self):
+    def _process_package(self):
         self._save_zeus_data()
         self._process_config_yml()
         self._detect_full_name()
