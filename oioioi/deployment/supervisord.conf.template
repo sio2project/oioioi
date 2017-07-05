@@ -72,6 +72,12 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/filetracker.log
 {% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
 
+[program:filetracker-cache-cleaner]
+command=filetracker-cache-cleaner -c {{ FILETRACKER_CACHE_ROOT }} -s {{ FILETRACKER_CACHE_SIZE }} -i {{ FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL }} -p {{ FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL }}
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/filetracker-cache-cleaner.log
+{% if not settings.FILETRACKER_CACHE_CLEANER_ENABLED %}exclude=true{% endif %}
+
 [program:notifications-server]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications_server
 redirect_stderr=true

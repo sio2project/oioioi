@@ -10,6 +10,12 @@ class FieldFile(files.FieldFile):
             name = FiletrackerFilename(name)
         super(FieldFile, self).__init__(instance, field, name)
 
+    def read_using_cache(self):
+        """Opens a file using a cache (if it's possible)"""
+        if hasattr(self.storage, 'read_using_cache'):
+            return self.storage.read_using_cache(self.name)
+        return self.open('rb')
+
 
 class _FileDescriptor(files.FileDescriptor):
     def __get__(self, instance=None, owner=None):

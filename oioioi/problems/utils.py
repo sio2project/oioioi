@@ -103,7 +103,8 @@ def query_zip(statement, path):
     if statement.extension != '.zip':
         raise SuspiciousOperation
 
-    zip = zipfile.ZipFile(statement.content)
+    # ZipFile will call seek(), so we need a real file here
+    zip = zipfile.ZipFile(statement.content.read_using_cache())
     try:
         info = zip.getinfo(path)
     except KeyError:

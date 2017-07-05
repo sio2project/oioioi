@@ -679,6 +679,32 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
         SITE_ID = 1
 
+#. * Added *filetracker-cache-cleaner* entry
+     to *deployment/supervisord.conf*::
+
+        [program:filetracker-cache-cleaner]
+        command=filetracker-cache-cleaner -c {{ FILETRACKER_CACHE_ROOT }} -s {{ FILETRACKER_CACHE_SIZE }} -i {{ FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL }} -p {{ FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL }}
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/filetracker-cache-cleaner.log
+        {% if not settings.FILETRACKER_CACHE_CLEANER_ENABLED %}exclude=true{% endif %}
+
+    * Added new options related to *remote_storage_factory* to
+      *deployment/settings.py*::
+
+        # When using a remote_storage_factory it's necessary to specify a cache
+        # directory in which necessary files will be stored.
+        #FILETRACKER_CACHE_ROOT = '__DIR__/cache'
+
+        # When using a remote storage it's recommended to enable a cache cleaner deamon
+        # which will periodically scan cache directory and remove files what aren't
+        # used. For a detailed description of each option, please read a cache cleaner
+        # configuration section in the sioworkersd documentation.
+        #FILETRACKER_CACHE_CLEANER_ENABLED = True
+        #FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL = '1h'
+        #FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
+        #FILETRACKER_CACHE_SIZE = '8G'
+
+
 Usage
 -----
 

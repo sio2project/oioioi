@@ -68,10 +68,19 @@ class FiletrackerStorage(Storage):
                 f.write(chunk)
             f.flush()
             filename = f.name
-        name = self._cut_prefix(self.client.put_file(path, filename))
+        # If there will be only local store, filetracker will ignore
+        # 'to_local_store' argument.
+        name = self._cut_prefix(self.client.put_file(path, filename,
+            to_local_store=False))
         name = FiletrackerFilename(name)
         content.close()
         return name
+
+    def read_using_cache(self, name):
+        """Opens a file using a cache (if it's possible)"""
+        path = self._make_filetracker_path(name)
+        reader, _version = self.client.get_stream(path, serve_from_cache=True)
+        return File(reader, FiletrackerFilename(name))
 
     def save(self, name, content):
         # Well, the default Django implementation of save coerces the returned

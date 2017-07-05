@@ -110,8 +110,8 @@ SEND_USER_ACTIVATION_EMAIL = False
 #    Stores files on local filesystem under MEDIA_ROOT, optionally
 #    exposing them with a filetracker server (see section below).
 # - 'oioioi.filetracker.client.remote_storage_factory'
-#    Connects to a filetracker server at FILETRACKER_URL, doesn't use
-#    any local cache.
+#    Connects to a filetracker server at FILETRACKER_URL, uses a local
+#    cache with recently used files under CACHE_ROOT directory.
 #FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.media_root_factory'
 
 # Uncomment the following lines to enable remote access to Filetracker. This is
@@ -123,6 +123,22 @@ SEND_USER_ACTIVATION_EMAIL = False
 #FILETRACKER_SERVER_ENABLED = True
 #FILETRACKER_LISTEN_ADDR = '0.0.0.0'
 #FILETRACKER_LISTEN_PORT = 9999
+
+# When using a remote_storage_factory it's necessary to specify a cache
+# directory in which a necessary files will be stored.
+#FILETRACKER_CACHE_ROOT = '__DIR__/cache'
+
+# When using a remote storage it's recommended to enable a cache cleaner deamon
+# which will periodically scan cache directory and remove files what aren't
+# used. For a detailed description of each option, please read a cache cleaner
+# configuration section in the sioworkersd documentation. Please note that
+# the cache cleaner can delete *any* file found under FILETRACKER_CACHE_ROOT
+# directory, so don't store other files there (unless you want them to be
+# periodically deleted).
+#FILETRACKER_CACHE_CLEANER_ENABLED = True
+#FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL = '1h'
+#FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
+#FILETRACKER_CACHE_SIZE = '8G'
 
 # When using distributed workers set this to url on which workers will be
 # able to access filetracker server. When 'remote_storage_factory' is used,
