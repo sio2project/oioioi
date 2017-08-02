@@ -12,10 +12,8 @@ CONFIG_VERSION = __CONFIG_VERSION__
 # SET DEBUG = False FOR PRODUCTION DEPLOYMENT.
 DEBUG = True
 
-TEMPLATE_DEBUG = DEBUG
-
 if DEBUG:
-    TEMPLATE_LOADERS = UNCACHED_TEMPLATE_LOADERS
+    TEMPLATES[0]['OPTIONS']['loaders'] = UNCACHED_TEMPLATE_LOADERS
 
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
