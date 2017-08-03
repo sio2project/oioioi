@@ -1,7 +1,7 @@
 import datetime
 import functools
 from django.conf import settings
-from django.core.cache import get_cache
+from django.core.cache import cache
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import dateformat
@@ -26,7 +26,6 @@ def cache_unless_admin_or_observer(view):
         if not should_cache:
             return view(request, round_id)
 
-        cache = get_cache('default')
         cache_key = '%s/%s/%s' % (view.__name__, request.contest.id, round_id)
         result = cache.get(cache_key)
         if result is None:
