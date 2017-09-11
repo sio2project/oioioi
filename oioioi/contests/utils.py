@@ -281,6 +281,8 @@ def get_submission_or_error(request, submission_id,
                             submission_class=Submission):
     """Returns the submission if it exists and user has rights to see it."""
     submission = get_object_or_404(submission_class, id=submission_id)
+    if hasattr(request, 'user') and request.user.is_superuser:
+        return submission
     pi = submission.problem_instance
     if pi.contest:
         if not request.contest or request.contest.id != pi.contest.id:
