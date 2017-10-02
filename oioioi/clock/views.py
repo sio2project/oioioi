@@ -71,10 +71,9 @@ def get_times_status(request, response):
 
 
 def admin_time(request, next_page=None):
-    if 'next' in request.REQUEST:
-        next_page = request.REQUEST['next']
-
     if request.method == 'POST':
+        if 'next' in request.POST:
+            next_page = request.POST['next']
         if 'reset-button' in request.POST:
             if 'admin_time' in request.session:
                 del request.session['admin_time']

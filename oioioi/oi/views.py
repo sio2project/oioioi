@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse, SimpleTemplateResponse
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_GET
 
 from oioioi.base.permissions import not_anonymous, enforce_condition
 from oioioi.contests.utils import is_contest_admin
@@ -31,21 +31,23 @@ def registration_notice_fragment(request):
         return None
 
 
+@require_GET
 @enforce_condition(not_anonymous)
 def cities_view(request):
-    if 'province' not in request.REQUEST:
+    if 'province' not in request.GET:
         raise SuspiciousOperation
-    province = request.REQUEST['province']
+    province = request.GET['province']
     options = city_options(province)
     return HttpResponse(SchoolSelect().render_options(options, []))
 
 
+@require_GET
 @enforce_condition(not_anonymous)
 def schools_view(request):
-    if 'province' not in request.REQUEST or 'city' not in request.REQUEST:
+    if 'province' not in request.GET or 'city' not in request.GET:
         raise SuspiciousOperation
-    province = request.REQUEST['province']
-    city = request.REQUEST['city']
+    province = request.GET['province']
+    city = request.GET['city']
     options = school_options(province, city)
     return HttpResponse(SchoolSelect().render_options(options, []))
 
