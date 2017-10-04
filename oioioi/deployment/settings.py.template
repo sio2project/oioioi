@@ -14,6 +14,7 @@ DEBUG = True
 
 if DEBUG:
     TEMPLATES[0]['OPTIONS']['loaders'] = UNCACHED_TEMPLATE_LOADERS
+    TEMPLATES[0]['APP_DIRS'] = False
 
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.
