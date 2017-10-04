@@ -84,8 +84,11 @@ def problems_list_view(request):
             # use `user=request.user` (it would cause TypeError). Suprisingly
             # using request.user.id is ok since for AnynomousUser id is set
             # to None.
-            UserResultForProblem.objects.filter(user__id=request.user.id,
-                problem_instance=pi).first()
+            next((r for r in UserResultForProblem.objects.filter(
+                        user__id=request.user.id, problem_instance=pi)
+                    if r and controller.can_see_submission_score(request,
+                        r.submission_report.submission)),
+                 None)
         )
         for pi in problem_instances
     ], key=lambda p: (p[2].get_start(), p[2].get_end(), p[0].round.name,
