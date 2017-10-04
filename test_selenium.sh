@@ -2,7 +2,8 @@
 
 cd "`dirname "$0"`"
 
-echo "Runnings docker tests on `date` with $0 $@"
+# Let's hope we don't ruin anything :).
+echo "Running docker tests on `date` with $0 $@"
 
 # Pass current user ID.
 export OIOIOI_UID="$UID"
