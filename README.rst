@@ -320,74 +320,13 @@ and restart the judging machines.
 
 Upgrading from django 1.8
 ~~~~~~~~~~~~~~~~~~~~~~~~~
-Please make sure to reinstall all packages to avoid compatibility issues.::
+Please make sure to reinstall all packages to avoid compatibility issues::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
   pip install -I --force-reinstall -r requirements.txt
   ./manage.py migrate
   ./manage.py collectstatic
   ./manage.py supervisor restart all
-
-Upgrading from an old version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you're getting the "Upgrading from an old version" message when trying to
-sync the database, that means you had an old version of OIOIOI that was based
-on version 1.6 or 1.5 of the Django framework. Django 1.7 introduces a new
-migration system which requires a more complicated upgrade process.
-
-IMPORTANT: BACKUP YOUR DATABASE BEFORE DOING THE NEXT STEP.
-
-In the typical situation where you didn't create any custom migrations
-we've automated the process for you: make sure your database settings
-are valid and run::
-
-  ./manage.py upgrade_to_17
-
-That's all. If you have your own custom changes though and they are
-incompatible with our script or you want to understand what happens,
-the following needs to be done:
-
-#. Install Django 1.6 and South and place all of the old migrations in proper
-   directories. The easiest way is to 'git checkout' the last commit
-   before the 1.7 commit and do 'pip install -r requirements.txt'. If you have
-   custom changes in your OIOIOI directory and they conflict with our changes,
-   you'll have to merge them yourself.
-   For our automatic script we use a temporary virtualenv and a package
-   containing all the necessary files to run the old migrations.
-
-#. Now enable all applications you have ever used (in the INSTALLED_APPS
-   setting) and run ./manage.py migrate. If you don't know which applications
-   you've used in the past, just enable them all and run ./manage.py syncdb
-   and then ./manage.py migrate. Our script does that.
-   If you have your own custom migrations they could be conflicting with
-   ours. You'll have to solve these conflicts yourself.
-
-#. Get the newest OIOIOI, install the needed packages and remove all of the old
-   migrations. Again, the easiest way is to 'git checkout' the last commit
-   and do 'pip install -r requirements.txt'.
-
-#. Migrate all the new Django 1.7 migrations. The necessary changes are already
-   in the database and in most cases Django will detect this by faking the
-   migrations - marking them as applied without actually applying them.
-   However some migrations need to be explicitly told to be faked. The commands
-   that need to be run in the typical case are::
-
-     ./manage.py migrate --fake balloons 0002
-     ./manage.py migrate --fake complaints 0002
-     ./manage.py migrate --fake contestexcl 0002
-     ./manage.py migrate --fake contestlogo 0002
-     ./manage.py migrate --fake contests 0002
-     ./manage.py migrate
-
-   assuming that these applications are in INSTALLED_APPS.
-   If you've had your own custom migrations before and they introduced
-   circular dependency loops on foreign keys in different applications than
-   those mentioned above, you also have to run the ./manage.py migrate --fake
-   command for them as well.
-
-#. Run ./manage.py collectstatic and start the supervisor, your judging
-   machines and the server.
 
 Changes in the deployment directory
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -407,7 +346,7 @@ directory is up-to-date, change *CONFIG_VERSION* in your custom
 
 List of changes since the *CONFIG_VERSION* numbering was introduced:
 
-#. * Added *unpackmgr* queue entry to *deployment/supervisord.conf*.::
+#. * Added *unpackmgr* queue entry to *deployment/supervisord.conf*::
 
        [program:unpackmgr]
        command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
@@ -417,19 +356,19 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
        stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
 
    * Added *USE_SINOLPACK_MAKEFILES* and *UNPACKMGR_CONCURRENCY*
-     options to *deployment/settings.py*.::
+     options to *deployment/settings.py*::
 
        USE_SINOLPACK_MAKEFILES = False
        #UNPACKMGR_CONCURRENCY = 1
 
-#. * Added *Notifications Server* entries to *deployment/supervisord.conf*.::
+#. * Added *Notifications Server* entries to *deployment/supervisord.conf*::
 
         [program:notifications-server]
         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications_server
         redirect_stderr=true
         {% if not settings.NOTIFICATIONS_SERVER_ENABLED %}exclude=true{% endif %}
 
-   * Added *NOTIFICATIONS_* options to *deployment/settings.py*.::
+   * Added *NOTIFICATIONS_* options to *deployment/settings.py*::
 
         # Notifications configuration (client)
         # This one is for JavaScript socket.io client.
@@ -517,12 +456,12 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
    * Deleted *zeus-fetcher* entry from *deployment/supervisord.conf*.
 
-   * Added *ZEUS_PUSH_GRADE_CALLBACK_URL* entry to *deployment/settings.py*.::
+   * Added *ZEUS_PUSH_GRADE_CALLBACK_URL* entry to *deployment/settings.py*::
 
         ZEUS_PUSH_GRADE_CALLBACK_URL = 'https://sio2.dasie.mimuw.edu.pl'
 
    * Added logging to file for logger *oioioi.zeus* in
-     *deployment/settings.py*.::
+     *deployment/settings.py*::
 
         LOGGING['handlers']['zeus_file'] = {
             'level': 'INFO',
@@ -562,14 +501,14 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         # (...)
 
 #. * Added commented out *OIOIOI_INSTANCE_PRIORITY_BONUS* and
-     *OIOIOI_INSTANCE_WEIGHT_BONUS* entries to *deployment/settings.py*.::
+     *OIOIOI_INSTANCE_WEIGHT_BONUS* entries to *deployment/settings.py*::
 
         # Bonus to judging priority ang judging weight for each contest on this
         # OIOIOI instance.
         #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
         #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
 
-   * Modified comment to *SITE_NAME* entry in *deployment/settings.py*.::
+   * Modified comment to *SITE_NAME* entry in *deployment/settings.py*::
 
         # Site name displayed in the title and used by sioworkersd
         # to distinguish OIOIOI instances.
@@ -579,7 +518,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      set as new default backend. Removed *[program:sioworkers]* entry from
      *deployment/supervisord.conf*.
 
-#. * Added *PUBLIC_ROOT_URL* to *deployment/settings.py*.::
+#. * Added *PUBLIC_ROOT_URL* to *deployment/settings.py*::
 
         # The website address as it will be displayed to users in some places,
         # including but not limited to the mail notifications.
@@ -587,7 +526,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         #PUBLIC_ROOT_URL = 'http://enter-your-domain-name-here.com'
 
     * Added `mailnotifyd`, a backend for handling e-mail subscription to
-      *deployment/supervisord.conf*.::
+      *deployment/supervisord.conf*::
 
         [program:mailnotifyd]
         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py mailnotifyd
@@ -601,7 +540,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      need to:
 
      * Correctly setup RAVEN_CONFIG (https://docs.sentry.io/quickstart/ should
-       help you).::
+       help you)::
 
          # Error reporting
          import raven
@@ -615,7 +554,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
                  os.path.join(os.path.dirname(oioioi.__file__), os.pardir)),
          }
 
-     * Add new filter to the logging configuration.::
+     * Add new filter to the logging configuration::
 
          'filters': {
              ...
@@ -624,7 +563,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
              },
          }
 
-     * Add Sentry handler.::
+     * Add Sentry handler::
 
          'handlers': {
              ...
@@ -635,11 +574,11 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
              }
          }
 
-     * Add Sentry handler to every logger.::
+     * Add Sentry handler to every logger::
 
          'handlers': ['console', 'sentry'],
 
-     * Add new loggers.::
+     * Add new loggers::
 
          'loggers': {
              ...
@@ -657,8 +596,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Upgrade to django 1.9 requires following changes in the config file
 
-     * TEMPLATE_* variables got replaced with TEMPLATE array
-       TEMPLATE_CONTEXT_PROCESSORS should be changed to.::
+     * TEMPLATE_* variables got replaced with TEMPLATE array.
+       TEMPLATE_CONTEXT_PROCESSORS should be changed to::
 
         TEMPLATES[0]['OPTIONS']['context_processors'] += [
         #    'oioioi.contestlogo.processors.logo_processor',
@@ -669,13 +608,13 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         ]
 
     * Settings should now declare an explicit SITE_ID, you can check your
-      site id via management console.::
+      site id via management console::
 
         $ ./manage.py shell
         >>> Site.objects.get().id
         1
 
-      The returned id should be added to your config file.::
+      The returned id should be added to your config file::
 
         SITE_ID = 1
 
