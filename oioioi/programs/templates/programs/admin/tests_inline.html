@@ -7,21 +7,21 @@
     {{ inline_admin_formset.formset.management_form }}
     {{ inline_admin_formset.formset.non_form_errors }}
     <!-- container -->
-    <div class="grp-module grp-table">
-        <div class="grp-module grp-thead">
-            <div class="grp-tr">
+    <table class="grp-module grp-table">
+        <thead class="grp-module grp-thead">
+            <tr class="grp-tr">
                 {% for field in inline_admin_formset.fields %}
                     {% if not field.widget.is_hidden %}
-                        <div class="grp-th {{ field.label|lower|slugify }}{% if field.required %} required{% endif %}">{{ field.label|capfirst }}</div>
+                        <th class="grp-th {{ field.label|lower|slugify }}{% if field.required %} required{% endif %}">{{ field.label|capfirst }}</th>
                     {% endif %}
                 {% endfor %}
                 {% if inline_admin_formset.formset.can_delete %}<div class="grp-th">&nbsp;</div>{% endif %}
-            </div>
-        </div>
+            </tr>
+        </thead>
         {% with inline_admin_formset.opts.sortable_field_name|default:"" as sortable_field_name %}
         {% for inline_admin_form in inline_admin_formset|formsetsort:sortable_field_name %}
             <!-- element -->
-            <div class="grp-module grp-tbody{% if inline_admin_form.original or inline_admin_form.show_url %} has_original{% endif %}{% if forloop.last %} grp-empty-form{% endif %}"
+            <tbody class="grp-module grp-tbody{% if inline_admin_form.original or inline_admin_form.show_url %} has_original{% endif %}{% if forloop.last %} grp-empty-form{% endif %}"
                 id="{{ inline_admin_formset.formset.prefix }}{% if not forloop.last %}{{ forloop.counter0 }}{% else %}-empty{% endif %}">
                 {% if inline_admin_form.form.non_field_errors %}
                     {{ inline_admin_form.form.non_field_errors }}
@@ -36,12 +36,12 @@
                     {% endfor %}
                 {% endfor %}
                 {% endspaceless %}
-                <div class="grp-tr">
+                <tr class="grp-tr">
                     {% for fieldset in inline_admin_form %}
                         {% for line in fieldset %}
                             {% for field in line %}
                                 {% if not field.field.is_hidden %}
-                                    <div class="grp-td {{ field.field.name }} {% if field.field.errors %} grp-error{% endif %}">
+                                    <td class="grp-td {{ field.field.name }} {% if field.field.errors %} grp-error{% endif %}">
                                         {% if field.is_readonly %}
                                             <p class="grp-readonly">{{ field.contents }}</p>
                                         {% else %}
@@ -49,18 +49,18 @@
                                             {{ field.field.errors.as_ul }}
                                         {% endif %}
                                         {% if field.field.help_text %}<p class="grp-help">{{ field.field.help_text }}</p>{% endif %}
-                                    </div>
+                                    </td>
                                 {% endif %}
                             {% endfor %}
                         {% endfor %}
                     {% endfor %}
                     {{ inline_admin_form.fk_field.field }}
                     {% if inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
-                </div>
-            </div>
+                </tr>
+            </tbody>
         {% endfor %}
         {% endwith %}
-    </div>
+    </table>
     <div class="grp-module grp-transparent"><div class="grp-row">{% blocktrans %}Use TAB to effectively move between the boxes. Use Shift-Enter to copy the current value down up to the end of the table.{% endblocktrans %}</div></div>
 </div>
 
