@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 19
+INSTALLATION_CONFIG_VERSION = 20
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -196,6 +196,7 @@ INSTALLED_APPS = (
     'oioioi.base',
     'oioioi.maintenancemode',
     'oioioi.evalmgr',
+    'oioioi.workers',
 
     'djcelery',
     'kombu.transport.django',

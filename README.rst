@@ -715,6 +715,13 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
      so that the flag RUN_LOCAL_WORKERS has the desirable effect.
 
+#. * Enabled *oioioi.workers* app by default to fix *receive_from_workers*
+     crashes.
+
+   * Made *oioioi.prizes* Celery configuration conditional on this app being
+     installed. This prevents *evalmgr* and *unpackmgr* crashes caused by assuming
+     that *oioioi.prizes* is always enabled.
+
 
 Usage
 -----

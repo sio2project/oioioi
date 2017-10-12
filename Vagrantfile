@@ -125,7 +125,6 @@ Vagrant.configure("2") do |config|
                s/#USE_LOCAL_COMPILERS = True/USE_LOCAL_COMPILERS = False/g;\
                s/#USE_UNSAFE_CHECKER = True/USE_UNSAFE_CHECKER = False/g;\
                s/.*RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g"\
-            -e "/INSTALLED_APPS =/a'oioioi.workers',"\
             settings.py
 
     echo "SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'" \
