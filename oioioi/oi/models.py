@@ -41,6 +41,7 @@ CLASS_TYPES = [
     ('2LO', "druga szkoły ponadgimnazjalnej"),
     ('3LO', "trzecia szkoły ponadgimnazjalnej"),
     ('4LO', "czwarta szkoły ponadgimnazjalnej"),
+    ('5LO', "piąta szkoły ponadgimnazjalnej"),
     ('1G', "pierwsza gimnazjum"),
     ('2G', "druga gimnazjum"),
     ('3G', "trzecia gimnazjum"),
@@ -50,6 +51,8 @@ CLASS_TYPES = [
     ('4SP', "czwarta szkoły podstawowej"),
     ('5SP', "piąta szkoły podstawowej"),
     ('6SP', "szósta szkoły podstawowej"),
+    ('7SP', "siódma szkoły podstawowej"),
+    ('8SP', "ósma szkoły podstawowej"),
 ]
 
 
