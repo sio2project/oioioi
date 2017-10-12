@@ -704,6 +704,17 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         #FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
         #FILETRACKER_CACHE_SIZE = '8G'
 
+#. * Added *oioioiworker* entry
+     to *deployment/supervisord.conf*::
+
+        [program:oioioiworker]
+        command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/oioioiworker.pid worker -c 2 localhost
+        redirect_stderr=true
+        stdout_logfile={{ PROJECT_DIR }}/logs/oioioiworker.log
+        {% if not settings.RUN_LOCAL_WORKERS %}exclude=true{% endif %}
+
+     so that the flag RUN_LOCAL_WORKERS has the desirable effect.
+
 
 Usage
 -----

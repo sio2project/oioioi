@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 18
+INSTALLATION_CONFIG_VERSION = 19
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)

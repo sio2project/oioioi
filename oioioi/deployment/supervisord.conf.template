@@ -116,6 +116,12 @@ redirect_stderr=true
 stdout_logfile={{ PROJECT_DIR }}/logs/ipauth-dnsserver.log
 {% if not settings.IPAUTH_DNSSERVER_DOMAIN %}exclude=true{% endif %}
 
+[program:oioioiworker]
+command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/oioioiworker.pid worker -c 2 localhost
+redirect_stderr=true
+stdout_logfile={{ PROJECT_DIR }}/logs/oioioiworker.log
+{% if not settings.RUN_LOCAL_WORKERS %}exclude=true{% endif %}
+
 [program:autoreload]
 # Comment this out to enable auto-reloading when code changes.
 exclude=true
