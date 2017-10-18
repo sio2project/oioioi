@@ -121,6 +121,7 @@ Ensure that required dependencies are installed:
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
   *texlive-lang-polish*)
+* lighttpd binary (Ubuntu package: *lighttpd*, shall not be run as service)
 
 and in one terminal run the Django web server::
 
@@ -151,11 +152,6 @@ Production configuration
 
 #. Begin with the simple configuration described above.
 
-#. Ensure that production-grade dependencies are installed:
-
-   * lighttpd binary (Ubuntu package: *lighttpd*, shall not be run as service.)
-   * uwsgi (*pip install uwsgi*)
-
 #. Make sure you are in the *deployment* folder and the virtualenv is activated.
 
 #. Install `RabbitMQ`_. We tested version 2.8.6 from `RabbitMQ Debian/Ubuntu
@@ -176,10 +172,13 @@ Production configuration
    if you want to configure judging machines (see below) for judging, what is
    strongly recommended. Comment out the *RUN_LOCAL_WORKERS = True* setting.
 
-#. (required only for dedicated judging machines) Enable Filetracker server by
-   uncommenting *FILETRACKER_SERVER_ENABLED*, *FILETRACKER_LISTEN_ADDR*,
-   *FILETRACKER_LISTEN_PORT*, *FILETRACKER_URL* in *settings.py* and restart
-   the daemons.
+#. (required only for dedicated judging machines) Configure Filetracker server by
+   setting *FILETRACKER_LISTEN_ADDR* and *FILETRACKER_URL* in *settings.py* and
+   restart the daemons.
+
+#. Ensure that production-grade dependencies are installed:
+
+   * uwsgi (*pip install uwsgi*)
 
 #. Install and configure web server. We recommend using nginx with uwsgi plugin
    (included in *nginx-full* Ubuntu package). An example configuration is
@@ -661,6 +660,23 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      installed. This prevents *evalmgr* and *unpackmgr* crashes caused by assuming
      that *oioioi.prizes* is always enabled.
 
+#. * Applied the following patch to *deployment/settings.py*::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -119,10 +119,16 @@ SEND_USER_ACTIVATION_EMAIL = False
+         # the given port will be able to see all the files. It's recommended to have
+         # the judging machines on a separate physical network and listen only on the
+         # corresponding IP address.
+        -#FILETRACKER_SERVER_ENABLED = True
+         #FILETRACKER_LISTEN_ADDR = '0.0.0.0'
+        +
+        +# Uncomment and change this to run filetracker on non-default port.
+         #FILETRACKER_LISTEN_PORT = 9999
+
+         # When using a remote_storage_factory it's necessary to specify a cache
+         # directory in which a necessary files will be stored.
+         #FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
 Usage
 -----

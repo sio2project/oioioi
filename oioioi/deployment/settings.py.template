@@ -119,9 +119,15 @@ SEND_USER_ACTIVATION_EMAIL = False
 # the given port will be able to see all the files. It's recommended to have
 # the judging machines on a separate physical network and listen only on the
 # corresponding IP address.
-#FILETRACKER_SERVER_ENABLED = True
 #FILETRACKER_LISTEN_ADDR = '0.0.0.0'
+
+# Uncomment and change this to run filetracker on non-default port.
 #FILETRACKER_LISTEN_PORT = 9999
+
+# When using distributed workers set this to url on which workers will be
+# able to access filetracker server. When 'remote_storage_factory' is used,
+# this also defines the filetracker server oioioi should connect to.
+#FILETRACKER_URL = 'http://127.0.0.1:9999'
 
 # When using a remote_storage_factory it's necessary to specify a cache
 # directory in which a necessary files will be stored.
@@ -138,11 +144,6 @@ SEND_USER_ACTIVATION_EMAIL = False
 #FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL = '1h'
 #FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL = '50'
 #FILETRACKER_CACHE_SIZE = '8G'
-
-# When using distributed workers set this to url on which workers will be
-# able to access filetracker server. When 'remote_storage_factory' is used,
-# this also defines the filetracker server oioioi should connect to.
-#FILETRACKER_URL = 'http://127.0.0.1:9999'
 
 # The logs for one specific logger 'oioioi.zeus' will be
 # stored in a specific file: `PROJECT_DIR/logs/zeus.log`.
