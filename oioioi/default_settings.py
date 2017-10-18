@@ -380,13 +380,11 @@ BROKER_URL = 'sqla+sqlite:///' + os.path.join(tempfile.gettempdir(),
 CELERY_IMPORTS += [
     'oioioi.evalmgr.tasks',
     'oioioi.problems.unpackmgr',
-    'oioioi.prizes.models',
 ]
 
 CELERY_ROUTES.update({
     'oioioi.evalmgr.tasks.evalmgr_job': dict(queue='evalmgr'),
     'oioioi.problems.unpackmgr.unpackmgr_job': dict(queue='unpackmgr'),
-    'oioioi.prizes.models.prizesmgr_job': dict(queue='prizesmgr'),
 })
 
 # Number of concurrently evaluated submissions
