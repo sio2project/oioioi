@@ -86,8 +86,9 @@ def problems_list_view(request):
             # to None.
             next((r for r in UserResultForProblem.objects.filter(
                         user__id=request.user.id, problem_instance=pi)
-                    if r and controller.can_see_submission_score(request,
-                        r.submission_report.submission)),
+                    if r and r.submission_report
+                        and controller.can_see_submission_score(request,
+                            r.submission_report.submission)),
                  None)
         )
         for pi in problem_instances
