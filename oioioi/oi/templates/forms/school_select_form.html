@@ -3,7 +3,7 @@
 <p>
 <select name="{{ attr.name }}{{ suffix }}" id="{{ attr.id }}{{ suffix }}">
     {% for value, option in opts %}
-        <option value="{{ value }}" {% if x == selected %}selected{% endif %}>
+        <option value="{{ value }}" {% if value == selected %}selected{% endif %}>
             {{ option }}
         </option>
     {% endfor %}
