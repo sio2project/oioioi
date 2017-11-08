@@ -3,7 +3,7 @@ from operator import itemgetter
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
@@ -241,7 +241,15 @@ def rejudge_submission_view(request, submission_id):
     if not can_admin_problem_instance(request, pi):
         raise PermissionDenied
 
-    pi.controller.judge(submission, request.GET.dict(), is_rejudge=True)
+    extra_args = {}
+    supported_extra_args = pi.controller.get_supported_extra_args(submission)
+    for flag in request.GET:
+        if flag in supported_extra_args:
+            extra_args[flag] = True
+        else:
+            raise SuspiciousOperation
+
+    pi.controller.judge(submission, extra_args, is_rejudge=True)
     messages.info(request, _("Rejudge request received."))
     return redirect('submission', submission_id=submission_id)
 

@@ -45,7 +45,7 @@
                     {% for link, name in supported_extra_args.items %}
                         <li>
                             <a href="#"
-                               data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}">
+                               data-post-url="{% url 'rejudge_submission' submission_id=submission.submission.id %}?{{ link }}=true">
                                 <span class="glyphicon glyphicon-eye-close"></span>
                                 {{ name }}
                             </a>

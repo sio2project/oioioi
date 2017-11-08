@@ -865,6 +865,20 @@ class TestRejudgeAndFailure(TestCase):
         self.assertNotIn('failure report', response.content)
         self.assertNotIn('EXPECTED FAILURE', response.content)
 
+    def test_suspicious_rejudge_request(self):
+        contest = Contest.objects.get()
+        contest.controller_name = \
+                'oioioi.contests.tests.tests.BrokenContestController'
+        contest.save()
+
+        submission = Submission.objects.get(pk=1)
+        self.client.login(username='test_admin')
+        kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
+        url = reverse('rejudge_submission', kwargs=kwargs) + '?evil=true'
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 400)
+
 
 class TestRejudgeTypesView(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
