@@ -162,11 +162,12 @@ def _resume_job(environ):
     """Restores saved environ, returns environ or None, when a matching
        SavedEnviron wasn't found.
    """
+    saved_environ_id = environ.pop('saved_environ_id')
     saved_environ_object = SavedEnviron.objects.filter(
-            id=environ.pop('saved_environ_id')).select_for_update()
+            id=saved_environ_id).select_for_update()
     if not saved_environ_object.exists():
-        logger.info('Job %s already resumed, ignoring.',
-                str(environ['job_id']))
+        logger.info('Job with environ id %s already resumed, ignoring.',
+                str(saved_environ_id))
         return None
     saved_environ_object = saved_environ_object.get()
     saved_environ = saved_environ_object.load_environ()
