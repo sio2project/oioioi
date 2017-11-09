@@ -24,7 +24,13 @@ def push_grade(request, saved_environ_id, signature):
 
     # This message may be useful for debugging in case when decoding fails
     logger.info('BEFORE DECODING BODY')
-    body = _json_base64_decode(request.body)
+    try:
+        body = _json_base64_decode(request.body)
+    except ValueError:
+        logger.info('Invalid b64 JSON: %s', request.body)
+        return HttpResponse(
+            'Got invalid payload. It is not JSON with base64 strings.',
+            status=400)
     logger.info(' >>>> ')
     logger.info(body)
     logger.info(' <<<< ')

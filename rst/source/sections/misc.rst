@@ -250,7 +250,9 @@ in case of compilation success, where
 
 Code 200 and ``HttpResponse("Recorded!")``
 or code 4xx|5xx and a lot of HTML (for example the one which normally displays
-a message **Internal Server Error** in a browser).
+a message **Internal Server Error** in a browser). When server received
+invalid JSON or strings are not encoded with Base64, then it will response with
+code 400 and nice error message.
 
 *MSE* and *MCE* are statuses meaning that size or count of outgoing messages
 sent by submitted program has exceeded the limit.
