@@ -19,6 +19,9 @@ def filter_zeus_problem_instances(problem_instances):
     return [pi for pi in problem_instances if pi.problem in problems]
 
 
+# Note:
+# "Unlike your SECRET_KEY, your salt argument does not need to stay secret."
+# https://docs.djangoproject.com/en/1.9/topics/signing/#using-the-salt-argument
 ZEUS_URL_SALT = 'zeus_url_salt'
 
 
