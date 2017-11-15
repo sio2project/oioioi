@@ -14,7 +14,13 @@ DEBUG = True
 
 if DEBUG:
     TEMPLATES[0]['OPTIONS']['loaders'] = UNCACHED_TEMPLATE_LOADERS
-    TEMPLATES[0]['APP_DIRS'] = False
+else:
+    # Cache compiled templates in production environment.
+    TEMPLATES[0]['OPTIONS']['loaders'] = CACHED_TEMPLATE_LOADERS
+
+# The APP_DIRS option is allowed only in template engines that have no custom
+# loaders specified.
+TEMPLATES[0]['APP_DIRS'] = False
 
 # Site name displayed in the title and used by sioworkersd
 # to distinguish OIOIOI instances.

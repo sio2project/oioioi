@@ -678,6 +678,28 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          # directory in which a necessary files will be stored.
          #FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
+#. * Enabled use of caching template loaders when *settings.DEBUG* is set to *False*
+     to turn on a cache of compiled templates in production environment.
+
+   * Set *APP_DIRS* option to *False* to fix the "either remove APP_DIRS or remove the 'loaders'
+     option" crashes::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -14,7 +14,13 @@ DEBUG = True
+
+         if DEBUG:
+             TEMPLATES[0]['OPTIONS']['loaders'] = UNCACHED_TEMPLATE_LOADERS
+        -    TEMPLATES[0]['APP_DIRS'] = False
+        +else:
+        +    # Cache compiled templates in production environment.
+        +    TEMPLATES[0]['OPTIONS']['loaders'] = CACHED_TEMPLATE_LOADERS
+        +
+        +# The APP_DIRS option is allowed only in template engines that have no custom
+        +# loaders specified.
+        +TEMPLATES[0]['APP_DIRS'] = False
+
+
 Usage
 -----
 

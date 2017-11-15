@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 21
+INSTALLATION_CONFIG_VERSION = 22
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -87,6 +87,10 @@ SECRET_KEY = None
 UNCACHED_TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+)
+
+CACHED_TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', UNCACHED_TEMPLATE_LOADERS),
 )
 
 PROBLEMSET_LINK_VISIBLE = True
