@@ -524,7 +524,7 @@ class SinolPackage(object):
             logger.warning("%s: failed to compile statement", self.filename,
                     exc_info=True)
 
-    def _generate_tests(self, total_score=100):
+    def _generate_tests(self, total_score_if_auto=100):
         self.time_limits = _stringify_keys(self.config.get('time_limits', {}))
         self.memory_limits = _stringify_keys(
                 self.config.get('memory_limits', {}))
@@ -542,8 +542,7 @@ class SinolPackage(object):
         self._validate_tests(created_tests)
         self._delete_non_existing_tests(created_tests)
 
-        if scored_groups:
-            self._assign_scores(scored_groups, total_score)
+        self._assign_scores(scored_groups, total_score_if_auto)
 
     def _detect_statement_memory_limit(self):
         """Returns the memory limit in the problem statement, converted to
@@ -785,13 +784,41 @@ class SinolPackage(object):
         get_client().delete_file(env['compiled_file'])
         return jobs
 
-    def _assign_scores(self, scored_groups, total_score):
+    def _check_scores_from_config(self, scored_groups, config_scores):
+        """Makes sure that all scored tests are present in config
+           and that nothing else is there.
+        """
+
+        for group in scored_groups:
+            if int(group) not in config_scores:
+                errormsg = _("Score for group '%s' not found. "
+                             "You must either provide scores for all groups "
+                             "or not provide them at all "
+                             "(to have them assigned automatically). "
+                             "(Scored groups: %s, groups from config: %s)") % \
+                           (group, list(scored_groups), config_scores)
+                raise ProblemPackageError(errormsg)
+
+        for group in config_scores:
+            if str(group) not in scored_groups:
+                errormsg = _("Score for group '%s' found in config, "
+                             "but no such test group exists in scored groups."
+                             "You must either provide scores for all groups "
+                             "or not provide them at all "
+                             "(to have them assigned automatically). "
+                             "(Scored groups: %s, groups from config: %s)") % \
+                           (group, list(scored_groups), config_scores)
+                raise ProblemPackageError(errormsg)
+
+    def _compute_scores_automatically(self, scored_groups, total_score):
         """All groups get equal score, except few last groups
            that are given +1 to compensate rounding error and
            match total sum of ``total_score``.
         """
-        Test.objects.filter(problem_instance=self.main_problem_instance) \
-                .update(max_score=0)
+        if not scored_groups:
+            return {}
+
+        scores = {}
         num_groups = len(scored_groups)
         group_score = total_score / num_groups
         extra_score_groups = sorted(scored_groups, key=naturalsort_key)[
@@ -800,8 +827,31 @@ class SinolPackage(object):
             score = group_score
             if group in extra_score_groups:
                 score += 1
+
+            scores[group] = score
+
+        return scores
+
+    def _assign_scores(self, scored_groups, total_score_if_auto):
+        """Checks if there's a ``scores`` entry in config
+           and sets scores according to that
+           or assigns them automatically otherwise.
+        """
+        group_scores_from_config = self.config.get('scores', {})
+        if group_scores_from_config:
+            self._check_scores_from_config(scored_groups,
+                                           group_scores_from_config)
+            scores = group_scores_from_config
+        else:
+            scores = self._compute_scores_automatically(scored_groups,
+                                                        total_score_if_auto)
+
+        Test.objects.filter(problem_instance=self.main_problem_instance) \
+            .update(max_score=0)
+
+        for group, score in scores.iteritems():
             Test.objects.filter(problem_instance=self.main_problem_instance,
-                    group=group).update(max_score=score)
+                                group=group).update(max_score=score)
 
     def _process_checkers(self):
         """Compiles output checker and saves its binary.

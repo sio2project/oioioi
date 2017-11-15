@@ -4,6 +4,8 @@ import os.path
 import urllib
 import zipfile
 from cStringIO import StringIO
+
+from django.core.management.base import CommandError
 from nose.plugins.attrib import attr
 from nose.tools import nottest
 from django.test.utils import override_settings
@@ -151,6 +153,39 @@ class TestSinolPackage(TestCase):
         problem = Problem.objects.get()
         self.assertEqual(problem.attachments.all().count(), 0)
 
+    def test_assign_points_from_file(self):
+        filename = get_test_filename('test_scores.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        tests = Test.objects.filter(
+            problem_instance=problem.main_problem_instance)
+
+        self.assertEqual(tests.get(name='1a').max_score, 42)
+        self.assertEqual(tests.get(name='1b').max_score, 42)
+        self.assertEqual(tests.get(name='1c').max_score, 42)
+        self.assertEqual(tests.get(name='2').max_score, 23)
+
+    def test_assign_points_nonexistent(self):
+        filename = get_test_filename('test_scores_nonexistent_fail.zip')
+        self.assertRaises(CommandError, call_command, 'addproblem', filename)
+        call_command('addproblem', filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("no such test group exists", package.info)
+
+    def test_assign_points_not_exhaustive(self):
+        filename = get_test_filename('test_scores_notexhaustive_fail.zip')
+        self.assertRaises(CommandError, call_command, 'addproblem', filename)
+        call_command('addproblem', filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("Score for group", package.info)
+        self.assertIn("not found", package.info)
 
     @attr('slow')
     @both_configurations
