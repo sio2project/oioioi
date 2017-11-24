@@ -9,8 +9,8 @@ register = Library()
 @register.simple_tag
 def tag_label(tag):
     colors = get_tag_colors(tag.name)
-    return mark_safe('<span title="%(name)s" class="label"' \
-                     ' style="background-color: %(bgcolor)s;' \
-                     ' color: %(textcolor)s;" >%(name)s</span>' \
-                     % {'name': tag.name, 'bgcolor': colors[0], 
+    return mark_safe('<span title="%(name)s" class="label"'
+                     ' style="background-color: %(bgcolor)s;'
+                     ' color: %(textcolor)s;" >%(name)s</span>'
+                     % {'name': tag.name, 'bgcolor': colors[0],
                         'textcolor': colors[1]})
