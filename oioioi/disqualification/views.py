@@ -20,4 +20,4 @@ def disqualification_fragment(request):
     if not submissions:
         return None
 
-    return cc.render_disqualifications(request, submissions)
+    return cc.render_disqualifications(request, request.user, submissions)

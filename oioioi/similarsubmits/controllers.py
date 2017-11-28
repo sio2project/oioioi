@@ -47,6 +47,15 @@ class SimilarityDisqualificationMixin(object):
             .filter(guilty=True) \
             .exists()
 
+    def user_has_disqualification_history(self, request, user):
+        prev = super(SimilarityDisqualificationMixin, self) \
+            .user_has_disqualification_history(request, user)
+
+        return prev or SubmissionsSimilarityEntry.objects \
+            .filter(submission__problem_instance__contest=request.contest,
+                    submission__user=user) \
+            .exists()
+
     def change_submission_kind(self, submission, kind):
         old_kind = submission.kind
         super(SimilarityDisqualificationMixin, self) \

@@ -60,9 +60,8 @@
                             </a>
                         {% endif %}
                     {% endif %}
-
-                    {% with submission_contexts|lookup:similar_to as context %}
-                        {% for value, description in context.valid_kinds_for_submission %}
+                    {% with submission_contexts|lookup:similar_to as submission_context %}
+                        {% for value, description in submission_context.valid_kinds_for_submission %}
                             <a href="#" data-post-url="{% url 'change_submission_kind' contest_id=contest.id submission_id=similar_to.id kind=value %}"
                                 data-toggle="tooltip" title="{% blocktrans %}Change kind: {{ description }} (and mark not guilty){% endblocktrans %}">
                                 <span class="glyphicon glyphicon-tag"></span>

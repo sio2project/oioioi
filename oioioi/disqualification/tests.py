@@ -49,6 +49,8 @@ class TestContestController(TestCase):
         self.assertTrue(controller.is_any_submission_to_problem_disqualified(
             user, submission.problem_instance))
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
+        self.assertTrue(controller.user_has_disqualification_history(
+            fake_request(), user))
         self.assertFalse(controller.results_visible(fake_request(),
                                                     submission))
 
@@ -65,6 +67,8 @@ class TestContestController(TestCase):
         other_fake_request = self._get_fake_request(user, other_contest)
         self.assertFalse(other_contest.controller.is_user_disqualified(
             other_fake_request(), user))
+        self.assertFalse(other_contest.controller.
+            user_has_disqualification_history(other_fake_request(), user))
 
     def test_not_disqualified(self):
         user = User.objects.get(username="test_user2")
@@ -98,6 +102,8 @@ class TestContestController(TestCase):
         self.assertFalse(controller.is_any_submission_to_problem_disqualified(
             user, submission.problem_instance))
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
+        self.assertTrue(controller.user_has_disqualification_history(
+            fake_request(), user))
         self.assertTrue(controller.results_visible(fake_request(), submission))
         self.assertNotIn(user, controller.exclude_disqualified_users(
             User.objects.all()))
@@ -118,7 +124,6 @@ class TestViews(TestCase):
     def _assert_disqualification_box(self, response_callback):
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = response_callback()
-            self.assertContains(response, "Disqualification")
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
             self.assertNotContains(response, "Score")
@@ -128,7 +133,6 @@ class TestViews(TestCase):
         _disqualify_contestwide()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = response_callback()
-            self.assertContains(response, "Disqualification")
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
@@ -139,7 +143,6 @@ class TestViews(TestCase):
         Disqualification.objects.filter(submission__isnull=False).delete()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = response_callback()
-            self.assertContains(response, "Disqualification")
             self.assertNotContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
@@ -168,7 +171,6 @@ class TestViews(TestCase):
             response = self.client.get(reverse("submission",
                 kwargs={"submission_id": submission.id,
                         "contest_id": Contest.objects.get().id}))
-            self.assertContains(response, "Disqualification")
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
             self.assertNotIn(">34<", self.remove_whitespaces(response))
@@ -212,3 +214,33 @@ class TestViews(TestCase):
             self.assertContains(response, "Disqualified")
             self.assertContains(response, "Yes")
             self.assertContains(response, "34")
+
+    def test_user_info_page(self):
+        self.client.login(username='test_admin')
+        user = User.objects.get(username="test_user")
+        contest = Contest.objects.get()
+        response_callback = lambda: self.client.get(reverse('user_info',
+            kwargs={'contest_id': contest.id, 'user_id': user.id}))
+
+        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+            response = response_callback()
+            self.assertContains(response, "Ni in code")
+            self.assertContains(response, "ninininini")
+            self.assertNotContains(response, "I cannot tell")
+            self.assertNotContains(response, "Knights of Ni")
+
+        _disqualify_contestwide()
+        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+            response = response_callback()
+            self.assertContains(response, "Ni in code")
+            self.assertContains(response, "ninininini")
+            self.assertContains(response, "I cannot tell")
+            self.assertContains(response, "Knights of Ni")
+
+        Disqualification.objects.filter(submission__isnull=False).delete()
+        with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
+            response = response_callback()
+            self.assertNotContains(response, "Ni in code")
+            self.assertNotContains(response, "ninininini")
+            self.assertContains(response, "I cannot tell")
+            self.assertContains(response, "Knights of Ni")

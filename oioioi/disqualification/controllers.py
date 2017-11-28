@@ -10,6 +10,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.contests.controllers import submission_template_context, \
     ContestController
 from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.contests.models import Submission
 
 
 class DisqualificationContestControllerMixin(object):
@@ -56,6 +57,15 @@ class DisqualificationContestControllerMixin(object):
         return Disqualification.objects.filter(contest=request.contest,
             user=user, guilty=True).exists()
 
+    def user_has_disqualification_history(self, request, user):
+        """True if the user was disqualified anytime.
+
+           This method is for example used to check if the disqualification
+           admin panel should be displayed.
+        """
+        return Disqualification.objects.filter(contest=request.contest,
+            user=user).exists()
+
     def exclude_disqualified_users(self, queryset):
         """Filters the queryset of :class:`~django.contrib.auth.model.User`
            to select only users which are not disqualified in this contest.
@@ -97,7 +107,7 @@ class DisqualificationContestControllerMixin(object):
 
         if not reasons:
             return mark_safe("")
-        return render_to_string('disqualification/custom.html',
+        return render_to_string('disqualification/reason.html',
             context_instance=RequestContext(request, {
                 'submission': submission_template_context(request,
                     submission.programsubmission),
@@ -120,20 +130,20 @@ class DisqualificationContestControllerMixin(object):
                 'reason': reason,
             }))
 
-    def _render_contestwide_disqualification_reason(self, request):
-        """Renders part with reason of the current user disqualification not
+    def _render_contestwide_disqualification_reason(self, request, user):
+        """Renders part with reason of the given user disqualification not
            directly associated with any particular submission.
 
            This method is only used internally.
         """
-        reasons = Disqualification.objects.filter(user=request.user,
+        reasons = Disqualification.objects.filter(user=user,
                 contest=request.contest, submission__isnull=True)
         if not is_contest_admin(request):
             reasons = reasons.filter(guilty=True)
 
         if not reasons:
             return None
-        return render_to_string('disqualification/custom.html',
+        return render_to_string('disqualification/reason.html',
             context_instance=RequestContext(request, {
                 'reasons': reasons,
             }))
@@ -141,39 +151,63 @@ class DisqualificationContestControllerMixin(object):
     def render_my_submissions_header(self, request, submissions):
         header = super(DisqualificationContestControllerMixin, self) \
                 .render_my_submissions_header(request, submissions)
-        disq_header = self.render_disqualifications(request, submissions)
+        disq_header = self.render_disqualifications(request, request.user,
+                submissions)
         if disq_header:
             header += disq_header
         return header
 
-    def render_disqualifications(self, request, submissions):
-        """Renders all disqualifications of the current user to HTML, which
+    def render_disqualifications(self, request, user, submissions):
+        """Renders all disqualifications of the given user to HTML, which
            may be put anywhere on the site.
 
            This method should process only submission from ``submissions``.
         """
-        if not self.is_user_disqualified(request, request.user):
+        if not (self.is_user_disqualified(request, user) or
+                (is_contest_admin(request) and
+                    self.user_has_disqualification_history(request, user))):
             return None
 
         disqualified_submissions = []
         for submission in submissions:
-            if self.is_submission_disqualified(submission):
+            if self.is_submission_disqualified(submission) or \
+                    (is_contest_admin(request) and
+                        self.has_disqualification_history(submission)):
                 disqualified_submissions.append({
                     'submission': submission,
                     'reason': self._render_disqualification_reason(
                             request, submission)
                 })
 
-        contestwide = self._render_contestwide_disqualification_reason(request)
+        contestwide = self._render_contestwide_disqualification_reason(request,
+                user)
         if not disqualified_submissions and not contestwide:
             return None
 
-        return render_to_string('disqualification/my-submissions.html',
+        if is_contest_admin(request):
+            template = 'disqualification/submissions-admin.html'
+        else:
+            template = 'disqualification/submissions.html'
+
+        return render_to_string(template,
             context_instance=RequestContext(request, {
                 'submissions': disqualified_submissions,
                 'contestwide': contestwide,
             }))
 
+    def get_contest_participant_info_list(self, request, user):
+        submissions = Submission.objects.filter(
+                problem_instance__contest=request.contest, user=user) \
+                .order_by('-date').select_related()
+
+        info_list = super(DisqualificationContestControllerMixin, self) \
+                .get_contest_participant_info_list(request, user)
+
+        disqualification = self.render_disqualifications(request, user,
+                submissions)
+        if disqualification:
+            info_list.append((75, disqualification))
+        return info_list
 
 ContestController.mix_in(DisqualificationContestControllerMixin)
 

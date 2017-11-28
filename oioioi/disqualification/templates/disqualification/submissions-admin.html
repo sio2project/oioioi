@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load check_perm %}
+
+{% if submissions %}
+    <div class="alert alert-warning">
+        {% for offending in submissions %}
+            {% url 'submission' contest_id=contest.id submission_id=offending.submission.id as link %}
+            <p>
+                <b>{% trans "Offending submission:" %}</b>
+                <a class="alert-link" href="{{ link }}">{{ offending.submission.get_date_display }}</a>
+            </p>
+            <p>{{ offending.reason }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if contestwide %}
+    <div class="alert alert-warning">
+        <p>{{ contestwide }}</p>
+    </div>
+{% endif %}
