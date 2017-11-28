@@ -1,22 +1,28 @@
 # coding: utf-8
+import os
 import re
 from datetime import datetime
-import os
 
-from oioioi.base.tests import TestCase
-from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+from nose.tools import nottest
 
-from oioioi.testrun import handlers
-from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
-from oioioi.evalmgr.tasks import create_environ
-from oioioi.base.tests import check_not_accessible, check_ajax_not_accessible
+from oioioi.base.tests import (
+    TestCase, check_not_accessible, check_ajax_not_accessible, fake_time)
+from oioioi.base.utils.archive import Archive
 from oioioi.contests.models import Contest, ProblemInstance, Submission
+from oioioi.contests.tests import SubmitFileMixin
+from oioioi.evalmgr.tasks import create_environ
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.storage import FiletrackerStorage
-from oioioi.base.tests import fake_time
-from oioioi.base.utils.archive import Archive
+from oioioi.testrun import handlers
+from oioioi.testrun.models import (
+    TestRunConfig,
+    TestRunConfigForInstance,
+    TestRunProgramSubmission,
+    TestRunReport)
 
 
 class TestTestrunViews(TestCase):
@@ -262,3 +268,103 @@ class TestHandlers(TestCase):
             handlers.delete_output(environ)
         except StandardError:
             get_client().delete_file('/output')
+
+
+@nottest
+class TestRunTestCase(object):
+    """A TestCase mixin that provides some helpers for test run tests."""
+
+    @nottest
+    def submit_test_run(self,
+                        user,
+                        contest,
+                        problem_instance,
+                        source_name='submission.cpp',
+                        source_contents='<test run source>',
+                        input_name='input.txt',
+                        input_contents='<test run input>'):
+        url = reverse('testrun_submit', kwargs={'contest_id': contest.id})
+
+        source_file = ContentFile(source_contents, name=source_name)
+        input_file = ContentFile(input_contents, name=input_name)
+
+        post_data = {
+            'problem_instance_id': problem_instance.id,
+            'file': source_file,
+            'input': input_file,
+            'kind': 'TESTRUN',
+            'user': user,
+        }
+
+        return self.client.post(url, post_data, follow=True)
+
+
+class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
+    fixtures = ['test_users',
+                'test_contest',
+                'test_full_package',
+                'test_problem_instance']
+
+    def setUp(self):
+        self.user = User.objects.get(username='test_user')
+        self.contest = Contest.objects.get(pk='c')
+        self.problem_instance = ProblemInstance.objects.get(pk=1)
+
+        self.client.login(username=self.user.username)
+
+        # Enable test runs for problem
+        TestRunConfig(problem=self.problem_instance.problem).save()
+
+        self.instance_test_run_config = TestRunConfigForInstance(
+            problem_instance=self.problem_instance)
+        self.instance_test_run_config.save()
+
+    def submit_solution(self, is_testrun):
+        if is_testrun:
+            return self.submit_test_run(
+                self.user, self.contest, self.problem_instance)
+        else:
+            return self.submit_file(
+                self.contest, self.problem_instance, user=self.user)
+
+    def test_test_run_limit_should_be_respected(self):
+        self.instance_test_run_config.test_runs_limit = 1
+        self.instance_test_run_config.save()
+
+        first_test_run_response = self.submit_solution(is_testrun=True)
+        second_test_run_response = self.submit_solution(is_testrun=True)
+
+        self.assertNotRegexpMatches(first_test_run_response.content,
+                                    'limit.*exceeded')
+        self.assertRegexpMatches(second_test_run_response.content,
+                                 'limit.*exceeded')
+
+    def test_test_run_limit_should_be_independent_from_submission_limit(self):
+        self.problem_instance.submissions_limit = 1000
+        self.problem_instance.save()
+
+        self.instance_test_run_config.test_runs_limit = 1
+        self.instance_test_run_config.save()
+
+        self.submit_solution(is_testrun=True)
+        second_test_run_response = self.submit_solution(is_testrun=True)
+
+        self.submit_solution(is_testrun=False)
+        second_normal_response = self.submit_solution(is_testrun=False)
+
+        self.assertRegexpMatches(second_test_run_response.content,
+                                 'limit.*exceeded')
+        self.assertNotRegexpMatches(second_normal_response.content,
+                                    'limit.*exceeded')
+
+    def test_zero_test_run_limit_should_mean_unlimited_test_runs(self):
+        self.instance_test_run_config.test_runs_limit = 0
+        self.instance_test_run_config.save()
+
+        first_test_run_response = self.submit_solution(is_testrun=True)
+        second_test_run_response = self.submit_solution(is_testrun=True)
+
+        self.assertNotRegexpMatches(first_test_run_response.content,
+                                    'limit.*exceeded')
+        self.assertNotRegexpMatches(second_test_run_response.content,
+                                    'limit.*exceeded')

@@ -1,4 +1,5 @@
 from nose.tools import nottest
+from django.conf import settings
 from django.db import models
 from oioioi.contests.models import submission_kinds, SubmissionReport, \
     submission_statuses, submission_report_kinds
@@ -6,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.programs.models import ProgramSubmission
 from oioioi.filetracker.fields import FileField
 from oioioi.base.fields import EnumField
-from oioioi.problems.models import Problem
+from oioioi.problems.models import Problem, ProblemInstance
 
 submission_statuses.register('TESTRUN_OK', _("No error"))
 submission_kinds.register('TESTRUN', _("Test run"))
@@ -51,6 +52,26 @@ def make_custom_output_filename(instance, filename):
     submission = instance.submission_report.submission
     return 'testruns/%s/%d/%d-out' % (submission.problem_instance.contest.id,
             submission.id, instance.submission_report.id)
+
+
+@nottest
+class TestRunConfigForInstance(models.Model):
+    """Represents additional test run config specific for problem instance.
+
+    Right now, the only configurable property is the limit of test runs.
+    """
+    problem_instance = models.OneToOneField(
+        ProblemInstance,
+        verbose_name=_("problem instance"),
+        related_name='test_run_config')
+
+    test_runs_limit = models.IntegerField(
+        default=settings.DEFAULT_TEST_RUNS_LIMIT,
+        verbose_name=_("test runs limit"))
+
+    class Meta(object):
+        verbose_name = _("test run configuration for instance")
+        verbose_name_plural = _("test run configuration for instances")
 
 
 @nottest

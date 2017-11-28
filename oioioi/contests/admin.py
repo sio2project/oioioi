@@ -368,7 +368,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         qs = qs.filter(contest=request.contest)
         return qs
 
+
 contest_site.contest_register(ProblemInstance, ProblemInstanceAdmin)
+
 
 contest_admin_menu_registry.register('problems_change',
         _("Problems"), lambda request:

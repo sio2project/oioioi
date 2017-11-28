@@ -414,6 +414,10 @@ PRINTING_COMMAND = ['lp', '-o landscape', '-o sides=two-sided-short-edge']
 DEFAULT_SUBMISSIONS_LIMIT = 10
 WARN_ABOUT_REPEATED_SUBMISSION = True
 
+# Only used if 'testrun' app is enabled.
+# To get unlimited test runs set to 0.
+DEFAULT_TEST_RUNS_LIMIT = 10
+
 MAIL_ADMINS_ON_GRADING_ERROR = True
 
 # Message shortcut length in notification shown when an admin is editing

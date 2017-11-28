@@ -13,14 +13,14 @@ from django.template.context import RequestContext
 
 from oioioi.programs.controllers import ProgrammingContestController, \
         ProgrammingProblemController
-from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import SubmissionReport, ScoreReport
+from oioioi.contests.models import SubmissionReport, ScoreReport, Submission
 from oioioi.evalmgr.tasks import extend_after_placeholder
 from oioioi.programs.models import CompilationReport
 from oioioi.base.utils.archive import Archive
 from oioioi.programs.problem_instance_utils import \
         get_allowed_languages_extensions
+from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 
 
 class TestRunProblemControllerMixin(object):
@@ -57,10 +57,34 @@ class TestRunProblemControllerMixin(object):
         environ['check_outputs'] = False
         environ['report_kinds'] = ['TESTRUN']
 
+    def is_submissions_limit_exceeded(self, request, problem_instance, kind):
+        if kind != 'TESTRUN':
+            return (super(TestRunProblemControllerMixin, self)
+                    .is_submissions_limit_exceeded(request,
+                                                   problem_instance,
+                                                   kind))
+
+        test_runs_number = Submission.objects.filter(
+            user=request.user,
+            problem_instance__id=problem_instance.id,
+            kind='TESTRUN').count()
+
+        # We only check ProblemInstance-specific config if test runs are
+        # enabled for the problem itself.
+        if (hasattr(problem_instance.problem, 'test_run_config')
+                and hasattr(problem_instance, 'test_run_config')):
+            test_runs_limit = problem_instance.test_run_config.test_runs_limit
+        else:
+            test_runs_limit = settings.DEFAULT_TEST_RUNS_LIMIT
+
+        return test_runs_number >= test_runs_limit > 0
+
+
     def mixins_for_admin(self):
         from oioioi.testrun.admin import TestRunProgrammingProblemAdminMixin
         return super(TestRunProblemControllerMixin, self) \
                 .mixins_for_admin() + (TestRunProgrammingProblemAdminMixin,)
+
 
 ProgrammingProblemController.mix_in(TestRunProblemControllerMixin)
 
