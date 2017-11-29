@@ -288,6 +288,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def _reattach_problem_href(self, instance):
         return reverse('reattach_problem_contest_list', args=(instance.id,))
 
+    def _add_or_update_href(self, instance):
+        return reverse('problemset_add_or_update') + '?' + \
+            urllib.urlencode({'problem': instance.problem_id, 'key': 'upload'})
+
     def inline_actions(self, instance):
         move_href = reverse('oioioiadmin:contests_probleminstance_change',
                 args=(instance.id,))
@@ -303,6 +307,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             (limits_href, _("Reset tests limits")),
             (reattach_href, _("Attach to another contest"))
         ]
+        problem_count = len(ProblemInstance.objects.filter(
+            problem=instance.problem_id))
+        # Problem package can only be reuploaded if the problem instance
+        # is only in one contest and in the problem base
+        if problem_count <= 2:
+            add_or_update_href = self._add_or_update_href(instance)
+            result.append((add_or_update_href, _("Reupload package")))
         if instance.needs_rejudge:
             rejudge_all_href = self \
                 ._rejudge_all_submissions_for_problem_href(instance)
