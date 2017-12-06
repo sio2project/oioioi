@@ -636,8 +636,9 @@ class SubmissionAdmin(admin.ModelAdmin):
 
         # Because nulls are treated as highest by default,
         # this is a workaround to make them smaller than other values.
-        queryset = queryset.annotate(score_with_nulls_smallest=
-                                     Coalesce('score', Value('')))
+        queryset = queryset.annotate(
+            score_with_nulls_smallest=Coalesce('score', Value(''))
+        )
         return queryset
 
     def lookup_allowed(self, key, value):

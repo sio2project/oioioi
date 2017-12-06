@@ -109,6 +109,7 @@ contest_admin_menu_registry.register('submissions_similarity',
         'oioioiadmin:similarsubmits_submissionssimilarityentry_changelist'),
     order=100)
 
+
 class SubmisionsSimilarityEntryInline(admin.TabularInline):
     model = SubmissionsSimilarityEntry
     extra = 0

@@ -14,12 +14,14 @@ from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
     contest_exists
 from oioioi.rankings.forms import FilterUsersInRankingForm
 
+
 @make_request_condition
 def has_any_ranking_visible(request):
     ccontroller = request.contest.controller
     rcontroller = ccontroller.ranking_controller()
     return ccontroller.can_see_ranking(request) and \
             bool(rcontroller.available_rankings(request))
+
 
 @enforce_condition(contest_exists & can_enter_contest & is_contest_admin)
 @enforce_condition(has_any_ranking_visible)

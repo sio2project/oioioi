@@ -167,11 +167,19 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
             self.assertEqual(MailSubmission.objects.count(), 1)
 
     def test_mailsubmissions_list(self):
-        c1 = Contest(id='contest1', name='Contest1', controller_name=
-            'oioioi.participants.tests.ParticipantsContestController')
+        c1 = Contest(
+            id='contest1',
+            name='Contest1',
+            controller_name='oioioi.participants.'
+                'tests.ParticipantsContestController'
+        )
         c1.save()
-        c2 = Contest(id='contest2', name='Contest2', controller_name=
-            'oioioi.participants.tests.ParticipantsContestController')
+        c2 = Contest(
+            id='contest2',
+            name='Contest2',
+            controller_name='oioioi.participants.'
+                'tests.ParticipantsContestController'
+        )
         c2.save()
         p = Problem.objects.get()
         pi1 = ProblemInstance(contest=c1, problem=p,

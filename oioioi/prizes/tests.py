@@ -56,8 +56,9 @@ _future = timezone.now() + timedelta(days=700)
 _past = timezone.now() - timedelta(days=200)
 
 
-@override_settings(EMAIL_BACKEND=
-                    'django.core.mail.backends.locmem.EmailBackend')
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'
+)
 class TestPrizes(TestCase):
     fixtures = ['test_users', 'test_contest']
 

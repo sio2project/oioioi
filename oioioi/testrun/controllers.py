@@ -22,6 +22,7 @@ from oioioi.base.utils.archive import Archive
 from oioioi.programs.problem_instance_utils import \
         get_allowed_languages_extensions
 
+
 class TestRunProblemControllerMixin(object):
     """ProblemController mixin that adds testrun handlers to the recipe and
        adds testrun config to contest's admin panel.
@@ -103,9 +104,10 @@ class TestRunContestControllerMixin(object):
                 archive = Archive(file, '.zip')
                 if len(archive.filenames()) != 1:
                     raise ValidationError(
-                        _("Archive should have only 1 file inside."))
-                if (archive.extracted_size() >
-                    self.get_testrun_unzipped_input_limit()):
+                        _("Archive should have only 1 file inside.")
+                    )
+                if (archive.extracted_size()
+                        > self.get_testrun_unzipped_input_limit()):
                     raise ValidationError(
                         _("Uncompressed archive is too big to be"
                           " considered safe.")
@@ -124,20 +126,23 @@ class TestRunContestControllerMixin(object):
                 finally:
                     shutil.rmtree(tmpdir)
 
-        form.fields['input'] = forms.FileField(allow_empty_file=True,
-                validators=[validate_file_size, validate_zip],
-                label=_("Input"),
-                help_text=mark_safe(_("Maximum input size is"
-                            " <strong>%(input_size)d KiB</strong> or"
-                            " <strong>%(zipped_size)d KiB</strong> zipped."
-                            " Keep in mind that this feature does not provide"
-                            " any validation of your input or output.")
-                            % {"input_size":
-                                    self.get_testrun_input_limit() / 1024,
-                                "zipped_size":
-                                    self.get_testrun_zipped_input_limit() /
-                                    1024
-                               }))
+        form.fields['input'] = forms.FileField(
+            allow_empty_file=True,
+            validators=[validate_file_size, validate_zip],
+            label=_("Input"),
+            help_text=mark_safe(
+                _(
+                    "Maximum input size is"
+                    " <strong>%(input_size)d KiB</strong> or"
+                    " <strong>%(zipped_size)d KiB</strong> zipped."
+                    " Keep in mind that this feature does not provide"
+                    " any validation of your input or output."
+                ) % {
+                    "input_size": self.get_testrun_input_limit() / 1024,
+                    "zipped_size": self.get_testrun_zipped_input_limit() / 1024
+                }
+            )
+        )
 
         form.fields['file'].help_text = _("Language is determined by the file"
                 " extension. The following are recognized: %s, but allowed"

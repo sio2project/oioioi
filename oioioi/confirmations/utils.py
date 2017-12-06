@@ -82,7 +82,7 @@ def verify_submission_receipt_proof(proof, source):
     try:
         proof_data = unsign_submission_metadata(proof)
     except signing.BadSignature as e:
-        raise ProofCorrupted, str(e), sys.exc_info()[2]
+        raise ProofCorrupted(str(e), sys.exc_info()[2])
 
     proof_data['date'] = dateutil.parser.parse(proof_data['date'])
     source_hash = hashlib.sha256(source).hexdigest()

@@ -11,6 +11,7 @@ from oioioi.questions.utils import get_categories, get_category
 
 from django.utils import timezone
 
+
 class AddContestMessageForm(forms.ModelForm):
     class Meta(object):
         model = Message

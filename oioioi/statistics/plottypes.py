@@ -116,6 +116,7 @@ class ColumnStaticHighchartsPlot(StaticHighchartsPlot):
         options['xAxis']['categories'] = data['keys']
         return options
 
+
 class BarPercentStaticHighchartsPlot(StaticHighchartsPlot):
     """Uses the following extra keys from :param data: :
 

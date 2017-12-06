@@ -146,7 +146,7 @@ def init_config():
 
 
 def submit(filename, task_name, token, contest_url, open_webbrowser):
-    if not 'contest-url' in configuration:
+    if 'contest-url' not in configuration:
         print >> sys.stderr, \
             "Configuration file could not be loaded. " + \
             "Please run submit.py --configure " + \
@@ -200,7 +200,7 @@ def query(key, value_friendly_name, mask_old_value=False):
                                      in configuration else old_value))
     if new_value:
         configuration[key] = new_value
-    elif not new_value and not key in configuration:
+    elif not new_value and key not in configuration:
         print >> sys.stderr, "You must provide a value."
         return True
     return False

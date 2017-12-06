@@ -28,6 +28,7 @@ def make_custom_library_filename(instance, filename):
     return 'testruns/%s/%d/lib%s' % (instance.problem_instance.contest.id,
             instance.id, os.path.splitext(filename)[1])
 
+
 class ZeusTestReport(TestReport):
     nodes = models.IntegerField(null=True)
     check_uid = models.CharField(max_length=255)

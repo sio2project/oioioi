@@ -484,7 +484,6 @@ class ProgrammingProblemController(ProblemController):
                             kwargs={'contest_id': request.contest.id}),
                     initial=request.user)
 
-
             def clean_user():
                 try:
                     user = form.cleaned_data['user']

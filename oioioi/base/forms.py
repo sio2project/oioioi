@@ -13,6 +13,7 @@ from oioioi.base.utils.validators import ValidationError
 from oioioi.base.utils.user import USERNAME_REGEX
 from oioioi.base.preferences import PreferencesSaved
 
+
 def adjust_username_field(form):
     help_text = \
             _("This value may contain only letters, numbers and underscore.")
@@ -67,7 +68,6 @@ class UserForm(forms.ModelForm):
         return instance
 
 
-
 class OioioiUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(OioioiUserCreationForm, self).__init__(*args, **kwargs)
@@ -100,6 +100,7 @@ class OioioiPasswordResetForm(PasswordResetForm):
         if not any(user.is_active for user in users):
             raise forms.ValidationError(self.error_messages['unknown'])
         return email
+
 
 # http://stackoverflow.com/questions/3657709/how-to-force-save-an-empty-unchanged-django-admin-inline
 class AlwaysChangedModelForm(forms.ModelForm):

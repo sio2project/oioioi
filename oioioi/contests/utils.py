@@ -216,6 +216,7 @@ def contests_by_registration_controller():
         rcontrollers[rc.__class__].add(contest.id)
     return rcontrollers
 
+
 @request_cached
 def visible_contests(request):
     visible = set()

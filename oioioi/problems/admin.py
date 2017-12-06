@@ -158,7 +158,8 @@ class ProblemAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if obj is None:
             return self.get_queryset(request).exists()
-        return can_admin_problem(request, obj)
+        else:
+            return can_admin_problem(request, obj)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
@@ -170,11 +171,10 @@ class ProblemAdmin(admin.ModelAdmin):
             return redirect('oioioiadmin:problems_problem_changelist')
 
     def response_change(self, request, obj):
-        if not '_continue' in request.POST and obj.problemsite:
+        if '_continue' not in request.POST and obj.problemsite:
             return redirect('problem_site', obj.problemsite.url_key)
         else:
-            return super(ProblemAdmin, self). \
-                response_change(request, obj)
+            return super(ProblemAdmin, self).response_change(request, obj)
 
     def add_view(self, request, form_url='', extra_context=None):
         return redirect('add_or_update_problem',
@@ -419,7 +419,7 @@ class MainProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def response_change(self, request, obj):
-        if not '_continue' in request.POST:
+        if '_continue' not in request.POST:
             return redirect('problem_site', obj.problem.problemsite.url_key)
         else:
             return super(MainProblemInstanceAdmin, self). \

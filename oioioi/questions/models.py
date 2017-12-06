@@ -92,6 +92,7 @@ class Message(models.Model):
         """ returns date visible by a user """
         return self.pub_date if self.pub_date is not None else self.date
 
+
 class ReplyTemplate(models.Model):
     contest = models.ForeignKey(Contest, null=True, blank=True)
     name = models.CharField(max_length=255, verbose_name=_("visible name"),
@@ -129,6 +130,7 @@ class MessageNotifierConfig(models.Model):
         verbose_name = _("notified about new questions")
         verbose_name_plural = _("notified about new questions")
 
+
 @receiver(post_save, sender=Message)
 def send_notification(sender, instance, created, **kwargs):
     # Don't send a notification when the message was just edited
@@ -138,41 +140,61 @@ def send_notification(sender, instance, created, **kwargs):
     # Send a notification if this is a new public message
     if instance.kind == 'PUBLIC' and instance.contest is not None:
         if instance.problem_instance is not None:
-            logger.info("Public message \"%(topic)s\""
-                        " about problem \"%(short_name)s\" was created",
-                        {'topic': instance.topic,
-                         'short_name': instance.problem_instance.short_name},
-                        extra=
-                            {'notification': 'new_public_message',
-                             'message_instance': instance,
-                             'contest': instance.contest})
+            logger.info(
+                "Public message \"%(topic)s\""
+                " about problem \"%(short_name)s\" was created",
+                {
+                    'topic': instance.topic,
+                    'short_name': instance.problem_instance.short_name
+                },
+                extra={
+                    'notification': 'new_public_message',
+                    'message_instance': instance,
+                    'contest': instance.contest
+                }
+            )
         else:
-            logger.info("Public message \"%(topic)s\""
-                        " was created", {'topic': instance.topic}, extra=
-                            {'notification': 'new_public_message',
-                             'message_instance': instance,
-                             'contest': instance.contest})
+            logger.info(
+                "Public message \"%(topic)s\""
+                " was created",
+                {'topic': instance.topic},
+                extra={
+                    'notification': 'new_public_message',
+                    'message_instance': instance,
+                    'contest': instance.contest
+                }
+            )
 
     # Send a notification if this is a new answer for question
     elif instance.top_reference is not None:
         if instance.problem_instance is not None:
-            logger.info("Answer for question \"%(topic)s\""
-                        " about problem \"%(short_name)s\" was sent",
-                        {'topic': instance.topic,
-                         'short_name': instance.top_reference
-                             .problem_instance.short_name}, extra=
-                             {'notification': 'question_answered',
-                              'question_instance': instance.top_reference,
-                              'answer_instance': instance,
-                              'user': instance.top_reference.author})
+            logger.info(
+                "Answer for question \"%(topic)s\""
+                " about problem \"%(short_name)s\" was sent",
+                {
+                    'topic': instance.topic,
+                    'short_name': instance.top_reference
+                        .problem_instance.short_name
+                },
+                extra={
+                    'notification': 'question_answered',
+                    'question_instance': instance.top_reference,
+                    'answer_instance': instance,
+                    'user': instance.top_reference.author
+                }
+            )
 
         else:
-            logger.info("Answer for question \"%(topic)s\" was sent",
-                       {'topic': instance.topic}, extra=
-                             {'notification': 'question_answered',
-                              'question_instance': instance.top_reference,
-                              'answer_instance': instance,
-                              'user': instance.top_reference.author})
+            logger.info(
+                "Answer for question \"%(topic)s\" was sent",
+                {'topic': instance.topic},
+                extra={
+                    'notification': 'question_answered',
+                    'question_instance': instance.top_reference,
+                    'answer_instance': instance,
+                    'user': instance.top_reference.author
+                }
+            )
 
 
 # an e-mail notification will be spawned for every post

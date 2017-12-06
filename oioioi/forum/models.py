@@ -19,9 +19,10 @@ class Forum(models.Model):
     """Forum is connected with contest"""
 
     contest = models.OneToOneField(Contest)
-    visible = models.BooleanField(default=True,
-                                  verbose_name=
-                                  _("forum is visible after lock"))
+    visible = models.BooleanField(
+        default=True,
+        verbose_name=_("forum is visible after lock")
+    )
     lock_date = models.DateTimeField(blank=True, null=True,
                                      verbose_name=_("autolock date"))
     unlock_date = models.DateTimeField(blank=True, null=True,

@@ -45,12 +45,14 @@ urlpatterns = [
 ]
 
 if not settings.SEND_USER_ACTIVATION_EMAIL:
-    urlpatterns += [
-        url(r'^register/complete/$',
-            TemplateView.as_view(template_name=
-                    'registration/registration_and_activation_complete.html'),
-                name='registration_complete'),
-    ]
+    urlpatterns += [url(
+        r'^register/complete/$',
+        TemplateView.as_view(
+            template_name='registration/'
+                'registration_and_activation_complete.html'
+        ),
+        name='registration_complete'
+    )]
 
 urlpatterns += [
     url(r'^password/reset/$',

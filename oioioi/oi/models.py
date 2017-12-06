@@ -130,5 +130,3 @@ class OIRegistration(RegistrationModel):
         self.class_type = 'None'
         self.terms_accepted = False
         self.save()
-
-

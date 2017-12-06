@@ -14,6 +14,7 @@ from oioioi.questions.forms import ChangeContestMessageForm
 from oioioi.questions.models import Message, MessageNotifierConfig, \
                                     ReplyTemplate
 
+
 class MessageAdmin(admin.ModelAdmin):
     list_display = ['id', 'date', 'topic', 'author']
     fields = ['date', 'author', 'contest', 'round', 'problem_instance',

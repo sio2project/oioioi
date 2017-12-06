@@ -37,8 +37,9 @@ class TestProblemController(ProblemController):
 
 class TestModels(TestCase):
     def test_problem_controller_property(self):
-        problem = Problem(controller_name=
-                'oioioi.problems.tests.TestProblemController')
+        problem = Problem(
+            controller_name='oioioi.problems.tests.TestProblemController'
+        )
         self.assert_(isinstance(problem.controller, TestProblemController))
 
     def test_make_problem_filename(self):
@@ -158,9 +159,11 @@ class DummyPackageBackend(ProblemPackageBackend):
 
     def unpack(self, env):
         pp = ProblemPackage.objects.get(id=env['package_id'])
-        p = Problem.create(name='foo', short_name='bar',
-                controller_name=
-                        'oioioi.problems.controllers.ProblemController')
+        p = Problem.create(
+            name='foo',
+            short_name='bar',
+            controller_name='oioioi.problems.controllers.ProblemController'
+        )
         env['problem_id'] = p.id
         if 'FAIL' in pp.package_file.name:
             raise DummyPackageException("DUMMY_FAILURE")
@@ -196,8 +199,9 @@ class DummyContestController(ProgrammingContestController):
         env['post_upload_handlers'] += ['oioioi.problems.tests.dummy_handler']
 
 
-@override_settings(PROBLEM_PACKAGE_BACKENDS=
-        ('oioioi.problems.tests.DummyPackageBackend',))
+@override_settings(
+    PROBLEM_PACKAGE_BACKENDS=('oioioi.problems.tests.DummyPackageBackend',)
+)
 class TestProblemUpload(TransactionTestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -245,8 +249,9 @@ class TestProblemUpload(TransactionTestCase):
         problem_instances = ProblemInstance.objects.all()
         self.assertEqual(len(problem_instances), 0)
 
-    @override_settings(PROBLEM_SOURCES=
-            ('oioioi.problems.tests.DummySource',))
+    @override_settings(
+        PROBLEM_SOURCES=('oioioi.problems.tests.DummySource',)
+    )
     def test_handlers(self):
         contest = Contest.objects.get()
         self.client.login(username='test_admin')
@@ -556,6 +561,7 @@ class TestProblemsetPage(TestCase):
                          Problem.objects.count() * 2)
         self.assertEqual(response.content.count('Add to contest'),
                          Problem.objects.count())
+
 
 @nottest
 def get_test_filename(name):

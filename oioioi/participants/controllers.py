@@ -219,7 +219,7 @@ class AnonymousContestControllerMixin(object):
     def get_user_public_name(self, request, user):
         assert self.contest == request.contest
         if request.user.is_superuser or can_see_personal_data(request) \
-                or not user in anonymous_participants(request):
+                or user not in anonymous_participants(request):
             return get_user_display_name(user)
         else:
             return user.username

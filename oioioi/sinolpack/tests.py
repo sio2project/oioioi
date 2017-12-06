@@ -438,7 +438,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         contest.default_submissions_limit = 124
         contest.save()
 
-        ## Delete tests and check if re-uploading will fix it.
+        # Delete tests and check if re-uploading will fix it.
         problem = Problem.objects.get()
         problem_instance = ProblemInstance.objects \
             .filter(contest__isnull=False).get()

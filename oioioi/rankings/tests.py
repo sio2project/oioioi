@@ -329,6 +329,7 @@ class TestRecalc(TestCase):
             bool(ranking.recalc_in_progress)
         self.assertFalse(ranking.is_up_to_date())
 
+
 class TestRankingsdFrontend(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
             'test_problem_instance', 'test_submission', 'test_extra_rounds',

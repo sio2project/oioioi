@@ -19,8 +19,8 @@ WAIT_FOR_SUBMISSION_RETRIES = 9
 WAIT_FOR_SUBMISSION_SLEEP_SECONDS = 1
 
 
-#TODO: Improve after migration to Python 3:
-#    def _get_submission_or_skip(*args, submission_class=Submission)
+#   TODO: Improve after migration to Python 3:
+#   def _get_submission_or_skip(*args, submission_class=Submission)
 def _get_submission_or_skip(*args, **kwargs):
     submission_class = kwargs.get('submission_class', Submission)
 

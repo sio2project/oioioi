@@ -163,7 +163,7 @@ def render_participants_data_csv(request, participants, name):
     response['Content-Disposition'] = \
         'attachment; filename=%s-%s.csv' % \
         (name, "personal-data")
-    if not 'no_participants' in data:
+    if 'no_participants' not in data:
         writer = unicodecsv.writer(response)
         writer.writerow(map(force_unicode, data['keys']))
         for row in data['data']:

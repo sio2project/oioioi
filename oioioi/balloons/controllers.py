@@ -43,8 +43,10 @@ class BalloonsDeliveryACMControllerMixin(object):
             accepted_or_unjudged = \
                     Q(status='OK') | Q(status='?') | Q(status='SE')
             not_ignored = Q(kind='NORMAL')
-            user_is_participant = Q(user__participant__contest=
-                                    submission.problem_instance.contest_id)
+            user_is_participant = Q(
+                user__participant__contest=submission
+                    .problem_instance.contest_id
+            )
             submissions = Submission.objects \
                 .filter(accepted_or_unjudged & this_problem_instance
                         & not_ignored & user_is_participant) \

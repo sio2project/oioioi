@@ -314,8 +314,9 @@ class TestPAResults(TestCase):
         self.assertEquals(old_results, new_results)
 
 
-@override_settings(PROBLEM_PACKAGE_BACKENDS=
-        ('oioioi.problems.tests.DummyPackageBackend',))
+@override_settings(
+    PROBLEM_PACKAGE_BACKENDS=('oioioi.problems.tests.DummyPackageBackend',)
+)
 class TestPADivisions(TestCase):
     fixtures = ['test_users', 'test_contest']
 

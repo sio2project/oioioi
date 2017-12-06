@@ -850,8 +850,8 @@ class TestNotifications(TestCase):
         NotificationHandler.register_notification('test_notification',
                 notification_function)
         logger = logging.getLogger('oioioi')
-        logger.info("Test notification", extra=
-                {'notification': 'test_notification'})
+        logger.info("Test notification",
+            extra={'notification': 'test_notification'})
         self.assertTrue(flags['got_notification'])
 
 

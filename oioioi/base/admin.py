@@ -247,6 +247,7 @@ def collect_deleted_objects(modeladmin, request, queryset):
 
     return to_delete, perms_needed, protected
 
+
 class AdminSite(DjangoAdminSite):
     def __init__(self, *args, **kwargs):
         super(AdminSite, self).__init__(*args, **kwargs)

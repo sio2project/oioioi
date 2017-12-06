@@ -66,7 +66,6 @@ def problem_instances_with_any_public_solutions(request):
             .filter(submission__in=(get_public_solutions(request))).distinct()
 
 
-
 @make_request_condition
 def any_round_public(request):
     return \

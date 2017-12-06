@@ -130,7 +130,7 @@ class CurrentContestMiddleware(object):
             # a noncontest version. It could still be a neutral URL.
             nonglobal = True
             res.namespaces = res.namespaces[1:]
-        assert not 'contest_id' in res.kwargs
+        assert 'contest_id' not in res.kwargs
         res.kwargs['contest_id'] = contest.id
         # If there is a contest-prefixed version of this url,
         # reverse will return it.

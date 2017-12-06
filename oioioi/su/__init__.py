@@ -13,4 +13,3 @@
 
 SU_UID_SESSION_KEY = 'su_effective_user_id'
 SU_BACKEND_SESSION_KEY = 'su_effective_backend'
-

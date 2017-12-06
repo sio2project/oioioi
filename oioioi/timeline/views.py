@@ -51,7 +51,6 @@ def timeline_view(request):
     registry = date_registry.tolist(request.contest.id)
     group_registry = _make_group_registry(registry)
 
-
     for item in registry:
         item['date_id'] = _get_date_id(item)
 

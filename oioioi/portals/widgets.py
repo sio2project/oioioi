@@ -142,7 +142,7 @@ class ProblemTableWidget(object):
             resolved = resolve(rel_path)
         except Http404:
             return None
-        if not 'site_key' in resolved.kwargs:
+        if 'site_key' not in resolved.kwargs:
             return None
         return resolved.kwargs['site_key']
 

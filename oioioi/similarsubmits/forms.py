@@ -14,15 +14,16 @@ similarity_pair_re = re.compile(
 
 
 class BulkAddSubmissionsSimilarityForm(forms.Form):
-    similar_groups = forms.CharField(label=_("Similar groups"), widget=
-        forms.Textarea(
-            attrs={'class': 'input-xxlarge monospace'}),
-            help_text=_(
-                    "Each line represents a group, submissions should be"
-                    " listed in format \"submission_id:username:task.lang\""
-                    " and separated by anything. Already existing groups won't"
-                    " be skipped!"
-    ))
+    similar_groups = forms.CharField(
+        label=_("Similar groups"),
+        widget=forms.Textarea(attrs={'class': 'input-xxlarge monospace'}),
+        help_text=_(
+            "Each line represents a group, submissions should be"
+            " listed in format \"submission_id:username:task.lang\""
+            " and separated by anything. Already existing groups won't"
+            " be skipped!"
+        )
+    )
     find_transitive_closure = forms.BooleanField(required=False, initial=False,
             help_text=_("If any two submissions are marked as similar in the "
                         "input they will be put in one group.")

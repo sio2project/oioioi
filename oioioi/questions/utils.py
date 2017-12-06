@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.utils import visible_rounds, visible_problem_instances
 
+
 # taken from django.contrib.admin.options.ModelAdmin
 def log_addition(request, object):
     LogEntry.objects.log_action(

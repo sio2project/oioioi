@@ -21,11 +21,17 @@ class UserListFilter(SimpleListFilter):
     parameter_name = 'user'
 
     def lookups(self, request, model_admin):
-        users = list(set(QueuedJob.objects
-                         .filter(submission__problem_instance__contest=
-                                 request.contest)
-                         .values_list('submission__user__id',
-                                      'submission__user__username')))
+        users = list(
+            set(
+                QueuedJob.objects.filter(
+                    submission__problem_instance__contest=request.contest
+                ).values_list(
+                    'submission__user__id',
+                    'submission__user__username'
+                )
+            )
+        )
+
         if (None, None) in users:
             users = [x for x in users if x != (None, None)]
             users.append(('None', _("(None)")))
@@ -47,12 +53,16 @@ class ProblemNameListFilter(SimpleListFilter):
 
     def lookups(self, request, model_admin):
         # Unique problem names
-        p_names = list(set(QueuedJob.objects
-                           .filter(submission__problem_instance__contest=
-                                   request.contest)
-                           .values_list(
-                               'submission__problem_instance__problem__name',
-                               flat=True)))
+        p_names = list(
+            set(
+                QueuedJob.objects.filter(
+                    submission__problem_instance__contest=request.contest
+                ).values_list(
+                    'submission__problem_instance__problem__name',
+                    flat=True
+                )
+            )
+        )
         return [(x, x) for x in p_names]
 
     def queryset(self, request, queryset):

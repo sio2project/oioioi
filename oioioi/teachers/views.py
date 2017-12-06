@@ -147,9 +147,11 @@ def members_view(request, member_type):
         raise Http404
 
     registration_link = request.build_absolute_uri(
-            reverse(activate_view, kwargs=
-                {'contest_id': request.contest.id,
-                 'key': key}))
+        reverse(activate_view, kwargs={
+            'contest_id': request.contest.id,
+            'key': key
+        })
+    )
     other_contests = Contest.objects \
             .filter(contestteacher__teacher__user=request.user) \
             .exclude(id=request.contest.id)

@@ -350,7 +350,7 @@ def user_info_view(request, user_id):
     rcontroller = controller.registration_controller()
     user = get_object_or_404(User, id=user_id)
 
-    if not request.user.is_superuser and (not user in rcontroller
+    if not request.user.is_superuser and (user not in rcontroller
             .filter_users_with_accessible_personal_data(User.objects.all())
                     or user.is_superuser):
         raise PermissionDenied

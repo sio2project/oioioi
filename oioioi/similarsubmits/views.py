@@ -13,6 +13,7 @@ from oioioi.similarsubmits.models import SubmissionsSimilarityGroup, \
         SubmissionsSimilarityEntry
 from oioioi.similarsubmits.utils import is_correct_submissionssimilarity
 
+
 @enforce_condition(contest_exists & is_contest_admin)
 def bulk_add_similarities_view(request):
     if request.method == 'POST':

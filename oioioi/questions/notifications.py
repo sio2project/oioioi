@@ -5,6 +5,7 @@ from oioioi.base.notification import NotificationHandler
 # How many characters from a message will be passed to a notification
 MAX_DETAILS_LENGTH = 60
 
+
 def notification_function_answer(arguments):
     assert hasattr(arguments, 'user') \
             and hasattr(arguments, 'question_instance') \

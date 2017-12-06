@@ -124,6 +124,7 @@ def render_contest_id_view(request):
     print RequestContext(request)
     return HttpResponse(t.render(RequestContext(request)))
 
+
 class TestSubmissionListOrder(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
                 'test_problem_instance', 'test_submission',
@@ -165,8 +166,11 @@ class TestSubmissionListOrder(TestCase):
         test_OK_index = table_content.index(test_OK)
         test_CE_index = table_content.index(test_CE)
 
-        self.assertEquals(is_descending, test_OK_index < test_CE_index,
-                          error_msg)
+        self.assertEquals(
+            is_descending,
+            test_OK_index < test_CE_index,
+            error_msg
+        )
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
@@ -919,7 +923,6 @@ class TestRejudgeTypesView(TestCase):
 class TestContestAdmin(TestCase):
     fixtures = ['test_users']
 
-
     def test_simple_contest_create_and_change(self):
         self.client.login(username='test_admin')
         url = reverse('oioioiadmin:contests_contest_add')
@@ -1020,7 +1023,7 @@ class TestContestAdmin(TestCase):
         self.assertIn("Start date should be before end date.",
                 response.content)
         '''
-        #pylint: enable=pointless-string-statement
+        # pylint: enable=pointless-string-statement
 
     def test_admin_permissions(self):
         url = reverse('oioioiadmin:contests_contest_changelist')
@@ -1624,7 +1627,6 @@ class TestPublicResults(TestCase):
             datetime(2012, 8, 2, 12, 30, 0, tzinfo=utc))))
 
 
-
 class TestContestLinks(TestCase):
     fixtures = ['test_users', 'test_contest']
 
@@ -1846,7 +1848,7 @@ class TestModifyContest(TestCase):
         })
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        #self.assertIn('was added successfully', response.content)
+        # self.assertIn('was added successfully', response.content)
         contest = Contest.objects.get()
         self.assertEqual(controller_name, contest.controller_name)
         ContestPermission(user=User.objects.get(pk=1001), contest=contest,

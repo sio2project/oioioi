@@ -36,7 +36,6 @@ class Command(BaseCommand):
                            'submission_report__submission',
                            'submission_report__submission__problem_instance')
 
-
         frs_out, trs_out = [], []
 
         for fr in frs:

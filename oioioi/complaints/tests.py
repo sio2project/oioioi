@@ -11,8 +11,9 @@ from oioioi.contests.models import Contest
 from oioioi.participants.models import Participant
 
 
-@override_settings(EMAIL_BACKEND=
-                    'django.core.mail.backends.locmem.EmailBackend')
+@override_settings(
+    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'
+)
 class TestMakingComplaint(TestCase):
     fixtures = ['test_users', 'test_contest']
 

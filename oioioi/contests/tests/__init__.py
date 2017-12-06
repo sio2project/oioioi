@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from oioioi.contests.controllers import ContestController, \
         RegistrationController, PastRoundsHiddenContestControllerMixin
 
+
 class PrivateRegistrationController(RegistrationController):
     @classmethod
     def anonymous_can_enter_contest(cls):

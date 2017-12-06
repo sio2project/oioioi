@@ -1,4 +1,4 @@
-#~*~ encoding: utf-8 ~*~
+# ~*~ encoding: utf-8 ~*~
 import re
 from datetime import datetime
 from django.core.cache import cache

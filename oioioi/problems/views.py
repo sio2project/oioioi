@@ -357,15 +357,16 @@ def model_solutions_view(request, problem_instance_id):
 
         rows.append({
             'test': t,
-            'results': [{
+            'results': [
+                {
                     'test_report': row_test_results[s.id],
                     'group_report': row_group_results[s.id],
                     'is_partial_score': s.problem_instance.controller
-                        ._is_partial_score(row_test_results[s.id]),
-                    'percentage_status': percentage_statuses[s.id]
-                    }
-                for s in submissions
-                ]
+                                        ._is_partial_score(
+                                            row_test_results[s.id]
+                                        ),
+                    'percentage_status': percentage_statuses[s.id]}
+                for s in submissions]
         })
 
     for s in submissions:

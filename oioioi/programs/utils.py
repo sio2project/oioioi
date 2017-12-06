@@ -9,6 +9,7 @@ from oioioi.contests.utils import aggregate_statuses
 from oioioi.programs.models import ProgramSubmission, LibraryProblemData, \
         ReportActionsConfig
 
+
 def sum_score_aggregator(group_results):
     if not group_results:
         return None, None, 'OK'
@@ -139,6 +140,7 @@ def has_report_actions_config(problem):
         return bool(problem.report_actions_config)
     except ReportActionsConfig.DoesNotExist:
         return False
+
 
 def is_problem_with_library(problem):
     if isinstance(problem, (int, basestring)):

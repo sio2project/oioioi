@@ -3,6 +3,7 @@ from django.conf import settings
 import json
 from xmlrpclib import Server
 
+
 class Command(BaseCommand):
     args = '<command> [args]'   # TODO
     help = 'TODO'

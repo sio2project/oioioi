@@ -13,7 +13,7 @@ from oioioi.evalmgr.tasks import delay_environ
 
 class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
-        #security through obscurity
+        # security through obscurity
         self.send_error(404)
 
     def do_POST(self):

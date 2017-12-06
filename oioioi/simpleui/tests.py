@@ -28,6 +28,7 @@ def change_contest_type():
 
     return c
 
+
 class TestContestDashboard(TestCase):
     fixtures = ['test_users', 'teachers', 'test_contest', 'test_full_package',
                 'test_problem_instance', 'test_messages', 'test_templates',

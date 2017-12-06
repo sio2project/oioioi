@@ -8,6 +8,7 @@ from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.utils import can_add_to_problemset
 
+
 def dangling_problems_processor(request):
     if not getattr(request, 'contest', None):
         return {}
