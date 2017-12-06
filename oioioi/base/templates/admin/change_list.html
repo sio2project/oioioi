@@ -1,0 +1,15 @@
+{# Extends the change_list.html from Django Admin. #}
+{# It's possible since Django 1.9: https://stackoverflow.com/a/38894304 #}
+{# and is desribed in Django's docs as preferred way to override admin templates: #}
+{# https://docs.djangoproject.com/en/1.11/ref/contrib/admin/#overriding-vs-replacing-an-admin-template #}
+
+{% extends "admin/change_list.html" %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        #changelist-filter {
+            z-index: 900;
+        }
+    </style>
+{% endblock %}
