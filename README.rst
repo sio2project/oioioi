@@ -121,6 +121,7 @@ Ensure that required dependencies are installed:
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
   *texlive-lang-polish*)
+* latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*),
 * lighttpd binary (Ubuntu package: *lighttpd*, shall not be run as service)
 
 and in one terminal run the Django web server::
