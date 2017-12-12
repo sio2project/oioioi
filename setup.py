@@ -40,7 +40,7 @@ setup(
         "django-nose>=1.4",
         "nose-picker>=0.5.3",
 
-        "django-registration-redux>=1.6",
+        "django-registration-redux>=1.6,<2.0",
 
         "Celery>=3.1.15,<4.0.0",
         "django-celery>=3.1.15,<=3.1.17",
