@@ -354,3 +354,107 @@ class TestProblemInstanceSettings(TestCase):
         self.assertFalse(Tag.objects.filter(name="foobar").exists())
         self.assertFalse(Tag.objects.filter(name="invalid!").exists())
         self.assertEquals(TagThrough.objects.filter(problem=p).count(), 1)
+
+
+class TestProblemInstanceValidation(TestCase):
+    fixtures = ['test_users', 'teachers', 'test_contest', 'test_full_package',
+                'test_problem_instance']
+
+    form_data = {
+        'pif-TOTAL_FORMS': '1',
+        'pif-INITIAL_FORMS': '1',
+        'pif-MIN_NUM_FORMS': '0',
+        'pif-MAX_NUM_FORMS': '1000',
+        'pif-0-id': '1',
+        'pif-0-round': '1',
+        'pif-0-submissions_limit': '10',
+        'form-TOTAL_FORMS': '6',
+        'form-INITIAL_FORMS': '6',
+        'form-MIN_NUM_FORMS': '0',
+        'form-MAX_NUM_FORMS': '1000',
+        'form-0-name': '0',
+        'form-0-time_limit': '10000',
+        'form-0-memory_limit': '133000',
+        'form-0-max_score': '0',
+        'form-0-kind': 'EXAMPLE',
+        'form-0-is_active': 'on',
+        'form-0-id': '1',
+        'form-1-name': '1a',
+        'form-1-time_limit': '10000',
+        'form-1-memory_limit': '133000',
+        'form-1-max_score': '45',
+        'form-1-kind': 'NORMAL',
+        'form-1-is_active': 'on',
+        'form-1-id': '2',
+        'form-2-name': '1b',
+        'form-2-time_limit': '100',
+        'form-2-memory_limit': '133000',
+        'form-2-max_score': '33',
+        'form-2-kind': 'NORMAL',
+        'form-2-is_active': 'on',
+        'form-2-id': '3',
+        'form-3-name': '1ocen',
+        'form-3-time_limit': '10000',
+        'form-3-memory_limit': '133000',
+        'form-3-max_score': '0',
+        'form-3-kind': 'EXAMPLE',
+        'form-3-is_active': 'on',
+        'form-3-id': '4',
+        'form-4-name': '2',
+        'form-4-time_limit': '10000',
+        'form-4-memory_limit': '133000',
+        'form-4-max_score': '33',
+        'form-4-kind': 'NORMAL',
+        'form-4-is_active': 'on',
+        'form-4-id': '5',
+        'form-5-name': '3',
+        'form-5-time_limit': '10000',
+        'form-5-memory_limit': '133000',
+        'form-5-max_score': '34',
+        'form-5-kind': 'NORMAL',
+        'form-5-is_active': 'on',
+        'form-5-id': '6',
+        'attachment-TOTAL_FORMS': '0',
+        'attachment-INITIAL_FORMS': '0',
+        'attachment-MIN_NUM_FORMS': '0',
+        'attachment-MAX_NUM_FORMS': '1000',
+        'tag-TOTAL_FORMS': '1',
+        'tag-INITIAL_FORMS': '1',
+        'tag-MIN_NUM_FORMS': '0',
+        'tag-MAX_NUM_FORMS': '1000',
+        'tag-0-id': '1',
+        'tag-0-name': 'mrowkowiec'
+    }
+
+    def login(self, get_problems):
+        c = Contest.objects.get(id='c')
+        c.controller_name = \
+            'oioioi.teachers.controllers.TeacherContestController'
+        c.save()
+
+        user = User.objects.get(username='test_user')
+        cp = ContestPermission()
+        cp.user = user
+        cp.permission = 'contests.contest_admin'
+        cp.contest = c
+        cp.save()
+
+        self.client.login(username='test_user')
+        self.client.get('/c/c/')
+
+        if get_problems:
+            pi = ProblemInstance.objects.filter(contest=c)[0]
+            p = pi.problem
+            return (pi, p)
+        return c
+
+    def test_max_scores(self):
+        c = self.login(False)
+        pi = ProblemInstance.objects.filter(contest=c)[0]
+        response = self.client.post(
+            reverse('problem_settings',
+                    kwargs={'problem_instance_id': str(pi.id)}),
+            self.form_data, follow=True)
+        content = response.content.decode('utf-8')
+        self.assertIn("Scores for tests in the same group must be equal",
+                      content)

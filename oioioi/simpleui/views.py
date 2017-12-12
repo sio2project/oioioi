@@ -21,7 +21,7 @@ from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.portals.conditions import global_portal_exists
 from oioioi.portals.models import Portal
 from oioioi.problems.models import Problem, ProblemAttachment, Tag, TagThrough
-from oioioi.programs.admin import TimeLimitFormset
+from oioioi.programs.admin import ValidationFormset
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
@@ -292,15 +292,19 @@ def problem_settings(request, problem_instance_id):
         pif = PIFormset(request.POST, prefix='pif')
 
         test_formset = TestFormset(request.POST)
-        # Bind the clean method, which serves as a time limit validator.
+        # Bind the clean method, which serves as a time limit and max
+        # scores equality validator.
         # http://stackoverflow.com/questions/9646187
         test_formset.get_time_limit_sum = types.MethodType(
-                TimeLimitFormset.__dict__['get_time_limit_sum'], test_formset)
+                ValidationFormset.__dict__['get_time_limit_sum'], test_formset)
         test_formset.validate_time_limit_sum = types.MethodType(
-                TimeLimitFormset.__dict__['validate_time_limit_sum'],
+                ValidationFormset.__dict__['validate_time_limit_sum'],
+                test_formset)
+        test_formset.validate_max_scores_in_group = types.MethodType(
+                ValidationFormset.__dict__['validate_max_scores_in_group'],
                 test_formset)
         test_formset.clean = types.MethodType(
-                TimeLimitFormset.__dict__['clean'], test_formset)
+                ValidationFormset.__dict__['clean'], test_formset)
 
         attachment_formset = \
             AttachmentFormset(request.POST, request.FILES, instance=p,

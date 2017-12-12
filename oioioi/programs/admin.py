@@ -18,12 +18,23 @@ from oioioi.programs.models import Test, ModelSolution, OutputChecker, \
         LibraryProblemData, ReportActionsConfig
 
 
-class TimeLimitFormset(BaseInlineFormSet):
+class ValidationFormset(BaseInlineFormSet):
     def get_time_limit_sum(self):
         time_limit_sum = 0
         for test in self.cleaned_data:
             time_limit_sum += test['time_limit']
         return time_limit_sum
+
+    def validate_max_scores_in_group(self):
+        score_in_group = dict()
+        for test_data in self.cleaned_data:
+            test = test_data['id']
+            if test.group in score_in_group.keys() and \
+                    score_in_group[test.group] != test_data['max_score']:
+                raise ValidationError(
+                    "Scores for tests in the same group must be equal")
+            elif test.group not in score_in_group.keys():
+                score_in_group[test.group] = test_data['max_score']
 
     def validate_time_limit_sum(self):
         time_limit_per_problem = settings.MAX_TEST_TIME_LIMIT_PER_PROBLEM
@@ -40,6 +51,7 @@ class TimeLimitFormset(BaseInlineFormSet):
     def clean(self):
         try:
             self.validate_time_limit_sum()
+            self.validate_max_scores_in_group()
             return self.cleaned_data
         except AttributeError:
             pass
@@ -56,7 +68,7 @@ class TestInline(admin.TabularInline):
     readonly_fields = ('name', 'kind', 'group', 'input_file_link',
             'output_file_link')
     ordering = ('kind', 'order', 'name')
-    formset = TimeLimitFormset
+    formset = ValidationFormset
 
     class Media(object):
         css = {
