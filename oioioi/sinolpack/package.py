@@ -791,23 +791,30 @@ class SinolPackage(object):
 
         for group in scored_groups:
             if int(group) not in config_scores:
-                errormsg = _("Score for group '%s' not found. "
+                errormsg = _("Score for group '%(group_name)s' not found. "
                              "You must either provide scores for all groups "
                              "or not provide them at all "
                              "(to have them assigned automatically). "
-                             "(Scored groups: %s, groups from config: %s)") % \
-                           (group, list(scored_groups), config_scores)
+                             "(Scored groups: %(scored_groups)s, "
+                             "groups from config: %(config_groups)s)") % \
+                           {"group_name": group,
+                            "scored_groups": list(scored_groups),
+                            "config_groups": config_scores}
                 raise ProblemPackageError(errormsg)
 
         for group in config_scores:
             if str(group) not in scored_groups:
-                errormsg = _("Score for group '%s' found in config, "
+                errormsg = _("Score for group '%(group_name)s' "
+                             "found in config, "
                              "but no such test group exists in scored groups."
                              "You must either provide scores for all groups "
                              "or not provide them at all "
                              "(to have them assigned automatically). "
-                             "(Scored groups: %s, groups from config: %s)") % \
-                           (group, list(scored_groups), config_scores)
+                             "(Scored groups: %(scored_groups)s, "
+                             "groups from config: %(config_groups)s)") % \
+                           {"group_name": group,
+                            "scored_groups": list(scored_groups),
+                            "config_groups": config_scores}
                 raise ProblemPackageError(errormsg)
 
     def _compute_scores_automatically(self, scored_groups, total_score):
