@@ -46,7 +46,7 @@ setup(
         "django-celery>=3.1.15,<=3.1.17",
         "django-supervisor",
         "linaro-django-pagination",
-        "django-compressor>=1.4,<1.6",
+        "django-compressor==2.2",
         "django-overextends>=0.4.1",
         "pygments",
         "django-libsass>=0.7",
