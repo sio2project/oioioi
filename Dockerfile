@@ -102,7 +102,6 @@ RUN sed -i -e \
         'oioioi.mailsubmit',\
         'oioioi.globalmessage',\
         'oioioi.portals',\
-        'oioioi.workers',\
         'oioioi.newsfeed',\
         'oioioi.simpleui',\
         'oioioi.livedata',\
