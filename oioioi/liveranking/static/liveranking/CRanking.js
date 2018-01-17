@@ -15,8 +15,9 @@ var CRanking = function(model, targetDiv) {
 	this.fullWidth = function() {
 		if (isDefined(fullWidth)) {
 			return fullWidth;
-		};
-		return this.settings.taskColWidth * this.tasks.length + this.settings.teamsColWidth + this.settings.scoreColWidth + this.settings.timeColWidth + this.settings.rankColWidth;	
+		}
+		return this.settings.taskColWidth * this.tasks.length + this.settings.teamsColWidth + 
+			this.settings.scoreColWidth + this.settings.timeColWidth + this.settings.rankColWidth;	
 	};
 	
 	this.addHeaders = function() {
@@ -75,7 +76,7 @@ var CRanking = function(model, targetDiv) {
 			left += this.settings.taskColWidth;
 		}		
 		$(domElem).appendTo(this.targetDiv);				
-	}
+	};
 	
 	// dodajemy zespół tylko wtedy jeśli nie dodaliśmy go wcześniej	
 	this.addTeam = function(team) {
@@ -83,7 +84,7 @@ var CRanking = function(model, targetDiv) {
 		if (!!this.teamsDOM[team.id]) {
 			// Zespół został już dodany
 			return false;			
-		};
+		}
 		domElem = $('<div />')
 			.addClass('row')
 			.css({				
@@ -131,7 +132,7 @@ var CRanking = function(model, targetDiv) {
 		$(domElem).appendTo(this.targetDiv);				
 		this.teamsDOM[team.id] = domElem;		
 		return true;
-	}
+	};
 	
 	// zwraca mapę teamId->akutalna pozycja(int); numeracja od 0
 	this.sortedTeams = function(teams) {
@@ -157,7 +158,7 @@ var CRanking = function(model, targetDiv) {
 			res[v.id] = l1;
 		}
 		return res;
-	}
+	};
 	
 	// zwraca mapę taskId->akutalna pozycja(int); numeracja od 0; sortowane po trudnosci - wiecej AC = wyzej
 	this.sortedTasks = function(tasks) {
@@ -181,7 +182,7 @@ var CRanking = function(model, targetDiv) {
 			res[v.id] = l1;
 		}
 		return res;
-	}
+	};
 	
 	this.internalUpdate = function() {
 		var left;
@@ -235,7 +236,8 @@ var CRanking = function(model, targetDiv) {
 				.text(rank+1);
 		}
 		// przesuwamy komorki 
-		left = this.settings.teamsColWidth + this.settings.scoreColWidth + this.settings.timeColWidth + this.settings.rankColWidth;
+		left = this.settings.teamsColWidth + this.settings.scoreColWidth + this.settings.timeColWidth + 
+			this.settings.rankColWidth;
 		sortedTasks = this.sortedTasks(this.tasks);
 		for (l1 = 0; l1 < this.tasks.length; l1++) {
 			v = this.tasks[l1];			
@@ -259,14 +261,16 @@ var CRanking = function(model, targetDiv) {
 		this.internalUpdate();
 	};
 	
-	// przewijanie listy zespolow, to trzeba przepisac eventy do wykrywania konca tranzycji byly zbyt chimeryczne, żeby ich używać i jest obrzydliwie
+	// przewijanie listy zespolow, to trzeba przepisac eventy do wykrywania konca tranzycji byly zbyt chimeryczne, 
+	// żeby ich używać i jest obrzydliwie
 	this.scrollTeams = function(callback) {
 		var that = this;
 		var non0TeamsNo = 0;		
 		this.isAnimated = true;	
 		mapObjectOwnProperties(this.teamsDOM, function(v, k) {
 			//console.log(k, v, model.teams.getTeam(k));
-			// sprawdzamy czy team cos wyslal, mozna sie kiedys zastanowic czy jest sens wprowadzania szalonego sortowania(WA lepsze niz brak submita)
+			// sprawdzamy czy team cos wyslal, mozna sie kiedys zastanowic czy jest sens wprowadzania 
+			// szalonego sortowania(WA lepsze niz brak submita)
 			/* var hasSubmited = false;
 			mapObjectOwnProperties(model.teams.getTeam(k).statesDist.distribution, function(v, k) {
 				hasSubmited = hasSubmited || !!v;
@@ -329,7 +333,7 @@ var CRanking = function(model, targetDiv) {
 	
 // przewijanie listy zespolow, przepisane na jQuery 
 	this.scrollTeams2 = function(callback) {
-		var settings = {'delayAfter' : 3000}
+		var settings = {'delayAfter' : 3000};
 		var that = this;
 		var non0TeamsNo = 0;		
 		var animatedRows = $(that.targetDiv).find('.row:not(.static)');				
@@ -388,7 +392,8 @@ var CRanking = function(model, targetDiv) {
 		}		
 	};	
 		
-	// w momencie zainicjalizowania rankingu model musi byc zainicjalizowany i przechowywac wszystkie zadania jakie zostaną wykorzystane w trakcie zawodów
+	// w momencie zainicjalizowania rankingu model musi byc zainicjalizowany i przechowywac wszystkie zadania 
+	// jakie zostaną wykorzystane w trakcie zawodów
 	this.init = function() {
 		console.log('init');
 		var l1, v, fullHeight;		
@@ -408,7 +413,7 @@ var CRanking = function(model, targetDiv) {
 		$(this.targetDiv).css('width', this.fullWidth() + 'px');
 	};
 
-}
+};
 
 CRanking.prototype.settings = {
 	'headerRowHeight' : 50,
@@ -420,7 +425,8 @@ CRanking.prototype.settings = {
 	'taskColWidth' : 50,
 	'timeColWidth' : 120,
 	'visibleTeams' : 10,
-	'useModelTime' : true, //jezeli true uzywa model.getTime(), jezeli false to model.lastSumissionPassedTime, do okreslania wieku zdarzenia i doboru kolorów tła
+	'useModelTime' : true, 	//jezeli true uzywa model.getTime(), jezeli false to model.lastSumissionPassedTime, 
+							// do okreslania wieku zdarzenia i doboru kolorów tła
 	'parseTime' : function(time) {
 		var s,m,h;
 		h = Math.floor(time / 3600);

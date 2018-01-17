@@ -45,7 +45,7 @@ CTmpEvent.prototype.isEqual = function(obj) {
 		}
 	}
 	return true;
-}
+};
 
 
 var CEvent = function (obj) {
@@ -108,11 +108,11 @@ var CUniquesQueue = function() {
         } else {
             return res;
         }
-    }
+    };
     
     this.isEmpty = function() {
         return stack.length === 0;
-    }
+    };
 };
 
 /*    WYMAGA JQuery
@@ -123,14 +123,16 @@ var CUniquesQueue = function() {
  *  tasks : tablica z id zadań
  *
  */
-var CAdapter = function(teamsIds, tasksIds) {
+var CAdapter = function() {
     this.rejudge = false;         // czy wystapil rejudge
-    this.startTS = 0;         // timestamp rozpoczecia zawodow : [Number, null], null jesli nie otrzymalismy jeszcze sekwencji rozpoczynajacej
+	this.startTS = 0;         	// timestamp rozpoczecia zawodow : 
+								// [Number, null], null jesli nie otrzymalismy jeszcze sekwencji rozpoczynajacej
     this.lastJudgingTS = 0;
 	
     this.submits = {};             // mapa CEvents indeksowana kluczami submitId
     
-    this.submitsQueue = new CUniquesQueue();        // kolejka CTmpEvents - pobranych ale jeszcze nieprzetworzonych(niedodanych do this.submits) zgłoszeń    
+	this.submitsQueue = new CUniquesQueue();        // kolejka CTmpEvents - pobranych ale jeszcze 
+													// nieprzetworzonych(niedodanych do this.submits) zgłoszeń    
     
 	// minTS, maxTS - odnosi sie do jusgingTimestamp, przedział domkniety
     this.getEvents = function(minTS) { 
@@ -162,8 +164,8 @@ var CAdapter = function(teamsIds, tasksIds) {
                         }), datum.submissionId);
 						that.lastJudgingTS = Math.max(that.lastJudgingTS, Number(datum.judgingTimestamp));
 						//console.log(that.lastJudgingTS, Number(datum.judgingTimestamp));
-                    };
-                };
+                    }
+                }
                 if (!!that.startTS) that.processQueue();
             },
             error: function() { console.log("CAdapter: Nie udało się pobieranie zdarzen"); }
@@ -212,10 +214,10 @@ var CAdapter = function(teamsIds, tasksIds) {
 		console.log(this.submits);		
 		for (k in this.submits) if (this.submits.hasOwnProperty(k)) {
 			v = this.submits[k];
-			console.log(v['time'], fromContestTime, v['time'], toContestTime);
+			console.log(v.time, fromContestTime, v.time, toContestTime);
 			if (
-				(typeof(fromContestTime) == "undefined" || v['time'] >= fromContestTime) && 
-				(typeof(toContestTime) == "undefined" || v['time'] <= toContestTime) 
+				(typeof(fromContestTime) == "undefined" || v.time >= fromContestTime) && 
+				(typeof(toContestTime) == "undefined" || v.time <= toContestTime) 
 			) {				
 				res.push(v.copy());
 			}
@@ -236,8 +238,12 @@ CAdapter.prototype.settings = {
 
 
 /* POTENCJALNE PROBLEMY
-a) nie ma żadnych flag rejudgeu w przychodzących z serwera danych, w tej chwili przyjmuję, że jeśli pojawią się kilka razy submity o tym samym submissionId to aktualny jest ten który ma najwyższy judgingTimestamp 
-UWAGA! to może spowodować problem jeśli będzie miał miejsce rejudge w tej samej sekundzie co sprawdzenie jakiegoś zgłoszenia, i pojawią się dwa zgłoszenia o tych samych submissionId i judgingTimestamp, ale różnych wynikach sprawdzania
+a) nie ma żadnych flag rejudgeu w przychodzących z serwera danych, w tej chwili przyjmuję, 
+że jeśli pojawią się kilka razy submity o tym samym submissionId to aktualny jest ten, 
+który ma najwyższy judgingTimestamp 
+UWAGA! to może spowodować problem jeśli będzie miał miejsce rejudge w tej samej sekundzie 
+co sprawdzenie jakiegoś zgłoszenia, i pojawią się dwa zgłoszenia o tych samych submissionId i judgingTimestamp, 
+ale różnych wynikach sprawdzania
 b) czy freezeTime ma być ostry czy nieostry, zakładam, że ostry, jeśli inczaej to należy zamienić w CModel.getEvents:
 	to = this.settings.freezeTime - 1;
 na 

@@ -73,7 +73,7 @@ CAcmvis = function() {
 		setInterval(function() {
 			that.flash.update();
 		}, refreshRate);
-	}
+	};
 	
 	this.tasksDonutTextGenerator = function(statesDist, name) {
 		var states = CDonut.prototype.settings.states;
@@ -86,7 +86,7 @@ CAcmvis = function() {
 			}
 			res += '<span class = "statusName">' + states[l1] + '</span>';
 			res += '<span class = "statusNo">' + no + '</span>';
-		};
+		}
 		return res;
 	};	
 };

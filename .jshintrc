@@ -1,5 +1,5 @@
 {
-    "maxlen": 79,
+    "maxlen": 120,
     "indent": 4,
     "latedef": true,
     "noarg": true,

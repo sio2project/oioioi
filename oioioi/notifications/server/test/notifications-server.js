@@ -78,7 +78,7 @@ describe("Server", function() {
                     numCalled = 0;
                     sendMsg();
                 }
-            }
+            };
         };
         sStub.withArgs('authenticate')
             .yields('{"session_id": "TEST_USER_SID"}');

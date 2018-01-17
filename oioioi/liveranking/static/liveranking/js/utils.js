@@ -20,4 +20,4 @@ var mapObjectOwnProperties = function(obj, fun) {
 		}
 	}
 	return res;
-}
+};

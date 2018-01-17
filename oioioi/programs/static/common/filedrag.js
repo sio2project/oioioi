@@ -138,6 +138,6 @@ function filedragParseFile(file) {
         $('#dropped-solution').val(e.target.result);
         $('#dropped-solution-name').val(file.name);
         $('#upload').submit();
-    }
+    };
     reader.readAsText(file);
 }

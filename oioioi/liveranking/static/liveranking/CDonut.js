@@ -22,7 +22,7 @@ var CDonut = function(model, targetDiv) {
 	
 	this.arcGenerator = function (datum) {		
 		return d3.svg.arc()			
-			.innerRadius(settings.r * .82)
+			.innerRadius(settings.r * 0.82)
 			.outerRadius(settings.r)(datum); 		    
 	};
 	
@@ -55,7 +55,7 @@ var CDonut = function(model, targetDiv) {
 		defaultData = this.statesDistributionToFlatArray({
 			'distribution' : {'??' : 1}
 		});
-	}
+	};
 	
 	this.update = function(ldata, name) {
 		var that = this;	
@@ -124,11 +124,11 @@ var CDonut = function(model, targetDiv) {
 			.select(".textBox")
 			.html(this.settings.textGenerator(ldata, name));
 		
-	}
+	};
 	
 	this.stop = function() {
 		
-	}
+	};
 	
 };
 
@@ -157,8 +157,8 @@ CDonut.prototype.settings = {
 	},
 	"textGenerator" : function(scoreDistribution, name) {
 		var score = 0;		
-		if (!!scoreDistribution.distribution['AC']) {
-			score = scoreDistribution.distribution['AC'];
+		if (!!scoreDistribution.distribution.AC) {
+			score = scoreDistribution.distribution.AC;
 		}
 		return '<span class="nameRow">' + name + '</span>' +
 			'<span class="scoreRow">' + score + '</span>';

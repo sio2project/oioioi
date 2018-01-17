@@ -23,7 +23,8 @@ var CModelTeam = function(obj) {
 	"use strict";				
     this.simpleInit.call(this, obj);	
 	// uaktualnia dane druzyny
-	// delta : {"dScore" : zmiana wyniku, "dPenalty" : zmiana ilości bomb, "status" : nowy wynik zgłoszenia(wykorzystwany do akutalizacji statesDist, "dTIme" : zmiana czasu}			
+	// delta : {"dScore" : zmiana wyniku, "dPenalty" : zmiana ilości bomb, 
+	// "status" : nowy wynik zgłoszenia(wykorzystwany do akutalizacji statesDist, "dTIme" : zmiana czasu}			
 	// PRZENIESIONE do CModelTeams
 	/*
 	this.update = function(delta) {
@@ -45,7 +46,7 @@ CModelTeam.prototype.simpleInit = classSimpleInit(CModelTeam.prototype.fields);
 CModelTeam.prototype.reset = function() {
 	this.time = 0;
 	this.statesDist = new CStatesDistribution();
-	this.score = 0
+	this.score = 0;
 };
 
 
@@ -54,29 +55,29 @@ var CModelTeams = function() {
 	this.addTeam = function(team) {
 		this.teams[team.id] = new CModelTeam(team);	
 		console.log('dodajemy zespół');
-	}
+	};
 	this.getTeams = function() {
 		var res = [], k;
 		for (k in this.teams) 
 			if (this.teams.hasOwnProperty(k))
 				res.push(this.teams[k]);
 		return res;
-	}
+	};
 	this.getTeam = function(id) {
 		if (!this.teams.hasOwnProperty(id))
 			return false;
 		else
 			return this.teams[id];
-	}
+	};
 	this.hasTeam = function(id) {
 		return !!this.getTeam(id);		
-	}
+	};
 	this.reset =function() {
 		var k;
 		for (k in this.teams) if (this.teams.hasOwnProperty(k)) {
 			this.teams[k].reset();
 		}
-	}
+	};
 	this.updateTeam = function(id, delta) {		
 		if (!!delta.dScore)
 			this.teams[id].score += delta.dScore;
@@ -84,13 +85,13 @@ var CModelTeams = function() {
 			this.teams[id].statesDist.addStatus(delta.status);
 		if (!!delta.dTime)
 			this.teams[id].time += delta.dTime;
-	}
+	};
 };
 
 var CModelTask = function(obj) {
 	"use strict";				
     this.simpleInit.call(this, obj);	
-}
+};
 CModelTask.prototype.fields = [        
 	"id",
 	"shortName",
@@ -101,7 +102,7 @@ CModelTask.prototype.fields = [
 CModelTask.prototype.simpleInit = classSimpleInit(CModelTask.prototype.fields);	
 CModelTask.prototype.reset = function() {	
 	this.statesDist = new CStatesDistribution();
-	this.score = 0
+	this.score = 0;
 };
 
 
@@ -121,19 +122,19 @@ var CModelTasks = function() {
 	};	
 	this.hasTask = function(id) {
 		return !!this.tasks[id];		
-	}	
+	};
 	this.reset = function() {
 		var k;
 		for (k in this.tasks) if (this.tasks.hasOwnProperty(k)) {
 			this.tasks[k].reset();
 		}
-	}	
+	};
 	this.updateTask = function(id, delta) {		
 		if (!!delta.dScore)
 			this.tasks[id].score += delta.dScore;
 		if (!!delta.status)
 			this.tasks[id].statesDist.addStatus(delta.status);		
-	}	
+	};
 	
 };
 
@@ -149,7 +150,7 @@ CModelTeamTask.prototype.init = function() {
 	this.lastStatus = null;
 	this.lastSubmissionTime = 0;
 	this.statesDist = new CStatesDistribution();	
-}
+};
 CModelTeamTask.prototype.reset = CModelTeamTask.prototype.init;
 // funkcja zwraca false jesli zdarzenie bylo ignorowane, w przeciwnym razie zwraca 
 // obiekt opisujacy zmiane - CStateDelta
@@ -176,7 +177,7 @@ CModelTeamTask.prototype.processEvent = function(event) {
 		"status" : status,
 		"dTime" : this.time
 	};
-}	
+};
 
 var CModel = function(adapter) {
 	this.teams = new CModelTeams();
@@ -197,15 +198,15 @@ var CModel = function(adapter) {
 		// dla bezpieczenstwa nie dodajemy teamow w czasie finalo
 		if (!this.teams.hasTeam(event.teamId)) {			
 			return;
-			this.addTeam({
-				"id" : event.teamId,
-				"login" : event.teamId,
-				"name" : event.teamId,
-				"initialScore" : 0,
-				"time" : 0,
-				"statesDist" : new CStatesDistribution(),
-				"score" : 0
-			});
+			// this.addTeam({
+			// 	"id" : event.teamId,
+			// 	"login" : event.teamId,
+			// 	"name" : event.teamId,
+			// 	"initialScore" : 0,
+			// 	"time" : 0,
+			// 	"statesDist" : new CStatesDistribution(),
+			// 	"score" : 0
+			// });
 		}		
 		// przetwarzamy zdarzenie
 		this.lastSumissionPassedTime = Math.max(this.lastSumissionPassedTime, event.time);
@@ -226,9 +227,11 @@ var CModel = function(adapter) {
 			for (k2 in this.teamToTask[k1]) if (this.teamToTask[k1].hasOwnProperty(k2)) {
 				this.teamToTask[k1][k2].reset();
 			}
-	}
+	};
 	
-	// zalozenia: żadne zdarzenie nie zostanie przekazane do modelu więcej niż raz, zdarzenia będą przekazywane w kolejności, nie tylko w ramach jednego zapytania, ale również między zapytaniami, kiedy te waruneki zostaną spelnione można wyłączyć flage reset
+	// zalozenia: żadne zdarzenie nie zostanie przekazane do modelu więcej niż raz, zdarzenia będą przekazywane 
+	// w kolejności, nie tylko w ramach jednego zapytania, ale również między zapytaniami, 
+	// kiedy te waruneki zostaną spelnione można wyłączyć flage reset
 	this.getEvents = function(from, to, reset) {
 		var events, l1, v;
 		// wymuszamy reset zeby za kazdym razem przeliczyc zawody od poczatku(problemy z rejudgeami)
@@ -299,7 +302,7 @@ var CModel = function(adapter) {
 		if (!!this.teams.getTeam(team.id) || team.id == 73749) {
 			console.log("Próba dodania już dodanego zespołu");
 			return false;
-		};
+		}
 		// dodajemy zespół
 		this.teams.addTeam(team); 
 		// dodajemy objekt CModelTeamTask dla każdej pary <team, istniejące_zadanie>
@@ -321,7 +324,8 @@ var CModel = function(adapter) {
 	
 	this.init = function() {
 		var k1, k2, teams, tasks;
-		// pobieranie zadan musi byc pierwsze, zakładamy, że lista zadań jest znana przed zawodami, w przypadku zespołów może być inaczej(mogą być dodawane dynamicznie)
+		// pobieranie zadan musi byc pierwsze, zakładamy, że lista zadań jest znana przed zawodami, 
+		// w przypadku zespołów może być inaczej(mogą być dodawane dynamicznie)
 		this.getTasks();		
 		this.getTeams();		
 		tasks = this.tasks.getTasks();
@@ -329,7 +333,7 @@ var CModel = function(adapter) {
 	};	
 	this.getTeamTask = function(teamId, taskId) {
 		return this.teamToTask[teamId][taskId];
-	}	
+	};
 };
 
 

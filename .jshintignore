@@ -9,3 +9,9 @@ oioioi/base/static/bootstrap-datetimepicker-oioioi/*.js
 
 oioioi/jotform/static/jotform/jotform.js
 oioioi/portals/static/portals/tree.jquery.js
+
+oioioi/liveranking/static/liveranking/js/d3*.js
+oioioi/liveranking/static/liveranking/js/jq*.js
+
+oioioi/timeline/static/jquery-ui/*.js
+oioioi/timeline/static/moment/*.js

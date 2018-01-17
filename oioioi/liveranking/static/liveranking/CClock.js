@@ -9,12 +9,12 @@ var CClock = function(model, targetDiv) {
 				$(targetDiv).text(time);
 			} else {
 				$(targetDiv).text(that.settings.parseTime(time));
-			};
+			}
 		}, 70);
-	}
+	};
 	this.stop = function() {
 		clearTimeout(timer);
-	}
+	};
 	
 };
 

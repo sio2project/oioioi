@@ -6,7 +6,7 @@ var CFlash = function(model, targetDiv) {
 	// zawiera {team: 'team.login' , task: 'task.shortName'}
 	this.flashQueue = [];
 	var queueHead = 0;
-	this.getHead = function() {return queueHead;}
+	this.getHead = function() {return queueHead;};
 	this.timer = null;
 	
 	this.addToQueue = function(teamLogin, taskShortName) {
@@ -14,7 +14,7 @@ var CFlash = function(model, targetDiv) {
 			'team' : teamLogin,
 			'task' : taskShortName
 		});
-	}
+	};
 	
 	this.getFromQueue = function() {
 		if (queueHead >= this.flashQueue.length) {
@@ -22,28 +22,28 @@ var CFlash = function(model, targetDiv) {
 		} else {			
 			return this.flashQueue[queueHead++];
 		}
-	}
+	};
 	this.queueLength = function() {
 		return this.flashQueue.length - queueHead;
-	}
+	};
 	
 	this.emptyQueue = function() {
 		while (!!this.getFromQueue()) {			
 		}
-	}
+	};
 	
 	// dodajemy zespół tylko wtedy jeśli nie dodaliśmy go wcześniej	
 	this.addTeam = function(team) {		
 		if (!!this.teams[team.id]) {
 			// Zespół został już dodany
 			return false;			
-		};		
+		}
 		this.teams[team.id] = {
 			'score' : 0,
 			'acTasksIds' : {}
 		};
 		return true;
-	}
+	};
 	
 	this.addTeamAcs = function(team) {
 		//console.log('!!!' + team.login);
@@ -58,7 +58,7 @@ var CFlash = function(model, targetDiv) {
 				this.addToQueue(team.name.match(/[^ ][\wńśćąęółżź]+$/)[0], task.shortName);
 			}
 		}
-	}
+	};
 
 	this.addNewAcs = function() {
 		var l1, team, teams = model.teams.getTeams();
@@ -72,7 +72,7 @@ var CFlash = function(model, targetDiv) {
 				this.addTeamAcs(team);
 			}
 		}		
-	}
+	};
 	
 			
 	
@@ -81,7 +81,8 @@ var CFlash = function(model, targetDiv) {
 		console.log(this.flashQueue);
 	};
 		
-	// w momencie zainicjalizowania rankingu model musi byc zainicjalizowany i przechowywac wszystkie zadania jakie zostaną wykorzystane w trakcie zawodów	
+	// w momencie zainicjalizowania rankingu model musi byc zainicjalizowany i przechowywac wszystkie zadania 
+	// jakie zostaną wykorzystane w trakcie zawodów	
 	this.init = function() {
 		var that = this;		
 		var licznik = this.settings.ticksWhileOnScreen;		
@@ -109,13 +110,14 @@ var CFlash = function(model, targetDiv) {
 						.removeClass('visible');
 				}
 			}
-		}, this.settings.refreshRate)
+		}, this.settings.refreshRate);
 	};
 
-}
+};
 
 CFlash.prototype.settings = {	
 	'refreshRate': 1000,
 	'ticksWhileOnScreen' : 3,
-	'emptyQueueOn' : 10 // <- ilosc zdarzen w kolejce przy ktorej po prostu ja oprozniamy(aby uniknac duzej ilosci flashy w przypadku odswierzenia strony z wizualizacja w trakcie zawodow)
+	'emptyQueueOn' : 10 // <- ilosc zdarzen w kolejce przy ktorej po prostu ja oprozniamy(aby uniknac duzej ilosci 
+						// flashy w przypadku odswierzenia strony z wizualizacja w trakcie zawodow)
 };

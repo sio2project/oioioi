@@ -205,7 +205,7 @@ If you want to split a date group, click the corresponding \
         function assign_colors() {
             var color_id = 0;
             $timeline.find('.oioioi-timeline__round-group').each(function() {
-                var color_string = rgb_to_string(PALETTE[color_id])
+                var color_string = rgb_to_string(PALETTE[color_id]);
                 $(this).find('.oioioi-timeline__round-bar')
                     .css('background', color_string);
                 $(this).find('.oioioi-timeline__round-label')
@@ -542,7 +542,7 @@ If you want to split a date group, click the corresponding \
         }
 
         function custom_undo(e) {
-            var evtobj = window.event ? event : e
+            var evtobj = window.event ? event : e;
             // Ctrl+z or ESC
             if ((e.which === 'z'.charCodeAt(0) &&
                     (evtobj.ctrlKey || evtobj.metaKey)) ||
@@ -691,5 +691,5 @@ If you want to split a date group, click the corresponding \
         }
 
         init();
-    }
+    };
 });

@@ -85,7 +85,7 @@ notes=FIXME,TODO
 
 [FORMAT]
 
-max-line-length=79
+max-line-length=120
 max-module-lines=1000
 indent-string='    '
 
