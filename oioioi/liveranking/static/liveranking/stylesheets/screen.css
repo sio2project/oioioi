@@ -79,9 +79,9 @@ body {
 #header {
   background-image: url("images/header.png") !important;
   background-repeat: no-repeat;
-  background-position: center 0px;
+  background-position: center 0;
   position: relative;
-  margin: 0px auto;
+  margin: 0 auto;
   height: 140px;
 }
 /* line 23, ../sass/screen.scss */
@@ -98,7 +98,7 @@ body {
   clear: both;
   cursor: none;
   position: relative;
-  margin: 0px auto;
+  margin: 0 auto;
   height: 94px;
   margin-top: 10px;
 }
@@ -118,7 +118,7 @@ body {
   -moz-transition: top 0.8s;
   -o-transition: top 0.8s;
   transition: top 0.8s;
-  margin-top: 0px;
+  margin-top: 0;
   background: black;
 }
 /* line 49, ../sass/screen.scss */
