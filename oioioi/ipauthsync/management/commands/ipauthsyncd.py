@@ -108,7 +108,7 @@ class Command(BaseCommand):
             # pylint: disable=broad-except
             except Exception:
                 if region.short_name in self.failing_regions:
-                    return
+                    continue
                 self.failing_regions.add(region.short_name)
                 mail_admins(
                     "ipauthsyncd: Sync failing for region %s" % (region.short_name,),
