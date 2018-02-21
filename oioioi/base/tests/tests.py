@@ -90,6 +90,11 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertTrue(response['Location'].endswith('/test'))
 
+    def test_admin_login_redirect(self):
+        response = self.client.get('/c/c/admin/login/?next=/admin/')
+        self.assertRedirects(response, '/login/?next=%2Fadmin%2F',
+                             target_status_code=302)
+
     def test_logout(self):
         self.client.get('/', follow=True)
         logout_url = reverse('logout')

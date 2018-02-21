@@ -270,8 +270,10 @@ class AdminSite(DjangoAdminSite):
         return super(AdminSite, self).get_urls()
 
     def login(self, request, extra_context=None):
-        query = urllib.urlencode({'next': request.get_full_path()})
-        return HttpResponseRedirect(reverse('auth_login') + '?' + query)
+        next_url = request.GET.get('next', None)
+        suffix = '?' + urllib.urlencode({'next': next_url}) if next_url else ''
+        return HttpResponseRedirect(reverse('auth_login') + suffix)
+
 
 site = AdminSite(name='oioioiadmin')
 
