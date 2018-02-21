@@ -1,0 +1,21 @@
+{% extends "two_factor/_base_focus.html" %}
+{% load i18n %}
+
+{% block content %}
+  {% comment %}
+    Our changes:
+
+    * Using newer version of this file (1.7.0 or little bit newer).
+    * Rendering checkbox with our form template.
+  {% endcomment %}
+
+  <h1>{% block title %}{% trans "Disable Two-factor Authentication" %}{% endblock %}</h1>
+  <p>{% blocktrans %}You are about to disable two-factor authentication. This
+    weakens your account security, are you sure?{% endblocktrans %}</p>
+  <form method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" with form=form %}
+    <button class="btn btn-danger"
+            type="submit">{% trans "Disable" %}</button>
+  </form>
+{% endblock %}

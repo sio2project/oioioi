@@ -144,6 +144,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',  # must be after AuthenticationMiddleware
     'oioioi.base.middleware.AnnotateUserBackendMiddleware',
     'oioioi.su.middleware.SuAuthenticationMiddleware',
     'oioioi.su.middleware.SuFirstTimeRedirectionMiddleware',
@@ -167,8 +168,9 @@ COMMON_MEDIA_PREFIX = 'common/'
 
 ROOT_URLCONF = 'oioioi.urls'
 
-LOGIN_URL = '/login'
+LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'wsgi.application'
@@ -224,6 +226,11 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
 )
 
 AUTHENTICATION_BACKENDS = (

@@ -9,8 +9,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 from django.views.decorators.http import require_POST, require_GET
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.contrib.auth.views import logout as auth_logout, \
-                                      login as auth_login
+from django.contrib.auth.views import logout as auth_logout
 from django.views.decorators.vary import vary_on_headers, vary_on_cookie
 from django.views.decorators.cache import cache_control
 from django.views.defaults import page_not_found
@@ -24,8 +23,12 @@ from oioioi.base.preferences import PreferencesFactory
 from oioioi.base.processors import site_name
 import traceback
 
+from two_factor.views import LoginView as Login2FAView
+
 account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
+account_menu_registry.register('two_factor_auth', _("Two factor authentication"),
+        lambda request: reverse('two_factor:profile'), order=150)
 
 
 class ForcedError(StandardError):
@@ -113,7 +116,7 @@ def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
         redirect_to = request.GET.get(redirect_field_name, None)
         return safe_redirect(request, redirect_to)
     else:
-        return auth_login(request, extra_context=site_name(request), **kwargs)
+        return Login2FAView.as_view(**kwargs)(request)
 
 
 @require_GET

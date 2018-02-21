@@ -30,7 +30,7 @@ setup(
     author_email='sio2@sio2project.mimuw.edu.pl',
     url='http://sio2project.mimuw.edu.pl',
     install_requires=[
-        "Django>=1.9,<1.10",
+        "Django>=1.9,<1.10",  # when upgrading, upgrade also django-two-factor-auth!
         "pytz>=2013b",
         "sqlalchemy",
         "BeautifulSoup",
@@ -39,6 +39,7 @@ setup(
         # Earlier versions of django-nose are incompatible with Django 1.9
         "django-nose>=1.4",
         "nose-picker>=0.5.3",
+        "django-two-factor-auth==1.5.0",  # latest version for Django 1.9
 
         "django-registration-redux>=1.6,<2.0",
 

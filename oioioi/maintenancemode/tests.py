@@ -24,7 +24,7 @@ class TestMaintenanceMode(TestCase):
         self.assertRedirects(response, reverse('maintenance'))
         self.assertEquals(response.context['message'], 'test message')
         self.assertContains(response, 'test message')
-        response = self.client.post(reverse('login'))
+        response = self.client.get(reverse('login'))
         self.assertEquals(response.status_code, 200)
 
     def test_logged_user_redirect(self):
