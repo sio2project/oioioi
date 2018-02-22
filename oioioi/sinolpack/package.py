@@ -465,14 +465,15 @@ class SinolPackage(object):
 
         pdffile = os.path.join(docdir, self.short_name + 'zad.pdf')
 
+        # It's necessary to have two if's, for here we produce missing pdf file
+        if self.use_make and not os.path.isfile(pdffile):
+            self._compile_latex_docs(docdir)
+
         if os.path.isfile(pdffile):
             statement = ProblemStatement(problem=self.problem)
             statement.content.save(self.short_name + '.pdf',
                                    File(open(pdffile, 'rb')))
         else:
-            if self.use_make:
-                self._compile_latex_docs(docdir)
-
             logger.warning("%s: no problem statement", self.filename)
 
     def _force_index_encoding(self, htmlzipfile):
@@ -530,9 +531,6 @@ class SinolPackage(object):
                 self.config.get('memory_limits', {}))
         self.statement_memory_limit = self._detect_statement_memory_limit()
 
-        if self.use_make:
-            self._find_and_compile('', command='outgen')
-
         created_tests, outs_to_make, scored_groups = \
             self._create_instances_for_tests()
 
@@ -581,6 +579,9 @@ class SinolPackage(object):
         created_tests = []
         outs_to_make = []
         scored_groups = set()
+
+        if self.use_make:
+            self._find_and_compile('', command='outgen')
 
         for order, test in enumerate(sorted(all_items, key=naturalsort_key)):
             instance = self._process_test(test, order, names_re,
