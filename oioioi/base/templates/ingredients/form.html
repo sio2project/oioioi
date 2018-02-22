@@ -22,6 +22,12 @@
             <label class="control-label">
                 {{ field }} {{ field.label }}
             </label>
+        {% elif field|is_radioselect %}
+        <div class="radio {% if field.errors %}has-error{% endif %}">
+            <label for="{{ field.auto_id }}" class="control-label">
+                {{ field.label }}
+            </label>
+            {{ field }}
         {% else %}
         <div class="form-group {% if field.errors %}has-error{% endif %}">
             {% if display_labels != False %}
