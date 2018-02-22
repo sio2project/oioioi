@@ -2,14 +2,6 @@
 
 {% load i18n %}
 
-{% block navbar_user_panel %}
-    {% if user.is_anonymous %}
-        {% include "ingredients/navbar-user-login.html" %}
-    {% else %}
-        {% include "ingredients/navbar-user.html" %}
-    {% endif %}
-{% endblock %}
-
 {% block content %}
 {% url 'oioioiadmin:contests_contest_add' as new_contest_link %}
 {% url 'auth_login' as login_link %}

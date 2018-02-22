@@ -9,14 +9,18 @@
             <span class="caret"></span>
         </a>
         <ul class="dropdown-menu pull-right">
-            <li>
-                <a href="{% url 'auth_login' %}" id="login_link" data-keyboard="true" data-backdrop="true"
-                   data-controls-modal="login_form">
-                    {% trans "Log in" %}
-                </a>
-            </li>
-            <li>
-                <a href="{% url 'registration_register' %}">{% trans "Register" %}</a>
+            <li class="navbar-form">
+                <form id="navbar-login" class="navbar-login" action="{% url 'login' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <input type="text" name="username" class="form-control" placeholder="{% trans "Login" %}">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" class="form-control" placeholder="{% trans "Password" %}">
+                    </div>
+                    <a role="button" class="btn btn-default" href="{% url 'registration_register' %}">{% trans "Register" %}</a>
+                    <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
+                </form>
             </li>
             {% include 'ingredients/language-picker.html' %}
         </ul>
