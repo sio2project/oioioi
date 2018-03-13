@@ -11,11 +11,27 @@ from django.utils.html import conditional_escape
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
+from oioioi.contests.admin import (ProblemInstanceAdmin, SubmissionAdmin,
+                                   ContestAdmin)
 from oioioi.contests.models import ProblemInstance
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
 from oioioi.programs.models import (LibraryProblemData, ModelSolution,
-                                    OutputChecker, ReportActionsConfig, Test)
+                                    OutputChecker, ReportActionsConfig, Test,
+                                    ProgramsConfig)
+
+
+class ProgramsConfigInline(admin.TabularInline):
+    model = ProgramsConfig
+    can_delete = False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class ValidationFormset(BaseInlineFormSet):
@@ -165,6 +181,18 @@ class LibraryProblemDataInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+class ProgramsConfigAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.ProgramsConfig` to an admin
+       panel.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(ProgramsConfigAdminMixin, self) \
+            .__init__(*args, **kwargs)
+        self.inlines = self.inlines + [ProgramsConfigInline]
+ContestAdmin.mix_in(ProgramsConfigAdminMixin)
 
 
 class LibraryProblemDataAdminMixin(object):

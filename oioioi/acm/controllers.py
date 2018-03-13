@@ -170,7 +170,7 @@ class ACMContestController(ProgrammingContestController):
         rtimes = self.get_round_times(request_or_context, round)
         return rtimes.is_active(context.timestamp)
 
-    def get_safe_exec_mode(self):
+    def get_default_safe_exec_mode(self):
         return 'cpu'
 
 

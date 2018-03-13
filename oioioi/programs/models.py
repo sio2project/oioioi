@@ -10,13 +10,32 @@ from nose.tools import nottest
 
 from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.contests.fields import ScoreField
-from oioioi.contests.models import (ProblemInstance, Submission,
+from oioioi.contests.models import (Contest, ProblemInstance, Submission,
                                     SubmissionReport, submission_kinds,
                                     submission_report_kinds,
                                     submission_statuses)
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.problem_instance_utils import get_language_by_extension
+
+execuction_mode_options = EnumRegistry()
+execuction_mode_options.register('AUTO', _("Auto"))
+execuction_mode_options.register('cpu', _("Real CPU"))
+execuction_mode_options.register('vcpu', _("OITimeTool"))
+execuction_mode_options.register('sio2jail', _("SIO2Jail"))
+
+
+class ProgramsConfig(models.Model):
+    contest = models.OneToOneField(Contest,
+                        related_name='programs_config')
+    execuction_mode = EnumField(execuction_mode_options, default='AUTO',
+            verbose_name=_("execution mode"),
+            help_text=_("If set to Auto, the execution mode is determined "
+                "according to the type of the contest."))
+
+    class Meta(object):
+        verbose_name = _("programs configuration")
+        verbose_name_plural = _("programs configurations")
 
 test_kinds = EnumRegistry()
 test_kinds.register('NORMAL', _("Normal test"))

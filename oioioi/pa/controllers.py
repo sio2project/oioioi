@@ -145,7 +145,7 @@ class PAContestController(ProgrammingContestController):
         env['division'] = form.cleaned_data['division']
         env['post_upload_handlers'] += ['oioioi.pa.handlers.save_division']
 
-    def get_safe_exec_mode(self):
+    def get_default_safe_exec_mode(self):
         return 'cpu'
 
     def get_allowed_languages(self):
