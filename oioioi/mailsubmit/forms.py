@@ -30,15 +30,12 @@ class MailSubmissionForm(forms.Form):
         pi_field.choices = pi_choices
         pi_field.widget.attrs['class'] = 'input-xlarge'
 
-        # if problem_instance does not exist any from the current
-        # contest is chosen. To change in future.
-        # ALSO in contests.forms
+        # add fields etc.
         contest = request.contest
         assert contest is not None
-        problem_instance = ProblemInstance.objects \
-                .filter(contest=contest)[0]
-        contest.controller.adjust_submission_form(request, self,
-                                                  problem_instance)
+        problem_instances = ProblemInstance.objects.filter(contest=contest)
+        for pi in problem_instances:
+            pi.controller.adjust_submission_form(request, self, pi)
 
     def clean(self):
         cleaned_data = super(MailSubmissionForm, self).clean()

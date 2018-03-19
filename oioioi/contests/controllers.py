@@ -494,15 +494,25 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return problem_instance.submissions_limit
 
     def adjust_submission_form(self, request, form, problem_instance):
-        pass
+        # by default delegate to ProblemController
+        problem_instance.problem.controller \
+            .adjust_submission_form(request, form, problem_instance)
 
     def validate_submission_form(self, request, problem_instance, form,
             cleaned_data):
-        return cleaned_data
+        # by default delegate to ProblemController
+        return problem_instance.problem.controller \
+            .validate_submission_form(request, problem_instance,
+                                      form, cleaned_data)
 
     def create_submission(self, request, problem_instance, form_data,
                           **kwargs):
-        raise NotImplementedError
+        # by default delegate to ProblemController
+        problem = problem_instance.problem
+        return problem.controller.create_submission(request,
+                                                    problem_instance,
+                                                    form_data,
+                                                    **kwargs)
 
     def judge(self, submission, extra_args=None, is_rejudge=False):
         submission.problem_instance.problem.controller \
@@ -552,7 +562,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            Usually this involves looking at active reports and aggregating
            information from them.
         """
-        raise NotImplementedError
+        # delegate to ProblemController
+        problem = submission.problem_instance.problem
+        problem.controller.update_submission_score(submission)
 
     def update_user_result_for_problem(self, result):
         problem = result.problem_instance.problem

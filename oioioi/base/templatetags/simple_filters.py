@@ -1,7 +1,7 @@
 import json
 
 from django import template
-from django.forms import CheckboxInput, RadioSelect
+from django.forms import CheckboxInput, RadioSelect, CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
 from django.utils.html import escapejs
 
@@ -14,6 +14,11 @@ register = template.Library()
 @register.filter
 def is_checkbox(field):
     return isinstance(field.field.widget, CheckboxInput)
+
+
+@register.filter
+def is_checkbox_select_multiple(field):
+    return isinstance(field.field.widget, CheckboxSelectMultiple)
 
 
 @register.filter

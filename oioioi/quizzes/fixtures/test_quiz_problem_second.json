@@ -1,0 +1,44 @@
+[
+  {
+    "pk": 101,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Test quiz",
+      "contest": null,
+      "author":1001,
+      "short_name": "qui",
+      "controller_name": "oioioi.quizzes.controllers.QuizProblemController"
+    }
+  },
+  {
+    "pk": 101,
+    "model": "quizzes.quiz",
+    "fields": {}
+  },
+  {
+    "pk": 101,
+    "model": "quizzes.quizquestion",
+    "fields": {
+      "question": "Question 2",
+      "quiz": 101
+    }
+  },
+  {
+    "pk": 101,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 101,
+      "answer": "Answer - A",
+      "is_correct": true
+    }
+  },
+  {
+    "pk": 102,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 101,
+      "answer": "Answer - B",
+      "is_correct": false
+    }
+  }
+]

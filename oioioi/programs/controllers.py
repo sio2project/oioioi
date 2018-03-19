@@ -7,16 +7,13 @@ from operator import attrgetter
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
 from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 
-from oioioi.base.utils.user_selection import UserSelectionField
-from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
+from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
@@ -477,33 +474,6 @@ class ProgrammingProblemController(ProblemController):
                     form.fields['prog_lang'].initial = \
                             get_language_by_extension(problem_instance, ext)
 
-        if request.contest and is_contest_admin(request):
-            form.fields['user'] = UserSelectionField(
-                    label=_("User"),
-                    hints_url=reverse('contest_user_hints',
-                            kwargs={'contest_id': request.contest.id}),
-                    initial=request.user)
-
-            def clean_user():
-                try:
-                    user = form.cleaned_data['user']
-                    if user == request.user:
-                        return user
-                    if not request.user.is_superuser:
-                        controller.registration_controller() \
-                            .filter_participants(
-                                User.objects.filter(pk=user.pk)).get()
-                    return user
-                except User.DoesNotExist:
-                    raise forms.ValidationError(_(
-                            "User does not exist or "
-                            "you do not have enough privileges"))
-            form.clean_user = clean_user
-            form.fields['kind'] = forms.ChoiceField(choices=[
-                ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
-                initial=form.kind, label=_("Kind"))
-            narrow_input_fields([form.fields['kind'], form.fields['user']])
-
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
         if submission.kind == 'USER_OUTS':
@@ -641,32 +611,15 @@ class ProgrammingContestController(ContestController):
                     ('update_submission_score',
                         'oioioi.contests.handlers.update_submission_score'))
 
-    def create_submission(self, request, problem_instance, form_data,
-                    judge_after_create=True, **kwargs):
-        problem = problem_instance.problem
-        return problem.controller.create_submission(request,
-                problem_instance, form_data, judge_after_create=True, **kwargs)
 
     def get_submission_size_limit(self, problem_instance):
         return problem_instance.problem.controller \
             .get_submission_size_limit(problem_instance)
 
-    def adjust_submission_form(self, request, form, problem_instance):
-        super(ProgrammingContestController, self) \
-                  .adjust_submission_form(request, form, problem_instance)
-        problem_instance.problem.controller \
-                .adjust_submission_form(request, form, problem_instance)
-
     def check_repeated_submission(self, request, problem_instance, form):
         return not is_contest_admin(request) and \
             form.kind == 'NORMAL' and \
             getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False)
-
-    def validate_submission_form(self, request, problem_instance, form,
-            cleaned_data):
-        return problem_instance.problem.controller \
-            .validate_submission_form(request, problem_instance,
-                                      form, cleaned_data)
 
     def update_report_statuses(self, submission, queryset):
         """Updates statuses of reports for the newly judged submission.
@@ -689,10 +642,6 @@ class ProgrammingContestController(ContestController):
     def can_see_submission_status(self, request, submission):
         """Statuses are taken from initial tests which are always public."""
         return True
-
-    def update_submission_score(self, submission):
-        problem = submission.problem_instance.problem
-        problem.controller.update_submission_score(submission)
 
     def get_visible_reports_kinds(self, request, submission):
         if self.results_visible(request, submission):

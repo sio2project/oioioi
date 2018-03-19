@@ -102,7 +102,7 @@ class TeamsMixinForContestController(object):
                           **kwargs):
         submission = super(TeamsMixinForContestController, self) \
                              .create_submission(request, problem_instance,
-                                                form_data, kwargs)
+                                                form_data, **kwargs)
         if not is_contest_admin:
             try:
                 tm = TeamMembership.objects.get(user=request.user,

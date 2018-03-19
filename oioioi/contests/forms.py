@@ -4,10 +4,13 @@ from django.core.urlresolvers import reverse
 from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
+
 from oioioi.base.utils.user_selection import UserSelectionField
-from oioioi.base.utils.inputs import narrow_input_field
+from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
 from oioioi.contests.models import Contest, ProblemInstance, Round
-from oioioi.contests.utils import submittable_problem_instances
+from oioioi.contests.utils import submittable_problem_instances, \
+    is_contest_admin
 from oioioi.programs.models import Test
 
 
@@ -104,6 +107,10 @@ class SubmissionForm(forms.Form):
     """
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
+    class Media(object):
+        css = {'all': ('common/submit.css',)}
+        js = ('common/submit.js',)
+
     def __init__(self, request, *args, **kwargs):
         problem_instance = kwargs.pop('problem_instance', None)
         if problem_instance is None:
@@ -112,12 +119,18 @@ class SubmissionForm(forms.Form):
             # ALSO in mailsubmit.forms
             contest = request.contest
             assert contest is not None
-            problem_instance = ProblemInstance.objects \
-                    .filter(contest=contest)[0]
+            problem_instances = ProblemInstance.objects \
+                    .filter(contest=contest)
+            problem_instance = problem_instances[0]
+        else:
+            problem_instances = [problem_instance]
+            contest = None
 
-        controller = problem_instance.controller
+        # Default kind is selected based on
+        # the first problem_instance assigned to this form.
+        # This is an arbitrary choice.
         self.kind = kwargs.pop('kind',
-                controller.get_default_submission_kind(request,
+                               problem_instance.controller.get_default_submission_kind(request,
                                        problem_instance=problem_instance))
         problem_filter = kwargs.pop('problem_filter', None)
         self.request = request
@@ -132,9 +145,10 @@ class SubmissionForm(forms.Form):
         # init form with previously sent data
         forms.Form.__init__(self, *args, **kwargs)
 
-        # set available problems in form
+        # prepare problem instance selector
         pi_field = self.fields['problem_instance_id']
         pi_field.widget.attrs['class'] = 'input-xlarge'
+        self._set_field_show_always('problem_instance_id')
 
         if len(pi_choices) > 1:
             pi_field.choices = [('', '')] + pi_choices
@@ -143,8 +157,75 @@ class SubmissionForm(forms.Form):
 
         narrow_input_field(pi_field)
 
+        # if contest admin, add kind and 'as other user' field
+        if contest and is_contest_admin(request):
+            self.fields['user'] = UserSelectionField(
+                    label=_("User"),
+                    hints_url=reverse('contest_user_hints',
+                            kwargs={'contest_id': request.contest.id}),
+                    initial=request.user)
+            self._set_field_show_always('user')
+
+            def clean_user():
+                try:
+                    user = self.cleaned_data['user']
+                    if user == request.user:
+                        return user
+                    if not request.user.is_superuser:
+                        contest.controller.registration_controller() \
+                            .filter_participants(
+                                User.objects.filter(pk=user.pk)).get()
+                    return user
+                except User.DoesNotExist:
+                    raise forms.ValidationError(_(
+                            "User does not exist or "
+                            "you do not have enough privileges"))
+            self.clean_user = clean_user
+            self.fields['kind'] = forms.ChoiceField(choices=[
+                ('NORMAL', _("Normal")), ('IGNORED', _("Ignored"))],
+                initial=self.kind, label=_("Kind"))
+            self._set_field_show_always('kind')
+            narrow_input_fields([self.fields['kind'], self.fields['user']])
+
         # adding additional fields, etc
-        controller.adjust_submission_form(request, self, problem_instance)
+        for pi in problem_instances:
+            pi.controller.adjust_submission_form(request, self, pi)
+
+        self._set_default_fields_attributes()
+
+        # fix field order (put kind and user at the end)
+        self._move_field_to_end('user')
+        self._move_field_to_end('kind')
+
+    def _move_field_to_end(self, field_name):
+        if field_name in self.fields:
+            # delete field from fields and readdd it to put it at the end
+            tmp = self.fields[field_name]
+            del self.fields[field_name]
+            self.fields[field_name] = tmp
+
+    def set_custom_field_attributes(self, field_name, problem_instance):
+        """
+        Prepare custom field to be displayed only for a specific problems.
+        Still all custom fields need to have unique names
+        (best practice is to prefix them with `problem_instance.id`).
+        :param field_name: Name of custom field
+        :param problem_instance: Problem instance which they are assigned to
+        """
+        self.fields[field_name].widget.attrs['data-submit'] = \
+            str(problem_instance.id)
+
+    def _set_field_show_always(self, field_name):
+        self.fields[field_name].widget.attrs['data-submit'] = 'always'
+
+    def _set_default_fields_attributes(self):
+        for field_name in self.fields:
+            field = self.fields[field_name]
+            if 'data-submit' not in field.widget.attrs:
+                # If no attribute was set, set it to default.
+                # This is for backwards compatibility with contests that
+                # have only one submission form and don't need to bother.
+                field.widget.attrs['data-submit'] = 'default'
 
     def get_problem_instances(self):
         return submittable_problem_instances(self.request)
@@ -184,7 +265,7 @@ class SubmissionForm(forms.Form):
             raise ValidationError(str(getattr(decision, 'exc',
                                               _("Permission denied"))))
 
-        if cleaned_data['prog_lang'] and \
+        if cleaned_data.get('prog_lang') and \
                 cleaned_data['prog_lang'] not in \
                 pi.controller.get_allowed_languages():
             self._errors['prog_lang'] = \
