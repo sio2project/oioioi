@@ -35,7 +35,7 @@ USER oioioi
 WORKDIR /sio2/oioioi
 RUN easy_install --user distribute
 RUN pip install -r requirements.txt --user
-RUN pip install psycopg2 --user
+RUN pip install psycopg2-binary --user
 RUN pip install twisted --user
 
 ENV PATH $PATH:~/.local/bin/

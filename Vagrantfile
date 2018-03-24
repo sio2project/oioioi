@@ -98,7 +98,7 @@ Vagrant.configure("2") do |config|
     cd oioioi
     easy_install distribute
     pip install -r requirements.txt
-    pip install psycopg2
+    pip install psycopg2-binary
     cd ..
 
 

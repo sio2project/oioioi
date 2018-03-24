@@ -33,7 +33,7 @@ setup(
         "Django>=1.9,<1.10",  # when upgrading, upgrade also django-two-factor-auth!
         "pytz>=2013b",
         "sqlalchemy",
-        "BeautifulSoup",
+        "bs4",
         "PyYAML",
         "python-dateutil",
         # Earlier versions of django-nose are incompatible with Django 1.9

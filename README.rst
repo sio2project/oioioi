@@ -90,7 +90,7 @@ configuration`_ in *settings.py*.
 
 In case of using PostgreSQL, install Psycopg2::
 
-  pip install psycopg2
+  pip install psycopg2-binary
 
 Finally initialize the database::
 
