@@ -717,8 +717,8 @@ class SinolPackage(object):
 
         if os.path.isfile(outname):
             instance.output_file.save(outname_base, File(open(outname), 'rb'))
-
-        outs_to_make.append((_make_filename_in_job_dir(self.env,
+        else:
+            outs_to_make.append((_make_filename_in_job_dir(self.env,
                 'out/%s' % (outname_base)), instance))
 
         if group == '0' or 'ocen' in suffix:
@@ -779,6 +779,8 @@ class SinolPackage(object):
             job['upload_out'] = True
             job['in_file'] = django_to_filetracker_path(test.input_file)
             job['out_file'] = outname
+            if test.memory_limit:
+                job['exec_mem_limit'] = test.memory_limit
             jobs[test.name] = job
 
         jobs = run_sioworkers_jobs(jobs)
