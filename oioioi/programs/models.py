@@ -83,7 +83,7 @@ class OutputChecker(models.Model):
 class LibraryProblemData(models.Model):
     problem = models.OneToOneField(Problem)
     libname = models.CharField(max_length=30, verbose_name=_("libname"),
-            help_text=_("Filename library should be given during compilation"))
+            help_text=_("Filename that the library should be given during compilation"))
 
     class Meta(object):
         verbose_name = _("library problem data")

@@ -88,7 +88,7 @@ function subscribe(userId) {
        }
        unackMessages[userId][data.id] = data;
        eventEmitter.emit('message', userId, data);
-        debug(userId + ': recieved ' + data);
+        debug(userId + ': received ' + data);
     });
 
     workers[userId].on('close', function() {

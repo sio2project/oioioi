@@ -1769,7 +1769,7 @@ class TestReattachingProblems(TestCase):
         url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Choose contest to attach problem", response.content)
+        self.assertIn("Choose a contest to attach the problem to", response.content)
         self.assertEqual(response.content.count('<td><a'),
                          Contest.objects.count())
 

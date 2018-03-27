@@ -808,7 +808,7 @@ class SinolPackage(object):
             if str(group) not in scored_groups:
                 errormsg = _("Score for group '%(group_name)s' "
                              "found in config, "
-                             "but no such test group exists in scored groups."
+                             "but no such test group exists in scored groups. "
                              "You must either provide scores for all groups "
                              "or not provide them at all "
                              "(to have them assigned automatically). "

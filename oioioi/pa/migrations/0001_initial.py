@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('job', models.CharField(max_length=7, verbose_name='job or school kind', choices=[(b'PS', b'Szko\xc5\x82a podstawowa'), (b'MS', b'Gimnazjum'), (b'HS', b'Szko\xc5\x82a ponadgimnazjalna'), (b'OTH', b'Inne'), (b'AS', b'Szko\xc5\x82a wy\xc5\xbcsza - student'), (b'AD', b'Szko\xc5\x82a wy\xc5\xbcsza - doktorant'), (b'COM', b'Firma')])),
                 ('job_name', models.CharField(max_length=255, verbose_name='job or school name')),
                 ('t_shirt_size', models.CharField(max_length=7, verbose_name='t-shirt size', choices=[(b'S', b'S'), (b'M', b'M'), (b'L', b'L'), (b'XL', b'XL'), (b'XXL', b'XXL')])),
-                ('newsletter', models.BooleanField(default=False, help_text='I want to recieve the information about further editions of the contest.', verbose_name='newsletter')),
+                ('newsletter', models.BooleanField(default=False, help_text='I want to receive the information about further editions of the contest.', verbose_name='newsletter')),
                 ('terms_accepted', models.BooleanField(default=False, help_text='I declare that I have read the contest rules and the technical arrangements. I fully understand them and accept them unconditionally.', verbose_name='terms accepted')),
                 ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='pa_paregistration', to='participants.Participant')),
             ],

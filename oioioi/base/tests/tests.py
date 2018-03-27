@@ -991,14 +991,14 @@ class TestLoginChange(TestCase):
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
-            self.assertIn('contains not allowed characters', response.content)
+            self.assertIn('contains forbidden characters', response.content)
 
         for l in self.valid_logins:
             self.user.username = l
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
-            self.assertNotIn('contains not allowed characters',
+            self.assertNotIn('contains forbidden characters',
                     response.content)
 
     def test_can_change_login_from_invalid(self):

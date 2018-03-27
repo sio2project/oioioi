@@ -92,7 +92,7 @@ class CheckLoginMiddleware(object):
             return
         storage = messages.get_messages(request)
         check_login_message = \
-                _("Your login - %(login)s - contains not allowed characters. "
+                _("Your login - %(login)s - contains forbidden characters. "
                   "Please click <a href='%(link)s'>here</a> to change it. "
                   "It will take only a while.") \
                           % {'login': request.user.username,

@@ -9,12 +9,12 @@
 {% if left > 0 %}
     <div class="alert alert-info">
         <small>
-            {% blocktrans count left=left %}
+            {% blocktrans count left=left trimmed %}
                 One byte truncated.
             {% plural %}
                 Bytes truncated: {{ left }}.
             {% endblocktrans %}
-            {% blocktrans %}
+            {% blocktrans trimmed %}
                 You can download the entire file
                 <a href="{{ download_url }}">here</a>.
             {% endblocktrans %}

@@ -1,12 +1,12 @@
 {% extends "base-with-menu.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Confirm unregistration" %}{% endblock %}
+{% block title %}{% trans "Confirm deregistration" %}{% endblock %}
 
 {% block main-content %}
 <div class="well text-center">
-    <h1>{% trans "Confirm unregistration" %}</h1>
-    <p>{% trans "Are you sure to unregister from the current contest?" %}</p>
+    <h1>{% trans "Confirm deregistration" %}</h1>
+    <p>{% trans "Are you sure you want to deregister from the current contest?" %}</p>
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="post" value="yes" />

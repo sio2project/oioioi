@@ -20,8 +20,8 @@ class Command(BaseCommand):
     help = _("Updates the list of balloons displays of <contest_id> from the "
              "given CSV file <filename or url>, with the following columns: "
              "%(columns)s.\n\n"
-             "Given csv file should contain a header row with columns' names "
-             "(respectively %(columns)s) separeted by commas."
+             "Given CSV file should contain a header row with column names "
+             "(respectively %(columns)s) separated by commas."
              ) % {'columns': columns_str}
 
     requires_model_validation = True

@@ -57,14 +57,14 @@ class SchoolAdmin(admin.ModelAdmin):
 
     def disapprove(self, request, queryset):
         queryset.update(is_approved=False)
-    disapprove.short_description = _("Mark selected schools as disapproved")
+    disapprove.short_description = _("Mark selected schools as unapproved")
 
     def merge_action(self, request, queryset):
         approved = queryset.filter(is_approved=True)
         toMerge = queryset.filter(is_approved=False)
         if len(approved) != 1 or not toMerge:
-            messages.error(request, _("You shall select exactly one approved"
-                     " school and at least one not approved."))
+            messages.error(request, _("You must select exactly one approved"
+                     " and at least one unapproved school."))
             return None
         approved = approved[0]
 
@@ -87,8 +87,8 @@ class SchoolAdmin(admin.ModelAdmin):
                     model.objects.filter(**{field_name: s}) \
                             .update(**{field_name: approved})
             s.delete()
-    merge_action.short_description = _("Merge all selected, not approved"
-                                       " schools into approved one")
+    merge_action.short_description = _("Merge all selected, unapproved"
+                                       " schools into the approved one")
 
 admin.site.register(School, SchoolAdmin)
 admin.system_admin_menu_registry.register('schools',

@@ -53,7 +53,7 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
 contest_site.contest_register(ProblemBalloonsConfig,
         ProblemBalloonsConfigAdmin)
 contest_admin_menu_registry.register('problemballoonsconfig_admin',
-        _("Balloons colors"), lambda request:
+        _("Balloon colors"), lambda request:
         reverse('oioioiadmin:balloons_problemballoonsconfig_changelist'),
         order=60)
 
@@ -97,7 +97,7 @@ class BalloonsDisplayAdmin(admin.ModelAdmin):
 
 admin.site.register(BalloonsDisplay, BalloonsDisplayAdmin)
 system_admin_menu_registry.register('balloonsdisplay_admin',
-        _("Balloons displays"), lambda request:
+        _("Balloon displays"), lambda request:
         reverse('oioioiadmin:balloons_balloonsdisplay_changelist'),
         order=60)
 

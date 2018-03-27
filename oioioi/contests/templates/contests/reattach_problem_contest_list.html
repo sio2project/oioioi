@@ -5,7 +5,7 @@
 
 {% block main-content %}
 <h2>
-    {% trans "Choose contest to attach problem" %} {{ problem_instance }}:
+    {% blocktrans %}Choose a contest to attach the problem to {{ problem_instance }}: {% endblocktrans %}
 </h2>
 
 <div class="table-responsive row">
@@ -13,7 +13,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{% trans "Contest id" %}</th>
+                    <th>{% trans "Contest ID" %}</th>
                     <th>{% trans "Name" %}</th>
                 </tr>
             </thead>

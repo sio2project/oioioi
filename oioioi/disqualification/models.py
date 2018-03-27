@@ -26,7 +26,7 @@ class Disqualification(models.Model):
 
     def clean(self):
         if self.submission and self.submission.user != self.user:
-            raise ValidationError(_("The submision does not match the user."))
+            raise ValidationError(_("The submission does not match the user."))
 
     def save(self, *args, **kwargs):
         if self.submission:

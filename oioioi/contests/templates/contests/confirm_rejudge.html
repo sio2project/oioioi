@@ -11,8 +11,7 @@
     {% trans "Tests for this problem have changed, you should rejudge existing submissions." %}
 </p>
 <p>
-    {% trans "You are going to rejudge" %} {{ count }}
-    {% trans "submissions. It may take some time." %}
+    {% blocktrans %}You are going to rejudge {{ count }} submissions. It may take some time.{% endblocktrans %}
 </p>
 
 <p>{% trans "Are you sure?" %}</p>

@@ -18,10 +18,10 @@ class Command(BaseCommand):
     @property
     def help(self):
         return _("Creates user accounts from a CSV file <filename or url> "
-                 "with the following columns: %(columns)s.\n\n Given csv file "
-                 "should contain a header row with columns' names "
-                 "(respectively %(columns)s) separeted by commas. Following "
-                 "rows should contain users' data.") \
+                 "with the following columns: %(columns)s.\n\n Given CSV file "
+                 "should contain a header row with column names "
+                 "(respectively %(columns)s) separated by commas. Following "
+                 "rows should contain user data.") \
                 % {'columns': self.columns_str}
 
     requires_model_validation = True

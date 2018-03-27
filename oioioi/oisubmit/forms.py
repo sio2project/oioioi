@@ -24,7 +24,7 @@ class OISubmitSubmissionForm(SubmissionForm):
     def clean_magickey(self):
         data = self.cleaned_data['magickey']
         if data != settings.OISUBMIT_MAGICKEY:
-            raise ValidationError(_("Magickey is not valid."))
+            raise ValidationError(_("Magic key is not valid."))
 
         return data
 

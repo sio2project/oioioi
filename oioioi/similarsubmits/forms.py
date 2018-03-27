@@ -64,7 +64,7 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
 
                 if submission.user is None:
                     raise ValidationError(
-                        _("You can't say, that this guy cooperated with model"
+                        _("You can't say that this guy cooperated with model"
                           " solution author.... It's ridiculous! "
                           "In line: %(line)s") % dict(line=line))
                 if submission.user.username != match['username']:
