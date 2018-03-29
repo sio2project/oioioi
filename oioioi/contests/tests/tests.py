@@ -30,11 +30,11 @@ from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
         administered_contests, all_public_results_visible, \
         all_non_trial_public_results_visible
 from oioioi.contests.current_contest import ContestMode
-from oioioi.contests.tests import SubmitFileMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.models import Test
+from oioioi.programs.tests import SubmitFileMixin
 from oioioi.contests.tests import make_empty_contest_formset
 
 
@@ -406,15 +406,6 @@ class TestContestController(TestCase):
                 (datetime(2012, 1, 2, 2, 11, 0, tzinfo=utc), [r3, r2, r1])):
             self.assertEqual(contest.controller.order_rounds_by_focus(
                 FakeRequest(date, contest), rounds), expected_order)
-
-    def test_safe_exec_mode(self):
-        # CAUTION: 'vcpu' is default value with an important reason.
-        #          CHANGE ONLY IF YOU KNOW WHAT YOU ARE DOING.
-        #          If you do so, don't forget to update another controllers
-        #          which are using default value and have to use 'vcpu' mode
-        #          like OIContestController and TeacherContestController.
-        contest = Contest.objects.get()
-        self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
 
 
 class TestContestViews(TestCase):

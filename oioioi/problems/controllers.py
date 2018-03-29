@@ -118,18 +118,6 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         pass
 
-    def get_safe_exec_mode(self):
-        """Determines execution mode when `USE_UNSAFE_EXEC` is False.
-
-           Return 'vcpu' if you want to use oitimetool. Otherwise return 'cpu'.
-        """
-        return 'vcpu'
-
-    def get_allowed_languages(self):
-        """Determines which languages are allowed for submissions.
-        """
-        return ['C', 'C++', 'Pascal']
-
     def judge(self, submission, extra_args=None, is_rejudge=False):
         environ = create_environ()
         environ['extra_args'] = extra_args or {}

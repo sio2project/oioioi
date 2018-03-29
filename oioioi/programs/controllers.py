@@ -333,8 +333,6 @@ class ProgrammingProblemController(ProblemController):
             else:
                 raise ValidationError(_("Unrecognized file extension."))
 
-        problem_instance = cleaned_data['problem_instance']
-        controller = problem_instance.controller
         langs = get_allowed_languages_dict(problem_instance)
         if cleaned_data['prog_lang'] not in langs.keys():
             raise ValidationError(_("This language is not allowed for selected"
@@ -437,7 +435,7 @@ class ProgrammingProblemController(ProblemController):
                     " choosing file."
                     " <strong>Try drag-and-drop too!</strong>"
                 ) % (', '.join(get_allowed_languages_extensions(
-                        problem_instance))))
+                    problem_instance))))
         )
         form.fields['code'] = forms.CharField(required=False,
                 label=_("Code"),
@@ -473,6 +471,8 @@ class ProgrammingProblemController(ProblemController):
                 if 'prog_lang' not in request.POST:
                     form.fields['prog_lang'].initial = \
                             get_language_by_extension(problem_instance, ext)
+
+        form.media.add_js(['common/language_picker.js', ])
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
@@ -579,6 +579,17 @@ class ProgrammingProblemController(ProblemController):
 
         return None
 
+    def get_safe_exec_mode(self):
+        """Determines execution mode when `USE_UNSAFE_EXEC` is False.
+
+           Return 'vcpu' if you want to use oitimetool. Otherwise return 'cpu'.
+        """
+        return 'vcpu'
+
+    def get_allowed_languages(self):
+        """Determines which languages are allowed for submissions.
+        """
+        return ['C', 'C++', 'Pascal']
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
@@ -782,3 +793,15 @@ class ProgrammingContestController(ContestController):
 
         return super(ProgrammingContestController, self) \
                 .valid_kinds_for_submission(submission)
+
+    def get_safe_exec_mode(self):
+        """Determines execution mode when `USE_UNSAFE_EXEC` is False.
+
+           Return 'vcpu' if you want to use oitimetool. Otherwise return 'cpu'.
+        """
+        return 'vcpu'
+
+    def get_allowed_languages(self):
+        """Determines which languages are allowed for submissions.
+        """
+        return ['C', 'C++', 'Pascal']

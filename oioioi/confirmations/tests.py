@@ -7,9 +7,9 @@ from oioioi.base.tests import TestCase
 from oioioi.confirmations.utils import submission_receipt_proof, \
         verify_submission_receipt_proof, ProofCorrupted
 from oioioi.contests.models import Contest, ProblemInstance
-from oioioi.contests.tests import SubmitFileMixin
 from oioioi.participants.models import Participant
 from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.tests import SubmitFileMixin
 
 
 class TestMetadataProving(TestCase):

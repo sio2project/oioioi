@@ -13,10 +13,10 @@ from oioioi.base.tests import (
     TestCase, check_not_accessible, check_ajax_not_accessible, fake_time)
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.models import Contest, ProblemInstance, Submission
-from oioioi.contests.tests import SubmitFileMixin
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.storage import FiletrackerStorage
+from oioioi.programs.tests import SubmitFileMixin
 from oioioi.testrun import handlers
 from oioioi.testrun.models import (
     TestRunConfig,

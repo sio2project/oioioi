@@ -19,8 +19,7 @@ from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.base.tests import check_not_accessible, fake_time
 from oioioi.contests.models import Submission, ProblemInstance, Contest, Round
-from oioioi.contests.tests import PrivateRegistrationController, \
-        SubmitFileMixin
+from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.programs.models import Test, ModelSolution, ProgramSubmission, \
         TestReport, ReportActionsConfig
 from oioioi.programs.controllers import ProgrammingContestController
@@ -44,6 +43,72 @@ def extract_code(show_response):
     show_response.content = strip_tags(
         show_response.content[preStart:preEnd]
     )
+
+
+class SubmitFileMixin(SubmitMixin):
+    def submit_file(self,
+                    contest,
+                    problem_instance,
+                    file_size=1024,
+                    file_name='submission.cpp',
+                    kind='NORMAL',
+                    user=None):
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+
+        file = ContentFile('a' * file_size, name=file_name)
+        post_data = {
+            'problem_instance_id': problem_instance.id,
+            'file': file,
+        }
+
+        if user:
+            post_data.update({
+                'kind': kind,
+                'user': user,
+            })
+        return self.client.post(url, post_data)
+
+    def submit_code(self, contest, problem_instance, code='', prog_lang='C',
+            send_file=False, kind='NORMAL', user=None):
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        file = None
+        if send_file:
+            file = ContentFile('a' * 1024, name='a.c')
+        post_data = {
+                'problem_instance_id': problem_instance.id,
+                'file': file,
+                'code': code,
+                'prog_lang': prog_lang,
+        }
+        if user:
+            post_data.update({
+                'kind': kind,
+                'user': user,
+            })
+        return self.client.post(url, post_data)
+
+
+class TestProgrammingProblemController(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
+
+    def test_safe_exec_mode(self):
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), 'vcpu')
+
+
+class TestProgrammingContestController(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
+
+    def test_safe_exec_mode(self):
+        # CAUTION: 'vcpu' is default value with an important reason.
+        #          CHANGE ONLY IF YOU KNOW WHAT YOU ARE DOING.
+        #          If you do so, don't forget to update another controllers
+        #          which are using default value and have to use 'vcpu' mode
+        #          like OIContestController and TeacherContestController.
+        contest = Contest.objects.get()
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
 
 
 class TestProgramsViews(TestCase, TestStreamingMixin):

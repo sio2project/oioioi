@@ -2,10 +2,10 @@ from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import ProblemInstance, Contest
-from oioioi.contests.tests import SubmitFileMixin
+from oioioi.contests.tests import SubmitMixin
 
 
-class SubmitQuizMixin(object):
+class SubmitQuizMixin(SubmitMixin):
     def submit_quiz(self, contest, problem_instance, answers):
         """
         Submits a quiz with given answer
@@ -31,8 +31,7 @@ class SubmitQuizMixin(object):
         return self.client.post(url, post_data)
 
 
-# SubmitFileMixin is for _assertSubmitted
-class TestSubmission(TestCase, SubmitQuizMixin, SubmitFileMixin):
+class TestSubmission(TestCase, SubmitQuizMixin):
     fixtures = ['test_users', 'test_basic_contest', 'test_quiz_problem',
                 'test_quiz_problem_second', 'test_problem_instance']
 

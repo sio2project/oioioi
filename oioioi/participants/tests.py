@@ -17,7 +17,6 @@ from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
 from oioioi.contests.models import Contest, Round, ProblemInstance, \
     ContestPermission
-from oioioi.contests.tests import SubmitFileMixin
 from oioioi.contests.current_contest import ContestMode
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant, TestRegistration, \
@@ -26,6 +25,7 @@ from oioioi.participants.management.commands import import_participants, \
         import_onsite_participants
 from oioioi.participants.controllers import OnsiteContestControllerMixin
 from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.programs.tests import SubmitFileMixin
 from oioioi.participants.models import OnsiteRegistration
 from oioioi.oi.controllers import OIContestController, OIRegistrationController
 from oioioi.test_settings import MIDDLEWARE_CLASSES
