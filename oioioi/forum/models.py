@@ -1,14 +1,15 @@
 import datetime
-from django.db import models
-from django.db.models.signals import post_save, post_delete
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db import models
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.contests.models import Contest
 from oioioi.contests.date_registration import date_registry
+from oioioi.contests.models import Contest
 
 
 @date_registry.register('lock_date',

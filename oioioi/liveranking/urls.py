@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.liveranking import views
 
-
 contest_patterns = [
     url(r'^liveranking/(?P<round_id>\d+)/$', views.liveranking_auto_view,
         name='liveranking_auto'),

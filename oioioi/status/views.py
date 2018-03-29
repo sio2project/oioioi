@@ -1,5 +1,5 @@
-from oioioi.status.utils import get_status
 from oioioi.base.utils import jsonify
+from oioioi.status.utils import get_status
 
 
 @jsonify

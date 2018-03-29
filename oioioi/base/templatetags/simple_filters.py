@@ -1,9 +1,9 @@
 import json
 
 from django import template
-from django.forms import CheckboxInput, RadioSelect, CheckboxSelectMultiple
-from django.utils.safestring import mark_safe
+from django.forms import CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.utils.html import escapejs
+from django.utils.safestring import mark_safe
 
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore

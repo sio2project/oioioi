@@ -1,27 +1,27 @@
 # pylint: disable=undefined-loop-variable
-import itertools
 import datetime
-from operator import attrgetter, itemgetter
+import itertools
 from collections import defaultdict
+from operator import attrgetter, itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
-from django.template.loader import render_to_string
+from django.contrib.auth.models import AnonymousUser, User
 from django.template import RequestContext
-from django.contrib.auth.models import User, AnonymousUser
+from django.template.loader import render_to_string
 from django.utils import timezone
-from django.utils.translation import ugettext_noop, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_noop
 
-from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.rankings.controllers import DefaultRankingController, \
-        CONTEST_RANKING_KEY
-from oioioi.contests.models import SubmissionReport, Submission, \
-        ProblemInstance, UserResultForProblem
-from oioioi.acm.score import BinaryScore, format_time, ACMScore
+from oioioi.acm.score import ACMScore, BinaryScore, format_time
+from oioioi.contests.models import (ProblemInstance, Submission,
+                                    SubmissionReport, UserResultForProblem)
 from oioioi.contests.utils import rounds_times
-from oioioi.participants.controllers import ParticipantsController, \
-        OpenParticipantsController
+from oioioi.participants.controllers import (OpenParticipantsController,
+                                             ParticipantsController)
 from oioioi.participants.utils import is_participant
-
+from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.rankings.controllers import (CONTEST_RANKING_KEY,
+                                         DefaultRankingController)
 
 IGNORED_STATUSES = ['CE', 'SE', '?']
 

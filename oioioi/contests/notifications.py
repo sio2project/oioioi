@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory

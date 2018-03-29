@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
-from itertools import groupby
-from operator import itemgetter
 from collections import defaultdict
+from itertools import groupby  # pylint: disable=E0611
+from operator import itemgetter  # pylint: disable=E0611
 
-from nose.tools import nottest
-from django.utils.translation import ugettext as _
-from django.db.models import Count
 from django.core.urlresolvers import reverse
+from django.db.models import Count
+from django.utils.translation import ugettext as _
+from nose.tools import nottest
 
+from oioioi.contests.models import (ScoreReport, Submission,
+                                    UserResultForContest, UserResultForProblem)
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
-from oioioi.contests.models import Submission, \
-        UserResultForProblem, UserResultForContest, ScoreReport
 from oioioi.programs.models import ProgramSubmission, TestReport
 
 

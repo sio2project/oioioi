@@ -1,13 +1,15 @@
-from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
-from django.db import transaction, DatabaseError
-from oioioi.contests.models import Contest
-from oioioi.participants.models import Participant
-from oioioi.participants.admin import ParticipantAdmin
 import os
 import urllib2
 from types import NoneType
+
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
+from django.db import DatabaseError, transaction
+from django.utils.translation import ugettext as _
+
+from oioioi.contests.models import Contest
+from oioioi.participants.admin import ParticipantAdmin
+from oioioi.participants.models import Participant
 
 
 class Command(BaseCommand):

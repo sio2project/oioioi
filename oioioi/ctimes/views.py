@@ -1,10 +1,10 @@
-from datetime import timedelta
 import time
+from datetime import timedelta  # pylint: disable=E0611
 
 from django.utils import timezone
 
+from oioioi.base.utils import allow_cross_origin, jsonify
 from oioioi.contests.models import Round
-from oioioi.base.utils import jsonify, allow_cross_origin
 
 
 @allow_cross_origin

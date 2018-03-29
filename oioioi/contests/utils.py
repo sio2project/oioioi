@@ -1,12 +1,14 @@
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import get_object_or_404
-from django.http import HttpRequest
-from oioioi.base.permissions import make_request_condition
-from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        Submission, RoundTimeExtension
-from oioioi.base.utils import request_cached
-from datetime import timedelta
 from collections import defaultdict
+from datetime import timedelta  # pylint: disable=E0611
+
+from django.core.exceptions import PermissionDenied
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
+
+from oioioi.base.permissions import make_request_condition
+from oioioi.base.utils import request_cached
+from oioioi.contests.models import (Contest, ProblemInstance, Round,
+                                    RoundTimeExtension, Submission)
 
 
 class RoundTimes(object):

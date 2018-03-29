@@ -3,8 +3,7 @@ import datetime
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase
-from oioioi.base.tests import check_not_accessible
+from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest, Round
 from oioioi.timeline.views import _get_date_id

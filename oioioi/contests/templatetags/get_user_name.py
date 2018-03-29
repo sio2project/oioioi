@@ -3,8 +3,7 @@ from django.template import Node, TemplateSyntaxError, Variable
 from django.template.loader import render_to_string
 
 from oioioi.base.utils import get_user_display_name
-from oioioi.contests.utils import is_contest_admin, can_see_personal_data
-
+from oioioi.contests.utils import can_see_personal_data, is_contest_admin
 
 register = template.Library()
 

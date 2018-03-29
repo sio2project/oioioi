@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
-from django.test import RequestFactory
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.test import RequestFactory
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
-from oioioi.contests.models import Contest
-from oioioi.statistics.plotfunctions import histogram, \
-                points_to_source_length_problem, test_scores
-from oioioi.contests.models import ProblemInstance
-from oioioi.statistics.controllers import statistics_categories, \
-                                          statistics_plot_kinds
+from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.statistics.controllers import (statistics_categories,
+                                           statistics_plot_kinds)
 from oioioi.statistics.models import StatisticsConfig
+from oioioi.statistics.plotfunctions import (histogram,
+                                             points_to_source_length_problem,
+                                             test_scores)
 
 
 class TestStatisticsPlotFunctions(TestCase):

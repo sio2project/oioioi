@@ -1,8 +1,8 @@
 from django.template.loader import render_to_string
 from django.utils import timezone
 
-from oioioi.globalmessage.models import GlobalMessage
 from oioioi.base.utils import request_cached
+from oioioi.globalmessage.models import GlobalMessage
 
 
 @request_cached

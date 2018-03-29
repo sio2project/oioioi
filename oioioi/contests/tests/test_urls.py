@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import include, patterns, url
 
 from oioioi import urls
 from oioioi.contests.urls import make_patterns

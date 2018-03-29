@@ -8,7 +8,6 @@ import time
 from optparse import make_option
 
 from django.core.management.base import NoArgsCommand
-
 from django_extensions.management.shells import import_objects
 
 

@@ -1,4 +1,5 @@
 import json
+
 from django.core.urlresolvers import reverse_lazy
 
 from oioioi.base.tests import TestCase

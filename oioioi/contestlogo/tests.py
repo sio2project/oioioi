@@ -1,15 +1,15 @@
-from django.utils.timezone import timedelta
+import calendar
+
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
 from django.utils.http import http_date
+from django.utils.timezone import timedelta
 
 from oioioi.base.tests import TestCase
+from oioioi.contestlogo.models import ContestIcon, ContestLogo
 from oioioi.contests.models import Contest
-from oioioi.contestlogo.models import ContestLogo, ContestIcon
 from oioioi.programs.controllers import ProgrammingContestController
-
-import calendar
 
 
 class ContestControllerWithoutDefaults(ProgrammingContestController):

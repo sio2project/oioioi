@@ -2,16 +2,16 @@ from collections import OrderedDict
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, \
-    PasswordResetForm
+from django.contrib.auth.forms import (PasswordResetForm, UserChangeForm,
+                                       UserCreationForm)
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 
-from oioioi.base.utils.validators import ValidationError
-from oioioi.base.utils.user import USERNAME_REGEX
 from oioioi.base.preferences import PreferencesSaved
+from oioioi.base.utils.user import USERNAME_REGEX
+from oioioi.base.utils.validators import ValidationError
 
 
 def adjust_username_field(form):

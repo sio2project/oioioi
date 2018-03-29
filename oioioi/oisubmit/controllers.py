@@ -1,5 +1,6 @@
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
+
 from oioioi.contests.utils import is_contest_admin
 from oioioi.programs.controllers import ProgrammingContestController
 

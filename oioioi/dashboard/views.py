@@ -1,29 +1,29 @@
 import itertools
 
 from django.conf import settings
-from django.template.response import TemplateResponse
-from django.template import RequestContext
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.template.loader import render_to_string
 from django.shortcuts import redirect
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
-from oioioi.contests.models import Submission
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-        has_any_submittable_problem, has_any_visible_problem_instance, \
-        is_contest_admin
+from oioioi.contests.models import Submission
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   has_any_submittable_problem,
+                                   has_any_visible_problem_instance,
+                                   is_contest_admin)
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
-from oioioi.dashboard.menu import top_links_registry
-from oioioi.dashboard.registry import dashboard_registry, \
-        dashboard_headers_registry
-from oioioi.dashboard.models import DashboardMessage
 from oioioi.dashboard.forms import DashboardMessageForm
+from oioioi.dashboard.menu import top_links_registry
+from oioioi.dashboard.models import DashboardMessage
+from oioioi.dashboard.registry import (dashboard_headers_registry,
+                                       dashboard_registry)
+from oioioi.questions.views import messages_template_context, visible_messages
 from oioioi.rankings.views import has_any_ranking_visible
-from oioioi.questions.views import messages_template_context, \
-        visible_messages
 
 top_links_registry.register('problems_list', _("Problems"),
         lambda request: reverse('problems_list', kwargs={'contest_id':

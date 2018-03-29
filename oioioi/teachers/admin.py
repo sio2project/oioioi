@@ -1,17 +1,18 @@
-from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
+from functools import partial
+
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 from django.forms.models import modelform_factory
+from django.shortcuts import redirect
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
 from oioioi.teachers.forms import TeacherContestForm
 from oioioi.teachers.menu import teacher_menu_registry
-from oioioi.teachers.models import Teacher, ContestTeacher, \
-        RegistrationConfig
-from functools import partial
+from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 
 class TeacherAdmin(admin.ModelAdmin):

@@ -5,8 +5,8 @@ from optparse import make_option
 from django.core.management.base import BaseCommand, CommandError
 
 from oioioi.contests.models import Contest, Round
-from oioioi.exportszu.utils import SubmissionsWithUserDataCollector, \
-    build_submissions_archive
+from oioioi.exportszu.utils import (SubmissionsWithUserDataCollector,
+                                    build_submissions_archive)
 
 
 class Command(BaseCommand):

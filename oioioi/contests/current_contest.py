@@ -1,12 +1,11 @@
+import copy
 import re
 import threading
-import copy
 from enum import Enum
 
 from django.core import urlresolvers
 from django.core.urlresolvers import NoReverseMatch
 from django.utils.functional import lazy
-
 
 ContestMode = Enum('ContestMode', 'neutral contest_if_possible contest_only')
 

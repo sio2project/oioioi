@@ -1,6 +1,7 @@
 from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.contests.forms import SimpleContestForm
 from oioioi.teachers.models import Teacher
 

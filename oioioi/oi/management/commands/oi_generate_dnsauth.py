@@ -1,14 +1,14 @@
 import re
 
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
 from django.db import transaction
+from django.utils.translation import ugettext as _
 
 from oioioi.contests.models import Contest
 from oioioi.ipdnsauth.models import DnsToUser
 from oioioi.ipdnsauth.utils import username_to_hostname
-from oioioi.participants.models import Participant
 from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
+from oioioi.participants.models import Participant
 
 
 def username_to_dns_name(username):

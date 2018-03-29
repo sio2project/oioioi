@@ -2,17 +2,20 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumRegistry
 from oioioi.contests.controllers import ContestController
-from oioioi.contests.utils import visible_problem_instances, rounds_times, \
-        is_contest_admin, is_contest_observer
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import (is_contest_admin, is_contest_observer,
+                                   rounds_times, visible_problem_instances)
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.statistics.plottypes import TablePlot, \
-        ColumnStaticHighchartsPlot, PointsToSourceLengthProblemPlot, \
-        BarPercentStaticHighchartsPlot
-from oioioi.statistics.plotfunctions import points_histogram_contest, \
-        submissions_histogram_contest, points_histogram_problem, \
-        points_to_source_length_problem, test_scores
 from oioioi.statistics.models import StatisticsConfig
+from oioioi.statistics.plotfunctions import (points_histogram_contest,
+                                             points_histogram_problem,
+                                             points_to_source_length_problem,
+                                             submissions_histogram_contest,
+                                             test_scores)
+from oioioi.statistics.plottypes import (BarPercentStaticHighchartsPlot,
+                                         ColumnStaticHighchartsPlot,
+                                         PointsToSourceLengthProblemPlot,
+                                         TablePlot)
 
 statistics_categories = EnumRegistry()
 statistics_categories.register('CONTEST', (_("Contest"), 'c'))

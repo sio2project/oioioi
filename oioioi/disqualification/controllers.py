@@ -1,16 +1,16 @@
-from django.template.loader import render_to_string
-from django.utils.safestring import mark_safe
 from django.contrib.auth.models import User
 from django.template.context import RequestContext
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.contests.controllers import (ContestController,
+                                         submission_template_context)
+from oioioi.contests.models import Submission
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.disqualification.models import Disqualification
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.contests.controllers import submission_template_context, \
-    ContestController
 from oioioi.rankings.controllers import DefaultRankingController
-from oioioi.contests.models import Submission
 
 
 class DisqualificationContestControllerMixin(object):

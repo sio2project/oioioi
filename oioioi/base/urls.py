@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 
 from oioioi.base import admin, views
 from oioioi.base.main_page import main_page_view

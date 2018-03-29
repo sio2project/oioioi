@@ -1,18 +1,17 @@
-from optparse import make_option
 import datetime
-import time
+import logging
 import SocketServer
 import threading
-from dnslib import DNSRecord, DNSHeader, QTYPE, PTR, RR, A
-import logging
+import time
+from optparse import make_option
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
+from dnslib import PTR, QTYPE, RR, A, DNSHeader, DNSRecord
 
 from oioioi.ipdnsauth.models import IpToUser
 from oioioi.ipdnsauth.utils import username_to_hostname
-
 
 logger = logging.getLogger(__name__)
 

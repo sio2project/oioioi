@@ -1,7 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.models import Contest
+
 from oioioi.contests.date_registration import date_registry
+from oioioi.contests.models import Contest
 
 
 @date_registry.register('visibility_date',

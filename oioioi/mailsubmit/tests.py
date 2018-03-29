@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
@@ -6,8 +6,8 @@ from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
-from oioioi.contests.models import Contest, Round, ProblemInstance, Submission
-from oioioi.mailsubmit.models import MailSubmissionConfig, MailSubmission
+from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.mailsubmit.models import MailSubmission, MailSubmissionConfig
 from oioioi.mailsubmit.utils import mail_submission_hashes
 from oioioi.participants.models import Participant
 from oioioi.problems.models import Problem

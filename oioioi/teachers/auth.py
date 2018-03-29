@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.models import Contest
 
-from oioioi.teachers.models import Teacher, ContestTeacher
+from oioioi.contests.models import Contest
+from oioioi.teachers.models import ContestTeacher, Teacher
 
 
 class TeacherAuthBackend(object):

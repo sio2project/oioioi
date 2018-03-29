@@ -1,8 +1,9 @@
 from django import forms
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from oioioi.participants.models import Participant, OpenRegistration, Region
+
 from oioioi.contests.models import Round
+from oioioi.participants.models import OpenRegistration, Participant, Region
 
 
 class ParticipantForm(forms.ModelForm):

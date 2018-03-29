@@ -1,5 +1,5 @@
+from datetime import datetime  # pylint: disable=E0611
 from StringIO import StringIO
-from datetime import datetime
 
 import slate
 from django.contrib.auth.models import User

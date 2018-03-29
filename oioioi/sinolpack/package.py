@@ -1,33 +1,32 @@
 import glob
 import logging
+import os
 import re
 import shutil
 import tempfile
-import os
 import zipfile
-import chardet
 
+import chardet
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.files import File
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
-from django.core.files import File
-from django.contrib.auth.models import User
 
-from oioioi.base.utils import naturalsort_key, generate_key
+from oioioi.base.utils import generate_key, naturalsort_key
 from oioioi.base.utils.archive import Archive
-from oioioi.base.utils.execute import execute, ExecuteError
-
-from oioioi.problems.models import Problem, ProblemAttachment, \
-    ProblemPackage, ProblemSite, ProblemStatement
+from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.filetracker.client import get_client
+from oioioi.filetracker.utils import (django_to_filetracker_path,
+                                      filetracker_to_django_file, stream_file)
+from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
+                                    ProblemSite, ProblemStatement)
 from oioioi.problems.package import ProblemPackageBackend, ProblemPackageError
-from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
-    LibraryProblemData
+from oioioi.programs.models import (LibraryProblemData, ModelSolution,
+                                    OutputChecker, Test)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
 from oioioi.sinolpack.utils import add_extra_files
-from oioioi.filetracker.utils import stream_file, django_to_filetracker_path, \
-    filetracker_to_django_file
-from oioioi.filetracker.client import get_client
 from oioioi.sioworkers.jobs import run_sioworkers_job, run_sioworkers_jobs
 
 logger = logging.getLogger(__name__)

@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.forum.models import Category, Post, Thread
-from oioioi.base.utils import request_cached
+
 from oioioi.base.permissions import make_condition, make_request_condition
+from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
+from oioioi.forum.models import Category, Post, Thread
 
 
 @make_request_condition

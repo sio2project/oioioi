@@ -1,11 +1,11 @@
 from celery.exceptions import Ignore
-from oioioi.base.tests import TestCase
 from django.core.urlresolvers import reverse
 
-from oioioi.contests.models import ProblemInstance, Contest, Submission
+from oioioi.base.tests import TestCase
+from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.evalmgr.tasks import create_environ
-from oioioi.suspendjudge.handlers import check_problem_instance_state
 from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.suspendjudge.handlers import check_problem_instance_state
 
 
 class TestSuspendjudgeSuper(TestCase):

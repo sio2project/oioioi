@@ -3,8 +3,8 @@ import hmac
 
 from django.conf import settings
 
-from oioioi.base.utils import request_cached
 from oioioi.base.permissions import make_request_condition
+from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance
 from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
 from oioioi.mailsubmit.models import MailSubmissionConfig

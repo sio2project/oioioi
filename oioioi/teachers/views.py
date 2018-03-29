@@ -1,28 +1,28 @@
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.mail import EmailMessage
+from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.core.mail import EmailMessage
-from django.core.exceptions import SuspiciousOperation, PermissionDenied
-from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.contrib import messages
-from django.http import Http404
 from django.views.decorators.http import require_POST
 
 from oioioi.base.menu import account_menu_registry
+from oioioi.base.permissions import (enforce_condition, is_superuser,
+                                     make_request_condition, not_anonymous)
 from oioioi.base.utils import generate_key
 from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Contest
+from oioioi.contests.utils import contest_exists, is_contest_admin
 from oioioi.participants.models import Participant
-from oioioi.teachers.models import RegistrationConfig, ContestTeacher, Teacher
 from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
-from oioioi.base.permissions import enforce_condition, not_anonymous, \
-    is_superuser, make_request_condition
-from oioioi.contests.utils import is_contest_admin, contest_exists
+from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 # This import seems unused, but in fact it's needed
 # The code from widgets.py registers the widgets

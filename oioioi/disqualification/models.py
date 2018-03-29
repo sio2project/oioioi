@@ -3,8 +3,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.utils.validators import validate_whitespaces
-from oioioi.contests.models import Submission, Contest
+from oioioi.contests.models import Contest, Submission
 
 
 class Disqualification(models.Model):

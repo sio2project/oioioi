@@ -2,31 +2,31 @@
 
 import os.path
 import urllib
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
-from django.contrib.auth.models import User, Permission
+from django import forms
+from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.http import HttpResponse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
-from django.core.files.base import ContentFile
 from django.utils.timezone import utc
-from django.http import HttpResponse
-from django import forms
 from nose.tools import nottest
 
-from oioioi.base.tests import TestCase
-from oioioi.base.tests import check_not_accessible
-from oioioi.contests.models import Contest, ProblemInstance, Round
+from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.contests.current_contest import ContestMode
+from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
-from oioioi.problems.problem_sources import UploadedPackageSource
+from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
+                                    ProblemSite, ProblemStatement,
+                                    make_problem_filename)
 from oioioi.problems.package import ProblemPackageBackend
-from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage, \
-        ProblemAttachment, make_problem_filename, ProblemSite
 from oioioi.problems.problem_site import problem_site_tab
+from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.programs.controllers import ProgrammingContestController
 
 

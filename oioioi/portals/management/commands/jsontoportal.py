@@ -1,10 +1,10 @@
 import json
 
-from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand, CommandError
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.portals.models import Node, Portal
 from oioioi.problems.models import Tag

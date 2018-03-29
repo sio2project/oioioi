@@ -1,22 +1,24 @@
-from optparse import make_option
 import time
 import traceback
+from optparse import make_option
+
+from django.core.mail import mail_admins
+from django.core.management.base import (BaseCommand, CommandError,
+                                         NoArgsCommand)
+from django.db import transaction
+from django.utils import timezone
+
+from oioioi.ipauthsync.models import (IpAuthSyncConfig, IpAuthSyncedUser,
+                                      IpAuthSyncRegionMessages)
+from oioioi.ipdnsauth.models import IpToUser
+from oioioi.participants.models import OnsiteRegistration
 
 try:
     import MySQLdb
 except ImportError:
     MySQLdb = None
 
-from django.core.management.base import BaseCommand, NoArgsCommand, \
-        CommandError
-from django.core.mail import mail_admins
-from django.utils import timezone
-from django.db import transaction
 
-from oioioi.participants.models import OnsiteRegistration
-from oioioi.ipdnsauth.models import IpToUser
-from oioioi.ipauthsync.models import IpAuthSyncConfig, \
-        IpAuthSyncRegionMessages, IpAuthSyncedUser
 
 
 class Command(NoArgsCommand):

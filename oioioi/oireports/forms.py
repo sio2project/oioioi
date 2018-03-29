@@ -1,12 +1,14 @@
-from collections import defaultdict
 import re
+from collections import defaultdict
+
 from django import forms
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils.user_selection import UserSelectionField, \
-    UserSelectionWidget
+
+from oioioi.base.utils.user_selection import (UserSelectionField,
+                                              UserSelectionWidget)
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import rounds_times
 from oioioi.participants.models import Region

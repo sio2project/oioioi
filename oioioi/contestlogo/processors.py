@@ -1,9 +1,9 @@
+from django.core.urlresolvers import reverse
 from django.template import Context, loader
 from django.utils.functional import lazy
-from django.core.urlresolvers import reverse
 
 from oioioi.base.utils import memoized
-from oioioi.contestlogo.models import ContestLogo, ContestIcon
+from oioioi.contestlogo.models import ContestIcon, ContestLogo
 from oioioi.contests.utils import is_contest_admin
 
 

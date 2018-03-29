@@ -1,11 +1,11 @@
 import logging
 import time
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
-from django.db.models import Q
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.core.management.base import BaseCommand
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.utils.timezone import utc

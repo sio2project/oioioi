@@ -1,7 +1,7 @@
 from oioioi.base.permissions import make_request_condition
 from oioioi.contests.utils import submittable_problem_instances
-from oioioi.testrun.models import TestRunConfig
 from oioioi.problems.models import Problem
+from oioioi.testrun.models import TestRunConfig
 
 
 def has_testrun(problem):

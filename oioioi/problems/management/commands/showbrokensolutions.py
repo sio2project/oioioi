@@ -1,8 +1,9 @@
 from django.core.management.base import BaseCommand
-from django.utils.translation import ugettext as _
 from django.db.models import F
-from oioioi.programs.models import ModelProgramSubmission
+from django.utils.translation import ugettext as _
+
 from oioioi.problems.models import Problem
+from oioioi.programs.models import ModelProgramSubmission
 
 
 class Command(BaseCommand):

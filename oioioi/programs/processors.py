@@ -2,9 +2,9 @@ from django.core.context_processors import csrf
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   has_any_submittable_problem)
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-        has_any_submittable_problem
 
 
 def drag_and_drop_processor(request):

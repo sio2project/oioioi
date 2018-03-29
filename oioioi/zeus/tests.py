@@ -4,19 +4,19 @@ import urllib
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase, TestsUtilsMixin
-from oioioi.evalmgr.models import SavedEnviron
 from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.evalmgr.models import SavedEnviron
 from oioioi.problems.models import Problem
 from oioioi.programs.models import ProgramSubmission
 from oioioi.sinolpack.tests import get_test_filename
-from oioioi.zeus.backends import _json_base64_encode, _json_base64_decode, \
-                                 Base64String, ZeusServer
-from oioioi.zeus.controllers import ZeusProblemController
-from oioioi.zeus.models import ZeusProblemData
-from oioioi.zeus.utils import zeus_url_signature, verify_zeus_url_signature
 # Import qualified to prevent nose from thinking that
 # '(^|_)test*' functions are tests
 from oioioi.zeus import handlers
+from oioioi.zeus.backends import (Base64String, ZeusServer,
+                                  _json_base64_decode, _json_base64_encode)
+from oioioi.zeus.controllers import ZeusProblemController
+from oioioi.zeus.models import ZeusProblemData
+from oioioi.zeus.utils import verify_zeus_url_signature, zeus_url_signature
 
 
 class ZeusDummyServer(ZeusServer):

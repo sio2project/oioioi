@@ -1,21 +1,21 @@
 # ~*~ coding: utf-8 ~*~
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta  # pylint: disable=E0611
 
-from django.test.utils import override_settings
-from django.utils.timezone import utc
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
+from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
-from oioioi.contests.handlers import update_user_results
-from oioioi.contests.models import Contest, Round, ProblemInstance
 from oioioi.contests.current_contest import ContestMode
+from oioioi.contests.handlers import update_user_results
+from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.evalmgr.tasks import create_environ
-from oioioi.participants.models import Participant
-from oioioi.oi.models import School, OIRegistration
 from oioioi.oi.management.commands import import_schools
+from oioioi.oi.models import OIRegistration, School
+from oioioi.participants.models import Participant
 from oioioi.programs.tests import SubmitFileMixin
 
 

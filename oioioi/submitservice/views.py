@@ -4,20 +4,19 @@ import string
 
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.template.response import TemplateResponse
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 from django.views.decorators.http import require_POST
 
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
 from oioioi.contests.forms import SubmissionForm
-from oioioi.submitservice.models import SubmitServiceToken
-from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.contests.utils import contest_exists, can_enter_contest, \
-        visible_problem_instances
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   visible_problem_instances)
 from oioioi.programs.problem_instance_utils import \
-        get_allowed_languages_extensions
+    get_allowed_languages_extensions
+from oioioi.submitservice.models import SubmitServiceToken
 
 
 class SubmitServiceException(Exception):

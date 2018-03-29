@@ -1,12 +1,12 @@
-import string
 import random
-from django.utils.functional import lazy
-from oioioi.contests.utils import can_enter_contest
+import string
+
 from django.conf import settings
+from django.contrib.sessions.models import Session
 from django.template.loader import render_to_string
+from django.utils.functional import lazy
 
 from oioioi.notifications.models import NotificationsSession
-from django.contrib.sessions.models import Session
 
 
 def generate_token():

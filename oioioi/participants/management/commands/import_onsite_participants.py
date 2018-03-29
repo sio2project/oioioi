@@ -1,14 +1,16 @@
-from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
-from django.db import transaction, DatabaseError
-from oioioi.contests.models import Contest
-from oioioi.participants.models import Participant, Region, OnsiteRegistration
-from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
-import os
 import csv
+import os
 import urllib2
+
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
+from django.db import DatabaseError, transaction
+from django.utils.translation import ugettext as _
+
+from oioioi.contests.models import Contest
+from oioioi.participants.admin import OnsiteRegistrationParticipantAdmin
+from oioioi.participants.models import OnsiteRegistration, Participant, Region
 
 
 class Command(BaseCommand):

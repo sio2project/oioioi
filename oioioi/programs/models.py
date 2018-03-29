@@ -1,20 +1,22 @@
-from nose.tools import nottest
+import os.path
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.utils.translation import ugettext_lazy as _
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.db.models.signals import pre_save, post_save
-from oioioi.base.fields import EnumRegistry, EnumField
-from oioioi.problems.models import Problem, make_problem_filename
-from oioioi.filetracker.fields import FileField
-from oioioi.contests.models import Submission, SubmissionReport, \
-        submission_statuses, submission_report_kinds, ProblemInstance, \
-        submission_kinds
-from oioioi.contests.fields import ScoreField
-from oioioi.programs.problem_instance_utils import get_language_by_extension
+from django.utils.translation import ugettext_lazy as _
+from nose.tools import nottest
 
-import os.path
+from oioioi.base.fields import EnumField, EnumRegistry
+from oioioi.contests.fields import ScoreField
+from oioioi.contests.models import (ProblemInstance, Submission,
+                                    SubmissionReport, submission_kinds,
+                                    submission_report_kinds,
+                                    submission_statuses)
+from oioioi.filetracker.fields import FileField
+from oioioi.problems.models import Problem, make_problem_filename
+from oioioi.programs.problem_instance_utils import get_language_by_extension
 
 test_kinds = EnumRegistry()
 test_kinds.register('NORMAL', _("Normal test"))

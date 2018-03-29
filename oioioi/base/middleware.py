@@ -1,15 +1,14 @@
+from dateutil.parser import parse as parse_date
 from django.contrib import messages
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.core.exceptions import ImproperlyConfigured
 from django.core.urlresolvers import reverse
-from django.utils import timezone
 from django.http import HttpResponseNotAllowed
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils import timezone
 from django.utils.safestring import mark_safe
-
-from dateutil.parser import parse as parse_date
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.user import has_valid_username
 from oioioi.su.utils import is_under_su

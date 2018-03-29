@@ -1,33 +1,32 @@
 import logging
 import urllib
 
-from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.admin.utils import unquote
-from django.contrib.admin.actions import delete_selected
-from django.contrib import messages
 from django.conf.urls import url
-from django.utils.encoding import force_unicode
+from django.contrib import messages
+from django.contrib.admin.actions import delete_selected
+from django.contrib.admin.utils import unquote
+from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.db.models import Q
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect
+from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
-from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.base.admin import system_admin_menu_registry
-from oioioi.base.permissions import make_request_condition, is_superuser
-from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.base.permissions import is_superuser, make_request_condition
+from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.admin import ContestAdmin, contest_site
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
-from oioioi.problems.models import Problem, ProblemStatement, \
-        ProblemAttachment, ProblemPackage, ProblemSite, MainProblemInstance, \
-        Tag
+from oioioi.problems.forms import (ProblemSiteForm, ProblemStatementConfigForm,
+                                   TagThroughForm)
+from oioioi.problems.models import (MainProblemInstance, Problem,
+                                    ProblemAttachment, ProblemPackage,
+                                    ProblemSite, ProblemStatement, Tag)
 from oioioi.problems.utils import can_add_problems, can_admin_problem
-from oioioi.problems.forms import ProblemStatementConfigForm, \
-        ProblemSiteForm, TagThroughForm
-
 
 logger = logging.getLogger(__name__)
 

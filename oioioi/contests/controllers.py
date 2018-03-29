@@ -1,28 +1,29 @@
-from datetime import timedelta
 import logging
+from datetime import timedelta  # pylint: disable=E0611
 
+from django.conf import settings
+from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.utils.translation import ugettext_noop, ugettext_lazy as _
 from django.utils.safestring import mark_safe
-from django.core.mail import EmailMessage
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_noop
 
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins, \
-        get_user_display_name
-from oioioi.contests.models import Submission, Round, UserResultForRound, \
-        UserResultForProblem, UserResultForContest, submission_kinds, \
-        ProblemStatementConfig, RoundTimeExtension
+from oioioi.base.utils import (ObjectWithMixins, RegisteredSubclassesBase,
+                               get_user_display_name)
+from oioioi.contests.models import (Contest, ProblemStatementConfig, Round,
+                                    RoundTimeExtension, Submission,
+                                    UserResultForContest, UserResultForProblem,
+                                    UserResultForRound, submission_kinds)
 from oioioi.contests.scores import ScoreValue
-from oioioi.contests.models import Contest
-from oioioi.contests.utils import visible_problem_instances, rounds_times, \
-        generic_rounds_times, is_contest_admin, is_contest_observer, \
-        last_break_between_rounds, has_any_active_round
+from oioioi.contests.utils import (generic_rounds_times, has_any_active_round,
+                                   is_contest_admin, is_contest_observer,
+                                   last_break_between_rounds, rounds_times,
+                                   visible_problem_instances)
 from oioioi.problems.controllers import ProblemController
-
 
 logger = logging.getLogger(__name__)
 

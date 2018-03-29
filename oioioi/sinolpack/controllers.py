@@ -1,6 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
-from oioioi.sinolpack.admin import SinolpackProblemAdminMixin
+
 from oioioi.programs.controllers import ProgrammingProblemController
+from oioioi.sinolpack.admin import SinolpackProblemAdminMixin
 from oioioi.sinolpack.utils import add_extra_files
 
 

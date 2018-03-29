@@ -1,6 +1,7 @@
-from django.core.exceptions import ImproperlyConfigured
 from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.default_settings import INSTALLATION_CONFIG_VERSION
 
 GITHUB_LINK = "https://github.com/sio2project/oioioi/" \

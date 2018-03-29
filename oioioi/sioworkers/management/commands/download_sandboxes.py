@@ -1,12 +1,14 @@
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
-from oioioi.base.utils.execute import execute, ExecuteError
-from oioioi.filetracker.client import get_client
-from optparse import make_option
 import os
 import os.path
 import urllib2
 import urlparse
+from optparse import make_option
+
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
+
+from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.filetracker.client import get_client
 
 DEFAULT_SANDBOXES_MANIFEST = getattr(settings, 'SANDBOXES_MANIFEST',
     'http://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest')

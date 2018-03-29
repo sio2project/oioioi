@@ -7,17 +7,17 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.utils import all_non_trial_public_results_visible, \
-        is_contest_admin, is_contest_observer
-from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.participants.controllers import ParticipantsController, \
-        OnsiteContestControllerMixin
-from oioioi.participants.models import Participant
-from oioioi.participants.utils import is_participant
-from oioioi.rankings.controllers import DefaultRankingController, \
-        CONTEST_RANKING_KEY
+from oioioi.contests.utils import (all_non_trial_public_results_visible,
+                                   is_contest_admin, is_contest_observer)
 from oioioi.pa.models import PAProblemInstanceData
 from oioioi.pa.score import PAScore
+from oioioi.participants.controllers import (OnsiteContestControllerMixin,
+                                             ParticipantsController)
+from oioioi.participants.models import Participant
+from oioioi.participants.utils import is_participant
+from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.rankings.controllers import (CONTEST_RANKING_KEY,
+                                         DefaultRankingController)
 
 
 class PARegistrationController(ParticipantsController):

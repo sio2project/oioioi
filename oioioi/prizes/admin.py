@@ -1,10 +1,11 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin, contest_site
-from oioioi.prizes.models import PrizeGiving, Prize, PrizeForUser
 from oioioi.prizes.forms import PrizeGivingForm, PrizeInlineFormSet
+from oioioi.prizes.models import Prize, PrizeForUser, PrizeGiving
 
 
 def is_contest(request):

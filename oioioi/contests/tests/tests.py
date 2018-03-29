@@ -1,41 +1,44 @@
 # pylint: disable=abstract-method
 import re
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 from functools import partial
-from django.core import mail
 
+from django.conf import settings
+from django.contrib.admin.utils import quote
+from django.contrib.auth.models import AnonymousUser, User
+from django.core import mail
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.urlresolvers import NoReverseMatch, reverse
+from django.http import HttpResponse
+from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
-from django.template import Template, RequestContext
-from django.http import HttpResponse
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse, NoReverseMatch
-from django.core.files.base import ContentFile
-from django.utils.timezone import utc, LocalTimezone
-from django.contrib.auth.models import User, AnonymousUser
-from django.contrib.admin.utils import quote
-from django.conf import settings
+from django.utils.timezone import LocalTimezone, utc
 from nose.tools import nottest
 
-from oioioi.base.tests import TestCase, check_not_accessible, fake_time, \
-    TestsUtilsMixin
-from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        UserResultForContest, Submission, ContestAttachment, \
-        RoundTimeExtension, ContestPermission, UserResultForProblem, \
-        ContestView, ContestLink, ProblemStatementConfig
-from oioioi.contests.scores import IntegerScore, ScoreValue
-from oioioi.contests.date_registration import date_registry
-from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        can_enter_contest, rounds_times, can_see_personal_data, \
-        administered_contests, all_public_results_visible, \
-        all_non_trial_public_results_visible
+from oioioi.base.tests import (TestCase, TestsUtilsMixin, check_not_accessible,
+                               fake_time)
 from oioioi.contests.current_contest import ContestMode
+from oioioi.contests.date_registration import date_registry
+from oioioi.contests.models import (Contest, ContestAttachment, ContestLink,
+                                    ContestPermission, ContestView,
+                                    ProblemInstance, ProblemStatementConfig,
+                                    Round, RoundTimeExtension, Submission,
+                                    UserResultForContest, UserResultForProblem)
+from oioioi.contests.scores import IntegerScore, ScoreValue
+from oioioi.contests.tests import make_empty_contest_formset
+from oioioi.contests.utils import (administered_contests,
+                                   all_non_trial_public_results_visible,
+                                   all_public_results_visible,
+                                   can_enter_contest, can_see_personal_data,
+                                   is_contest_admin, is_contest_observer,
+                                   rounds_times)
 from oioioi.filetracker.tests import TestStreamingMixin
-from oioioi.problems.models import Problem, ProblemStatement, ProblemAttachment
+from oioioi.problems.models import Problem, ProblemAttachment, ProblemStatement
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.models import Test
 from oioioi.programs.tests import SubmitFileMixin
-from oioioi.contests.tests import make_empty_contest_formset
 
 
 class TestModels(TestCase):

@@ -6,11 +6,13 @@
 """
 
 import logging
+
 from django.conf import settings
 from django.core.files import File
 from django.utils.module_loading import import_string
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
-from oioioi.problems.models import ProblemPackage, Problem
+
+from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
+from oioioi.problems.models import Problem, ProblemPackage
 
 logger = logging.getLogger(__name__)
 

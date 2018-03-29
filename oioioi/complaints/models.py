@@ -1,9 +1,9 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils.deps import check_django_app_dependencies
-from oioioi.contests.models import Contest
-from oioioi.contests.date_registration import date_registry
 
+from oioioi.base.utils.deps import check_django_app_dependencies
+from oioioi.contests.date_registration import date_registry
+from oioioi.contests.models import Contest
 
 # The view imports participants.models
 check_django_app_dependencies(__name__, ['oioioi.participants'])

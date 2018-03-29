@@ -1,23 +1,24 @@
 import logging
 import os.path
-from datetime import timedelta
-from django.db import models, transaction
-from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
-from django.core.exceptions import ValidationError
-from django.utils import timezone
-from django.conf import settings
-from django.template.loader import render_to_string
-from django.forms.models import model_to_dict
-from django.core.validators import MinValueValidator
-from django.utils.text import get_valid_filename
-from django.core.files.base import ContentFile
+from datetime import timedelta  # pylint: disable=E0611
+
 from celery.task import task
-from oioioi.contests.models import Contest
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
+from django.core.validators import MinValueValidator
+from django.db import models, transaction
+from django.forms.models import model_to_dict
+from django.template.loader import render_to_string
+from django.utils import timezone
+from django.utils.text import get_valid_filename
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.fields import EnumField, EnumRegistry
+from oioioi.contests.models import Contest
 from oioioi.filetracker.fields import FileField
 from oioioi.prizes.reports import generate_success_report
-
 
 logger = logging.getLogger(__name__)
 

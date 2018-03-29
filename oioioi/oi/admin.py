@@ -5,13 +5,13 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
-from oioioi.base.utils import make_html_link
 from oioioi.base.permissions import make_request_condition
+from oioioi.base.utils import make_html_link
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.participants.admin import ParticipantAdmin
-from oioioi.oi.models import School, OIRegistration
 from oioioi.oi.forms import OIRegistrationForm
+from oioioi.oi.models import OIRegistration, School
+from oioioi.participants.admin import ParticipantAdmin
 
 
 class SchoolAdmin(admin.ModelAdmin):

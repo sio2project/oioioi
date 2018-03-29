@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.prizes import views
 
-
 contest_patterns = [
     url(r'^prizes/$', views.prizes_view, name='default_prizes'),
     url(r'^prizes/(?P<key>\d+)/$', views.prizes_view, name='prizes'),

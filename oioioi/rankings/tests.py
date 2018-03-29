@@ -1,25 +1,24 @@
-from datetime import datetime
 import re
+from datetime import datetime  # pylint: disable=E0611
 
-from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
-from django.utils.timezone import utc
-from django.contrib.auth.models import User
-from django.http import QueryDict
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.http import QueryDict
+from django.test.utils import override_settings
+from django.utils.timezone import utc
 
 from oioioi.base.templatetags.simple_filters import result_color_class
-from oioioi.base.tests import TestCase, fake_time, fake_timezone_now, \
-        check_not_accessible
-from oioioi.contests.models import Contest, UserResultForProblem, \
-        ProblemInstance
+from oioioi.base.tests import (TestCase, check_not_accessible, fake_time,
+                               fake_timezone_now)
+from oioioi.contests.models import (Contest, ProblemInstance,
+                                    UserResultForProblem)
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
-from oioioi.rankings.controllers import DefaultRankingController
-from oioioi.rankings.models import Ranking, RankingPage, recalculate, \
-        choose_for_recalculation, RankingRecalc
 from oioioi.programs.controllers import ProgrammingContestController
-
+from oioioi.rankings.controllers import DefaultRankingController
+from oioioi.rankings.models import (Ranking, RankingPage, RankingRecalc,
+                                    choose_for_recalculation, recalculate)
 
 VISIBLE_TASKS = ["zad1", "zad2"]
 HIDDEN_TASKS = ["zad3", "zad4"]

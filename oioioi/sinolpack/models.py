@@ -1,11 +1,10 @@
 import yaml
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.problems.models import Problem, ProblemPackage, \
-    make_problem_filename
 from oioioi.filetracker.fields import FileField
+from oioioi.problems.models import (Problem, ProblemPackage,
+                                    make_problem_filename)
 
 
 class ExtraConfig(models.Model):

@@ -1,22 +1,22 @@
+from django.conf import settings
 from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.controllers import PublicContestRegistrationController, \
-        PastRoundsHiddenContestControllerMixin
+from oioioi.contests.controllers import (PastRoundsHiddenContestControllerMixin,
+                                         PublicContestRegistrationController)
 from oioioi.contests.models import Submission, SubmissionReport
-from oioioi.contests.utils import is_contest_admin, is_contest_observer, \
-        can_see_personal_data
-from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.participants.controllers import ParticipantsController, \
-        OnsiteContestControllerMixin
+from oioioi.contests.utils import (can_see_personal_data, is_contest_admin,
+                                   is_contest_observer)
+from oioioi.oi.models import OIRegistration
+from oioioi.participants.controllers import (OnsiteContestControllerMixin,
+                                             ParticipantsController)
 from oioioi.participants.models import Participant
 from oioioi.participants.utils import is_participant
-from oioioi.oi.models import OIRegistration
+from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.scoresreveal.utils import is_revealed
 
 

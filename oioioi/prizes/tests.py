@@ -1,17 +1,18 @@
 from collections import namedtuple
 from contextlib import contextmanager
-from datetime import timedelta
-from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
+from datetime import timedelta  # pylint: disable=E0611
+
 from django.contrib.auth.models import User
-from django.utils import timezone
 from django.core import mail
+from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
+from django.utils import timezone
 
 from oioioi.base.tests import TestCase
-from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.contests.models import Contest
-from oioioi.prizes.utils import assign_from_order, FairAssignmentNotFound
-from oioioi.prizes.models import PrizeForUser, PrizeGiving, Prize
+from oioioi.prizes.models import Prize, PrizeForUser, PrizeGiving
+from oioioi.prizes.utils import FairAssignmentNotFound, assign_from_order
+from oioioi.programs.controllers import ProgrammingContestController
 
 
 def _single_prize_for_user(pg):

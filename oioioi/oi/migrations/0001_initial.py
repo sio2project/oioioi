@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
-import oioioi.base.utils.validators
 import re
-import django.db.models.deletion
+
 import django.core.validators
+import django.db.models.deletion
+from django.db import migrations, models
+
+import oioioi.base.utils.validators
 import oioioi.participants.fields
 
 

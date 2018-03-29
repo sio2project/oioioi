@@ -1,11 +1,12 @@
-from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
-from django.db import transaction, DatabaseError
-import os
 import csv
+import os
 import urllib2
+
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
+from django.db import DatabaseError, transaction
+from django.utils.translation import ugettext_lazy as _
 
 
 class Command(BaseCommand):

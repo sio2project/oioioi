@@ -1,9 +1,10 @@
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.contests.admin import ProblemInstanceAdmin
-from oioioi.participants.admin import ParticipantAdmin
-from oioioi.pa.models import PARegistration, PAProblemInstanceData
 from oioioi.pa.forms import PARegistrationForm
+from oioioi.pa.models import PAProblemInstanceData, PARegistration
+from oioioi.participants.admin import ParticipantAdmin
 
 
 class PARegistrationInline(admin.StackedInline):

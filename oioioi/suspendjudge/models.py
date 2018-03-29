@@ -5,7 +5,6 @@ from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import ProblemInstance
 from oioioi.evalmgr.models import job_states
 
-
 job_states.register('SUSPENDED', _("Suspended"))
 
 

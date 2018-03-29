@@ -1,10 +1,12 @@
+import os.path
+
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.utils.text import get_valid_filename
 from django.utils import timezone
+from django.utils.text import get_valid_filename
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.contests.models import Contest
 from oioioi.filetracker.fields import FileField
-import os.path
 
 
 def make_logo_filename(instance, filename):

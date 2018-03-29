@@ -1,20 +1,19 @@
 import copy
-import uuid
 import os.path
+import uuid
 
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase
-from oioioi.contests.models import Submission, Contest
-from oioioi.evalmgr.tasks import transfer_job, create_environ, delay_environ
-from oioioi.evalmgr.models import SavedEnviron
+from oioioi.contests.models import Contest, Submission
+from oioioi.evalmgr.models import QueuedJob, SavedEnviron
+from oioioi.evalmgr.tasks import create_environ, delay_environ, transfer_job
+from oioioi.evalmgr.utils import mark_job_state
 from oioioi.filetracker.client import get_client
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.sioworkers.jobs import run_sioworkers_job
-from oioioi.evalmgr.utils import mark_job_state
-from oioioi.evalmgr.models import QueuedJob
 
 
 def delay_environ_wrapper(*args, **kwargs):

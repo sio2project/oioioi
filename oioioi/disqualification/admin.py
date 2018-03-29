@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site

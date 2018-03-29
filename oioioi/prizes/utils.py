@@ -1,8 +1,10 @@
 import random
-from operator import itemgetter
+from operator import itemgetter  # pylint: disable=E0611
+
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+
 from oioioi.prizes.models import AssignmentNotFound, PrizeForUser
 from oioioi.prizes.reports import generate_failure_report
 

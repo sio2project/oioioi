@@ -1,10 +1,10 @@
-from django.utils.translation import ugettext_lazy as _
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
+from oioioi.contestlogo.models import ContestIcon, ContestLogo
 from oioioi.contests.admin import ContestAdmin
-from oioioi.contestlogo.models import ContestLogo, ContestIcon
 
 
 class ContestLogoInline(admin.TabularInline):

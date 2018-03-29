@@ -1,33 +1,35 @@
-from functools import partial
 import urllib
+from functools import partial
 
 from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
-from django.contrib.admin.utils import unquote, quote
+from django.contrib.admin.utils import quote, unquote
 from django.core.urlresolvers import reverse
+from django.db.models import Value
+from django.db.models.functions import Coalesce
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
-from django.utils.html import conditional_escape
 from django.utils.encoding import force_unicode
-from django.db.models import Value
-from django.db.models.functions import Coalesce
+from django.utils.html import conditional_escape
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
 
 from oioioi.base import admin
-from oioioi.base.utils import make_html_links, make_html_link
-from oioioi.contests.forms import ProblemInstanceForm, SimpleContestForm, \
-        TestsSelectionForm
-from oioioi.contests.menu import contest_admin_menu_registry, \
-        contest_observer_menu_registry
-from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        Submission, ContestAttachment, RoundTimeExtension, ContestPermission, \
-        submission_kinds, ContestLink, SubmissionReport
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.current_contest import set_cc_id
+from oioioi.contests.forms import (ProblemInstanceForm, SimpleContestForm,
+                                   TestsSelectionForm)
+from oioioi.contests.menu import (contest_admin_menu_registry,
+                                  contest_observer_menu_registry)
+from oioioi.contests.models import (Contest, ContestAttachment, ContestLink,
+                                    ContestPermission, ProblemInstance, Round,
+                                    RoundTimeExtension, Submission,
+                                    SubmissionReport, submission_kinds)
+from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.problems.models import ProblemPackage, ProblemSite
 from oioioi.programs.models import Test, TestReport
-from oioioi.problems.models import ProblemSite, ProblemPackage
 
 
 class ContestProxyAdminSite(admin.AdminSite):

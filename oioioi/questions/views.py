@@ -1,31 +1,31 @@
-import datetime
 import calendar
+import datetime
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.text import Truncator
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from oioioi.base.menu import menu_registry
-from oioioi.base.utils import jsonify
 from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.utils import jsonify
 from oioioi.base.utils.user_selection import get_user_hints_view
-from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-    visible_rounds, contest_exists
-from oioioi.questions.utils import get_categories, log_addition, \
-    unanswered_questions
-from oioioi.questions.forms import AddContestMessageForm, AddReplyForm, \
-    FilterMessageForm, FilterMessageAdminForm
-from oioioi.questions.models import Message, MessageView, ReplyTemplate, \
-    QuestionSubscription
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin, visible_rounds)
+from oioioi.questions.forms import (AddContestMessageForm, AddReplyForm,
+                                    FilterMessageAdminForm, FilterMessageForm)
 from oioioi.questions.mails import new_question_signal
+from oioioi.questions.models import (Message, MessageView,
+                                     QuestionSubscription, ReplyTemplate)
+from oioioi.questions.utils import (get_categories, log_addition,
+                                    unanswered_questions)
 
 
 def visible_messages(request, author=None, category=None, kind=None):

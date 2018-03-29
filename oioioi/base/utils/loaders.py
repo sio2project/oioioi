@@ -1,5 +1,6 @@
-from django.conf import settings
 from importlib import import_module
+
+from django.conf import settings
 
 
 def load_modules(module_name):

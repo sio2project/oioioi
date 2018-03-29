@@ -1,5 +1,5 @@
 from django import template
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.core.urlresolvers import NoReverseMatch, reverse
 
 register = template.Library()
 

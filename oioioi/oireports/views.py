@@ -1,28 +1,26 @@
 import itertools
-from operator import attrgetter
+from operator import attrgetter  # pylint: disable=E0611
 
+from django.contrib.auth.models import User
+from django.core.exceptions import SuspiciousOperation
+from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
+from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.template import RequestContext
-from django.core.exceptions import SuspiciousOperation
-from django.core.urlresolvers import reverse
-from django.core.files.base import ContentFile
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils.pdf import generate_pdf
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.models import Round, Submission, UserResultForProblem
+from oioioi.contests.utils import (contest_exists, has_any_rounds,
+                                   is_contest_admin)
 from oioioi.filetracker.utils import stream_file
-from oioioi.contests.models import Round, UserResultForProblem, Submission
-from oioioi.contests.utils import is_contest_admin, contest_exists, \
-        has_any_rounds
-from oioioi.oireports.forms import OIReportForm, CONTEST_REPORT_KEY
-from oioioi.programs.models import CompilationReport, GroupReport, \
-        TestReport
+from oioioi.oireports.forms import CONTEST_REPORT_KEY, OIReportForm
 from oioioi.participants.models import Region
-
+from oioioi.programs.models import CompilationReport, GroupReport, TestReport
 
 # FIXME conditions for views expressing oi dependence?
 

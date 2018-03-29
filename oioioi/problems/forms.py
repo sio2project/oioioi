@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 from django import forms
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.contests.models import ProblemStatementConfig

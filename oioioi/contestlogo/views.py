@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import condition
 
-from oioioi.contestlogo.models import ContestLogo, ContestIcon
+from oioioi.contestlogo.models import ContestIcon, ContestLogo
 from oioioi.filetracker.utils import stream_file
 
 

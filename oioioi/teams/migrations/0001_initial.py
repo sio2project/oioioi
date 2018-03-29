@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
-from django.conf import settings
-import oioioi.base.fields
 import django.core.validators
+from django.conf import settings
+from django.db import migrations, models
+
+import oioioi.base.fields
 
 
 class Migration(migrations.Migration):

@@ -11,15 +11,17 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils.pdf import generate_pdf
-from oioioi.contests.utils import contest_exists, can_enter_contest, \
-        has_any_visible_problem_instance, is_contest_admin
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   has_any_visible_problem_instance,
+                                   is_contest_admin)
 from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
-from oioioi.mailsubmit.forms import MailSubmissionForm, \
-        AcceptMailSubmissionForm
+from oioioi.mailsubmit.forms import (AcceptMailSubmissionForm,
+                                     MailSubmissionForm)
 from oioioi.mailsubmit.models import MailSubmission
-from oioioi.mailsubmit.utils import is_mailsubmit_allowed, \
-        accept_mail_submission, has_any_mailsubmittable_problem, \
-        mail_submission_hashes
+from oioioi.mailsubmit.utils import (accept_mail_submission,
+                                     has_any_mailsubmittable_problem,
+                                     is_mailsubmit_allowed,
+                                     mail_submission_hashes)
 
 
 @menu_registry.register_decorator(_("Postal submission"), lambda request:

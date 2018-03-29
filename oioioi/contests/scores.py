@@ -18,9 +18,10 @@
    For simple example of score class implementation see :class:`IntegerScore`.
 """
 
-from oioioi.base.utils import ClassInitBase
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+
+from oioioi.base.utils import ClassInitBase
 
 
 class ScoreValue(ClassInitBase):

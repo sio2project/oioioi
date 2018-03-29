@@ -1,10 +1,9 @@
-from mistune import Markdown
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
+from mistune import Markdown
 
 from oioioi.base.utils.deps import check_django_app_dependencies
-
 
 check_django_app_dependencies(__name__, ['oioioi.portals'])
 

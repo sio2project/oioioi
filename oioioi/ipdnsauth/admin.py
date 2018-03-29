@@ -1,5 +1,5 @@
 from oioioi.base import admin
-from oioioi.ipdnsauth.models import IpToUser, DnsToUser
+from oioioi.ipdnsauth.models import DnsToUser, IpToUser
 
 
 class IpToUserAdmin(admin.ModelAdmin):

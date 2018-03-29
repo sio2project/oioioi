@@ -1,15 +1,14 @@
-import logging
 import json
-import uuid
-import time
+import logging
 import threading
+import time
+import uuid
 from urlparse import urlparse
-from librabbitmq import Connection, ConnectionError, ChannelError
 
 from django.conf import settings
+from librabbitmq import ChannelError, Connection, ConnectionError
 
 from oioioi.base.utils.loaders import load_modules
-
 
 logger = logging.getLogger(__name__)
 thread_data = threading.local()

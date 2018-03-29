@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
-from django.utils.translation import ungettext
 from django.utils.functional import lazy
+from django.utils.translation import ungettext
+
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.utils import can_enter_contest, is_contest_admin
 from oioioi.questions.utils import unanswered_questions

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from functools import partial
 
-from django.db import models, migrations
+from django.db import migrations, models
 
 from oioioi.contests.scores import ScoreValue
+
 
 def _sum_scores(scores):
     scores = [s for s in scores if s is not None]

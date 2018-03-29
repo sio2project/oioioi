@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
-import oioioi.testrun.models
-import oioioi.filetracker.fields
+from django.db import migrations, models
+
 import oioioi.base.fields
+import oioioi.filetracker.fields
+import oioioi.testrun.models
 
 
 class Migration(migrations.Migration):

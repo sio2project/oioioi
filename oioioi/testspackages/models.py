@@ -1,21 +1,21 @@
-import shutil
 import os
+import shutil
 import tempfile
 import zipfile
 
-from nose.tools import nottest
 from django.core.files import File
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.utils.translation import ugettext_lazy as _
+from nose.tools import nottest
 
 from oioioi.base.utils import strip_num_or_hash
+from oioioi.contests.date_registration import date_registry
+from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, make_problem_filename
 from oioioi.programs.models import Test
-from oioioi.contests.date_registration import date_registry
-from oioioi.contests.models import ProblemInstance
 
 
 def _testspackage_date_name_generator(obj):

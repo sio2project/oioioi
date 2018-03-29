@@ -1,8 +1,8 @@
+import os
+
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from fpdf import FPDF
-
-import os
 
 FONT_DIR = os.path.join(os.path.dirname(__file__), 'font')
 FONT = getattr(settings, 'PRINTING_FONT',

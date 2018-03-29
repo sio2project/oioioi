@@ -1,7 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.contests.models import UserResultForContest
-from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.prizes.utils import assign_from_order
+from oioioi.programs.controllers import ProgrammingContestController
 
 
 def by_result_for_contest(pg):

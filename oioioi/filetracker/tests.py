@@ -1,21 +1,22 @@
 # coding: utf-8
 
-from django.core.urlresolvers import reverse
+import datetime
+import shutil
+import tempfile
+
+import filetracker
+import filetracker.dummy
 from django.core.files.base import ContentFile
-from django.db.models.fields.files import FieldFile, FileField
 from django.core.files.storage import default_storage
+from django.core.urlresolvers import reverse
+from django.db.models.fields.files import FieldFile, FileField
 
 from oioioi.base.tests import TestCase
 from oioioi.filetracker.models import TestFileModel
 from oioioi.filetracker.storage import FiletrackerStorage
-from oioioi.filetracker.utils import django_to_filetracker_path, \
-        filetracker_to_django_file, make_content_disposition_header
-import filetracker
-import filetracker.dummy
-
-import tempfile
-import shutil
-import datetime
+from oioioi.filetracker.utils import (django_to_filetracker_path,
+                                      filetracker_to_django_file,
+                                      make_content_disposition_header)
 
 
 class TestFileField(TestCase):

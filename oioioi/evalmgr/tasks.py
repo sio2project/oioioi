@@ -1,20 +1,18 @@
 import copy
-import sys
 import pprint
+import sys
 from uuid import uuid4
 
+from celery.exceptions import Ignore
+from celery.task import task
 from django.db import transaction
 from django.utils.module_loading import import_string
 
-from celery.task import task
-from celery.exceptions import Ignore
-
 from oioioi.base.utils.db import require_transaction
-from oioioi.evalmgr import logger
-from oioioi.evalmgr.models import SavedEnviron, QueuedJob
-from oioioi.evalmgr.utils import mark_job_state
 from oioioi.base.utils.loaders import load_modules
-
+from oioioi.evalmgr import logger
+from oioioi.evalmgr.models import QueuedJob, SavedEnviron
+from oioioi.evalmgr.utils import mark_job_state
 
 loaded_controllers = False
 

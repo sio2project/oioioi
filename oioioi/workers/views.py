@@ -1,15 +1,15 @@
 import json
-from operator import itemgetter
-
-from django.shortcuts import render
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext as _
-from django.http import JsonResponse
-
-from oioioi.base.permissions import enforce_condition, is_superuser
-from oioioi.base.admin import system_admin_menu_registry
-from django.conf import settings
 import xmlrpclib
+from operator import itemgetter  # pylint: disable=E0611
+
+from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
+
+from oioioi.base.admin import system_admin_menu_registry
+from oioioi.base.permissions import enforce_condition, is_superuser
 
 server = xmlrpclib.ServerProxy(settings.SIOWORKERSD_URL, allow_none=True)
 

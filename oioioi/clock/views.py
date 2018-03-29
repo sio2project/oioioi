@@ -1,14 +1,14 @@
 import re
 import time
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
 import pytz
 from django.contrib import messages
 from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils.redirect import safe_redirect
 
+from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import Round
 from oioioi.status.registry import status_registry
 from oioioi.su.utils import is_real_superuser

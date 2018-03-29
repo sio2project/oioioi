@@ -4,10 +4,9 @@ import os
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
 
-from oioioi.sinolpack.package import SinolPackageCreator, SinolPackage, \
-        SinolPackageBackend
+from oioioi.sinolpack.package import (SinolPackage, SinolPackageBackend,
+                                      SinolPackageCreator)
 from oioioi.zeus.models import ZeusProblemData
-
 
 logger = logging.getLogger(__name__)
 

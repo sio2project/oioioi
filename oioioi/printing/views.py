@@ -1,12 +1,13 @@
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import not_anonymous, enforce_condition, \
-        make_request_condition
-from oioioi.contests.utils import has_any_submittable_problem, contest_exists
-from oioioi.base.utils.execute import execute, ExecuteError
+from oioioi.base.permissions import (enforce_condition, make_request_condition,
+                                     not_anonymous)
+from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.contests.utils import contest_exists, has_any_submittable_problem
 from oioioi.printing.forms import PrintForm
 
 

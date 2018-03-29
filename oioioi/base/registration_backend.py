@@ -1,18 +1,19 @@
-from django.conf.urls import url
+import registration.backends.default.urls
+import registration.views
 from django.conf import settings
+from django.conf.urls import url
+from django.contrib.auth.models import User
 from django.contrib.auth.views import password_reset
 from django.contrib.sites.requests import RequestSite
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic import TemplateView
-from django.contrib.auth.models import User
 from registration import signals
-from registration.models import RegistrationProfile
 from registration.backends.default.views import \
     RegistrationView as DefaultRegistrationView
-from oioioi.base.forms import RegistrationFormWithNames, \
-    OioioiPasswordResetForm
-import registration.backends.default.urls
-import registration.views
+from registration.models import RegistrationProfile
+
+from oioioi.base.forms import (OioioiPasswordResetForm,
+                               RegistrationFormWithNames)
 
 
 class RegistrationView(DefaultRegistrationView):

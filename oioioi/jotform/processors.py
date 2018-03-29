@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.utils.functional import lazy
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.utils.functional import lazy
 
 
 def jotform(request):

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
+
 from oioioi.base.tests import TestCase
 from oioioi.livedata.utils import get_display_name
-
 
 # TODO
 

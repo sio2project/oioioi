@@ -1,7 +1,7 @@
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.problems.models import Problem
-from oioioi.problems.utils import get_new_problem_instance, \
-        update_tests_from_main_pi
+from oioioi.problems.utils import (get_new_problem_instance,
+                                   update_tests_from_main_pi)
 
 
 def update_problem_instance(env):

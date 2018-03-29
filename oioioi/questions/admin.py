@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.text import get_text_list
 from django.utils.translation import ugettext_lazy as _
@@ -11,8 +11,8 @@ from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import Contest, ContestPermission
 from oioioi.contests.utils import is_contest_admin
 from oioioi.questions.forms import ChangeContestMessageForm
-from oioioi.questions.models import Message, MessageNotifierConfig, \
-                                    ReplyTemplate
+from oioioi.questions.models import (Message, MessageNotifierConfig,
+                                     ReplyTemplate)
 
 
 class MessageAdmin(admin.ModelAdmin):

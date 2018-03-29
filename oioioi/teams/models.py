@@ -1,11 +1,11 @@
-from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
-from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
-from oioioi.base.fields import EnumRegistry, EnumField
-from oioioi.base.utils import generate_key
+from django.core.validators import MinValueValidator
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base.fields import EnumField, EnumRegistry
+from oioioi.base.utils import generate_key
 from oioioi.contests.models import Contest
 
 

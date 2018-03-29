@@ -1,14 +1,13 @@
 import re
+from datetime import timedelta  # pylint: disable=E0611
 
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils import timezone
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest
-from oioioi.forum.models import Category, Thread, Post
-
-from datetime import timedelta
+from oioioi.forum.models import Category, Post, Thread
 
 
 def get_contest_with_forum():

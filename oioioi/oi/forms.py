@@ -6,7 +6,7 @@ from django.forms.extras.widgets import SelectDateWidget
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.oi.models import OIRegistration, PROVINCES, School
+from oioioi.oi.models import PROVINCES, OIRegistration, School
 
 
 class AddSchoolForm(forms.ModelForm):

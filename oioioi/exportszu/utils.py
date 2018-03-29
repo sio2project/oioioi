@@ -4,14 +4,14 @@ import shutil
 import tarfile
 import tempfile
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.utils.encoding import force_text
-from django.core.exceptions import ObjectDoesNotExist
 
-from oioioi.programs.models import ProgramSubmission
-from oioioi.participants.models import Participant
-from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.filetracker.client import get_client
+from oioioi.filetracker.utils import django_to_filetracker_path
+from oioioi.participants.models import Participant
+from oioioi.programs.models import ProgramSubmission
 
 
 class SubmissionData(object):

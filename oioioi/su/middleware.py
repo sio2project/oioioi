@@ -4,7 +4,6 @@ from django.shortcuts import redirect
 from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY
 from oioioi.su.utils import get_user
 
-
 REDIRECTION_AFTER_SU_KEY = "redirection_after_su"
 
 

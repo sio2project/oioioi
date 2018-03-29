@@ -1,20 +1,20 @@
 import logging
 
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.core.validators import MaxLengthValidator
 from django.db import models
 from django.db.models import Q
-from django.conf import settings
-from django.core.validators import MaxLengthValidator
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.db.models.signals import post_save
 
-from oioioi.contests.models import Contest, Round, ProblemInstance
-from oioioi.base.fields import EnumRegistry, EnumField
+from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.base.utils.validators import validate_whitespaces
+from oioioi.contests.models import Contest, ProblemInstance, Round
 
 message_kinds = EnumRegistry()
 message_kinds.register('QUESTION', _("Question"))

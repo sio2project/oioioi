@@ -1,6 +1,6 @@
-from datetime import datetime
 import os
 import zipfile
+from datetime import datetime  # pylint: disable=E0611
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse

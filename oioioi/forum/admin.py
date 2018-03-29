@@ -1,15 +1,15 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy, \
-        string_concat
-
+from django.utils.translation import string_concat
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.forum.models import Category, Forum, Thread, Post
 from oioioi.contests.admin import contest_site
 from oioioi.contests.utils import is_contest_admin
+from oioioi.forum.models import Category, Forum, Post, Thread
 
 
 def make_list_elem(elem, text=None):

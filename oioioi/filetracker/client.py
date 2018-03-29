@@ -1,13 +1,12 @@
+import filetracker
+import filetracker.dummy
 from django.conf import settings
-from django.test.signals import setting_changed
-from django.dispatch import receiver
 from django.core.exceptions import ImproperlyConfigured
+from django.dispatch import receiver
+from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
 
 from oioioi.base.utils import memoized, reset_memoized
-
-import filetracker
-import filetracker.dummy
 
 
 @memoized

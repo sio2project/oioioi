@@ -1,6 +1,5 @@
 from oioioi.sioworkers.jobs import send_async_jobs
 
-
 _STRIPPED_FIELDS = ['recipe', 'error_handlers']
 
 

@@ -1,17 +1,16 @@
 # coding: utf-8
-import urllib
 import difflib
+import urllib
 
-from django.db import models
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
+from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_whitespaces
-from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import Contest
-
+from oioioi.participants.models import RegistrationModel
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])
 

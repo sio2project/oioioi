@@ -3,8 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 
 from oioioi.base.permissions import enforce_condition
-from oioioi.contests.utils import contest_exists
 from oioioi.contests.models import Contest, Round
+from oioioi.contests.utils import contest_exists
 from oioioi.livedata.utils import can_see_livedata
 
 

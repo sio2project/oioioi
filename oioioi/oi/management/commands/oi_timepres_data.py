@@ -1,10 +1,10 @@
-import unicodecsv
 import sys
-from pytz import timezone
 
+import unicodecsv
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
+from pytz import timezone
 
 from oioioi.contests.models import Contest, Submission
 

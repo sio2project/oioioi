@@ -1,5 +1,5 @@
-from datetime import datetime
 import re
+from datetime import datetime  # pylint: disable=E0611
 
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc

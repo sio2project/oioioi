@@ -1,5 +1,5 @@
-from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from oioioi.filetracker.utils import django_to_filetracker_path
+from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 
 
 def add_extra_files(environ, problem, additional_args=None):

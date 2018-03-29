@@ -1,19 +1,19 @@
 import datetime
-from django.conf import settings
 from collections import defaultdict
-from operator import itemgetter
+from operator import itemgetter  # pylint: disable=E0611
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.permissions import enforce_condition
-from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.utils import is_contest_admin, contest_exists
 from oioioi.contests.date_registration import date_registry
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import Round
+from oioioi.contests.utils import contest_exists, is_contest_admin
 
 
 def _get_date_id(registry_item):

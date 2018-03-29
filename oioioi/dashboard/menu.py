@@ -1,4 +1,5 @@
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.menu import MenuRegistry
 from oioioi.base.permissions import not_anonymous
 from oioioi.contests.utils import contest_exists

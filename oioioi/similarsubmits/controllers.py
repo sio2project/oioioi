@@ -1,12 +1,13 @@
 from django.db.models import Q
 from django.template import RequestContext
 from django.template.loader import render_to_string
-from oioioi.contests.utils import is_contest_admin
+
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
+from oioioi.contests.utils import is_contest_admin
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.similarsubmits.models import SubmissionsSimilarityEntry, \
-        SubmissionsSimilarityGroup
+from oioioi.similarsubmits.models import (SubmissionsSimilarityEntry,
+                                          SubmissionsSimilarityGroup)
 
 
 class SimilarityDisqualificationMixin(object):

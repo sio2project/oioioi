@@ -1,14 +1,14 @@
-import oioioi
+import os
+import shutil
+import subprocess
+import tarfile
+import tempfile
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import connection
 
-import os
-import tarfile
-import tempfile
-import shutil
-import subprocess
+import oioioi
 
 
 class Command(BaseCommand):

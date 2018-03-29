@@ -1,9 +1,10 @@
+import sys
+from datetime import date, timedelta  # pylint: disable=E0611
+from time import sleep  # pylint: disable=E0611
+
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from djcelery.models import TaskMeta
-from time import sleep
-from datetime import date, timedelta
-import sys
 
 
 class Command(BaseCommand):

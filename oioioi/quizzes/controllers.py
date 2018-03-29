@@ -2,9 +2,10 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.problems.controllers import ProblemController
-from oioioi.quizzes.models import QuizAnswer, QuizSubmission, \
-    QuizSubmissionAnswer
+from oioioi.quizzes.models import (QuizAnswer, QuizSubmission,
+                                   QuizSubmissionAnswer)
 
 
 class QuizProblemController(ProblemController):

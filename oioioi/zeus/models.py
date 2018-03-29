@@ -8,7 +8,6 @@ from oioioi.contests.models import submission_statuses
 from oioioi.problems.models import Problem
 from oioioi.programs.models import TestReport
 
-
 check_django_app_dependencies(__name__, ['oioioi.testrun'], strict=True)
 
 

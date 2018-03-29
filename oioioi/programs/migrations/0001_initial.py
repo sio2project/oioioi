@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+import django.db.models.deletion
+from django.db import migrations, models
+
+import oioioi.base.fields
+import oioioi.contests.fields
 import oioioi.filetracker.fields
 import oioioi.problems.models
 import oioioi.programs.models
-import oioioi.contests.fields
-import django.db.models.deletion
-import oioioi.base.fields
 
 
 class Migration(migrations.Migration):

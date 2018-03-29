@@ -1,7 +1,7 @@
 from oioioi.base.permissions import make_condition, make_request_condition
-from oioioi.contests.models import Round, ProblemInstance, Submission
-from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.base.utils import request_cached
+from oioioi.contests.models import ProblemInstance, Round, Submission
+from oioioi.programs.controllers import ProgrammingContestController
 
 
 @request_cached

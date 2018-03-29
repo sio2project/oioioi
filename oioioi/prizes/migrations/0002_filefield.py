@@ -2,8 +2,9 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import oioioi.prizes.models
+
 import oioioi.filetracker.fields
+import oioioi.prizes.models
 
 # Each field appears two times, because otherwise the migration doesn't work:
 # https://code.djangoproject.com/ticket/25866

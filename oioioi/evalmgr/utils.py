@@ -1,9 +1,8 @@
 import logging
 
 from oioioi.base.utils.db import require_transaction
-from oioioi.evalmgr.models import QueuedJob
 from oioioi.contests.models import Submission
-
+from oioioi.evalmgr.models import QueuedJob
 
 logger = logging.getLogger(__name__)
 

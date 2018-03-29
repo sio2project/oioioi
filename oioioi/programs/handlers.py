@@ -1,26 +1,25 @@
-import logging
 import functools
-from collections import defaultdict
+import logging
 import types
+from collections import defaultdict
 
-from django.db import transaction
+from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.utils.module_loading import import_string
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
-from django.utils.module_loading import import_string
-from django.conf import settings
 
 from oioioi.base.utils import make_html_link
-from oioioi.evalmgr.tasks import transfer_job
-from oioioi.contests.scores import ScoreValue, IntegerScore
-from oioioi.contests.models import Submission, SubmissionReport, \
-        ScoreReport
 from oioioi.contests.handlers import _get_submission_or_skip
-from oioioi.programs.models import CompilationReport, TestReport, \
-        GroupReport, Test, UserOutGenStatus
+from oioioi.contests.models import ScoreReport, SubmissionReport
+from oioioi.contests.scores import IntegerScore, ScoreValue
+from oioioi.evalmgr.tasks import transfer_job
 from oioioi.filetracker.client import get_client
-from oioioi.filetracker.utils import django_to_filetracker_path, \
-        filetracker_to_django_file
+from oioioi.filetracker.utils import (django_to_filetracker_path,
+                                      filetracker_to_django_file)
+from oioioi.programs.models import (CompilationReport, GroupReport, Test,
+                                    TestReport, UserOutGenStatus)
 
 logger = logging.getLogger(__name__)
 

@@ -1,15 +1,14 @@
-from django.core.urlresolvers import reverse
+import json
+from datetime import datetime, timedelta  # pylint: disable=E0611
+
 from django.core.files.base import ContentFile
-from django.utils.timezone import utc, get_current_timezone
+from django.core.urlresolvers import reverse
+from django.utils.timezone import get_current_timezone, utc
 
 from oioioi.base.tests import TestCase, fake_time
-from oioioi.contests.models import Contest, Round, ProblemInstance, \
-        Submission
+from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.oisubmit.err_dict import INCORRECT_FORM_COMMENTS, SUSPICION_REASONS
 from oioioi.test_settings import OISUBMIT_MAGICKEY
-from oioioi.oisubmit.err_dict import SUSPICION_REASONS, INCORRECT_FORM_COMMENTS
-
-from datetime import datetime, timedelta
-import json
 
 
 class OISubmitFileMixin(object):

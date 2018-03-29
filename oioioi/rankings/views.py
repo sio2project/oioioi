@@ -1,17 +1,17 @@
-from django.http import Http404
-from django.template.response import TemplateResponse
-from django.core.urlresolvers import reverse
-from django.shortcuts import redirect
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.http import Http404
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.menu import menu_registry
+from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.models import Submission
-from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-    contest_exists
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin)
 from oioioi.rankings.forms import FilterUsersInRankingForm
 
 

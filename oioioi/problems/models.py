@@ -3,23 +3,23 @@ import os.path
 from contextlib import contextmanager
 from traceback import format_exception
 
+from django.contrib.auth.models import User
 from django.core import validators
-from django.core.validators import validate_slug
 from django.core.files.base import ContentFile
+from django.core.validators import validate_slug
 from django.db import models, transaction
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _, pgettext_lazy
-from django.utils.text import get_valid_filename, Truncator
 from django.utils.module_loading import import_string
-from django.contrib.auth.models import User
+from django.utils.text import Truncator, get_valid_filename
+from django.utils.translation import pgettext_lazy
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.utils import strip_num_or_hash, split_extension
-from oioioi.filetracker.fields import FileField
+from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
+from oioioi.base.utils import split_extension, strip_num_or_hash
 from oioioi.contests.models import ProblemInstance
-
+from oioioi.filetracker.fields import FileField
 
 logger = logging.getLogger(__name__)
 

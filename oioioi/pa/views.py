@@ -1,12 +1,12 @@
-from django.template.loader import render_to_string
-from django.template import RequestContext
 from django.contrib.auth.models import User
+from django.template import RequestContext
+from django.template.loader import render_to_string
 
-from oioioi.base.utils import jsonify, allow_cross_origin
-from oioioi.pa.controllers import PARegistrationController
-from oioioi.dashboard.registry import dashboard_headers_registry
-from oioioi.participants.utils import is_participant
+from oioioi.base.utils import allow_cross_origin, jsonify
 from oioioi.contests.utils import is_contest_admin
+from oioioi.dashboard.registry import dashboard_headers_registry
+from oioioi.pa.controllers import PARegistrationController
+from oioioi.participants.utils import is_participant
 
 
 @dashboard_headers_registry.register_decorator(order=10)

@@ -1,18 +1,20 @@
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
-from django.template.response import TemplateResponse
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-    get_submission_or_error
-from oioioi.publicsolutions.utils import get_public_solutions, \
-    get_may_be_published_solutions_for_user, solution_may_be_published, \
-    any_round_public
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   get_submission_or_error)
 from oioioi.publicsolutions.forms import FilterPublicSolutionsForm
 from oioioi.publicsolutions.models import VoluntarySolutionPublication
+from oioioi.publicsolutions.utils import (any_round_public,
+                                          get_may_be_published_solutions_for_user,
+                                          get_public_solutions,
+                                          solution_may_be_published)
 
 
 @menu_registry.register_decorator(_("Solutions"), lambda request:

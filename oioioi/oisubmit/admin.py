@@ -1,5 +1,6 @@
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.contests.admin import SubmissionAdmin
 from oioioi.oisubmit.err_dict import SUSPICION_REASONS
 

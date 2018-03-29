@@ -7,22 +7,23 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Max
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
-from django.utils.translation import ugettext_lazy as _, ungettext
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext
 
-from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.menu import menu_registry, MenuItem
+from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
+from oioioi.base.menu import MenuItem, menu_registry
 from oioioi.base.utils import strip_num_or_hash
-from oioioi.contests.problem_instance_controller import \
-        ProblemInstanceController
-from oioioi.base.utils.validators import validate_whitespaces, \
-        validate_db_string_id
+from oioioi.base.utils.validators import (validate_db_string_id,
+                                          validate_whitespaces)
 from oioioi.contests.date_registration import date_registry
 from oioioi.contests.fields import ScoreField
+from oioioi.contests.problem_instance_controller import \
+    ProblemInstanceController
 from oioioi.filetracker.fields import FileField
 
 

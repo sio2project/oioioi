@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import auth, messages
 from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.core.mail import mail_admins
@@ -6,13 +7,12 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
 from oioioi.base.utils import ObjectWithMixins
+from oioioi.base.utils.loaders import load_modules
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.middleware import activate_contest
 from oioioi.contests.models import Contest
-from oioioi.base.utils.loaders import load_modules
 
 
 class ExclusiveContestsMiddleware(ObjectWithMixins):

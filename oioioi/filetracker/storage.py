@@ -1,14 +1,15 @@
-from django.core.files.storage import Storage
-from django.core.files import File
-from django.core.urlresolvers import reverse
-from oioioi.filetracker.client import get_client
-from oioioi.filetracker.utils import FileInFiletracker
-from oioioi.filetracker.filename import FiletrackerFilename
-
+import datetime
 import os
 import os.path
 import tempfile
-import datetime
+
+from django.core.files import File
+from django.core.files.storage import Storage
+from django.core.urlresolvers import reverse
+
+from oioioi.filetracker.client import get_client
+from oioioi.filetracker.filename import FiletrackerFilename
+from oioioi.filetracker.utils import FileInFiletracker
 
 
 class FiletrackerStorage(Storage):

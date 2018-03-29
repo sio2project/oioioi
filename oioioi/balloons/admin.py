@@ -1,15 +1,15 @@
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.balloons.models import (BalloonsDeliveryAccessData,
+                                    BalloonsDisplay, ProblemBalloonsConfig)
 from oioioi.base import admin
-from oioioi.balloons.models import ProblemBalloonsConfig, \
-        BalloonsDisplay, BalloonsDeliveryAccessData
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin, contest_site
-from oioioi.contests.models import ProblemInstance, Contest
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.contests.utils import is_contest_admin
 
 

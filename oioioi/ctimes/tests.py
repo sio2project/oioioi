@@ -1,11 +1,12 @@
-from datetime import datetime
 import json
+from datetime import datetime  # pylint: disable=E0611
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
-from oioioi.contests.models import Round, Contest, RoundTimeExtension
+from oioioi.contests.models import Contest, Round, RoundTimeExtension
 
 
 class TestCtimes(TestCase):

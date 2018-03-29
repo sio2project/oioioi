@@ -3,14 +3,13 @@ import sys
 import zipfile
 
 from django.conf import settings
-from django.core.exceptions import SuspiciousOperation, PermissionDenied
+from django.core.exceptions import SuspiciousOperation
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404
 from django.utils import translation
 
 from oioioi.base.utils import request_cached
-from oioioi.contests.utils import is_contest_admin
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.models import ProblemStatement
 
 

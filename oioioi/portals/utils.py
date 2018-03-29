@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
+
 from oioioi.base.permissions import make_request_condition
 from oioioi.problems.models import Problem
 

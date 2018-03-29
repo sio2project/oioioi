@@ -1,20 +1,18 @@
 import json
-import sio.workers.runner
-import sio.celery.job
-
-from django.db import transaction
-from django.conf import settings
-
 from xmlrpclib import Server
 
+import sio.celery.job
+import sio.workers.runner
+from django.conf import settings
+from django.db import transaction
+
+from oioioi.evalmgr.tasks import delay_environ
 
 # This is a workaround for SIO-915. We assume that other parts of OIOIOI code
 # do not rely on particular directory being the current directory. Without
 # this assumption, even a single call to LocalClient.build would break that
 # code.
 from threading import Lock
-
-from oioioi.evalmgr.tasks import delay_environ
 
 _local_backend_lock = Lock()
 

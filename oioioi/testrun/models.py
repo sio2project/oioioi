@@ -1,13 +1,15 @@
-from nose.tools import nottest
 from django.conf import settings
 from django.db import models
-from oioioi.contests.models import submission_kinds, SubmissionReport, \
-    submission_statuses, submission_report_kinds
 from django.utils.translation import ugettext_lazy as _
-from oioioi.programs.models import ProgramSubmission
-from oioioi.filetracker.fields import FileField
+from nose.tools import nottest
+
 from oioioi.base.fields import EnumField
+from oioioi.contests.models import (SubmissionReport, submission_kinds,
+                                    submission_report_kinds,
+                                    submission_statuses)
+from oioioi.filetracker.fields import FileField
 from oioioi.problems.models import Problem, ProblemInstance
+from oioioi.programs.models import ProgramSubmission
 
 submission_statuses.register('TESTRUN_OK', _("No error"))
 submission_kinds.register('TESTRUN', _("Test run"))

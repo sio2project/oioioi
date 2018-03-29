@@ -1,13 +1,13 @@
+import os
 import re
 import sys
-import os
 from pprint import pprint
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
-from oioioi.confirmations.utils import verify_submission_receipt_proof, \
-        ProofCorrupted
+from oioioi.confirmations.utils import (ProofCorrupted,
+                                        verify_submission_receipt_proof)
 
 
 class Command(BaseCommand):

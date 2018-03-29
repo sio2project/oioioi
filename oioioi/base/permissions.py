@@ -1,7 +1,7 @@
 # coding: utf-8
 import functools
 
-from django.contrib.auth.views import redirect_to_login, logout
+from django.contrib.auth.views import logout, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.template.response import TemplateResponse
 

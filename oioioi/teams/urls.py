@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.teams import views
 
-
 contest_patterns = [
     url(r'^team/$', views.team_view, name='team_view'),
     url(r'^teams/$', views.teams_list, name='teams_list'),

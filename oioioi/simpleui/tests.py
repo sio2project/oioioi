@@ -1,16 +1,16 @@
 import re
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 
 from oioioi.base.tests import TestCase
-from oioioi.contests.models import Contest, Round, Submission, \
-        ContestPermission, ProblemInstance
+from oioioi.contests.models import (Contest, ContestPermission,
+                                    ProblemInstance, Round, Submission)
 from oioioi.problems.models import Tag, TagThrough
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
-from django.test.utils import override_settings
-from django.conf import settings
 
 
 def change_contest_type():

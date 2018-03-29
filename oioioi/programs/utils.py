@@ -1,13 +1,14 @@
 from math import ceil
-from operator import itemgetter
+from operator import itemgetter  # pylint: disable=E0611
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
-from oioioi.contests.scores import ScoreValue, IntegerScore
+
 from oioioi.contests.models import Submission
+from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.utils import aggregate_statuses
-from oioioi.programs.models import ProgramSubmission, LibraryProblemData, \
-        ReportActionsConfig
+from oioioi.programs.models import (LibraryProblemData, ProgramSubmission,
+                                    ReportActionsConfig)
 
 
 def sum_score_aggregator(group_results):

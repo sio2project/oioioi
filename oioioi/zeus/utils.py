@@ -1,4 +1,4 @@
-from django.core.signing import Signer, BadSignature
+from django.core.signing import BadSignature, Signer
 
 from oioioi.problems.models import Problem
 from oioioi.zeus.models import ZeusProblemData

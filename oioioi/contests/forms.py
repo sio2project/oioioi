@@ -1,16 +1,16 @@
 from django import forms
 from django.contrib.admin import widgets
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.forms import ValidationError
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 
-from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
+from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.models import Contest, ProblemInstance, Round
-from oioioi.contests.utils import submittable_problem_instances, \
-    is_contest_admin
+from oioioi.contests.utils import (is_contest_admin,
+                                   submittable_problem_instances)
 from oioioi.programs.models import Test
 
 

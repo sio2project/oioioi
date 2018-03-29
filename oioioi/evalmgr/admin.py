@@ -1,10 +1,10 @@
 import functools
 
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
 from django.contrib.admin import SimpleListFilter
-from django.utils.encoding import force_unicode
+from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.utils.encoding import force_unicode
+from django.utils.translation import ugettext_lazy as _
 from djcelery.models import TaskState
 
 from oioioi.base import admin

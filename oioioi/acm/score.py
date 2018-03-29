@@ -1,5 +1,6 @@
-from oioioi.contests.scores import ScoreValue
 from django.utils.translation import ugettext as _
+
+from oioioi.contests.scores import ScoreValue
 
 
 def format_time(seconds):

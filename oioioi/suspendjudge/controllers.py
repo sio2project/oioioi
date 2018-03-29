@@ -1,5 +1,5 @@
-from oioioi.evalmgr.tasks import add_before_recipe_entry, \
-    add_before_placeholder
+from oioioi.evalmgr.tasks import (add_before_placeholder,
+                                  add_before_recipe_entry)
 from oioioi.programs.controllers import ProgrammingContestController
 
 

@@ -1,21 +1,22 @@
-from datetime import timedelta
+from datetime import timedelta  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.admin.utils import quote
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect, get_object_or_404
-from django.utils.translation import ugettext_lazy as _
-from django.template.response import TemplateResponse
 from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 
+from oioioi.balloons.models import (BalloonDelivery,
+                                    BalloonsDeliveryAccessData,
+                                    BalloonsDisplay, ProblemBalloonsConfig)
 from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.utils import jsonify
-from oioioi.contests.models import UserResultForProblem, Contest
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-    is_contest_admin
-from oioioi.balloons.models import BalloonsDisplay, BalloonDelivery, \
-    BalloonsDeliveryAccessData, ProblemBalloonsConfig
+from oioioi.contests.models import Contest, UserResultForProblem
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin)
 
 
 @make_request_condition

@@ -1,17 +1,17 @@
 import calendar
 import json
 import time
-from datetime import datetime
-from dateutil.parser import parse as parse_date
+from datetime import datetime  # pylint: disable=E0611
 
-from django.test.utils import override_settings
-from django.core.urlresolvers import reverse
+from dateutil.parser import parse as parse_date
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase
-from oioioi.contests.models import Contest, Round, RoundTimeExtension
 from oioioi.contests.current_contest import ContestMode
+from oioioi.contests.models import Contest, Round, RoundTimeExtension
 
 
 class TestClock(TestCase):

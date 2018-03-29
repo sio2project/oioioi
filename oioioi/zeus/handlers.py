@@ -10,15 +10,14 @@ from django.db import transaction
 from django.forms.models import model_to_dict
 from django.utils.module_loading import import_string
 
-from oioioi.evalmgr.tasks import transfer_job as evalmgr_transfer_job
 from oioioi.base.utils import naturalsort_key
 from oioioi.contests.handlers import _get_submission_or_skip
+from oioioi.evalmgr.tasks import transfer_job as evalmgr_transfer_job
 from oioioi.programs.handlers import _skip_on_compilation_error
 from oioioi.programs.models import ProgramSubmission, Test
 from oioioi.zeus.backends import get_zeus_server
 from oioioi.zeus.models import ZeusProblemData
 from oioioi.zeus.utils import zeus_url_signature
-
 
 DEFAULT_METADATA_DECODER = 'oioioi.zeus.handlers.from_csv_metadata'
 logger = logging.getLogger(__name__)

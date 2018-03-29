@@ -1,16 +1,15 @@
 # ~*~ coding: utf-8 ~*~
 import os
-import urllib2
 import string
+import urllib2
 
-from django.core.management.base import BaseCommand, CommandError
-from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
-from django.db import transaction
 import unicodecsv
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+from django.utils.translation import ugettext as _
 
 from oioioi.oi.models import School
-
 
 COLUMNS = ['name', 'address', 'postal_code', 'city',
            'province', 'phone', 'email']

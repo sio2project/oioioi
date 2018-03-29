@@ -1,25 +1,25 @@
 import json
-import urllib
 import re
-from datetime import datetime
+import urllib
+from datetime import datetime  # pylint: disable=E0611
 
+from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.core.files.base import ContentFile
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
-from oioioi.contests.models import Contest, ProblemInstance, Submission, \
-        UserResultForProblem
+from oioioi.contests.models import (Contest, ProblemInstance, Submission,
+                                    UserResultForProblem)
 from oioioi.contests.scores import IntegerScore
-from oioioi.problems.models import Problem
-from oioioi.participants.models import Participant
 from oioioi.pa import utils
-from oioioi.pa.models import PARegistration, PAProblemInstanceData
-from oioioi.pa.score import ScoreDistribution, PAScore
 from oioioi.pa.controllers import A_PLUS_B_RANKING_KEY, B_RANKING_KEY
+from oioioi.pa.models import PAProblemInstanceData, PARegistration
+from oioioi.pa.score import PAScore, ScoreDistribution
+from oioioi.participants.models import Participant
+from oioioi.problems.models import Problem
 
 
 class TestPAScore(TestCase):

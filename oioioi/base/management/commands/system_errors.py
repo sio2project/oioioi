@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
-from oioioi.contests.models import FailureReport, Contest
+from oioioi.contests.models import Contest, FailureReport
 from oioioi.programs.models import TestReport
 
 

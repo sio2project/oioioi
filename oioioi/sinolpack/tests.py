@@ -5,27 +5,27 @@ import urllib
 import zipfile
 from cStringIO import StringIO
 
+from django.conf import settings
+from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.core.urlresolvers import reverse
+from django.test import TransactionTestCase
+from django.test.utils import override_settings
 from nose.plugins.attrib import attr
 from nose.tools import nottest
-from django.test.utils import override_settings
-from django.test import TransactionTestCase
-from django.core.management import call_command
-from django.core.urlresolvers import reverse
-from django.conf import settings
 
 from oioioi.base.tests import TestCase
-from oioioi.filetracker.tests import TestStreamingMixin
-from oioioi.sinolpack.package import SinolPackageBackend, \
-        DEFAULT_TIME_LIMIT, DEFAULT_MEMORY_LIMIT
-from oioioi.contests.models import ProblemInstance, Contest, \
-        Submission, UserResultForContest
-from oioioi.contests.scores import IntegerScore
-from oioioi.problems.models import Problem, ProblemStatement, ProblemPackage
-from oioioi.programs.models import Test, OutputChecker, ModelSolution, \
-        TestReport
-from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 from oioioi.contests.current_contest import ContestMode
+from oioioi.contests.models import (Contest, ProblemInstance, Submission,
+                                    UserResultForContest)
+from oioioi.contests.scores import IntegerScore
+from oioioi.filetracker.tests import TestStreamingMixin
+from oioioi.problems.models import Problem, ProblemPackage, ProblemStatement
+from oioioi.programs.models import (ModelSolution, OutputChecker, Test,
+                                    TestReport)
+from oioioi.sinolpack.models import ExtraConfig, ExtraFile
+from oioioi.sinolpack.package import (DEFAULT_MEMORY_LIMIT, DEFAULT_TIME_LIMIT,
+                                      SinolPackageBackend)
 
 
 @nottest

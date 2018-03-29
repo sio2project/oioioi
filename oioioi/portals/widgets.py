@@ -1,13 +1,13 @@
 import re
 import urlparse
 
-from mistune import Renderer, InlineGrammar, InlineLexer, Markdown, BlockLexer
 from django.conf import settings
 from django.core.urlresolvers import resolve, reverse
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
 
 from oioioi.contests.models import UserResultForProblem
 from oioioi.contests.views import submission_view

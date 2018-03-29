@@ -1,19 +1,18 @@
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
-from django.test import RequestFactory
-from django.core.urlresolvers import reverse
-from django.core.files.base import ContentFile
-from django.utils.timezone import utc
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
+from django.test import RequestFactory
+from django.utils.timezone import utc
 
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.programs.tests import SubmitFileMixin
-from oioioi.teams.models import TeamsConfig
-from oioioi.base.tests import TestCase, fake_time
-from oioioi.teams.utils import can_join_team, can_quit_team, can_delete_team, \
-                               can_create_team
+from oioioi.teams.models import TeamMembership, TeamsConfig
+from oioioi.teams.utils import (can_create_team, can_delete_team,
+                                can_join_team, can_quit_team)
 from oioioi.teams.views import create_team
-from oioioi.teams.models import TeamMembership
 
 
 class TestTeamsViews(TestCase, SubmitFileMixin):

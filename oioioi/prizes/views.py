@@ -1,16 +1,18 @@
-from collections import namedtuple, OrderedDict
+from collections import OrderedDict, namedtuple
+
 from django.conf import settings
-from django.http import Http404
-from django.template.response import TemplateResponse
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.http import Http404
 from django.shortcuts import get_object_or_404
-from oioioi.base.permissions import enforce_condition, make_request_condition
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.menu import menu_registry
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-        is_contest_admin
-from oioioi.prizes.models import PrizeForUser, PrizeGiving
+from oioioi.base.permissions import enforce_condition, make_request_condition
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin)
 from oioioi.filetracker.utils import stream_file
+from oioioi.prizes.models import PrizeForUser, PrizeGiving
 
 
 @make_request_condition

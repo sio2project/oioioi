@@ -1,6 +1,7 @@
 from django import template
 from django.template import Node, TemplateSyntaxError
 from django.utils.module_loading import import_string
+
 from oioioi.base.menu import MenuRegistry, menu_registry
 
 register = template.Library()

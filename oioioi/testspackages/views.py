@@ -1,18 +1,18 @@
 import os
 
 from django.conf import settings
-from django.template.response import TemplateResponse
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import PermissionDenied
+from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import not_anonymous, enforce_condition, \
-        make_request_condition
+from oioioi.base.permissions import (enforce_condition, make_request_condition,
+                                     not_anonymous)
 from oioioi.base.utils import request_cached
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-        is_contest_admin, visible_problem_instances
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin, visible_problem_instances)
 from oioioi.filetracker.utils import stream_file
 from oioioi.testspackages.models import TestsPackage
 

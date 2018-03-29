@@ -1,15 +1,14 @@
 import hashlib
+import itertools
 import logging
 import sys
-import dateutil.parser
-import itertools
 
+import dateutil.parser
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.core import signing
+from django.template.loader import render_to_string
 
 from oioioi.programs.models import ProgramSubmission
-
 
 SUBMISSION_RECEIVED_SALT = 'submission_reveived'
 logger = logging.getLogger(__name__)

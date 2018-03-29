@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.questions import views
 
-
 contest_patterns = [
     url(r'^questions/$', views.messages_view, name='contest_messages'),
     url(r'^questions/all/$', views.all_messages_view,

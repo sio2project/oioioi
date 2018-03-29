@@ -1,4 +1,4 @@
-from oioioi.contests.scores import ScoreValue, IntegerScore
+from oioioi.contests.scores import IntegerScore, ScoreValue
 
 
 class ScoreDistribution(object):

@@ -1,17 +1,17 @@
-from datetime import datetime
-import socket
 import os
+import socket
+from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
-from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE_CLASSES
-from oioioi.contests.models import Contest
 from oioioi.contestexcl.models import ExclusivenessConfig
+from oioioi.contests.models import Contest
 from oioioi.ipdnsauth.management.commands.ipdnsauth import Command
-from oioioi.ipdnsauth.models import IpToUser, DnsToUser
+from oioioi.ipdnsauth.models import DnsToUser, IpToUser
+from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE_CLASSES
 
 
 @override_settings(AUTHENTICATION_BACKENDS=AUTHENTICATION_BACKENDS +

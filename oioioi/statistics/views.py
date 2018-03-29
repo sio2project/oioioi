@@ -1,18 +1,18 @@
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
-from django.template.response import TemplateResponse
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.http import Http404
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.menu import menu_registry
-from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.statistics.utils import render_head, any_statistics_avaiable, \
-         can_see_stats
-from oioioi.statistics.controllers import statistics_categories
 from oioioi.base.permissions import enforce_condition
-from oioioi.contests.utils import contest_exists, can_enter_contest, \
-        is_contest_admin, is_contest_observer
+from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin, is_contest_observer)
+from oioioi.statistics.controllers import statistics_categories
+from oioioi.statistics.utils import (any_statistics_avaiable, can_see_stats,
+                                     render_head)
 
 
 def links(request):

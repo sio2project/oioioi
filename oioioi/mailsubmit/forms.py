@@ -6,8 +6,8 @@ from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import visible_problem_instances
 from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
 from oioioi.mailsubmit.models import MailSubmission
-from oioioi.mailsubmit.utils import is_mailsubmit_allowed, \
-        mail_submission_hashes
+from oioioi.mailsubmit.utils import (is_mailsubmit_allowed,
+                                     mail_submission_hashes)
 
 
 class MailSubmissionForm(forms.Form):

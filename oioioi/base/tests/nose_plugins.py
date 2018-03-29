@@ -1,6 +1,5 @@
-from nose.plugins import Plugin
-
 from django.core.cache import cache
+from nose.plugins import Plugin
 
 
 class ClearCache(Plugin):

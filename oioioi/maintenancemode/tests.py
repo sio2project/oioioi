@@ -1,8 +1,8 @@
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase
-from oioioi.maintenancemode.models import set_maintenance_mode, \
-                                          get_maintenance_mode
+from oioioi.maintenancemode.models import (get_maintenance_mode,
+                                           set_maintenance_mode)
 
 
 class TestMaintenanceMode(TestCase):

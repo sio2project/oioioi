@@ -1,22 +1,22 @@
 import urllib
 
 from django import forms
-from django.shortcuts import redirect
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils import request_cached, get_user_display_name
+from oioioi.base.utils import get_user_display_name, request_cached
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.controllers import RegistrationController, \
-        ContestController
-from oioioi.contests.utils import is_contest_admin, can_see_personal_data
-from oioioi.participants.models import Participant, RegistrationModel, \
-        OnsiteRegistration
+from oioioi.contests.controllers import (ContestController,
+                                         RegistrationController)
+from oioioi.contests.utils import can_see_personal_data, is_contest_admin
+from oioioi.participants.models import (OnsiteRegistration, Participant,
+                                        RegistrationModel)
 
 
 class ParticipantsController(RegistrationController):

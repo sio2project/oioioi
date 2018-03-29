@@ -1,14 +1,13 @@
-from django.test.utils import override_settings
 from django.contrib.auth.models import AnonymousUser
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
-from oioioi.portals.models import Portal, Node
 from oioioi.portals.actions import portal_url
-from oioioi.portals.widgets import render_panel, \
-        register_widget
+from oioioi.portals.models import Node, Portal
+from oioioi.portals.widgets import register_widget, render_panel
 from oioioi.problems.models import Problem, ProblemSite
 
 

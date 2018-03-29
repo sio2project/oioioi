@@ -1,5 +1,5 @@
-from oioioi.sharingcli.models import RemoteProblemURL
 from oioioi.problems.models import Problem
+from oioioi.sharingcli.models import RemoteProblemURL
 
 
 def save_url(env):

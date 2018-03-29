@@ -1,10 +1,8 @@
-from oioioi.contests.utils import is_contest_admin
-from oioioi.participants.models import Participant
-from oioioi.su.utils import is_under_su, reset_to_real_user
-
 from django.contrib import auth
 from django.core.exceptions import ImproperlyConfigured
 from django.template.response import TemplateResponse
+
+from oioioi.su.utils import is_under_su, reset_to_real_user
 
 
 # Code based on django.contrib.auth.middleware.RemoteUserMiddleware

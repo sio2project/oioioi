@@ -1,12 +1,12 @@
 import BaseHTTPServer
-import SocketServer
-import logging
 import cgi
 import json
+import logging
+import SocketServer
 
-from django.db import transaction
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import transaction
 
 from oioioi.evalmgr.tasks import delay_environ
 

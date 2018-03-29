@@ -1,40 +1,37 @@
 # coding: utf-8
 import urllib
+from collections import defaultdict
 
-from django.db import transaction
-from django.shortcuts import get_object_or_404, redirect
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.utils.encoding import force_unicode
-from django.utils.translation import ugettext as _
-from django.utils.safestring import mark_safe
-from django.views.decorators.http import require_POST
+from django.db import transaction
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.conf import settings
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
-from oioioi.base.utils import tabbed_view, jsonify
+from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.problems.models import ProblemStatement, ProblemAttachment, \
-        Problem, ProblemPackage, Tag
-from oioioi.filetracker.utils import stream_file
-from oioioi.problems.utils import can_admin_problem, \
-        query_statement, can_admin_instance_of_problem, \
-        can_admin_problem_instance, can_add_to_problemset
-from oioioi.problems.problem_sources import problem_sources
-from oioioi.problems.problem_site import problem_site_tab_registry
-from oioioi.contests.models import Submission, SubmissionReport, \
-        ProblemInstance
+from oioioi.contests.models import (ProblemInstance, Submission,
+                                    SubmissionReport)
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import is_contest_admin, administered_contests
-from oioioi.contests.middleware import activate_contest
-from oioioi.programs.models import ModelSolution, TestReport, GroupReport, \
-        ModelProgramSubmission
+from oioioi.contests.utils import administered_contests, is_contest_admin
+from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
+from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
+                                    ProblemStatement, Tag)
 
-from collections import defaultdict
-
+from oioioi.problems.problem_site import problem_site_tab_registry
+from oioioi.problems.problem_sources import problem_sources
+from oioioi.problems.utils import (can_add_to_problemset,
+                                   can_admin_instance_of_problem,
+                                   can_admin_problem,
+                                   can_admin_problem_instance, query_statement)
+from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
+                                    ModelSolution, TestReport)
 # problem_site_statement_zip_view is used in one of the tabs
 # in problem_site.py. We placed the view in problem_site.py
 # instead of views.py to avoid circular imports. We still import

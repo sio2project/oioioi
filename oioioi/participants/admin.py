@@ -1,24 +1,25 @@
-from django.contrib.auth.models import User
 from django.contrib.admin import RelatedFieldListFilter, SimpleListFilter
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.utils.text import capfirst
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
 from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
+from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
+
 from oioioi.base import admin
-from oioioi.contests.admin import RoundTimeExtensionAdmin, contest_site, \
-        SubmissionAdmin
 from oioioi.base.utils import make_html_link
-from oioioi.base.permissions import make_request_condition
+from oioioi.contests.admin import (RoundTimeExtensionAdmin, SubmissionAdmin,
+                                   contest_site)
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.participants.forms import ParticipantForm, ExtendRoundForm, \
-        RegionForm
-from oioioi.participants.models import Participant, OnsiteRegistration, Region
 from oioioi.contests.models import RoundTimeExtension
-from oioioi.participants.utils import contest_has_participants, \
-        is_contest_with_participants, has_participants_admin, \
-        contest_is_onsite
 from oioioi.contests.utils import is_contest_admin
+from oioioi.participants.forms import (ExtendRoundForm, ParticipantForm,
+                                       RegionForm)
+from oioioi.participants.models import OnsiteRegistration, Participant, Region
+from oioioi.participants.utils import (contest_has_participants,
+                                       contest_is_onsite,
+                                       has_participants_admin)
 
 
 class ParticipantAdmin(admin.ModelAdmin):

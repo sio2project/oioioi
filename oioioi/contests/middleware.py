@@ -1,12 +1,12 @@
 from django.conf import settings
-from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse, resolve, NoReverseMatch
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import NoReverseMatch, resolve, reverse
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 
+from oioioi.contests.current_contest import ContestMode, contest_re, set_cc_id
 from oioioi.contests.models import Contest, ContestView
 from oioioi.contests.utils import visible_contests
-from oioioi.contests.current_contest import set_cc_id, ContestMode, contest_re
 
 
 def activate_contest(request, contest):

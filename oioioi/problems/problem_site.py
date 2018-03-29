@@ -1,22 +1,21 @@
 import sys
 from collections import namedtuple
-from operator import itemgetter
+from operator import itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.safestring import mark_safe
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.menu import OrderedRegistry
-from oioioi.problems.utils import query_statement, query_zip
-from oioioi.problems.models import ProblemAttachment, Problem
-from oioioi.contests.models import Submission
-from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.controllers import submission_template_context
-
+from oioioi.contests.forms import SubmissionFormForProblemInstance
+from oioioi.contests.models import Submission
+from oioioi.problems.models import Problem, ProblemAttachment
+from oioioi.problems.utils import query_statement, query_zip
 
 problem_site_tab_registry = OrderedRegistry()
 

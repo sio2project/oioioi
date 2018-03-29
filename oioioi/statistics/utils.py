@@ -1,4 +1,5 @@
 from django.template.loader import render_to_string
+
 from oioioi.base.permissions import make_request_condition
 from oioioi.programs.controllers import ProgrammingContestController
 

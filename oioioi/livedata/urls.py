@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.livedata import views
 
-
 contest_patterns = [
     url(r'^teams/(?P<round_id>\d+)/$', views.livedata_teams_view,
         name='livedata_teams_view'),

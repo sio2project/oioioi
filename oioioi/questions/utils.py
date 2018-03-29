@@ -1,9 +1,9 @@
-from django.contrib.admin.models import LogEntry, ADDITION
+from django.contrib.admin.models import ADDITION, LogEntry
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.contests.utils import visible_rounds, visible_problem_instances
+from oioioi.contests.utils import visible_problem_instances, visible_rounds
 
 
 # taken from django.contrib.admin.options.ModelAdmin

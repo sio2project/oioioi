@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
 import re
-import oioioi.contests.fields
-import oioioi.base.utils.validators
-import oioioi.filetracker.fields
+
+import django.core.validators
 import django.utils.timezone
 from django.conf import settings
+from django.db import migrations, models
+
 import oioioi.base.fields
-import django.core.validators
+import oioioi.base.utils.validators
+import oioioi.contests.fields
 import oioioi.contests.models
+import oioioi.filetracker.fields
 
 
 class Migration(migrations.Migration):

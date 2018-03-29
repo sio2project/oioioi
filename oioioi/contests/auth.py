@@ -1,5 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
-from oioioi.contests.models import ContestPermission, Contest
+
+from oioioi.contests.models import Contest, ContestPermission
 
 
 class ContestPermissionsAuthBackend(object):

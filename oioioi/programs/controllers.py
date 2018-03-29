@@ -1,35 +1,36 @@
-import os.path
+import hashlib
 import itertools
 import logging
-import hashlib
-from operator import attrgetter
+import os.path
+from operator import attrgetter  # pylint: disable=E0611
 
+from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django import forms
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.inputs import narrow_input_field
+from oioioi.contests.controllers import (ContestController,
+                                         submission_template_context)
+from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.evalmgr.tasks import (add_before_placeholder,
+                                  extend_after_placeholder, recipe_placeholder)
+from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
-from oioioi.contests.controllers import ContestController, \
-        submission_template_context
-from oioioi.contests.models import SubmissionReport, ScoreReport
-from oioioi.programs.models import ProgramSubmission, OutputChecker, \
-        CompilationReport, TestReport, GroupReport, ModelProgramSubmission, \
-        Submission, UserOutGenStatus
-from oioioi.programs.problem_instance_utils import \
-        get_allowed_languages_dict, get_allowed_languages_extensions, \
-        get_language_by_extension
+from oioioi.programs.models import (CompilationReport, GroupReport,
+                                    ModelProgramSubmission, OutputChecker,
+                                    ProgramSubmission, Submission, TestReport,
+                                    UserOutGenStatus)
+from oioioi.programs.problem_instance_utils import (get_allowed_languages_dict,
+                                                    get_allowed_languages_extensions,
+                                                    get_language_by_extension)
 from oioioi.programs.utils import has_report_actions_config
-from oioioi.filetracker.utils import django_to_filetracker_path
-from oioioi.evalmgr.tasks import recipe_placeholder, add_before_placeholder, \
-        extend_after_placeholder
 
 logger = logging.getLogger(__name__)
 

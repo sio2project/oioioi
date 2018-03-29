@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
+
 
 def assign_problem_instances(apps, schema_editor):
     """Finds :class:`oioioi.contests.models.ProblemInstance` assigned to every

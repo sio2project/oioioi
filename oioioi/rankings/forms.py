@@ -1,6 +1,7 @@
 from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.utils.user_selection import UserSelectionField
 
 

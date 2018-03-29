@@ -1,13 +1,12 @@
-from django.core.exceptions import ValidationError, ImproperlyConfigured
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from django.conf import settings
 
-from oioioi.contests.models import Contest
 from oioioi.contests.date_registration import date_registry
-
+from oioioi.contests.models import Contest
 
 if settings.ONLY_DEFAULT_CONTEST:
     if settings.DEFAULT_CONTEST is None:

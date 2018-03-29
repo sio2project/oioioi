@@ -3,17 +3,16 @@
 # This script is intended to be run on client's machine.
 # Use this to submit your solutions to an OIOIOI server instance.
 
-import sys
-import json
-import webbrowser
 import itertools
+import json
 import mimetools
 import mimetypes
+import sys
 import urllib2
-
+import webbrowser
 from optparse import OptionParser
-from urlparse import urlparse
 from os.path import expanduser, splitext
+from urlparse import urlparse
 
 
 class MultiPartForm(object):

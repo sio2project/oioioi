@@ -1,18 +1,18 @@
 from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import redirect, get_object_or_404
 
 from oioioi.base.menu import menu_registry
-from oioioi.contests.utils import can_enter_contest, is_contest_admin, \
-    contest_exists, get_submission_or_error
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.forms import SubmissionForm
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   get_submission_or_error, is_contest_admin)
+from oioioi.filetracker.utils import stream_file
 from oioioi.programs.utils import decode_str
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
-from oioioi.filetracker.utils import stream_file
-from oioioi.testrun.utils import has_any_testrun_problem, \
-    filter_testrun_problem_instances
+from oioioi.testrun.utils import (filter_testrun_problem_instances,
+                                  has_any_testrun_problem)
 
 
 @menu_registry.register_decorator(_("Test run"), lambda request:

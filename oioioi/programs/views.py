@@ -1,36 +1,36 @@
 import difflib
-import zipfile
+import logging
 import os
 import shutil
 import tempfile
-import logging
+import zipfile
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.files import File
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse
-from django.views.decorators.http import require_POST
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
-
+from django.views.decorators.http import require_POST
 from pygments import highlight
-from pygments.lexers import guess_lexer_for_filename
 # pylint: disable=no-name-in-module
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import guess_lexer_for_filename
 from pygments.util import ClassNotFound
 
-from oioioi.programs.models import ProgramSubmission, TestReport, Test, \
-        OutputChecker, SubmissionReport, UserOutGenStatus
-from oioioi.programs.utils import decode_str, \
-        get_submission_source_file_or_error
-from oioioi.contests.utils import contest_exists, can_enter_contest, \
-        is_contest_admin, get_submission_or_error
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import strip_num_or_hash
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   get_submission_or_error, is_contest_admin)
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_instance_of_problem
+from oioioi.programs.models import (OutputChecker, ProgramSubmission,
+                                    SubmissionReport, Test, TestReport,
+                                    UserOutGenStatus)
+from oioioi.programs.utils import (decode_str,
+                                   get_submission_source_file_or_error)
 
 # Workaround for race condition in fnmatchcase which is used by pygments
 import fnmatch

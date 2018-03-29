@@ -3,11 +3,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
-from oioioi.contests.admin import ContestAdmin, ProblemNameListFilter, \
-        contest_site
+from oioioi.contests.admin import (ContestAdmin, ProblemNameListFilter,
+                                   contest_site)
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.mailsubmit.models import MailSubmissionConfig, MailSubmission
+from oioioi.mailsubmit.models import MailSubmission, MailSubmissionConfig
 from oioioi.mailsubmit.utils import accept_mail_submission, is_mailsubmit_used
 
 

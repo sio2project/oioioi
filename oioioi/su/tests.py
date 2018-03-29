@@ -7,9 +7,9 @@ from django.test.client import RequestFactory
 from django.test.utils import override_settings
 
 from oioioi.base.tests import TestCase
-from oioioi.su import SU_UID_SESSION_KEY, SU_BACKEND_SESSION_KEY
-from oioioi.su.utils import get_user, su_to_user
 from oioioi.contests.current_contest import ContestMode
+from oioioi.su import SU_BACKEND_SESSION_KEY, SU_UID_SESSION_KEY
+from oioioi.su.utils import get_user, su_to_user
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)

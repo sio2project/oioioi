@@ -1,14 +1,14 @@
-import tempfile
 import os
+import tempfile
 
-from django.template.response import TemplateResponse
 from django.http import FileResponse
+from django.template.response import TemplateResponse
 
-from oioioi.contests.utils import contest_exists, is_contest_admin
 from oioioi.base.permissions import enforce_condition
+from oioioi.contests.utils import contest_exists, is_contest_admin
 from oioioi.exportszu.forms import ExportSubmissionsForm
-from oioioi.exportszu.utils import SubmissionsWithUserDataCollector, \
-        build_submissions_archive
+from oioioi.exportszu.utils import (SubmissionsWithUserDataCollector,
+                                    build_submissions_archive)
 
 
 @enforce_condition(contest_exists & is_contest_admin)

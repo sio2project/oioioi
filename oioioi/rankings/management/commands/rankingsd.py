@@ -1,9 +1,10 @@
 import time
 
-from django.core.management.base import BaseCommand
-from oioioi.rankings.models import choose_for_recalculation, recalculate
-from django.utils.translation import ugettext as _
 from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext as _
+
+from oioioi.rankings.models import choose_for_recalculation, recalculate
 
 
 class Command(BaseCommand):

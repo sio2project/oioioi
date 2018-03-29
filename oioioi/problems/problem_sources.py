@@ -1,26 +1,26 @@
 import logging
 
 from django.conf import settings
-from django.db import transaction
-from django.template.response import TemplateResponse
-from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import smart_str
-from django.utils.http import urlencode
-from django.utils.module_loading import import_string
 from django.contrib import messages
 from django.core.files import File
 from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.shortcuts import redirect
+from django.template.response import TemplateResponse
+from django.utils.encoding import smart_str
+from django.utils.http import urlencode
+from django.utils.module_loading import import_string
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import memoized, uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import is_contest_admin
+from oioioi.problems.forms import PackageUploadForm, ProblemsetSourceForm
+from oioioi.problems.models import Problem, ProblemPackage
 from oioioi.problems.package import backend_for_package
 from oioioi.problems.unpackmgr import unpackmgr_job
-from oioioi.problems.models import ProblemPackage, Problem
-from oioioi.problems.forms import PackageUploadForm, ProblemsetSourceForm
-from oioioi.problems.utils import update_tests_from_main_pi, \
-        get_new_problem_instance
+from oioioi.problems.utils import (get_new_problem_instance,
+                                   update_tests_from_main_pi)
 
 logger = logging.getLogger(__name__)
 

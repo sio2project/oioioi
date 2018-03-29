@@ -1,27 +1,26 @@
 import urllib
 
-from django.template.response import TemplateResponse
+from django.contrib import admin, messages
+from django.contrib.admin import helpers
+from django.contrib.admin.sites import AdminSite as DjangoAdminSite
+from django.contrib.admin.utils import NestedObjects, model_ngettext, unquote
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404
-from django.utils.encoding import force_unicode, force_text
-from django.utils.html import escape
-from django.contrib.admin import helpers
-from django.contrib.admin.utils import unquote, model_ngettext, NestedObjects
-from django.contrib.admin.sites import AdminSite as DjangoAdminSite
-from django.contrib import admin
-from django.contrib.auth.models import User
-from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import ugettext_lazy as _
-from django.utils.text import capfirst
-from django.contrib import messages
 from django.db import router
+from django.http import Http404, HttpResponseRedirect
+from django.template.response import TemplateResponse
+from django.utils.encoding import force_text, force_unicode
+from django.utils.html import escape
+from django.utils.text import capfirst
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.permissions import is_superuser
-from oioioi.base.utils import ObjectWithMixins, ClassInitMeta
-from oioioi.base.utils.redirect import safe_redirect
-from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
 from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
+from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
+from oioioi.base.permissions import is_superuser
+from oioioi.base.utils import ClassInitMeta, ObjectWithMixins
+from oioioi.base.utils.redirect import safe_redirect
 
 TabularInline = admin.TabularInline
 StackedInline = admin.StackedInline

@@ -3,8 +3,8 @@
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase, check_not_accessible
-from oioioi.similarsubmits.models import SubmissionsSimilarityGroup
 from oioioi.similarsubmits.forms import BulkAddSubmissionsSimilarityForm
+from oioioi.similarsubmits.models import SubmissionsSimilarityGroup
 
 
 class TestSimilarSubmitViews(TestCase):

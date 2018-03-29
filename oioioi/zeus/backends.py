@@ -1,15 +1,14 @@
-import json
 import base64
-import urllib2
 import httplib
+import json
 import logging
 import pprint
 import time
+import urllib2
 from urlparse import urljoin
 
 from django.conf import settings
 from django.utils.module_loading import import_string
-
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,8 @@
 # pylint: disable=dangerous-default-value
-import tempfile
 import codecs
 import os.path
 import shutil
+import tempfile
 
 from django.core.files.base import File
 

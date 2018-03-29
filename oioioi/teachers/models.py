@@ -1,10 +1,11 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
-from oioioi.base.utils.deps import check_django_app_dependencies
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.utils import generate_key
+from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.contests.models import Contest
 
 check_django_app_dependencies(__name__, ['oioioi.participants'])

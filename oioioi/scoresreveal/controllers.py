@@ -1,14 +1,17 @@
-from datetime import timedelta
+from datetime import timedelta  # pylint: disable=E0611
+
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
-from oioioi.contests.models import Submission
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
+
 from oioioi.contests.controllers import submission_template_context
-from oioioi.programs.controllers import ProgrammingProblemController, \
-    ProgrammingContestController
-from oioioi.scoresreveal.utils import has_scores_reveal, is_revealed
+from oioioi.contests.models import Submission
+from oioioi.programs.controllers import (ProgrammingContestController,
+                                         ProgrammingProblemController)
 from oioioi.scoresreveal.models import ScoreReveal
+from oioioi.scoresreveal.utils import has_scores_reveal, is_revealed
 
 
 class ScoresRevealProblemControllerMixin(object):

@@ -1,19 +1,20 @@
 import datetime
 import functools
+
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import dateformat
 from django.utils.timezone import utc
-from django.http import HttpResponse
-from oioioi.base.permissions import make_request_condition, enforce_condition
-from oioioi.base.utils import jsonify, allow_cross_origin
-from oioioi.contests.models import SubmissionReport
-from oioioi.contests.utils import is_contest_observer, is_contest_admin, \
-        contest_exists
-from oioioi.livedata.utils import can_see_livedata, get_display_name
 
+from oioioi.base.permissions import enforce_condition
+from oioioi.base.utils import allow_cross_origin, jsonify
+from oioioi.contests.models import SubmissionReport
+from oioioi.contests.utils import (contest_exists, is_contest_admin,
+                                   is_contest_observer)
+from oioioi.livedata.utils import can_see_livedata, get_display_name
 
 RESULT_FOR_FROZEN_SUBMISSION = 'FROZEN'
 

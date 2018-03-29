@@ -1,8 +1,8 @@
+import bleach
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from oioioi.dashboard.models import DashboardMessage
 
-import bleach
+from oioioi.dashboard.models import DashboardMessage
 
 
 class DashboardMessageForm(forms.ModelForm):

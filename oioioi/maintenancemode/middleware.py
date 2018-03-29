@@ -1,7 +1,7 @@
-from django.http import HttpResponseRedirect
-from django.conf import settings
-
 import re
+
+from django.conf import settings
+from django.http import HttpResponseRedirect
 
 from oioioi.maintenancemode.models import is_maintenance_mode_enabled
 

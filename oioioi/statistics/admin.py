@@ -1,6 +1,6 @@
 from oioioi.base import admin
-from oioioi.statistics.models import StatisticsConfig
 from oioioi.contests.admin import ContestAdmin
+from oioioi.statistics.models import StatisticsConfig
 
 
 class StatisticsConfigInline(admin.TabularInline):

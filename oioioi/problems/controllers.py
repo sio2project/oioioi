@@ -1,24 +1,23 @@
+import json
 import logging
 import pprint
-import json
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.template import RequestContext
 from django.db import transaction
 from django.db.models import Q
+from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
-from oioioi.contests.models import Submission, SubmissionReport, \
-        UserResultForProblem, FailureReport
+from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
+from oioioi.contests.models import (FailureReport, Submission,
+                                    SubmissionReport, UserResultForProblem)
 from oioioi.contests.scores import IntegerScore
 from oioioi.evalmgr.tasks import create_environ, delay_environ
 from oioioi.problems.utils import can_admin_problem
-from django.utils.translation import ugettext_lazy as _
-
 
 logger = logging.getLogger(__name__)
 

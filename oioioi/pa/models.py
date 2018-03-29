@@ -2,10 +2,11 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.fields import PostalCodeField, EnumField, EnumRegistry
+from oioioi.base.fields import EnumField, EnumRegistry, PostalCodeField
 from oioioi.base.utils.deps import check_django_app_dependencies
-from oioioi.participants.models import RegistrationModel
 from oioioi.contests.models import ProblemInstance
+from oioioi.participants.models import RegistrationModel
+
 # pylint: disable=unused-import
 from oioioi.pa.score import PAScore  # Registers the PA score type
 

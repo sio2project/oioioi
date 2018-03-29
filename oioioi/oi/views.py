@@ -1,20 +1,20 @@
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
-from django.template.response import TemplateResponse, SimpleTemplateResponse
-from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.views.decorators.http import require_POST, require_GET
+from django.template.loader import render_to_string
+from django.template.response import SimpleTemplateResponse, TemplateResponse
+from django.views.decorators.http import require_GET, require_POST
 
-from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import is_contest_admin
-from oioioi.oi.forms import SchoolSelect, city_options, school_options, \
-        AddSchoolForm
-from oioioi.oi.models import School
-from oioioi.oi.controllers import OIRegistrationController
 from oioioi.dashboard.registry import dashboard_headers_registry
+from oioioi.oi.controllers import OIRegistrationController
+from oioioi.oi.forms import (AddSchoolForm, SchoolSelect, city_options,
+                             school_options)
+from oioioi.oi.models import School
 from oioioi.participants.utils import is_participant
 
 

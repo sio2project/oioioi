@@ -1,9 +1,10 @@
 import sys
-from django.core.urlresolvers import reverse
-from oioioi.base.permissions import Condition, enforce_condition
-from oioioi.base.menu import MenuRegistry
-from oioioi.portals.conditions import is_portal_admin
 
+from django.core.urlresolvers import reverse
+
+from oioioi.base.menu import MenuRegistry
+from oioioi.base.permissions import Condition, enforce_condition
+from oioioi.portals.conditions import is_portal_admin
 
 portal_actions = {}
 node_actions = {}

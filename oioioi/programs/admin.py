@@ -1,21 +1,21 @@
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin import SimpleListFilter
-from django.db.models import Q
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
-from django.utils.html import conditional_escape
-from django.utils.encoding import force_unicode
+from django.db.models import Q
 from django.forms.models import BaseInlineFormSet
+from django.shortcuts import redirect
+from django.utils.encoding import force_unicode
+from django.utils.html import conditional_escape
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import make_html_link
-from oioioi.contests.models import ProblemInstance
 from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
-from oioioi.problems.admin import ProblemPackageAdmin, MainProblemInstanceAdmin
-from oioioi.programs.models import Test, ModelSolution, OutputChecker, \
-        LibraryProblemData, ReportActionsConfig
+from oioioi.contests.models import ProblemInstance
+from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
+from oioioi.programs.models import (LibraryProblemData, ModelSolution,
+                                    OutputChecker, ReportActionsConfig, Test)
 
 
 class ValidationFormset(BaseInlineFormSet):

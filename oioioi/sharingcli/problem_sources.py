@@ -1,8 +1,8 @@
 import logging
+import shutil
+import tempfile
 import urllib
 import urllib2
-import tempfile
-import shutil
 from contextlib import contextmanager
 
 from django.conf import settings
@@ -11,7 +11,6 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.problems.problem_sources import PackageSource
 from oioioi.sharingcli.forms import RemoteProblemForm
 from oioioi.sharingcli.models import RemoteProblemURL
-
 
 logger = logging.getLogger(__name__)
 

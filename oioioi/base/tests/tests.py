@@ -1,47 +1,47 @@
-import random
-import sys
+import logging
 import os.path
+import random
 import re
-import tempfile
 import shutil
 import subprocess
-import logging
+import sys
+import tempfile
 from importlib import import_module
 
-from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, get_user
-from django.http import HttpResponseRedirect
-from django.template.response import TemplateResponse
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth import REDIRECT_FIELD_NAME, authenticate, get_user
+from django.contrib.auth.models import AnonymousUser, User
 from django.core import mail
-from django.core.files.uploadedfile import TemporaryUploadedFile, \
-        SimpleUploadedFile
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
-from django.test.client import RequestFactory
-from django.contrib.auth.models import User, AnonymousUser
-from django.template import Context, Template
-from django.forms import ValidationError
+from django.core.exceptions import PermissionDenied
+from django.core.files.uploadedfile import (SimpleUploadedFile,
+                                            TemporaryUploadedFile)
 from django.core.handlers.wsgi import WSGIRequest
+from django.core.urlresolvers import reverse
+from django.forms import ValidationError
 from django.forms.fields import CharField, IntegerField
+from django.http import HttpResponseRedirect
+from django.template import Context, Template
+from django.template.response import TemplateResponse
+from django.test.client import RequestFactory
+from django.test.utils import override_settings
 
 from oioioi.base import utils
-from oioioi.base.tests import TestCase
-from oioioi.base.permissions import is_superuser, Condition, make_condition, \
-    make_request_condition, RequestBasedCondition, enforce_condition
-from oioioi.base.utils import RegisteredSubclassesBase, archive
-from oioioi.base.utils import strip_num_or_hash, split_extension
-from oioioi.base.utils.execute import execute, ExecuteError
-from oioioi.base.fields import DottedNameField, EnumRegistry, EnumField
-from oioioi.base.menu import menu_registry, OrderedRegistry, \
-    side_pane_menus_registry, MenuRegistry
+from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
+from oioioi.base.main_page import (register_main_page_view,
+                                   unregister_main_page_view)
 from oioioi.base.management.commands import import_users
-from oioioi.contests.utils import is_contest_admin
-from oioioi.base.notification import NotificationHandler
+from oioioi.base.menu import (MenuRegistry, OrderedRegistry, menu_registry,
+                              side_pane_menus_registry)
 from oioioi.base.middleware import UserInfoInErrorMessage
-from oioioi.base.main_page import register_main_page_view, \
-        unregister_main_page_view
-
+from oioioi.base.notification import NotificationHandler
+from oioioi.base.permissions import (Condition, RequestBasedCondition,
+                                     enforce_condition, is_superuser,
+                                     make_condition, make_request_condition)
+from oioioi.base.tests import TestCase
+from oioioi.base.utils import (RegisteredSubclassesBase, archive,
+                               split_extension, strip_num_or_hash)
+from oioioi.base.utils.execute import ExecuteError, execute
+from oioioi.contests.utils import is_contest_admin
 
 if not getattr(settings, 'TESTS', False):
     print >> sys.stderr, 'The tests are not using the required test ' \

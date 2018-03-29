@@ -1,15 +1,15 @@
 from django import forms
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from oioioi.base.utils.user_selection import UserSelectionField
-from oioioi.base.utils.inputs import narrow_input_field
-from oioioi.base.widgets import DateTimePicker
-from oioioi.contests.models import Round, ProblemInstance
-from oioioi.contests.utils import is_contest_admin
-from oioioi.questions.models import message_kinds, Message, ReplyTemplate
-from oioioi.questions.utils import get_categories, get_category
-
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
+
+from oioioi.base.utils.inputs import narrow_input_field
+from oioioi.base.utils.user_selection import UserSelectionField
+from oioioi.base.widgets import DateTimePicker
+from oioioi.contests.models import ProblemInstance, Round
+from oioioi.contests.utils import is_contest_admin
+from oioioi.questions.models import Message, ReplyTemplate, message_kinds
+from oioioi.questions.utils import get_categories, get_category
 
 
 class AddContestMessageForm(forms.ModelForm):

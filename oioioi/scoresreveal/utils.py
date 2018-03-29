@@ -1,4 +1,4 @@
-from oioioi.scoresreveal.models import ScoreRevealConfig, ScoreReveal
+from oioioi.scoresreveal.models import ScoreReveal, ScoreRevealConfig
 
 
 def has_scores_reveal(problem):

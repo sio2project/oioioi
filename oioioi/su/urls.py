@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.su import views
 
-
 urlpatterns = [
     url(r'^su/$', views.su_view, name='su'),
     url(r'^get_suable_usernames/', views.get_suable_users_view,

@@ -1,12 +1,10 @@
 from celery.exceptions import Ignore
-
 from django.db import transaction
 
-from oioioi.contests.models import Submission
 from oioioi.contests.handlers import _get_submission_or_skip
+from oioioi.evalmgr.utils import mark_job_state
 from oioioi.programs.models import ModelProgramSubmission
 from oioioi.suspendjudge.models import SuspendedProblem
-from oioioi.evalmgr.utils import mark_job_state
 
 
 def _is_suspended(problem_instance_id, suspend_init_tests=None):

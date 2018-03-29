@@ -1,10 +1,10 @@
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.fields import BLANK_CHOICE_DASH, exceptions
+from django.forms import ValidationError
 from django.utils.encoding import smart_text
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
-from django.forms import ValidationError
-from django.core.validators import RegexValidator
 
 
 class DottedNameField(models.CharField):

@@ -1,6 +1,7 @@
-from django.core.urlresolvers import get_script_prefix
-from oioioi.base.menu import side_pane_menus_registry
 from django.conf import settings
+from django.core.urlresolvers import get_script_prefix
+
+from oioioi.base.menu import side_pane_menus_registry
 
 
 def base_url(request):

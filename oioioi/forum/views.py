@@ -1,19 +1,21 @@
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.confirmation import confirmation_view
-from oioioi.contests.utils import contest_exists, can_enter_contest, \
-        is_contest_admin
 from oioioi.contests.menu import contest_admin_menu_registry
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin)
+from oioioi.forum.forms import NewThreadForm, PostForm
 from oioioi.forum.models import Category
-from oioioi.forum.forms import PostForm, NewThreadForm
-from oioioi.forum.utils import forum_exists_and_visible, is_proper_forum, \
-        is_not_locked, get_forum_ct, get_forum_ctp, get_msgs, forum_is_locked
+from oioioi.forum.utils import (forum_exists_and_visible, forum_is_locked,
+                                get_forum_ct, get_forum_ctp, get_msgs,
+                                is_not_locked, is_proper_forum)
 
 
 # registering forum

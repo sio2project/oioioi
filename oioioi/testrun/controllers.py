@@ -1,25 +1,25 @@
-from zipfile import is_zipfile
-import tempfile
 import shutil
+import tempfile
+from zipfile import is_zipfile
 
-from django.template.loader import render_to_string
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.core.files.base import ContentFile
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
-from django.utils.safestring import mark_safe
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.base import ContentFile
 from django.template.context import RequestContext
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.programs.controllers import ProgrammingContestController, \
-        ProgrammingProblemController
-from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import SubmissionReport, ScoreReport, Submission
-from oioioi.evalmgr.tasks import extend_after_placeholder
-from oioioi.programs.models import CompilationReport
 from oioioi.base.utils.archive import Archive
+from oioioi.contests.controllers import submission_template_context
+from oioioi.contests.models import ScoreReport, Submission, SubmissionReport
+from oioioi.evalmgr.tasks import extend_after_placeholder
+from oioioi.programs.controllers import (ProgrammingContestController,
+                                         ProgrammingProblemController)
+from oioioi.programs.models import CompilationReport
 from oioioi.programs.problem_instance_utils import \
-        get_allowed_languages_extensions
+    get_allowed_languages_extensions
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 
 

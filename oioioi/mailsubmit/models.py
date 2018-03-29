@@ -10,7 +10,6 @@ from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import Contest, ProblemInstance, Submission
 from oioioi.filetracker.fields import FileField
 
-
 check_django_app_dependencies(__name__, ['oioioi.contests', 'oioioi.programs'])
 
 

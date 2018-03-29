@@ -1,21 +1,21 @@
-from uuid import uuid4
 import urllib
+from uuid import uuid4
 
-from django.core.urlresolvers import reverse
-from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.mail import EmailMessage
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
-from django.shortcuts import redirect
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.permissions import enforce_condition, make_request_condition
-from oioioi.contests.utils import can_enter_contest, contest_exists, \
-        is_contest_admin
 from oioioi.base.menu import menu_registry
+from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.complaints.forms import AddComplaintForm
 from oioioi.complaints.models import ComplaintsConfig
+from oioioi.contests.utils import (can_enter_contest, contest_exists,
+                                   is_contest_admin)
 from oioioi.participants.models import Participant
 
 

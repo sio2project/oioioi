@@ -2,7 +2,6 @@ from django.conf.urls import include, url
 
 from oioioi.programs import views
 
-
 userout_patterns = [
     url(r'^generate/one/(?P<testreport_id>\d+)/$',
         views.generate_user_output_view, name='generate_user_output'),

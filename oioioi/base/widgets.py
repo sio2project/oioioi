@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module, line-too-long
+from django import forms
 from django.forms.utils import flatatt
 from django.template.loader import render_to_string
-from django import forms
 
 
 # passing classes through the usual attrs attribute won't work

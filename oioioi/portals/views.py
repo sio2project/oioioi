@@ -1,27 +1,30 @@
 import json
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import Http404, HttpResponse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.safestring import mark_safe
-from django.core.urlresolvers import reverse
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
-from django.template.loader import render_to_string
+
 from django.contrib.auth.models import User
+from django.core.exceptions import SuspiciousOperation
+from django.core.urlresolvers import reverse
 from django.db import IntegrityError
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
+from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 from mptt.exceptions import InvalidMove
-from oioioi.base.permissions import enforce_condition, is_superuser, \
-        not_anonymous
-from oioioi.base.menu import account_menu_registry
+
 from oioioi.base.main_page import register_main_page_view
-from oioioi.portals.models import Node, Portal
+from oioioi.base.menu import account_menu_registry
+from oioioi.base.permissions import (enforce_condition, is_superuser,
+                                     not_anonymous)
+from oioioi.portals.actions import (DEFAULT_ACTION_NAME, node_actions,
+                                    portal_actions, portal_url,
+                                    register_node_action,
+                                    register_portal_action)
+from oioioi.portals.conditions import (current_node_is_root,
+                                       global_portal_exists, is_portal_admin)
 from oioioi.portals.forms import NodeForm
-from oioioi.portals.actions import node_actions, portal_actions, \
-        register_node_action, register_portal_action, portal_url, \
-        DEFAULT_ACTION_NAME
-from oioioi.portals.widgets import render_panel
+from oioioi.portals.models import Node, Portal
 from oioioi.portals.utils import resolve_path
-from oioioi.portals.conditions import is_portal_admin, current_node_is_root, \
-        global_portal_exists
+from oioioi.portals.widgets import render_panel
 
 # pylint: disable=W0611
 import oioioi.portals.handlers

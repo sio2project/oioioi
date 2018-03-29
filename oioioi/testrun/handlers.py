@@ -1,13 +1,14 @@
 from django.db import transaction
 from django.utils.text import Truncator
 
-from oioioi.programs.handlers import _skip_on_compilation_error, \
-    _make_base_report, _get_submission_or_skip
-from oioioi.testrun.models import TestRunProgramSubmission, TestRunConfig, \
-    TestRunReport
-from oioioi.filetracker.utils import django_to_filetracker_path, \
-    filetracker_to_django_file
 from oioioi.filetracker.client import get_client
+from oioioi.filetracker.utils import (django_to_filetracker_path,
+                                      filetracker_to_django_file)
+from oioioi.programs.handlers import (_get_submission_or_skip,
+                                      _make_base_report,
+                                      _skip_on_compilation_error)
+from oioioi.testrun.models import (TestRunConfig, TestRunProgramSubmission,
+                                   TestRunReport)
 
 
 @_skip_on_compilation_error

@@ -1,13 +1,12 @@
 import unicodecsv
-
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.utils.encoding import force_unicode
 
 from oioioi.base.permissions import make_request_condition
+from oioioi.base.utils import request_cached
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
-from oioioi.base.utils import request_cached
 
 
 def is_contest_with_participants(contest):

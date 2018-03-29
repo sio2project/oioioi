@@ -1,25 +1,25 @@
 import json
-import mock
 from copy import deepcopy
+from datetime import datetime  # pylint: disable=E0611
 
+import mock
+from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
-from django.utils import timezone
 from django.test import RequestFactory
+from django.utils import timezone
 
+from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.questions.forms import FilterMessageForm
+from oioioi.questions.management.commands.mailnotifyd import (candidate_messages,
+                                                              mailnotify)
+from oioioi.questions.models import Message, ReplyTemplate
 from oioioi.questions.utils import unanswered_questions
-from oioioi.base.notification import NotificationHandler
-from .views import visible_messages
-from oioioi.questions.management.commands.mailnotifyd import \
-    mailnotify, candidate_messages
 
-from datetime import datetime
+from .views import visible_messages
 
 
 class TestContestControllerMixin(object):

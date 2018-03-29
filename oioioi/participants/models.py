@@ -1,16 +1,15 @@
-from nose.tools import nottest
+from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from nose.tools import nottest
 
-from oioioi.base.fields import EnumRegistry, EnumField
+from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.base.utils.deps import check_django_app_dependencies
 from oioioi.base.utils.validators import validate_db_string_id
 from oioioi.contests.models import Contest
 from oioioi.participants.fields import \
-        OneToOneBothHandsCascadingParticipantField
-
+    OneToOneBothHandsCascadingParticipantField
 
 check_django_app_dependencies(__name__, ['oioioi.contestexcl'])
 

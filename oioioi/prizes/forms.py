@@ -2,6 +2,7 @@ from django import forms
 from django.forms.models import BaseInlineFormSet
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.prizes.models import Prize, PrizeGiving
 
 

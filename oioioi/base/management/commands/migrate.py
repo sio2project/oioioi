@@ -1,8 +1,8 @@
+import os
+
 from django.conf import settings
 from django.core.management.commands import migrate
 from django.db import connection
-
-import os
 
 GITHUB_LINK = "https://github.com/sio2project/oioioi" \
         "#upgrading-from-an-old-version"

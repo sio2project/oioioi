@@ -1,16 +1,15 @@
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-
-from django.utils.translation import ungettext_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
 from django.views.decorators.http import require_POST
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.utils import contest_exists, is_contest_admin
 from oioioi.similarsubmits.forms import BulkAddSubmissionsSimilarityForm
-from oioioi.similarsubmits.models import SubmissionsSimilarityGroup, \
-        SubmissionsSimilarityEntry
+from oioioi.similarsubmits.models import (SubmissionsSimilarityEntry,
+                                          SubmissionsSimilarityGroup)
 from oioioi.similarsubmits.utils import is_correct_submissionssimilarity
 
 

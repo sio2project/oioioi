@@ -4,8 +4,9 @@ from django.contrib.auth.models import User
 from django.core import mail
 
 from oioioi.base.tests import TestCase
-from oioioi.confirmations.utils import submission_receipt_proof, \
-        verify_submission_receipt_proof, ProofCorrupted
+from oioioi.confirmations.utils import (ProofCorrupted,
+                                        submission_receipt_proof,
+                                        verify_submission_receipt_proof)
 from oioioi.contests.models import Contest, ProblemInstance
 from oioioi.participants.models import Participant
 from oioioi.programs.models import ProgramSubmission

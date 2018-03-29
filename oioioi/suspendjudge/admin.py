@@ -1,17 +1,17 @@
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
 from django.conf.urls import url
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
-from django.views.decorators.http import require_POST
 from django.utils.decorators import method_decorator
+from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.admin import ProblemInstanceAdmin
-from oioioi.contests.models import Submission, ProblemInstance
-from oioioi.contests.utils import is_contest_admin, contest_exists
+from oioioi.contests.models import ProblemInstance, Submission
+from oioioi.contests.utils import contest_exists, is_contest_admin
 from oioioi.evalmgr.models import QueuedJob
-from oioioi.suspendjudge.utils import is_suspended, is_suspended_on_init
 from oioioi.suspendjudge.models import SuspendedProblem
+from oioioi.suspendjudge.utils import is_suspended, is_suspended_on_init
 
 
 class SuspendJudgeProblemInstanceAdminMixin(object):

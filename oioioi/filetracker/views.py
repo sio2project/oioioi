@@ -1,8 +1,9 @@
+import mimetypes
 from wsgiref.util import FileWrapper
+
+from django.core.exceptions import PermissionDenied
 from django.core.files.storage import default_storage
 from django.http import Http404, StreamingHttpResponse
-from django.core.exceptions import PermissionDenied
-import mimetypes
 
 
 def raw_file_view(request, filename):

@@ -4,10 +4,11 @@ import optparse
 
 from django.core.management.base import BaseCommand
 from django.db.models.loading import cache
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
+from filetracker import split_name
 
 from oioioi.filetracker.client import get_client
-from filetracker import split_name
 
 
 class Command(BaseCommand):

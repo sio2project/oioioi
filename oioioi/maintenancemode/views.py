@@ -1,9 +1,10 @@
-from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 
 from oioioi.base.permissions import enforce_condition, is_superuser
-from oioioi.maintenancemode.models import set_maintenance_mode, \
-                is_maintenance_mode_enabled, get_maintenance_mode
+from oioioi.maintenancemode.models import (get_maintenance_mode,
+                                           is_maintenance_mode_enabled,
+                                           set_maintenance_mode)
 
 
 def maintenance_view(request):

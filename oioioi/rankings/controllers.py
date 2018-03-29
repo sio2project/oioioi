@@ -1,8 +1,9 @@
 from collections import defaultdict
-from operator import itemgetter
-import unicodecsv
+from operator import itemgetter  # pylint: disable=E0611
 
+import unicodecsv
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser, User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.template import RequestContext
@@ -12,17 +13,14 @@ from django.utils import timezone
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User, AnonymousUser
 
-from oioioi.base.utils import RegisteredSubclassesBase, ObjectWithMixins
+from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
+from oioioi.contests.controllers import (ContestController,
+                                         ContestControllerContext)
 from oioioi.contests.models import ProblemInstance, UserResultForProblem
-from oioioi.contests.controllers import ContestController, \
-        ContestControllerContext
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.filetracker.utils import make_content_disposition_header
-
 from oioioi.rankings.models import Ranking, RankingPage
-
 
 CONTEST_RANKING_KEY = 'c'
 

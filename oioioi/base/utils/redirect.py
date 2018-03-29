@@ -1,6 +1,6 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
 from django.utils.http import is_safe_url
-from django.core.urlresolvers import reverse
 
 
 def safe_redirect(request, url, fallback='index'):

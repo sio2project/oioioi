@@ -1,5 +1,6 @@
-import unicodecsv
 from StringIO import StringIO
+
+import unicodecsv
 from django.utils.translation import ugettext as _
 
 

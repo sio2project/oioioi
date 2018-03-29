@@ -1,35 +1,33 @@
 import json
 import os
 import re
-from datetime import datetime
+from datetime import datetime  # pylint: disable=E0611
 
-from django.core.urlresolvers import reverse
-from django.test.utils import override_settings
-from django.utils.timezone import utc
-from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
+from django.utils.encoding import force_unicode
+from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase, fake_time, fake_timezone_now, \
-    check_not_accessible
+from oioioi.base.tests import (TestCase, check_not_accessible, fake_time,
+                               fake_timezone_now)
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contestexcl.tests import ContestIdViewCheckMixin
-from oioioi.contests.models import Contest, Round, ProblemInstance, \
-    ContestPermission
 from oioioi.contests.current_contest import ContestMode
-from oioioi.participants.controllers import ParticipantsController
-from oioioi.participants.models import Participant, TestRegistration, \
-    OpenRegistration, Region
-from oioioi.participants.management.commands import import_participants, \
-        import_onsite_participants
-from oioioi.participants.controllers import OnsiteContestControllerMixin
+from oioioi.contests.models import (Contest, ContestPermission,
+                                    ProblemInstance, Round)
+from oioioi.oi.controllers import OIContestController, OIRegistrationController
+from oioioi.participants.controllers import (OnsiteContestControllerMixin,
+                                             ParticipantsController)
+from oioioi.participants.management.commands import (import_onsite_participants,
+                                                     import_participants)
+from oioioi.participants.models import (OnsiteRegistration, OpenRegistration,
+                                        Participant, Region, TestRegistration)
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.tests import SubmitFileMixin
-from oioioi.participants.models import OnsiteRegistration
-from oioioi.oi.controllers import OIContestController, OIRegistrationController
 from oioioi.test_settings import MIDDLEWARE_CLASSES
-
 
 basedir = os.path.dirname(__file__)
 

@@ -1,11 +1,10 @@
 import sys
-import unicodecsv
 
+import unicodecsv
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
 
 from oioioi.participants.models import Participant
-
 
 COLUMNS = [
     ('user', '', ['id', 'username', 'first_name', 'last_name']),

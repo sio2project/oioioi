@@ -1,8 +1,8 @@
 from django.core.management.base import NoArgsCommand
 from django.db import transaction
 
-from oioioi.ipdnsauth.models import IpToUser
 from oioioi.ipauthsync.models import IpAuthSyncedUser
+from oioioi.ipdnsauth.models import IpToUser
 
 
 class Command(NoArgsCommand):

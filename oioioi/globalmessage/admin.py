@@ -1,10 +1,9 @@
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
-from oioioi.base import admin
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
-
 from oioioi.globalmessage.models import GlobalMessage
 
 

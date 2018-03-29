@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
-from django.views.decorators.http import require_POST
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.base.utils.redirect import safe_redirect
@@ -12,8 +12,8 @@ from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.status.registry import status_registry
 from oioioi.su.forms import SuForm
 from oioioi.su.middleware import REDIRECTION_AFTER_SU_KEY
-from oioioi.su.utils import su_to_user, is_under_su, reset_to_real_user, \
-                            is_real_superuser
+from oioioi.su.utils import (is_real_superuser, is_under_su,
+                             reset_to_real_user, su_to_user)
 
 
 @enforce_condition(is_superuser)

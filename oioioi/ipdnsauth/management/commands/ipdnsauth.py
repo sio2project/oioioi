@@ -1,8 +1,10 @@
-from django.core.management.base import BaseCommand, CommandError
-from oioioi.ipdnsauth.models import IpToUser, DnsToUser
-from django.contrib.auth.models import User
-from optparse import make_option
 import csv
+from optparse import make_option
+
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand, CommandError
+
+from oioioi.ipdnsauth.models import DnsToUser, IpToUser
 
 
 class Command(BaseCommand):

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.controllers import ContestController
 from oioioi.contests.models import Submission
-from oioioi.contests.utils import visible_problem_instances, is_contest_admin
+from oioioi.contests.utils import is_contest_admin, visible_problem_instances
 from oioioi.teams.models import TeamMembership, TeamsConfig
 
 

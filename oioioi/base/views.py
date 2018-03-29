@@ -1,29 +1,29 @@
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect, render
-from django.http import HttpResponse, HttpResponseForbidden
-from django.template import RequestContext
-from django.template.response import TemplateResponse
-from django.template.loader import render_to_string
-from django.utils.translation import ugettext, ugettext_lazy as _
-from django.views.decorators.http import require_POST, require_GET
-from django.core.exceptions import SuspiciousOperation
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.contrib.auth.views import logout as auth_logout
-from django.views.decorators.vary import vary_on_headers, vary_on_cookie
-from django.views.decorators.cache import cache_control
-from django.views.defaults import page_not_found
-
-from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.base.utils.redirect import safe_redirect
-from oioioi.base.utils.user import has_valid_username
-from oioioi.base.utils import jsonify, generate_key
-from oioioi.base.menu import account_menu_registry
-from oioioi.base.preferences import PreferencesFactory
-from oioioi.base.processors import site_name
 import traceback
 
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.views import logout as auth_logout
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import redirect, render
+from django.template import RequestContext
+from django.template.loader import render_to_string
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext
+from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.cache import cache_control
+from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from django.views.defaults import page_not_found
 from two_factor.views import LoginView as Login2FAView
+
+from oioioi.base.menu import account_menu_registry
+from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.preferences import PreferencesFactory
+from oioioi.base.processors import site_name
+from oioioi.base.utils import generate_key, jsonify
+from oioioi.base.utils.redirect import safe_redirect
+from oioioi.base.utils.user import has_valid_username
 
 account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)

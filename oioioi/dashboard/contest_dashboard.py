@@ -1,5 +1,7 @@
 import sys
+
 from django.core.exceptions import ImproperlyConfigured
+
 from oioioi.base.menu import OrderedRegistry
 from oioioi.base.permissions import Condition
 

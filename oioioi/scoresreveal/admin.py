@@ -1,9 +1,10 @@
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.contests.admin import SubmissionAdmin
-from oioioi.scoresreveal.utils import is_revealed
 from oioioi.scoresreveal.models import ScoreRevealConfig
+from oioioi.scoresreveal.utils import is_revealed
 
 
 class RevealedFilter(SimpleListFilter):

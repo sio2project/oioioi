@@ -1,13 +1,13 @@
 # coding: utf-8
 import bisect
-from operator import attrgetter
 import sys
+from operator import attrgetter  # pylint: disable=E0611
 
-from oioioi.base.permissions import Condition
-
-from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
+
+from oioioi.base.permissions import Condition
 
 
 class OrderedRegistry(object):

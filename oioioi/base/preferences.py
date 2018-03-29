@@ -1,5 +1,7 @@
-import django.dispatch
 from collections import OrderedDict
+
+import django.dispatch
+
 import oioioi.base.forms
 
 

@@ -1,10 +1,11 @@
+import re
+
+from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
-from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
-import re
 
 
 class ColorWidget(forms.TextInput):

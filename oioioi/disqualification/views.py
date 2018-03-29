@@ -1,6 +1,5 @@
 from oioioi.contests.models import Submission
 from oioioi.dashboard.registry import dashboard_registry
-
 from oioioi.disqualification.controllers import \
     DisqualificationContestControllerMixin
 

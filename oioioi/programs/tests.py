@@ -1,34 +1,32 @@
 import os
-from collections import defaultdict
-
-from datetime import datetime
 import re
+from collections import defaultdict
+from datetime import datetime  # pylint: disable=E0611
 
 from django.conf import settings
-from django.test import RequestFactory
-from django.utils.timezone import utc
-from django.utils.html import strip_tags, escape
-from django.utils.http import urlencode
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
+from django.core.urlresolvers import reverse
+from django.test import RequestFactory
 from django.test.utils import override_settings
+from django.utils.html import escape, strip_tags
+from django.utils.http import urlencode
+from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase
+from oioioi.base.notification import NotificationHandler
+from oioioi.base.tests import TestCase, check_not_accessible, fake_time
+from oioioi.base.utils import memoized_property
+from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.contests.scores import IntegerScore
+from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
-from oioioi.base.tests import check_not_accessible, fake_time
-from oioioi.contests.models import Submission, ProblemInstance, Contest, Round
-from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
-from oioioi.programs.models import Test, ModelSolution, ProgramSubmission, \
-        TestReport, ReportActionsConfig
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.sinolpack.tests import get_test_filename
-from oioioi.contests.scores import IntegerScore
-from oioioi.base.utils import memoized_property
-from oioioi.base.notification import NotificationHandler
 from oioioi.programs.handlers import make_report
+from oioioi.programs.models import (ModelSolution, ProgramSubmission,
+                                    ReportActionsConfig, Test, TestReport)
 from oioioi.programs.views import _testreports_to_generate_outs
+from oioioi.sinolpack.tests import get_test_filename
 
 
 # Don't Repeat Yourself.

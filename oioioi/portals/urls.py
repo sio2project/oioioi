@@ -2,7 +2,6 @@ from django.conf.urls import url
 
 from oioioi.portals import views
 
-
 noncontest_patterns = [
     url(r'^create_global_portal/$', views.create_global_portal_view,
         name='create_global_portal'),

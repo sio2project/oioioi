@@ -1,5 +1,6 @@
-from django.utils.translation import ugettext_lazy as _
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import DefaultRankingController

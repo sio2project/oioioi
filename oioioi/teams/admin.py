@@ -1,9 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
+from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import is_contest_admin
-from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.teams.forms import TeamForm
 from oioioi.teams.models import Team, TeamMembership, TeamsConfig
 from oioioi.teams.utils import teams_enabled

@@ -1,16 +1,18 @@
 import json
 import logging
-import traceback
 import pprint
 import socket
 import time
+import traceback
 from functools import wraps
 from smtplib import SMTPException
+
 from django.core.mail import mail_admins
 from django.db import transaction
+
 from oioioi.base.utils.db import require_transaction
-from oioioi.contests.models import ProblemInstance, Submission, \
-        SubmissionReport, FailureReport
+from oioioi.contests.models import (FailureReport, ProblemInstance, Submission,
+                                    SubmissionReport)
 
 logger = logging.getLogger(__name__)
 

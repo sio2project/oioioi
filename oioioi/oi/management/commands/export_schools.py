@@ -1,8 +1,10 @@
+import csv
+
 from django.core.management.base import NoArgsCommand
 from django.utils.translation import ugettext as _
-from oioioi.oi.models import School
+
 from oioioi.oi.management.commands.import_schools import COLUMNS
-import csv
+from oioioi.oi.models import School
 
 
 class Command(NoArgsCommand):

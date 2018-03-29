@@ -1,13 +1,13 @@
 import re
 
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.template.loader import render_to_string
 
-from oioioi.contests.utils import visible_contests
 from oioioi.contests.processors import recent_contests
-from oioioi.teachers.models import Teacher
+from oioioi.contests.utils import visible_contests
 from oioioi.portals.widgets import register_widget
+from oioioi.teachers.models import Teacher
 
 
 class ContestSelectionWidget(object):

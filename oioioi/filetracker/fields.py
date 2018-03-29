@@ -1,7 +1,9 @@
+import base64
+
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
+
 from oioioi.filetracker.filename import FiletrackerFilename
-import base64
 
 
 class FieldFile(files.FieldFile):

@@ -1,22 +1,23 @@
 import json
-from collections import defaultdict
-from datetime import datetime, timedelta
-
 import types
+from collections import defaultdict
+from datetime import datetime, timedelta  # pylint: disable=E0611
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.forms import modelformset_factory, inlineformset_factory
+from django.forms import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.permissions import enforce_condition, is_superuser
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import Round, ProblemInstance, Submission, \
-    UserResultForContest, UserResultForProblem
-from oioioi.contests.utils import contest_exists, is_contest_admin, \
-    rounds_times, visible_contests, can_admin_contest
+from oioioi.contests.models import (ProblemInstance, Round, Submission,
+                                    UserResultForContest, UserResultForProblem)
+from oioioi.contests.utils import (can_admin_contest, contest_exists,
+                                   is_contest_admin, rounds_times,
+                                   visible_contests)
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.portals.conditions import global_portal_exists
 from oioioi.portals.models import Portal
@@ -25,9 +26,9 @@ from oioioi.programs.admin import ValidationFormset
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
-from oioioi.simpleui.forms import TestForm, ProblemInstanceForm, \
-    AttachmentForm, TagForm
-from oioioi.teachers.views import is_teachers_contest, is_teacher, is_teachers
+from oioioi.simpleui.forms import (AttachmentForm, ProblemInstanceForm,
+                                   TagForm, TestForm)
+from oioioi.teachers.views import is_teacher, is_teachers, is_teachers_contest
 
 NUMBER_OF_RECENT_ACTIONS = 5
 RECENT_ACTIVITY_DAYS = 7

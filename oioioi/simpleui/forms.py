@@ -1,9 +1,9 @@
-from django.core.urlresolvers import reverse
 from django import forms
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import make_html_link
-from oioioi.contests.models import Round, ProblemInstance
+from oioioi.contests.models import ProblemInstance, Round
 from oioioi.problems.models import ProblemAttachment, Tag
 from oioioi.programs.models import Test
 

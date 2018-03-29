@@ -1,17 +1,20 @@
-from django.shortcuts import get_object_or_404, redirect
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base.menu import account_menu_registry
 from oioioi.base.permissions import enforce_condition, not_anonymous
-from oioioi.contests.utils import contest_exists, can_see_personal_data, \
-    is_contest_admin
-from oioioi.contests.menu import contest_admin_menu_registry, \
-    personal_data_menu_registry
+from oioioi.contests.menu import (contest_admin_menu_registry,
+                                  personal_data_menu_registry)
+from oioioi.contests.utils import (can_see_personal_data, contest_exists,
+                                   is_contest_admin)
 from oioioi.participants.models import Participant
-from oioioi.participants.utils import can_register, can_edit_registration, \
-    contest_has_participants, can_unregister, serialize_participants_data, \
-    render_participants_data_csv
+from oioioi.participants.utils import (can_edit_registration, can_register,
+                                       can_unregister,
+                                       contest_has_participants,
+                                       render_participants_data_csv,
+                                       serialize_participants_data)
 
 account_menu_registry.register('participants_registration',
         _("Register to the contest"),

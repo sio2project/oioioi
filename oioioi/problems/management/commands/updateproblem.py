@@ -1,10 +1,12 @@
 import os.path
+
 from django.core.management.base import BaseCommand, CommandError
-from django.utils.translation import ugettext as _
-from django.utils.module_loading import import_string
 from django.db import transaction
+from django.utils.module_loading import import_string
+from django.utils.translation import ugettext as _
+
 from oioioi.problems.models import Problem
-from oioioi.problems.package import backend_for_package, NoBackend
+from oioioi.problems.package import NoBackend, backend_for_package
 
 
 class Command(BaseCommand):

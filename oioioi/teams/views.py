@@ -1,17 +1,17 @@
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.template.response import TemplateResponse
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.menu import menu_registry
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.contests.utils import can_enter_contest, contest_exists
-from oioioi.teams.models import Team, TeamMembership
 from oioioi.teams.forms import CreateTeamForm
-from oioioi.teams.utils import can_create_team, can_join_team, can_quit_team, \
-                               can_delete_team, has_team, teams_enabled, \
-                               can_see_teams_list
+from oioioi.teams.models import Team, TeamMembership
+from oioioi.teams.utils import (can_create_team, can_delete_team,
+                                can_join_team, can_quit_team,
+                                can_see_teams_list, has_team, teams_enabled)
 
 
 def create_team(login, name, contest):

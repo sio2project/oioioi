@@ -1,4 +1,4 @@
-from operator import itemgetter
+from operator import itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib import messages
@@ -6,33 +6,38 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.urlresolvers import reverse
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
-from django.utils.translation import ungettext_lazy, ugettext_lazy as _
-from django.views.decorators.http import require_POST
 from django.utils.safestring import mark_safe
-from oioioi.status.registry import status_registry
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
+from django.views.decorators.http import require_POST
 
+from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import not_anonymous, enforce_condition
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user_selection import get_user_hints_view
-from oioioi.base.main_page import register_main_page_view
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.forms import SubmissionForm, GetUserInfoForm
-from oioioi.contests.models import Contest, ProblemInstance, Submission, \
-        SubmissionReport, ContestAttachment, UserResultForProblem
+from oioioi.contests.forms import GetUserInfoForm, SubmissionForm
+from oioioi.contests.models import (Contest, ContestAttachment,
+                                    ProblemInstance, Submission,
+                                    SubmissionReport, UserResultForProblem)
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import visible_contests, can_enter_contest, \
-        can_see_personal_data, is_contest_admin, has_any_submittable_problem, \
-        visible_rounds, visible_problem_instances, contest_exists, \
-        is_contest_observer, get_submission_or_error, can_admin_contest
+from oioioi.contests.utils import (can_admin_contest, can_enter_contest,
+                                   can_see_personal_data, contest_exists,
+                                   get_submission_or_error,
+                                   has_any_submittable_problem,
+                                   is_contest_admin, is_contest_observer,
+                                   visible_contests, visible_problem_instances,
+                                   visible_rounds)
 from oioioi.filetracker.utils import stream_file
-from oioioi.problems.models import ProblemStatement, ProblemAttachment
-from oioioi.problems.utils import query_statement, query_zip, \
-        can_admin_problem_instance, update_tests_from_main_pi, \
-        get_new_problem_instance
+from oioioi.problems.models import ProblemAttachment, ProblemStatement
+from oioioi.problems.utils import (can_admin_problem_instance,
+                                   get_new_problem_instance, query_statement,
+                                   query_zip, update_tests_from_main_pi)
+from oioioi.status.registry import status_registry
 
 
 @register_main_page_view(order=900)
