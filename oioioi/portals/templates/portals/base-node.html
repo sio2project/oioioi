@@ -12,6 +12,11 @@
 {% endblock %}
 
 {% block main-content %}
+    <div class="hidden-sm hidden-xs">
+        {% block portal_breadcrumbs %}
+            {% include "portals/breadcrumbs.html" %}
+        {% endblock %}
+    </div>
     {% generate_menu portal_admin_menu %}
     {% if menu %}
         <ul class="nav nav-tabs nav-margin">

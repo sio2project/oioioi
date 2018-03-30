@@ -1,0 +1,17 @@
+{% load i18n portal_url simple_tags %}
+
+<!-- https://stackoverflow.com/questions/12194573/bootstrap-dropdown-within-breadcrumb -->
+
+<ol class="breadcrumb">
+{% for node in current_node.get_ancestors_including_self %}
+<li class="breadcrumb-item {% if node == current_node %}active{% endif %}">
+    {% if node != current_node %}
+        <a href="{% portal_url node=node %}">
+    {% endif %}
+    {{ node.full_name }}
+    {% if node != current_node %}
+        </a>
+    {% endif %}
+</li>
+{% endfor %}
+</ol>
