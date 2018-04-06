@@ -1,8 +1,11 @@
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase
-from oioioi.contests.models import Contest, ProblemInstance
+from oioioi.contests.models import Contest, ProblemInstance, Submission, \
+    SubmissionReport
 from oioioi.contests.tests import SubmitMixin
+from oioioi.quizzes.models import QuestionReport, QuizSubmission
+
 
 
 class SubmitQuizMixin(SubmitMixin):
@@ -83,3 +86,71 @@ class TestSubmission(TestCase, SubmitQuizMixin):
             '2': ()
         })
         self.assertContains(response, "Answer is required")
+
+
+class TestScore(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_quiz_problem',
+                'test_quiz_problem_second', 'test_problem_instance',
+                'test_quiz_submission']
+
+    def test_multiple_choice_no_correct_answer_score(self):
+        submission = QuizSubmission.objects.get()
+        controller = submission.problem_instance.controller
+
+        controller.judge(submission)
+        submission_report = SubmissionReport.objects.get(submission=submission, status="ACTIVE")
+        question_report = QuestionReport.objects.get(question=3,
+                                                     submission_report=submission_report)
+
+        self.assertEqual(question_report.score, 27)
+
+    def test_all_answers_correct_score(self):
+        submission = QuizSubmission.objects.get()
+        controller = submission.problem_instance.controller
+
+        controller.judge(submission)
+        submission_report = SubmissionReport.objects.get(submission=submission, status="ACTIVE")
+        question_report = QuestionReport.objects.get(question=1,
+                                                     submission_report=submission_report)
+
+        self.assertEqual(question_report.score, 27)
+
+    def test_one_answer_incorrect_score(self):
+        submission = QuizSubmission.objects.get()
+        controller = submission.problem_instance.controller
+
+        controller.judge(submission)
+        submission_report = SubmissionReport.objects.get(submission=submission, status="ACTIVE")
+        question_report = QuestionReport.objects.get(question=2,
+                                                     submission_report=submission_report)
+
+        self.assertEqual(question_report.score, 0)
+
+
+class TestSubmissionView(TestCase):
+    fixtures = ['test_users', 'test_contest',
+                'test_quiz_problem', 'test_problem_instance',
+                'test_quiz_submission']
+
+    def setUp(self):
+        self.client.login(username='test_user')
+
+    def test_question_report(self):
+        contest = Contest.objects.get()
+        submission = QuizSubmission.objects.get(pk=1)
+        kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+
+        self.assertEqual(response.content.count('27 / 27'), 1)
+        self.assertEqual(response.content.count('0 / 27'), 1)
+
+    def test_submission_score_visible(self):
+        submission = Submission.objects.get(pk=1)
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                  'submission_id': submission.id}
+        expected_score = 50
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertContains(response,
+                            '<td>{}</td>'
+                            .format(expected_score),
+                            html=True)

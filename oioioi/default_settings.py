@@ -203,6 +203,7 @@ INSTALLED_APPS = (
     'oioioi.maintenancemode',
     'oioioi.evalmgr',
     'oioioi.workers',
+    'oioioi.quizzes',
 
     'djcelery',
     'kombu.transport.django',
@@ -278,6 +279,7 @@ REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
 PROBLEM_SOURCES = (
     'oioioi.problems.problem_sources.UploadedPackageSource',
     'oioioi.problems.problem_sources.ProblemsetSource',
+    'oioioi.quizzes.problem_sources.EmptyQuizSource',
 )
 
 PROBLEM_PACKAGE_BACKENDS = (

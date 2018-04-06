@@ -355,7 +355,6 @@ AUTHENTICATION_BACKENDS += (
 PROBLEM_SOURCES += (
 #    'oioioi.sharingcli.problem_sources.RemoteSource',
 #    'oioioi.zeus.problem_sources.ZeusProblemSource',
-#    'oioioi.quizzes.problem_sources.EmptyQuizSource',
 )
 
 SHARING_SERVERS = (

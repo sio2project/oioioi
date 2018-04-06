@@ -520,7 +520,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             .judge(submission, extra_args, is_rejudge)
 
     def fill_evaluation_environ(self, environ, submission):
-        pass
+        submission.problem_instance.problem.controller \
+            .fill_evaluation_environ(environ, submission)
 
     def get_supported_extra_args(self, submission):
         """Returns dict of all values which can be provided in extra_args

@@ -1,7 +1,10 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.contests.models import Submission
+from oioioi.base.fields import EnumField
+from oioioi.contests.fields import ScoreField
+from oioioi.contests.models import Submission, SubmissionReport, \
+    submission_statuses
 from oioioi.problems.models import Problem
 
 
@@ -57,3 +60,19 @@ class QuizSubmissionAnswer(models.Model):
     class Meta(object):
         verbose_name = _("quiz submission answer")
         verbose_name_plural = _("quiz submission answers")
+
+
+class QuestionReport(models.Model):
+    submission_report = models.ForeignKey(SubmissionReport,
+                                        verbose_name=_("submission report"))
+    comment = models.TextField(blank=True, null=True,
+                                    verbose_name=_("comment"))
+    score = ScoreField(verbose_name=_("score"))
+    question = models.ForeignKey(QuizQuestion, blank=True, null=True,
+                             on_delete=models.SET_NULL, verbose_name=_("question"))
+    question_max_score = models.IntegerField(verbose_name=_("question max score"))
+    status = EnumField(submission_statuses, default='WA', verbose_name=_("status"))
+
+    class Meta(object):
+        verbose_name = _("question report")
+        verbose_name_plural = _("question reports")

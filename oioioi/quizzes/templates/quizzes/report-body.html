@@ -1,0 +1,34 @@
+{% load i18n %}
+{% load runtimeformat %}
+
+
+<div class="table-responsive">
+    <table class="table table-condensed table-bordered table-report submission">
+        <thead>
+        <tr>
+            <th></th>
+            <th>{% trans "Question" %}</th>
+            <th>{% trans "Result" %}</th>
+            <th>{% trans "Score" %}</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for question_report in question_reports %}
+            <tr class="test-row-{{ group.report.id }}">
+                <td class="submission__margin submission--{{ question_report.status }}"></td>
+                <td class="test-actions-toggler {% if is_admin %}fix-pull-right{% endif %}">
+                    {{ question_report.question.question }}
+                </td>
+                <td class="submission--{{ question_report.status }}">
+                    {{ question_report.get_status_display }}
+                </td>
+                <td class="group-score text-right">
+                    {% if question_report.score %}
+                        {{ question_report.score }} / {{ question_report.question_max_score }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

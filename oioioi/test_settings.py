@@ -56,7 +56,6 @@ INSTALLED_APPS = (
     'oioioi.newsfeed',
     'oioioi.simpleui',
     'oioioi.livedata',
-    'oioioi.quizzes'
 ) + INSTALLED_APPS
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [

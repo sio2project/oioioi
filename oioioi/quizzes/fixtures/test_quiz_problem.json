@@ -4,7 +4,7 @@
     "model": "problems.problem",
     "fields": {
       "name": "Test quiz",
-      "contest": null,
+      "contest": "c",
       "author":1001,
       "short_name": "qui",
       "controller_name": "oioioi.quizzes.controllers.QuizProblemController"
@@ -20,7 +20,8 @@
     "model": "quizzes.quizquestion",
     "fields": {
       "question": "Question 1",
-      "quiz": 1
+      "quiz": 1,
+      "points": 27
     }
   },
   {
@@ -47,7 +48,8 @@
     "fields": {
       "question": "Question 2 (multiple choice)",
       "quiz": 1,
-      "is_multiple_choice": true
+      "is_multiple_choice": true,
+      "points": 27
     }
   },
   {
@@ -64,6 +66,34 @@
     "model": "quizzes.quizanswer",
     "fields": {
       "question": 2,
+      "answer": "B",
+      "is_correct": false
+    }
+  },
+  {
+    "pk": 3,
+    "model": "quizzes.quizquestion",
+    "fields": {
+      "question": "Question 3 (multiple choice-no correct answer)",
+      "quiz": 1,
+      "is_multiple_choice": true,
+      "points": 27
+    }
+  },
+  {
+    "pk": 5,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 3,
+      "answer": "A",
+      "is_correct": false
+    }
+  },
+  {
+    "pk": 6,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 3,
       "answer": "B",
       "is_correct": false
     }
