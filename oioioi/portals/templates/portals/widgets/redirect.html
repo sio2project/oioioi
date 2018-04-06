@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if not is_portal_admin %}
+    <script type="application/javascript">
+        window.location.replace('{{ redirect_url }}');
+    </script>
+{% else %}
+    <div class="bg-warning">
+        {% blocktrans trimmed %}
+            Users who do not have permission to edit this portal would now get
+            redirected to: "{{ redirect_url }}".
+        {% endblocktrans %}
+    </div>
+{% endif %}

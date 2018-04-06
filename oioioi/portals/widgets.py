@@ -11,6 +11,7 @@ from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
 
 from oioioi.contests.models import UserResultForProblem
 from oioioi.contests.views import submission_view
+from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
 from oioioi.problems.views import problem_site_view
 
@@ -199,3 +200,25 @@ class ProblemTableWidget(object):
         return render_to_string('portals/widgets/problem-table.html',
                                 {'problems': rows, 'header': header})
 register_widget(ProblemTableWidget())
+
+
+class RedirectWidget(object):
+    name = 'redirect'
+    compiled_tag_regex = re.compile(
+        r'\[\['                   # [[
+        r'Redirect\|(.*)'         # Redirect|<url>
+        r'\]\]'                   # ]]
+    )
+
+    @staticmethod
+    def render(request, match):
+        redirect_url = match.group(1).strip()
+        if urlparse.urlparse(redirect_url).netloc:
+            return "[[Redirect: only relative URLs allowed]]"
+
+        return render_to_string('portals/widgets/redirect.html',
+                                {'redirect_url': redirect_url,
+                                 'is_portal_admin': is_portal_admin(request)})
+
+
+register_widget(RedirectWidget())

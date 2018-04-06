@@ -1,15 +1,9 @@
-{% extends "simple-centered.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Newsfeed"%}{% endblock %}
+{% if request.user.is_superuser %}
+    <a role="button" class="btn btn-success" href="{% url 'add_news' %}">{% trans "Add news" %}</a>
+{% endif %}
 
-{% block content %}
-    <h1>{% trans "Newsfeed" %}</h1>
-    {% if request.user.is_superuser %}
-        <a role="button" class="btn btn-success" href="{% url 'add_news' %}">{% trans "Add news" %}</a>
-    {% endif %}
-
-    {% for news_item in news_list %}
-        {% include 'newsfeed/widgets/news.html' with news=news_item request=request %}
-    {% endfor %}
-{% endblock %}
+{% for news_item in news_list %}
+    {% include 'newsfeed/news.html' with news=news_item request=request %}
+{% endfor %}

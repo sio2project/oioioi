@@ -1,0 +1,5 @@
+{% load staticfiles %}
+
+<a class="oioioi-navbar__brand {% if always_visible %}oioioi-navbar__brand--always{% endif %}" href="{% url 'index' contest_id=None %}">
+    <img src="{% static "szkopul/napis.png" %}" alt="SZKOpuł">
+</a>

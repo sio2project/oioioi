@@ -1,25 +1,21 @@
 {% load menu check_perm i18n all_with_prefix portal_url simple_filters simple_tags %}
 
-<a class="oioioi-navbar__brand" href="{% url 'index' contest_id=None %}">{{ site_name }}</a>
-
-<div class="oioioi-navbar__menu dropdown">
-    <a href="#" type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-        <span class="sr-only">{% trans "Toggle navigation" %}</span>
-        <span class="glyphicon glyphicon-menu-hamburger"></span>
-    </a>
-    <ul class="dropdown-menu">
-        {% for ancestor in current_node.get_ancestors %}
-            <li class="hidden-md hidden-lg"><a href="{% portal_url node=ancestor %}">
-                {{ ancestor.full_name }}
-            </a></li>
-            <li class="divider hidden-md hidden-lg" role="separator"></li>
-        {% endfor %}
-        <li><a class="active" href="{% portal_url node=current_node %}">{{ current_node.full_name }}</a></li>
-        {% for child in current_node.get_children %}
-            <li><a href="{% portal_url node=child %}">
-                <span class="glyphicon glyphicon-chevron-right"></span>
-                {{ child.full_name }}
-            </a></li>
-        {% endfor %}
-    </ul>
-</div>
+<a href="#" type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+    <span class="sr-only">{% trans "Toggle navigation" %}</span>
+    <span class="glyphicon glyphicon-menu-hamburger"></span>
+</a>
+<ul class="dropdown-menu">
+    {% for ancestor in current_node.get_ancestors %}
+        <li class="hidden-md hidden-lg"><a href="{% portal_url node=ancestor %}">
+            {{ ancestor.full_name }}
+        </a></li>
+        <li class="divider hidden-md hidden-lg" role="separator"></li>
+    {% endfor %}
+    <li><a class="active" href="{% portal_url node=current_node %}">{{ current_node.full_name }}</a></li>
+    {% for child in current_node.get_children %}
+        <li><a href="{% portal_url node=child %}">
+            <span class="glyphicon glyphicon-chevron-right"></span>
+            {{ child.full_name }}
+        </a></li>
+    {% endfor %}
+</ul>

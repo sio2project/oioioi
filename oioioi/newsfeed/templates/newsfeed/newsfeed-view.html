@@ -1,0 +1,9 @@
+{% extends "simple-centered.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Newsfeed"%}{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Newsfeed" %}</h1>
+    {% include 'newsfeed/newsfeed.html' with news_list=news_list request=request %}
+{% endblock %}

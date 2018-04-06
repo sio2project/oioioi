@@ -23,7 +23,6 @@
                     <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
                 </form>
             </li>
-            {% include 'ingredients/language-picker.html' %}
         </ul>
     </div>
 {% else %}
@@ -51,7 +50,6 @@
             {% for item in menu %}
                 <li><a href="{{ item.url }}" {{ item.attrs }}>{{ item.text }}</a></li>
             {% endfor %}
-            {% include 'ingredients/language-picker.html' %}
 
             {% su_dropdown_form %}
             {% user_info_dropdown_form %}

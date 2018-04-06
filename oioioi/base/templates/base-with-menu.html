@@ -3,12 +3,8 @@
 {% block body-class %}body-with-menu{% endblock %}
 {% block container-class %}container-fluid{% endblock %}
 
-{% block navbar-menu %}
-<a class="oioioi-navbar__brand" href="{% url 'index' contest_id=None %}">{{ site_name }}</a>
-
-<div class="oioioi-navbar__menu dropdown">
-    {% include "ingredients/navbar-menu.html" %}
-</div>
+{% block navbar-logo %}
+    {% include "ingredients/navbar-logo-with-menu.html" %}
 {% endblock %}
 
 {% block body %}

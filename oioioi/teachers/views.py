@@ -24,11 +24,6 @@ from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
-# This import seems unused, but in fact it's needed
-# The code from widgets.py registers the widgets
-# so that it can be used in user-created messages
-import widgets
-
 
 @make_request_condition
 def is_teachers_contest(request):

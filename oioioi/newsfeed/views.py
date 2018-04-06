@@ -42,5 +42,6 @@ def edit_news_view(request, news_id):
 
 def newsfeed_view(request):
     news_list = News.objects.order_by('-date')
-    return TemplateResponse(request,
-                            'newsfeed/newsfeed.html', {'news_list': news_list})
+    return TemplateResponse(request, 'newsfeed/newsfeed-view.html', {
+        'news_list': news_list
+    })

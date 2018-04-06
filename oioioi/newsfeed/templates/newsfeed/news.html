@@ -15,7 +15,7 @@
         <footer>
             <div class="btn-group">
                 <a role="button" class="btn btn-default" href="{% url 'edit_news' news.id %}">{% trans "Edit" %}</a>
-                <a role="button" class="btn btn-danger" href="{% url 'delete_news' news.id %}"
+                <a role="button" class="btn btn-default" href="{% url 'delete_news' news.id %}"
                 onclick="return confirm('{% blocktrans %}Are you sure you want to delete {{ news.title }}?{% endblocktrans %}')">
                 {% trans "Delete" %}
                </a>

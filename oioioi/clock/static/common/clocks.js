@@ -74,9 +74,13 @@ $(function() {
      * @returns {string} formatted date
      */
     function getDatetimeString(time) {
-        return time.getFullYear() + '-' + time.getMonth() + '-'
-            + time.getDay() + ' ' + time.getHours() + ':'
-            + time.getMinutes() + ':' + time.getSeconds();
+        function twoDigit(number) {
+            return ("0" + number).slice(-2);
+        }
+
+        return time.getFullYear() + '-' + twoDigit(time.getMonth() + 1) + '-'
+            + twoDigit(time.getDate()) + ' ' + twoDigit(time.getHours()) + ':'
+            + twoDigit(time.getMinutes()) + ':' + twoDigit(time.getSeconds());
     }
 
     /**

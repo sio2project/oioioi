@@ -1,0 +1,32 @@
+{% load i18n %}
+
+{% include "ingredients/navbar-logo.html" with always_visible=False %}
+
+{% if navbar_links|length > 0 %}
+    <div class="oioioi-navbar__menu-uncollapsed">
+        {% for item in navbar_links %}
+            {% if item %}
+                <a href="{{ item.url }}">{{ item.text }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="oioioi-navbar__menu dropdown">
+        <a href="#" type="button" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+            <span class="sr-only">{% trans "Toggle navigation" %}</span>
+            <span class="glyphicon glyphicon-menu-hamburger"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li>
+                <a href="{% url 'index' contest_id=None %}">{% trans "Main page" %}</a>
+            </li>
+            {% for item in navbar_links %}
+                {% if item %}
+                    <li>
+                        <a href="{{ item.url }}">{{ item.text }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}

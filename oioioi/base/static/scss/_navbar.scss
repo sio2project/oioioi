@@ -67,7 +67,8 @@ body {
   > a,
   .dropdown > a,
   .oioioi-navbar__extra > a,
-  .oioioi-navbar__extra > .dropdown > a {
+  .oioioi-navbar__extra > .dropdown > a,
+  .oioioi-navbar__menu-uncollapsed > a {
     @include centered-block($navbar-height);
     color: $oioioi-navbar-link-color;
     padding: 0 $oioioi-navbar-padding-base-horizontal;
@@ -127,7 +128,8 @@ body {
     padding: 0 $oioioi-navbar-padding-base-horizontal;
   }
 
-  > .oioioi-navbar__extra {
+  > .oioioi-navbar__extra,
+  > .oioioi-navbar__menu-uncollapsed {
     display: flex;
   }
 
@@ -163,7 +165,8 @@ body {
 // * Labels get shrunk
 @media (max-width: $screen-md-max) {
   .oioioi-navbar,
-  .oioioi-navbar > .oioioi-navbar__extra {
+  .oioioi-navbar > .oioioi-navbar__extra,
+  .oioioi-navbar__menu-uncollapsed {
     > a > .label,
     .dropdown > a > .label {
       max-width: $oioioi-navbar-label-md-width;
@@ -173,12 +176,17 @@ body {
 
 // Small screens
 // * Menu replaces brand
+// * Navbar links collapse to a dropdown menu
 // * Contest picker max width decreases
 // * Username and labels gets hidden (only icons)
 @media (max-width: $screen-sm-max) {
   .oioioi-navbar {
     > .oioioi-navbar__menu {
       display: block;
+    }
+
+    > .oioioi-navbar__menu-uncollapsed {
+      display: none;
     }
 
     > .oioioi-navbar__brand:not(.oioioi-navbar__brand--always) {

@@ -1,9 +1,0 @@
-{% load i18n %}
-
-{% if request.user.is_superuser %}
-    <a role="button" class="btn btn-success" href="{% url 'add_news' %}">{% trans "Add news" %}</a>
-{% endif %}
-
-{% for news_item in news_list %}
-    {% include 'newsfeed/widgets/news.html' with news=news_item request=request %}
-{% endfor %}
