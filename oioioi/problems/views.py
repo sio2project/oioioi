@@ -1,6 +1,7 @@
 # coding: utf-8
 import urllib
 from collections import defaultdict
+import re
 
 from django.conf import settings
 from django.contrib import messages
@@ -29,9 +30,12 @@ from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.utils import (can_add_to_problemset,
                                    can_admin_instance_of_problem,
                                    can_admin_problem,
-                                   can_admin_problem_instance, query_statement)
+                                 can_admin_problem_instance, query_statement)
 from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
                                     ModelSolution, TestReport)
+from unidecode import unidecode
+
+
 # problem_site_statement_zip_view is used in one of the tabs
 # in problem_site.py. We placed the view in problem_site.py
 # instead of views.py to avoid circular imports. We still import
@@ -139,23 +143,44 @@ def add_or_update_problem_view(request):
                                  'problems/add-or-update.html')
 
 
-def get_problem_queryset_by_tag(datadict):
+def search_problems_in_problemset(datadict):
+
     try:
-        tag_name = datadict['tag_search']
-        if not tag_name:
-            return Problem.objects, ''
-        tag = Tag.objects.get(name=tag_name)
-        return tag.problems, tag_name
+        query = datadict['q']
+        if not query:
+            return Problem.objects.all(), ''
+
+        # query_phrases is list containing all phrases from query - phrase is
+        # compact string (without blank characters) or any string inside "...",
+        # there are special phrases with prefix 'name:' or 'tag:' if phrase
+        # prefix is one of those, rest of phrase would be treated as regular
+        # phrase; for example if
+        # query='word "two words" tag:example name:"Example name"' then
+        # query_phrases=['word', 'two words', 'tag:example', 'name:Example name']
+        # (note no quotation marks)
+        query_phrases = [re.sub(r'"(.*?)"', r'\1', match).strip() for match in
+                         re.findall(r'(?:tag:|name:)?(?:".+?"|\w+)',
+                                    query, flags=re.UNICODE)]
+
+        problems = Problem.objects.none()
+        for phrase in query_phrases:
+            if phrase.startswith('tag:'):
+                problems |= Problem.objects.filter(tag__name=phrase[len('tag:'):])
+            elif phrase.startswith('name:'):
+                problems |= Problem.objects.filter(name=phrase[len('name:'):])
+            else:
+                problems |= Problem.objects.filter(ascii_name__icontains=unidecode(phrase))
+                problems |= Problem.objects.filter(tag__name__icontains=unidecode(phrase))
+        problems = problems.distinct()
+        return problems, query
+
     except KeyError:
-        return Problem.objects, ''
-    except Tag.DoesNotExist:
-        return Problem.objects.none(), ''
+        return Problem.objects.all(), ''
 
 
-def problemset_generate_view(request, page_title, problems):
+def problemset_generate_view(request, page_title, problems, query_string, view_type):
     # We want to show "Add to contest" button only
     # if user is contest admin for any contest.
-    queryset, query_string = get_problem_queryset_by_tag(request.GET)
     show_add_button, administered_recent_contests = \
         _generate_add_to_contest_metadata(request)
     form = ProblemsetSourceForm("")
@@ -164,42 +189,42 @@ def problemset_generate_view(request, page_title, problems):
        'problems/problemset/problem-list.html',
       {'problems': problems,
        'page_title': page_title,
-       'select_problem_src': request.GET.get('select_problem_src'),
-       'tag_search': query_string,
+        'select_problem_src': request.GET.get('select_problem_src'),
+       'problem_search': query_string,
        'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
        'show_search_bar': True,
        'show_add_button': show_add_button,
        'administered_recent_contests': administered_recent_contests,
-       'form': form})
+       'form': form,
+       'view_type': view_type})
 
 
 def problemset_main_view(request):
     page_title = \
         _("Welcome to problemset, the place where all the problems are.")
-    queryset = get_problem_queryset_by_tag(request.GET)[0]
-    problems = queryset.filter(is_public=True, problemsite__isnull=False) \
-        .order_by('name')
+    problems_pool, query_string = search_problems_in_problemset(request.GET)
+    problems = problems_pool.filter(is_public=True, problemsite__isnull=False). \
+        order_by('name')
 
-    return problemset_generate_view(request, page_title, problems)
+    return problemset_generate_view(request, page_title, problems, query_string, "public")
 
 
 def problemset_my_problems_view(request):
     page_title = _("My problems")
-    queryset, query_string = get_problem_queryset_by_tag(request.GET)
-    problems = queryset.filter(author=request.user, problemsite__isnull=False)\
+    problems_pool, query_string = search_problems_in_problemset(request.GET)
+    problems = problems_pool.filter(author=request.user, problemsite__isnull=False)\
         .order_by('name')
-
-    return problemset_generate_view(request, page_title, problems)
+    return problemset_generate_view(request, page_title, problems, query_string, "my")
 
 
 def problemset_all_problems_view(request):
     if not request.user.is_superuser:
         raise PermissionDenied
     page_title = _("All problems")
-    queryset, query_string = get_problem_queryset_by_tag(request.GET)
-    problems = queryset.filter(problemsite__isnull=False).order_by('name')
+    problems_pool, query_string = search_problems_in_problemset(request.GET)
+    problems = problems_pool.filter(problemsite__isnull=False).order_by('name')
 
-    return problemset_generate_view(request, page_title, problems)
+    return problemset_generate_view(request, page_title, problems, query_string, "all")
 
 
 def problem_site_view(request, site_key):
@@ -356,14 +381,11 @@ def model_solutions_view(request, problem_instance_id):
 
         rows.append({
             'test': t,
-            'results': [
-                {
+            'results': [{
                     'test_report': row_test_results[s.id],
                     'group_report': row_group_results[s.id],
                     'is_partial_score': s.problem_instance.controller
-                                        ._is_partial_score(
-                                            row_test_results[s.id]
-                                        ),
+                        ._is_partial_score(row_test_results[s.id]),
                     'percentage_status': percentage_statuses[s.id]}
                 for s in submissions]
         })
@@ -415,5 +437,29 @@ def get_tag_hints_view(request):
     if len(substr) < 2:
         raise Http404
     num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
-    return [str(tag.name) for tag in queryset]
+    queryset_tags = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
+    return [str(tag.name) for tag in queryset_tags]
+
+
+@jsonify
+def get_search_hints_view(request, view_type):
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    queryset_problems = Problem.objects.none
+    if view_type == 'public':
+        queryset_problems = \
+            Problem.objects.filter(name__icontains=substr, is_public=True,
+                                   problemsite__isnull=False)[:num_hints].all()
+    elif view_type == 'my':
+        queryset_problems = \
+            Problem.objects.filter(name__icontains=substr, author=request.user,
+                                       problemsite__isnull=False)[:num_hints].all()
+    elif view_type == 'all':
+        queryset_problems = Problem.objects.filter(name__icontains=substr,
+                                       problemsite__isnull=False)[:num_hints].all()
+    queryset_tags = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
+
+    return list(set(problem.name for problem in queryset_problems) |
+                set(tag.name for tag in queryset_tags))

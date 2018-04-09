@@ -93,6 +93,7 @@ setup(
         "librabbitmq>=1.5.1",
 
         "raven",
+        "unidecode",
 
         # A library allowing to nest inlines in django admin.
         # Used in quizzes module for adding new quizzes.

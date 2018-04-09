@@ -51,5 +51,6 @@ urlpatterns = [
         views.get_report_HTML_view,
         name='get_report_HTML'),
 
+    url(r'^get_search_hints/(?P<view_type>public|my|all)/$', views.get_search_hints_view, name='get_search_hints'),
     url(r'^get_tag_hints/$', views.get_tag_hints_view, name='get_tag_hints'),
 ]

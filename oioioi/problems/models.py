@@ -2,6 +2,7 @@ import logging
 import os.path
 from contextlib import contextmanager
 from traceback import format_exception
+from unidecode import unidecode
 
 from django.contrib.auth.models import User
 from django.core import validators
@@ -64,6 +65,7 @@ class Problem(models.Model):
     package_backend_name = \
             DottedNameField('oioioi.problems.package.ProblemPackageBackend',
                     null=True, blank=True, verbose_name=_("package type"))
+    ascii_name = models.CharField(max_length=255, null=True)  # autofield, no polish characters
 
     # main_problem_instance:
     # null=True, because there is a cyclic dependency
@@ -113,6 +115,10 @@ class Problem(models.Model):
     def __unicode__(self):
         return '%(name)s (%(short_name)s)' % \
                 dict(short_name=self.short_name, name=self.name)
+
+    def save(self, *args, **kwargs):
+        self.ascii_name = unidecode(self.name)
+        super(Problem, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=Problem)

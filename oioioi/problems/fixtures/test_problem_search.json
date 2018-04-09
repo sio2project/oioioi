@@ -1,0 +1,114 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Żółw",
+      "contest": null,
+      "short_name": "zol",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "author": 1000,
+      "is_public": true,
+      "ascii_name": "Zolw"
+    }
+  },
+
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Ze spacją",
+      "contest": null,
+      "short_name": "zes",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "author": 1001,
+      "is_public": true,
+      "ascii_name": "Ze spacja"
+    }
+  },
+
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Niepubliczny",
+      "contest": null,
+      "short_name": "nie",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "author": 1001,
+      "is_public": false,
+      "ascii_name": "Niepubliczny"
+    }
+  },
+
+    {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "zolw"
+    }
+  },
+      {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "spacja"
+    }
+  },
+      {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "niepubl"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.tag",
+    "fields": {
+      "name": "tagus"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.tag",
+    "fields": {
+      "name": "publiczny"
+    }
+  },
+      {
+    "pk": 1,
+    "model": "problems.tagthrough",
+    "fields": {
+        "problem": 1,
+        "tag": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.tagthrough",
+    "fields": {
+        "problem": 2,
+        "tag": 1
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.tagthrough",
+    "fields": {
+        "problem": 1,
+        "tag": 2
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.tagthrough",
+    "fields": {
+        "problem": 3,
+        "tag": 1
+    }
+  }
+]

@@ -73,7 +73,7 @@ function init_tag_addition(id, hints_url) {
     });
 }
 
-function init_tag_selection(id) {
+function init_search_selection(id) {
     $(function(){
         var input = $('#' + id);
         var form = $('#' + id + '-form');
