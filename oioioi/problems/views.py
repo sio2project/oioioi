@@ -210,9 +210,11 @@ def problem_site_view(request, site_key):
     package = ProblemPackage.objects.filter(problem=problem).first()
     show_add_button, administered_recent_contests = \
         _generate_add_to_contest_metadata(request)
+    extra_actions = problem.controller.get_extra_problem_site_actions(problem)
     context = {'problem': problem,
                'package': package if package and package.package_file
                         else None,
+               'extra_actions': extra_actions,
                'can_admin_problem': can_admin_problem(request, problem),
                'select_problem_src': request.GET.get('select_problem_src'),
                'show_add_button': show_add_button,

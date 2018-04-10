@@ -463,3 +463,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         else:
             return qs.filter(user=request.user, date__lte=request.timestamp) \
             .exclude(kind='IGNORED_HIDDEN')
+
+    def get_extra_problem_site_actions(self, problem):
+        """Returns a list of tuples (url, name)
+           that will be displayed under actions in ProblemSite.
+        """
+        return []

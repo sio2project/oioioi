@@ -231,6 +231,8 @@ INSTALLED_APPS = (
     'django_otp.plugins.otp_static',
     'django_otp.plugins.otp_totp',
     'two_factor',
+
+    'nested_admin'
 )
 
 AUTHENTICATION_BACKENDS = (

@@ -292,21 +292,33 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('problemset_add_or_update') + '?' + \
             urllib.urlencode({'problem': instance.problem_id, 'key': 'upload'})
 
+    def _edit_quiz_href(self, instance):
+        return reverse('oioioiadmin:quizzes_quiz_change',
+                       args=[instance.problem.pk])
+
     def inline_actions(self, instance):
-        move_href = reverse('oioioiadmin:contests_probleminstance_change',
-                args=(instance.id,))
+        result = []
+        if hasattr(instance.problem, 'quiz') and instance.problem.quiz:
+            edit_quiz_href = self._edit_quiz_href(instance)
+            result.append((edit_quiz_href, _("Edit quiz questions")))
+        else:
+            # editing problem instance is currently useless for quizzes,
+            # so we skip it
+            move_href = reverse('oioioiadmin:contests_probleminstance_change',
+                                args=(instance.id,))
+            result.append((move_href, self.probleminstance_change_link_name()))
+
         models_href = self._model_solutions_href(instance)
         assert ProblemSite.objects.filter(problem=instance.problem).exists()
         site_href = self._problem_site_href(instance)
         limits_href = self._reset_limits_href(instance)
         reattach_href = self._reattach_problem_href(instance)
-        result = [
-            (move_href, self.probleminstance_change_link_name()),
+        result.extend([
             (models_href, _("Model solutions")),
             (site_href, _("Problem site")),
             (limits_href, _("Reset tests limits")),
             (reattach_href, _("Attach to another contest"))
-        ]
+        ])
         problem_count = len(ProblemInstance.objects.filter(
             problem=instance.problem_id))
         # Problem package can only be reuploaded if the problem instance

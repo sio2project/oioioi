@@ -1,0 +1,34 @@
+/* we don't want to show the order field, because it's updated by drag and drop */
+#quiz_form tr > td.field-order,
+#quiz_form tr > th.order,
+#quiz_form div.field-order
+{
+    display: none;
+}
+
+#quiz_form textarea.vLargeTextField
+{
+    height: 4em;
+    width: 40em;
+}
+
+/* this adds a 'handle' indicating that drag and drop works */
+h3.djn-drag-handler
+{
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAyCAYAAABcfPsmAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAE5JREFUeNrs0zEKACAMBEEDST6X9+Z92lpYHNgI7naBK9KMdfcch6rK9lvdeWYOJXXnESEN1d2HH9J9hhSkEFKQQkhBClKQghSkPNYSYADFZiuygfao+AAAAABJRU5ErkJggg==") no-repeat 0 0;
+    background-size: 10px 25px;
+    padding-left: 15px;
+}
+
+/* hide unnecessary 'Quiz Answer' header above answer textfield */
+#quiz_form tbody.djn-dynamic-form-quizzes-quizanswer td.original p
+{
+    display: none;
+}
+
+/* hide unnecessary 'Quiz question: QuizQuestion object' header above question */
+#quiz_form div.djn-dynamic-form-quizzes-quizquestion .djn-drag-handler b,
+#quiz_form div.djn-dynamic-form-quizzes-quizquestion .djn-drag-handler span.inline_label
+{
+    display: none;
+}

@@ -1,10 +1,10 @@
+from django import forms
+from django.core.urlresolvers import reverse
+from django.db import transaction
+from django.utils.translation import ugettext_lazy as _
 from oioioi.problems.controllers import ProblemController
 from oioioi.quizzes.models import QuizAnswer, QuizSubmission, \
     QuizSubmissionAnswer
-
-from django.utils.translation import ugettext_lazy as _
-from django import forms
-from django.db import transaction
 
 
 class QuizProblemController(ProblemController):
@@ -35,11 +35,11 @@ class QuizProblemController(ProblemController):
         return 'quiz_' + str(problem_instance.id) + '_q_' + str(question.id)
 
     def validate_submission_form(self, request, problem_instance, form,
-            cleaned_data):
+                                 cleaned_data):
         questions = problem_instance.problem.quiz.quizquestion_set.all()
         for question in questions:
             field_name = self._form_field_id_for_question(problem_instance,
-                                                       question)
+                                                          question)
             if field_name in form.errors.as_data():
                 continue  # already has a validation error
 
@@ -57,7 +57,7 @@ class QuizProblemController(ProblemController):
         for question in questions:
             answers = question.quizanswer_set.values_list('id', 'answer')
             field_name = self._form_field_id_for_question(problem_instance,
-                                                       question)
+                                                          question)
             if question.is_multiple_choice:
                 form.fields[field_name] = forms.MultipleChoiceField(
                     label=question.question,
@@ -95,7 +95,7 @@ class QuizProblemController(ProblemController):
             questions = problem_instance.problem.quiz.quizquestion_set.all()
             for question in questions:
                 field_id = self._form_field_id_for_question(problem_instance,
-                                                           question)
+                                                            question)
 
                 selected_answers = self._get_selected_answers(form_data,
                                                               field_id,
@@ -128,6 +128,18 @@ class QuizProblemController(ProblemController):
         else:
             return [int(field_value)]
 
+    def mixins_for_admin(self):
+        from oioioi.quizzes.admin import QuizAdminMixin
+        return super(QuizProblemController, self).mixins_for_admin() \
+               + (QuizAdminMixin,)
+
     def render_submission(self, request, submission):
         raise NotImplementedError("TODO "
                                   "show score and selected answers in report")
+
+    def get_extra_problem_site_actions(self, problem):
+        parent_extras = super(QuizProblemController, self)\
+            .get_extra_problem_site_actions(problem)
+        change_url = reverse('oioioiadmin:quizzes_quiz_change',
+                             args=[problem.quiz.pk])
+        return parent_extras + [(change_url, _("Edit questions"))]

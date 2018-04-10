@@ -94,6 +94,10 @@ setup(
 
         "raven",
 
+        # A library allowing to nest inlines in django admin.
+        # Used in quizzes module for adding new quizzes.
+        "django-nested-admin"
+
         # Dependencies from external sources live in requirements.txt
     ],
     packages=find_packages(exclude=['ez_setup']),

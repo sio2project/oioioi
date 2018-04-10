@@ -19,6 +19,7 @@ js_info_dict = {
 
 urlpatterns = [
     url(r'^jsi18n/$', i18n.javascript_catalog, js_info_dict),
+    url(r'^nested_admin/', include('nested_admin.urls')),
 ]
 
 if settings.DEBUG:
