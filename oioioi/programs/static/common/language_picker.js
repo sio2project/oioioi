@@ -14,5 +14,4 @@ $(function() {
     }
 
     codeField.bind('input propertychange', updateLanguagePicker);
-    updateLanguagePicker();
 });
