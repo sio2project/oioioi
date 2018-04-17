@@ -104,18 +104,6 @@ setup(
     include_package_data=True,
     test_suite='oioioi.runtests.runtests',
 
-    # Well, dependency_links is deprecated in pip and setuptools. We leave
-    # it for some time, though. You should install oioioi using
-    #
-    # $ pip install -r requirements.txt
-    #
-    dependency_links=[
-        'http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.3',
-        'http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.1.0',
-        'http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev',
-        'http://github.com/sio2project/linaro-django-pagination/zipball/master#egg=linaro-django-pagination',
-    ],
-
     entry_points={
         'console_scripts': [
             'oioioi-create-config = oioioi.deployment.create_config:main',

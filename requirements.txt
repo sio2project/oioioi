@@ -3,6 +3,5 @@
 # setup.py, as pip is not able to install them.
 http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.3
 http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.1.0
-http://github.com/mitsuhiko/werkzeug/zipball/master#egg=Werkzeug-dev
 http://github.com/sio2project/linaro-django-pagination/zipball/master#egg=linaro-django-pagination
 -e .
