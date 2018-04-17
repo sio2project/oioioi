@@ -4,8 +4,8 @@ from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
     SubmissionReport
 from oioioi.contests.tests import SubmitMixin
+from oioioi.problems.models import Problem
 from oioioi.quizzes.models import QuestionReport, QuizSubmission
-
 
 
 class SubmitQuizMixin(SubmitMixin):
@@ -154,3 +154,17 @@ class TestSubmissionView(TestCase):
                             '<td>{}</td>'
                             .format(expected_score),
                             html=True)
+
+
+class TestEditQuizQuestions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_quiz_problem']
+
+    def setUp(self):
+        self.client.login(username='test_user')  # this user is not an admin
+
+    def test_edit_quiz_questions(self):
+        # test_user is an author of this problem
+        problem = Problem.objects.get(pk=1)
+        url = reverse('oioioiadmin:quizzes_quiz_change', args=[problem.pk])
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'Add another Quiz Question')
