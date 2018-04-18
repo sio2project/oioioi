@@ -151,7 +151,7 @@ MIDDLEWARE_CLASSES = (
     'oioioi.base.middleware.UserInfoInErrorMessage',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'linaro_django_pagination.middleware.PaginationMiddleware',
+    'dj_pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
     'oioioi.base.middleware.HttpResponseNotAllowedMiddleware',
     'oioioi.base.middleware.CheckLoginMiddleware',
@@ -213,7 +213,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'debug_toolbar',
     'compressor',
-    'linaro_django_pagination',
+    'dj_pagination',
     'mptt',
     'overextends',
     'raven.contrib.django.raven_compat',
@@ -257,7 +257,7 @@ DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 
 SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]
 
-# For linaro_django_pagination
+# For dj_pagination
 PAGINATION_DEFAULT_WINDOW = 4
 PAGINATION_DEFAULT_MARGIN = 1
 FILES_ON_PAGE = 100

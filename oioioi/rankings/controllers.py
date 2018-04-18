@@ -176,7 +176,7 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
         fake_req = RequestFactory().get('/?page=' + str(page))
         fake_req.user = AnonymousUser()
         fake_req.contest = self.contest
-        # This is required by django-linaro-pagination
+        # This is required by dj-pagination
         # Normally they monkey patch this function in their middleware
         fake_req.page = lambda _: page
         return fake_req
