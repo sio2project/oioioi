@@ -32,7 +32,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-17 11:46+0200\n"
+"POT-Creation-Date: 2018-04-22 22:36+0200\n"
 "PO-Revision-Date: 2018-04-05 11:24+0000\n"
 "Last-Translator: Jacek Olczyk <joaldek@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/"
@@ -1681,7 +1681,7 @@ msgstr "Ustawienia"
 msgid "Edit problem"
 msgstr "Edytuj"
 
-#: contests/admin.py:305 quizzes/admin.py:73
+#: contests/admin.py:305 quizzes/admin.py:99
 msgid "Edit quiz questions"
 msgstr "Edytuj pytania"
 
@@ -2683,7 +2683,7 @@ msgstr "Strona główna konkursu"
 
 #: dashboard/templates/dashboard/messages.html:3
 #: questions/templates/questions/list.html:4
-#: questions/templates/questions/list.html:115
+#: questions/templates/questions/list.html:122
 #: questions/templates/questions/message.html:4
 #: questions/templates/questions/tree.html:4 questions/views.py:123
 #: simpleui/templates/simpleui/contest/contest.html:70
@@ -3617,7 +3617,7 @@ msgstr "Treść"
 #: newsfeed/templates/newsfeed/news-add.html:4
 #: newsfeed/templates/newsfeed/news-add.html:7
 #: newsfeed/templates/newsfeed/newsfeed.html:4
-#: questions/templates/questions/list.html:94 questions/views.py:300
+#: questions/templates/questions/list.html:101 questions/views.py:300
 msgid "Add news"
 msgstr "Dodaj wiadomość"
 
@@ -5918,19 +5918,51 @@ msgstr "Dodaj treść pytania"
 msgid "History"
 msgstr "Historia"
 
-#: questions/templates/questions/list.html:99
+#: questions/templates/questions/list.html:16
+msgid "Subscribe"
+msgstr "Subskrybuj"
+
+#: questions/templates/questions/list.html:17
+msgid "Unsubscribe"
+msgstr "Odsubskrybuj"
+
+#: questions/templates/questions/list.html:49
+msgid "Inconsistent request!"
+msgstr "Niespójne żądanie"
+
+#: questions/templates/questions/list.html:50
+msgid ""
+"There was an error processing your request. Please reload the page and try "
+"again."
+msgstr ""
+"Wystąpił błąd podczas przetwarzania żądania. Odśwież stronę i spróbuj "
+"ponownie."
+
+#: questions/templates/questions/list.html:55
+msgid "You successfully subscribed"
+msgstr "Pomyślnie zasubskrybowano"
+
+#: questions/templates/questions/list.html:56
+msgid "You successfully unsubscribed"
+msgstr "Pomyślnie odsubskrybowano"
+
+#: questions/templates/questions/list.html:57
+msgid "Success!"
+msgstr "Sukces!"
+
+#: questions/templates/questions/list.html:106
 msgid "Edit reply templates"
 msgstr "Edytuj szablony odpowiedzi"
 
-#: questions/templates/questions/list.html:105
+#: questions/templates/questions/list.html:112
 msgid "Ask a question"
 msgstr "Zadaj pytanie"
 
-#: questions/templates/questions/list.html:112
+#: questions/templates/questions/list.html:119
 msgid "Show all messages"
 msgstr "Pokaż wszystkie wiadomości"
 
-#: questions/templates/questions/list.html:131
+#: questions/templates/questions/list.html:138
 #: questions/templates/questions/tree.html:35
 msgid "No questions or news yet."
 msgstr "Brak pytań i wiadomości."
@@ -6060,32 +6092,24 @@ msgid "Ask question"
 msgstr "Zadaj pytanie"
 
 #: quizzes/admin.py:23
-#, fuzzy
-#| msgid "Your question was answered."
 msgid "A question needs at least one answer."
-msgstr "Odpowiedź na Twoje pytanie jest dostępna."
+msgstr "Pytanie potrzebuje przynajmniej jednej odpowiedzi."
 
 #: quizzes/controllers.py:39
 msgid "Answer is required here."
 msgstr "Odpowiedź jest wymagana"
 
 #: quizzes/controllers.py:133
-#, fuzzy
-#| msgid "Quiz questions"
 msgid "Edit questions"
-msgstr "Pytania"
+msgstr "Edytuj pytania"
 
 #: quizzes/forms.py:6
-#, fuzzy
-#| msgid "Quiz answer"
 msgid "Quiz name"
-msgstr "Odpowiedź"
+msgstr "Nazwa quizu"
 
 #: quizzes/forms.py:7
-#, fuzzy
-#| msgid "short name"
 msgid "Short name"
-msgstr "skrót"
+msgstr "Krótka nazwa"
 
 #: quizzes/models.py:14 quizzes/models.py:23
 msgid "Quiz"
@@ -6153,27 +6177,47 @@ msgstr "Zgłoszenie odpowiedzi"
 msgid "Quiz submission answers"
 msgstr "Zgłoszenie odpowiedzi"
 
+#: quizzes/models.py:67
+msgid "Submission report"
+msgstr "Raport zgłoszenia"
+
+#: quizzes/models.py:69 testrun/templates/testrun/report.html:62
+msgid "Comment"
+msgstr "Komentarz"
+
+#: quizzes/models.py:73
+msgid "Question max score"
+msgstr "Maksymalna punktacja pytania"
+
+#: quizzes/models.py:77
+msgid "Question report"
+msgstr "Raport pytania"
+
+#: quizzes/models.py:78
+msgid "Question reports"
+msgstr "Raporty pytań"
+
 #: quizzes/problem_sources.py:18
-#, fuzzy
-#| msgid "Add a round"
 msgid "Add a quiz"
-msgstr "Dodaj rundę"
+msgstr "Dodaj quiz"
 
 #: quizzes/problem_sources.py:23
 msgid "Reuploading quizzes is not supported"
-msgstr ""
+msgstr "Ponowne wysyłanie quizów nie jest wspierane"
 
 #: quizzes/problem_sources.py:54
-#, fuzzy
-#| msgid "Successfully added tag"
 msgid "Quiz successfully added"
-msgstr "Successfully added tag"
+msgstr "Pomyślnie dodano quiz"
 
 #: quizzes/templates/admin/quizzes/quiz/change_form.html:5
 msgid "You can use drag and drop to change the order of questions and answers."
-msgstr ""
+msgstr "Przeciągnij i upuść aby zmienić kolejność pytań i odpowiedzi."
 
-#: rankings/controllers.py:201
+#: quizzes/templates/quizzes/report.html:5
+msgid "Quiz report"
+msgstr "Raport quizu"
+
+#: rankings/controllers.py:199
 msgid "Default ranking"
 msgstr "Domyślny ranking"
 
@@ -7441,8 +7485,8 @@ msgid ""
 "Choose the contest you want to enter. To enter a new contest, ask a teacher "
 "for a registration link."
 msgstr ""
-"Wybierz konkurs, do którego chcesz teraz wejść. Żeby dostać się "
-"do nowego konkursu, poproś nauczyciela o link rejestracyjny."
+"Wybierz konkurs, do którego chcesz teraz wejść. Żeby dostać się do nowego "
+"konkursu, poproś nauczyciela o link rejestracyjny."
 
 #: szkopul/templates/main-page.html:27
 msgid "News"
@@ -7620,6 +7664,46 @@ msgstr "Zarejestruj się jako uczeń"
 msgid "Register!"
 msgstr "Zarejestruj się!"
 
+#: teachers/templates/teachers/contest-selection.html:7
+msgid "Proceed to the default contest:"
+msgstr "Przejdź do konkursu domyślnego:"
+
+#: teachers/templates/teachers/contest-selection.html:12
+msgid "Or select one of the following:"
+msgstr "lub wybierz jeden z następujących:"
+
+#: teachers/templates/teachers/contest-selection.html:34
+msgid "You have teacher's access."
+msgstr "Masz dostęp nauczycielski."
+
+#: teachers/templates/teachers/contest-selection.html:41
+msgid "There are no contests you could take part in."
+msgstr "Brak konkursów, w których mógłbyś wziąć udział."
+
+#: teachers/templates/teachers/contest-selection.html:43
+msgid "Your request for teacher's access awaits administrators approval."
+msgstr ""
+"Twoja prośba o dostęp nauczycielski czeka na akceptację administratorów."
+
+#: teachers/templates/teachers/contest-selection.html:45
+msgid "Ask your teacher for a registration link"
+msgstr "Poproś nauczyciela o odnośnik rejestracyjny"
+
+#: teachers/templates/teachers/contest-selection.html:47
+#, python-format
+msgid ""
+"\n"
+"                <h5>Are you a teacher?</h5>\n"
+"                <a href=\"%(add_teacher_url)s\">Ask</a> administrators for "
+"teacher's access.\n"
+"            "
+msgstr ""
+"\n"
+"                <h5>Jesteś nauczycielem?</h5>\n"
+"                <a href=\"%(add_teacher_url)s\">Poproś</a> administratorów o "
+"dostęp nauczycielski.\n"
+"            "
+
 #: teachers/templates/teachers/members.html:10
 msgid "copied!"
 msgstr "przekopiowano!"
@@ -7752,46 +7836,6 @@ msgstr "Prośba została wysłana."
 msgid "You will receive an email once your teacher account is activated."
 msgstr ""
 "Otrzymasz wiadomość e-mail, gdy konto nauczycielskie zostanie aktywowane."
-
-#: teachers/templates/teachers/contest-selection.html:7
-msgid "Proceed to the default contest:"
-msgstr "Przejdź do konkursu domyślnego:"
-
-#: teachers/templates/teachers/contest-selection.html:12
-msgid "Or select one of the following:"
-msgstr "lub wybierz jeden z następujących:"
-
-#: teachers/templates/teachers/contest-selection.html:34
-msgid "You have teacher's access."
-msgstr "Masz dostęp nauczycielski."
-
-#: teachers/templates/teachers/contest-selection.html:41
-msgid "There are no contests you could take part in."
-msgstr "Brak konkursów, w których mógłbyś wziąć udział."
-
-#: teachers/templates/teachers/contest-selection.html:43
-msgid "Your request for teacher's access awaits administrators approval."
-msgstr ""
-"Twoja prośba o dostęp nauczycielski czeka na akceptację administratorów."
-
-#: teachers/templates/teachers/contest-selection.html:45
-msgid "Ask your teacher for a registration link"
-msgstr "Poproś nauczyciela o odnośnik rejestracyjny"
-
-#: teachers/templates/teachers/contest-selection.html:47
-#, python-format
-msgid ""
-"\n"
-"                <h5>Are you a teacher?</h5>\n"
-"                <a href=\"%(add_teacher_url)s\">Ask</a> administrators for "
-"teacher's access.\n"
-"            "
-msgstr ""
-"\n"
-"                <h5>Jesteś nauczycielem?</h5>\n"
-"                <a href=\"%(add_teacher_url)s\">Poproś</a> administratorów o "
-"dostęp nauczycielski.\n"
-"            "
 
 #: teachers/views.py:106
 msgid "User already accepted."
@@ -8067,10 +8111,6 @@ msgstr ""
 #: testrun/templates/testrun/report.html:21 testrun/views.py:95
 msgid "Output"
 msgstr "Wyjście"
-
-#: testrun/templates/testrun/report.html:62
-msgid "Comment"
-msgstr "Komentarz"
 
 #: testspackages/forms.py:10
 #, python-format
