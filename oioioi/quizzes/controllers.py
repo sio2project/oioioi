@@ -219,3 +219,6 @@ class QuizProblemController(ProblemController):
         environ.setdefault('report_kinds', ['NORMAL'])
         if 'hidden_judge' in environ['extra_args']:
             environ['report_kinds'] = ['HIDDEN']
+
+    def supports_problem_statement(self):
+        return False

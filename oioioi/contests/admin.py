@@ -303,12 +303,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         if hasattr(instance.problem, 'quiz') and instance.problem.quiz:
             edit_quiz_href = self._edit_quiz_href(instance)
             result.append((edit_quiz_href, _("Edit quiz questions")))
-        else:
-            # editing problem instance is currently useless for quizzes,
-            # so we skip it
-            move_href = reverse('oioioiadmin:contests_probleminstance_change',
-                                args=(instance.id,))
-            result.append((move_href, self.probleminstance_change_link_name()))
+
+        move_href = reverse('oioioiadmin:contests_probleminstance_change',
+                            args=(instance.id,))
+        result.append((move_href, self.probleminstance_change_link_name()))
 
         models_href = self._model_solutions_href(instance)
         assert ProblemSite.objects.filter(problem=instance.problem).exists()

@@ -118,6 +118,11 @@ def problem_statement_view(request, problem_instance):
             not controller.can_see_statement(request, pi):
         raise PermissionDenied
 
+    if not pi.problem.controller.supports_problem_statement():
+        # if the problem doesn't support having a problem statement,
+        # redirect to submission
+        return redirect('submit', problem_instance_id=pi.id)
+
     statement = query_statement(pi.problem)
 
     if not statement:
@@ -166,7 +171,7 @@ def problem_statement_zip_view(request, problem_instance,
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(has_any_submittable_problem,
                    template='contests/nothing_to_submit.html')
-def submit_view(request):
+def submit_view(request, problem_instance_id=None):
     if request.method == 'POST':
         form = SubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
@@ -174,7 +179,10 @@ def submit_view(request):
                     form.cleaned_data['problem_instance'], form.cleaned_data)
             return redirect('my_submissions', contest_id=request.contest.id)
     else:
-        form = SubmissionForm(request)
+        initial = {}
+        if problem_instance_id is not None:
+            initial = {'problem_instance_id': int(problem_instance_id)}
+        form = SubmissionForm(request, initial=initial)
     return TemplateResponse(request, 'contests/submit.html', {'form': form})
 
 

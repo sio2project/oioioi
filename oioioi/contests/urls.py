@@ -92,6 +92,8 @@ c_patterns = [
         name='reset_tests_limits_for_probleminstance'),
 
     url(r'^submit/$', views.submit_view, name='submit'),
+    url(r'^submit/(?P<problem_instance_id>[a-z0-9_-]+)/$', views.submit_view,
+        name='submit'),
     url(r'^submissions/$', views.my_submissions_view, name='my_submissions'),
     url(r'^files/$', views.contest_files_view, name='contest_files'),
     url(r'^ca/(?P<attachment_id>\d+)/$', views.contest_attachment_view,

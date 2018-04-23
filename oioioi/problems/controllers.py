@@ -468,3 +468,12 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
            that will be displayed under actions in ProblemSite.
         """
         return []
+
+    def supports_problem_statement(self):
+        """If the ProblemController supports problem statement,
+           opening the problem in a contest shows the associated problem
+           statement or an information that it doesn't have one.
+           On the other hand, if it doesn't support the problem statement,
+           opening the problem redirects to submit solution page.
+        """
+        return True

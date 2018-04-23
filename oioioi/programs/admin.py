@@ -79,7 +79,10 @@ class TestInline(admin.TabularInline):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        # this view doesn't allow to add / remove tests
+        # so if there are no tests for this tasks we can skip showing it
+        # (for example quizzes have no tests and it would be confusing to show)
+        return obj is None or obj.test_set.count() != 0
 
     def has_delete_permission(self, request, obj=None):
         return False

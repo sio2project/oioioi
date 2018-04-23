@@ -93,6 +93,9 @@ class QuizInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_change_permission(self, request, obj=None):
+        return True
+
     def edit(self, instance):
         url = reverse('oioioiadmin:quizzes_quiz_change', args=[instance.pk])
         return mark_safe(u'<a href="{url}">{text}</a>'.
