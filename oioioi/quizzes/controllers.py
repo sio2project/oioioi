@@ -159,12 +159,10 @@ class QuizProblemController(ProblemController):
                               'submission': submission_template_context(
                                   request,
                                   submission.quizsubmission),
-                              'saved_diff_id': request.session.get(
-                                  'saved_diff_id'),
                               'supported_extra_args': problem_instance.controller.get_supported_extra_args(
                                   submission),
                               'can_admin': can_admin})
-        return render_to_string('programs/submission_header.html',
+        return render_to_string('quizzes/submission_header.html',
                                 context_instance=context_instance)
 
     def update_submission_score(self, submission):
