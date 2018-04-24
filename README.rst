@@ -313,7 +313,9 @@ Maintenance topics are below.
 Upgrading
 ~~~~~~~~~
 
-See [UPGRADING](UPGRADING.rst) for instructions.
+See `UPGRADING`_ for instructions.
+
+.. _UPGRADING: UPGRADING.rst
 
 Backup
 ~~~~~~
