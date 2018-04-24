@@ -275,7 +275,9 @@ class SubmissionFormForProblemInstance(SubmissionForm):
         kwargs['problem_instance'] = problem_instance
         super(SubmissionFormForProblemInstance, self).__init__(request, *args,
                 **kwargs)
-        self.fields['problem_instance_id'].widget.attrs['readonly'] = 'True'
+        pis = self.fields['problem_instance_id']
+        pis.widget.attrs['readonly'] = 'True'
+        pis.widget.attrs['data-submit'] = 'hidden'
 
     def get_problem_instances(self):
         return [self.problem_instance]
