@@ -24,7 +24,7 @@ Architecture Overview
 .. _Django i18n: https://docs.djangoproject.com/en/1.7/topics/i18n/
 .. _Transifex: https://www.transifex.com/projects/p/sio2project/
 
-The OIOIOI source code is a standard `Django 1.8`_ project, with the following
+The OIOIOI source code is a standard `Django 1.9`_ project, with the following
 components used:
 
 * Standard `Django authentication`_
