@@ -13,7 +13,7 @@ Then run::
 and restart the judging machines.
 
 Upgrading from django 1.8
-~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------
 Please make sure to reinstall all packages to avoid compatibility issues::
 
   pip install -e git://github.com/sio2project/oioioi.git#egg=oioioi
@@ -23,7 +23,7 @@ Please make sure to reinstall all packages to avoid compatibility issues::
   ./manage.py supervisor restart all
 
 Changes in the deployment directory
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------------
 
 When new features are added, the configuration files in your custom
 *deployment* directory may need an update. An example valid configuration can
