@@ -11,8 +11,8 @@ main component — the web interface.
 Installation
 ------------
 
-Simple installation
-~~~~~~~~~~~~~~~~~~~
+Vagrant (for development)
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can easily start development and run oioioi out of the box with `vagrant`_.
 Just enter the directory where Vagrantfile and this README are placed, and type::
@@ -28,8 +28,8 @@ You can specify configuration in `vagrant.yml`. Supported configuration options 
 
 .. _vagrant: https://www.vagrantup.com/docs/
 
-Docker Installation
-~~~~~~~~~~~~~~~~~~~
+Docker (for deployment)
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Additionally, there are available docker files to create images containing our services.
 
@@ -40,6 +40,12 @@ To start with, create oioioi-base image with a command::
 Then run `docker-compose up` to start the infrastructure.
 
 To start additional number of workers, use `docker-compose scale worker=<number>` as described `here`_.
+
+Docker (for development)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to develop using docker images, but this we do not recommend it.
+Better use Vagrant or install OIOIOI manually, as described in the next section.
 
 To develop with docker after creating oioioi-base image, create oioioi image with::
 
@@ -59,7 +65,7 @@ in production encvironment remember to change the password.
 
 .. _here: https://docs.docker.com/compose/reference/scale/
 
-Manual Installation
+Manual installation
 ~~~~~~~~~~~~~~~~~~~
 
 See `INSTALL`_ for instructions.
