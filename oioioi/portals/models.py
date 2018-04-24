@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ImproperlyConfigured
 from django.db import models
 from django.dispatch import Signal
 from django.utils.translation import ugettext_lazy as _
@@ -7,6 +9,12 @@ from mptt.models import MPTTModel, TreeForeignKey
 from oioioi.base.utils.validators import (validate_db_string_id,
                                           validate_whitespaces)
 from oioioi.portals.utils import join_paths
+
+if 'oioioi.portals.processors.portal_processor' \
+        not in settings.TEMPLATES[0]['OPTIONS']['context_processors']:
+    raise ImproperlyConfigured("When using portals module "
+                               "you have to add  oioioi.protals.processors.portal_processor "
+                               "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py")
 
 
 class Node(MPTTModel):
