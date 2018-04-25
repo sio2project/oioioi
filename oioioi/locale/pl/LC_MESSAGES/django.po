@@ -36,9 +36,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-04-24 16:54+0200\n"
-"PO-Revision-Date: 2018-04-24 14:54+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2018-04-24 21:14+0200\n"
+"PO-Revision-Date: 2018-04-25 05:45+0000\n"
+"Last-Translator: Jacek Olczyk <joaldek@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -178,7 +178,7 @@ msgstr "Strona główna"
 msgid ""
 "Powered by <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>,"
 " from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>."
-msgstr ""
+msgstr "Działa na bazie <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, części <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.    "
 
 #: base/templates/ingredients/form.html:8
 #: mailsubmit/templates/mailsubmit/accept.html:15
@@ -262,7 +262,7 @@ msgstr "Niepoprawny odnośnik aktywacyjny."
 msgid ""
 "Please make sure that you correctly copied the entire link from the email to"
 " the web browser address bar."
-msgstr ""
+msgstr "Upewnij się, że dobrze skopiowałe/aś link z wiadomości e-mail do paska adresu przeglądarki."
 
 #: base/templates/registration/activation_complete.html:4
 #: teachers/templates/registration/activation_complete.html:4
@@ -428,7 +428,7 @@ msgstr "Dziękujemy za utworzenie konta."
 msgid ""
 "We've e-mailed you instructions for activating the account to the e-mail "
 "address you submitted. You should be receiving it shortly."
-msgstr ""
+msgstr "Przesłaliśmy instrukcje jak aktywować konto na podany adres e-mail. Powinieneś otrzymać je wkrótce.        "
 
 #: base/templates/registration/registration_form.html:6
 #: base/templates/registration/registration_form.html:14
@@ -1433,7 +1433,7 @@ msgstr "Dodany"
 #: forum/templates/forum/thread-element-footer.html:14
 #, python-format
 msgid "Last edit: %(post.last_edit_date_url)s"
-msgstr ""
+msgstr "Ostatnia edycja: %(post.last_edit_date_url)s"
 
 #: forum/templates/forum/thread-element-footer.html:20
 msgid "edit"
@@ -1454,7 +1454,7 @@ msgstr "zgłoś"
 #: forum/templates/forum/thread-element-footer.html:48
 #, python-format
 msgid "This post was reported by %(reporter)s."
-msgstr ""
+msgstr "Wiadomość została zgłoszona do administracji przez %(reporter)s."
 
 #: forum/templates/forum/thread-element-footer.html:50
 msgid "This post was reported."
@@ -1665,7 +1665,7 @@ msgstr "\n    <p><strong>Jeśli widzisz swoją szkołę na liście poniżej, kli
 msgid ""
 "<p><strong>Are you sure you are not a student of any school listed above and"
 " you want to add that school?</strong></p>"
-msgstr ""
+msgstr "<p> <strong>Jesteś pewien, że Twojej szkoły nie ma na liście i chcesz ją dodać?</strong></p>"
 
 #: oi/templates/oi/sensitive_participant_info.html:3
 msgid "Sensitive OI info"
@@ -1928,6 +1928,11 @@ msgstr "Zarządzaj portalem"
 msgid "Drag and drop nodes to reorganize the portal structure."
 msgstr "Przeciągaj i upuszczaj węzły, by reorganizować strukturę portalu."
 
+#: portals/templates/portals/menu.html:7
+#| msgid "Add child node"
+msgid "no child nodes"
+msgstr "brak węzłów podrzędnych"
+
 #: portals/templates/portals/user-portal-initial-main-page-body.txt:1
 msgid ""
 "This is the main page of your portal. Click \"Edit node\" on the right to "
@@ -1939,7 +1944,7 @@ msgstr "Oto strona główna twojego portalu. Naciśnij „Edytuj węzeł” po p
 msgid ""
 "Users who do not have permission to edit this portal would now get "
 "redirected to: \"%(redirect_url)s\"."
-msgstr ""
+msgstr "Użytkownicy bez uprawnień do edycji tego portalu byliby teraz przekierowani do \"%(redirect_url)s\""
 
 #: printing/templates/printing/nothing_to_print.html:4
 msgid "Nothing to print"
@@ -2660,10 +2665,10 @@ msgid ""
 msgid_plural ""
 "You have already used <strong>%(scores_reveals)s</strong> out of %(counter)s"
 " reveals."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnienia.    "
+msgstr[1] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnień.    "
+msgstr[2] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnień.    "
+msgstr[3] "Wykorzystano już <strong>%(scores_reveals)s</strong> spośród %(counter)s ujawnień.    "
 
 #: scoresreveal/templates/scoresreveal/submission-footer.html:19
 #, python-format
@@ -3124,7 +3129,7 @@ msgstr "Witaj!"
 msgid ""
 "Choose the contest you want to enter. To enter a new contest, ask a teacher "
 "for a registration link."
-msgstr ""
+msgstr "Wybierz konkurs, do którego chcesz wejść. Aby wejść do nowego konkursu, poproś nauczyciela o link rejestracyjny."
 
 #: szkopul/templates/main-page.html:27
 msgid "News"
@@ -3139,7 +3144,7 @@ msgstr "Kontakt"
 msgid ""
 "Do you have any questions or feedback? Is something wrong? Use the "
 "%(send_feedback)s button in the corner of the page."
-msgstr ""
+msgstr "Masz pytania lub uwagi? Coś jest nie tak? Skorzystaj z przycisku %(send_feedback)s w rogu strony."
 
 #: szkopul/templates/main-page.html:39
 msgid "We are supported by"
@@ -3450,15 +3455,15 @@ msgstr "Opuść drużynę"
 #, python-format
 msgid "One byte truncated."
 msgid_plural "Bytes truncated: %(left)s."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Ucięto 1 bajt.    "
+msgstr[1] "Ucięto %(left)s bajty.    "
+msgstr[2] "Ucięto %(left)s bajtów.   "
+msgstr[3] "Ucięto %(left)s bajtów.    "
 
 #: testrun/templates/testrun/data.html:17
 #, python-format
 msgid "You can download the entire file <a href=\"%(download_url)s\">here</a>."
-msgstr ""
+msgstr "Możesz pobrać cały plik <a href=\"%(download_url)s\">tutaj</a>.            "
 
 #: testrun/templates/testrun/no-testrun-problems.html:4
 msgid "No test run problems"
