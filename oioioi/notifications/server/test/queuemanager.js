@@ -3,10 +3,8 @@ var rabbit = require('rabbit.js');
 var assert = require('assert');
 
 describe('QueueManager', function() {
-    var context;
     before(function(done) {
-        context = rabbit.createContext('amqp://localhost');
-        queuemanager.init(context, done);
+        queuemanager.init('amqp://localhost', done);
     });
 
     it ('should receive a message for user it is subscribed to', function(done) {
@@ -21,7 +19,7 @@ describe('QueueManager', function() {
             }
         });
         queuemanager.subscribe(1);
-        var push = context.socket('PUSH');
+        var push = rabbit.createContext('amqp://localhost').socket('PUSH');
         push.connect(queuemanager.getQueueNameForUser(1), function() {
             push.write('{"id":"a", "message":"hello"}', 'utf8');
         });

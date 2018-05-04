@@ -90,11 +90,6 @@ function subscribe(userId) {
        eventEmitter.emit('message', userId, data);
         debug(userId + ': received ' + data);
     });
-
-    workers[userId].on('close', function() {
-        debug('deleting socket for ' + userId);
-        delete workers[userId];
-    });
 }
 
 // Unsubscribes from queue associated with given userId.
@@ -102,7 +97,7 @@ function unsubscribe(userId) {
     if (!workers[userId]) {
         return;
     }
-    workers[userId].close();
+    delete workers[userId];
 }
 
 // Unsubscribes from all queues. I'm not sure if this is used anywhere.

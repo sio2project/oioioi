@@ -16,7 +16,7 @@ describe("Server", function() {
         poster.withArgs(sinon.match.any,
             sinon.match({form:{nsid: 'TEST_USER_SID'}}))
             .yields(null, {statusCode: 200}, '{"status": "OK", "user": "test_user"}');
-        queuemanager.init(rabbit.createContext('amqp://localhost'), done);
+        queuemanager.init('amqp://localhost', done);
     });
 
     after(function() {
@@ -57,7 +57,7 @@ describe("Server", function() {
         var numCalled = 0;
         var numMessages = 0;
         function sendMsg() {
-            nserver.onMessageReceived('test_user', {id:"a", message: 'test_message'});
+            nserver.onRabbitMessage('test_user', {id:"a", message: 'test_message'});
 
         }
         var sEmit = function(socket) {
