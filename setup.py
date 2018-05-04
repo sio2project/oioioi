@@ -15,7 +15,6 @@ if not sys.version_info[0] == 2:
     print >>sys.stderr, "ERROR: You can only run this using Python 2."
     sys.exit(2)
 
-
 if os.getuid() == 0:  # root
     print >>sys.stderr, "ERROR: This setup.py cannot be run as root."
     print >>sys.stderr, "ERROR: If you want to proceed anyway, hunt this"
@@ -87,10 +86,7 @@ setup(
         # Some of celery dependencies (kombu) require amqp to be <2.0.0
         "amqp<2.0.0",
 
-        # A library required by AMQP, used in notifications system.
-        # We need version >= 1.5.1, becuase it has fixed this bug
-        # https://github.com/celery/librabbitmq/issues/42
-        "librabbitmq>=1.5.1",
+        "pika",
 
         "raven",
         "unidecode",
@@ -101,6 +97,7 @@ setup(
 
         # Dependencies from external sources live in requirements.txt
     ],
+
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,
     test_suite='oioioi.runtests.runtests',

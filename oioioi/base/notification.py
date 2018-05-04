@@ -6,7 +6,7 @@ import uuid
 from urlparse import urlparse
 
 from django.conf import settings
-from librabbitmq import ChannelError, Connection, ConnectionError
+from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 
 from oioioi.base.utils.loaders import load_modules
 
@@ -46,13 +46,12 @@ class NotificationHandler(logging.StreamHandler):
                     kwargs['host'] = o.hostname
                 if o.port:
                     kwargs['port'] = o.port
-                if o.username:
-                    kwargs['userid'] = o.username
-                if o.password:
-                    kwargs['password'] = o.password
                 if o.path:
                     kwargs['virtual_host'] = o.path
-                thread_data.conn = Connection(**kwargs)
+                if o.username and o.password:
+                    kwargs['credentials'] = PlainCredentials(o.username, o.password)
+                parameters = ConnectionParameters(**kwargs)
+                thread_data.conn = BlockingConnection(parameters)
 
                 thread_data.rabbitmq_connected = True
             # pylint: disable=broad-except
@@ -67,14 +66,12 @@ class NotificationHandler(logging.StreamHandler):
                 not getattr(thread_data, 'rabbitmq_connected', False):
             return
 
-        try:
-            queue_name = NotificationHandler.notification_queue_prefix \
-                    + str(user.pk)
-            channel = thread_data.conn.channel()
-            channel.queue_declare(queue=queue_name, durable=True)
-            channel.basic_publish(exchange='',
-                    routing_key=queue_name, body=json.dumps(message))
-        except (ConnectionError, ChannelError):
+        queue_name = NotificationHandler.notification_queue_prefix \
+                + str(user.pk)
+        channel = thread_data.conn.channel()
+        channel.queue_declare(queue=queue_name, durable=True)
+        if not channel.basic_publish(exchange='',
+                routing_key=queue_name, body=json.dumps(message)):
             logger.info("Notifications: Connection with RabbitMQ broken",
                     exc_info=True)
             thread_data.rabbitmq_connected = False
