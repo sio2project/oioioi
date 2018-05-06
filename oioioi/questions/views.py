@@ -460,13 +460,14 @@ def check_new_messages_view(request, topic_id):
 
 
 @require_http_methods(["GET", "POST"])
+@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def subscription(request):
     mgr = QuestionSubscription.objects
     ctxt = {'contest': request.contest, 'user': request.user}
     entries = mgr.filter(**ctxt)
     subscribed = entries.exists()
 
-    if request.POST:
+    if request.method == 'POST':
         should_add = request.POST['add_subscription'] == 'true'
         incorrect = should_add == subscribed
 
@@ -481,5 +482,6 @@ def subscription(request):
             QuestionSubscription.objects.create(**ctxt)
 
         return HttpResponse("OK")
-    elif request.GET:
+    else:
+        # request.method == 'GET', enforced by decorator
         return HttpResponse(subscribed)
