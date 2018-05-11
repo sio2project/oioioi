@@ -1,7 +1,7 @@
 [
   {
     "pk": 1,
-    "model": "filetracker.testfilemodel",
+    "model": "filetracker.filetestmodel",
     "fields": {
       "file_field": "data:tests/test_file_field.txt:d2hhdGV2ZXIB/w=="
     }

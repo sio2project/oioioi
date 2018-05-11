@@ -9,8 +9,6 @@ from oioioi.evalmgr.models import SavedEnviron
 from oioioi.problems.models import Problem
 from oioioi.programs.models import ProgramSubmission
 from oioioi.sinolpack.tests import get_test_filename
-# Import qualified to prevent nose from thinking that
-# '(^|_)test*' functions are tests
 from oioioi.zeus import handlers
 from oioioi.zeus.backends import (Base64String, ZeusServer,
                                   _json_base64_decode, _json_base64_encode)

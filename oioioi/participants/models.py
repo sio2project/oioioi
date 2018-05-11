@@ -2,7 +2,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from nose.tools import nottest
 
 from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.base.utils.deps import check_django_app_dependencies
@@ -121,7 +120,7 @@ class OnsiteRegistration(RegistrationModel):
         self.save()
 
 
-@nottest
 class TestRegistration(RegistrationModel):
+    __test__ = False
     """Used only for testing"""
     name = models.CharField(max_length=255)

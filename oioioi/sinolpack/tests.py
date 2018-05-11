@@ -11,8 +11,7 @@ from django.core.management.base import CommandError
 from django.core.urlresolvers import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
-from nose.plugins.attrib import attr
-from nose.tools import nottest
+import pytest
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
@@ -28,7 +27,6 @@ from oioioi.sinolpack.package import (DEFAULT_MEMORY_LIMIT, DEFAULT_TIME_LIMIT,
                                       SinolPackageBackend)
 
 
-@nottest
 def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), 'files', name)
 
@@ -45,7 +43,6 @@ BOTH_CONFIGURATIONS = '%test_both_configurations'
 # test, that is:
 # ./test.sh oioioi.sinolpack.tests:TestSinolPackage.test_huge_unpack_update
 # will NOT work.
-@nottest
 def enable_both_unpack_configurations(cls):
     for name, fn in cls.__dict__.items():
         if getattr(fn, BOTH_CONFIGURATIONS, False):
@@ -57,17 +54,9 @@ def enable_both_unpack_configurations(cls):
     return cls
 
 
-@nottest
 def both_configurations(fn):
     setattr(fn, BOTH_CONFIGURATIONS, True)
     return fn
-
-
-# Fixes error "no such table: nose_c" as described in
-# https://github.com/jbalogh/django-nose/issues/15#issuecomment-1033686
-Test._meta.get_all_related_objects()
-TestReport._meta.get_all_related_objects()
-ModelSolution._meta.get_all_related_objects()
 
 
 @enable_both_unpack_configurations
@@ -187,7 +176,7 @@ class TestSinolPackage(TestCase):
         self.assertIn("Score for group", package.info)
         self.assertIn("not found", package.info)
 
-    @attr('slow')
+    @pytest.mark.slow
     @both_configurations
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_huge_unpack_update(self):
@@ -327,7 +316,7 @@ class TestSinolPackage(TestCase):
         tests = Test.objects.filter(
                 problem_instance=problem.main_problem_instance)
 
-    @attr('slow')
+    @pytest.mark.slow
     @both_configurations
     def test_full_unpack_update(self):
         filename = get_test_filename('test_full_package.tgz')
@@ -397,7 +386,7 @@ class TestSinolPackage(TestCase):
             self.assertEqual(s.status, 'INI_OK')
             self.assertEqual(s.score, IntegerScore(100))
 
-    @attr('slow')
+    @pytest.mark.slow
     @both_configurations
     def test_interactive_task(self):
         filename = get_test_filename('test_interactive_package.tgz')

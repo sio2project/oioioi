@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
-from nose.tools import nottest
 
 from oioioi.base.tests import (TestCase, check_ajax_not_accessible,
                                check_not_accessible, fake_time)
@@ -101,7 +100,6 @@ class TestTestrunViews(TestCase):
         self.assertContains(response, 'Input')
         self.assertContains(response, 'name="input"')
         self.assertContains(response, u'Sumżyce')
-
         data = {
             'problem_instance_id': ProblemInstance.objects.get().id,
             'file': ContentFile('a', name='x.cpp'),
@@ -110,7 +108,7 @@ class TestTestrunViews(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.filter(kind='TESTRUN').count(), 2)
-        submission = TestRunProgramSubmission.objects.get(pk=2)
+        submission = TestRunProgramSubmission.objects.latest('pk')
         self.assertEqual(submission.kind, 'TESTRUN')
         self.assertEqual(submission.input_file.read().strip(), 'i')
         self.assertEqual(submission.source_file.read().strip(), 'a')
@@ -153,8 +151,7 @@ class TestTestrunViews(TestCase):
             self.assertEqual(
                 Submission.objects.filter(kind='TESTRUN').count(),
                 testruns_before + 1)
-            submission = \
-                TestRunProgramSubmission.objects.get(pk=(testruns_before + 1))
+            submission = TestRunProgramSubmission.objects.latest('pk')
             self.assertEqual(submission.kind, 'TESTRUN')
             self.assertEqual(submission.source_file.read().strip(), 'a')
             archive = Archive(submission.input_file, '.zip')
@@ -173,7 +170,7 @@ class TestTestrunViews(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.filter(kind='TESTRUN').count(), 2)
-        submission = TestRunProgramSubmission.objects.get(pk=2)
+        submission = TestRunProgramSubmission.objects.latest('pk')
         self.assertEqual(submission.kind, 'TESTRUN')
         self.assertEqual(submission.input_file.read().strip(), 'i')
         self.assertEqual(submission.source_file.read().strip(), 'some code')
@@ -267,11 +264,10 @@ class TestHandlers(TestCase):
             get_client().delete_file('/output')
 
 
-@nottest
 class TestRunTestCase(object):
     """A TestCase mixin that provides some helpers for test run tests."""
+    __test__ = False
 
-    @nottest
     def submit_test_run(self,
                         user,
                         contest,

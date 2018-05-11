@@ -77,15 +77,6 @@ MIDDLEWARE_CLASSES += (
 TESTS = True
 MOCK_RANKINGSD = True
 
-NOSE_ARGS += (
-    '--with-clearcc',
-)
-NOSE_PLUGINS = [
-    'oioioi.base.tests.nose_plugins.ClearCache',
-    'oioioi.contests.tests.nose_plugins.ClearCurrentContest',
-    'picker.nose_plugin.NosePicker'
-]
-
 SECRET_KEY = 'no_secret'
 OISUBMIT_MAGICKEY = 'abcdef'
 COMPRESS_ENABLED = False

@@ -453,12 +453,6 @@ class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
             self._assertContestRedirects('c1', '/c/c2')
 
 
-# This is a workaround for a django-nose bug that causes errors when
-# invoking ./test.sh oioioi.participants.tests. See:
-# https://github.com/django-nose/django-nose/issues/15#issuecomment-1033686
-TestRegistration._meta.get_all_related_objects()
-
-
 class TestRegistrationModel(TestCase):
     fixtures = ['test_users', 'test_contest']
 

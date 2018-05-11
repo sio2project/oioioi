@@ -598,7 +598,7 @@ class TestSubmittingAsAdmin(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.count(), 1)
-        submission = Submission.objects.get(pk=1)
+        submission = Submission.objects.get()
         self.assertEqual(submission.user.username, 'test_user')
         self.assertEqual(submission.kind, 'IGNORED')
 
@@ -635,11 +635,11 @@ class TestSubmittingAsAdmin(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.count(), 1)
-        submission = Submission.objects.get(pk=1)
+        submission = Submission.objects.get()
         self.assertEqual(submission.user.username, 'test_admin')
         self.assertEqual(submission.kind, 'NORMAL')
 
-        ps = ProgramSubmission.objects.get(pk=1)
+        ps = ProgramSubmission.objects.get()
         f.seek(0, os.SEEK_END)
         self.assertEqual(ps.source_length, f.tell())
 
@@ -704,7 +704,7 @@ class TestSubmittingAsObserver(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.count(), 1)
-        submission = Submission.objects.get(pk=1)
+        submission = Submission.objects.get()
         self.assertEqual(submission.user.username, 'test_observer')
         self.assertEqual(submission.kind, 'IGNORED')
 

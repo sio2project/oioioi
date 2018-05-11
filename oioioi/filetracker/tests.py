@@ -12,7 +12,7 @@ from django.core.urlresolvers import reverse
 from django.db.models.fields.files import FieldFile, FileField
 
 from oioioi.base.tests import TestCase
-from oioioi.filetracker.models import TestFileModel
+from oioioi.filetracker.models import FileTestModel
 from oioioi.filetracker.storage import FiletrackerStorage
 from oioioi.filetracker.utils import (django_to_filetracker_path,
                                       filetracker_to_django_file,
@@ -23,7 +23,7 @@ class TestFileField(TestCase):
     def test_file_field(self):
         f = ContentFile('eloziom', name='foo')
 
-        model = TestFileModel()
+        model = FileTestModel()
         model.file_field = f
         model.save()
         pk = model.pk
@@ -32,7 +32,7 @@ class TestFileField(TestCase):
         # below actually hits the database.
         del model
 
-        model = TestFileModel.objects.get(pk=pk)
+        model = FileTestModel.objects.get(pk=pk)
         self.assertEqual(model.file_field.read(), 'eloziom')
 
         model.file_field.delete()
@@ -46,7 +46,7 @@ class TestFileField(TestCase):
         try:
             self.assertEqual(storage.save(path, ContentFile(data)), path)
 
-            model = TestFileModel()
+            model = FileTestModel()
             # File field is ignoring preferred name, as we can't copy file
             # in filetracker to another location
             with self.assertRaises(NotImplementedError):
@@ -62,7 +62,7 @@ class TestFileField(TestCase):
             # below actually hits the database.
             del model
 
-            model = TestFileModel.objects.get(pk=pk)
+            model = FileTestModel.objects.get(pk=pk)
             self.assertEqual(model.file_field.name, path)
             self.assertEqual(django_to_filetracker_path(model.file_field),
                                 abspath)
@@ -156,7 +156,7 @@ class TestFileFixtures(TestCase):
     fixtures = ['test_file_field']
 
     def test_file_fixtures(self):
-        instance = TestFileModel.objects.get()
+        instance = FileTestModel.objects.get()
         self.assertEqual(instance.file_field.name, 'tests/test_file_field.txt')
         self.assertEqual(instance.file_field.read(), 'whatever\x01\xff')
 

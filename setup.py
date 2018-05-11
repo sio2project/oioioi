@@ -36,9 +36,6 @@ setup(
         "bs4",
         "PyYAML",
         "python-dateutil",
-        # Earlier versions of django-nose are incompatible with Django 1.9
-        "django-nose>=1.4",
-        "nose-picker>=0.5.3",
         "django-two-factor-auth==1.5.0",  # latest version for Django 1.9
 
         "django-registration-redux>=1.6,<2.0",
@@ -56,12 +53,15 @@ setup(
         "django-extensions>=1.0.0",
         "werkzeug",
 
-        "nose >= 1.3",
-
-        "nose-capturestderr",
-        "nose-html",
-        "nose-profile",
-        "nose-exclude",
+        'pytest',
+        'pytest-runner',
+        'pytest-django',
+        'pytest-html',
+        'pytest-xdist',
+        'pytest-cov',
+        'pytest-pep8',
+        'pytest-pylint',
+        'pytest-flakes',
 
         # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
         # ¯\_(ツ)_/¯

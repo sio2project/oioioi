@@ -17,3 +17,6 @@ vagrant.yml
 /test_log.txt
 /test_screenshots.tar.gz
 /logs/
+/.tox/
+/.pytest_cache/
+/.eggs/

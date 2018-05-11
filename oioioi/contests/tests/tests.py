@@ -15,7 +15,6 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.utils.timezone import LocalTimezone, utc
-from nose.tools import nottest
 
 from oioioi.base.tests import (TestCase, TestsUtilsMixin, check_not_accessible,
                                fake_time)
@@ -152,7 +151,6 @@ class TestSubmissionListOrder(TestCase):
         self.check_order_in_response(response, False, 'Submission with CE '
                                 'should be displayed first with this order')
 
-    @nottest
     def check_order_in_response(self, response, is_descending, error_msg):
         # Cut off part of the response that is above submission table because
         # it can provide irrelevant noise.
@@ -1261,7 +1259,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
 
 class TestPermissions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submissions', 'test_permissions']
+            'test_problem_instance', 'test_submission', 'test_permissions']
 
     def get_fake_request_factory(self, contest=None):
         factory = RequestFactory()
@@ -1706,7 +1704,6 @@ class TestProblemInstanceView(TestCase):
         for element in elements_to_find:
             self.assertIn(element, response.content)
 
-    @nottest
     def separate_main_problem_instance(self):
         # in fixtures there is only one ProblemInstance
         # unfortunately it's already attached to contest and it's

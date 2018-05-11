@@ -676,7 +676,7 @@ class TestRegistration(TestCase):
         self._register_user()
         self.assertEqual(len(mail.outbox), 1)
         message = mail.outbox[0]
-        del mail.outbox
+        del mail.outbox[:]
         self.assertEqual(list(message.to), ['foo@bar.com'])
         url = re.search('^http://[^/]*(/.*)$', message.body, re.M).group(1)
         self.client.get(url)

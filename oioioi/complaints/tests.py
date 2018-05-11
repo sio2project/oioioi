@@ -58,7 +58,7 @@ class TestMakingComplaint(TestCase):
 
         jurym = mail.outbox[0].message()
         userm = mail.outbox[1].message()
-        del mail.outbox
+        del mail.outbox[:]
 
         # Header class doesn't offer 'in' operator
         expected = "[oioioi-complaints] Complaint: Test User (test_user)"

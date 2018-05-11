@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from nose.tools import nottest
 
 from oioioi.base.fields import EnumField
 from oioioi.contests.models import (SubmissionReport, submission_kinds,
@@ -16,12 +15,12 @@ submission_kinds.register('TESTRUN', _("Test run"))
 submission_report_kinds.register('TESTRUN', _("Test run report"))
 
 
-@nottest
 class TestRunConfig(models.Model):
     """Represents a test run config for problem.
 
        Test run for program is enabled iff this model exits.
     """
+    __test__ = False
     problem = models.OneToOneField(Problem,
                         verbose_name=_("problem"),
                         related_name='test_run_config')
@@ -43,8 +42,8 @@ def make_custom_input_filename(instance, filename):
             instance.id)
 
 
-@nottest
 class TestRunProgramSubmission(ProgramSubmission):
+    __test__ = False
     input_file = FileField(upload_to=make_custom_input_filename)
 
 
@@ -56,12 +55,12 @@ def make_custom_output_filename(instance, filename):
             submission.id, instance.submission_report.id)
 
 
-@nottest
 class TestRunConfigForInstance(models.Model):
     """Represents additional test run config specific for problem instance.
 
     Right now, the only configurable property is the limit of test runs.
     """
+    __test__ = False
     problem_instance = models.OneToOneField(
         ProblemInstance,
         verbose_name=_("problem instance"),
@@ -76,8 +75,8 @@ class TestRunConfigForInstance(models.Model):
         verbose_name_plural = _("test run configuration for instances")
 
 
-@nottest
 class TestRunReport(models.Model):
+    __test__ = False
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)

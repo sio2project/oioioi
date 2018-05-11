@@ -55,7 +55,7 @@ class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing
        user.
 
-       It's configured in ``settings_test.py`` and available for all tests.
+       It's configured in ``test_settings.py`` and available for all tests.
     """
     supports_authentication = True
     description = _("Testing backend")

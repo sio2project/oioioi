@@ -21,7 +21,7 @@ class TestSubmitService(TestCase):
             'token': '123456ABCDEF'
         })
         response_data = json.loads(response.content)
-        self.assertEqual(response_data['result_url'], '/c/c/s/1/')
+        self.assertRegexpMatches(response_data['result_url'], r'\/c\/c\/s\/[0-9]+\/')
 
     def test_view_user_token(self):
         url = reverse('oioioi.submitservice.views.view_user_token',

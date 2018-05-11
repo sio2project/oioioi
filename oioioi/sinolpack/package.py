@@ -867,7 +867,7 @@ class SinolPackage(object):
         """
         checker_name = '%schk.e' % (self.short_name)
         out_name = _make_filename_in_job_dir(self.env, checker_name)
-        instance = OutputChecker.objects.get(problem=self.problem)
+        instance = OutputChecker.objects.get_or_create(problem=self.problem)[0]
         env = self._find_and_compile('chk',
                 command=checker_name,
                 cwd=os.path.join(self.rootdir, 'prog'),

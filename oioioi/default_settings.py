@@ -209,7 +209,6 @@ INSTALLED_APPS = (
     'kombu.transport.django',
     'djsupervisor',
     'registration',
-    'django_nose',
     'django_extensions',
     'debug_toolbar',
     'compressor',
@@ -242,14 +241,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 ACCOUNT_ACTIVATION_DAYS = 7
-
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-NOSE_ARGS = (
-    '--verbosity=2',
-    '--with-html',
-    '--html-file=test_report.html',
-    '-a!broken,!slow',
-)
 
 SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.media_root_factory'

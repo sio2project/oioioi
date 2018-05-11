@@ -15,7 +15,6 @@ from django.http import HttpResponse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.timezone import utc
-from nose.tools import nottest
 
 from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.contests.current_contest import ContestMode
@@ -32,6 +31,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 
 
 class TestProblemController(ProblemController):
+    __test__ = False
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         raise NotImplementedError
 
@@ -564,7 +564,6 @@ class TestProblemsetPage(TestCase):
                          Problem.objects.count())
 
 
-@nottest
 def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), '../sinolpack/files', name)
 

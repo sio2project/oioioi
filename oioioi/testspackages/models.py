@@ -8,7 +8,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models.signals import m2m_changed
 from django.utils.translation import ugettext_lazy as _
-from nose.tools import nottest
 
 from oioioi.base.utils import strip_num_or_hash
 from oioioi.contests.date_registration import date_registry
@@ -41,8 +40,9 @@ def _testspackage_qs_filter(qs, contest_id):
                         round_chooser=_testspackage_round_chooser,
                         qs_filter=_testspackage_qs_filter,
                         order=50)
-@nottest
+
 class TestsPackage(models.Model):
+    __test__ = False
     problem = models.ForeignKey(Problem)
     name = models.CharField(max_length=30, verbose_name=_("file name"),
             help_text=_("File name can only contain letters, digits,"

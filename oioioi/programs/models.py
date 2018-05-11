@@ -6,7 +6,6 @@ from django.db import models, transaction
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
-from nose.tools import nottest
 
 from oioioi.base.fields import EnumField, EnumRegistry
 from oioioi.contests.fields import ScoreField
@@ -55,8 +54,8 @@ def validate_memory_limit(value):
                               % settings.MAX_MEMORY_LIMIT_FOR_TEST))
 
 
-@nottest
 class Test(models.Model):
+    __test__ = False
     problem_instance = models.ForeignKey(ProblemInstance)
     name = models.CharField(max_length=30, verbose_name=_("name"))
     input_file = FileField(upload_to=make_problem_filename,
@@ -107,12 +106,6 @@ class LibraryProblemData(models.Model):
     class Meta(object):
         verbose_name = _("library problem data")
         verbose_name_plural = _("library problem data")
-
-
-@receiver(post_save, sender=Problem)
-def _add_output_checker_to_problem(sender, instance, created, **kwargs):
-    if created:
-        OutputChecker(problem=instance).save()
 
 model_solution_kinds = EnumRegistry()
 model_solution_kinds.register('NORMAL', _("Model solution"))
@@ -253,8 +246,8 @@ def make_output_filename(instance, filename):
             submission.id, instance.submission_report.id)
 
 
-@nottest
 class TestReport(models.Model):
+    __test__ = False
     submission_report = models.ForeignKey(SubmissionReport)
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
