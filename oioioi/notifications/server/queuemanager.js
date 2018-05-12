@@ -97,6 +97,7 @@ function unsubscribe(userId) {
     if (!workers[userId]) {
         return;
     }
+    workers[userId].close();
     delete workers[userId];
 }
 
