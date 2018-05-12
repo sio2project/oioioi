@@ -10,7 +10,7 @@ from oioioi.problems.utils import get_new_problem_instance
 from oioioi.quizzes.forms import EmptyQuizSourceForm
 from oioioi.quizzes.models import Quiz
 from oioioi.base.utils import generate_key
-from oioioi.problems.models import ProblemSite
+from oioioi.problems.models import ProblemSite, Tag, TagThrough
 
 
 class EmptyQuizSource(ProblemSource):
@@ -36,6 +36,11 @@ class EmptyQuizSource(ProblemSource):
                     short_name=form.cleaned_data['short_name'],
                     controller_name=controller,
                     author=request.user
+                )
+                tag = Tag.objects.get_or_create(name='quiz')[0]
+                TagThrough.objects.create(
+                    problem=quiz,
+                    tag=tag
                 )
                 ProblemSite.objects.create(
                     problem=quiz,
