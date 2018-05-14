@@ -18,6 +18,8 @@ services:
       - test-db
     links:
       - test-db:db
+    environment:
+      DJANGO_SETTINGS_MODULE: "test_settings"
   test-worker:
     cap_add:
       - ALL
@@ -31,6 +33,8 @@ services:
     links:
       - test-db:db
       - test-web:web
+    environment:
+      DJANGO_SETTINGS_MODULE: "test_settings"
   selenium-hub:
     image: selenium/hub
     ports:

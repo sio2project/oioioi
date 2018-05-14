@@ -66,46 +66,6 @@ RUN sed -i -e \
         s/#USE_UNSAFE_CHECKER = True/USE_UNSAFE_CHECKER = False/g;\
         s/.*RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
         s/ALLOWED_HOSTS = \\[\\]/ALLOWED_HOSTS = \\['oioioi', '127.0.0.1', 'web'\\]/g"\
-        -e "/INSTALLED_APPS =/a\
-        'oioioi.contestlogo',\
-        'oioioi.teachers',\
-        'oioioi.ipdnsauth',\
-        'oioioi.participants',\
-        'oioioi.oi',\
-        'oioioi.printing',\
-        'oioioi.zeus',\
-        'oioioi.testrun',\
-        'oioioi.scoresreveal',\
-        'oioioi.oireports',\
-        'oioioi.oisubmit',\
-        'oioioi.complaints',\
-        'oioioi.contestexcl',\
-        'oioioi.forum',\
-        'oioioi.exportszu',\
-        'oioioi.similarsubmits',\
-        'oioioi.disqualification',\
-        'oioioi.confirmations',\
-        'oioioi.ctimes',\
-        'oioioi.acm',\
-        'oioioi.suspendjudge',\
-        'oioioi.submitservice',\
-        'oioioi.timeline',\
-        'oioioi.statistics',\
-        'oioioi.amppz',\
-        'oioioi.balloons',\
-        'oioioi.publicsolutions',\
-        'oioioi.testspackages',\
-        'oioioi.teams',\
-        'oioioi.pa',\
-        'oioioi.notifications',\
-        'oioioi.prizes',\
-        'oioioi.mailsubmit',\
-        'oioioi.globalmessage',\
-        'oioioi.portals',\
-        'oioioi.newsfeed',\
-        'oioioi.simpleui',\
-        'oioioi.livedata',\
-        "\
         settings.py
 
 RUN echo "SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'"     >> settings.py
@@ -116,5 +76,7 @@ RUN sed -i \
         -e "s|{{ PROJECT_DIR }}/logs|/sio2/logs|g"\
         -e "s|command=filetracker-server|command=/home/oioioi/.local/bin/filetracker-server|g"\
         supervisord.conf
+RUN cp settings.py test_settings.py
+RUN sed -i -e "s/from oioioi.default_settings/from oioioi.test_settings/g" test_settings.py
 RUN mkdir /sio2/sandboxes
 RUN ./manage.py download_sandboxes -q -y -c /sio2/sandboxes
