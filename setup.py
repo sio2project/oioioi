@@ -53,14 +53,10 @@ setup(
         "werkzeug",
 
         'pytest',
-        'pytest-runner',
         'pytest-django',
         'pytest-html',
         'pytest-xdist',
         'pytest-cov',
-        'pytest-pep8',
-        'pytest-pylint',
-        'pytest-flakes',
 
         # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
         # ¯\_(ツ)_/¯

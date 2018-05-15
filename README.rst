@@ -97,14 +97,22 @@ Documentation for developers:
 .. _Developer's Reference: http://oioioi.readthedocs.io/en/latest/
 
 Testing
------
+-------
 
-OIOIOI has a big suite of unit tests. All utilites that are useful for testing
-can be found in ``test/`` directory. Currently these are:
+OIOIOI has a big suite of unit tests. You can run them in following way:
 
-* ``test.sh`` - a simple test runner
-* ``test_parallel.py`` - runs the same tests as test.sh, but uses multiple processes
-* ``loadtest.py`` - load testing script
+* ``test.sh`` - a simple test runner, use from virtualenv
+* ``test_selenium.sh`` - long selenium tests, use from virtualenv
+* ``tox [path/to/module[::TestClass[::test_method]]] [-- arg1 arg2 ...]`` - runs pytest in isolated environemnt
+
+Supported args:
+
+* ``-n NUM`` - run tests using NUM CPUs
+* ``-v`` - increase verbosity
+* ``-q`` - decrease verbosity
+* ``-x`` - exit after first failure
+* ``-lf`` - runs only tests that failed last time
+* ``--runslow`` - runs also tests marked as slow
 
 Usage
 -----

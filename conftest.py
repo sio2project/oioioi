@@ -1,3 +1,4 @@
+from __future__ import print_function
 import pytest
 
 
@@ -22,3 +23,15 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if "slow" in item.keywords:
             item.add_marker(skip_slow)
+
+
+# Removing links column from html report
+@pytest.mark.optionalhook
+def pytest_html_results_table_header(cells):
+    cells.pop()
+
+
+# Removing links column from html report
+@pytest.mark.optionalhook
+def pytest_html_results_table_row(report, cells):
+    cells.pop()
