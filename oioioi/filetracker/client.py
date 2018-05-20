@@ -16,7 +16,7 @@ def get_client():
        Needs a ``FILETRACKER_CLIENT_FACTORY`` entry in ``settings.py``, which
        should contain a :term:`dotted name` of a function which returns a
        :class:`filetracker.Client` instance. A good candidate is
-       :func:`~oioioi.filetracker.client.media_root_factory`.
+       :func:`~oioioi.filetracker.client.remote_storage_factory`.
 
        The constructed client is cached.
     """
@@ -44,12 +44,6 @@ def get_client():
 def _on_setting_changed(sender, setting, **kwargs):
     if setting == 'FILETRACKER_CLIENT_FACTORY':
         reset_memoized(get_client)
-
-
-def media_root_factory():
-    """A filetracker factory which sets up local client in
-       ``settings.MEDIA_ROOT`` folder."""
-    return filetracker.Client(cache_dir=settings.MEDIA_ROOT, remote_store=None)
 
 
 def remote_storage_factory():

@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 22
+INSTALLATION_CONFIG_VERSION = 23
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -243,7 +243,7 @@ AUTHENTICATION_BACKENDS = (
 ACCOUNT_ACTIVATION_DAYS = 7
 
 SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'
-FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.media_root_factory'
+FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
 DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 
 SUPERVISOR_AUTORELOAD_PATTERNS = [".py", ".pyc", ".pyo"]

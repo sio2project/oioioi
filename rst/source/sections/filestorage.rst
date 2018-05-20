@@ -78,11 +78,11 @@ backend uses this function as well.
 
 .. autofunction:: oioioi.filetracker.client.get_client
 
-.. autofunction:: oioioi.filetracker.client.media_root_factory
+.. autofunction:: oioioi.filetracker.client.remote_storage_factory
 
 Indeed, in ``settings.py`` you will find::
 
-    FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.media_root_factory'
+    FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
 
 
 Testing with files

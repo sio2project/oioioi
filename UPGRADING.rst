@@ -394,4 +394,40 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# loaders specified.
         +TEMPLATES[0]['APP_DIRS'] = False
 
+#. * Removed the FILETRACKER_CLIENT_FACTORY setting, because media_root_factory
+     will not be compatible with filetracker 2.x.
+     If you use it, you should move to remote_storage_factory before upgrading the filetracker,
+     which has become the default setting.
+
+   * Also updated the URL with changes in the deployment directory::
+
+        diff --git a/oioioi/deployment/settings.py.template b/oioioi/deployment/settings.py.template
+        index 92b4a4e5..851beada 100755
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -4,7 +4,7 @@ import os.path
+         # This should match INSTALLATION_CONFIG_VERSION in
+         # "oioioi/default_settings.py".
+         # Before you adjust it, you may consider visiting
+        -# "https://github.com/sio2project/oioioi/#changes-in-the-deployment-directory".
+        +# "https://github.com/sio2project/oioioi/blob/master/UPGRADING.rst#changes-in-the-deployment-directory".
+         CONFIG_VERSION = __CONFIG_VERSION__
+
+         # Enable debugging features.
+        @@ -108,17 +108,6 @@ SEND_USER_ACTIVATION_EMAIL = False
+         # but this is unreliable and not intended for production.
+         #BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+
+        -# Filetracker server settings.
+        -#
+        -# Determines which filetracker database use, availible options are:
+        -# - 'oioioi.filetracker.client.media_root_factory' (the default)
+        -#    Stores files on local filesystem under MEDIA_ROOT, optionally
+        -#    exposing them with a filetracker server (see section below).
+        -# - 'oioioi.filetracker.client.remote_storage_factory'
+        -#    Connects to a filetracker server at FILETRACKER_URL, uses a local
+        -#    cache with recently used files under CACHE_ROOT directory.
+        -#FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.media_root_factory'
+        -
+
 
