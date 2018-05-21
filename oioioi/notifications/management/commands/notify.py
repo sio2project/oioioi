@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from optparse import make_option
 
 from django.contrib.auth.models import User
@@ -64,4 +66,4 @@ class Command(BaseCommand):
         for user in users:
             NotificationHandler.send_notification(
                 user, 'custom_notification', message, arguments)
-            print "Notification sent to", user.username
+            print("Notification sent to", user.username)

@@ -3,6 +3,7 @@ import bisect
 import sys
 from operator import attrgetter  # pylint: disable=E0611
 
+import six
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -17,7 +18,7 @@ class OrderedRegistry(object):
         self.items = []
         self.keys = []
 
-    def register(self, value, order=sys.maxint):
+    def register(self, value, order=sys.maxsize):
         pos = bisect.bisect_right(self.keys, order)
         self.items.insert(pos, value)
         self.keys.insert(pos, order)
@@ -34,7 +35,7 @@ class OrderedRegistry(object):
     def __len__(self):
         return len(self.items)
 
-    def register_decorator(self, order=sys.maxint):
+    def register_decorator(self, order=sys.maxsize):
         def decorator(func):
             self.register(func, order)
             return func
@@ -56,7 +57,7 @@ class MenuItem(object):
     """
 
     def __init__(self, name, text, url_generator, condition=None, attrs=None,
-                 order=sys.maxint):
+                 order=sys.maxsize):
 
         if condition is None:
             condition = Condition(lambda request: True)
@@ -65,7 +66,7 @@ class MenuItem(object):
             attrs = {}
 
         if order is None:
-            order = sys.maxint
+            order = sys.maxsize
 
         self.name = name
         self.text = text
@@ -92,7 +93,7 @@ class MenuRegistry(object):
         self._generators = {}
 
     def register(self, name, text, url_generator, condition=None, attrs=None,
-                 order=sys.maxint):
+                 order=sys.maxsize):
         """Registers a new menu item.
 
            Menu items should be registered in ``views.py`` of Django apps.
@@ -103,7 +104,7 @@ class MenuRegistry(object):
         self._registry.append(menu_item)
 
     def register_decorator(self, text, url_generator, condition=None,
-                           attrs=None, order=sys.maxint):
+                           attrs=None, order=sys.maxsize):
         """Decorator for a view which registers a new menu item. It accepts the
            same arguments as the :meth:`MenuRegistry.register`, except for
            ``name``, which is inferred from the view function name ('_view'
@@ -166,7 +167,7 @@ class MenuRegistry(object):
             return []
 
         items = []
-        for generator in self._generators.itervalues():
+        for generator in six.itervalues(self._generators):
             items.extend(generator(request))
         items.extend(self._registry)
 

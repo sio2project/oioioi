@@ -1,4 +1,6 @@
 from django.template.loader import render_to_string
+import six
+from six.moves import zip
 
 
 class PlotType(object):
@@ -65,7 +67,7 @@ class StaticHighchartsPlot(PlotType):
            http://www.highcharts.com/docs/getting-started/how-to-set-options
         """
         series = [{'name': n, 'data': d} for n, d in
-                  zip(data['series'], data['data'])]
+                    zip(data['series'], data['data'])]
         if 'series_extra_options' in data:
             for d, opts in zip(series, data['series_extra_options']):
                 d.update(opts)
@@ -86,7 +88,7 @@ class StaticHighchartsPlot(PlotType):
                     options['%sAxis' % a][b] = data[key]
         # Setting axes titles
         if 'titles' in data:
-            for (key, title) in data['titles'].iteritems():
+            for (key, title) in six.iteritems(data['titles']):
                 options.setdefault(key, {}).update({'title': {'text': title}})
         return options
 

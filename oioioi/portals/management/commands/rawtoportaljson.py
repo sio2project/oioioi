@@ -81,7 +81,7 @@ class Command(BaseCommand):
         for name in tree_d:
             tree_d[name]['editions'] = \
                 [e[1] for e in sorted(
-                    tree_d[name]['editions'].items(),
+                    list(tree_d[name]['editions'].items()),
                     cmp=lambda a, b:
                         -cmp(int(a[0]), int(b[0]))
                         if (a[0].isdigit() and b[0].isdigit())

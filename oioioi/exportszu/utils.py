@@ -117,7 +117,7 @@ def build_submissions_archive(out_file, submission_collector):
     try:
         contest_id = submission_collector.get_contest_id()
         files_dir = os.path.join(tmpdir, contest_id)
-        os.mkdir(files_dir, 0700)
+        os.mkdir(files_dir, 0o700)
         with open(os.path.join(files_dir, 'INDEX'), 'w') as f:
             index_csv = csv.writer(f)
             header = ['submission_id', 'user_id', 'username', 'first_name',

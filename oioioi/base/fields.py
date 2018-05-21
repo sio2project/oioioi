@@ -5,6 +5,8 @@ from django.forms import ValidationError
 from django.utils.encoding import smart_text
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
+import six
+from six.moves import zip
 
 
 class DottedNameField(models.CharField):
@@ -127,7 +129,7 @@ class DottedNameField(models.CharField):
                                              code='blank')
 
     def _get_superclass(self):
-        if isinstance(self._superclass, basestring):
+        if isinstance(self._superclass, six.string_types):
             self._superclass = import_string(self._superclass)
         return self._superclass
 
@@ -173,7 +175,7 @@ class EnumRegistry(object):
         if len(value) > self.max_length:
             raise ValueError('Enum values must not be longer than %d chars' %
                     (self.max_length,))
-        if not self.entries or value not in zip(*self.entries)[0]:
+        if not self.entries or value not in next(zip(*self.entries)):
             self.entries.append((value, description))
 
     def get(self, value, fallback):

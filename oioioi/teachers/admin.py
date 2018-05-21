@@ -77,7 +77,7 @@ class ContestAdminMixin(object):
     def get_fieldsets(self, request, obj=None):
         if obj or request.user.is_superuser:
             return super(ContestAdminMixin, self).get_fieldsets(request, obj)
-        fields = TeacherContestForm().base_fields.keys()
+        fields = list(TeacherContestForm().base_fields.keys())
         return [(None, {'fields': fields})]
 
     def get_form(self, request, obj=None, **kwargs):

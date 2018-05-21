@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
@@ -62,7 +62,7 @@ class DisqualificationAdmin(admin.ModelAdmin):
         return make_html_link(
             reverse('submission', kwargs=reverse_kwargs),
             '%d (%s)' % (instance.submission_id,
-                force_unicode(instance.submission.problem_instance))
+                force_text(instance.submission.problem_instance))
         )
     submission_link.short_description = _("Submission")
 

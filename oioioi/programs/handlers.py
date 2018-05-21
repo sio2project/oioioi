@@ -1,8 +1,8 @@
 import functools
 import logging
-import types
 from collections import defaultdict
 
+import six
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -122,8 +122,8 @@ def collect_tests(env, **kwargs):
     env.setdefault('tests', {})
 
     if 'tests_subset' in env['extra_args']:
-        tests = Test.objects.in_bulk(env['extra_args']['tests_subset']) \
-                                                                    .values()
+        tests = list(Test.objects.in_bulk(env['extra_args']['tests_subset'])
+                .values())
     else:
         tests = Test.objects.filter(
             problem_instance__id=env['problem_instance_id'],
@@ -224,7 +224,7 @@ def run_tests(env, kind=None, **kwargs):
     """
     jobs = dict()
     not_to_judge = []
-    for test_name, test_env in env['tests'].iteritems():
+    for test_name, test_env in six.iteritems(env['tests']):
         if kind and test_env['kind'] != kind:
             continue
         if not test_env['to_judge']:
@@ -263,7 +263,7 @@ def run_tests_end(env, **kwargs):
     del env['workers_jobs.not_to_judge']
     jobs = env['workers_jobs.results']
     env.setdefault('test_results', {})
-    for test_name, result in jobs.iteritems():
+    for test_name, result in six.iteritems(jobs):
         env['test_results'].setdefault(test_name, {}).update(result)
     for test_name in not_to_judge:
         env['test_results'].setdefault(test_name, {}) \
@@ -294,11 +294,11 @@ def grade_tests(env, **kwargs):
     fun = import_string(env.get('test_scorer')
             or settings.DEFAULT_TEST_SCORER)
     tests = env['tests']
-    for test_name, test_result in env['test_results'].iteritems():
+    for test_name, test_result in six.iteritems(env['test_results']):
         if tests[test_name]['to_judge']:
             score, max_score, status = fun(tests[test_name], test_result)
-            assert isinstance(score, (types.NoneType, ScoreValue))
-            assert isinstance(max_score, (types.NoneType, ScoreValue))
+            assert isinstance(score, (type(None), ScoreValue))
+            assert isinstance(max_score, (type(None), ScoreValue))
             test_result['score'] = score and score.serialize()
             test_result['max_score'] = max_score and max_score.serialize()
             test_result['status'] = status
@@ -338,30 +338,30 @@ def grade_groups(env, **kwargs):
     """
 
     test_results = defaultdict(dict)
-    for test_name, test in env['test_results'].iteritems():
+    for test_name, test in six.iteritems(env['test_results']):
         group_name = env['tests'][test_name]['group']
         test_results[group_name][test_name] = test
 
     env.setdefault('group_results', {})
-    for group_name, results in test_results.iteritems():
+    for group_name, results in six.iteritems(test_results):
         if group_name in env['group_results']:
             continue
         fun = import_string(env.get('group_scorer',
                     settings.DEFAULT_GROUP_SCORER))
         score, max_score, status = fun(results)
-        if not isinstance(score, (types.NoneType, ScoreValue)):
+        if not isinstance(score, (type(None), ScoreValue)):
             raise TypeError("Group scorer returned %r as score, "
                     "not None or ScoreValue" % (type(score),))
-        if not isinstance(max_score, (types.NoneType, ScoreValue)):
+        if not isinstance(max_score, (type(None), ScoreValue)):
             raise TypeError("Group scorer returned %r as max_score, "
                     "not None or ScoreValue" % (type(max_score),))
         group_result = {}
         group_result['score'] = score and score.serialize()
         group_result['max_score'] = max_score and max_score.serialize()
         group_result['status'] = status
-        one_of_tests = env['tests'][results.iterkeys().next()]
+        one_of_tests = env['tests'][next(six.iterkeys(results))]
         if not all(env['tests'][key]['kind'] == one_of_tests['kind']
-                for key in results.iterkeys()):
+                for key in six.iterkeys(results)):
             raise ValueError("Tests in group '%s' have different kinds. "
                 "This is not supported." % (group_name,))
         group_result['kind'] = one_of_tests['kind']
@@ -404,12 +404,12 @@ def grade_submission(env, kind='NORMAL', **kwargs):
         group_results = env['group_results']
     else:
         group_results = dict((name, res) for (name, res)
-                             in env['group_results'].iteritems()
+                             in six.iteritems(env['group_results'])
                              if res['kind'] == kind)
 
     score, max_score, status = fun(group_results)
-    assert isinstance(score, (types.NoneType, ScoreValue))
-    assert isinstance(max_score, (types.NoneType, ScoreValue))
+    assert isinstance(score, (type(None), ScoreValue))
+    assert isinstance(max_score, (type(None), ScoreValue))
     env['score'] = score and score.serialize()
     env['max_score'] = max_score and max_score.serialize()
     env['status'] = status
@@ -452,7 +452,7 @@ def _make_base_report(env, submission, kind):
     compilation_report.status = env['compilation_result']
     compilation_message = env['compilation_message']
 
-    if not isinstance(compilation_message, unicode):
+    if not isinstance(compilation_message, six.text_type):
         compilation_message = compilation_message.decode('utf8')
     compilation_report.compiler_output = compilation_message
     compilation_report.save()
@@ -484,7 +484,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         return env
     tests = env['tests']
     test_results = env.get('test_results', {})
-    for test_name, result in test_results.iteritems():
+    for test_name, result in six.iteritems(test_results):
         test = tests[test_name]
         if 'report_id' in result:
             continue
@@ -509,7 +509,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         result['report_id'] = test_report.id
 
     group_results = env.get('group_results', {})
-    for group_name, group_result in group_results.iteritems():
+    for group_name, group_result in six.iteritems(group_results):
         if 'report_id' in group_result:
             continue
         group_report = GroupReport(submission_report=submission_report)
@@ -562,7 +562,7 @@ def fill_outfile_in_existing_test_reports(env, **kwargs):
                                         submission_report=submission_report)
     test_results = env.get('test_results', {})
 
-    for test_name, result in test_results.iteritems():
+    for test_name, result in six.iteritems(test_results):
         try:
             testreport = test_reports.get(test_name=test_name)
         except (TestReport.DoesNotExist, TestReport.MultipleObjectsReturned):
@@ -612,7 +612,7 @@ def insert_existing_submission_link(env, src_submission, **kwargs):
                                          'contest_id': env['contest_id']})
     html_link = make_html_link(href, _("submission report") + ": " +
                                str(dst_submission.id))
-    test_names = ', '.join(env.get('test_results', {}).keys())
+    test_names = ', '.join(list(env.get('test_results', {}).keys()))
 
     # Note that the comment is overwritten by safe string.
     src_submission.comment = \

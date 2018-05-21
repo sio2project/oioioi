@@ -25,6 +25,8 @@ import os
 import tarfile
 import zipfile
 
+import six
+
 
 class ArchiveException(RuntimeError):
     """Base exception class for all archive errors."""
@@ -72,7 +74,7 @@ class Archive(object):
         """
         cls = None
         filename = None
-        if isinstance(file, basestring):
+        if isinstance(file, six.string_types):
             filename = file
         else:
             try:
@@ -159,7 +161,7 @@ class BaseArchive(object):
 class TarArchive(BaseArchive):
     def __init__(self, file):
         # tarfile's open uses different parameters for file path vs. file obj.
-        if isinstance(file, basestring):
+        if isinstance(file, six.string_types):
             self._archive = tarfile.open(name=file)
         else:
             self._archive = tarfile.open(fileobj=file)

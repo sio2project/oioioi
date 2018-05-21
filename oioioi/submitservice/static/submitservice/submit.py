@@ -3,16 +3,20 @@
 # This script is intended to be run on client's machine.
 # Use this to submit your solutions to an OIOIOI server instance.
 
+from __future__ import print_function
+
 import itertools
 import json
 import mimetools
 import mimetypes
 import sys
-import urllib2
+
 import webbrowser
 from optparse import OptionParser
 from os.path import expanduser, splitext
-from urlparse import urlparse
+import six.moves.urllib.parse
+import six.moves.urllib.request
+from six.moves import input
 
 
 class MultiPartForm(object):
@@ -146,14 +150,13 @@ def init_config():
 
 def submit(filename, task_name, token, contest_url, open_webbrowser):
     if 'contest-url' not in configuration:
-        print >> sys.stderr, \
-            "Configuration file could not be loaded. " + \
-            "Please run submit.py --configure " + \
-            "to configure the application."
+        print("Configuration file could not be loaded. " +
+            "Please run submit.py --configure " +
+            "to configure the application.", file=sys.stderr)
         return 1
 
-    print >> sys.stderr, 'oioioi-submit'
-    print >> sys.stderr, '============='
+    print('oioioi-submit', file=sys.stderr)
+    print('=============', file=sys.stderr)
     try:
         if not contest_url.endswith('/'):
             contest_url += '/'
@@ -165,48 +168,48 @@ def submit(filename, task_name, token, contest_url, open_webbrowser):
             form.add_field('task', task_name)
             form.add_file('file', solution_file.name, filehandle=solution_file)
             body = str(form)
-            request = urllib2.Request('%ssubmitservice/submit/' % contest_url)
+            request = six.moves.urllib.request.Request('%ssubmitservice/submit/' % contest_url)
             request.add_header('Content-Type', form.get_content_type())
             request.add_header('Content-Length', len(body))
             request.add_data(body)
 
-            result = json.loads(urllib2.urlopen(request).read())
-        base_url = urlparse(contest_url)
+            result = json.loads(six.moves.request.urlopen(request).read())
+        base_url = six.moves.urllib.parse.urlparse(contest_url)
         if 'error_code' not in result:
             result_url = '%s://%s%s' % (base_url.scheme, base_url.netloc,
                                         result['result_url'])
-            print >> sys.stderr, "Submission succeeded! View your status at:"
-            print >> sys.stderr, result_url
+            print("Submission succeeded! View your status at:", file=sys.stderr)
+            print(result_url, file=sys.stderr)
             if open_webbrowser:
                 webbrowser.open_new_tab(result_url)
         else:
             raise RuntimeError(error_code_map[result['error_code']] %
                                {'data': result['error_data']})
-    except StandardError as e:
-        print >> sys.stderr, "Error:", e
-        print >> sys.stderr, "Submission failed."
+    except Exception as e:
+        print("Error:", e, file=sys.stderr)
+        print("Submission failed.", file=sys.stderr)
         return 1
     return 0
 
 
 def query(key, value_friendly_name, mask_old_value=False):
-    print >> sys.stderr, \
-        "Enter new value for %s or press Enter." % value_friendly_name
+    print("Enter new value for %s or press Enter." % value_friendly_name,
+            file=sys.stderr)
     old_value = configuration.get(key)
     if not old_value:
         old_value = ''
-    new_value = raw_input('[%s] ' % (key if mask_old_value and key
+    new_value = input('[%s] ' % (key if mask_old_value and key
                                      in configuration else old_value))
     if new_value:
         configuration[key] = new_value
     elif not new_value and key not in configuration:
-        print >> sys.stderr, "You must provide a value."
+        print("You must provide a value.", file=sys.stderr)
         return True
     return False
 
 
 def create_configuration():
-    print >> sys.stderr, "Fill in the fields to create your configuration."
+    print("Fill in the fields to create your configuration.", file=sys.stderr)
     while query('contest-url',
                 "contest website (e.g. http://oioioi.com/c/example-contest/)"):
         pass
@@ -219,10 +222,10 @@ def save_configuration():
     try:
         with open(config_path, 'w') as config_file:
             config_file.write(json.dumps(configuration))
-        print >> sys.stderr, "Configuration has been saved successfully."
+        print("Configuration has been saved successfully.", file=sys.stderr)
         return 0
-    except Exception, e:
-        print >> sys.stderr, "Could not write configuration: %s" % e
+    except Exception as e:
+        print("Could not write configuration: %s" % e, file=sys.stderr)
         return 1
 
 

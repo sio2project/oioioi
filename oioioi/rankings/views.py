@@ -5,6 +5,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from six.moves import zip
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, make_request_condition
@@ -41,7 +42,7 @@ def ranking_view(request, key=None):
     choices = rcontroller.available_rankings(request)
     if key is None:
         key = choices[0][0]
-    if key not in zip(*choices)[0]:
+    if key not in next(zip(*choices)):
         raise Http404
 
     context = dict()
@@ -114,7 +115,7 @@ def ranking_view(request, key=None):
 def ranking_csv_view(request, key):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
-    if not choices or key not in zip(*choices)[0]:
+    if not choices or key not in next(zip(*choices)):
         raise Http404
 
     return rcontroller.render_ranking_to_csv(request, key)

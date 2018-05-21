@@ -7,6 +7,7 @@ import dateutil.parser
 from django.conf import settings
 from django.core import signing
 from django.template.loader import render_to_string
+from six.moves import zip_longest
 
 from oioioi.programs.models import ProgramSubmission
 
@@ -61,7 +62,7 @@ def submission_receipt_proof(submission):
 def grouper(n, iterable, fillvalue=None):
     "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
-    return list(itertools.izip_longest(*args, fillvalue=fillvalue))
+    return list(zip_longest(*args, fillvalue=fillvalue))
 
 
 def format_proof(proof):

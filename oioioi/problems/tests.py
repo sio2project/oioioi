@@ -15,6 +15,8 @@ from django.http import HttpResponse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 from django.utils.timezone import utc
+import six.moves.urllib.parse
+from six.moves import range
 
 from oioioi.base.tests import TestCase, check_not_accessible
 from oioioi.contests.current_contest import ContestMode
@@ -213,7 +215,7 @@ class TestProblemUpload(TransactionTestCase):
         data = {'package_file': ContentFile('eloziom', name='foo')}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': 'upload'})
+                        six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('Package information', response.content)
         self.assertIn('Edit problem', response.content)
@@ -236,7 +238,7 @@ class TestProblemUpload(TransactionTestCase):
         data = {'package_file': ContentFile('eloziom', name='FAIL')}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': 'upload'})
+                        six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('DUMMY_FAILURE', response.content)
         self.assertIn('Error details', response.content)
@@ -259,7 +261,7 @@ class TestProblemUpload(TransactionTestCase):
         data = {'package_file': ContentFile('eloziom', name='foo')}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': 'upload'})
+                        six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('Package information', response.content)
         package = ProblemPackage.objects.get()
@@ -277,7 +279,7 @@ class TestProblemUpload(TransactionTestCase):
                 'cc_rulez': True}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': 'upload'})
+                        six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('Package information', response.content)
         package = ProblemPackage.objects.get()
@@ -307,7 +309,8 @@ class TestProblemUpload(TransactionTestCase):
 
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'problem': problem.id})
+                        six.moves.urllib.parse.urlencode({
+                                'problem': problem.id})
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
@@ -663,7 +666,8 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         # now, add problem to the contest
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': "problemset_source"})
+                        six.moves.urllib.parse.urlencode({
+                                'key': "problemset_source"})
         response = self.client.post(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn('Add from Problemset', response.content)
@@ -672,10 +676,11 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertIn('Choose problem from problemset', response.content)
 
         pi_number = 3
-        for i in xrange(pi_number):
+        for i in range(pi_number):
             url = reverse('add_or_update_problem',
                     kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': "problemset_source"})
+                        six.moves.urllib.parse.urlencode({
+                                'key': "problemset_source"})
             response = self.client.get(url,
                        {'url_key': url_key}, follow=True)
             self.assertEqual(response.status_code, 200)
@@ -720,9 +725,10 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         # reupload one ProblemInstance from problemset
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                    urllib.urlencode({'key': "problemset_source",
-                                      'problem': problem.id,
-                                      'instance_id': pi.id})
+                    six.moves.urllib.parse.urlencode({
+                            'key': "problemset_source",
+                            'problem': problem.id,
+                            'instance_id': pi.id})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(str(url_key), response.content)
@@ -739,7 +745,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
 
         # reupload problem in problemset
         url = reverse('problemset_add_or_update') + '?' + \
-                    urllib.urlencode({'problem': problem.id})
+                    six.moves.urllib.parse.urlencode({'problem': problem.id})
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]
         self.assertEqual(response.status_code, 200)
@@ -800,7 +806,7 @@ class TestTags(TestCase):
 
         def get_query_url(query):
             url = reverse('get_tag_hints')
-            return url + '?' + urllib.urlencode({'substr': query})
+            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
 
         response = self.client.get(get_query_url('rowk'))
         self.assertEqual(response.status_code, 200)
@@ -827,7 +833,7 @@ class TestTags(TestCase):
 
         def get_search_url(query):
             url = reverse('problemset_main')
-            return url + '?' + urllib.urlencode({'q': query})
+            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
 
         response = self.client.get(get_search_url('mrowkowiec'))
         self.assertEqual(response.status_code, 200)
@@ -860,7 +866,7 @@ class TestTags(TestCase):
 
         def get_search_url(query):
             url = reverse('problemset_main')
-            return url + '?' + urllib.urlencode({'q': query})
+            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
 
         response = self.client.get(get_search_url('mrowkowiec'))
         self.assertEqual(response.status_code, 200)

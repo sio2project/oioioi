@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+import six.moves.urllib.parse
 
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.redirect import safe_redirect
@@ -131,7 +132,8 @@ def add_or_update_problem(request, contest, template):
 
     def build_link(tab):
         tab_link_params['key'] = tab.key
-        return request.path + '?' + urllib.urlencode(tab_link_params)
+        return request.path + '?' + six.moves.urllib.parse.urlencode(
+                tab_link_params)
 
     return tabbed_view(request, template, context,
             problem_sources(request), tab_kwargs, build_link)
@@ -249,7 +251,8 @@ def problem_site_view(request, site_key):
 
     def build_link(tab):
         tab_link_params['key'] = tab.key
-        return request.path + '?' + urllib.urlencode(tab_link_params)
+        return request.path + '?' + six.moves.urllib.parse.urlencode(
+                tab_link_params)
 
     return tabbed_view(request, 'problems/problemset/problem-site.html',
             context, problem_site_tab_registry, tab_kwargs, build_link)
@@ -308,8 +311,8 @@ def get_report_HTML_view(request, submission_id):
 def problemset_add_or_update_problem_view(request):
     if not can_add_to_problemset(request):
         if request.contest:
-            url = reverse('add_or_update_problem') + '?' + urllib \
-                .urlencode(request.GET.dict())
+            url = reverse('add_or_update_problem') + '?' + \
+                six.moves.urllib.parse.urlencode(request.GET.dict())
             return safe_redirect(request, url)
         raise PermissionDenied
 

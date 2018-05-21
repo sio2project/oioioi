@@ -1,3 +1,4 @@
+import six
 from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
@@ -139,7 +140,7 @@ class SubmissionForm(forms.Form):
         pis = self.get_problem_instances()
         if problem_filter:
             pis = problem_filter(pis)
-        pi_choices = [(pi.id, unicode(pi)) for pi in pis]
+        pi_choices = [(pi.id, six.text_type(pi)) for pi in pis]
 
         # pylint: disable=non-parent-init-called
         # init form with previously sent data

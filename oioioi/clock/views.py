@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from six.moves import map
 
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.models import Round
@@ -43,10 +44,10 @@ def get_times_status(request, response):
                   for round in Round.objects.filter(contest=contest)]
         next_rounds_times = [(rt, round) for (rt, round)
                              in rtimes if rt.is_future(timestamp)]
-        next_rounds_times.sort(key=lambda (rt, round): rt.get_start())
+        next_rounds_times.sort(key=lambda rt_round: rt_round[0].get_start())
         current_rounds_times = [(rt, round) for (rt, round) in rtimes
                                 if rt.is_active(timestamp) and rt.get_end()]
-        current_rounds_times.sort(key=lambda (rt, round): rt.get_end())
+        current_rounds_times.sort(key=lambda rt_round1: rt_round1[0].get_end())
 
     if current_rounds_times:
         response['round_start_date'] = time.mktime((timezone
@@ -80,7 +81,7 @@ def admin_time(request, next_page=None):
             return safe_redirect(request, next_page)
         elif is_real_superuser(request):
             current_admin_time = re.findall(r'\d+', request.POST['admin-time'])
-            current_admin_time = map(int, current_admin_time)
+            current_admin_time = list(map(int, current_admin_time))
             try:
                 current_admin_time = datetime(*current_admin_time)
             except (ValueError, TypeError, OverflowError):

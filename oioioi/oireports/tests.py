@@ -1,10 +1,14 @@
 from datetime import datetime  # pylint: disable=E0611
-from StringIO import StringIO
 
-import slate
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+import six
+from six import StringIO
+if six.PY2:
+    import slate
+else:
+    import slate3k as slate
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest

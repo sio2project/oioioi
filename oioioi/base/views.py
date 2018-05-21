@@ -31,7 +31,7 @@ account_menu_registry.register('two_factor_auth', _("Two factor authentication")
         lambda request: reverse('two_factor:profile'), order=150)
 
 
-class ForcedError(StandardError):
+class ForcedError(Exception):
     pass
 
 

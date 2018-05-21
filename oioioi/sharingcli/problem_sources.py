@@ -2,11 +2,12 @@ import logging
 import shutil
 import tempfile
 import urllib
-import urllib2
 from contextlib import contextmanager
 
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+import six.moves.urllib.parse
+import six.moves.urllib.request
 
 from oioioi.problems.problem_sources import PackageSource
 from oioioi.sharingcli.forms import RemoteProblemForm
@@ -29,7 +30,8 @@ class RemoteClient(object):
         if not extra_data:
             extra_data = {}
         post_data.update(extra_data)
-        return urllib2.urlopen(url, urllib.urlencode(post_data), **kwargs)
+        return six.moves.urllib.request.urlopen(url,
+                six.moves.urllib.parse.urlencode(post_data), **kwargs)
 
 
 @contextmanager

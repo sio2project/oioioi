@@ -2,6 +2,7 @@ import os
 import socket
 from datetime import datetime  # pylint: disable=E0611
 
+import six
 from django.contrib.auth.models import User
 from django.test.utils import override_settings
 from django.utils.timezone import utc
@@ -36,7 +37,7 @@ class TestAutoAuthorization(TestCase):
         with fake_time(datetime(2012, 1, 1, 11, tzinfo=utc)):
             self.client.get('/c/c1/id')
             session = self.client.session
-            self.assertEqual(session['_auth_user_id'], unicode(user.id))
+            self.assertEqual(session['_auth_user_id'], six.text_type(user.id))
             self.assertEqual(session['_auth_user_backend'],
                              'oioioi.ipdnsauth.backends.IpDnsBackend')
 

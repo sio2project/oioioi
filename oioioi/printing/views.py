@@ -1,3 +1,4 @@
+import six
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.template.response import TemplateResponse
@@ -34,7 +35,7 @@ def print_view(request):
                 execute(settings.PRINTING_COMMAND,
                         stdin=form.cleaned_data['file'])
             except ExecuteError as e:
-                error_message = unicode(e)
+                error_message = six.text_type(e)
             else:
                 success_message = _("File has been printed.")
 

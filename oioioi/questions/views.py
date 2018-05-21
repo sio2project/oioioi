@@ -187,7 +187,7 @@ def all_messages_view(request):
     else:
         sort_key = lambda x: (x['has_new_message'], x['needs_reply'],
                               x['timestamp'])
-    tree_list = sorted(tree.values(), key=sort_key, reverse=True)
+    tree_list = sorted(list(tree.values()), key=sort_key, reverse=True)
     for entry in tree_list:
         entry['replies'].sort(key=sort_key, reverse=True)
 

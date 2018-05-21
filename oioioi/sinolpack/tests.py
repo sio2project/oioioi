@@ -1,9 +1,7 @@
 # coding: utf-8
 
 import os.path
-import urllib
 import zipfile
-from cStringIO import StringIO
 
 from django.conf import settings
 from django.core.management import call_command
@@ -12,6 +10,8 @@ from django.core.urlresolvers import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
 import pytest
+import six.moves.urllib.parse
+from six.moves import cStringIO as StringIO
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.current_contest import ContestMode
@@ -44,7 +44,7 @@ BOTH_CONFIGURATIONS = '%test_both_configurations'
 # ./test.sh oioioi.sinolpack.tests:TestSinolPackage.test_huge_unpack_update
 # will NOT work.
 def enable_both_unpack_configurations(cls):
-    for name, fn in cls.__dict__.items():
+    for name, fn in list(cls.__dict__.items()):
         if getattr(fn, BOTH_CONFIGURATIONS, False):
             setattr(cls, '%s_safe' % (name),
                     override_settings(USE_SINOLPACK_MAKEFILES=False)(fn))
@@ -187,7 +187,7 @@ class TestSinolPackage(TestCase):
 
         # Rudimentary test of package updating
         url = reverse('add_or_update_problem') + '?' + \
-              urllib.urlencode({'problem': problem.id})
+              six.moves.urllib.parse.urlencode({'problem': problem.id})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         url = response.redirect_chain[-1][0]
@@ -445,7 +445,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
 
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({
+                        six.moves.urllib.parse.urlencode({
                                 'problem': problem_instance.problem.id})
         response = self.client.get(url, follow=True)
         url = response.redirect_chain[-1][0]

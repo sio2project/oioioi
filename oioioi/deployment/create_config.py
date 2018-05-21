@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import os.path
 import pwd
@@ -6,6 +8,8 @@ import sys
 import uuid
 from optparse import OptionParser
 
+import six
+
 from oioioi.base.utils.execute import execute
 from oioioi.default_settings import INSTALLATION_CONFIG_VERSION
 
@@ -13,7 +17,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 def error(message):
-    print >> sys.stderr, "error:", message
+    print("error:", message, file=sys.stderr)
     sys.exit(1)
 
 
@@ -43,7 +47,7 @@ def get_timezone():
 def generate_from_template(dir, filename, context, mode=None):
     dest = os.path.join(dir, filename)
     template = open(os.path.join(basedir, filename + '.template')).read()
-    for key, value in context.iteritems():
+    for key, value in six.iteritems(context):
         template = template.replace(key, value)
     open(dest, 'w').write(template)
     if mode is not None:
@@ -60,7 +64,8 @@ def generate_all(dir, verbose):
 
     settings = {}
     settings_py = os.path.join(dir, 'settings.py')
-    execfile(settings_py, globals(), settings)
+    six.exec_(compile(open(settings_py).read(), settings_py, 'exec'), globals(),
+            settings)
     media_root = settings['MEDIA_ROOT']
     os.mkdir(media_root)
 
@@ -78,7 +83,7 @@ def generate_all(dir, verbose):
             '__DIR__': dir,
             '__PYTHON_EXECUTABLE__': sys.executable,
             '__VIRTUAL_ENV__': virtual_env,
-        }, mode=0755)
+        }, mode=0o755)
 
     generate_from_template(dir, 'supervisord.conf', {
             '__USER__': user,
@@ -92,7 +97,7 @@ def generate_all(dir, verbose):
     generate_from_template(dir, 'start_supervisor.sh', {
             '__DIR__': dir,
             '__VIRTUAL_ENV__': virtual_env,
-        }, mode=0755)
+        }, mode=0o755)
 
     generate_from_template(dir, 'apache-site.conf', {
             '__DIR__': dir,
@@ -111,7 +116,7 @@ def generate_all(dir, verbose):
     os.environ.pop('DJANGO_SETTINGS_MODULE', None)
     # Let's silence collectstatic a bit - a ton of (normally) useless logs
     # happen from it
-    print >> sys.stderr, 'Collecting static files...'
+    print('Collecting static files...', file=sys.stderr)
     cmd = [sys.executable, manage_py, 'collectstatic', '--noinput']
     if not verbose:
         cmd += ['-v', '0']
@@ -139,6 +144,6 @@ def main():
         shutil.rmtree(dir)
         raise
 
-    print >> sys.stderr
-    print >> sys.stderr, "Initial configuration created. Please adjust "
-    print >> sys.stderr, "settings.py to your taste."
+    print(file=sys.stderr)
+    print("Initial configuration created. Please adjust ", file=sys.stderr)
+    print("settings.py to your taste.", file=sys.stderr)

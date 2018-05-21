@@ -1,6 +1,6 @@
 import logging
-import urllib
 
+import six.moves.urllib.parse
 from django.conf.urls import url
 from django.contrib import messages
 from django.contrib.admin.actions import delete_selected
@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
@@ -290,7 +290,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         status_to_str = {'OK': 'ok', '?': 'in_prog', 'ERR': 'err'}
         package_status = status_to_str[instance.status]
         return '<span class="submission-admin prob-pack--%s">%s</span>' % \
-                (package_status, force_unicode(instance.get_status_display()))
+                (package_status, force_text(instance.get_status_display()))
     colored_status.allow_tags = True
     colored_status.short_description = _("Status")
     colored_status.admin_order_field = 'status'
@@ -314,7 +314,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
             if (not problem.contest) or (problem.contest == contest):
                 problem_view = reverse(
                         'oioioiadmin:problems_problem_change',
-                        args=(problem.id,)) + '?' + urllib.urlencode(
+                        args=(problem.id,)) + '?' + six.moves.urllib.parse.urlencode(
                                 {'came_from': self.came_from()})
                 actions.append((problem_view, _("Edit problem")))
         if instance.status == 'ERR' and instance.traceback:

@@ -40,11 +40,11 @@ class TestTimelineView(TestCase):
 
         self.client.login(username='test_user')
         response = self.client.get('/c/%s/dashboard/' % contest.id)
-        self.assertNotIn('Timeline', response.content)
+        self.assertNotIn(b'Timeline', response.content)
 
         self.client.login(username='test_admin')
         response = self.client.get('/c/%s/dashboard/' % contest.id)
-        self.assertIn('Timeline', response.content)
+        self.assertIn(b'Timeline', response.content)
 
 
 class TestChangingDates(TestCase):

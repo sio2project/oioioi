@@ -1,8 +1,6 @@
-from StringIO import StringIO
-
 import unicodecsv
 from django.utils.translation import ugettext as _
-
+from six import StringIO
 
 def generate_success_report(pg):
     # Avoid circular import.

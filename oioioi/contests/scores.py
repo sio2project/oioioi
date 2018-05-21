@@ -6,7 +6,7 @@
    To create new score class ``MyScore`` you have to choose ``class_symbol``
    and decide how to encode score as ``score_data``.
    MyScore should extend :class:`ScoreValue` and implement its
-   unimplemented functions such as :py:func:`__add__`, :py:func:`__cmp__` etc.
+   unimplemented functions such as :py:func:`__add__`, :py:func:`__lt__` etc.
 
    NOTE: when you create a new type of score, make sure that it gets
    registered (its class gets loaded) before any attempt to deserialize its
@@ -17,13 +17,16 @@
 
    For simple example of score class implementation see :class:`IntegerScore`.
 """
+from functools import total_ordering
 
+import six
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import ClassInitBase
 
 
+@total_ordering
 class ScoreValue(ClassInitBase):
     """Base class of all classes that represent a score. Subclass
        :class:`ScoreValue` to implement a custom score."""
@@ -87,9 +90,17 @@ class ScoreValue(ClassInitBase):
         """
         raise NotImplementedError
 
-    def __cmp__(self, other):
-        """Implementation of order. Used to produce ranking, being greater
-           means better result.
+    def __eq__(self, other):
+        """Implementation of operator ``==``. Used to produce ranking,
+           being greater means better result.
+
+           Must be overridden in all subclasses.
+        """
+        raise NotImplementedError
+
+    def __lt__(self, other):
+        """Implementation of operator ``<``. Used to produce ranking,
+           being greater means better result.
 
            Must be overridden in all subclasses.
         """
@@ -109,8 +120,8 @@ class ScoreValue(ClassInitBase):
            Must be overridden in all subclasses.
 
            Lexicographical order of serialized data has to correspond to
-           the given by :meth:`__cmp__`, it will be used for sorting at db
-           level.
+           the given by :meth:`__eq__` and :meth:`__lt__`, it will be used for
+           sorting at db level.
         """
         raise NotImplementedError
 
@@ -123,6 +134,7 @@ class ScoreValue(ClassInitBase):
         raise NotImplementedError
 
 
+@total_ordering
 class IntegerScore(ScoreValue):
     """Score consisting of integer number.
 
@@ -134,19 +146,24 @@ class IntegerScore(ScoreValue):
     symbol = 'int'
 
     def __init__(self, value=0):
-        assert isinstance(value, (int, long))
+        assert isinstance(value, six.integer_types)
         self.value = value
 
     def __add__(self, other):
         return IntegerScore(self.value + other.value)
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if not isinstance(other, IntegerScore):
-            return cmp(self.value, other)
-        return cmp(self.value, other.value)
+            return self.value == other
+        return self.value == other.value
+
+    def __lt__(self, other):
+        if not isinstance(other, IntegerScore):
+            return self.value < other
+        return self.value < other.value
 
     def __unicode__(self):
-        return unicode(self.value)
+        return six.text_type(self.value)
 
     def __repr__(self):
         return "IntegerScore(%s)" % (self.value,)

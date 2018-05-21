@@ -1,6 +1,6 @@
 from django.contrib.admin.models import ADDITION, LogEntry
 from django.contrib.contenttypes.models import ContentType
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.utils import visible_problem_instances, visible_rounds
@@ -12,7 +12,7 @@ def log_addition(request, object):
         user_id=request.user.pk,
         content_type_id=ContentType.objects.get_for_model(object).pk,
         object_id=object.pk,
-        object_repr=force_unicode(object),
+        object_repr=force_text(object),
         action_flag=ADDITION
     )
 

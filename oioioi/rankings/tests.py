@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import QueryDict
 from django.test.utils import override_settings
 from django.utils.timezone import utc
+from six.moves import range, zip
 
 from oioioi.base.templatetags.simple_filters import result_color_class
 from oioioi.base.tests import (TestCase, check_not_accessible, fake_time,
@@ -62,7 +63,7 @@ class TestRankingViews(TestCase):
         users = []
 
         # Create all users with scores 0..number_of_users-1
-        for i in xrange(number_of_users):
+        for i in range(number_of_users):
             users.append(create_score('find_user_generated%s' % i, i))
 
         self.client.login(username='test_contest_admin')
@@ -98,7 +99,7 @@ class TestRankingViews(TestCase):
         # Contest admin shouldn't see 'Find my position' button
         self.assertNotIn('Find my place', response.content)
 
-        for i in xrange(number_of_users):
+        for i in range(number_of_users):
             user = users[i]
             response = self.client.get(get_url_for_user(user.username))
             # On which page should the user be?
@@ -122,7 +123,7 @@ class TestRankingViews(TestCase):
         self.assertRedirects(response, get_url_found_user(users[user_num],
                                                           page))
 
-        for i in xrange(number_of_users):
+        for i in range(number_of_users):
             if i == user_num:
                 continue
             user = users[i]

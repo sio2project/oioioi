@@ -28,12 +28,12 @@ class RegistrationFormWithNames(RegistrationForm):
         super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
         adjust_username_field(self)
 
-        fields = self.fields.items()
-        fields[1:1] = [
+        tmp_fields = list(self.fields.items())
+        tmp_fields[1:1] = [
             ('first_name', forms.CharField(label=_("First name"))),
             ('last_name', forms.CharField(label=_("Last name")))
         ]
-        self.fields = OrderedDict(fields)
+        self.fields = OrderedDict(tmp_fields)
 
 
 class UserForm(forms.ModelForm):

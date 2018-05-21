@@ -214,7 +214,7 @@ class PackageSource(ProblemSource):
                                             {'form': form})
 
                 # pylint: disable=broad-except
-                except Exception, e:
+                except Exception as e:
                     logger.error("Error processing package", exc_info=True,
                         extra={'omit_sentry': True})
                     form._errors['__all__'] = form.error_class([smart_str(e)])

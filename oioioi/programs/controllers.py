@@ -335,7 +335,7 @@ class ProgrammingProblemController(ProblemController):
                 raise ValidationError(_("Unrecognized file extension."))
 
         langs = get_allowed_languages_dict(problem_instance)
-        if cleaned_data['prog_lang'] not in langs.keys():
+        if cleaned_data['prog_lang'] not in list(langs.keys()):
             raise ValidationError(_("This language is not allowed for selected"
                                     " problem."))
 

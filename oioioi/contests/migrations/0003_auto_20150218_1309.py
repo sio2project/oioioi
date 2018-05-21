@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from functools import partial
 
 from django.db import migrations, models
+from six.moves import map
 
 from oioioi.contests.scores import ScoreValue
 
@@ -22,7 +23,7 @@ def recompute_user_results_for_contest(round_filter, apps, _schema_editor):
                 .filter(round__contest=result.contest) \
                 .values_list('score', flat=True)
         scores = round_filter(scores)
-        result.score = _sum_scores(map(ScoreValue.deserialize, scores))
+        result.score = _sum_scores(list(map(ScoreValue.deserialize, scores)))
         result.save()
 
 def new_filter(qs):

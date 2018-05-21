@@ -88,11 +88,11 @@ def query_statement(problem_id):
         try:
             lang_pref = lang_prefs.index(statement.language)
         except ValueError:
-            lang_pref = sys.maxint
+            lang_pref = sys.maxsize
         try:
             ext_pref = (ext_prefs.index(statement.extension), '')
         except ValueError:
-            ext_pref = (sys.maxint, statement.extension)
+            ext_pref = (sys.maxsize, statement.extension)
         return lang_pref, ext_pref
 
     return sorted(statements, key=sort_key)[0]

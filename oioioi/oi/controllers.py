@@ -4,6 +4,7 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from six.moves import range
 
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import (PastRoundsHiddenContestControllerMixin,

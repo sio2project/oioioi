@@ -2,6 +2,7 @@ import datetime
 from collections import defaultdict
 from operator import itemgetter  # pylint: disable=E0611
 
+import six
 from django.conf import settings
 from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
 from django.core.urlresolvers import reverse
@@ -17,9 +18,9 @@ from oioioi.contests.utils import contest_exists, is_contest_admin
 
 
 def _get_date_id(registry_item):
-    date_id = unicode(registry_item['model']._meta.verbose_name) + ":" + \
-              str(registry_item['id']) + ":" + \
-              unicode(registry_item['date_field'])
+    date_id = six.text_type(registry_item['model']._meta.verbose_name) + ":" + \
+            str(registry_item['id']) + ":" + \
+            six.text_type(registry_item['date_field'])
     return date_id.replace(' ', '_')
 
 
@@ -35,7 +36,7 @@ def _make_group_registry(registry):
         round_id = getattr(item['round'], 'id', 0)
         round_name = getattr(item['round'], 'name', '')
         group_registry[round_id, round_name].append(item)
-    return sorted(group_registry.iteritems(), key=itemgetter(0))
+    return sorted(six.iteritems(group_registry), key=itemgetter(0))
 
 
 def _translate_field(field, obj):
@@ -66,7 +67,7 @@ def timeline_view(request):
                     parsed_date = current_tz.localize(
                             datetime.datetime.strptime(date, "%Y-%m-%d %H:%M"))
                 except ValueError:
-                    error_list.append((unicode(item['text']),
+                    error_list.append((six.text_type(item['text']),
                             {None: [_("Date format is invalid")]}))
                     continue
             else:
@@ -75,7 +76,7 @@ def timeline_view(request):
                 parsed_date = None
 
             item['date'] = parsed_date
-            obj_str = unicode(item['model']) + str(item['id'])
+            obj_str = six.text_type(item['model']) + str(item['id'])
             if obj_str in tosave:
                 setattr(tosave[obj_str], item['date_field'], parsed_date)
             else:

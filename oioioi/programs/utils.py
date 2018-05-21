@@ -1,6 +1,7 @@
 from math import ceil
 from operator import itemgetter  # pylint: disable=E0611
 
+import six
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 
@@ -16,16 +17,16 @@ def sum_score_aggregator(group_results):
         return None, None, 'OK'
 
     scores = [ScoreValue.deserialize(result['score'])
-              for result in group_results.itervalues()]
+              for result in six.itervalues(group_results)]
     max_scores = [ScoreValue.deserialize(result['max_score'])
-              for result in group_results.itervalues()]
+              for result in six.itervalues(group_results)]
 
     # the sum below needs a start value of an appropriate type,
     # the default zero is not suitable
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
     status = aggregate_statuses([result['status']
-        for result in group_results.itervalues()])
+        for result in six.itervalues(group_results)])
 
     return score, max_score, status
 
@@ -37,14 +38,14 @@ def sum_group_scorer(test_results):
         return None, None, 'OK'
 
     scores = [ScoreValue.deserialize(result['score'])
-              for result in test_results.itervalues()]
+              for result in six.itervalues(test_results)]
     max_scores = [ScoreValue.deserialize(result['max_score'])
-              for result in test_results.itervalues()]
+              for result in six.itervalues(test_results)]
 
     score = sum(scores[1:], scores[0])
     max_score = sum(max_scores[1:], max_scores[0])
     status = aggregate_statuses([result['status']
-        for result in test_results.itervalues()])
+        for result in six.itervalues(test_results)])
 
     return score, max_score, status
 
@@ -57,9 +58,9 @@ def min_group_scorer(test_results):
     """Gets minimal result of all tests inside a test group."""
 
     scores = [ScoreValue.deserialize(result['score'])
-              for result in test_results.itervalues()]
+              for result in six.itervalues(test_results)]
     max_scores = [ScoreValue.deserialize(result['max_score'])
-              for result in test_results.itervalues()]
+              for result in six.itervalues(test_results)]
 
     score = min(scores)
     max_score = min(max_scores)
@@ -67,7 +68,8 @@ def min_group_scorer(test_results):
         raise UnequalMaxScores("Tests in one group cannot "
                 "have different max scores.")
 
-    sorted_results = sorted(test_results.values(), key=itemgetter('order'))
+    sorted_results = sorted(list(test_results.values()),
+            key=itemgetter('order'))
     status = aggregate_statuses([result['status']
         for result in sorted_results])
 
@@ -144,7 +146,7 @@ def has_report_actions_config(problem):
 
 
 def is_problem_with_library(problem):
-    if isinstance(problem, (int, basestring)):
+    if isinstance(problem, (int, six.string_types)):
         return LibraryProblemData.objects.filter(problem_id=problem).exists()
 
     try:

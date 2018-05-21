@@ -65,7 +65,7 @@ class Command(NoArgsCommand):
                     try:
                         rc.ipauthsync_validate_ip(region, ip, user)
                     # pylint: disable=broad-except
-                    except Exception, e:
+                    except Exception as e:
                         warnings.append("Invalid IP=%s (ZAW=%s): %s"
                                 % (ip, zaw_id, e))
 

@@ -4,6 +4,8 @@ import json
 import logging
 import SocketServer
 
+import six.moves.BaseHTTPServer
+import six.moves.socketserver
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -11,7 +13,7 @@ from django.db import transaction
 from oioioi.evalmgr.tasks import delay_environ
 
 
-class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class ServerHandler(six.moves.BaseHTTPServer.BaseHTTPRequestHandler):
     def do_GET(self):
         # security through obscurity
         self.send_error(404)
@@ -42,7 +44,7 @@ class ServerHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             self.wfile.write('OK')
 
 
-class Server(SocketServer.TCPServer):
+class Server(six.moves.socketserver.TCPServer):
     # See SIO-1741 and
     # https://docs.python.org/2/library/socketserver.html#SocketServer.BaseServer.allow_reuse_address
     allow_reuse_address = True

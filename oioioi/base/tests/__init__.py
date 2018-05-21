@@ -1,5 +1,4 @@
 import threading
-import urllib
 from contextlib import contextmanager
 from mock import patch
 
@@ -13,6 +12,7 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.template.loaders.cached import Loader as CachedLoader
+import six.moves.urllib.parse
 
 
 # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30
@@ -117,7 +117,7 @@ def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
     else:
         url = reverse(url_or_viewname, *args, **kwargs)
     if qs:
-        url += '?' + urllib.urlencode(qs)
+        url += '?' + six.moves.urllib.parse.urlencode(qs)
     response = testcase.client.get(url, data=data, follow=True)
     testcase.assertIn(response.status_code, (403, 404, 200))
     if response.status_code == 200:

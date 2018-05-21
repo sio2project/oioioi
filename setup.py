@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 try:
     from setuptools import setup, find_packages
 except ImportError:
@@ -10,29 +11,31 @@ except ImportError:
 import os
 import sys
 
-if not sys.version_info[0] == 2:
-    print >>sys.stderr, "ERROR: Wrong python version."
-    print >>sys.stderr, "ERROR: You can only run this using Python 2."
-    sys.exit(2)
-
 if os.getuid() == 0:  # root
-    print >>sys.stderr, "ERROR: This setup.py cannot be run as root."
-    print >>sys.stderr, "ERROR: If you want to proceed anyway, hunt this"
-    print >>sys.stderr, "ERROR: message and edit the source at your own risk."
+    print("ERROR: This setup.py cannot be run as root.", file=sys.stderr)
+    print("ERROR: If you want to proceed anyway, hunt this", file=sys.stderr)
+    print("ERROR: message and edit the source at your own risk.", file=sys.stderr)
     sys.exit(2)
 
-setup(
-    name='oioioi',
-    version='0.1.1.dev',
-    description='The web frontend of the SIO2 Project contesting system',
-    author='The SIO2 Team',
-    author_email='sio2@sio2project.mimuw.edu.pl',
-    url='http://sio2project.mimuw.edu.pl',
-    install_requires=[
+PYTHON_VERSION = sys.version_info[0]
+
+python2_specific_requirements = [
+    "pdfminer>=20110515,<20131113",
+    "slate",
+    "django-supervisor",
+    "supervisor",
+]
+
+python3_specific_requirements = [
+    "pdfminer3k",
+    "slate3k",
+]
+
+python23_universal_requirements = [
         "Django>=1.9,<1.10",  # when upgrading, upgrade also django-two-factor-auth!
         "pytz>=2013b",
         "sqlalchemy",
-        "bs4",
+        "beautifulsoup4",
         "PyYAML",
         "python-dateutil",
         "django-two-factor-auth==1.5.0",  # latest version for Django 1.9
@@ -41,7 +44,6 @@ setup(
 
         "Celery>=3.1.15,<4.0.0",
         "django-celery>=3.1.15,<=3.1.17",
-        "django-supervisor",
         "dj-pagination",
         "django-compressor==2.2",
         "django-overextends>=0.4.1",
@@ -63,8 +65,6 @@ setup(
         "mock==1.0.1",
 
         "fpdf",
-        "pdfminer>=20110515,<20131113",
-        "slate",
         "unicodecsv",
         "shortuuid",
         "enum34",
@@ -95,7 +95,21 @@ setup(
         "filetracker>=2.0,<3.0",
 
         # Dependencies from external sources live in requirements.txt
-    ],
+]
+
+if PYTHON_VERSION == 2:
+    final_requirements = python23_universal_requirements + python2_specific_requirements
+else:
+    final_requirements = python23_universal_requirements + python3_specific_requirements
+
+setup(
+    name='oioioi',
+    version='0.1.1.dev',
+    description='The web frontend of the SIO2 Project contesting system',
+    author='The SIO2 Team',
+    author_email='sio2@sio2project.mimuw.edu.pl',
+    url='http://sio2project.mimuw.edu.pl',
+    install_requires=final_requirements,
 
     packages=find_packages(exclude=['ez_setup']),
     include_package_data=True,

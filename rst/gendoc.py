@@ -4,6 +4,8 @@
 # in modules.rst file for each oioioi module.
 
 
+from __future__ import print_function
+
 import os
 import sys
 import oioioi
@@ -36,12 +38,12 @@ for root, dirs, files in os.walk(oioioi_dirname):
                 (module_name, rel_root))
     elif len(rel_root.split(os.sep)) == sections_dist \
             and 'locale' not in module_name:
-        print "No README.rst in %s" % module_name
+        print("No README.rst in %s" % module_name)
 
 content = ''.join(entries)
 
 if len(sys.argv) > 1 and (sys.argv[1] == '--verbose' or sys.argv[1] == '-v'):
-    print content
+    print(content)
 
 f = open(os.path.join(oioioi_dirname,
         sections_suff, 'modules.rst'), 'w')

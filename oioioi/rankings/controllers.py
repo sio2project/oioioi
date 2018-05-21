@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from collections import defaultdict
 from operator import itemgetter  # pylint: disable=E0611
 
@@ -10,9 +12,10 @@ from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.utils import timezone
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from six.moves import map, range
 
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.controllers import (ContestController,
@@ -126,7 +129,7 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
         if getattr(settings, 'MOCK_RANKINGSD', False):
             data = self.serialize_ranking(key)
             html = self._render_ranking_page(key, data, page_nr)
-            print data
+            print(data)
             return mark_safe(html)
 
         ranking = Ranking.objects.get_or_create(contest=self.contest,
@@ -284,11 +287,11 @@ class DefaultRankingController(RankingController):
                     u'%s-%s-%s.csv' % (_("ranking"), self.contest.id, key))
         writer = unicodecsv.writer(response)
 
-        writer.writerow(map(force_unicode,
-                        self._get_csv_header(key, data)))
+        writer.writerow(list(map(force_text,
+                        self._get_csv_header(key, data))))
         for row in data['rows']:
-            writer.writerow(map(force_unicode,
-                            self._get_csv_row(key, row)))
+            writer.writerow(list(map(force_text,
+                            self._get_csv_row(key, row))))
 
         return response
 
@@ -305,7 +308,7 @@ class DefaultRankingController(RankingController):
         by_user = defaultdict(dict)
         for r in results:
             by_user[r.user_id][r.problem_instance_id] = r
-        users = users.filter(id__in=by_user.keys())
+        users = users.filter(id__in=list(by_user.keys()))
         data = []
         all_rounds_trial = all(r.is_trial for r in rounds)
         for user in users.order_by('last_name', 'first_name', 'username'):
@@ -338,7 +341,7 @@ class DefaultRankingController(RankingController):
                 # user's submissions do not have scores (for example the
                 # problems do not support scoring, or all the evaluations
                 # failed with System Errors).
-                if self._allow_zero_score() or user_data['sum'] != 0:
+                if self._allow_zero_score() or user_data['sum'].to_int() != 0:
                     data.append(user_data)
         return data
 

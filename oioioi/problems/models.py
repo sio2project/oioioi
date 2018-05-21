@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from traceback import format_exception
 from unidecode import unidecode
 
+import six
 from django.contrib.auth.models import User
 from django.core import validators
 from django.core.files.base import ContentFile
@@ -317,7 +318,7 @@ class ProblemSite(models.Model):
     url_key = models.CharField(max_length=40, unique=True)
 
     def __unicode__(self):
-        return unicode(self.problem)
+        return six.text_type(self.problem)
 
     class Meta(object):
         verbose_name = _("problem site")
@@ -353,7 +354,7 @@ class TagThrough(models.Model):
 
     # This string will be visible in admin form
     def __unicode__(self):
-        return unicode(self.tag.name)
+        return six.text_type(self.tag.name)
 
     class Meta(object):
         unique_together = ('problem', 'tag')

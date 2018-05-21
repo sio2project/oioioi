@@ -1,7 +1,6 @@
 import os
-import urllib2
-from types import NoneType
 
+import six.moves.urllib.request
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
 from django.db import DatabaseError, transaction
@@ -30,7 +29,7 @@ class Command(BaseCommand):
             raise CommandError(_("Contest %s does not exist") % args[0])
 
         rcontroller = contest.controller.registration_controller()
-        if not issubclass(getattr(rcontroller, 'participant_admin', NoneType),
+        if not issubclass(getattr(rcontroller, 'participant_admin', type(None)),
                           ParticipantAdmin):
             raise CommandError(_("Wrong type of contest"))
 
@@ -38,7 +37,7 @@ class Command(BaseCommand):
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))
-            stream = urllib2.urlopen(arg)
+            stream = six.moves.urllib.request.urlopen(arg)
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: ") + arg)
@@ -64,7 +63,7 @@ class Command(BaseCommand):
                     self.stdout.write(_("Error for user=%(user)s: user does"
                         " not exist\n") % {'user': login})
                     ok = False
-                except DatabaseError, e:
+                except DatabaseError as e:
                     # This assumes that we'll get the message in this
                     # encoding. It is not perfect, but much better than
                     # ascii.

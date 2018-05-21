@@ -1,4 +1,6 @@
 # pylint: disable=abstract-method
+from __future__ import print_function
+
 import re
 from datetime import datetime  # pylint: disable=E0611
 from functools import partial
@@ -15,6 +17,8 @@ from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.utils.timezone import LocalTimezone, utc
+import six
+from six.moves import zip
 
 from oioioi.base.tests import (TestCase, TestsUtilsMixin, check_not_accessible,
                                fake_time)
@@ -75,7 +79,7 @@ class TestScores(TestCase):
         self.assertGreater(s2, s1)
         self.assertEqual(s1, IntegerScore(1))
         self.assertEqual((s1 + s2).value, 3)
-        self.assertEqual(unicode(s1), '1')
+        self.assertEqual(six.text_type(s1), '1')
         self.assertEqual(IntegerScore._from_repr(s1._to_repr()), s1)
 
     def test_score_field(self):
@@ -123,7 +127,7 @@ def print_contest_id_view(request):
 
 def render_contest_id_view(request):
     t = Template('{{ contest.id }}')
-    print RequestContext(request)
+    print(RequestContext(request))
     return HttpResponse(t.render(RequestContext(request)))
 
 
@@ -196,7 +200,7 @@ class TestUrls(TestCase):
             reverse('select_contest')
             # global noncontest pattern
             reverse('move_node')
-        except NoReverseMatch, e:
+        except NoReverseMatch as e:
             self.fail(str(e))
 
     def test_reverse(self):
@@ -657,14 +661,14 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         r1.save()
 
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
-        with fake_time(datetime(2012, 7, 31, 21, 01, tzinfo=utc)):
+        with fake_time(datetime(2012, 7, 31, 21, 1, tzinfo=utc)):
             # r3, r4 are active
             self.client.login(username=user)
             response = self.client.get(url)
             self.assertAllIn(['zad3', 'zad4'], response.content)
             self.assertEqual(len(response.context['problem_instances']), 2)
 
-        with fake_time(datetime(2015, 7, 31, 20, 01, tzinfo=utc)):
+        with fake_time(datetime(2015, 7, 31, 20, 1, tzinfo=utc)):
             # r1,r3,r4 are past, preparation time for r2
             self.client.login(username=user)
             response = self.client.get(url)
@@ -692,7 +696,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             # r1,r3,r3 are past, break = (21.27, 21.40) -- second half
             self.client.login(username=user)
             response = self.client.get(url)
-            print response.context['problem_instances']
+            print(response.context['problem_instances'])
             self.assertEqual(len(response.context['problem_instances']), 0)
 
         with fake_time(datetime(2012, 7, 31, 21, 41, tzinfo=utc)):
@@ -700,7 +704,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             self.client.login(username=user)
             response = self.client.get(url)
             self.assertAllIn(['zad2'], response.content)
-            print response.context['problem_instances']
+            print(response.context['problem_instances'])
             self.assertEqual(len(response.context['problem_instances']), 1)
 
         self.client.login(username='test_user')

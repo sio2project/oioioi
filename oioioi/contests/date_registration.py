@@ -1,5 +1,7 @@
 import sys
 
+import six
+
 from oioioi.base.menu import OrderedRegistry
 
 
@@ -19,7 +21,7 @@ class DateRegistry(object):
             self.model = model
 
     def register(self, date_field, name_generator=None, round_chooser=None,
-                qs_filter=None, model=None, order=sys.maxint):
+                qs_filter=None, model=None, order=sys.maxsize):
         """Registers a new date item.
 
            :param date_field: the date's field in the model
@@ -45,8 +47,10 @@ class DateRegistry(object):
 
         if name_generator is None:
             name_generator = lambda obj: \
-                unicode(model._meta.verbose_name) + " " + unicode(model._meta.
-                                get_field_by_name(date_field)[0].verbose_name)
+                    six.text_type(model._meta.verbose_name) + \
+                    " " + \
+                    six.text_type(model._meta.get_field_by_name(date_field)[0]
+                            .verbose_name)
 
         if round_chooser is None:
             round_chooser = lambda obj: None

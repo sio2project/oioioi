@@ -1,3 +1,5 @@
+import six
+
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
 
@@ -11,7 +13,7 @@ def add_extra_files(environ, problem, additional_args=None):
 
     lang = environ['language']
     extra_args = config.get('extra_compilation_args', {}).get(lang, [])
-    if isinstance(extra_args, basestring):
+    if isinstance(extra_args, six.string_types):
         extra_args = [extra_args]
     if additional_args:
         extra_args.extend(additional_args.get(lang, []))

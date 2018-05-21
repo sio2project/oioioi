@@ -11,6 +11,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext_noop
+from six.moves import zip
 
 from oioioi.acm.score import ACMScore, BinaryScore, format_time
 from oioioi.contests.models import (ProblemInstance, Submission,

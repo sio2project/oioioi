@@ -9,6 +9,7 @@ from smtplib import SMTPException
 
 from django.core.mail import mail_admins
 from django.db import transaction
+from six.moves import range
 
 from oioioi.base.utils.db import require_transaction
 from oioioi.contests.models import (FailureReport, ProblemInstance, Submission,
@@ -52,7 +53,7 @@ def wait_for_submission_in_db(env, **kwargs):
     """Celery may start handling a submission before it is actually saved
        in the DB. This is a workaround for this.
     """
-    for _i in xrange(WAIT_FOR_SUBMISSION_RETRIES):
+    for _i in range(WAIT_FOR_SUBMISSION_RETRIES):
         with transaction.atomic():
             if bool(Submission.objects.filter(id=env['submission_id'])):
                 break
@@ -159,7 +160,7 @@ def mail_admins_on_error(env, submission, exc_info, **kwargs):
         mail_admins("System Error evaluating submission #%s" %
                     env.get('submission_id', '???'),
                     traceback.format_exc(exc_info))
-    except (socket.error, SMTPException), e:
+    except (socket.error, SMTPException) as e:
         logger.error("An error occurred while sending email: %s",
                      e.message)
 

@@ -1,3 +1,4 @@
+import six
 from django.core.urlresolvers import reverse
 from django.template import Context, loader
 from django.utils.functional import lazy
@@ -34,7 +35,7 @@ def logo_processor(request):
         context = Context({'url': url, 'link': link})
         template = loader.get_template('contestlogo/logo.html')
         return template.render(context)
-    return {'extra_menu_top_contestlogo': lazy(generator, unicode)()}
+    return {'extra_menu_top_contestlogo': lazy(generator, six.text_type)()}
 
 
 def icon_processor(request):

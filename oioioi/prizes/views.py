@@ -6,6 +6,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from six.moves import map
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition, make_request_condition
@@ -42,7 +43,7 @@ def prizes_view(request, key=None):
         groups.setdefault(name, []).append(id)
 
     Group = namedtuple('Group', 'name ids')
-    groups = map(Group._make, groups.items())
+    groups = list(map(Group._make, list(groups.items())))
 
     key = int(key) if key is not None else groups[0].ids[0]
 

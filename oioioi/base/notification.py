@@ -3,8 +3,8 @@ import logging
 import threading
 import time
 import uuid
-from urlparse import urlparse
 
+import six.moves.urllib.parse
 from django.conf import settings
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
 
@@ -40,7 +40,8 @@ class NotificationHandler(logging.StreamHandler):
                 and NotificationHandler.last_connection_check < \
                 time.time() - NotificationHandler.conn_try_interval:
             try:
-                o = urlparse(settings.NOTIFICATIONS_RABBITMQ_URL)
+                o = six.moves.urllib.parse.urlparse(
+                        settings.NOTIFICATIONS_RABBITMQ_URL)
                 kwargs = {}
                 if o.hostname:
                     kwargs['host'] = o.hostname

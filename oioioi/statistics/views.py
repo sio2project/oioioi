@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from six.moves import zip
 
 from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import enforce_condition
@@ -72,10 +73,10 @@ def statistics_view(request, category=statistics_categories['CONTEST'][1],
     data_list = [controller.statistics_data(request, plot_kind, object)
                  for plot_kind, object_name in plots]
 
-    plots_HTML, head_list = [] if not data_list else zip(*[
+    plots_HTML, head_list = [] if not data_list else list(zip(*[
             (controller.render_statistics(request, data, id),
              data['plot_type'].head_libraries())
-            for id, data in enumerate(data_list)])
+            for id, data in enumerate(data_list)]))
 
     return TemplateResponse(request, 'statistics/stat.html', {
        'title': title,

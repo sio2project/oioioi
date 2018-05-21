@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import datetime
 import itertools
 import optparse
@@ -52,30 +54,30 @@ class Command(BaseCommand):
 
         files_count = len(to_delete)
         if files_count == 0 and int(options['verbosity']) > 0:
-            print _("No files to delete.")
+            print(_("No files to delete."))
         elif options['pretend']:
             if int(options['verbosity']) > 1:
-                print ungettext("The following %d file is scheduled for "
+                print(ungettext("The following %d file is scheduled for "
                                 "deletion:",
                                 "The following %d files are scheduled for "
                                 "deletion:",
-                                files_count) % files_count
+                                files_count) % files_count)
                 for file in to_delete:
-                    print " ", file
+                    print(" ", file)
             elif int(options['verbosity']) == 1:
-                print ungettext("%d file scheduled for deletion.",
+                print(ungettext("%d file scheduled for deletion.",
                                 "%d files scheduled for deletion.",
-                                files_count) % files_count
+                                files_count) % files_count)
         else:
             if int(options['verbosity']) > 1:
-                print ungettext("Deleting the following %d file:",
+                print(ungettext("Deleting the following %d file:",
                                 "Deleting the following %d files:",
-                                files_count) % files_count
+                                files_count) % files_count)
             if int(options['verbosity']) == 1:
-                print ungettext("Deleting %d file",
+                print(ungettext("Deleting %d file",
                                 "Deleting %d files",
-                                files_count) % files_count
+                                files_count) % files_count)
             for file in to_delete:
                 if int(options['verbosity']) > 1:
-                    print " ", file
+                    print(" ", file)
                 get_client().delete_file('/' + file)

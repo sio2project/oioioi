@@ -1,3 +1,4 @@
+import six
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -104,7 +105,7 @@ class QuizProblemController(ProblemController):
 
         answers = {a.id: (a.id in selected_answers)
                    for a in question.quizanswer_set.all()}
-        for aid, selected in answers.iteritems():
+        for aid, selected in six.iteritems(answers):
             answer = QuizAnswer.objects.get(id=aid)
             sub = QuizSubmissionAnswer.objects.create(
                 quiz_submission=submission,

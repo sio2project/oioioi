@@ -1,3 +1,4 @@
+import six
 from django.conf import settings
 from django.utils.module_loading import import_string
 
@@ -16,13 +17,13 @@ def run_sioworkers_job(job, **kwargs):
 
 def run_sioworkers_jobs(dict_of_jobs, **kwargs):
     if settings.FILETRACKER_URL:
-        for _, env in dict_of_jobs.iteritems():
+        for _, env in six.iteritems(dict_of_jobs):
             env['filetracker_url'] = settings.FILETRACKER_URL
     return _get_backend().run_jobs(dict_of_jobs, **kwargs)
 
 
 def send_async_jobs(dict_of_jobs, **kwargs):
     if settings.FILETRACKER_URL:
-        for _, job in dict_of_jobs['workers_jobs'].iteritems():
+        for _, job in six.iteritems(dict_of_jobs['workers_jobs']):
             job['filetracker_url'] = settings.FILETRACKER_URL
     return _get_backend().send_async_jobs(dict_of_jobs, **kwargs)

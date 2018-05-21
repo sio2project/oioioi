@@ -1,5 +1,6 @@
 import base64
 
+import six
 from django.core.files.base import ContentFile
 from django.db.models.fields import files
 
@@ -26,9 +27,9 @@ class _FileDescriptor(files.FileDescriptor):
                 "The '%s' attribute can only be accessed from %s instances."
                 % (self.field.name, owner.__name__))
         file = instance.__dict__[self.field.name]
-        if isinstance(file, basestring) and file == 'none':
+        if isinstance(file, six.string_types) and file == 'none':
             instance.__dict__[self.field.name] = None
-        elif isinstance(file, basestring) and file.startswith('data:'):
+        elif isinstance(file, six.string_types) and file.startswith('data:'):
             name, content = file.split(':', 2)[1:]
             if content.startswith('raw:'):
                 content = str(content[4:])

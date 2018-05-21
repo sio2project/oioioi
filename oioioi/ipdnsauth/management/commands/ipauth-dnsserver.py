@@ -5,6 +5,7 @@ import threading
 import time
 from optparse import make_option
 
+import six.moves.socketserver
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
@@ -20,7 +21,7 @@ logger = logging.getLogger(__name__)
 # https://gist.github.com/andreif/6069838
 
 
-class BaseRequestHandler(SocketServer.BaseRequestHandler):
+class BaseRequestHandler(six.moves.socketserver.BaseRequestHandler):
 
     def get_data(self):
         raise NotImplementedError
@@ -115,15 +116,17 @@ class UDPRequestHandler(BaseRequestHandler):
         return self.request[1].sendto(data, self.client_address)
 
 
-class UDPServer(SocketServer.ThreadingUDPServer):
+class UDPServer(six.moves.socketserver.ThreadingUDPServer):
     def __init__(self, command, *args, **kwargs):
-        SocketServer.ThreadingUDPServer.__init__(self, *args, **kwargs)
+        six.moves.socketserver.ThreadingUDPServer.__init__(self, *args,
+                **kwargs)
         self.command = command
 
 
-class TCPServer(SocketServer.ThreadingTCPServer):
+class TCPServer(six.moves.socketserver.ThreadingTCPServer):
     def __init__(self, command, *args, **kwargs):
-        SocketServer.ThreadingTCPServer.__init__(self, *args, **kwargs)
+        six.moves.socketserver.ThreadingTCPServer.__init__(self, *args,
+                **kwargs)
         self.command = command
 
 

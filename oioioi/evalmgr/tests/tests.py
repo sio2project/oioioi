@@ -5,6 +5,7 @@ import uuid
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.test.utils import override_settings
+from six.moves import range
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Submission
@@ -31,7 +32,7 @@ hunting = [('Prepare guns',
                 'oioioi.evalmgr.tests.tests.rest_handler')]
 
 
-class HuntingException(StandardError):
+class HuntingException(Exception):
     pass
 
 
@@ -208,7 +209,7 @@ class TestRemoteJobs(TestCase):
 police_files = {}
 
 
-class SuspectNotFoundException(StandardError):
+class SuspectNotFoundException(Exception):
     pass
 
 

@@ -3,6 +3,7 @@ import pprint
 import sys
 from uuid import uuid4
 
+import six
 from celery.exceptions import Ignore
 from celery.task import task
 from django.db import transaction
@@ -225,7 +226,7 @@ def _run_error_handlers(env, exc_info):
     if not env.get('ignore_errors'):
         logger.error("Exception occured in job:\n%s",
                 pprint.pformat(env, indent=4), exc_info=exc_info)
-        raise exc_info[0], exc_info[1], exc_info[2]
+        six.reraise(exc_info[0], exc_info[1], exc_info[2])
     return env
 
 

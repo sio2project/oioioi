@@ -1,3 +1,4 @@
+import six
 from django import forms
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -8,7 +9,6 @@ from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
 from oioioi.mailsubmit.models import MailSubmission
 from oioioi.mailsubmit.utils import (is_mailsubmit_allowed,
                                      mail_submission_hashes)
-
 
 class MailSubmissionForm(forms.Form):
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
@@ -25,7 +25,7 @@ class MailSubmissionForm(forms.Form):
         if problem_filter:
             pis = problem_filter(pis)
 
-        pi_choices = [(pi.id, unicode(pi)) for pi in pis]
+        pi_choices = [(pi.id, six.text_type(pi)) for pi in pis]
         pi_field = self.fields['problem_instance_id']
         pi_field.choices = pi_choices
         pi_field.widget.attrs['class'] = 'input-xlarge'

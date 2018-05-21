@@ -3,13 +3,15 @@
 # django_extensions/management/commands/shell_plus.py
 # pylint: skip-file
 
+from __future__ import print_function
+
 import os
 import time
 from optparse import make_option
 
 from django.core.management.base import NoArgsCommand
 from django_extensions.management.shells import import_objects
-
+import six
 
 class Command(NoArgsCommand):
     option_list = NoArgsCommand.option_list + (
@@ -59,12 +61,12 @@ class Command(NoArgsCommand):
                         execution_time = time.time() - starttime
                         raw_sql = self.db.ops.last_executed_query(self.cursor, sql, params)
                         if sqlparse:
-                            print sqlparse.format(raw_sql, reindent=True)
+                            print(sqlparse.format(raw_sql, reindent=True))
                         else:
-                            print raw_sql
-                        print
-                        print 'Execution time: %.6fs [Database: %s]' % (execution_time, self.db.alias)
-                        print
+                            print(raw_sql)
+                        print()
+                        print('Execution time: %.6fs [Database: %s]' % (execution_time, self.db.alias))
+                        print()
 
             util.CursorDebugWrapper = PrintQueryWrapper
 
@@ -98,7 +100,7 @@ class Command(NoArgsCommand):
                 pythonrc = os.environ.get("PYTHONSTARTUP")
                 if pythonrc and os.path.isfile(pythonrc):
                     try:
-                        execfile(pythonrc)
+                        six.exec_(compile(open(pythonrc).read(), pythonrc, 'exec'), globals(), locals())
                     except NameError:
                         pass
                 # This will import .pythonrc.py as a side-effect
@@ -144,4 +146,4 @@ class Command(NoArgsCommand):
             else:
                 import traceback
                 traceback.print_exc()
-                print self.style.ERROR("Could not load any interactive Python environment.")
+                print(self.style.ERROR("Could not load any interactive Python environment."))

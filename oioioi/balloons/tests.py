@@ -5,6 +5,7 @@ from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+from six.moves import range
 
 from oioioi.balloons.models import BalloonDelivery, BalloonsDeliveryAccessData
 from oioioi.base.tests import TestCase, fake_time
@@ -156,7 +157,7 @@ class TestBalloons(TestCase):
         response = self.client.get(url, {'last_id': -1})
         self._check_balloon_requests(response, len(users), len(users))
 
-        for i in xrange(1, len(users) + 1):
+        for i in range(1, len(users) + 1):
             response = self.client.get(url, {'last_id': i})
             self._check_balloon_requests(response, len(users) - i, len(users))
 

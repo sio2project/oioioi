@@ -1,3 +1,4 @@
+import six
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -62,7 +63,7 @@ def _get_user_q_expression(substr, user_field_name=None):
 def _get_user_hints(substr, queryset, user_field_name=None):
     if substr is None:
         return None
-    substr = unicode(substr)
+    substr = six.text_type(substr)
     if len(substr) < 2:
         return None
     q_expression = _get_user_q_expression(substr, user_field_name)

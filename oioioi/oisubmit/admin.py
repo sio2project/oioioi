@@ -1,5 +1,7 @@
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+import six
+from six.moves import map
 
 from oioioi.contests.admin import SubmissionAdmin
 from oioioi.oisubmit.err_dict import SUSPICION_REASONS
@@ -28,7 +30,7 @@ class OISubmitSubmissionAdminMixin(object):
         is_oisubmit = (received_suspected is not None)
         comments = getattr(instance.oisubmitextradata, 'comments', '')
         comments = [SUSPICION_REASONS[c] for c in comments.split(',') if c]
-        comments = '<br />'.join(map(unicode, comments))
+        comments = '<br />'.join(map(six.text_type, comments))
         return render_to_string('received-suspected.html',
                 {'received_suspected': received_suspected,
                 'is_oisubmit': is_oisubmit, 'comments': comments})

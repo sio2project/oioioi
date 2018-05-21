@@ -17,7 +17,7 @@ from oioioi.problems.models import Problem, ProblemPackage
 logger = logging.getLogger(__name__)
 
 
-class ProblemPackageError(StandardError):
+class ProblemPackageError(Exception):
     """A generic exception to be used by or subclassed by backends."""
     pass
 

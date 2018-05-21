@@ -4,6 +4,8 @@ from django import template
 from django.forms import CheckboxInput, CheckboxSelectMultiple, RadioSelect
 from django.utils.html import escapejs
 from django.utils.safestring import mark_safe
+import six
+from six.moves import range, zip
 
 from oioioi.contests.scores import IntegerScore
 from oioioi.pa.score import PAScore
@@ -141,7 +143,7 @@ def cyclic_lookup(thelist, index):
 
 @register.filter(name='zip')
 def zip_lists(a, b):
-    return zip(a, b)
+    return list(zip(a, b))
 
 
 @register.filter
@@ -179,7 +181,7 @@ def latex_escape(x):
     whether \write18 is disabled!
     http://www.texdev.net/2009/10/06/what-does-write18-mean/
     """
-    res = unicode(x)
+    res = six.text_type(x)
     # Braces + backslashes
     res = res.replace('\\', '\\textbackslash\\q{}')
     res = res.replace('{', '\\{')

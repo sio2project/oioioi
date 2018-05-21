@@ -3,6 +3,7 @@ import types
 from collections import defaultdict
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
+import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -115,7 +116,7 @@ def get_round_context(request, round_pk):
     for _, pi in problem_instances.items():
         scores = []
 
-        for score, users_with_score in pi['users_with_score'].iteritems():
+        for score, users_with_score in six.iteritems(pi['users_with_score']):
             scores.append([score, users_with_score])
 
         if pi['tried_solving_count'] == 0:
@@ -171,8 +172,8 @@ def contest_dashboard_view(request, round_pk=None):
     ss = [submission_template_context(request, s) for s in
           queryset[:NUMBER_OF_RECENT_ACTIONS]]
 
-    rtimes = rounds_times(request).items()
-    rtimes.sort(key=lambda (r, rt): r.start_date)
+    rtimes = list(rounds_times(request).items())
+    rtimes.sort(key=lambda r_rt: r_rt[0].start_date)
 
     if round_pk is None and len(rtimes) > 0:
         # First active round, or last one if there are no active ones

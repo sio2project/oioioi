@@ -1,6 +1,7 @@
 import itertools
 import os.path
 
+import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -410,7 +411,7 @@ class ScoreReport(models.Model):
     def get_score_display(self):
         if self.score is None:
             return ''
-        return unicode(self.score)
+        return six.text_type(self.score)
 
 
 class FailureReport(models.Model):
@@ -483,7 +484,7 @@ class RoundTimeExtension(models.Model):
         verbose_name_plural = _("round time extensions")
 
     def __unicode__(self):
-        return unicode(self.round) + ': ' + unicode(self.user)
+        return six.text_type(self.round) + ': ' + six.text_type(self.user)
 
 contest_permissions = EnumRegistry()
 contest_permissions.register('contests.contest_admin', _("Admin"))

@@ -8,7 +8,7 @@ def get_allowed_languages_dict(problem_instance):
 
 
 def get_allowed_languages_extensions(problem_instance):
-    lang_exts = get_allowed_languages_dict(problem_instance).values()
+    lang_exts = list(get_allowed_languages_dict(problem_instance).values())
     return [ext for lang in lang_exts for ext in lang]
 
 

@@ -19,6 +19,7 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import guess_lexer_for_filename
 from pygments.util import ClassNotFound
+from six.moves import range
 
 from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import strip_num_or_hash
@@ -35,7 +36,7 @@ from oioioi.programs.utils import (decode_str,
 # Workaround for race condition in fnmatchcase which is used by pygments
 import fnmatch
 import sys
-fnmatch._MAXCACHE = sys.maxint
+fnmatch._MAXCACHE = sys.maxsize
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +120,7 @@ def source_diff_view(request, submission1_id, submission2_id):
         maxlen = getattr(settings, 'CHARACTERS_IN_LINE', 80)
         parts = (len(line) + maxlen) / maxlen
         line = line.ljust(parts * maxlen)
-        for i in xrange(parts):
+        for i in range(parts):
             f, t = i * maxlen, ((i + 1) * maxlen)
             c1, c2 = numformat(count1), numformat(count2)
             if diffline.startswith('- '):

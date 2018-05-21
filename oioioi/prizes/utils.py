@@ -4,6 +4,7 @@ from operator import itemgetter  # pylint: disable=E0611
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+from six.moves import zip
 
 from oioioi.prizes.models import AssignmentNotFound, PrizeForUser
 from oioioi.prizes.reports import generate_failure_report
@@ -30,7 +31,7 @@ def assign_from_order(prize_giving, order):
        FairAssignmentNotFound is raised.
     """
     order = sorted(list(order), key=itemgetter(0))
-    places, users = zip(*order) if order else ([], [])
+    places, users = list(zip(*order)) if order else ([], [])
 
     # Construct a list of avaiable prizes
     # Note that Prize instances are intended to repeat
@@ -41,7 +42,7 @@ def assign_from_order(prize_giving, order):
     padding = len(users) - len(prizes)
     prizes += [None] * padding
 
-    match = zip(places, users, prizes)
+    match = list(zip(places, users, prizes))
 
     for nr, (current, next_) in enumerate(zip(match, match[1:])):
         if current[2] is None:

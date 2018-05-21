@@ -5,6 +5,7 @@ from datetime import datetime  # pylint: disable=E0611
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+from six.moves import range
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import Contest, Submission

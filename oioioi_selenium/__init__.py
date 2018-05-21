@@ -4,6 +4,8 @@ from functools import wraps
 
 from selenium.webdriver.remote import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import six
+from six.moves import range
 
 
 class WebDriver(webdriver.WebDriver):
@@ -52,7 +54,7 @@ class WebDriver(webdriver.WebDriver):
         """:param data: Dict, element name -> element value.
            :param submit: XPath to form submit button.
         """
-        for k, v in data.iteritems():
+        for k, v in six.iteritems(data):
             elem = self.find_element_by_name(k)
             elem.clear()
             elem.send_keys(v)
@@ -85,9 +87,8 @@ class WrapTestsWithScreenshots(type):
         return type.__new__(mcs, class_name, class_parents, new_attrs)
 
 
-class OIOIOISeleniumTestCaseBase(unittest.TestCase):
-    __metaclass__ = WrapTestsWithScreenshots
-
+class OIOIOISeleniumTestCaseBase(six.with_metaclass(WrapTestsWithScreenshots,
+        unittest.TestCase)):
     def setUp(self):
         self.driver = WebDriver()
 

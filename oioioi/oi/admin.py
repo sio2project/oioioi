@@ -1,5 +1,5 @@
-import urllib
-
+import six
+import six.moves.urllib.parse
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -32,7 +32,7 @@ class SchoolAdmin(admin.ModelAdmin):
 
     def postal_code_link(self, instance):
         url = reverse('oioioiadmin:oi_school_changelist') + '?' + \
-                urllib.urlencode({'q': instance.postal_code})
+                six.moves.urllib.parse.urlencode({'q': instance.postal_code})
         return make_html_link(url, instance.postal_code)
     postal_code_link.allow_tags = True
     postal_code_link.short_description = _("Postal code")
@@ -82,7 +82,7 @@ class SchoolAdmin(admin.ModelAdmin):
             valnames.setdefault(r.related_model, []).append(r.field.name)
 
         for s in toMerge:
-            for model, field_names in valnames.iteritems():
+            for model, field_names in six.iteritems(valnames):
                 for field_name in field_names:
                     model.objects.filter(**{field_name: s}) \
                             .update(**{field_name: approved})

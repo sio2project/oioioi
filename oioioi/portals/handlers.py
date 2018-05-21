@@ -1,7 +1,6 @@
-import itertools
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from six.moves import filter
 
 from oioioi.portals.models import Node
 from oioioi.portals.widgets import REGISTERED_WIDGETS
@@ -12,7 +11,7 @@ def parse_node_for_problems(node):
     """Parses node's content in search for links to problems
        and returns a queryset of problems accessible from the node.
     """
-    widgets_with_links = itertools.ifilter(
+    widgets_with_links = filter(
                             lambda w: hasattr(w, 'get_problem_ids'),
                             REGISTERED_WIDGETS)
 

@@ -1,8 +1,10 @@
 import json
-from xmlrpclib import Server
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+import six
+from six.moves import map
+from six.moves.xmlrpc_client import Server
 
 
 class Command(BaseCommand):
@@ -57,7 +59,7 @@ class Command(BaseCommand):
         if not q:
             self.stdout.write('Empty queue.\n')
             return
-        self.stdout.write(unicode(q).encode('utf-8'))
+        self.stdout.write(six.text_type(q).encode('utf-8'))
 
     def handle(self, *args, **kwargs):
         if not args:

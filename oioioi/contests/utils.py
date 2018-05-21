@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import timedelta  # pylint: disable=E0611
 
+import six
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
@@ -223,7 +224,7 @@ def contests_by_registration_controller():
 def visible_contests(request):
     visible = set()
     rc_mapping = contests_by_registration_controller()
-    for rcontroller, contest_ids in rc_mapping.iteritems():
+    for rcontroller, contest_ids in six.iteritems(rc_mapping):
         contests = Contest.objects.filter(id__in=contest_ids)
         # These querysets could be concatenated and evaluated in a single
         # query, however it turns out, that it results in so big and complex
@@ -311,9 +312,9 @@ def last_break_between_rounds(request_or_context):
         rtimes = rounds_times(request_or_context)
     else:
         rtimes = generic_rounds_times(None, request_or_context.contest)
-    ends = [rt.get_end() for rt in rtimes.itervalues()
+    ends = [rt.get_end() for rt in six.itervalues(rtimes)
             if rt.is_past(request_or_context.timestamp)]
-    starts = [rt.get_start() for rt in rtimes.itervalues()
+    starts = [rt.get_start() for rt in six.itervalues(rtimes)
               if rt.is_future(request_or_context.timestamp)]
 
     max_end = max(ends) if ends else None
@@ -334,15 +335,15 @@ def best_round_to_display(request, allow_past_rounds=False):
         rtimes = dict(
                 (round, contest.controller.get_round_times(request, round))
                 for round in Round.objects.filter(contest=contest))
-        next_rtimes = [(r, rt) for r, rt in rtimes.iteritems()
+        next_rtimes = [(r, rt) for r, rt in six.iteritems(rtimes)
                 if rt.is_future(timestamp)]
-        next_rtimes.sort(key=lambda (r, rt): rt.get_start())
+        next_rtimes.sort(key=lambda r_rt: r_rt[1].get_start())
         current_rtimes = [(r, rt) for r, rt in rtimes
                                 if rt.is_active(timestamp) and rt.get_end()]
-        current_rtimes.sort(key=lambda (r, rt): rt.get_end())
-        past_rtimes = [(r, rt) for r, rt in rtimes.iteritems()
+        current_rtimes.sort(key=lambda r_rt1: r_rt1[1].get_end())
+        past_rtimes = [(r, rt) for r, rt in six.iteritems(rtimes)
                 if rt.is_past(timestamp)]
-        past_rtimes.sort(key=lambda (r, rt): rt.get_end())
+        past_rtimes.sort(key=lambda r_rt2: r_rt2[1].get_end())
 
     if current_rtimes:
         return current_rtimes[0][0]

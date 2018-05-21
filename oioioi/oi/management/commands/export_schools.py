@@ -1,5 +1,6 @@
 import csv
 
+import six
 from django.core.management.base import NoArgsCommand
 from django.utils.translation import ugettext as _
 
@@ -16,6 +17,6 @@ class Command(NoArgsCommand):
         writer = csv.writer(self.stdout)
         writer.writerow(COLUMNS)
         for school in School.objects.order_by('postal_code'):
-            row = [unicode(getattr(school, column)).encode('utf-8')
+            row = [six.text_type(getattr(school, column)).encode('utf-8')
                     for column in COLUMNS]
             writer.writerow(row)

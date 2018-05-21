@@ -7,10 +7,11 @@ import base64
 import shutil
 import tempfile
 import functools
-import urllib
 from contextlib import contextmanager
 from importlib import import_module
 
+import six
+import six.moves.urllib.parse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms.utils import flatatt
 from django.shortcuts import render
@@ -19,7 +20,7 @@ from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -33,10 +34,8 @@ class ClassInitMeta(type):
         cls.__classinit__()
 
 
-class ClassInitBase(object):
+class ClassInitBase(six.with_metaclass(ClassInitMeta, object)):
     """Abstract base class injecting ClassInitMeta meta class."""
-
-    __metaclass__ = ClassInitMeta
 
     @classmethod
     def __classinit__(cls):
@@ -131,7 +130,7 @@ class RegisteredSubclassesBase(ClassInitBase):
             return
         from django.conf import settings
         modules_to_load = getattr(cls, 'modules_with_subclasses', [])
-        if isinstance(modules_to_load, basestring):
+        if isinstance(modules_to_load, six.string_types):
             modules_to_load = [modules_to_load]
         for app_module in list(settings.INSTALLED_APPS):
             for name in modules_to_load:
@@ -367,7 +366,7 @@ def make_html_link(href, name, method='GET', extra_attrs=None):
         extra_attrs = {}
     attrs.update(extra_attrs)
     return mark_safe(u'<a %s>%s</a>' % (flatatt(attrs),
-                     conditional_escape(force_unicode(name))))
+                     conditional_escape(force_text(name))))
 
 
 def make_html_links(links, extra_attrs=None):
@@ -422,7 +421,8 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
             raise Http404
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
-        return HttpResponseRedirect(request.path + '?' + urllib.urlencode(qs))
+        return HttpResponseRedirect(request.path + '?' +
+                six.moves.urllib.parse.urlencode(qs))
     key = request.GET['key']
     for tab in tabs:
         if tab.key == key:
@@ -445,7 +445,7 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
     context.update({
         'current_tab': current_tab,
         'tabs': tabs_context,
-        'content': mark_safe(force_unicode(content))
+        'content': mark_safe(force_text(content))
     })
     return TemplateResponse(request, template, context)
 
@@ -620,4 +620,4 @@ def find_closure(groups):
     new_groups = {}
     for elem in parent.keys():
         new_groups.setdefault(find(elem), []).append(elem)
-    return new_groups.values()
+    return list(new_groups.values())

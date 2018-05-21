@@ -31,7 +31,7 @@ def _register_portal_action(actions, name, condition, menu_text,
 
 
 def register_portal_action(name, condition=None, menu_text=None,
-                           menu_order=sys.maxint):
+                           menu_order=sys.maxsize):
     """Decorator for a view, which registers it as a portal action.
 
        A portal action is a view which operates on a portal. After
@@ -61,7 +61,7 @@ def register_portal_action(name, condition=None, menu_text=None,
 
 
 def register_node_action(name, condition=None, menu_text=None,
-                         menu_order=sys.maxint):
+                         menu_order=sys.maxsize):
     """Decorator for a view, which registers it as a node action.
 
        A node action is a view which operates on a portal node. After

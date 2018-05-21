@@ -3,7 +3,7 @@ import functools
 from django.contrib.admin import SimpleListFilter
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 from djcelery.models import TaskState
 
@@ -170,7 +170,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
 
     def colored_state(self, instance):
         return '<span class="submission-admin submission--%s">%s</span>' % \
-            (instance.state, force_unicode(instance.get_state_display()))
+            (instance.state, force_text(instance.get_state_display()))
     colored_state.allow_tags = True
     colored_state.short_description = _("Status")
     colored_state.admin_order_field = 'state'

@@ -20,7 +20,7 @@ class ProblemUploadForm(forms.Form):
         if contest and not existing_problem:
             choices = [(r.id, r.name) for r in contest.round_set.all()]
             if len(choices) >= 2:
-                fields = self.fields.items()
+                fields = list(self.fields.items())
                 fields[0:0] = [('round_id', forms.ChoiceField(choices,
                         label=_("Round")))]
                 self.fields = OrderedDict(fields)

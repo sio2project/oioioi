@@ -1,5 +1,4 @@
 import json
-import xmlrpclib
 from operator import itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
@@ -7,11 +6,14 @@ from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
+import six.moves.xmlrpc_client
+from six.moves import map
 
 from oioioi.base.admin import system_admin_menu_registry
 from oioioi.base.permissions import enforce_condition, is_superuser
 
-server = xmlrpclib.ServerProxy(settings.SIOWORKERSD_URL, allow_none=True)
+server = six.moves.xmlrpc_client.ServerProxy(settings.SIOWORKERSD_URL,
+        allow_none=True)
 
 
 def get_info_about_workers():
@@ -57,7 +59,7 @@ def show_info_about_workers(request):
             'select': select,
         }
         return result
-    workers_info = map(transform_dict, workers_info)
+    workers_info = list(map(transform_dict, workers_info))
 
     if not any(map(itemgetter('can_run_cpu_exec'), workers_info)) and \
             not settings.USE_UNSAFE_EXEC:

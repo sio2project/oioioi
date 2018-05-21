@@ -3,6 +3,7 @@ import os
 
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
+from six.moves import filter, map
 
 from oioioi.sinolpack.package import (SinolPackage, SinolPackageBackend,
                                       SinolPackageCreator)
@@ -16,10 +17,10 @@ class ZeusPackage(SinolPackage):
     package_backend_name = 'oioioi.zeus.package.ZeusPackageBackend'
 
     def _find_main_dir(self):
-        files = map(os.path.normcase, self.archive.filenames())
-        files = map(os.path.normpath, files)
+        files = list(map(os.path.normcase, self.archive.filenames()))
+        files = list(map(os.path.normpath, files))
         toplevel_folders = set(f.split(os.sep)[0] for f in files)
-        toplevel_folders = filter(slug_re.match, toplevel_folders)
+        toplevel_folders = list(filter(slug_re.match, toplevel_folders))
 
         folder = super(ZeusPackage, self)._find_main_dir()
         if not folder and len(toplevel_folders) > 0:

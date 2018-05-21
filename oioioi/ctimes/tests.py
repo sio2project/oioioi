@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import json
 from datetime import datetime  # pylint: disable=E0611
 
@@ -83,7 +85,7 @@ class TestCtimes(TestCase):
         date_regexp = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
-            print response
+            print(response)
             self.assertRegexpMatches(response['start'], date_regexp)
             self.assertRegexpMatches(response['end'], date_regexp)
 
@@ -106,7 +108,7 @@ class TestCtimes(TestCase):
     def test_ctimes_anonymous(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c2'})
         self.client.logout()
-        with fake_time(datetime(2014, 01, 02, 4, 56, tzinfo=utc)):
+        with fake_time(datetime(2014, 1, 2, 4, 56, tzinfo=utc)):
             response = json.loads(self.client.get(url).content)
             self.assertEqual(response, self.round1p_result)
 

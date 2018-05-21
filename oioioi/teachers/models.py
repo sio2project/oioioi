@@ -1,3 +1,4 @@
+import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ImproperlyConfigured
@@ -27,7 +28,7 @@ class Teacher(models.Model):
         )
 
     def __unicode__(self):
-        return unicode(self.user)
+        return six.text_type(self.user)
 
 
 class ContestTeacher(models.Model):

@@ -1,3 +1,4 @@
+import six
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.functional import lazy
@@ -33,7 +34,8 @@ def dangling_problems_processor(request):
                 '%(count)d PROBLEMS WITHOUT ROUNDS',
                 count) % {'count': count}
         return make_navbar_badge(link, text)
-    return {'extra_navbar_right_dangling_problems': lazy(generator, unicode)()}
+    return {'extra_navbar_right_dangling_problems': lazy(generator,
+            six.text_type)()}
 
 
 def problemset_link_visible_processor(request):
@@ -59,7 +61,7 @@ def problems_need_rejudge_processor(request):
                 count) % {'count': count}
         return make_navbar_badge(link, text)
     return {'extra_navbar_right_not_rejudged_problems':
-                lazy(generator, unicode)()}
+                lazy(generator, six.text_type)()}
 
 
 def can_add_to_problemset_processor(request):

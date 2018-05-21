@@ -8,6 +8,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from six.moves import range
 
 from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
@@ -81,7 +82,7 @@ def submit_view(request):
         result = {'error_code': exception_info.args[0],
                   'error_data': exception_info.args[1]
                   if len(exception_info.args) == 2 else ''}
-    except StandardError as e:
+    except Exception as e:
         result = {'error_code': 'UNKNOWN_ERROR',
                   'error_data': str(e)}
     return result

@@ -15,7 +15,7 @@ class _MainPageEntry(object):
 _main_page_registry = OrderedRegistry()
 
 
-def register_main_page_view(order=sys.maxint, condition=None):
+def register_main_page_view(order=sys.maxsize, condition=None):
     """Decorator for a view, which registers it as a main page.
 
        A view registered this way can be shown as the main page of the website

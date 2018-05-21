@@ -2,6 +2,7 @@ import json
 import logging
 import pprint
 
+import six
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -216,7 +217,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         try:
             if kind is None:
                 pass
-            elif isinstance(kind, basestring):
+            elif isinstance(kind, six.string_types):
                 queryset = queryset.filter(kind=kind)
             elif isinstance(kind, (list, tuple)):
                 queryset = queryset.filter(kind__in=kind)
@@ -296,7 +297,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation returns the Unicode representation of
            ``submission.score``.
         """
-        return unicode(submission.score)
+        return six.text_type(submission.score)
 
     def get_supported_extra_args(self, submission):
         """Returns dict of all values which can be provided in extra_args

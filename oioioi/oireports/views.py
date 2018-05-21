@@ -213,7 +213,7 @@ def _report_text(request, template_file, report_form):
         template_file,
         title,
         users,
-        testgroups.keys(),
+        list(testgroups.keys()),
         testgroups
     )
 

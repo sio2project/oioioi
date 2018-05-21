@@ -1,3 +1,4 @@
+import six
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -22,7 +23,7 @@ class ProblemBalloonsConfig(models.Model):
         verbose_name_plural = _("balloons colors")
 
     def __unicode__(self):
-        return unicode(self.problem_instance) + ' (' + self.color + ')'
+        return six.text_type(self.problem_instance) + ' (' + self.color + ')'
 
 
 class BalloonsDisplay(models.Model):
@@ -58,8 +59,8 @@ class BalloonDelivery(models.Model):
 
     def __unicode__(self):
         return '%(user)s for %(problem)s (%(delivered)s)' % {
-            'user': unicode(self.user),
-            'problem': unicode(self.problem_instance),
+            'user': six.text_type(self.user),
+            'problem': six.text_type(self.problem_instance),
             'delivered': 'delivered' if self.delivered else 'not delivered'
         }
 

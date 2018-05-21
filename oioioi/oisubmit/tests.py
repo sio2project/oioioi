@@ -1,6 +1,7 @@
 import json
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
+import six
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.utils.timezone import get_current_timezone, utc
@@ -78,7 +79,7 @@ class OISubmitFileMixin(object):
 
     def _assertFormError(self, response, submission_number, error):
         self._assertNotSubmitted(response, submission_number)
-        self.assertIn(unicode(error), self._json(response)['comment'])
+        self.assertIn(six.text_type(error), self._json(response)['comment'])
 
 
 class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
@@ -103,8 +104,8 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertSuspected(response, submission_number,
-                                  suspected_number,
-                                  unicode(SUSPICION_REASONS['BEFORE_START']))
+                    suspected_number,
+                    six.text_type(SUSPICION_REASONS['BEFORE_START']))
 
         dt = datetime(2012, 7, 31, tzinfo=utc)
         with fake_time(dt):
@@ -140,8 +141,8 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
                                .count()
             response = self.submit_file(contest, pi.short_name, dt)
             self._assertSuspected(response, submission_number,
-                                  suspected_number,
-                                  unicode(SUSPICION_REASONS['AFTER_END']))
+                    suspected_number,
+                    six.text_type(SUSPICION_REASONS['AFTER_END']))
 
         dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
@@ -161,8 +162,8 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
             response = self.submit_file(contest, pi.short_name, dt,
                                         dt + timedelta(seconds=31))
             self._assertSuspected(response, submission_number,
-                                  suspected_number,
-                                  unicode(SUSPICION_REASONS['TIMES_DIFFER']))
+                    suspected_number,
+                    six.text_type(SUSPICION_REASONS['TIMES_DIFFER']))
 
         dt = datetime(2012, 8, 9, tzinfo=utc)
         with fake_time(dt):
@@ -172,8 +173,8 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
             response = self.submit_file(contest, pi.short_name,
                                         dt + timedelta(seconds=31))
             self._assertSuspected(response, submission_number,
-                                  suspected_number,
-                                  unicode(SUSPICION_REASONS['TIMES_DIFFER']))
+                    suspected_number,
+                    six.text_type(SUSPICION_REASONS['TIMES_DIFFER']))
 
     def test_huge_submission(self):
         contest = Contest.objects.get()
@@ -205,7 +206,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
             response = self.submit_file(contest, pi.short_name, dt, dt)
             self._assertSuspected(response, submission_number + 1,
                                   suspected_number,
-                                  unicode(SUSPICION_REASONS['SLE']))
+                                  six.text_type(SUSPICION_REASONS['SLE']))
 
     def _assertUnsupportedExtension(self, contest, pi, name, ext):
         submission_number = Submission.objects.all().count()

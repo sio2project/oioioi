@@ -1,9 +1,13 @@
-from StringIO import StringIO
-
-import slate
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+import six
+from six import StringIO
+
+if six.PY2:
+    import slate
+else:
+    import slate3k as slate
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.controllers import ContestController

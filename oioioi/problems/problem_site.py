@@ -20,7 +20,7 @@ from oioioi.problems.utils import query_statement, query_zip
 problem_site_tab_registry = OrderedRegistry()
 
 
-def problem_site_tab(title, key, order=sys.maxint, condition=None):
+def problem_site_tab(title, key, order=sys.maxsize, condition=None):
     """A decorator that for each decorated function adds a corresponding
        tab to the global problem site that uses the function to generate
        its contents.

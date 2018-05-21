@@ -1,6 +1,8 @@
 from django import template
 from django.template import Node, TemplateSyntaxError
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
+import six
+from six.moves import map
 
 register = template.Library()
 
@@ -13,9 +15,9 @@ class AllWithPrefixNode(Node):
         flattened_context = {}
         for d in context.dicts:
             flattened_context.update(d)
-        to_render = [value for key, value in flattened_context.iteritems()
+        to_render = [value for key, value in six.iteritems(flattened_context)
                      if key.startswith(self.prefix)]
-        return ''.join(map(force_unicode, to_render))
+        return ''.join(map(force_text, to_render))
 
 
 @register.tag

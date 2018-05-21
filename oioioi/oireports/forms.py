@@ -1,6 +1,7 @@
 import re
 from collections import defaultdict
 
+import six
 from django import forms
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -30,7 +31,7 @@ def _rounds(request):
 
 
 def _last_finished_round_id(request):
-    past_rounds = [rt for rt in rounds_times(request).iteritems()
+    past_rounds = [rt for rt in six.iteritems(rounds_times(request))
                    if rt[1].is_past(request.timestamp)]
     if not past_rounds:
         return None

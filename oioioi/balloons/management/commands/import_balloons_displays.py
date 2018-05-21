@@ -1,7 +1,8 @@
 import csv
 import os
-import urllib2
 
+import six
+import six.moves.urllib.request
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
@@ -39,14 +40,14 @@ class Command(BaseCommand):
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))
-            stream = urllib2.urlopen(arg)
+            stream = six.moves.urllib.request.urlopen(arg)
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: ") + arg)
             stream = open(arg, 'r')
 
         reader = csv.reader(stream)
-        header = reader.next()
+        header = next(reader)
         if header != self.COLUMNS:
             raise CommandError(_("Missing header or invalid columns: "
                 "%(header)s\nExpected: %(expected)s") % {
@@ -73,7 +74,7 @@ class Command(BaseCommand):
                     self.stdout.write(_("Error for user=%(user)s: user does"
                         " not exist\n") % {'user': row[1]})
                     ok = False
-                except DatabaseError, e:
+                except DatabaseError as e:
                     # This assumes that we'll get the message in this
                     # encoding. It is not perfect, but much better than
                     # ascii.
@@ -82,8 +83,8 @@ class Command(BaseCommand):
                         "DB Error for user=%(user)s: %(message)s\n")
                             % {'user': row[1], 'message': message})
                     ok = False
-                except ValidationError, e:
-                    for k, v in e.message_dict.iteritems():
+                except ValidationError as e:
+                    for k, v in six.iteritems(e.message_dict):
                         for message in v:
                             if k == '__all__':
                                 self.stdout.write(_(

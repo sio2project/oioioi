@@ -1,13 +1,13 @@
 import unicodecsv
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
+from six.moves import map
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.participants.controllers import ParticipantsController
 from oioioi.participants.models import Participant
-
 
 def is_contest_with_participants(contest):
     rcontroller = contest.controller.registration_controller()
@@ -127,7 +127,8 @@ def serialize_participants_data(request, participants):
     keys = ['username', 'user ID', 'first name', 'last name'] + \
           (['email address'] if display_email else [])
 
-    def key_name((obj, field)):
+    def key_name(attr):
+        (obj, field) = attr
         return str(obj.__class__.__name__) + ": " + \
                 field.verbose_name.title()
 
@@ -138,13 +139,14 @@ def serialize_participants_data(request, participants):
                 set_of_keys.add(key)
                 keys.append(key)
 
-    def key_value((obj, field)):
+    def key_value(attr):
+        (obj, field) = attr
         return (key_name((obj, field)), field.value_to_string(obj))
 
     data = []
     for participant in participants:
-        values = dict(map(key_value,
-                          _fold_registration_models_tree(participant)))
+        values = dict(list(map(key_value,
+                          _fold_registration_models_tree(participant))))
         values['username'] = participant.user.username
         values['user ID'] = participant.user.id
         values['first name'] = participant.user.first_name
@@ -164,7 +166,7 @@ def render_participants_data_csv(request, participants, name):
         (name, "personal-data")
     if 'no_participants' not in data:
         writer = unicodecsv.writer(response)
-        writer.writerow(map(force_unicode, data['keys']))
+        writer.writerow(list(map(force_text, data['keys'])))
         for row in data['data']:
-            writer.writerow(map(force_unicode, row))
+            writer.writerow(list(map(force_text, row)))
     return response

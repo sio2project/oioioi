@@ -1,6 +1,6 @@
 import re
-import urlparse
 
+import six.moves.urllib.parse
 from django.conf import settings
 from django.core.urlresolvers import resolve, reverse
 from django.http import Http404
@@ -112,9 +112,9 @@ class YouTubeWidget(object):
         # We must use the embed player, so if user just copies link
         # from the browser when he is on YT, we must transform
         # the link in order to be able to play the movie
-        parsed = urlparse.urlparse(youtube_url)
+        parsed = six.moves.urllib.parse.urlparse(youtube_url)
         try:
-            video_id = urlparse.parse_qs(parsed.query)['v'][0]
+            video_id = six.moves.urllib.parse.parse_qs(parsed.query)['v'][0]
         except KeyError:
             return ''
         # 'https://www.youtube.com/embed/dVDk7PXNXB8'
@@ -213,7 +213,7 @@ class RedirectWidget(object):
     @staticmethod
     def render(request, match):
         redirect_url = match.group(1).strip()
-        if urlparse.urlparse(redirect_url).netloc:
+        if six.moves.urllib.parse.urlparse(redirect_url).netloc:
             return "[[Redirect: only relative URLs allowed]]"
 
         return render_to_string('portals/widgets/redirect.html',

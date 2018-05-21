@@ -1,14 +1,19 @@
+from __future__ import print_function
+
 import base64
-import httplib
 import json
 import logging
 import pprint
 import time
-import urllib2
-from urlparse import urljoin
 
 from django.conf import settings
 from django.utils.module_loading import import_string
+from six.moves import range
+import six
+import six.moves.urllib.error
+import six.moves.urllib.parse
+import six.moves.urllib.request
+import six.moves.http_client
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +24,7 @@ zeus_language_map = {
 }
 
 
-class ZeusError(StandardError):
+class ZeusError(Exception):
     pass
 
 
@@ -46,7 +51,7 @@ class Base64String(object):
         return str(self.string)
 
     def __unicode__(self):
-        return unicode(self.string)
+        return six.text_type(self.string)
 
     def __repr__(self):
         return 'Base64String(%s)' % self.string
@@ -66,8 +71,8 @@ def _json_base64_encode(o):
 def _json_base64_decode(o, wrap=False):
     def _dict_b64_decode(d):
         return {k: (Base64String(base64.b64decode(v)) if wrap
-                    else base64.b64decode(v)) if isinstance(v, basestring)
-                    else v for (k, v) in d.iteritems()}
+                else base64.b64decode(v)) if isinstance(v, six.string_types)
+                else v for (k, v) in six.iteritems(d)}
     return json.loads(o, object_hook=_dict_b64_decode)
 
 
@@ -77,13 +82,13 @@ def _get_key(dictionary, key):
     return dictionary[key]
 
 
-class EagerHTTPBasicAuthHandler(urllib2.BaseHandler):
+class EagerHTTPBasicAuthHandler(six.moves.urllib.request.BaseHandler):
     def __init__(self, user, passwd):
         cred = '%s:%s' % (user, passwd)
         self.auth_string = 'Basic %s' % base64.b64encode(cred)
 
     def http_open(self, req):
-        assert isinstance(req, urllib2.Request), \
+        assert isinstance(req, six.moves.urllib.request.Request), \
                 ("Incorrect request type: %s" % type(req))
         if 'Authorization' not in req.headers:
             req.add_header('Authorization', self.auth_string)
@@ -96,8 +101,8 @@ class ZeusServer(object):
     def __init__(self, zeus_id, server_info):
         self.url, user, passwd = server_info
         auth_handler = EagerHTTPBasicAuthHandler(user, passwd)
-        self.opener = urllib2.build_opener(auth_handler,
-                urllib2.HTTPSHandler())
+        self.opener = six.moves.urllib.request.build_opener(auth_handler,
+                six.moves.urllib.request.HTTPSHandler())
 
     def _send(self, url, data=None, retries=None, **kwargs):
         """Send the encoded ``data`` to given URL."""
@@ -107,20 +112,21 @@ class ZeusServer(object):
 
         assert retries > 0
 
-        req = urllib2.Request(url=url, data=data)  # POST
+        req = six.moves.urllib.request.Request(url=url, data=data)  # POST
 
-        for i in xrange(retries):
+        for i in range(retries):
             try:
                 f = self.opener.open(req, timeout=timeout)
                 return f.getcode(), f.read()
-            except urllib2.HTTPError as e:
+            except six.moves.urllib.error.HTTPError as e:
                 # Custom format for HTTPError,
                 # as default does not say anything.
                 fmt, args = "HTTPError(%s): %s", (str(e.code), str(e.reason))
                 logger.error(fmt, *args)
                 if i == retries-1:
                     raise ZeusError(type(e), fmt % args)
-            except (urllib2.URLError, httplib.HTTPException) as e:
+            except (six.moves.urllib.error.URLError,
+                    six.moves.http_client.HTTPException) as e:
                 logger.error("%s exception while querying %s", url, type(e),
                              exc_info=True)
                 if i == retries-1:
@@ -144,8 +150,8 @@ class ZeusServer(object):
         assert kind in ('INITIAL', 'NORMAL'), ("Invalid kind: %s" % kind)
         assert language in zeus_language_map, \
                 ("Invalid language: %s" % language)
-        url = urljoin(self.url, 'dcj_problem/%d/submissions' %
-                      (zeus_problem_id,))
+        url = six.moves.urllib.parse.urljoin(self.url,
+                    'dcj_problem/%d/submissions' % (zeus_problem_id,))
         data = {
             'submission_type': Base64String('SMALL' if kind == 'INITIAL'
                                             else 'LARGE'),
@@ -184,8 +190,8 @@ class ZeusTestServer(ZeusServer):
                 'POST -d \'{"compilation_output":"Q1BQ"}\' %s' % \
                 decoded_data['return_url']
 
-        print "Encoded data: ", data
-        print "Decoded data: ", decoded_data
-        print "In order to push grade (CE) for the submission sent, call: "
-        print command
+        print("Encoded data: ", data)
+        print("Decoded data: ", decoded_data)
+        print("In order to push grade (CE) for the submission sent, call: ")
+        print(command)
         return 200, _json_base64_encode({'submission_id': 19123})

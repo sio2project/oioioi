@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 from datetime import date, timedelta  # pylint: disable=E0611
 from time import sleep  # pylint: disable=E0611
@@ -22,5 +23,5 @@ class Command(BaseCommand):
             d = date.today() - timedelta(days=self.CELERY_TASKMETA_EXPIRY)
             TaskMeta.objects.filter(date_done__lt=d).delete()
 
-            print >> sys.stderr, 'Performed cleanup on ' + str(date.today())
+            print('Performed cleanup on ' + str(date.today()), file=sys.stderr)
             sleep(self.SESSION_CLEAR_INTERVAL)

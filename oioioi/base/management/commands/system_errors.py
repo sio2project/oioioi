@@ -1,5 +1,8 @@
+from __future__ import print_function
+
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.translation import ugettext as _
+from six.moves import map
 
 from oioioi.contests.models import Contest, FailureReport
 from oioioi.programs.models import TestReport
@@ -56,9 +59,9 @@ class Command(BaseCommand):
             row += [sub.id, tr.test_name, sub.user, pi.short_name]
             trs_out.append(row)
 
-        print _("========== Whole submissions ==========")
+        print(_("========== Whole submissions =========="))
         self.pprint(frs_out)
-        print _("========== Single tests ==========")
+        print(_("========== Single tests =========="))
         self.pprint(trs_out)
 
     def pprint(self, rows):
@@ -67,11 +70,11 @@ class Command(BaseCommand):
         widths = [0] * len(rows[0])
         for row in rows:
             assert len(row) == len(widths)
-            row[:] = map(str, row)
+            row[:] = list(map(str, row))
             for i, val in enumerate(row):
                 widths[i] = max(widths[i], len(val))
 
         for row in rows:
             for i, val in enumerate(row):
-                print val.ljust(widths[i]),
-            print ''
+                print(val.ljust(widths[i]), end=' ')
+            print('')

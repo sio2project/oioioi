@@ -9,6 +9,9 @@ from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.utils.timezone import utc
+import six
+import six.moves.urllib.parse
+from six.moves import map, range, zip
 
 from oioioi.base.tests import TestCase, fake_time, fake_timezone_now
 from oioioi.contests.models import (Contest, ProblemInstance, Submission,
@@ -72,7 +75,7 @@ class TestPAScore(TestCase):
         score3 = score[10] + score[10] + score[10] + score[4] + score[2] + \
                 score1 + score2
 
-        self.assertEqual(unicode(score3), str(3 * 10 + 4 + 2 + 2 * 8))
+        self.assertEqual(score3, (3 * 10 + 4 + 2 + 2 * 8))
         self.assertEqual(repr(score3),
                 'PAScore(IntegerScore(52), ScoreDistribution(10: 3, 9: 0, 8: '
                 '0, 7: 0, 6: 0, 5: 0, 4: 1, 3: 0, 2: 4, 1: 10))')
@@ -179,10 +182,10 @@ class TestPARanking(TestCase):
         with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             response = self.client.get(self._ranking_url(3))
             # Test User should be present in the ranking.
-            self.assertTrue(re.search('<td[^>]*>Test User</td>',
+            self.assertTrue(re.search(b'<td[^>]*>Test User</td>',
                                       response.content))
             # Test User 2 scored 0 points for the only task in the round.
-            self.assertFalse(re.search('<td[^>]*>Test User 2</td>',
+            self.assertFalse(re.search(b'<td[^>]*>Test User 2</td>',
                                        response.content))
 
     def test_ranking_ordering(self):
@@ -190,7 +193,7 @@ class TestPARanking(TestCase):
         def check_order(response, expected):
             prev_pos = 0
             for user in expected:
-                pattern = '<td[^>]*>%s</td>' % (user,)
+                pattern = b'<td[^>]*>%s</td>' % (user,)
                 pattern_match = re.search(pattern, response.content)
 
                 self.assertTrue(pattern_match)
@@ -206,13 +209,13 @@ class TestPARanking(TestCase):
         with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
             response = self.client.get(self._ranking_url(A_PLUS_B_RANKING_KEY))
-            check_order(response, ['Test User', 'Test User 2', 'Test User 3'])
-            self.assertContains(response, '28</td>')
+            check_order(response, [b'Test User', b'Test User 2', b'Test User 3'])
+            self.assertIn(b'28</td>', response.content)
 
             # 10 (10), 10 (7, 3), 10 (6, 4)
             response = self.client.get(self._ranking_url(B_RANKING_KEY))
-            check_order(response, ['Test User 3', 'Test User 2', 'Test User'])
-            self.assertNotContains(response, '28</td>')
+            check_order(response, [b'Test User 3', b'Test User 2', b'Test User'])
+            self.assertNotContains(response, b'28</td>')
 
 
 class TestPARegistration(TestCase):
@@ -259,7 +262,7 @@ class TestPARegistration(TestCase):
         p.save()
         PARegistration(participant_id=p.id, **self.reg_data).save()
         url = reverse('contest_info', kwargs={'contest_id': contest.id})
-        data = json.loads(self.client.get(url).content)
+        data = json.loads(self.client.get(url).content.decode('utf-8'))
         self.assertEquals(data['users_count'], 1)
 
 
@@ -292,10 +295,12 @@ class TestPAScorer(TestCase):
         ]
 
     def test_pa_test_scorer(self):
-        results = map(utils.pa_test_scorer, *zip(*self.t_results_ok))
+        results = list(map(utils.pa_test_scorer,
+                *list(zip(*self.t_results_ok))))
         self.assertEquals(self.t_expected_ok, results)
 
-        results = map(utils.pa_test_scorer, *zip(*self.t_results_wrong))
+        results = list(map(utils.pa_test_scorer,
+                *list(zip(*self.t_results_wrong))))
         self.assertEquals(self.t_expected_wrong, results)
 
 
@@ -329,7 +334,7 @@ class TestPADivisions(TestCase):
         self.client.login(username='test_admin')
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'key': 'upload'})
+                        six.moves.urllib.parse.urlencode({'key': 'upload'})
 
         response = self.client.get(url)
         # "NONE" is the default division
@@ -347,7 +352,7 @@ class TestPADivisions(TestCase):
 
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
-                        urllib.urlencode({'problem': problem.id,
+                        six.moves.urllib.parse.urlencode({'problem': problem.id,
                                 'key': 'upload'})
         response = self.client.get(url)
         self.assertContains(response,
@@ -361,7 +366,7 @@ class TestPAContestInfo(TestCase):
         c = Contest.objects.get()
         url = reverse('contest_info', kwargs={'contest_id': c.id})
         self.client.logout()
-        response = json.loads(self.client.get(url).content)
+        response = json.loads(self.client.get(url).content.decode('utf-8'))
         self.assertEqual(response['users_count'], 2)
 
     def test_cross_origin(self):

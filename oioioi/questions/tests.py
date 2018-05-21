@@ -8,6 +8,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.utils import timezone
+from six.moves import range
 
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time
@@ -115,9 +116,9 @@ class TestQuestions(TestCase):
         with fake_time(timestamp):
             response = self.client.get(reverse('message', kwargs={
                 'contest_id': contest.id, 'message_id': public_answer.id}))
-        self.assertIn('public-answer-body', response.content)
-        self.assertNotIn('contest-question', response.content)
-        self.assertNotIn('problem-question', response.content)
+        self.assertIn(b'public-answer-body', response.content)
+        self.assertNotIn(b'contest-question', response.content)
+        self.assertNotIn(b'problem-question', response.content)
         with fake_time(timestamp):
             response = self.client.get(list_url)
         self.assertEqual(response.content.count('>NEW<'), 1)
@@ -152,12 +153,12 @@ class TestQuestions(TestCase):
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
-        self.assertIn('the-new-question', response.content)
+        self.assertIn(b'the-new-question', response.content)
 
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
         response = self.client.get(url)
-        self.assertIn('form', response.context)
+        self.assertIn(b'form', response.context)
 
         post_data = {
                 'kind': 'PUBLIC',
@@ -194,25 +195,25 @@ class TestQuestions(TestCase):
             'message_id': new_reply.id})
         response = self.client.get(repl_url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('re-new-question', response.content)
-        self.assertIn('re-new-body', response.content)
-        self.assertNotIn('the-new-question', response.content)
-        self.assertNotIn('the-new-body', response.content)
+        self.assertIn(b're-new-question', response.content)
+        self.assertIn(b're-new-body', response.content)
+        self.assertNotIn(b'the-new-question', response.content)
+        self.assertNotIn(b'the-new-body', response.content)
         response = self.client.get(list_url)
         self.assertIn(repl_url.encode('utf-8'), response.content)
-        self.assertIn('re-new-question', response.content)
-        self.assertNotIn('the-new-question', response.content)
+        self.assertIn(b're-new-question', response.content)
+        self.assertNotIn(b'the-new-question', response.content)
 
         self.client.login(username='test_user2')
         response = self.client.get(q_url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('the-new-question', response.content)
-        self.assertIn('the-new-body', response.content)
-        self.assertIn('re-new-body', response.content)
+        self.assertIn(b'the-new-question', response.content)
+        self.assertIn(b'the-new-body', response.content)
+        self.assertIn(b're-new-body', response.content)
         response = self.client.get(list_url)
         self.assertIn(q_url.encode('utf-8'), response.content)
-        self.assertIn('re-new-question', response.content)
-        self.assertNotIn('the-new-question', response.content)
+        self.assertIn(b're-new-question', response.content)
+        self.assertNotIn(b'the-new-question', response.content)
 
     def test_reply_notification(self):
         flags = {}
@@ -252,7 +253,7 @@ class TestQuestions(TestCase):
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
-        self.assertIn('the-new-question', response.content)
+        self.assertIn(b'the-new-question', response.content)
 
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
@@ -313,7 +314,7 @@ class TestQuestions(TestCase):
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
-        self.assertIn('the-new-question', response.content)
+        self.assertIn(b'the-new-question', response.content)
 
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
@@ -342,42 +343,42 @@ class TestQuestions(TestCase):
         get_data = {'author': 'test_admin'}
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('general-question', response.content)
-        self.assertNotIn('problem-question', response.content)
-        self.assertIn('public-answer', response.content)
-        self.assertIn('private-answer', response.content)
+        self.assertNotIn(b'general-question', response.content)
+        self.assertNotIn(b'problem-question', response.content)
+        self.assertIn(b'public-answer', response.content)
+        self.assertIn(b'private-answer', response.content)
 
         get_data['author'] = 'test_user'
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('general-question', response.content)
-        self.assertIn('problem-question', response.content)
-        self.assertNotIn('public-answer', response.content)
-        self.assertNotIn('private-answer', response.content)
+        self.assertIn(b'general-question', response.content)
+        self.assertIn(b'problem-question', response.content)
+        self.assertNotIn(b'public-answer', response.content)
+        self.assertNotIn(b'private-answer', response.content)
 
         get_data['category'] = 'r_1'
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('general-question', response.content)
-        self.assertNotIn('problem-question', response.content)
-        self.assertNotIn('public-answer', response.content)
-        self.assertNotIn('private-answer', response.content)
+        self.assertIn(b'general-question', response.content)
+        self.assertNotIn(b'problem-question', response.content)
+        self.assertNotIn(b'public-answer', response.content)
+        self.assertNotIn(b'private-answer', response.content)
 
         get_data['category'] = 'p_1'
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('general-question', response.content)
-        self.assertIn('problem-question', response.content)
-        self.assertNotIn('public-answer', response.content)
-        self.assertNotIn('private-answer', response.content)
+        self.assertNotIn(b'general-question', response.content)
+        self.assertIn(b'problem-question', response.content)
+        self.assertNotIn(b'public-answer', response.content)
+        self.assertNotIn(b'private-answer', response.content)
 
         self.client.login(username='test_user')
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('general-question', response.content)
-        self.assertNotIn('problem-question', response.content)
-        self.assertNotIn('public-answer', response.content)
-        self.assertIn('private-answer', response.content)
+        self.assertNotIn(b'general-question', response.content)
+        self.assertNotIn(b'problem-question', response.content)
+        self.assertNotIn(b'public-answer', response.content)
+        self.assertIn(b'private-answer', response.content)
 
     def test_authors_list(self):
         self.client.login(username='test_admin')
@@ -468,7 +469,7 @@ class TestQuestions(TestCase):
         self.assertEqual(len(templates), 4)
         url_inc = reverse('increment_template_usage',
                           kwargs={'contest_id': contest.id, 'template_id': 4})
-        for _i in xrange(12):
+        for _i in range(12):
             response = self.client.get(url_inc)
         response = self.client.get(url1)
         templates = json.loads(response.content)
@@ -497,14 +498,14 @@ class TestQuestions(TestCase):
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
             self.assertEqual(response.status_code, 200)
-            self.assertIn('private-answer', response.content)
-            self.assertIn('public-answer', response.content)
+            self.assertIn(b'private-answer', response.content)
+            self.assertIn(b'public-answer', response.content)
 
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
             self.assertEqual(response.status_code, 200)
-            self.assertNotIn('private-answer', response.content)
-            self.assertIn('public-answer', response.content)
+            self.assertNotIn(b'private-answer', response.content)
+            self.assertIn(b'public-answer', response.content)
 
     def test_candidate_notifications(self):
         timestamp = datetime(2000, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
@@ -634,11 +635,11 @@ class TestAllMessagesView(TestCase):
         self.client.login(username='test_user')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('NEW', response.content)
+        self.assertIn(b'NEW', response.content)
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('NEW', response.content)
+        self.assertNotIn(b'NEW', response.content)
 
     def test_marking_as_needs_reply(self):
         contest = Contest.objects.get()
@@ -708,14 +709,14 @@ class TestAllMessagesView(TestCase):
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
             self.assertEqual(response.status_code, 200)
-            self.assertIn('private-answer', response.content)
-            self.assertIn('public-answer', response.content)
+            self.assertIn(b'private-answer', response.content)
+            self.assertIn(b'public-answer', response.content)
 
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
             self.assertEqual(response.status_code, 200)
-            self.assertNotIn('private-answer', response.content)
-            self.assertIn('public-answer', response.content)
+            self.assertNotIn(b'private-answer', response.content)
+            self.assertIn(b'public-answer', response.content)
 
 
 class TestUserInfo(TestCase):
@@ -730,6 +731,6 @@ class TestUserInfo(TestCase):
 
         self.client.login(username='test_admin')
         response = self.client.get(url)
-        self.assertIn('User info', response.content)
-        self.assertIn("User's messages", response.content)
-        self.assertIn('general-question', response.content)
+        self.assertIn(b'User info', response.content)
+        self.assertIn(b"User's messages", response.content)
+        self.assertIn(b'general-question', response.content)

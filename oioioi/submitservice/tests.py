@@ -28,7 +28,7 @@ class TestSubmitService(TestCase):
                       kwargs={'contest_id': 'c'})
         self.client.login(username='test_user')
         response = self.client.get(url)
-        self.assertIn('123456ABCDEF', response.content)
+        self.assertIn(b'123456ABCDEF', response.content)
 
     def test_clear_user_token(self):
         url = reverse('oioioi.submitservice.views.clear_user_token',

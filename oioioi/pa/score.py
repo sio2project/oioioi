@@ -1,6 +1,12 @@
+from functools import total_ordering
+
+import six
+from six.moves import range, zip
+
 from oioioi.contests.scores import IntegerScore, ScoreValue
 
 
+@total_ordering
 class ScoreDistribution(object):
     def __init__(self, scores=None):
         if scores:
@@ -11,11 +17,14 @@ class ScoreDistribution(object):
             self.scores = [0] * 10
 
     def __add__(self, other):
-        return ScoreDistribution([a + b for (a, b) in
-            zip(self.scores, other.scores)])
+        return ScoreDistribution([a + b for (a, b) in zip(self.scores,
+                other.scores)])
 
-    def __cmp__(self, other):
-        return cmp(self.scores, other.scores)
+    def __eq__(self, other):
+        return self.scores == other.scores
+
+    def __lt__(self, other):
+        return self.scores < other.scores
 
     def update(self, score):
         assert score >= 0 and score <= 10
@@ -25,7 +34,7 @@ class ScoreDistribution(object):
     def __repr__(self):
         return 'ScoreDistribution(%s)' % \
                 ', '.join(['%d: %d' % p for p in
-                    zip(reversed(range(1, 11)), self.scores)])
+                    zip(reversed(list(range(1, 11))), self.scores)])
 
     def _to_repr(self):
         return ':'.join(['%05d' % p for p in self.scores])
@@ -35,6 +44,7 @@ class ScoreDistribution(object):
         return cls([int(p) for p in value.split(':')])
 
 
+@total_ordering
 class PAScore(ScoreValue):
     """PA style score.
 
@@ -65,16 +75,20 @@ class PAScore(ScoreValue):
         return PAScore(self.points + other.points,
                 self.distribution + other.distribution)
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if not isinstance(other, PAScore):
-            return cmp(self.points, other)
-        if self.points != other.points:
-            return cmp(self.points, other.points)
-        else:
-            return cmp(self.distribution, other.distribution)
+            return self.points == other
+        return (self.points, self.distribution) == \
+                (other.points, other.distribution)
+
+    def __lt__(self, other):
+        if not isinstance(other, PAScore):
+            return self.points < other
+        return (self.points, self.distribution) < \
+                (other.points, other.distribution)
 
     def __unicode__(self):
-        return unicode(self.points)
+        return six.text_type(self.points)
 
     def __repr__(self):
         return "PAScore(%r, %r)" % (self.points, self.distribution)

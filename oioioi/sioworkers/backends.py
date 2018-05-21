@@ -1,10 +1,11 @@
 import json
-from xmlrpclib import Server
 
 import sio.celery.job
 import sio.workers.runner
 from django.conf import settings
 from django.db import transaction
+import six
+from six.moves.xmlrpc_client import Server
 
 from oioioi.evalmgr.tasks import delay_environ
 
@@ -30,7 +31,7 @@ class LocalBackend(object):
 
     def run_jobs(self, dict_of_jobs, **kwargs):
         results = {}
-        for key, value in dict_of_jobs.iteritems():
+        for key, value in six.iteritems(dict_of_jobs):
             results[key] = self.run_job(value, **kwargs)
         return results
 

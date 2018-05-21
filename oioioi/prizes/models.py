@@ -2,6 +2,7 @@ import logging
 import os.path
 from datetime import timedelta  # pylint: disable=E0611
 
+import six
 from celery.task import task
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -294,4 +295,4 @@ class PrizeForUser(models.Model):
         ordering = ['prize', 'user']
 
     def __unicode__(self):
-        return unicode(self.user) + ' -> ' + unicode(self.prize)
+        return six.text_type(self.user) + ' -> ' + six.text_type(self.prize)

@@ -12,6 +12,8 @@ from django.test.utils import override_settings
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
+from six import unichr
+from six.moves import map, range, zip
 
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time
@@ -801,35 +803,37 @@ class TestScorers(TestCase):
         exp_scores = [100] * len(self.t_results_ok)
         exp_max_scores = [100] * len(self.t_results_ok)
         exp_statuses = ['OK'] * len(self.t_results_ok)
-        expected = zip(exp_scores, exp_max_scores, exp_statuses)
+        expected = list(zip(exp_scores, exp_max_scores, exp_statuses))
 
-        results = map(utils.discrete_test_scorer, *zip(*self.t_results_ok))
+        results = list(map(utils.discrete_test_scorer,
+                *list(zip(*self.t_results_ok))))
         self.assertEquals(expected, results)
 
-        results = map(utils.discrete_test_scorer, *zip(*self.t_results_wrong))
+        results = list(map(utils.discrete_test_scorer,
+                *list(zip(*self.t_results_wrong))))
         self.assertEquals(self.t_expected_wrong, results)
 
-        results = map(utils.discrete_test_scorer,
-                *zip(*self.t_results_unequal_max_scores))
+        results = list(map(utils.discrete_test_scorer,
+                *list(zip(*self.t_results_unequal_max_scores))))
         self.assertEquals(self.t_expected_unequal_max_scores, results)
 
     def test_threshold_linear_test_scorer(self):
         exp_scores = [100, 100, 99, 50, 1, 100, 100]
         exp_max_scores = [100] * len(self.t_results_ok)
         exp_statuses = ['OK'] * len(self.t_results_ok)
-        expected = zip(exp_scores, exp_max_scores, exp_statuses)
+        expected = list(zip(exp_scores, exp_max_scores, exp_statuses))
 
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_ok))
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_ok))))
         self.assertEquals(expected, results)
 
         exp_scores = [99, 25, 0, 1]
         exp_max_scores = [100] * len(self.t_results_ok_perc)
         exp_statuses = ['OK'] * len(self.t_results_ok_perc)
-        expected = zip(exp_scores, exp_max_scores, exp_statuses)
+        expected = list(zip(exp_scores, exp_max_scores, exp_statuses))
 
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_ok_perc))
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_ok_perc))))
         self.assertEquals(expected, results)
 
         malformed = ({'exec_time_limit': 100, 'max_score': 100},
@@ -837,42 +841,42 @@ class TestScorers(TestCase):
         self.assertEqual(utils.threshold_linear_test_scorer(*malformed),
                         (0, 100, 'TLE'))
 
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_wrong))
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_wrong))))
         self.assertEquals(self.t_expected_wrong, results)
 
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_unequal_max_scores))
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_unequal_max_scores))))
         self.assertEquals(self.t_expected_unequal_max_scores, results)
 
     @memoized_property
     def g_results_ok(self):
         # Tested elsewhere
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_ok[:4]))
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_ok[:4]))))
         dicts = [dict(score=sc.serialize(), max_score=msc.serialize(),
                 status=st, order=i) for i, (sc, msc, st) in enumerate(results)]
-        return dict(zip(xrange(len(dicts)), dicts))
+        return dict(list(zip(list(range(len(dicts))), dicts)))
 
     @memoized_property
     def g_results_wrong(self):
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_wrong))
-        dicts = self.g_results_ok.values()
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_wrong))))
+        dicts = list(self.g_results_ok.values())
         dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
                 status=st, order=(i + 10))
                 for i, (sc, msc, st) in enumerate(results)]
-        return dict(zip(xrange(len(dicts)), dicts))
+        return dict(list(zip(list(range(len(dicts))), dicts)))
 
     @memoized_property
     def g_results_unequal_max_scores(self):
-        results = map(utils.threshold_linear_test_scorer,
-                        *zip(*self.t_results_unequal_max_scores))
-        dicts = self.g_results_wrong.values()
+        results = list(map(utils.threshold_linear_test_scorer,
+                        *list(zip(*self.t_results_unequal_max_scores))))
+        dicts = list(self.g_results_wrong.values())
         dicts += [dict(score=sc.serialize(), max_score=msc.serialize(),
                 status=st, order=(i + 20))
                 for i, (sc, msc, st) in enumerate(results)]
-        return dict(zip(xrange(len(dicts)), dicts))
+        return dict(list(zip(list(range(len(dicts))), dicts)))
 
     def test_min_group_scorer(self):
         self.assertEqual((50, 100, 'OK'),

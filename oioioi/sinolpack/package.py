@@ -13,6 +13,8 @@ from django.core.exceptions import ValidationError
 from django.core.files import File
 from django.core.validators import slug_re
 from django.utils.translation import ugettext as _
+import six
+from six.moves import filter, map
 
 from oioioi.base.utils import generate_key, naturalsort_key
 from oioioi.base.utils.archive import Archive
@@ -39,7 +41,7 @@ PAS_EXTRA_ARGS = ['-Ci', '-Cr', '-Co', '-gl']
 
 
 def _stringify_keys(dictionary):
-    return dict((str(k), v) for k, v in dictionary.iteritems())
+    return dict((str(k), v) for k, v in six.iteritems(dictionary))
 
 
 def _determine_encoding(title, file):
@@ -131,10 +133,10 @@ class SinolPackage(object):
            self.archive.filenames()
         """
 
-        files = map(os.path.normcase, self.archive.filenames())
-        files = map(os.path.normpath, files)
+        files = list(map(os.path.normcase, self.archive.filenames()))
+        files = list(map(os.path.normpath, files))
         toplevel_dirs = set(f.split(os.sep)[0] for f in files)
-        toplevel_dirs = filter(slug_re.match, toplevel_dirs)
+        toplevel_dirs = list(filter(slug_re.match, toplevel_dirs))
         problem_dirs = []
         for dir in toplevel_dirs:
             for required_subdir in ('in', 'out'):
@@ -183,8 +185,8 @@ class SinolPackage(object):
     def _compile_matching_extension(self, command, out_name, suffix):
         renv = None
         name = self.short_name + suffix
-        choices = (getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})). \
-            values()
+        choices = list((getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})).
+            values())
         lang_exts = []
         for ch in choices:
             lang_exts.extend(ch)
@@ -629,7 +631,7 @@ class SinolPackage(object):
             jobs = run_sioworkers_jobs(jobs)
             get_client().delete_file(env['compiled_file'])
 
-            for test_name, job in jobs.iteritems():
+            for test_name, job in six.iteritems(jobs):
                 if job['result_code'] != 'OK':
                     raise ProblemPackageError(_("Inwer failed on test "
                         "%(test)s. Inwer output %(output)s") %
@@ -858,7 +860,7 @@ class SinolPackage(object):
         Test.objects.filter(problem_instance=self.main_problem_instance) \
             .update(max_score=0)
 
-        for group, score in scores.iteritems():
+        for group, score in six.iteritems(scores):
             Test.objects.filter(problem_instance=self.main_problem_instance,
                                 group=group).update(max_score=score)
 
@@ -925,7 +927,7 @@ class SinolPackage(object):
                                        full path to file).
         """
         lang_exts_list = \
-            getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values()
+            list(getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values())
         extensions = [ext for lang_exts in lang_exts_list for ext in lang_exts]
         regex = r'^%s[0-9]*([bs]?)[0-9]*\.(' + \
                 '|'.join(extensions) + ')'

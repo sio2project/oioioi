@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import logging
 import os.path
 import random
@@ -24,6 +26,8 @@ from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
 from django.test.utils import override_settings
+import six
+from six.moves import reload_module, zip
 
 from oioioi.base import utils
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
@@ -44,12 +48,12 @@ from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.contests.utils import is_contest_admin
 
 if not getattr(settings, 'TESTS', False):
-    print >> sys.stderr, 'The tests are not using the required test ' \
-            'settings from test_settings.py.'
-    print >> sys.stderr, 'Make sure the tests are run ' \
-            'using \'python setup.py test\' or ' \
-            '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python ' \
-            'manage.py test\'.'
+    print('The tests are not using the required test '
+            'settings from test_settings.py.', file=sys.stderr)
+    print('Make sure the tests are run '
+            'using \'python setup.py test\' or '
+            '\'DJANGO_SETTINGS_MODULE=oioioi.test_settings python '
+            'manage.py test\'.', file=sys.stderr)
     sys.exit(1)
 
 basedir = os.path.dirname(__file__)
@@ -289,7 +293,7 @@ class TestErrorHandlers(TestCase):
         def custom_get(*args, **kwargs):
             try:
                 return self._orig_get(*args, **kwargs)
-            except StandardError:
+            except Exception:
                 try:
                     self.client.handler = wrapped_handler500
                     resp = self._orig_get(*args, **kwargs)
@@ -619,9 +623,9 @@ class TestExecute(TestCase):
 class TestMisc(TestCase):
     def test_reload_settings_for_coverage(self):
         import oioioi.test_settings
-        reload(oioioi.test_settings)
+        reload_module(oioioi.test_settings)
         import oioioi.default_settings
-        reload(oioioi.default_settings)
+        reload_module(oioioi.default_settings)
 
     def test_uploaded_file_name(self):
         tmp_file = TemporaryUploadedFile('whatever',
@@ -1097,7 +1101,7 @@ class TestFileUtils(TestCase):
             'a_1_2.pdf': 'a_1.pdf',
         }
 
-        for (before, after) in cases.iteritems():
+        for (before, after) in six.iteritems(cases):
             self.assertEqual(strip_num_or_hash(before), after)
 
 

@@ -1,5 +1,5 @@
-import urllib
-
+import six
+import six.moves.urllib.parse
 from django.contrib import admin, messages
 from django.contrib.admin import helpers
 from django.contrib.admin.sites import AdminSite as DjangoAdminSite
@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.db import router
 from django.http import Http404, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.utils.encoding import force_text, force_unicode
+from django.utils.encoding import force_text
 from django.utils.html import escape
 from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
@@ -30,8 +30,8 @@ class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):
     pass
 
 
-class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
-    __metaclass__ = ModelAdminMeta
+class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
+        ObjectWithMixins)):
 
     # This is handled by AdminSite._reinit_model_admins
     allow_too_late_mixins = True
@@ -53,7 +53,7 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
         if isinstance(response, TemplateResponse) \
                 and 'came_from' in request.GET:
             response.context_data['form_url'] += '?' + \
-                    urllib.urlencode({
+                    six.moves.urllib.parse.urlencode({
                         'came_from': request.GET.get('came_from')
                     })
         return response
@@ -78,20 +78,20 @@ class ModelAdmin(admin.ModelAdmin, ObjectWithMixins):
 
         if obj is None:
             raise Http404(_("%(name)s object with primary key %(key)r does "
-                "not exist.") % {'name': force_unicode(opts.verbose_name),
+                "not exist.") % {'name': force_text(opts.verbose_name),
                     'key': escape(object_id)})
 
         if request.POST:  # The user has already confirmed the deletion.
-            obj_display = force_unicode(obj)
+            obj_display = force_text(obj)
             self.log_deletion(request, obj, obj_display)
             self.delete_model(request, obj)
             self.message_user(request, _("The %(name)s \"%(obj)s\" was "
                 "deleted successfully.") % {
-                    'name': force_unicode(opts.verbose_name),
-                    'obj': force_unicode(obj_display)})
+                    'name': force_text(opts.verbose_name),
+                    'obj': force_text(obj_display)})
             return self.response_delete(request)
 
-        object_name = force_unicode(opts.verbose_name)
+        object_name = force_text(opts.verbose_name)
         context = {
             "object_name": object_name,
             "object": obj,
@@ -270,7 +270,8 @@ class AdminSite(DjangoAdminSite):
 
     def login(self, request, extra_context=None):
         next_url = request.GET.get('next', None)
-        suffix = '?' + urllib.urlencode({'next': next_url}) if next_url else ''
+        suffix = '?' + six.moves.urllib.parse.urlencode({'next': next_url}) \
+                if next_url else ''
         return HttpResponseRedirect(reverse('auth_login') + suffix)
 
 
@@ -281,11 +282,10 @@ system_admin_menu_registry = MenuRegistry(_("System Administration"),
 side_pane_menus_registry.register(system_admin_menu_registry, order=10)
 
 
-class OioioiUserAdmin(UserAdmin, ObjectWithMixins):
+class OioioiUserAdmin(six.with_metaclass(ModelAdminMeta, UserAdmin,
+        ObjectWithMixins)):
     form = OioioiUserChangeForm
     add_form = OioioiUserCreationForm
-
-    __metaclass__ = ModelAdminMeta
 
     # This is handled by AdminSite._reinit_model_admins
     allow_too_late_mixins = True

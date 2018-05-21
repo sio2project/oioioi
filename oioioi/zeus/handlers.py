@@ -3,6 +3,7 @@ import random
 import socket
 from smtplib import SMTPException
 
+import six
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.core.urlresolvers import reverse
@@ -27,7 +28,7 @@ def from_csv_metadata(metadata):
     try:
         data = metadata.split(',')
         test, group, max_score = [f.strip() for f in data]
-    except StandardError:
+    except Exception:
         test, group, max_score = \
             ('unknown-%d' % random.randint(1, 100000)), '', '1'
     if group == '':
@@ -230,9 +231,9 @@ def update_problem_tests_set(env, kind, **kwargs):
                                        zeus_problem_id=env['zeus_problem_id'])
     problem = data.problem
 
-    env_tests = {key: value for key, value in env['tests'].iteritems()
+    env_tests = {key: value for key, value in six.iteritems(env['tests'])
                  if value['kind'] == kind}
-    test_names = env_tests.keys()
+    test_names = list(env_tests.keys())
 
     new_tests = []
     deleted_tests = []

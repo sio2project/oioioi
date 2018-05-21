@@ -23,19 +23,19 @@ class TestACMRanking(TestCase):
 
     @staticmethod
     def remove_whitespaces(content):
-        return re.sub(r'\s*', '', content)
+        return re.sub(r'\s*', b'', content)
 
     def assertActiveTaskIn(self, task, content):
-        self.assertIn(task + '</a></th>', self.remove_whitespaces(content))
+        self.assertIn(task + b'</a></th>', self.remove_whitespaces(content))
 
     def assertActiveTaskNotIn(self, task, content):
-        self.assertNotIn(task + '</a></th>', self.remove_whitespaces(content))
+        self.assertNotIn(task + b'</a></th>', self.remove_whitespaces(content))
 
     def assertInactiveTaskIn(self, task, content):
-        self.assertIn(task + '</th>', self.remove_whitespaces(content))
+        self.assertIn(task + b'</th>', self.remove_whitespaces(content))
 
     def assertInactiveTaskNotIn(self, task, content):
-        self.assertNotIn(task + '</th>', self.remove_whitespaces(content))
+        self.assertNotIn(task + b'</th>', self.remove_whitespaces(content))
 
     def test_fixture(self):
         self.assertTrue(Contest.objects.exists())
@@ -54,71 +54,71 @@ class TestACMRanking(TestCase):
         # at 19:00
         with fake_timezone_now(datetime(2013, 12, 13, 10, 59, tzinfo=utc)):
             response = self.client.get(url)
-            for task in ['trial', 'A', 'sum', 'test']:
+            for task in [b'trial', b'A', b'sum', b'test']:
                 self.assertActiveTaskNotIn(task, response.content)
 
         with fake_timezone_now(datetime(2013, 12, 13, 11, 30, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertActiveTaskIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertActiveTaskIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertActiveTaskNotIn(task, response.content)
 
         with fake_timezone_now(datetime(2013, 12, 13, 17, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertInactiveTaskIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertInactiveTaskNotIn(task, response.content)
 
         # round 1 starts at 20:40, ends at 01:40, results are available at
         # 09:00
         with fake_timezone_now(datetime(2013, 12, 14, 20, 39, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertInactiveTaskIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertInactiveTaskNotIn(task, response.content)
 
         with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertActiveTaskNotIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertActiveTaskNotIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertActiveTaskIn(task, response.content)
-            self.assertNotIn('The ranking is frozen.', response.content)
+            self.assertNotIn(b'The ranking is frozen.', response.content)
 
         with fake_timezone_now(datetime(2013, 12, 15, 1, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertActiveTaskNotIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertActiveTaskNotIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertActiveTaskIn(task, response.content)
-            self.assertIn('The ranking is frozen.', response.content)
+            self.assertIn(b'The ranking is frozen.', response.content)
 
         with fake_timezone_now(datetime(2013, 12, 15, 7, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskNotIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertInactiveTaskNotIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertInactiveTaskIn(task, response.content)
-            self.assertIn('The ranking is frozen.', response.content)
+            self.assertIn(b'The ranking is frozen.', response.content)
 
         with fake_timezone_now(datetime(2013, 12, 15, 9, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskNotIn('trial', response.content)
-            for task in ['A', 'sum', 'test']:
+            self.assertInactiveTaskNotIn(b'trial', response.content)
+            for task in [b'A', b'sum', b'test']:
                 self.assertInactiveTaskIn(task, response.content)
-            self.assertNotIn('The ranking is frozen.', response.content)
+            self.assertNotIn(b'The ranking is frozen.', response.content)
 
         with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(url)
             self.assertEqual(
-                response.content.count('data-username="test_user"'), 2)
+                response.content.count(b'data-username="test_user"'), 2)
 
         self.client.login(username='test_admin')
 
         with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(csv_url)
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.content.count('\n'), 4)
+            self.assertEqual(response.content.count(b'\n'), 4)
 
             response = self.client.get(url)
-            self.assertEqual(response.content.count('data-result_url'), 8)
+            self.assertEqual(response.content.count(b'data-result_url'), 8)
 
     def test_model_solution_submission_view(self):
         contest = Contest.objects.get()
@@ -133,7 +133,7 @@ class TestACMRanking(TestCase):
         self.client.login(username='test_admin')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('0:02', response.content)
+        self.assertIn(b'0:02', response.content)
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()

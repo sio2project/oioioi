@@ -5,6 +5,7 @@ from django.forms import ValidationError
 from django.forms.extras.widgets import SelectDateWidget
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from six.moves import range, zip
 
 from oioioi.oi.models import PROVINCES, OIRegistration, School
 
@@ -18,7 +19,7 @@ class AddSchoolForm(forms.ModelForm):
 def city_options(province):
     cities = School.objects.filter(province=province, is_active=True) \
             .order_by('city').distinct().values_list('city', flat=True)
-    cities = zip(cities, cities)
+    cities = list(zip(cities, cities))
     cities.insert(0, ('', _("-- Choose city --")))
     return cities
 
@@ -75,7 +76,7 @@ class OIRegistrationForm(forms.ModelForm):
         super(OIRegistrationForm, self).__init__(*args, **kwargs)
 
         this_year = datetime.date.today().year
-        years = reversed(range(this_year - 100, this_year + 1))
+        years = reversed(list(range(this_year - 100, this_year + 1)))
         self.fields['birthday'].widget = SelectDateWidget(years=years)
         self.fields['school'].widget = SchoolSelect()
         self.fields['class_type'].widget.attrs['class'] = 'input-xlarge'

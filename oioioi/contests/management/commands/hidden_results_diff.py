@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from django.core.management.base import BaseCommand, make_option
 from django.db.models import Q
 from django.utils.translation import ugettext as _
@@ -56,4 +58,4 @@ class Command(BaseCommand):
             new_score = new_report.score_report.score
 
             if old_score != new_score:
-                print "%s: %s -> %s" % (s, old_score, new_score)
+                print("%s: %s -> %s" % (s, old_score, new_score))

@@ -5,6 +5,7 @@ import shutil
 import tempfile
 
 from django.core.files.base import File
+from six.moves import range
 
 from oioioi.base.utils.execute import execute
 from oioioi.filetracker.utils import stream_file
@@ -23,7 +24,7 @@ def generate_pdf(tex_code, filename, extra_args=[], num_passes=3):
         command = ['pdflatex']
         command.extend(extra_args)
         command.append(tex_filename)
-        for _i in xrange(num_passes):
+        for _i in range(num_passes):
             execute(command, cwd=tmp_folder)
 
         # Get PDF file contents

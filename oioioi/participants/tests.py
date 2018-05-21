@@ -8,7 +8,7 @@ from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.timezone import utc
 
 from oioioi.base.tests import (TestCase, check_not_accessible, fake_time,
@@ -318,7 +318,7 @@ class TestOnsiteAdmin(TestCase):
 
         p = Participant.objects.get(pk=1)
         self.assertEqual(p.status, 'ACTIVE')
-        self.assertEqual(force_unicode(p.registration_model), '1/waw/1')
+        self.assertEqual(force_text(p.registration_model), '1/waw/1')
 
 
 class TestParticipantsModelAdmin(TestCase):

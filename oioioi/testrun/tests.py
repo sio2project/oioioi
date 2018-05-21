@@ -54,7 +54,7 @@ class TestTestrunViews(TestCase):
             show_output = self.client.get(reverse('get_testrun_input',
                 kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '9 9')
-            self.assertIn('Input', show_output.content)
+            self.assertIn(b'Input', show_output.content)
 
             download_response = self.client.get(reverse(
                 'download_testrun_input', kwargs=kwargs))
@@ -75,7 +75,7 @@ class TestTestrunViews(TestCase):
             show_output = self.client.get(reverse('get_testrun_output',
                 kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '18')
-            self.assertIn('Output', show_output.content)
+            self.assertIn(b'Output', show_output.content)
 
             download_response = self.client.get(reverse(
                 'download_testrun_output', kwargs=kwargs))
@@ -260,7 +260,7 @@ class TestHandlers(TestCase):
             self.assertEqual('o', report.output_file.read())
 
             handlers.delete_output(environ)
-        except StandardError:
+        except Exception:
             get_client().delete_file('/output')
 
 

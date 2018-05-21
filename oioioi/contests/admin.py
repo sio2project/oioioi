@@ -1,6 +1,7 @@
 import urllib
 from functools import partial
 
+import six.moves.urllib.parse
 from django.conf.urls import url
 from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
@@ -11,7 +12,7 @@ from django.db.models.functions import Coalesce
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
@@ -173,7 +174,7 @@ class ContestAdmin(admin.ModelAdmin):
     def get_fieldsets(self, request, obj=None):
         if obj and not request.GET.get('simple', False):
             return super(ContestAdmin, self).get_fieldsets(request, obj)
-        fields = SimpleContestForm().base_fields.keys()
+        fields = list(SimpleContestForm().base_fields.keys())
         return [(None, {'fields': fields})]
 
     def get_readonly_fields(self, request, obj=None):
@@ -267,7 +268,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
         return reverse('oioioiadmin:problems_problem_change',
                 args=(instance.problem_id,)) + '?' + \
-                        urllib.urlencode({'came_from': came_from})
+                        six.moves.urllib.parse.urlencode({'came_from': came_from})
 
     def probleminstance_change_link_name(self):
         return _("Edit problem")
@@ -292,7 +293,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def _add_or_update_href(self, instance):
         return reverse('problemset_add_or_update') + '?' + \
-            urllib.urlencode({'problem': instance.problem_id, 'key': 'upload'})
+            six.moves.urllib.parse.urlencode({'problem': instance.problem_id, 'key': 'upload'})
 
     def _edit_quiz_href(self, instance):
         return reverse('oioioiadmin:quizzes_quiz_change',
@@ -574,8 +575,8 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def problem_instance_display(self, instance):
         if instance.kind != 'NORMAL':
-            return '%s (%s)' % (force_unicode(instance.problem_instance),
-                    force_unicode(instance.get_kind_display()))
+            return '%s (%s)' % (force_text(instance.problem_instance),
+                    force_text(instance.get_kind_display()))
         else:
             return instance.problem_instance
     problem_instance_display.short_description = _("Problem")
@@ -584,7 +585,7 @@ class SubmissionAdmin(admin.ModelAdmin):
     def status_display(self, instance):
         return '<span class="submission-admin ' \
                'submission submission--%s">%s</span>' % \
-                (instance.status, conditional_escape(force_unicode(
+                (instance.status, conditional_escape(force_text(
                     instance.get_status_display())))
     status_display.allow_tags = True
     status_display.short_description = _("Status")

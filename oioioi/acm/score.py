@@ -1,3 +1,6 @@
+from functools import total_ordering
+
+import six
 from django.utils.translation import ugettext as _
 
 from oioioi.contests.scores import ScoreValue
@@ -8,6 +11,7 @@ def format_time(seconds):
     return '%d:%02d' % (minutes / 60, minutes % 60)
 
 
+@total_ordering
 class BinaryScore(ScoreValue):
     """Score representing binary grading: accepted or rejected.
 
@@ -24,10 +28,15 @@ class BinaryScore(ScoreValue):
     def __add__(self, other):
         return BinaryScore(self.accepted and other.accepted)
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if other is None:
-            return 1
-        return cmp(self.accepted, other.accepted)
+            return False
+        return self.accepted == other.accepted
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+        return self.accepted < other.accepted
 
     def __hash__(self):
         return self.accepted
@@ -49,6 +58,7 @@ class BinaryScore(ScoreValue):
         return int(self.accepted)
 
 
+@total_ordering
 class ACMScore(ScoreValue):
     """ACM style score consisting of number of solved problems, total time
        needed for solving problems and time penalty for each
@@ -85,11 +95,17 @@ class ACMScore(ScoreValue):
 
         return sum
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if other is None:
-            return 1
-        return cmp((self.problems_solved, -self.total_time),
-            (other.problems_solved, -other.total_time))
+            return False
+        return (self.problems_solved, -self.total_time) == \
+                (other.problems_solved, -other.total_time)
+
+    def __lt__(self, other):
+        if other is None:
+            return False
+        return (self.problems_solved, -self.total_time) < \
+                (other.problems_solved, -other.total_time)
 
     def __hash__(self):
         return self.total_time
@@ -101,12 +117,12 @@ class ACMScore(ScoreValue):
             time_string = self.time_passed_repr()
             if penalty_string != '':
                 time_string += ' '
-        return unicode(time_string + penalty_string)
+        return six.text_type(time_string + penalty_string)
 
     def csv_repr(self):
         if self.problems_solved == 0:
             return ''
-        return unicode(self.penalties_count)
+        return six.text_type(self.penalties_count)
 
     def penalty_repr(self):
         if self.penalties_count <= 3:

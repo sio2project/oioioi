@@ -1,8 +1,9 @@
 # ~*~ coding: utf-8 ~*~
 import os
 import string
-import urllib2
 
+import six
+import six.moves.urllib.request
 import unicodecsv
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
@@ -35,7 +36,7 @@ class Command(BaseCommand):
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))
-            stream = urllib2.urlopen(arg)
+            stream = six.moves.urllib.request.urlopen(arg)
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: ") + arg)
@@ -92,8 +93,8 @@ class Command(BaseCommand):
                 try:
                     school.full_clean()
                     school.save()
-                except ValidationError, e:
-                    for k, v in e.message_dict.iteritems():
+                except ValidationError as e:
+                    for k, v in six.iteritems(e.message_dict):
                         for msg in v:
                             if k == '__all__':
                                 self.stdout.write(

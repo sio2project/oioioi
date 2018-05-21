@@ -5,6 +5,8 @@ from django.conf import settings
 from django.contrib.sessions.models import Session
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
+import six
+from six.moves import range
 
 from oioioi.notifications.models import NotificationsSession
 
@@ -46,4 +48,5 @@ def notification_processor(request):
                 notifications_session_id=notifications_session_id
             )
         )
-    return {'extra_navbar_right_notifications': lazy(generator, unicode)()}
+    return {'extra_navbar_right_notifications': lazy(generator,
+            six.text_type)()}

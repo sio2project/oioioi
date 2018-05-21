@@ -1,5 +1,4 @@
-import urllib
-
+import six.moves.urllib.parse
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
@@ -72,7 +71,7 @@ class ParticipantsController(RegistrationController):
         if self.can_register(request):
             url = reverse('participants_register',
                         kwargs={'contest_id': self.contest.id}) + '?' + \
-                    urllib.urlencode({'next': request.build_absolute_uri()})
+                    six.moves.urllib.parse.urlencode({'next': request.build_absolute_uri()})
             return HttpResponseRedirect(url)
         return super(ParticipantsController, self).no_entry_view(request)
 

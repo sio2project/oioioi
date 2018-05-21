@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.forms.models import BaseInlineFormSet
 from django.shortcuts import redirect
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.html import conditional_escape
 from django.utils.translation import ugettext_lazy as _
 
@@ -45,11 +45,11 @@ class ValidationFormset(BaseInlineFormSet):
         score_in_group = dict()
         for test_data in self.cleaned_data:
             test = test_data['id']
-            if test.group in score_in_group.keys() and \
+            if test.group in list(score_in_group.keys()) and \
                     score_in_group[test.group] != test_data['max_score']:
                 raise ValidationError(
                     "Scores for tests in the same group must be equal")
-            elif test.group not in score_in_group.keys():
+            elif test.group not in list(score_in_group.keys()):
                 score_in_group[test.group] = test_data['max_score']
 
     def validate_time_limit_sum(self):
@@ -278,7 +278,7 @@ class ModelSubmissionAdminMixin(object):
             if instance:
                 instance = instance.modelprogramsubmission
                 if instance:
-                    return '(%s)' % (conditional_escape(force_unicode(
+                    return '(%s)' % (conditional_escape(force_text(
                         instance.model_solution.name)),)
         return super(ModelSubmissionAdminMixin, self).user_full_name(instance)
 

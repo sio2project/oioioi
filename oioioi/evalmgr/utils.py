@@ -1,5 +1,7 @@
 import logging
 
+import six
+
 from oioioi.base.utils.db import require_transaction
 from oioioi.contests.models import Submission
 from oioioi.evalmgr.models import QueuedJob
@@ -28,7 +30,7 @@ def mark_job_state(environ, state, **kwargs):
             logger.info('Job %s cancelled.', str(environ['job_id']))
             return False
         else:
-            for k, v in kwargs.iteritems():
+            for k, v in six.iteritems(kwargs):
                 setattr(qj, k, v)
             qj.save()
     return True

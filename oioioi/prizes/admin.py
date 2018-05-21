@@ -1,3 +1,4 @@
+import six
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -35,8 +36,8 @@ class PrizeGivingInline(admin.TabularInline):
         if db_field.name == 'key' and is_contest(request):
             kwargs['choices'] = [
                 (key, value[0]) for key, value in
-                request.contest.controller.get_prizes_distributors()
-                    .iteritems()]
+                six.iteritems(request.contest.controller
+                        .get_prizes_distributors())]
         return super(PrizeGivingInline, self).formfield_for_choice_field(
                 db_field, request, **kwargs)
 

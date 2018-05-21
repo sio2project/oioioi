@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
@@ -77,9 +77,9 @@ class SubmissionsSimilarityEntryAdmin(admin.ModelAdmin):
 
     def submission_problem_instance(self, instance):
         if instance.submission.kind != 'NORMAL':
-            return '%s (%s)' % (force_unicode(
+            return '%s (%s)' % (force_text(
                 instance.submission.problem_instance),
-                force_unicode(instance.submission.get_kind_display()))
+                force_text(instance.submission.get_kind_display()))
         else:
             return instance.submission.problem_instance
     submission_problem_instance.short_description = _("Problem")

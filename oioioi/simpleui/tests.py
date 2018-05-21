@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
+from six.moves import range
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import (Contest, ContestPermission,
@@ -11,7 +12,6 @@ from oioioi.contests.models import (Contest, ContestPermission,
 from oioioi.problems.models import Tag, TagThrough
 from oioioi.programs.models import Test
 from oioioi.questions.models import Message
-
 
 def change_contest_type():
     c = Contest.objects.get(id='c')
@@ -137,7 +137,7 @@ class TestTeacherDashboard(TestCase):
 
     def test_teacher_dashboard_full(self):
         user = User.objects.get(username='test_user')
-        for i in xrange(10):
+        for i in range(10):
             c = Contest()
             c.name = 'tmp' + str(i)
             c.controller_name = \
