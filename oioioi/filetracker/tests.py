@@ -4,12 +4,13 @@ import datetime
 import shutil
 import tempfile
 
-import filetracker
-import filetracker.dummy
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db.models.fields.files import FieldFile, FileField
+
+from filetracker.client import Client as FiletrackerClient
+from filetracker.client.dummy import DummyClient
 
 from oioioi.base.tests import TestCase
 from oioioi.filetracker.models import FileTestModel
@@ -71,8 +72,7 @@ class TestFileField(TestCase):
             default_storage.delete(path)
 
     def test_django_to_filetracker_path(self):
-        storage = FiletrackerStorage(prefix='/foo',
-                client=filetracker.dummy.DummyClient())
+        storage = FiletrackerStorage(prefix='/foo', client=DummyClient())
         field = FileField(storage=storage)
         value = FieldFile(None, field, 'bar')
         self.assertEqual(django_to_filetracker_path(value), '/foo/bar')
@@ -114,7 +114,7 @@ class TestFileStorage(TestCase):
     def test_real_file_storage(self):
         dir = tempfile.mkdtemp()
         try:
-            client = filetracker.Client(cache_dir=dir, remote_store=None)
+            client = FiletrackerClient(cache_dir=dir, remote_store=None)
             storage = FiletrackerStorage(client=client)
             self._test_file_storage(storage)
         finally:

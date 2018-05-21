@@ -89,7 +89,10 @@ setup(
 
         # A library allowing to nest inlines in django admin.
         # Used in quizzes module for adding new quizzes.
-        "django-nested-admin"
+        "django-nested-admin",
+
+        # SIO2 dependencies:
+        "filetracker>=2.0,<3.0",
 
         # Dependencies from external sources live in requirements.txt
     ],

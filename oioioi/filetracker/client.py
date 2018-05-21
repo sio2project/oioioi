@@ -1,10 +1,10 @@
-import filetracker
-import filetracker.dummy
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.dispatch import receiver
 from django.test.signals import setting_changed
 from django.utils.module_loading import import_string
+
+from filetracker.client import Client as FiletrackerClient
 
 from oioioi.base.utils import memoized, reset_memoized
 
@@ -15,7 +15,7 @@ def get_client():
 
        Needs a ``FILETRACKER_CLIENT_FACTORY`` entry in ``settings.py``, which
        should contain a :term:`dotted name` of a function which returns a
-       :class:`filetracker.Client` instance. A good candidate is
+       :class:`filetracker.client.Client` instance. A good candidate is
        :func:`~oioioi.filetracker.client.remote_storage_factory`.
 
        The constructed client is cached.
@@ -27,9 +27,9 @@ def get_client():
         raise ImproperlyConfigured('The FILETRACKER_CLIENT_FACTORY setting '
                 'refers to non-callable: %r' % (factory,))
     client = factory()
-    if not isinstance(client, filetracker.Client):
+    if not isinstance(client, FiletrackerClient):
         raise ImproperlyConfigured('The factory pointed by '
-                'FILETRACKER_CLIENT_FACTORY returned non-filetracker.Client: '
+                'FILETRACKER_CLIENT_FACTORY returned non-FiletrackerClient: '
                 '%r' % (client,))
 
     # Needed for oioioi.sioworkers.backends.LocalBackend so that both Django

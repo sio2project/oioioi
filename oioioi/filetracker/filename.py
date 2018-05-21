@@ -1,4 +1,4 @@
-import filetracker
+from filetracker.utils import split_name
 
 
 class FiletrackerFilename(unicode):
@@ -17,7 +17,7 @@ class FiletrackerFilename(unicode):
         if isinstance(versioned_name, FiletrackerFilename):
             versioned_name = versioned_name.versioned_name
         versioned_name = unicode(versioned_name)
-        name, _version = filetracker.split_name(versioned_name)
+        name, _version = split_name(versioned_name)
         self = unicode.__new__(cls, name)
         self.versioned_name = versioned_name
         return self

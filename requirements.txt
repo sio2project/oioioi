@@ -2,5 +2,4 @@
 # therefore they must be listed here. Moreover, they cannot be listed in
 # setup.py, as pip is not able to install them.
 http://github.com/sio2project/sioworkers/zipball/master#egg=sioworkers-1.3
-http://github.com/sio2project/filetracker/zipball/master#egg=filetracker-1.1.0
 -e .
