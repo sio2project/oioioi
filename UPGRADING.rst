@@ -431,3 +431,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         -
 
 
+#. * Uncommented `FILETRACKER_CACHE_ROOT` which is required by `remote_storage_factory`::
+        diff --git a/oioioi/deployment/settings.py.template b/oioioi/deployment/settings.py.template
+        index 851beada..11ce79a8 100755
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -124,9 +124,10 @@ SEND_USER_ACTIVATION_EMAIL = False
+        # this also defines the filetracker server oioioi should connect to.
+        #FILETRACKER_URL = 'http://127.0.0.1:9999'
+
+        -# When using a remote_storage_factory it's necessary to specify a cache
+        -# directory in which a necessary files will be stored.
+        -#FILETRACKER_CACHE_ROOT = '__DIR__/cache'
+        +# When using a remote_storage_factory (it's the default storage factory)
+        +# it's necessary to specify a cache directory
+        +# in which the necessary files will be stored.
+        +FILETRACKER_CACHE_ROOT = '__DIR__/cache'
+

@@ -124,9 +124,10 @@ SEND_USER_ACTIVATION_EMAIL = False
 # this also defines the filetracker server oioioi should connect to.
 #FILETRACKER_URL = 'http://127.0.0.1:9999'
 
-# When using a remote_storage_factory it's necessary to specify a cache
-# directory in which a necessary files will be stored.
-#FILETRACKER_CACHE_ROOT = '__DIR__/cache'
+# When using a remote_storage_factory (it's the default storage factory)
+# it's necessary to specify a cache directory
+# in which the necessary files will be stored.
+FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
 # When using a remote storage it's recommended to enable a cache cleaner deamon
 # which will periodically scan cache directory and remove files what aren't

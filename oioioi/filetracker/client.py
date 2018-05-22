@@ -52,5 +52,5 @@ def remote_storage_factory():
        remote server at ``settings.FILETRACKER_URL`` and a folder
        ``settings.FILETRACKER_CACHE_ROOT`` as a cache directory.
     """
-    return filetracker.Client(remote_url=settings.FILETRACKER_URL,
+    return FiletrackerClient(remote_url=settings.FILETRACKER_URL,
             cache_dir=settings.FILETRACKER_CACHE_ROOT)
