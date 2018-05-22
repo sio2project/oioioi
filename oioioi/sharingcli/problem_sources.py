@@ -105,3 +105,6 @@ class RemoteSource(PackageSource):
             return RemoteProblemForm(
                 self.clients, contest, existing_problem, initial=initial
             )
+
+    def is_available(self, request):
+        return request.user.username in ['main', 'maineng']

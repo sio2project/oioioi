@@ -100,6 +100,11 @@ class Contest(models.Model):
         default=False
     )
 
+    def save(self, *args, **kwargs):
+        if not self.controller_name:
+            self.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
+        super(Contest, self).save(*args, **kwargs)
+
     @property
     def controller(self):
         if not self.controller_name:
