@@ -1,11 +1,19 @@
 [
     {
-    	"fields": {
-    		"date": "2016-03-14T19:00:32.428Z",
-    		"content": "This is a test",
-    		"title": "Test news"
-    	},
-    	"model": "newsfeed.news",
-    	"pk": 1
+        "fields": {
+            "date": "2018-04-23T20:54:17.274Z"
+        },
+        "model": "newsfeed.news",
+        "pk": 1
+    },
+    {
+        "model": "newsfeed.newslanguageversion",
+        "pk": 2,
+        "fields": {
+            "news": 1,
+            "language": "en",
+            "title": "Test news",
+            "content": "This is a test"
+        }
     }
 ]

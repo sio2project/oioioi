@@ -1,0 +1,28 @@
+#translation-formset {
+  padding-bottom: 50px;
+
+  .first-column {
+    float: left;
+    width: 50%;
+    padding-right: 15px;
+  }
+
+  .second-column {
+    float: right;
+    width: 50%;
+    padding-left: 15px;
+
+    select {
+      display: inline-block;
+      width: initial;
+    }
+
+    .translation-form {
+      display: none;
+
+      .delete-translation {
+        margin: 20px 0 10px;
+      }
+    }
+  }
+}

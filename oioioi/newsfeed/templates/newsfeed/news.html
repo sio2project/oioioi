@@ -2,21 +2,21 @@
 
 <article>
     <header>
-        <h2>{{ news.title }}</h2>
+        <h2>{{ news_version.title }}</h2>
     </header>
     <footer>
-        <em>{% trans "Added" %} <time datetime="{{ news.date }}">{{ news.date | naturaltime }}</time></em>
+        <em>{% trans "Added" %} <time datetime="{{ news_version.news.date }}">{{ news_version.news.date | naturaltime }}</time></em>
     </footer>
     <section>
-        <p>{{ news.rendered_content }}</p>
+        <p>{{ news_version.rendered_content }}</p>
     </section>
 
     {% if request.user.is_superuser %}
         <footer>
             <div class="btn-group">
-                <a role="button" class="btn btn-default" href="{% url 'edit_news' news.id %}">{% trans "Edit" %}</a>
-                <a role="button" class="btn btn-default" href="{% url 'delete_news' news.id %}"
-                onclick="return confirm('{% blocktrans %}Are you sure you want to delete {{ news.title }}?{% endblocktrans %}')">
+                <a role="button" class="btn btn-default" href="{% url 'edit_news' news_version.news.id %}">{% trans "Edit" %}</a>
+                <a role="button" class="btn btn-default" href="{% url 'delete_news' news_version.news.id %}"
+                onclick="return confirm('{% blocktrans %}Are you sure you want to delete {{ news_version.title }}?{% endblocktrans %}')">
                 {% trans "Delete" %}
                </a>
             </div>

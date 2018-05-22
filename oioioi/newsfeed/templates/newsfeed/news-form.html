@@ -1,8 +1,8 @@
 {% load i18n %}
 
-<form method="post">
+<form method="post" style="max-width: initial;">
     {% csrf_token %}
-    {% include "ingredients/form.html" %}
+    {% include "ingredients/translation-formset.html" %}
     <div class="form-group">
         <button type="submit" class="btn btn-primary">
             {% trans 'Submit' %}
@@ -12,7 +12,11 @@
 
 {% include "ingredients/markdown-editor.html" %}
 <script>
+    new TranslationFormset({
+        requiredFieldsSelector: '[id*="title"], [id*="content"]'
+    });
+
     $(function () {
-        $("#id_content").markdown();
+        $('textarea[id*="-content"]').markdown();
     });
 </script>

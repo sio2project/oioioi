@@ -94,8 +94,14 @@ class TestNewsfeedOptions(TestCase):
         response = self.client.get(url_add_news)
         self.assertEqual(response.status_code, 200)
         post_data = {
-            'title': 'Testing add',
-            'content': 'Add tested'
+            'form-0-id': '',
+            'form-0-title': 'Testing add',
+            'form-0-content': 'Add tested',
+            'form-0-language': 'en',
+            'form-MAX_NUM_FORMS': 1,
+            'form-TOTAL_FORMS': 1,
+            'form-MIN_NUM_FORMS': 1,
+            'form-INITIAL_FORMS': 0,
         }
         response = self.client.post(url_add_news, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -113,8 +119,14 @@ class TestNewsfeedOptions(TestCase):
         response = self.client.get(url_edit_news)
         self.assertEqual(response.status_code, 200)
         post_data = {
-            'title': 'Test edited news',
-            'content': 'This is a test'
+            'form-0-id': '1',
+            'form-0-title': 'Test edited news',
+            'form-0-content': 'This is a test',
+            'form-0-language': 'en',
+            'form-MAX_NUM_FORMS': 1,
+            'form-TOTAL_FORMS': 1,
+            'form-MIN_NUM_FORMS': 1,
+            'form-INITIAL_FORMS': 1,
         }
         response = self.client.post(url_edit_news, post_data, follow=True)
         self.assertEqual(response.status_code, 200)

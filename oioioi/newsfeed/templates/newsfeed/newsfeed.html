@@ -4,6 +4,6 @@
     <a role="button" class="btn btn-success" href="{% url 'add_news' %}">{% trans "Add news" %}</a>
 {% endif %}
 
-{% for news_item in news_list %}
-    {% include 'newsfeed/news.html' with news=news_item request=request %}
+{% for news_version in news_version_list %}
+    {% include 'newsfeed/news.html' with news_version=news_version request=request %}
 {% endfor %}

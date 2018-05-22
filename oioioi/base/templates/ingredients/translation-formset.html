@@ -1,0 +1,60 @@
+{% load i18n staticfiles compress %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<div id="translation-formset" class="clearfix">
+    {{ formset.management_form }}
+
+    {% if formset.non_form_errors %}
+        <div class="form-group">
+            {% for error in formset.non_form_errors %}
+                <div class="alert alert-danger" role="alert">
+                    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+                    <span class="sr-only">{% trans "Error" %}:</span>
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="clearfix">
+        <div class="first-column">
+            <label>{% trans "Current language" %}:</label>
+            {{ LANGUAGE_CODE|language_name_translated }}
+        </div>
+        <div class="second-column">
+            <label for="translation-select">{% trans "Tranlation language" %}:</label>
+            <select id="translation-select" class="form-control">
+                <option value="">------</option>
+                {% for lang_short, lang_name in LANGUAGES %}
+                    {% if lang_short != LANGUAGE_CODE %}
+                        <option value="{{ lang_short }}">
+                            {{ lang_short|language_name_translated }}
+                        </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="first-column">
+        {% for form in formset %}
+            {% if form.language.value == LANGUAGE_CODE %}
+                {% include "ingredients/form.html" %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <div class="second-column">
+        {% for form in formset %}
+            {% if form.language.value != LANGUAGE_CODE %}
+                <div id="form-{{ form.language.value }}" class="translation-form" data-lang="{{ form.language.value }}">
+                    {% include "ingredients/form.html" %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
+
+{% compress js %}
+    <script type="text/javascript" src="{% static 'js/translation-formset.js' %}"></script>
+{% endcompress %}
