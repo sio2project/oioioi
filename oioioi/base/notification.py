@@ -4,9 +4,10 @@ import threading
 import time
 import uuid
 
-import six.moves.urllib.parse
 from django.conf import settings
 from pika import BlockingConnection, ConnectionParameters, PlainCredentials
+from pika.exceptions import AMQPChannelError, AMQPConnectionError
+import six.moves.urllib.parse
 
 from oioioi.base.utils.loaders import load_modules
 
@@ -67,12 +68,14 @@ class NotificationHandler(logging.StreamHandler):
                 not getattr(thread_data, 'rabbitmq_connected', False):
             return
 
-        queue_name = NotificationHandler.notification_queue_prefix \
-                + str(user.pk)
-        channel = thread_data.conn.channel()
-        channel.queue_declare(queue=queue_name, durable=True)
-        if not channel.basic_publish(exchange='',
-                routing_key=queue_name, body=json.dumps(message)):
+        try:
+            queue_name = NotificationHandler.notification_queue_prefix \
+                    + str(user.pk)
+            channel = thread_data.conn.channel()
+            channel.queue_declare(queue=queue_name, durable=True)
+            channel.basic_publish(exchange='',
+                routing_key=queue_name, body=json.dumps(message))
+        except (AMQPChannelError, AMQPConnectionError):
             logger.info("Notifications: Connection with RabbitMQ broken",
                     exc_info=True)
             thread_data.rabbitmq_connected = False
