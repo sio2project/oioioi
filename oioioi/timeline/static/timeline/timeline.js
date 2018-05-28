@@ -64,7 +64,7 @@ If you want to split a date group, click the corresponding \
         // space between rounds and their labels
         var LABEL_GAP = 30;
         // width of the date input field
-        var INPUT_WIDTH = 250;
+        var INPUT_WIDTH = 265;
 
         // created with the use of http://www.palettefx.com
         var PALETTE = [
