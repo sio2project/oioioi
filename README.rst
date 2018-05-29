@@ -37,9 +37,17 @@ To start with, create oioioi-base image with a command::
 
   docker build -t oioioi-base -f Dockerfile.base .
 
-Then run `docker-compose up` to start the infrastructure.
+To run the infrastructure::
 
-To start additional number of workers, use `docker-compose scale worker=<number>` as described `here`_.
+  docker-compose up
+
+To start additional number of workers::
+
+  docker-compose scale worker=<number>
+
+as described `in Docker docs`_.
+
+.. _in Docker docs: https://docs.docker.com/compose/reference/scale/
 
 Docker (for development)
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,8 +70,6 @@ services will be availible outside of the container in ./logs/.
 In both cases, oioioi web interface will be availible at localhost:8000, and the user
 admin with password admin will be created. If you are using docker installation
 in production encvironment remember to change the password.
-
-.. _here: https://docs.docker.com/compose/reference/scale/
 
 Manual installation
 ~~~~~~~~~~~~~~~~~~~
