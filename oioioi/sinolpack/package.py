@@ -457,24 +457,27 @@ class SinolPackage(object):
         # pylint: disable=maybe-no-member
         self.problem.statements.all().delete()
 
-        htmlzipfile = os.path.join(docdir, self.short_name + 'zad.html.zip')
-        if os.path.isfile(htmlzipfile):
-            self._force_index_encoding(htmlzipfile)
-            statement = ProblemStatement(problem=self.problem)
-            statement.content.save(self.short_name + '.html.zip',
-                                   File(open(htmlzipfile, 'rb')))
+        lang_prefs = [''] + ['-' + l[0] for l in settings.STATEMENT_LANGUAGES]
 
-        pdffile = os.path.join(docdir, self.short_name + 'zad.pdf')
-
-        # It's necessary to have two if's, for here we produce missing pdf file
-        if self.use_make and not os.path.isfile(pdffile):
+        if self.use_make:
             self._compile_latex_docs(docdir)
 
-        if os.path.isfile(pdffile):
-            statement = ProblemStatement(problem=self.problem)
-            statement.content.save(self.short_name + '.pdf',
-                                   File(open(pdffile, 'rb')))
-        else:
+        for lang in lang_prefs:
+            htmlzipfile = os.path.join(docdir, self.short_name + 'zad' + lang + '.html.zip')
+            if os.path.isfile(htmlzipfile):
+                self._force_index_encoding(htmlzipfile)
+                statement = ProblemStatement(problem=self.problem, language=lang[1:])
+                statement.content.save(self.short_name + lang + '.html.zip',
+                                    File(open(htmlzipfile, 'rb')))
+
+            pdffile = os.path.join(docdir, self.short_name + 'zad' + lang + '.pdf')
+
+            if os.path.isfile(pdffile):
+                statement = ProblemStatement(problem=self.problem, language=lang[1:])
+                statement.content.save(self.short_name + lang + '.pdf',
+                                    File(open(pdffile, 'rb')))
+
+        if not self.problem.statements.exists():
             logger.warning("%s: no problem statement", self.filename)
 
     def _force_index_encoding(self, htmlzipfile):
