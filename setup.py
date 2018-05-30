@@ -92,7 +92,7 @@ python23_universal_requirements = [
         "django-nested-admin",
 
         # SIO2 dependencies:
-        "filetracker>=2.0,<3.0",
+        "filetracker>=2.1,<3.0",
 
         # Dependencies from external sources live in requirements.txt
 ]

@@ -2,6 +2,15 @@
 Installing OIOIOI
 =================
 
+First, ensure that all dependencies are installed:
+
+* gcc/g++ (Ubuntu package: *build-essential*)
+* fpc (Ubuntu package: *fp-compiler*)
+* latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
+  *texlive-lang-polish*)
+* latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*),
+* Berkeley DB library (Ubuntu package: *libdb-dev*)
+
 It should be easier to begin with a separate folder at first::
 
   mkdir sio2
@@ -56,16 +65,7 @@ with the normal user privileges. **This is not a safe configuration and the
 judging will run quite slowly.** It is to easily make OIOIOI up and running for
 testing purposes.
 
-Ensure that required dependencies are installed:
-
-* gcc/g++ (Ubuntu package: *build-essential*)
-* fpc (Ubuntu package: *fp-compiler*)
-* latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
-  *texlive-lang-polish*)
-* latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*),
-* lighttpd binary (Ubuntu package: *lighttpd*, shall not be run as service)
-
-and in one terminal run the Django web server::
+Run the Django web server in one terminal::
 
   ./manage.py runserver 0.0.0.0:8000
 

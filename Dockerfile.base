@@ -13,7 +13,7 @@ RUN apt-get install -y postgresql
 RUN apt-get install -y postgresql-contrib
 RUN apt-get install -y postgresql-client
 RUN apt-get install -y rabbitmq-server
-RUN apt-get install -y lighttpd
+RUN apt-get install -y libdb-dev
 RUN apt-get install -y fp-compiler fp-units-base fp-units-math
 RUN apt-get install -y texlive-latex-base
 RUN apt-get install -y texlive-lang-polish

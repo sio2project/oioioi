@@ -59,7 +59,7 @@ Vagrant.configure("2") do |config|
     sudo apt-get install -y postgresql-contrib
     sudo apt-get install -y postgresql-client
     sudo apt-get install -y rabbitmq-server
-    sudo apt-get install -y lighttpd
+    sudo apt-get install -y libdb-dev
     sudo apt-get install -y fpc
     sudo apt-get install -y texlive-latex-base
     sudo apt-get install -y texlive-lang-polish

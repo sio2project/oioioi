@@ -432,6 +432,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 
 #. * Uncommented `FILETRACKER_CACHE_ROOT` which is required by `remote_storage_factory`::
+
         diff --git a/oioioi/deployment/settings.py.template b/oioioi/deployment/settings.py.template
         index 851beada..11ce79a8 100755
         --- a/oioioi/deployment/settings.py.template
@@ -448,3 +449,9 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# in which the necessary files will be stored.
         +FILETRACKER_CACHE_ROOT = '__DIR__/cache'
 
+
+#. * Filetracker server doesn't support default `-L /dev/stderr` option anymore:
+     the argument to `-L` must be an actual seekable file. If you reconfigured
+     `-L` to use a file, there is no need to change anything. If you used the
+     default `supervisord.conf`, you should remove the `-L` flag: logs are now
+     printed to stdout by default, and supervisord redirects stderr to stdout.
