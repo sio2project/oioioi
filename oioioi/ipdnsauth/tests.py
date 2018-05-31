@@ -51,8 +51,9 @@ class TestAutoAuthorization(TestCase):
         self._assertBackend(self.test_user)
 
     def test_reverse_dns_authentication(self):
-        self.test_user2.dnstouser_set.create(
-            dns_name=socket.getfqdn('localhost'))
+        names = {socket.getfqdn('localhost'), 'localhost'}
+        for name in names:
+            self.test_user2.dnstouser_set.create(dns_name=name)
         self._assertBackend(self.test_user2)
 
 
