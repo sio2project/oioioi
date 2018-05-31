@@ -556,17 +556,17 @@ class TestQuestions(TestCase):
         self.assertEquals("test_user2@example.com", mm.to[0])
         self.assertIn("A new message has just appeared", m.body)
         self.assertIn("public-answer-body", m.body)
+        self.assertIn("A new message has just appeared", mm.body)
+        self.assertIn("public-answer-body", mm.body)
         self.assertEquals(m.subject, mm.subject)
-        # the bodies should just differ by one character - the message id
-        # the link
-        self.assertEquals(len(m.body), len(mm.body))
-        num_different = \
-            sum(m.body[i] != mm.body[i] for i in range(len(m.body)))
-        self.assertEquals(num_different, 1)
         # the author should receive the link to the top_reference
+        # and the original question
         assertMessageId(pubmsg.top_reference.id, m.body)
+        self.assertIn("question-body", m.body)
         # the non-author should receive the link to the answer
+        # and should not receive the original question
         assertMessageId(pubmsg.id, mm.body)
+        self.assertNotIn("question-body", mm.body)
 
     def test_unseen_mail_notifications(self):
         """Test whether the notifications are correctly *not* sent for messages

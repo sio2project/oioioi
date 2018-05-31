@@ -18,12 +18,13 @@ logger = logging.getLogger(__name__)
 
 
 def generate_notification(msg, user, mail):
-    m_id = msg.top_reference.id \
-        if msg.top_reference and allowed_to_see(msg.top_reference, user) \
-        else msg.id
+    show_original = msg.top_reference \
+            and allowed_to_see(msg.top_reference, user)
+    link_m_id = msg.top_reference.id if show_original else msg.id
     context = {
         'msg': msg,
-        'm_id': m_id,
+        'show_original': show_original,
+        'link_m_id': link_m_id,
         'root': settings.PUBLIC_ROOT_URL
     }
 
