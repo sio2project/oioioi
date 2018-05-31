@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.db.models import Count
 from django.utils.translation import ugettext as _
 from six.moves import zip
-import pytest
 
 from oioioi.contests.models import (ScoreReport, Submission,
                                     UserResultForContest, UserResultForProblem)
@@ -180,7 +179,6 @@ def points_to_source_length_problem(request, problem):
     }
 
 
-@pytest.mark.skip(reason="not a test")
 def test_scores(request, problem):
     # Why .order_by()? Just in case. More in the following link:
     # https://docs.djangoproject.com/en/dev/topics/db/
