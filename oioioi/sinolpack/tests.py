@@ -13,7 +13,7 @@ import pytest
 import six.moves.urllib.parse
 from six.moves import cStringIO as StringIO
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (Contest, ProblemInstance, Submission,
                                     UserResultForContest)
@@ -34,6 +34,15 @@ def get_test_filename(name):
 BOTH_CONFIGURATIONS = '%test_both_configurations'
 
 
+def use_makefiles(fn):
+    return override_settings(USE_SINOLPACK_MAKEFILES=True)(
+            (fn))
+
+
+def no_makefiles(fn):
+    return override_settings(USE_SINOLPACK_MAKEFILES=False)(fn)
+
+
 # When a class inheriting from django.test.TestCase is decorated with
 # enable_both_unpack_configurations, all its methods decorated with
 # both_configurations will be run twice. Once in safe and once in unsafe unpack
@@ -46,10 +55,8 @@ BOTH_CONFIGURATIONS = '%test_both_configurations'
 def enable_both_unpack_configurations(cls):
     for name, fn in list(cls.__dict__.items()):
         if getattr(fn, BOTH_CONFIGURATIONS, False):
-            setattr(cls, '%s_safe' % (name),
-                    override_settings(USE_SINOLPACK_MAKEFILES=False)(fn))
-            setattr(cls, '%s_unsafe' % (name),
-                    override_settings(USE_SINOLPACK_MAKEFILES=True)(fn))
+            setattr(cls, '%s_safe' % (name), no_makefiles(fn))
+            setattr(cls, '%s_unsafe' % (name), use_makefiles(fn))
             delattr(cls, name)
     return cls
 
@@ -59,10 +66,7 @@ def both_configurations(fn):
     return fn
 
 
-@enable_both_unpack_configurations
-class TestSinolPackage(TestCase):
-    fixtures = ['test_users', 'test_contest']
-
+class TestSinolPackageIdentify(TestCase):
     def test_identify_zip(self):
         filename = get_test_filename('test_simple_package.zip')
         self.assert_(SinolPackageBackend().identify(filename))
@@ -70,6 +74,12 @@ class TestSinolPackage(TestCase):
     def test_identify_tgz(self):
         filename = get_test_filename('test_full_package.tgz')
         self.assert_(SinolPackageBackend().identify(filename))
+
+
+@enable_both_unpack_configurations
+@needs_linux
+class TestSinolPackage(TestCase):
+    fixtures = ['test_users', 'test_contest']
 
     def test_title_in_config_yml(self):
         filename = get_test_filename('test_simple_package.zip')
@@ -396,6 +406,7 @@ class TestSinolPackage(TestCase):
 
 
 @enable_both_unpack_configurations
+@needs_linux
 class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest']
 
@@ -564,6 +575,7 @@ class TestJudging(TestCase):
         self.assertEqual(urc.score, IntegerScore(34))
 
 
+@needs_linux
 class TestLimits(TestCase):
     fixtures = ['test_users', 'test_contest']
 

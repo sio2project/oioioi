@@ -1,6 +1,7 @@
 import threading
 from contextlib import contextmanager
 from mock import patch
+import sys
 
 from django.db import connections, DEFAULT_DB_ALIAS
 from django.utils import timezone
@@ -13,6 +14,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.translation import ugettext_lazy as _
 from django.template.loaders.cached import Loader as CachedLoader
 import six.moves.urllib.parse
+import pytest
 
 
 # Based on: https://github.com/revsys/django-test-plus/blob/master/test_plus/test.py#L30
@@ -147,3 +149,10 @@ class TestsUtilsMixin(object):
         """Checks that ``container`` doesn't contain any of ``elems``."""
         for e in elems:
             self.assertNotIn(e, container, msg)
+
+
+def needs_linux(fn):
+    return pytest.mark.skip(sys.platform not in ('linux', 'linux2'),
+            reason="This test needs Linux")(fn)
+
+

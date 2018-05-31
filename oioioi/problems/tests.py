@@ -18,7 +18,8 @@ from django.utils.timezone import utc
 import six.moves.urllib.parse
 from six.moves import range
 
-from oioioi.base.tests import TestCase, check_not_accessible
+from oioioi.base.tests import TestCase, check_not_accessible, \
+        needs_linux
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.filetracker.tests import TestStreamingMixin
@@ -571,6 +572,7 @@ def get_test_filename(name):
     return os.path.join(os.path.dirname(__file__), '../sinolpack/files', name)
 
 
+@needs_linux
 class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest']
 
