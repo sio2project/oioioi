@@ -536,6 +536,7 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
     return env
 
 
+@_skip_on_compilation_error
 def delete_executable(env, **kwargs):
     if 'compiled_file' in env:
         get_client().delete_file(env['compiled_file'])
