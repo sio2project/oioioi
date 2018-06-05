@@ -241,52 +241,85 @@ class TestPortalViews(TestCase):
         self.client.login(username='test_user')
 
         node = get_portal().root.children.get(short_name='child2')
-        response = self.client.post(portal_url(node=node,
-                                               action='edit_node'),
-                                    data={'full_name': '81dc',
-                                          'short_name': 'child1',
-                                          'panel_code': 'e10a'})
+        response = self.client.post(
+            portal_url(node=node, action='edit_node'),
+            data={'short_name': 'child1',
+                  'language_versions-0-id': '',
+                  'language_versions-0-full_name': '81dc',
+                  'language_versions-0-panel_code': 'e10a',
+                  'language_versions-0-language': 'en',
+                  'language_versions-MAX_NUM_FORMS': 1,
+                  'language_versions-TOTAL_FORMS': 1,
+                  'language_versions-MIN_NUM_FORMS': 1,
+                  'language_versions-INITIAL_FORMS': 0, }
+        )
         self.assertEqual(response.status_code, 200)
         root = get_portal().root
         self.assertQuerysetEqual(root.get_children(),
                                  ['<Node: Child 1>', '<Node: Child 2>'])
 
-        response = self.client.post(portal_url(portal=get_portal(),
-                                               action='edit_node'),
-                                    data={'full_name': 'b40d',
-                                          'panel_code': 'e23f'})
+        response = self.client.post(
+            portal_url(portal=get_portal(), action='edit_node'),
+            data={'language_versions-0-id': '1',
+                  'language_versions-0-full_name': 'b40d',
+                  'language_versions-0-panel_code': 'e23f',
+                  'language_versions-0-language': 'en',
+                  'language_versions-0-node': '1',
+                  'language_versions-MAX_NUM_FORMS': 1,
+                  'language_versions-TOTAL_FORMS': 1,
+                  'language_versions-MIN_NUM_FORMS': 1,
+                  'language_versions-INITIAL_FORMS': 1, }
+        )
         self.assertRedirects(response, portal_url(portal=get_portal()))
         node = get_portal().root
-        self.assertEqual(node.full_name, 'b40d')
-        self.assertEqual(node.panel_code, 'e23f')
+        self.assertEqual(
+            node.language_versions.get(language='en').full_name, 'b40d')
+        self.assertEqual(
+            node.language_versions.get(language='en').panel_code, 'e23f')
 
     def test_add_node_view(self):
         self.client.login(username='test_user')
 
         root = get_portal().root
-        response = self.client.post(portal_url(node=root,
-                                               action='add_node'),
-                                    data={'full_name': '3e4a',
-                                          'short_name': 'child1',
-                                          'panel_code': '5ac3'})
+        response = self.client.post(
+            portal_url(node=root, action='add_node'),
+            data={'short_name': 'child1',
+                  'language_versions-0-id': '',
+                  'language_versions-0-full_name': '3e4a',
+                  'language_versions-0-panel_code': '5ac3',
+                  'language_versions-0-language': 'en',
+                  'language_versions-MAX_NUM_FORMS': 1,
+                  'language_versions-TOTAL_FORMS': 1,
+                  'language_versions-MIN_NUM_FORMS': 1,
+                  'language_versions-INITIAL_FORMS': 0, }
+        )
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(root.get_children(),
                                  ['<Node: Child 1>', '<Node: Child 2>'])
 
-        response = self.client.post(portal_url(portal=get_portal(),
-                                               path='child2',
-                                               action='add_node'),
-                                    data={'short_name': 'grandchild2',
-                                          'full_name': 'Grandchild 2',
-                                          'panel_code': '18e0'})
+        response = self.client.post(
+            portal_url(portal=get_portal(), path='child2', action='add_node'),
+            data={'short_name': 'grandchild2',
+                  'language_versions-0-id': '',
+                  'language_versions-0-full_name': 'Grandchild 2',
+                  'language_versions-0-panel_code': '18e0',
+                  'language_versions-0-language': 'en',
+                  'language_versions-MAX_NUM_FORMS': 1,
+                  'language_versions-TOTAL_FORMS': 1,
+                  'language_versions-MIN_NUM_FORMS': 1,
+                  'language_versions-INITIAL_FORMS': 0, }
+        )
         self.assertRedirects(response, portal_url(portal=get_portal(),
                                                   path='child2/grandchild2'))
         node = get_portal().root.children.get(short_name='child2')
         self.assertEqual(node.children.count(), 1)
         node = node.children.get()
         self.assertEqual(node.short_name, 'grandchild2')
-        self.assertEqual(node.full_name, 'Grandchild 2')
-        self.assertEqual(node.panel_code, '18e0')
+        self.assertEqual(
+            node.language_versions.get(language='en').full_name,
+            'Grandchild 2')
+        self.assertEqual(
+            node.language_versions.get(language='en').panel_code, '18e0')
 
     def test_delete_node_view(self):
         self.client.login(username='test_user')

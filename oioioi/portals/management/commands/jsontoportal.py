@@ -1,12 +1,13 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.portals.models import Node, Portal
+from oioioi.portals.models import Node, Portal, NodeLanguageVersion
 from oioioi.problems.models import Tag
 from oioioi.problems.views import problem_site_view
 
@@ -15,14 +16,22 @@ def make_problemtree(tree, root, stdout):
     for family in tree:
         family_node = Node(parent=root)
         family_node.short_name = family['name']
-        family_node.full_name = family['long_name']
-        family_node.panel_code = family['description']
         family_node.save()
+
+        family_node_content = NodeLanguageVersion(
+            node=family_node, language=settings.LANGUAGE_CODE)
+        family_node_content.full_name = family['long_name']
+        family_node_content.panel_code = family['description']
+        family_node_content.save()
 
         for edition in family['editions']:
             edition_node = Node(parent=family_node)
             edition_node.short_name = edition['name']
-            edition_node.full_name = edition['long_name']
+            edition_node.save()
+
+            edition_node_content = NodeLanguageVersion(
+                node=edition_node, language=settings.LANGUAGE_CODE)
+            edition_node_content.full_name = edition['long_name']
 
             try:
                 edition_tag = Tag.objects.get(
@@ -30,11 +39,11 @@ def make_problemtree(tree, root, stdout):
             except ObjectDoesNotExist:
                 stdout.write(
                     'Ignoring edition with tag {}'.format(edition['tag']))
-                edition_node.panel_code = ''
-                edition_node.save()
+                edition_node_content.panel_code = ''
+                edition_node_content.save()
                 continue
 
-            edition_node.panel_code = ''
+            edition_node_content.panel_code = ''
 
             for header, tasks in edition['tasks']:
                 l = []
@@ -57,15 +66,19 @@ def make_problemtree(tree, root, stdout):
                         stdout.write('Ignoring task: {} from {}, task\'s \
                         tag does not exist'.format(task, edition['tag']))
 
-                edition_node.panel_code += u'[[ProblemTable:{}|{}]]\n\n'\
-                    .format(header, u';'.join(l))
+                edition_node_content.panel_code += u'[[ProblemTable:{}|{}]]' \
+                    u'\n\n'.format(header, u';'.join(l))
 
-            edition_node.save()
+            edition_node_content.save()
 
     root.short_name = u'problemset'
-    root.full_name = u'Problem Tree'
-    root.panel_code = u'All of the public tasks are (should be) here.'
     root.save()
+
+    root_content = NodeLanguageVersion(
+        node=root, language=settings.LANGUAGE_CODE)
+    root_content.full_name = u'Problem Tree'
+    root_content.panel_code = u'All of the public tasks are (should be) here.'
+    root_content.save()
 
 
 class Command(BaseCommand):

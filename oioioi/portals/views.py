@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.urlresolvers import reverse
@@ -8,7 +9,8 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, \
+    get_language_from_request
 from django.db.models import Q
 from mptt.exceptions import InvalidMove
 from collections import OrderedDict
@@ -25,8 +27,8 @@ from oioioi.portals.conditions import (current_node_is_root,
                                        main_page_from_default_global_portal,
                                        is_portal_admin)
 from oioioi.portals.forms import NodeForm, PortalsSearchForm, PortalInfoForm, \
-    PortalShortDescForm, LinkNameForm
-from oioioi.portals.models import Node, Portal
+    PortalShortDescForm, LinkNameForm, NodeLanguageVersionFormset
+from oioioi.portals.models import Node, Portal, NodeLanguageVersion
 from oioioi.portals.utils import resolve_path
 from oioioi.portals.widgets import render_panel
 
@@ -65,8 +67,12 @@ def create_global_portal_view(request):
                         'portals/global-portal-initial-main-page-name.txt')
                 body = render_to_string(
                         'portals/global-portal-initial-main-page-body.txt')
-                root = Node.objects.create(full_name=name, short_name='',
-                                           parent=None, panel_code=body)
+                root = Node.objects.create(short_name='', parent=None)
+                lang = get_language_from_request(request)
+                NodeLanguageVersion.objects.create(language=lang,
+                                                   full_name=name,
+                                                   panel_code=body,
+                                                   node=root)
                 portal = Portal(owner=None, root=root)
                 form = LinkNameForm(request.POST, instance=portal)
                 form.save()
@@ -93,8 +99,12 @@ def create_user_portal_view(request):
                     'portals/user-portal-initial-main-page-name.txt')
             body = render_to_string(
                     'portals/user-portal-initial-main-page-body.txt')
-            root = Node.objects.create(full_name=name, short_name='',
-                                       parent=None, panel_code=body)
+            lang = get_language_from_request(request)
+            root = Node.objects.create(short_name='', parent=None)
+            NodeLanguageVersion.objects.create(language=lang,
+                                               full_name=name,
+                                               panel_code=body,
+                                               node=root)
             portal = Portal.objects.create(owner=request.user, root=root)
             return redirect(portal_url(portal=portal))
         else:
@@ -112,6 +122,8 @@ def _portal_view(request, portal, portal_path):
 
     if action in node_actions:
         request.current_node = resolve_path(request.portal, portal_path)
+        request.current_lang_version = request.current_node.get_lang_version(
+            request)
         view = node_actions[action]
     elif action in portal_actions:
         view = portal_actions[action]
@@ -133,8 +145,8 @@ def user_portal_view(request, username, portal_path):
 
 @register_node_action('show_node', menu_text=_("Show node"), menu_order=100)
 def show_node_view(request):
-    rendered_panel = mark_safe(render_panel(request,
-                                            request.current_node.panel_code))
+    rendered_panel = mark_safe(render_panel(
+        request, request.current_node.get_lang_version(request).panel_code))
     return render(request, 'portals/show-node.html',
                   {'rendered_panel': rendered_panel})
 
@@ -143,14 +155,42 @@ def show_node_view(request):
                       menu_text=_("Edit node"), menu_order=200)
 def edit_node_view(request):
     if request.method != 'POST':
+        current_language = get_language_from_request(request)
+        languages = [
+            lang_short for lang_short, lang_name in settings.LANGUAGES
+        ]
+        queryset = NodeLanguageVersion.objects.filter(
+            node=request.current_node)
+
+        for node_language_version in queryset:
+            languages.remove(node_language_version.language)
+
+        formset = NodeLanguageVersionFormset(
+            initial=[
+                {'language': lang, 'DELETE': lang != current_language}
+                for lang in languages
+            ],
+            instance=request.current_node,
+        )
+
         form = NodeForm(instance=request.current_node)
     else:
         form = NodeForm(request.POST, instance=request.current_node)
-        if form.is_valid():
-            node = form.save()
-            return redirect(portal_url(node=node))
+        formset = NodeLanguageVersionFormset(request.POST)
 
-    return render(request, 'portals/edit-node.html', {'form': form})
+        if form.is_valid():
+            node = form.save(commit=False)
+            formset = NodeLanguageVersionFormset(request.POST, instance=node)
+
+            if formset.is_valid():
+                node.save()
+                formset.save()
+                return redirect(portal_url(node=node))
+
+    return render(request, 'portals/edit-node.html', {
+        'form': form,
+        'formset': formset,
+    })
 
 
 @register_node_action('add_node', condition=is_portal_admin,
@@ -158,14 +198,35 @@ def edit_node_view(request):
 def add_node_view(request):
     if request.method != 'POST':
         form = NodeForm(initial={'parent': request.current_node})
+        current_language = get_language_from_request(request)
+        formset = NodeLanguageVersionFormset(
+            initial=[
+                {
+                    'language': lang_short,
+                    'DELETE': lang_short != current_language
+                }
+                for lang_short, lang_name in settings.LANGUAGES
+            ],
+            queryset=NodeLanguageVersion.objects.none(),
+        )
     else:
         instance = Node(parent=request.current_node)
         form = NodeForm(request.POST, instance=instance)
-        if form.is_valid():
-            node = form.save()
-            return redirect(portal_url(node=node))
+        formset = NodeLanguageVersionFormset(request.POST)
 
-    return render(request, 'portals/add-node.html', {'form': form})
+        if form.is_valid():
+            node = form.save(commit=False)
+            formset = NodeLanguageVersionFormset(request.POST, instance=node)
+
+            if formset.is_valid():
+                node.save()
+                formset.save()
+                return redirect(portal_url(node=node))
+
+    return render(request, 'portals/add-node.html', {
+        'form': form,
+        'formset': formset,
+    })
 
 
 @register_node_action('delete_node',
@@ -206,7 +267,8 @@ def manage_portal_view(request):
 @register_portal_action('portal_tree_json', condition=is_portal_admin)
 def portal_tree_json_view(request):
     nodes = request.portal.root.get_descendants(include_self=True)
-    json = render_to_string('portals/portal-tree.json', {'nodes': nodes})
+    json = render_to_string('portals/portal-tree.json', {'nodes': nodes},
+                            request=request)
     json = json.replace('}{', '},{')
     return HttpResponse(json)
 
@@ -290,22 +352,24 @@ def portals_main_page_view(request, view_type='public'):
             if view_type == 'public':
                 # search query in public portals
                 portals_to_display = \
-                    Portal.objects.filter(Q(is_public=True) &
-                                          (Q(owner__username__icontains=query)
-                                           | Q(root__full_name__icontains=query)
-                                           | Q(link_name__icontains=query)))
+                    Portal.objects.filter(
+                        Q(is_public=True) &
+                        (Q(owner__username__icontains=query)
+                        | Q(root__language_versions__full_name__icontains=query)
+                        | Q(link_name__icontains=query))).distinct()
             elif view_type == 'all':
                 # search query in all portals
                 portals_to_display = Portal.objects.filter(
                     Q(owner__username__icontains=query)
-                    | Q(root__full_name__icontains=query)
-                    | Q(link_name__icontains=query))
+                    | Q(root__language_versions__full_name__icontains=query)
+                    | Q(link_name__icontains=query)).distinct()
             elif view_type == 'global':
                 # search query in global portals
                 portals_to_display = \
-                    Portal.objects.filter(Q(owner=None) &
-                                          (Q(root__full_name__icontains=query)
-                                           | Q(link_name__icontains=query)))
+                    Portal.objects.filter(
+                        Q(owner=None) &
+                        (Q(root__language_versions__full_name__icontains=query)
+                        | Q(link_name__icontains=query))).distinct()
             else:
                 raise Http404
 

@@ -1,4 +1,4 @@
-{% load i18n portal_url simple_tags %}
+{% load i18n portal_url simple_tags node_language_version %}
 
 <!-- https://stackoverflow.com/questions/12194573/bootstrap-dropdown-within-breadcrumb -->
 
@@ -8,7 +8,7 @@
     {% if node != current_node %}
         <a href="{% portal_url node=node %}">
     {% endif %}
-    {{ node.full_name }}
+    {{ node|full_name:request }}
     {% if node != current_node %}
         </a>
     {% endif %}

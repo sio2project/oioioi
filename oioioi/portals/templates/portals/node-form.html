@@ -3,9 +3,10 @@
 
 {% block panel %}
     <h2>{% block form_header %}{% endblock %}</h2>
-    <form method="post">
+    <form method="post" style="max-width: initial;">
         {% csrf_token %}
         {% include 'ingredients/form.html' %}
+        {% include "ingredients/translation-formset.html" %}
         <div class="form-group">
             <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         </div>
@@ -30,7 +31,7 @@
             e.setSelection(cursor, cursor + textSize);
         }
         $(function() {
-            $("#{{ form.panel_code.id_for_label }}").markdown({
+            $('textarea[id*="-panel_code"]').markdown({
                 onPreview: function(e) {
                     const originalContent = e.getContent();
                     let rendered = originalContent;
@@ -108,6 +109,10 @@
                     ]
                 ]
             })
+        });
+
+        new TranslationFormset({
+            requiredFieldsSelector: '[id*="full_name"], [id*="panel_code"]'
         });
     </script>
 {% endblock %}

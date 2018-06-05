@@ -1,7 +1,7 @@
 {% extends "base-with-menu.html" %}
 {% load i18n mptt_tags portal_url menu %}
 
-{% block title %}{{ current_node.full_name }}{% endblock %}
+{% block title %}{{ current_lang_version.full_name }}{% endblock %}
 
 {% block menu %}
     {% include "portals/menu.html" %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load i18n simple_tags pagination_tags tag staticfiles %}
+{% load i18n simple_tags pagination_tags tag staticfiles node_language_version %}
 
 {% block title %}{% trans "Portals" %} {% endblock %}
 
@@ -81,7 +81,7 @@
                         {% url 'global_portal' link_name=portal.link_name portal_path=portal.root.get_path as portal_url%}
                     {% endif %}
                     <tr>
-                        <td>{{ portal.root.full_name }}</td>
+                        <td>{{ portal.root|full_name:request }}</td>
                         <td>
                             <a href="{{ portal_url }}"> {{ portal_url  | slice:"1:-1" }}</a>
                         </td>

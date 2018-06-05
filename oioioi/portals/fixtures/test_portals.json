@@ -13,58 +13,90 @@
     {
         "fields": {
             "rght": 8,
-            "panel_code": "a05e",
             "short_name": "",
             "parent": null,
             "level": 0,
             "lft": 1,
-            "full_name": "Root",
             "tree_id": 1
         },
         "model": "portals.node",
         "pk": 1
     },
     {
+        "model": "portals.nodelanguageversion",
+        "pk": 1,
+        "fields": {
+            "node": 1,
+            "language": "en",
+            "full_name": "Root",
+            "panel_code": "a05e"
+        }
+    },
+    {
         "fields": {
             "rght": 5,
-            "panel_code": "b864",
             "short_name": "child1",
             "parent": 1,
             "level": 1,
             "lft": 2,
-            "full_name": "Child 1",
             "tree_id": 1
         },
         "model": "portals.node",
         "pk": 2
     },
     {
+        "model": "portals.nodelanguageversion",
+        "pk": 2,
+        "fields": {
+            "node": 2,
+            "language": "en",
+            "full_name": "Child 1",
+            "panel_code": "b864"
+        }
+    },
+    {
         "fields": {
             "rght": 7,
-            "panel_code": "d61a",
             "short_name": "child2",
             "parent": 1,
             "level": 1,
             "lft": 6,
-            "full_name": "Child 2",
             "tree_id": 1
         },
         "model": "portals.node",
         "pk": 3
     },
     {
+        "model": "portals.nodelanguageversion",
+        "pk": 3,
+        "fields": {
+            "node": 3,
+            "language": "en",
+            "full_name": "Child 2",
+            "panel_code": "d61a"
+        }
+    },
+    {
         "fields": {
             "rght": 4,
-            "panel_code": "acb8",
             "short_name": "grandchild1",
             "parent": 2,
             "level": 2,
             "lft": 3,
-            "full_name": "Grandchild 1",
             "tree_id": 1
         },
         "model": "portals.node",
         "pk": 4
+    },
+    {
+        "model": "portals.nodelanguageversion",
+        "pk": 4,
+        "fields": {
+            "node": 4,
+            "language": "en",
+            "full_name": "Grandchild 1",
+            "panel_code": "acb8"
+        }
     },
     {
         "fields": {
@@ -80,16 +112,24 @@
     {
         "fields": {
             "rght": 2,
-            "panel_code": "8530",
             "short_name": "",
             "parent": null,
             "level": 0,
             "lft": 1,
-            "full_name": "Root",
             "tree_id": 2
         },
         "model": "portals.node",
         "pk": 5
+    },
+    {
+        "model": "portals.nodelanguageversion",
+        "pk": 5,
+        "fields": {
+            "node": 5,
+            "language": "en",
+            "full_name": "Root",
+            "panel_code": "8530"
+        }
     },
     {
         "fields": {
@@ -105,30 +145,46 @@
     {
         "fields": {
             "rght": 2,
-            "panel_code": "e071",
             "short_name": "",
             "parent": null,
             "level": 0,
             "lft": 1,
-            "full_name": "Root",
             "tree_id": 3
         },
         "model": "portals.node",
         "pk": 6
     },
     {
+        "model": "portals.nodelanguageversion",
+        "pk": 6,
+        "fields": {
+            "node": 6,
+            "language": "en",
+            "full_name": "Root",
+            "panel_code": "e071"
+        }
+    },
+    {
         "fields": {
             "rght": 4,
-            "panel_code": "3a5c",
             "short_name": "globchl",
             "parent": 6,
             "level": 1,
             "lft": 3,
-            "full_name": "Default global child",
             "tree_id": 3
         },
         "model": "portals.node",
         "pk": 7
+    },
+    {
+        "model": "portals.nodelanguageversion",
+        "pk": 7,
+        "fields": {
+            "node": 7,
+            "language": "en",
+            "full_name": "Default global child",
+            "panel_code": "3a5c"
+        }
     },
     {
         "fields": {
@@ -144,16 +200,24 @@
     {
         "fields": {
             "rght": 2,
-            "panel_code": "701a",
             "short_name": "",
             "parent": null,
             "level": 0,
             "lft": 1,
-            "full_name": "seconds root",
             "tree_id": 4
         },
         "model": "portals.node",
         "pk": 8
+    },
+    {
+        "model": "portals.nodelanguageversion",
+        "pk": 8,
+        "fields": {
+            "node": 8,
+            "language": "en",
+            "full_name": "seconds root",
+            "panel_code": "701a"
+        }
     }
 
 ]

@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import models
 from django.dispatch import Signal
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, \
+    get_language_from_request, get_language
 from mptt.models import MPTTModel, TreeForeignKey
 
 from oioioi.base.utils.validators import (validate_db_string_id,
@@ -18,16 +19,11 @@ if 'oioioi.portals.processors.portal_processor' \
 
 
 class Node(MPTTModel):
-    full_name = models.CharField(max_length=32, verbose_name=_("full name"),
-                                 help_text=_("Shown in the navigation menu."),
-                                 validators=[validate_whitespaces])
     short_name = models.CharField(max_length=32, verbose_name=_("short name"),
                                   help_text=_("Shown in the URL."),
                                   validators=[validate_db_string_id])
     parent = TreeForeignKey('self', null=True, blank=False,
                             related_name='children', verbose_name=_("parent"))
-    panel_code = models.TextField(null=False, blank=True,
-                                  verbose_name=_("panel code"))
 
     problems_in_content = models.ManyToManyField('problems.problem',
                                                  blank=True)
@@ -54,7 +50,30 @@ class Node(MPTTModel):
                 self._path_changed.send(self, path=new_path)
 
     def __unicode__(self):
-        return self.full_name
+        return self.get_lang_version().full_name
+
+    # Tries to get a default language version for a current context (from
+    # a given request, then a current thread and then from the settings). If
+    # none matching version could be found, just return any.
+    def get_lang_version(self, request=None):
+        if request is not None:
+            lang = get_language_from_request(request)
+            try:
+                return self.language_versions.get(language=lang)
+            except NodeLanguageVersion.DoesNotExist:
+                pass
+
+        try:
+            return self.language_versions.get(language=get_language())
+        except NodeLanguageVersion.DoesNotExist:
+            pass
+
+        try:
+            return self.language_versions.get(language=settings.LANGUAGE_CODE)
+        except NodeLanguageVersion.DoesNotExist:
+            pass
+
+        return self.language_versions.first()
 
     def get_siblings(self, include_self=False):
         if self.is_root_node():
@@ -93,6 +112,34 @@ class Node(MPTTModel):
     def _parent_path_changed_callback(self, sender, path, **kwargs):
         self._path = join_paths(path, self.short_name)
         self._path_changed.send(self, path=self._path)
+
+
+class NodeLanguageVersion(models.Model):
+    node = models.ForeignKey(Node, related_name='language_versions',
+                             on_delete=models.CASCADE)
+    language = models.CharField(max_length=6, verbose_name=_("language code"))
+    full_name = models.CharField(max_length=32, verbose_name=_("full name"),
+                                 help_text=_("Shown in the navigation menu."),
+                                 validators=[validate_whitespaces])
+    panel_code = models.TextField(null=False, blank=True,
+                                  verbose_name=_("panel code"))
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        try:
+            existing_language_version = self.node.language_versions.get(
+                language=self.language)
+            if self.pk != existing_language_version.pk:
+                raise ValueError('Creating NodeLanguageVersion for Node object'
+                                 ' that already has a NodeLanguageVersion with'
+                                 ' the given language.')
+        except NodeLanguageVersion.DoesNotExist:
+            pass
+
+        return super(NodeLanguageVersion, self).save(
+            force_insert=force_insert, force_update=force_update,
+            using=using, update_fields=update_fields
+        )
 
 
 class Portal(models.Model):

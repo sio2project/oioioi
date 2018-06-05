@@ -18,8 +18,9 @@ def parse_node_for_problems(node):
     ids = []
     for widget in widgets_with_links:
         regex = widget.compiled_tag_regex
-        for m in regex.finditer(node.panel_code):
-            ids += widget.get_problem_ids(m)
+        for node_version in node.language_versions:
+            for m in regex.finditer(node_version.panel_code):
+                ids += widget.get_problem_ids(m)
 
     return Problem.objects.filter(id__in=ids).distinct()
 

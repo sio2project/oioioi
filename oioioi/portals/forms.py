@@ -1,13 +1,15 @@
-from django.forms import ModelForm, ValidationError, Form, CharField, TextInput
+from django.conf import settings
+from django.forms import ModelForm, ValidationError, inlineformset_factory, \
+    ChoiceField, HiddenInput, Form, CharField, TextInput
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.portals.models import Node, Portal
+from oioioi.portals.models import Node, NodeLanguageVersion, Portal
 
 
 class NodeForm(ModelForm):
     class Meta(object):
         model = Node
-        fields = ('full_name', 'short_name', 'panel_code')
+        fields = ('short_name', )
 
     def __init__(self, *args, **kwargs):
         super(NodeForm, self).__init__(*args, **kwargs)
@@ -24,11 +26,29 @@ class NodeForm(ModelForm):
 
         same = self.instance.parent.children.filter(short_name=short_name)
         if same.exists() and same.get() != self.instance:
-            raise ValidationError(_("Node %(parent)s already has a child " +
-                                    "with this short name."),
-                    params={'parent': self.instance.parent.full_name})
+            raise ValidationError(
+                _("Node %(parent)s already has a child with this short name."),
+                params={
+                    'parent': self.instance.parent.get_lang_version().full_name
+                })
 
         return short_name
+
+
+class NodeLanguageVersionForm(ModelForm):
+    class Meta(object):
+        model = NodeLanguageVersion
+        fields = ('language', 'full_name', 'panel_code', )
+
+    language = ChoiceField(widget=HiddenInput(),
+                           choices=settings.LANGUAGES)
+
+
+NodeLanguageVersionFormset = inlineformset_factory(
+    Node, NodeLanguageVersion, form=NodeLanguageVersionForm,
+    extra=len(settings.LANGUAGES), min_num=1, max_num=len(settings.LANGUAGES),
+    validate_min=True, validate_max=True, can_delete=True,
+)
 
 
 class PortalsSearchForm(Form):
