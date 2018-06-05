@@ -15,3 +15,7 @@ def side_menus(request):
 
 def site_name(request):
     return {'site_name': settings.SITE_NAME}
+
+
+def mathjax_location(request):
+    return {'mathjax_location': settings.MATHJAX_LOCATION}

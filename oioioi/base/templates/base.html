@@ -123,8 +123,12 @@
                         $("[data-toggle='tooltip']").tooltip();
                     });
                 </script>
+                <script>hljs.initHighlightingOnLoad();</script>
             {% endcompress %}
             <script type="text/javascript" src="{% url 'django.views.i18n.javascript_catalog' %}"></script>
-        {% endblock %}
+            <script type="text/javascript" async
+                    src="{{ mathjax_location }}MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+            </script>
+       {% endblock %}
     </body>
 </html>

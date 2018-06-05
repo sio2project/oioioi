@@ -125,6 +125,7 @@ TEMPLATES = [
                 'oioioi.base.processors.base_url',
                 'oioioi.base.processors.side_menus',
                 'oioioi.base.processors.site_name',
+                'oioioi.base.processors.mathjax_location',
                 'oioioi.jotform.processors.jotform',
                 'oioioi.contests.processors.register_current_contest',
                 'oioioi.contests.processors.register_recent_contests',
@@ -520,3 +521,7 @@ NON_CONTEST_WEIGHT = 1000
 # Interval [in seconds] for mailnotifyd to wait before scanning the database
 # for new messages to notify about
 MAILNOTIFYD_INTERVAL = 60
+
+# If your contest has no access to the internet and you need MathJax typesetting,
+# either whitelist this link or download your own copy of MathJax and link it here.
+MATHJAX_LOCATION = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/"

@@ -13,6 +13,22 @@
 
     {% include "ingredients/markdown-editor.html" %}
     <script>
+        function replaceSelectionOutside(e, prefix, defaultValue, suffix) {
+            let selected = e.getSelection();
+            let textSize = selected.length;
+            let cursor = selected.start;
+            if (textSize <= 0) {
+                e.replaceSelection(defaultValue);
+                textSize = defaultValue.length;
+            }
+            e.setSelection(cursor, cursor);
+            e.replaceSelection(prefix);
+            cursor += prefix.length + textSize;
+            e.setSelection(cursor, cursor);
+            e.replaceSelection(suffix);
+            cursor -= textSize;
+            e.setSelection(cursor, cursor + textSize);
+        }
         $(function() {
             $("#{{ form.panel_code.id_for_label }}").markdown({
                 onPreview: function(e) {
@@ -32,6 +48,14 @@
                       },
                       async: false
                     });
+                    // We need to make sure that MathJax typesetting
+                    // happens only after the Markdown editor applied
+                    // the changes to the document, so we push the job
+                    // to the end of the JavaScript browser queue using
+                    // the setTimeout function.
+                    setTimeout(function(){
+                        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "#{{ form.panel_code.id_for_label }}"]);
+                    }, 0);
                     return rendered;
                 },
                 additionalButtons: [
@@ -51,7 +75,7 @@
                                 },
                                 {
                                     name: "cmdProblemTable",
-                                    title: "Problem Table",
+                                    title: "{% trans 'Problem Table' %}",
                                     icon: {
                                         glyph: 'glyphicon glyphicon-align-justify'
                                     },
@@ -59,6 +83,26 @@
                                         e.replaceSelection('[[ProblemTable|url1;url2;...]]');
                                     }
                                 },
+                                {
+                                    name: "cmdInlineMathJax",
+                                    title: "{% trans 'Inline math mode' %}",
+                                    icon: {
+                                        glyph: 'icofont icofont-square-root'
+                                    },
+                                    callback: function (e) {
+                                        replaceSelectionOutside(e, "\\\\(", "<mathjax>", "\\\\)");
+                                    }
+                                },
+                                {
+                                    name: "cmdOutOfLineMathJax",
+                                    title: "{% trans 'Math mode' %}",
+                                    icon: {
+                                        glyph: 'icofont icofont-golden-ratio'
+                                    },
+                                    callback: function (e) {
+                                        replaceSelectionOutside(e, "$$", "<mathjax>", "$$");
+                                    }
+                                }
                             ]
                         }
                     ]
