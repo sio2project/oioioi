@@ -20,9 +20,14 @@ def no_superuser_validator(user):
             "security reasons."))
 
 
+def user_is_active_validator(user):
+    if not user.is_active:
+        raise ValidationError(_("You can't log in as inactive user."))
+
+
 class SuForm(forms.Form):
     user = UserSelectionField(label=_("Username"), validators=[
-        no_superuser_validator])
+        no_superuser_validator, user_is_active_validator])
     backend = forms.ChoiceField(label=_("Authentication backend"),
         required=False, choices=authentication_backends())
 

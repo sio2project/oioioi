@@ -56,7 +56,7 @@ def su_reset_view(request, next_page=None,
 
 @enforce_condition(is_superuser)
 def get_suable_users_view(request):
-    users = User.objects.filter(is_superuser=False)
+    users = User.objects.filter(is_superuser=False, is_active=True)
     return get_user_hints_view(request, 'substr', users)
 
 
