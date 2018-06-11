@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 from django.utils import timezone
 
 from oioioi.base.tests import TestCase
@@ -63,6 +64,7 @@ class TestOnPage(TestCase):
 
         self.msg.save()
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_visible_on_user_pages(self):
         url = reverse('index')
 

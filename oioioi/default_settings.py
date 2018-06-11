@@ -13,7 +13,7 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
-INSTALLATION_CONFIG_VERSION = 25
+INSTALLATION_CONFIG_VERSION = 26
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -103,6 +103,8 @@ PROBLEMSET_LINK_VISIBLE = True
 PROBLEM_TAGS_VISIBLE = False
 
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
+DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE = True
 
 TEMPLATES = [
     {

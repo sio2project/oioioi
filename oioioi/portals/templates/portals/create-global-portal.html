@@ -1,13 +1,30 @@
-{% extends "simple-centered-wide.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 
 {% block title %}{% trans "Create the global portal" %}{% endblock %}
 
-{% block content %}
-    <p>{% trans "The global portal does not exist yet. Do you want to create it?" %}</p>
-    <form method="post">
-         {% csrf_token %}
-         <button type="submit" class="btn btn-primary" name="confirmation" value="">{% trans "Yes" %}</button>
-         <button type="submit" class="btn btn-primary">{% trans "No" %}</button>
-    </form>
+{% block body %}
+{% blocktrans %}
+You are going to create new global portal. Choose name, which will
+appear in link.
+{% endblocktrans %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4">
+            <form method="post">
+                {% csrf_token %}
+                <div class="input-form">
+                    {% include "ingredients/form.html" %}
+                    <button type="submit" class="btn btn-primary"
+                            name="confirmation" value="">
+                        {% trans "Create" %}
+                    </button>
+                    <button type="submit" class="btn">
+                        {% trans "Cancel" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -455,3 +455,24 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      `-L` to use a file, there is no need to change anything. If you used the
      default `supervisord.conf`, you should remove the `-L` flag: logs are now
      printed to stdout by default, and supervisord redirects stderr to stdout.
+
+
+#. * Added `'oioioi.portals.processors.portals_main_page_link_visible'`, to
+    `TEMPLATES[0]['OPTIONS']['context_processors']`
+
+    ```
+        --- oioioi/deployment/settings.py.template	(date 1524038411000)
+        +++ oioioi/deployment/settings.py.template	(date 1528164979000)
+        @@ -333,6 +333,7 @@
+         #    'oioioi.notifications.processors.notification_processor',
+         #    'oioioi.globalmessage.processors.global_message_processor',
+         #    'oioioi.portals.processors.portal_processor',
+        +#    'oioioi.portals.processors.portals_main_page_link_visible',
+         ]
+
+         MIDDLEWARE_CLASSES += (
+         ```
+
+
+
+

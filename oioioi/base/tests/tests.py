@@ -135,6 +135,7 @@ class TestIndex(TestCase):
 class TestIndexNoContest(TestCase):
     fixtures = ('test_users',)
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_no_contest(self):
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/')
@@ -146,6 +147,7 @@ class TestIndexNoContest(TestCase):
             self.assertIn('This is a new OIOIOI installation',
                     response.content)
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_navbar_login(self):
         response = self.client.get('/')
         self.assertIn('navbar-login', response.content)
@@ -834,6 +836,7 @@ class TestBaseViews(TestCase):
 class TestBackendMiddleware(TestCase):
     fixtures = ['test_users']
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_backend_middleware(self):
         self.client.login(username='test_user')
         response = self.client.get(reverse('index'))

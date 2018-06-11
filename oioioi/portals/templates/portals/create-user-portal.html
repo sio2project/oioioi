@@ -7,7 +7,7 @@
     <p>{% trans "You do not have a portal yet. Do you want to create one?" %}</p>
     <form method="post">
          {% csrf_token %}
-         <button type="submit" class="btn btn-primary" name="confirmation" value    ="">{% trans "Yes" %}</button>
-         <button type="submit" class="btn btn-primary">{% trans "No" %}</button>
+         <button type="submit" class="btn btn-primary" name="confirmation" value="">{% trans "Create" %}</button>
+         <button type="submit" class="btn">{% trans "Cancel" %}</button>
     </form>
 {% endblock %}

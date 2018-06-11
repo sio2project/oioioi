@@ -1,4 +1,5 @@
 from oioioi.portals.actions import portal_admin_menu_registry
+from django.conf import settings
 
 
 def portal_processor(request):
@@ -15,3 +16,7 @@ def portal_processor(request):
         context['navbar_location'] = '~' + request.portal.owner.username
 
     return context
+
+
+def portals_main_page_link_visible(request):
+    return {'portals_main_page_link_visible': True}

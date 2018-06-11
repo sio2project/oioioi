@@ -59,6 +59,22 @@
 
 {% block content %}
     <h2>{% trans "Manage portal" %}</h2>
+    <p>{% trans "Short description of your portal:" %}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% include 'ingredients/form.html' %}
+        <div class="form-group">
+                <button type="submit" class="btn btn-primary">
+                    {% if user.is_superuser %}
+                        {% trans "Save description and public option" %}
+                    {% else %}
+                        {% trans "Save description" %}
+                    {% endif %}
+                </button>
+        </div>
+    </form>
+
     <p>{% trans "Drag and drop nodes to reorganize the portal structure." %}</p>
     <div id="tree" data-url="{% portal_url portal=portal action='portal_tree_json' %}">
     </div>

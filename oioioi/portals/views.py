@@ -9,7 +9,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.db.models import Q
 from mptt.exceptions import InvalidMove
+from collections import OrderedDict
 
 from oioioi.base.main_page import register_main_page_view
 from oioioi.base.menu import account_menu_registry
@@ -20,8 +22,10 @@ from oioioi.portals.actions import (DEFAULT_ACTION_NAME, node_actions,
                                     register_node_action,
                                     register_portal_action)
 from oioioi.portals.conditions import (current_node_is_root,
-                                       global_portal_exists, is_portal_admin)
-from oioioi.portals.forms import NodeForm
+                                       main_page_from_default_global_portal,
+                                       is_portal_admin)
+from oioioi.portals.forms import NodeForm, PortalsSearchForm, PortalInfoForm, \
+    PortalShortDescForm, LinkNameForm
 from oioioi.portals.models import Node, Portal
 from oioioi.portals.utils import resolve_path
 from oioioi.portals.widgets import render_panel
@@ -30,31 +34,49 @@ from oioioi.portals.widgets import render_panel
 import oioioi.portals.handlers
 
 
-@register_main_page_view(order=500, condition=global_portal_exists)
+@register_main_page_view(order=500,
+                         condition=main_page_from_default_global_portal)
 def main_page_view(request):
-    return redirect('global_portal', portal_path='')
+    return redirect(reverse('global_portal', kwargs={'link_name': 'default',
+                                                     'portal_path': ''}))
+
+
+def redirect_old_global_portal(request, portal_path):
+    """ View created for historical reasons - there used to be
+    only one global portal allowed, with 'portal' as its path prefix
+    hardcoded in url. Since it is possible to created more than one
+    global portal, old unique global portal shall be changed to global
+    portal with link_name='default' (see migrations). To keep old,
+    saved users links viable they must be redirected to new address
+    and here comes that function."""
+    return redirect(reverse('global_portal',
+                            kwargs={'link_name': 'default',
+                                    'portal_path': portal_path}))
 
 
 @enforce_condition(is_superuser, login_redirect=False)
 def create_global_portal_view(request):
-    portal_queryset = Portal.objects.filter(owner=None)
-    if portal_queryset.exists():
-        return redirect(portal_url(portal=portal_queryset.get()))
 
-    if request.method != 'POST':
-        return render(request, 'portals/create-global-portal.html')
-    else:
+    if request.method == 'POST':
+        form = LinkNameForm(request.POST)
         if 'confirmation' in request.POST:
-            name = render_to_string(
-                    'portals/global-portal-initial-main-page-name.txt')
-            body = render_to_string(
-                    'portals/global-portal-initial-main-page-body.txt')
-            root = Node.objects.create(full_name=name, short_name='',
-                                       parent=None, panel_code=body)
-            portal = Portal.objects.create(owner=None, root=root)
-            return redirect(portal_url(portal=portal))
+            if form.is_valid():
+                name = render_to_string(
+                        'portals/global-portal-initial-main-page-name.txt')
+                body = render_to_string(
+                        'portals/global-portal-initial-main-page-body.txt')
+                root = Node.objects.create(full_name=name, short_name='',
+                                           parent=None, panel_code=body)
+                portal = Portal(owner=None, root=root)
+                form = LinkNameForm(request.POST, instance=portal)
+                form.save()
+                return redirect(portal_url(portal=portal))
         else:
-            return redirect('/')
+            return redirect(reverse('portals_main_page_type',
+                                    kwargs={'view_type': 'global'}))
+    else:
+        form = LinkNameForm()
+    return render(request, 'portals/create-global-portal.html', {'form': form})
 
 
 @enforce_condition(not_anonymous, login_redirect=False)
@@ -76,7 +98,7 @@ def create_user_portal_view(request):
             portal = Portal.objects.create(owner=request.user, root=root)
             return redirect(portal_url(portal=portal))
         else:
-            return redirect('/')
+            return redirect(reverse('portals_main_page'))
 
 
 def _portal_view(request, portal, portal_path):
@@ -99,8 +121,8 @@ def _portal_view(request, portal, portal_path):
     return view(request)
 
 
-def global_portal_view(request, portal_path):
-    portal = get_object_or_404(Portal, owner=None)
+def global_portal_view(request, link_name, portal_path):
+    portal = get_object_or_404(Portal, link_name=link_name)
     return _portal_view(request, portal, portal_path)
 
 
@@ -164,7 +186,21 @@ def delete_node_view(request):
 @register_portal_action('manage_portal', condition=is_portal_admin,
                         menu_text=_("Manage portal"), menu_order=500)
 def manage_portal_view(request):
-    return render(request, 'portals/manage-portal.html')
+    if request.method == 'POST':
+        if request.user.is_superuser:
+            form = PortalInfoForm(request.POST, instance=request.portal)
+        else:
+            form = PortalShortDescForm(request.POST, instance=request.portal)
+        if form.is_valid():
+            portal = form.save(commit=False)
+            portal.save()
+
+    else:
+        if request.user.is_superuser:
+            form = PortalInfoForm(instance=request.portal)
+        else:
+            form = PortalShortDescForm(instance=request.portal)
+    return render(request, 'portals/manage-portal.html', {'form': form})
 
 
 @register_portal_action('portal_tree_json', condition=is_portal_admin)
@@ -218,7 +254,7 @@ def delete_portal_view(request):
         if 'confirmation' in request.POST:
             request.portal.root.delete()
             request.portal.delete()
-            return redirect('/')
+            return redirect(reverse('portals_main_page'))
         else:
             return redirect(portal_url(portal=request.portal,
                                        action='manage_portal'))
@@ -238,6 +274,56 @@ def render_markdown_view(request):
     rendered = render_panel(request, request.POST['markdown'])
     return HttpResponse(json.dumps({'rendered': rendered}),
                         content_type='application/json')
+
+
+def portals_main_page_view(request, view_type='public'):
+
+    if request.user.is_superuser:
+        page_title = _('Portals main page')
+        views = OrderedDict([('public', _('Public portals')),
+                             ('all', _('All portals')),
+                             ('global', _('Global portals'))])
+
+        if request.method == 'GET':
+            query = request.GET.get('q', '')
+            form = PortalsSearchForm(query=query)
+            if view_type == 'public':
+                # search query in public portals
+                portals_to_display = \
+                    Portal.objects.filter(Q(is_public=True) &
+                                          (Q(owner__username__icontains=query)
+                                           | Q(root__full_name__icontains=query)
+                                           | Q(link_name__icontains=query)))
+            elif view_type == 'all':
+                # search query in all portals
+                portals_to_display = Portal.objects.filter(
+                    Q(owner__username__icontains=query)
+                    | Q(root__full_name__icontains=query)
+                    | Q(link_name__icontains=query))
+            elif view_type == 'global':
+                # search query in global portals
+                portals_to_display = \
+                    Portal.objects.filter(Q(owner=None) &
+                                          (Q(root__full_name__icontains=query)
+                                           | Q(link_name__icontains=query)))
+            else:
+                raise Http404
+
+        else:
+            form = PortalsSearchForm()
+            portals_to_display = Portal.objects.filter(is_public=True)
+
+    else:
+        page_title = _('Public portals')
+        portals_to_display = Portal.objects.filter(is_public=True)
+        form = None
+        views = None
+    return render(request, 'portals/portals_main_page.html',
+                  {'portals': portals_to_display,
+                   'page_title': page_title,
+                   'form': form,
+                   'views': views,
+                   'curr_view_type': view_type})
 
 
 account_menu_registry.register('my_portal', _("My portal"), my_portal_url,

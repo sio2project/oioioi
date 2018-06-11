@@ -1,7 +1,7 @@
-from django.forms import ModelForm, ValidationError
+from django.forms import ModelForm, ValidationError, Form, CharField, TextInput
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.portals.models import Node
+from oioioi.portals.models import Node, Portal
 
 
 class NodeForm(ModelForm):
@@ -29,3 +29,34 @@ class NodeForm(ModelForm):
                     params={'parent': self.instance.parent.full_name})
 
         return short_name
+
+
+class PortalsSearchForm(Form):
+    q = CharField(max_length=30, label=None,
+                  widget=TextInput(attrs={'placeholder':
+                                              _('Search by URL or name'),
+                                          'class':
+                                              "form-control search-query"}))
+
+    def __init__(self, *args, **kwargs):
+        self.query = kwargs.pop('query')
+        super(PortalsSearchForm, self).__init__(*args, **kwargs)
+        self.fields['q'].initial = self.query
+
+
+class PortalShortDescForm(ModelForm):
+    class Meta(object):
+        model = Portal
+        fields = ('short_description',)
+
+
+class PortalInfoForm(ModelForm):
+    class Meta(object):
+        model = Portal
+        fields = ('short_description', 'is_public')
+
+
+class LinkNameForm(ModelForm):
+    class Meta(object):
+        model = Portal
+        fields = ('link_name',)

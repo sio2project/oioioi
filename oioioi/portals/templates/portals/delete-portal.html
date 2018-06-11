@@ -7,7 +7,7 @@
     <p>{% trans "Are you sure you want to delete your portal? All nodes will be deleted. This cannot be undone." %}</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary" name="confirmation" value="">{% trans "Yes" %}</button>
-        <button type="submit" class="btn btn-primary">{% trans "No" %}</button>
+        <button type="submit" class="btn btn-danger" name="confirmation" value="">{% trans "Delete" %}</button>
+        <button type="submit" class="btn">{% trans "Cancel" %}</button>
     </form>
 {% endblock %}

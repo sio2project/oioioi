@@ -31,6 +31,10 @@
                     <li role="separator" class="divider"></li>
                     <li><a href="{% url 'problemset_main' %}">{% trans "Problemset" %}</a></li>
                 {% endif %}
+                {% if portals_main_page_link_visible  %}
+                    <li role="separator" class="divider"></li>
+                    <li><a href="{% url 'portals_main_page' %}">{% trans "Portals" %}</a></li>
+                {% endif %}
             </ul>
         </div>
     {% endif %}

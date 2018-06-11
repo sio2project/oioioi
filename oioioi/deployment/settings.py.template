@@ -323,6 +323,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #    'oioioi.notifications.processors.notification_processor',
 #    'oioioi.globalmessage.processors.global_message_processor',
 #    'oioioi.portals.processors.portal_processor',
+#    'oioioi.portals.processors.portals_main_page_link_visible',
 ]
 
 MIDDLEWARE_CLASSES += (

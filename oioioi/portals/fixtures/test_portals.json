@@ -2,7 +2,10 @@
     {
         "fields": {
             "owner": 1001,
-            "root": 1
+            "root": 1,
+            "short_description": "Portal number 1",
+            "is_public": true,
+            "link_name": null
         },
         "model": "portals.portal",
         "pk": 1
@@ -65,7 +68,11 @@
     },
     {
         "fields": {
-            "owner": 1002, "root": 5
+            "owner": 1002,
+            "root": 5,
+            "short_description": "Portal number 2",
+            "is_public": false,
+            "link_name": null
         },
         "model": "portals.portal",
         "pk": 2
@@ -87,7 +94,10 @@
     {
         "fields": {
             "owner": null,
-            "root": 6
+            "root": 6,
+            "short_description": "Default global portal",
+            "is_public": true,
+            "link_name": "default"
         },
         "model": "portals.portal",
         "pk": 3
@@ -105,5 +115,45 @@
         },
         "model": "portals.node",
         "pk": 6
+    },
+    {
+        "fields": {
+            "rght": 4,
+            "panel_code": "3a5c",
+            "short_name": "globchl",
+            "parent": 6,
+            "level": 1,
+            "lft": 3,
+            "full_name": "Default global child",
+            "tree_id": 3
+        },
+        "model": "portals.node",
+        "pk": 7
+    },
+    {
+        "fields": {
+            "owner": null,
+            "root": 8,
+            "short_description": "Second global portal",
+            "is_public": false,
+            "link_name": "second"
+        },
+        "model": "portals.portal",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "rght": 2,
+            "panel_code": "701a",
+            "short_name": "",
+            "parent": null,
+            "level": 0,
+            "lft": 1,
+            "full_name": "seconds root",
+            "tree_id": 4
+        },
+        "model": "portals.node",
+        "pk": 8
     }
+
 ]

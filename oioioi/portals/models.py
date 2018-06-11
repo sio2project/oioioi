@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import models
 from django.dispatch import Signal
 from django.utils.translation import ugettext_lazy as _
@@ -98,3 +98,16 @@ class Node(MPTTModel):
 class Portal(models.Model):
     owner = models.OneToOneField(User, null=True, unique=True)
     root = models.OneToOneField(Node, unique=True)
+    short_description = models.CharField(max_length=256, null=True,
+                                         default=_("My portal."),
+                                         verbose_name=_("short description"))
+    is_public = models.BooleanField(default=False, verbose_name=_("is public"))
+    link_name = models.CharField(max_length=40, null=True, unique=True,
+                                 help_text=_("Shown in the URL."),
+                                 validators=[validate_db_string_id])
+
+    def clean(self):
+        super(Portal, self).clean()
+        if (self.owner is None) == (self.link_name is None):  # !xor
+            raise ValidationError(_("Exactly one from following should be "
+                                    "chosen: owner, link_name"))

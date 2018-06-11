@@ -41,8 +41,8 @@ class TestPortalUtils(TestCase):
         self.assertEqual(portal_url(portal=portal, action='manage_portal'),
                          url)
 
-        portal = Portal.objects.get(owner=None)
-        url = '/portal/'
+        portal = Portal.objects.get(link_name='default')
+        url = '/p/default/'
         self.assertEqual(portal_url(portal=portal), url)
         self.assertEqual(portal_url(portal=portal, path=''), url)
         self.assertEqual(portal_url(node=portal.root), url)
@@ -116,36 +116,64 @@ class TestPortalModels(TestCase):
 class TestPortalViews(TestCase):
     fixtures = ['test_users', 'test_portals']
 
-    def _test_create_portal_view(self, create_url, portal_root_url, username):
-        create_url = reverse(create_url)
+    def test_create_user_portal_view(self):
+        create_url = reverse('create_user_portal')
 
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username=username)
+        self.client.login(username='test_user')
         response = self.client.get(create_url)
-        self.assertRedirects(response, portal_root_url)
+        self.assertRedirects(response, '/~test_user/')
 
-        self.client.post(portal_root_url + '?action=delete_portal',
+        self.client.post('/~test_user/' + '?action=delete_portal',
                          data={'confirmation': ''})
 
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 200)
 
-        response = self.client.post(create_url, data={'confirmation': ''})
-        self.assertRedirects(response, portal_root_url)
+        response = self.client.post(create_url, data=None)
+        self.assertRedirects(response, '/portals_main_page/')
 
-        response = self.client.get(portal_root_url)
+        response = self.client.post(create_url, data={'confirmation': ''})
+        self.assertRedirects(response, '/~test_user/')
+
+        response = self.client.get('/~test_user/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, _("Main page"))
 
-    def test_create_user_portal_view(self):
-        self._test_create_portal_view('create_user_portal', '/~test_user/',
-                                      'test_user')
-
     def test_create_global_portal_view(self):
-        self._test_create_portal_view('create_global_portal', '/portal/',
-                                      'test_admin')
+        create_url = reverse('create_global_portal')
+
+        response = self.client.get(create_url)
+        self.assertEqual(response.status_code, 403)
+
+        self.client.login(username='test_admin')
+
+        response = self.client.get(create_url)
+        self.assertEqual(response.status_code, 200)
+
+        response = self.client.post(create_url, data=None)
+        self.assertRedirects(response, '/portals_main_page/global/')
+
+        response = self.client.post(create_url, data={'confirmation': '',
+                                                      'link_name': 'default'})
+        self.assertContains(response, _('Portal with this Link '
+                                        'name already exists.'))
+
+        response = self.client.post(create_url, data={'confirmation': '',
+                                                      'link_name': 'with space'})
+        self.assertContains(response, _('Enter a valid &#39;slug&#39; '
+                                        'consisting of lowercase letters, '
+                                        'numbers, underscores or hyphens.'))
+
+        response = self.client.post(create_url, data={'confirmation': '',
+                                                      'link_name': 'glob1'})
+        self.assertRedirects(response, '/p/glob1/')
+
+        response = self.client.get('/p/glob1/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Main page"))
 
     def test_admin_buttons(self):
         show = _("Show node")
@@ -355,7 +383,7 @@ class TestPortalViews(TestCase):
         response = self.client.post(portal_url(portal=get_portal(),
                                                action='delete_portal'),
                                     data={'confirmation': ''})
-        self.assertRedirects(response, '/', target_status_code=302)
+        self.assertRedirects(response, '/portals_main_page/', target_status_code=200)
 
         with self.assertRaises(Portal.DoesNotExist):
             Portal.objects.get(owner__username='test_user')
@@ -364,8 +392,12 @@ class TestPortalViews(TestCase):
             Node.objects.get(pk=1)
 
     def test_global_portal_view(self):
+        response = self.client.get('/p/second/')
+        self.assertContains(response, '701a')
+
+    def test_old_global_portal_view(self):
         response = self.client.get('/portal/')
-        self.assertContains(response, 'e071')
+        self.assertRedirects(response, '/p/default/')
 
 
 class TestMarkdown(TestCase):
@@ -433,3 +465,99 @@ class TestMarkdown(TestCase):
             register_widget(Widget('youtube'))
         with self.assertRaises(ValueError):
             register_widget(Widget('problem_table'))
+
+
+class TestMainPageAndPublicPortals(TestCase):
+    fixtures = ['test_users', 'test_portals']
+
+    def test_main_page_user(self):
+        self.client.login(username='test_user')
+
+        response = self.client.get('/portals_main_page/')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, '~test_user')
+        self.assertNotContains(response, 'p/second')
+        self.assertContains(response, 'Default global portal')
+        self.assertNotContains(response, 'Portal number 2')
+
+    def test_public_main_page_admin(self):
+        self.client.login(username='test_admin')
+
+        response = self.client.get('/portals_main_page/public/')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'Root')
+        self.assertNotContains(response, 'p/second')
+        self.assertContains(response, 'p/default')
+        self.assertNotContains(response, 'seconds root')
+
+    def test_all_main_page_admin(self):
+        self.client.login(username='test_admin')
+
+        response = self.client.get('/portals_main_page/all/')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'Portal number 1')
+        self.assertContains(response, '~test_user2')
+        self.assertContains(response, 'p/default')
+        self.assertContains(response, 'seconds root')
+
+    def test_global_main_page_admin(self):
+        self.client.login(username='test_admin')
+
+        response = self.client.get('/portals_main_page/global/')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, 'Portal number 1')
+        self.assertNotContains(response, 'Portal number 2')
+        self.assertContains(response, 'p/default')
+        self.assertContains(response, 'p/second')
+
+    def test_main_page_search(self):
+        self.client.login(username='test_admin')
+
+        response = self.client.get('/portals_main_page/public/?q=root')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'Portal number 1')
+        self.assertNotContains(response, 'Portal number 2')
+        self.assertContains(response, 'p/default')
+
+        response = self.client.get('/portals_main_page/all/?q=seCOnd')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, '~test_user')
+        self.assertNotContains(response, '~test_user2')
+        self.assertNotContains(response, 'p/default')
+        self.assertContains(response, 'seconds root')
+
+        response = self.client.get('/portals_main_page/global/?q=global')
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, 'Portal number 2')
+        self.assertNotContains(response, 'Default global portal')
+        self.assertNotContains(response, 'Second global portal')
+
+    def test_user_short_description(self):
+        self.client.login(username='test_user')
+        response = self.client.post('/~test_user/' + '?action=manage_portal',
+                                    data={'short_description': 'new description'
+                                          })
+        self.assertAlmostEqual(response.status_code, 200)
+
+        response = self.client.get('/portals_main_page/')
+        self.assertContains(response, 'new description')
+
+    def test_admin_short_description_and_public(self):
+        self.client.login(username='test_admin')
+        response = self.client.post('/p/second/' + '?action=manage_portal',
+                                    data={'short_description': 'this will be public',
+                                          'is_public': True})
+
+        self.assertAlmostEqual(response.status_code, 200)
+        response = self.client.get('/portals_main_page/public/')
+
+        self.assertContains(response, 'p/second')
+        self.assertContains(response, 'this will be public')
+

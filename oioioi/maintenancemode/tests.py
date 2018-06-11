@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.test.utils import override_settings
 
 from oioioi.base.tests import TestCase
 from oioioi.maintenancemode.models import (get_maintenance_mode,
@@ -39,17 +40,20 @@ class TestMaintenanceMode(TestCase):
         })
         self.assertIn('been logged out', response.content)
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_logged_admin_no_redirect(self):
         set_maintenance_mode(True, 'test message')
         self.client.login(username='test_admin')
         response = self.client.get('/')
         self.assertEquals(response.status_code, 200)
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_maintenance_off(self):
         set_maintenance_mode(False)
         response = self.client.get(reverse('maintenance'))
         self.assertRedirects(response, '/')
 
+    @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_su_no_redirect(self):
         set_maintenance_mode(True, 'test message')
         self.client.login(username='test_admin')

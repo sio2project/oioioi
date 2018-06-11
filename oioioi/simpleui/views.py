@@ -20,7 +20,7 @@ from oioioi.contests.utils import (can_admin_contest, contest_exists,
                                    is_contest_admin, rounds_times,
                                    visible_contests)
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
-from oioioi.portals.conditions import global_portal_exists
+from oioioi.portals.conditions import main_page_from_default_global_portal
 from oioioi.portals.models import Portal
 from oioioi.problems.models import Problem, ProblemAttachment, Tag, TagThrough
 from oioioi.programs.admin import ValidationFormset
@@ -212,7 +212,7 @@ def teacher_dashboard_view(request):
     contests = contests[:MAX_CONTESTS_ON_PAGE]
 
     if 'oioioi.portals' in settings.INSTALLED_APPS:
-        has_portal = global_portal_exists(request)
+        has_portal = main_page_from_default_global_portal(request)
     else:
         has_portal = False
 
@@ -262,7 +262,8 @@ def teacher_dashboard_view(request):
         'has_portal': has_portal
     }
     if has_portal:
-        context['portal_path'] = Portal.objects.filter(owner=None)[0] \
+        context['portal_path'] = Portal.objects.filter(owner=None,
+                                                       link_name='default')[0]\
             .root.get_path()
 
     return TemplateResponse(request,

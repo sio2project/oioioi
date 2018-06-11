@@ -1,4 +1,4 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_migrate
 from django.dispatch import receiver
 from six.moves import filter
 
@@ -27,3 +27,11 @@ def parse_node_for_problems(node):
 @receiver(post_save, sender=Node)
 def update_task_information_cache(sender, instance, **kwargs):
     instance.problems_in_content = parse_node_for_problems(instance)
+
+
+@receiver(post_migrate)
+def rebuild_handler(sender, **kwargs):
+    # post_migrate is called after each app's migrations
+    if sender.name == 'oioioi.portals':
+        Node.objects.rebuild()
+

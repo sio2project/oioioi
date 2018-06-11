@@ -117,7 +117,8 @@ def portal_url(portal=None, node=None, path=None, action=DEFAULT_ACTION_NAME):
         path = node.get_path()
 
     if portal.owner is None:
-        url = reverse('global_portal', kwargs={'portal_path': path})
+        url = reverse('global_portal', kwargs={'link_name': portal.link_name,
+                                               'portal_path': path})
     else:
         url = reverse('user_portal', kwargs={'username': portal.owner.username,
                                              'portal_path': path})
