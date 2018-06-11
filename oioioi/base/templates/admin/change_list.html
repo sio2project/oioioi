@@ -11,6 +11,14 @@
         #changelist-filter {
             z-index: 900;
         }
+        #changelist-form {
+            max-width: initial;
+            /* Margin and width same as ".filtered #toolbar" etc. in
+             * /django/contrib/admin/static/admin/css/changelists.css,
+             * leaving the space for the #changelist-filter. */
+            margin-right: 280px;
+            width: auto;
+        }
         #changelist .toplinks li {
             display: inline-block;
             margin: 5px 5px 5px 5px;
