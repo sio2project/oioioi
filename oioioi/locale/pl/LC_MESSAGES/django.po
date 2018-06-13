@@ -37,9 +37,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-05-31 20:09+0200\n"
-"PO-Revision-Date: 2018-05-09 21:40+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2018-06-13 16:11+0200\n"
+"PO-Revision-Date: 2018-06-13 14:03+0000\n"
+"Last-Translator: Jakub Sieroń <j.sieron@student.uw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -615,8 +615,9 @@ msgstr "Nie, wróć."
 #: base/templates/base.html:9
 #: portals/templates/portals/global-portal-initial-main-page-name.txt:1
 #: portals/templates/portals/user-portal-initial-main-page-name.txt:1
-#: portals/tests.py:140 problems/templates/problems/problemset/base.html:67
-#: szkopul/templates/ingredients/navbar-logo-with-menu.html:21
+#: portals/tests.py:143 portals/tests.py:176
+#: problems/templates/problems/problemset/base.html:67
+#: szkopul/templates/szkopul/navbar-logo-with-menu.html:21
 msgid "Main page"
 msgstr "Strona główna"
 
@@ -626,8 +627,10 @@ msgid ""
 " from the <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>."
 msgstr "Działa na bazie <a href=\"https://www.github.com/sio2project/oioioi\">OIOIOI</a>, części <a href=\"http://sio2project.mimuw.edu.pl\">SIO2 Project</a>.    "
 
-#: base/templates/ingredients/form.html:8 contests/models.py:326
-#: mailsubmit/templates/mailsubmit/accept.html:15 problems/models.py:215
+#: base/templates/ingredients/form.html:8
+#: base/templates/ingredients/translation-formset.html:12
+#: contests/models.py:326 mailsubmit/templates/mailsubmit/accept.html:15
+#: problems/models.py:215
 msgid "Error"
 msgstr "Błąd"
 
@@ -655,9 +658,15 @@ msgstr "Utwórz nowy konkurs"
 msgid "Problemset"
 msgstr "Baza zadań"
 
+#: base/templates/ingredients/navbar-contests.html:36
+#: portals/templates/portals/portals_main_page.html:4
+#| msgid "My portal"
+msgid "Portals"
+msgstr "Portale"
+
 #: base/templates/ingredients/navbar-menu.html:4
 #: portals/templates/portals/navbar-menu.html:4
-#: szkopul/templates/ingredients/navbar-logo-with-menu.html:16
+#: szkopul/templates/szkopul/navbar-logo-with-menu.html:16
 msgid "Toggle navigation"
 msgstr "Przełącz widoczność menu"
 
@@ -694,6 +703,16 @@ msgstr "Rejestracja"
 #: base/templates/ingredients/navbar-user.html:37
 msgid "Maintenance Mode is ON"
 msgstr "Tryb serwisowy jest WŁĄCZONY"
+
+#: base/templates/ingredients/translation-formset.html:21
+#| msgid "Programming language"
+msgid "Current language"
+msgstr "Obecny język"
+
+#: base/templates/ingredients/translation-formset.html:25
+#| msgid "Programming language"
+msgid "Tranlation language"
+msgstr "Język tłumaczenia"
 
 #: base/templates/registration/activate.html:4
 msgid "Account activation"
@@ -934,6 +953,10 @@ msgstr "Potwierdź"
 
 #: base/templates/simple-centered-confirmation.html:21
 #: base/templates/two_factor/_wizard_actions.html:23
+#: portals/templates/portals/create-global-portal.html:23
+#: portals/templates/portals/create-user-portal.html:11
+#: portals/templates/portals/delete-node.html:12
+#: portals/templates/portals/delete-portal.html:11
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1145,7 +1168,7 @@ msgid ""
 "      security."
 msgstr "Weryfikacja dwustopniowa nie jest włączona na twoim koncie.\nWłączenie jej zwiększa bezpieczeństwo twojego konta."
 
-#: base/tests/__init__.py:61
+#: base/tests/__init__.py:63
 msgid "Testing backend"
 msgstr "Logowanie testowe"
 
@@ -1754,7 +1777,7 @@ msgstr "Menu danych osobowych"
 msgid "ID"
 msgstr "ID"
 
-#: contests/models.py:44 portals/models.py:21 problems/models.py:55
+#: contests/models.py:44 portals/models.py:121 problems/models.py:55
 msgid "full name"
 msgstr "pełna nazwa"
 
@@ -1825,7 +1848,7 @@ msgstr "Ma dostęp do prywatnych danych użytkowników"
 msgid "description"
 msgstr "opis"
 
-#: contests/models.py:131 disqualification/models.py:20 newsfeed/models.py:14
+#: contests/models.py:131 disqualification/models.py:20 newsfeed/models.py:37
 #: problems/models.py:152 problems/models.py:185 questions/models.py:37
 #: questions/models.py:100
 msgid "content"
@@ -1949,7 +1972,7 @@ msgstr "konfiguracja treści zadania"
 msgid "problem statement configs"
 msgstr "konfiguracja treści zadania"
 
-#: contests/models.py:255 portals/models.py:24 problems/models.py:57
+#: contests/models.py:255 portals/models.py:22 problems/models.py:57
 msgid "short name"
 msgstr "skrót"
 
@@ -1985,7 +2008,7 @@ msgstr "Oczekuje"
 msgid "OK"
 msgstr "OK"
 
-#: contests/models.py:335 mailsubmit/models.py:29 newsfeed/models.py:12
+#: contests/models.py:335 mailsubmit/models.py:29 newsfeed/models.py:13
 #: questions/models.py:39
 msgid "date"
 msgstr "data"
@@ -2260,6 +2283,7 @@ msgstr "Niestety nie ma tu żadnych zadań, do których możesz przysłać rozwi
 #: contests/templates/contests/reattach_problem_contest_list.html:17
 #: contests/templates/contests/select_contest.html:16
 #: oi/templates/oi/sensitive_participant_info.html:17
+#: portals/templates/portals/portals_main_page.html:71
 #: prizes/templates/prizes/email_footer.txt:6
 #: problems/templates/problems/problemset/problem-list.html:14
 #: problems/templates/problems/problemset/select-contest.html:15
@@ -2436,7 +2460,7 @@ msgid "Edit dashboard message"
 msgstr "Edytuj wiadomość na stronie startowej"
 
 #: dashboard/templates/dashboard/dashboard-message-edit.html:13
-#: portals/templates/portals/node-form.html:10
+#: portals/templates/portals/node-form.html:11
 #: questions/templates/admin/questions/change_message.html:46
 #: simpleui/templates/simpleui/problem_settings/settings.html:61
 msgid "Save"
@@ -2493,22 +2517,14 @@ msgstr "Zgłoszenie"
 
 #: disqualification/admin.py:75 disqualification/controllers.py:278
 #: oisubmit/templates/oisubmit/submission-footer.html:18
-#: oisubmit/templates/received-suspected.html:6
-#: portals/templates/portals/create-global-portal.html:10
-#: portals/templates/portals/create-user-portal.html:10
-#: portals/templates/portals/delete-node.html:11
-#: portals/templates/portals/delete-portal.html:10 scoresreveal/admin.py:16
+#: oisubmit/templates/received-suspected.html:6 scoresreveal/admin.py:16
 #: scoresreveal/templates/scoresreveal/submission-footer.html:46
 msgid "Yes"
 msgstr "Tak"
 
 #: disqualification/admin.py:75 disqualification/controllers.py:278
 #: oisubmit/templates/oisubmit/submission-footer.html:20
-#: oisubmit/templates/received-suspected.html:9
-#: portals/templates/portals/create-global-portal.html:11
-#: portals/templates/portals/create-user-portal.html:11
-#: portals/templates/portals/delete-node.html:12
-#: portals/templates/portals/delete-portal.html:11 scoresreveal/admin.py:17
+#: oisubmit/templates/received-suspected.html:9 scoresreveal/admin.py:17
 #: scoresreveal/templates/scoresreveal/submission-footer.html:45
 msgid "No"
 msgstr "Nie"
@@ -2526,7 +2542,7 @@ msgstr "Dyskwalifikacje"
 msgid "Disqualified"
 msgstr "Zdyskwalifikowany"
 
-#: disqualification/models.py:19 newsfeed/models.py:13
+#: disqualification/models.py:19 newsfeed/models.py:36
 msgid "title"
 msgstr "tytuł"
 
@@ -3302,13 +3318,21 @@ msgstr "Ustaw"
 msgid "Turn off"
 msgstr "Wyłącz"
 
-#: newsfeed/forms.py:13
+#: newsfeed/forms.py:15 programs/admin.py:318
+msgid "Language"
+msgstr "Język"
+
+#: newsfeed/forms.py:21
 msgid "Title"
 msgstr "Tytuł"
 
-#: newsfeed/forms.py:18
+#: newsfeed/forms.py:27
 msgid "Content"
 msgstr "Treść"
+
+#: newsfeed/models.py:35 portals/models.py:120 problems/models.py:150
+msgid "language code"
+msgstr "kod języka"
 
 #: newsfeed/templates/newsfeed/news-add.html:4
 #: newsfeed/templates/newsfeed/news-add.html:7
@@ -3324,10 +3348,13 @@ msgstr "Edytuj wiadomość"
 
 #: newsfeed/templates/newsfeed/news.html:19
 #, python-format
-msgid "Are you sure you want to delete %(news.title)s?"
-msgstr "Na pewno chcesz usunąć %(news.title)s?"
+#| msgid "Are you sure you want to delete %(news.title)s?"
+msgid "Are you sure you want to delete %(news_version.title)s?"
+msgstr ""
 
 #: newsfeed/templates/newsfeed/news.html:20
+#: portals/templates/portals/delete-node.html:11
+#: portals/templates/portals/delete-portal.html:10
 #: questions/templates/admin/questions/change_message.html:50
 #: simpleui/templates/simpleui/problem_settings/ingredients/attachments.html:40
 #: simpleui/templates/simpleui/problem_settings/ingredients/tags.html:28
@@ -4104,16 +4131,20 @@ msgstr "Czy na pewno chcesz się wyrejestrować z bieżącego konkursu?"
 msgid "Edit contest registration"
 msgstr "Zmiana danych rejestracji"
 
-#: portals/forms.py:27
+#: portals/forms.py:30
 #, python-format
 msgid "Node %(parent)s already has a child with this short name."
 msgstr "Węzeł %(parent)s ma już węzeł podrzędny o tej krótkiej nazwie."
 
-#: portals/management/commands/jsontoportal.py:73
+#: portals/forms.py:57
+msgid "Search by URL or name"
+msgstr "Szukaj po adresie URL lub nazwie"
+
+#: portals/management/commands/jsontoportal.py:86
 msgid "<filename_json> [<username>]"
 msgstr "‹plik_json› [‹login›]"
 
-#: portals/management/commands/jsontoportal.py:74
+#: portals/management/commands/jsontoportal.py:87
 msgid ""
 "Creates portal from json file with structure same like one generated by "
 "generateinputbatch and anchors it as main portal for the given user. Leave "
@@ -4121,21 +4152,21 @@ msgid ""
 "manually. "
 msgstr "Tworzy portal z pliku JSON o strukturze takiej jak wygenerowany przez „generateinputbatch” i podpina go jako portal główny dla danego użytkownika. Pozostaw identyfikator użytkownika pustym, by podpiąć jako portal serwisu. Portal należy najpierw utworzyć ręcznie."
 
-#: portals/management/commands/jsontoportal.py:82
+#: portals/management/commands/jsontoportal.py:95
 #: portals/management/commands/rawtoportaljson.py:21
 msgid "Expected at least one argument"
 msgstr "Oczekiwano co najmniej jednego argumentu"
 
-#: portals/management/commands/jsontoportal.py:84
+#: portals/management/commands/jsontoportal.py:97
 #: portals/management/commands/rawtoportaljson.py:23
 msgid "Expected two arguments at most"
 msgstr "Oczekiwano co najwyżej dwóch argumentów"
 
-#: portals/management/commands/jsontoportal.py:96
+#: portals/management/commands/jsontoportal.py:109
 msgid "Some lines of the file are not JSON"
 msgstr "Niektóre wiersze pliku nie są w formacie JSON"
 
-#: portals/management/commands/jsontoportal.py:98
+#: portals/management/commands/jsontoportal.py:111
 msgid "User or portal not found"
 msgstr "Nie znaleziono użytkownika lub portalu"
 
@@ -4154,24 +4185,48 @@ msgstr "Tworzy JSON opisujący strukturę portalu na podstawie listy wszystkich 
 msgid "Some lines of the input are not JSON"
 msgstr "Niektóre wiersze wejścia nie są w formacie JSON"
 
-#: portals/models.py:22
-msgid "Shown in the navigation menu."
-msgstr "Wyświetlone w menu nawigacyjnym."
+#: portals/migrations/0005_global_portals_update.py:16
+#: portals/migrations/0005_global_portals_update.py:33
+#| msgid "Create the global portal"
+msgid "Default global portal"
+msgstr "Domyślny globalny portal"
 
-#: portals/models.py:25
+#: portals/models.py:23 portals/models.py:153
 msgid "Shown in the URL."
 msgstr "Wyświetlone w adresie."
 
-#: portals/models.py:28
+#: portals/models.py:26
 msgid "parent"
 msgstr "nadrzędny"
 
-#: portals/models.py:30
+#: portals/models.py:122
+msgid "Shown in the navigation menu."
+msgstr "Wyświetlone w menu nawigacyjnym."
+
+#: portals/models.py:125
 msgid "panel code"
 msgstr "kod panelu"
 
-#: portals/templates/portals/add-node.html:4 portals/tests.py:153
-#: portals/views.py:135
+#: portals/models.py:149
+#| msgid "My portal"
+msgid "My portal."
+msgstr "Mój portal."
+
+#: portals/models.py:150
+#| msgid "description"
+msgid "short description"
+msgstr "krótki opis"
+
+#: portals/models.py:151 problems/models.py:65
+msgid "is public"
+msgstr "jest publiczny"
+
+#: portals/models.py:159
+msgid "Exactly one from following should be chosen: owner, link_name"
+msgstr "Dokładnie jedno z poniższych musi zostać wybrane: owner, link_name"
+
+#: portals/templates/portals/add-node.html:4 portals/tests.py:181
+#: portals/views.py:197
 msgid "Add child node"
 msgstr "Dodaj węzeł podrzędny"
 
@@ -4180,8 +4235,17 @@ msgid "Create the global portal"
 msgstr "Utwórz portal globalny"
 
 #: portals/templates/portals/create-global-portal.html:7
-msgid "The global portal does not exist yet. Do you want to create it?"
-msgstr "Portal globalny jeszcze nie istnieje. Chcesz go utworzyć?"
+msgid ""
+"\n"
+"You are going to create new global portal. Choose name, which will\n"
+"appear in link.\n"
+msgstr "\nZamierzasz utworzyć nowy globalny portal. Wybierz nazwę, która \nbędzie pojawiać się w linku.\n"
+
+#: portals/templates/portals/create-global-portal.html:20
+#: portals/templates/portals/create-user-portal.html:10
+#: teams/templates/teams/create-team.html:14
+msgid "Create"
+msgstr "Utwórz"
 
 #: portals/templates/portals/create-user-portal.html:4
 msgid "Create portal"
@@ -4200,7 +4264,7 @@ msgid "Its descendants will be deleted as well. This cannot be undone."
 msgstr "Usunięte zostaną również jego elementy potomne; tej czynności nie można cofnąć."
 
 #: portals/templates/portals/delete-portal.html:4
-#: portals/templates/portals/manage-portal.html:68
+#: portals/templates/portals/manage-portal.html:84
 msgid "Delete portal"
 msgstr "Usuń portal"
 
@@ -4210,8 +4274,8 @@ msgid ""
 " cannot be undone."
 msgstr "Na pewno chcesz usunąć swój portal? Usunięte zostaną wszystkie węzły. Tej czynności nie można cofnąć."
 
-#: portals/templates/portals/edit-node.html:4 portals/tests.py:152
-#: portals/views.py:121
+#: portals/templates/portals/edit-node.html:4 portals/tests.py:180
+#: portals/views.py:155
 msgid "Edit node"
 msgstr "Edytuj węzeł"
 
@@ -4222,12 +4286,25 @@ msgid ""
 msgstr "Oto strona główna portalu globalnego. Naciśnij „Edytuj węzeł” po prawej, by ją zmodyfikować."
 
 #: portals/templates/portals/manage-portal.html:4
-#: portals/templates/portals/manage-portal.html:61 portals/tests.py:155
-#: portals/views.py:165
+#: portals/templates/portals/manage-portal.html:61 portals/tests.py:183
+#: portals/views.py:248
 msgid "Manage portal"
 msgstr "Zarządzaj portalem"
 
 #: portals/templates/portals/manage-portal.html:62
+msgid "Short description of your portal:"
+msgstr "Krótki opis Twojego portalu:"
+
+#: portals/templates/portals/manage-portal.html:70
+msgid "Save description and public option"
+msgstr "Zapisz opis i opcję upublicznienia"
+
+#: portals/templates/portals/manage-portal.html:72
+#| msgid "description"
+msgid "Save description"
+msgstr "Zapisz opis"
+
+#: portals/templates/portals/manage-portal.html:78
 msgid "Drag and drop nodes to reorganize the portal structure."
 msgstr "Przeciągaj i upuszczaj węzły, by reorganizować strukturę portalu."
 
@@ -4235,6 +4312,51 @@ msgstr "Przeciągaj i upuszczaj węzły, by reorganizować strukturę portalu."
 #| msgid "Add child node"
 msgid "no child nodes"
 msgstr "brak węzłów podrzędnych"
+
+#: portals/templates/portals/node-form.html:79
+#| msgid "Problem Name"
+msgid "Problem Table"
+msgstr ""
+
+#: portals/templates/portals/node-form.html:89
+msgid "Inline math mode"
+msgstr ""
+
+#: portals/templates/portals/node-form.html:99
+#| msgid "Maintenance mode"
+msgid "Math mode"
+msgstr ""
+
+#: portals/templates/portals/portals_main_page.html:18
+#, python-format
+msgid ""
+"\n"
+"            If you want to create or edit your portal <a href=\"%(user_portal)s\"> click here</a>.\n"
+"            If you want to publish your portal below, please contact us.\n"
+"        "
+msgstr "\nJeśli chcesz utworzyć lub edytować swój portal <a href=\"%(user_portal)s\">kliknij tutaj</a>.\nJeśli chcesz, by Twój portal pojawił się na liście, prosimy, napisz do nas."
+
+#: portals/templates/portals/portals_main_page.html:29
+#, python-format
+msgid ""
+"\n"
+"                    If you want to create new global portal <a href=\"%(create_global_portal)s\"> click here</a>.\n"
+"                "
+msgstr "\nJeśli chcesz stworzyć nowy globalny portal <a href=\"%(create_global_portal)s\">kliknij tutaj</a>."
+
+#: portals/templates/portals/portals_main_page.html:72
+msgid "URL"
+msgstr "URL"
+
+#: portals/templates/portals/portals_main_page.html:73
+#| msgid "description"
+msgid "Short description"
+msgstr "Krótki opis"
+
+#: portals/templates/portals/portals_main_page.html:97
+#| msgid "There are no problems here :("
+msgid "There are no portals here :("
+msgstr "Brak portali :("
 
 #: portals/templates/portals/user-portal-initial-main-page-body.txt:1
 msgid ""
@@ -4249,15 +4371,48 @@ msgid ""
 "redirected to: \"%(redirect_url)s\"."
 msgstr "Użytkownicy bez uprawnień do edycji tego portalu byliby teraz przekierowani do \"%(redirect_url)s\""
 
-#: portals/tests.py:151 portals/views.py:112
+#: portals/tests.py:161
+#| msgid "Region with this name already exists."
+msgid "Portal with this Link name already exists."
+msgstr "Portal z takim link_name już istnieje."
+
+#: portals/tests.py:166
+#| msgid ""
+#| "a valid 'slug' consisting of lowercase letters, numbers, erscores or hens."
+msgid ""
+"Enter a valid &#39;slug&#39; consisting of lowercase letters, numbers, "
+"underscores or hyphens."
+msgstr "Wpisz poprawny ciąg znaków składający się wyłącznie z małych liter, podkreśleń i myślników. "
+
+#: portals/tests.py:179 portals/views.py:146
 msgid "Show node"
 msgstr "Pokaż węzeł"
 
-#: portals/tests.py:154 portals/views.py:151
+#: portals/tests.py:182 portals/views.py:234
 msgid "Delete node"
 msgstr "Usuń węzeł"
 
-#: portals/views.py:243
+#: portals/views.py:344
+#| msgid "Main page"
+msgid "Portals main page"
+msgstr "Strona główna portali"
+
+#: portals/views.py:345 portals/views.py:381
+#| msgid "Public problems"
+msgid "Public portals"
+msgstr "Portale publiczne"
+
+#: portals/views.py:346
+#| msgid "My portal"
+msgid "All portals"
+msgstr "Wszystkie portale"
+
+#: portals/views.py:347
+#| msgid "Create the global portal"
+msgid "Global portals"
+msgstr "Portale globalne"
+
+#: portals/views.py:393
 msgid "My portal"
 msgstr "Mój portal"
 
@@ -4537,10 +4692,6 @@ msgstr "Niepoprawny identyfikator zadania:"
 msgid "Problem #%d does not exist"
 msgstr "Zadanie %d nie istnieje"
 
-#: problems/models.py:65
-msgid "is public"
-msgstr "jest publiczny"
-
 #: problems/models.py:68
 msgid "package type"
 msgstr "rodzaj paczki"
@@ -4560,10 +4711,6 @@ msgstr "Może administrować bazą zadań"
 #: problems/models.py:113
 msgid "Can administer the problem"
 msgstr "Może administrować zadaniem"
-
-#: problems/models.py:150
-msgid "language code"
-msgstr "kod języka"
 
 #: problems/models.py:167
 msgid "problem statement"
@@ -4865,10 +5012,6 @@ msgstr "To zadanie nie ma weryfikatora wyjścia."
 msgid "Checker exe"
 msgstr "Pliki wykonywalne weryfikatora"
 
-#: programs/admin.py:318
-msgid "Language"
-msgstr "Język"
-
 #: programs/admin.py:323
 msgid "You shall select exactly two submissions to diff"
 msgstr "Wybierz dokładnie dwa zgłoszenia do porównania"
@@ -4940,7 +5083,7 @@ msgstr "Język programowania"
 msgid "Simple programming contest"
 msgstr "Prosty konkurs programistyczny"
 
-#: programs/handlers.py:613
+#: programs/handlers.py:614
 msgid "submission report"
 msgstr "raport zgłoszenia"
 
@@ -7197,10 +7340,6 @@ msgstr "Dołącz do tej drużyny!"
 msgid "Create a team"
 msgstr "Utwórz drużynę"
 
-#: teams/templates/teams/create-team.html:14
-msgid "Create"
-msgstr "Utwórz"
-
 #: teams/templates/teams/team.html:8
 msgid "Team members"
 msgstr "Członkowie drużyny"
@@ -7490,6 +7629,9 @@ msgstr "Liczba węzłów"
 #: zeus/templates/zeus/program-report.html:21
 msgid "Zeus id"
 msgstr "ID Zeusa"
+
+#~ msgid "The global portal does not exist yet. Do you want to create it?"
+#~ msgstr "The global portal does not exist yet. Do you want to create it?"
 
 #~ msgid "Last edit"
 #~ msgstr "Last edit"
