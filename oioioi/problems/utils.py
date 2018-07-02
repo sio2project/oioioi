@@ -134,16 +134,21 @@ def query_zip(statement, path):
     return response
 
 
-def update_tests_from_main_pi(problem_instance):
+def update_tests_from_main_pi(problem_instance, source_instance=None):
     """Deletes all tests assigned to problem_instance
-        and replaces them by new ones copied from
-        main_problem_instance of appropiate Problem
+        and replaces them by new ones copied from source_instance,
+        or - if not specified - main_problem_instance of appropiate Problem
     """
     if problem_instance == problem_instance.problem.main_problem_instance:
         return
+    source_instance = \
+            source_instance or problem_instance.problem.main_problem_instance
+    if problem_instance == source_instance:
+        return
+
     for test in problem_instance.test_set.all():
         test.delete()
-    for test in problem_instance.problem.main_problem_instance.test_set.all():
+    for test in source_instance.test_set.all():
         test.id = None
         test.pk = None
         test.problem_instance = problem_instance
@@ -156,6 +161,16 @@ def get_new_problem_instance(problem, contest=None):
         is already saved and contains model solutions.
     """
     pi = problem.main_problem_instance
+    return copy_problem_instance(pi, contest)
+
+
+def copy_problem_instance(pi, contest=None):
+    """Returns a deep copy of pi,
+        with an independent set of test. Returned ProblemInstance
+        is already saved and contains model solutions.
+    """
+    orig_pk = pi.pk
+
     pi.id = None
     pi.pk = None
     pi.short_name = None
@@ -164,7 +179,9 @@ def get_new_problem_instance(problem, contest=None):
         pi.submissions_limit = contest.default_submissions_limit
     pi.round = None
     pi.save()
-    update_tests_from_main_pi(pi)
+
+    orig_pi = ProblemInstance.objects.get(pk=orig_pk)
+    update_tests_from_main_pi(pi, orig_pi)
     return pi
 
 

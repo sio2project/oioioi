@@ -37,6 +37,7 @@ from oioioi.contests.utils import (can_admin_contest, can_enter_contest,
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
 from oioioi.problems.utils import (can_admin_problem_instance,
+                                   copy_problem_instance,
                                    get_new_problem_instance, query_statement,
                                    query_zip, update_tests_from_main_pi,
                                    filter_my_all_visible_submissions)
@@ -517,8 +518,12 @@ def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
     problem_instance = get_object_or_404(ProblemInstance,
                                          id=problem_instance_id)
 
-    if request.POST:
-        pi = get_new_problem_instance(problem_instance.problem, contest)
+    if request.method == 'POST':
+        if request.POST.get('copy-limits', '') == 'on':
+            pi = copy_problem_instance(problem_instance, contest)
+        else:
+            pi = get_new_problem_instance(problem_instance.problem, contest)
+
         messages.success(request, _(u"Problem {} added successfully."
                                   .format(pi)))
         return safe_redirect(request, reverse(
