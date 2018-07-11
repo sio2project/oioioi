@@ -114,15 +114,21 @@ model_solution_kinds.register('INCORRECT', _("Incorrect solution"))
 
 
 class ModelSolutionsManager(models.Manager):
-    def recreate_model_submissions(self, problem_instance):
+    def recreate_model_submissions(self, problem_instance, model_solution=None):
         with transaction.atomic():
-            for model_submission in ModelProgramSubmission.objects.filter(
-                    problem_instance=problem_instance):
-                model_submission.delete()
+            query = ModelProgramSubmission.objects.filter(
+                    problem_instance=problem_instance)
+            if model_solution is not None:
+                query = query.filter(model_solution=model_solution)
+            query.delete()
         if not problem_instance.round and \
                 problem_instance.contest is not None:
             return
-        for model_solution in self.filter(problem=problem_instance.problem):
+        if model_solution is None:
+            model_solutions = self.filter(problem=problem_instance.problem)
+        else:
+            model_solutions = [model_solution]
+        for model_solution in model_solutions:
             with transaction.atomic():
                 submission = ModelProgramSubmission(
                         model_solution=model_solution,
@@ -175,7 +181,7 @@ def _autocreate_model_submissions_for_model_solutions(sender, instance,
     if created and not raw:
         pis = ProblemInstance.objects.filter(problem=instance.problem)
         for pi in pis:
-            ModelSolution.objects.recreate_model_submissions(pi)
+            ModelSolution.objects.recreate_model_submissions(pi, instance)
 
 
 def make_submission_filename(instance, filename):
