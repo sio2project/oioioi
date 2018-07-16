@@ -510,7 +510,9 @@ class SinolPackage(object):
         """Looks for extra compilation files specified in ``config.yml``."""
         ExtraFile.objects.filter(problem=self.problem).delete()
         files = list(self.config.get('extra_compilation_files', ()))
-        not_found = self._find_and_save_files(files)
+        for lang_files in self.config.get('extra_execution_files', {}).values():
+            files.extend(lang_files)
+        not_found = self._find_and_save_files(set(files))
         if not_found:
             raise ProblemPackageError(
                 _("Expected extra files %r not found in prog/") % (not_found)
