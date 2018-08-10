@@ -75,7 +75,7 @@ python23_universal_requirements = [
 
         "django-gravatar2",
 
-        "django-mptt>=0.8.7",
+        "django-mptt>=0.8.7,<0.9.1",
 
         "mistune",
 
