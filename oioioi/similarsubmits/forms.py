@@ -2,7 +2,7 @@ import re
 
 from django import forms
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import find_closure
 from oioioi.contests.models import Submission
@@ -25,9 +25,10 @@ class BulkAddSubmissionsSimilarityForm(forms.Form):
         )
     )
     find_transitive_closure = forms.BooleanField(required=False, initial=False,
-            help_text=_("If any two submissions are marked as similar in the "
+                                                 label=_("Find transitive closure"),
+                                                 help_text=_("If any two submissions are marked as similar in the "
                         "input they will be put in one group.")
-    )
+                                                 )
 
     def __init__(self, request, *args, **kwargs):
         super(BulkAddSubmissionsSimilarityForm, self).__init__(*args, **kwargs)

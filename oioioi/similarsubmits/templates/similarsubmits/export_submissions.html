@@ -6,8 +6,8 @@
 {% block main-content %}
 <h1>{% trans "Export submissions" %}</h1>
 <p> {% trans "Here you can export submissions from this contest to an archive in szubrawcy-compatible format. Please note that this feature is optimized for OI and may not work as well for other contest types." %} <p>
-<p><strong> For large contests building the archive may take a while. Please be patient.</strong></p>
-<form action={% url 'export_submissions' %} method="post">
+<p><strong>{% trans "For large contests building the archive may take a while. Please be patient." %}</strong></p>
+<form action="{% url 'export_submissions' %}" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
     <div class="form-group">
