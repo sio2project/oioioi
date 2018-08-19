@@ -564,6 +564,15 @@ class ProgrammingProblemController(ProblemController):
     def can_see_test_comments(self, request, submissionreport):
         return True
 
+    def get_visible_reports_kinds(self, request, submission):
+        return ['USER_OUTS', 'INITIAL', 'NORMAL']
+
+    def filter_visible_reports(self, request, submission, queryset):
+        if is_contest_admin(request) or is_contest_observer(request):
+            return queryset
+        return queryset.filter(status='ACTIVE',
+                kind__in=self.get_visible_reports_kinds(request, submission))
+
     def _out_generate_status(self, request, testreport):
         problem = testreport.test.problem_instance.problem
         try:
