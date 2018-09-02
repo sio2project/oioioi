@@ -2,14 +2,10 @@
 Installing OIOIOI
 =================
 
-First, ensure that all dependencies are installed:
-
-* gcc/g++ (Ubuntu package: *build-essential*)
-* fpc (Ubuntu package: *fp-compiler*)
-* latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
-  *texlive-lang-polish*)
-* latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*),
-* Berkeley DB library (Ubuntu package: *libdb-dev*)
+First install::
+  
+  sudo apt-get install python-pip
+  sudo pip install virtualenv
 
 It should be easier to begin with a separate folder at first::
 
@@ -25,6 +21,7 @@ Then OIOIOI and its dependencies can be installed using the following commands::
 
   git clone git://github.com/sio2project/oioioi.git
   cd oioioi
+  bash instalacja_skladnikow.sh
   pip install -r requirements.txt
 
 OIOIOI is a set of Django applications, therefore you need to create a folder with
