@@ -20,6 +20,7 @@
 # Maciej Dębski <md319428@students.mimuw.edu.pl>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2013-2014
 # Michał Łazowik <mlazowik@gmail.com>, 2016
+# michcioperz <michcioperz@gmail.com>, 2018
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Patryk <patryk.czajka@student.uw.edu.pl>, 2015
 # Paweł Koniarski <me@pkoniarski.com>, 2016
@@ -37,9 +38,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-06-13 16:11+0200\n"
-"PO-Revision-Date: 2018-06-13 14:03+0000\n"
-"Last-Translator: Jakub Sieroń <j.sieron@student.uw.edu.pl>\n"
+"POT-Creation-Date: 2018-09-12 09:32+0200\n"
+"PO-Revision-Date: 2018-09-12 08:02+0000\n"
+"Last-Translator: Jacek Olczyk <joaldek@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1611,7 +1612,7 @@ msgid "Problems"
 msgstr "Zadania"
 
 #: contests/admin.py:421 contests/models.py:337 programs/models.py:65
-#: programs/models.py:143 questions/models.py:34
+#: programs/models.py:149 questions/models.py:34
 msgid "kind"
 msgstr "rodzaj"
 
@@ -1897,7 +1898,7 @@ msgstr "%s – ogłoszenie wyników"
 
 #: contests/models.py:186 oi/models.py:61 prizes/models.py:123
 #: prizes/models.py:275 problems/models.py:335 programs/models.py:60
-#: programs/models.py:140 sinolpack/models.py:30
+#: programs/models.py:146 sinolpack/models.py:30
 msgid "name"
 msgstr "nazwa"
 
@@ -1984,7 +1985,7 @@ msgstr "Limit zgłoszeń"
 msgid "needs rejudge"
 msgstr "wymaga ponownej oceny"
 
-#: contests/models.py:267 programs/models.py:277 testrun/models.py:66
+#: contests/models.py:267 programs/models.py:283 testrun/models.py:66
 msgid "problem instance"
 msgstr "zadanie"
 
@@ -3350,7 +3351,7 @@ msgstr "Edytuj wiadomość"
 #, python-format
 #| msgid "Are you sure you want to delete %(news.title)s?"
 msgid "Are you sure you want to delete %(news_version.title)s?"
-msgstr ""
+msgstr "Na pewno chcesz usunąć %(news_version.title)s?"
 
 #: newsfeed/templates/newsfeed/news.html:20
 #: portals/templates/portals/delete-node.html:11
@@ -4316,16 +4317,16 @@ msgstr "brak węzłów podrzędnych"
 #: portals/templates/portals/node-form.html:79
 #| msgid "Problem Name"
 msgid "Problem Table"
-msgstr ""
+msgstr "Tabela zadań"
 
 #: portals/templates/portals/node-form.html:89
 msgid "Inline math mode"
-msgstr ""
+msgstr "Zapis matematyczny (w tej samej linii)"
 
 #: portals/templates/portals/node-form.html:99
 #| msgid "Maintenance mode"
 msgid "Math mode"
-msgstr ""
+msgstr "Zapis matematyczny (w nowej linii)"
 
 #: portals/templates/portals/portals_main_page.html:18
 #, python-format
@@ -5206,79 +5207,79 @@ msgstr "Rozwiązanie powolne"
 msgid "Incorrect solution"
 msgstr "Rozwiązanie niepoprawne"
 
-#: programs/models.py:142
+#: programs/models.py:148
 msgid "source"
 msgstr "kod"
 
-#: programs/models.py:194
+#: programs/models.py:200
 msgid "Source code length"
 msgstr "Długość kodu źródłowego"
 
-#: programs/models.py:213
+#: programs/models.py:219
 msgid "Compilation failed"
 msgstr "Błąd kompilacji"
 
-#: programs/models.py:214
+#: programs/models.py:220
 msgid "Runtime error"
 msgstr "Błąd wykonania"
 
-#: programs/models.py:215
+#: programs/models.py:221
 msgid "Wrong answer"
 msgstr "Zła odpowiedź"
 
-#: programs/models.py:216
+#: programs/models.py:222
 msgid "Time limit exceeded"
 msgstr "Przekroczenie limitu czasu"
 
-#: programs/models.py:217
+#: programs/models.py:223
 msgid "Memory limit exceeded"
 msgstr "Przekroczenie limitu pamięci"
 
-#: programs/models.py:218
+#: programs/models.py:224
 msgid "Output limit exceeded"
 msgstr "Przekroczenie limitu wyjścia"
 
-#: programs/models.py:219
+#: programs/models.py:225
 msgid "System error"
 msgstr "Błąd systemowy"
 
-#: programs/models.py:220
+#: programs/models.py:226
 msgid "Rule violation"
 msgstr "Naruszenie reguł"
 
-#: programs/models.py:222
+#: programs/models.py:228
 msgid "Initial tests: OK"
 msgstr "Wstępne sprawdzanie: OK"
 
-#: programs/models.py:223
+#: programs/models.py:229
 msgid "Initial tests: failed"
 msgstr "Wstępne sprawdzanie: błąd"
 
-#: programs/models.py:225
+#: programs/models.py:231
 msgid "Generate user out"
 msgstr "Generowanie wyjścia"
 
-#: programs/models.py:227
+#: programs/models.py:233
 msgid "Initial report"
 msgstr "Raport wstępnego sprawdzania"
 
-#: programs/models.py:228
+#: programs/models.py:234
 msgid "Normal report"
 msgstr "Zwykły raport"
 
-#: programs/models.py:229
+#: programs/models.py:235
 msgid "Full report"
 msgstr "Pełny raport"
 
-#: programs/models.py:231
+#: programs/models.py:237
 msgid "Hidden report (for admins only)"
 msgstr "Raport ukryty (widoczny dla adminów)"
 
-#: programs/models.py:232
+#: programs/models.py:238
 msgid "Report with user out"
 msgstr "Raport z wyjściem użytkownika"
 
-#: programs/models.py:282
+#: programs/models.py:288
 msgid "Allow users to generate their outs on tests from visible reports."
 msgstr "Pozwól użytkownikom generować wyjścia ich programów tam, gdzie widoczny jest raport."
 
@@ -6205,38 +6206,42 @@ msgid ""
 msgstr "Każdy wiersz reprezentuje grupę, zgłoszenia powinny być przedstawione w formacie „id_zgłoszenia:login:zadanie.język” i niczym nie oddzielone. Już istniejące grupy nie zostaną pominięte!"
 
 #: similarsubmits/forms.py:28
+msgid "Find transitive closure"
+msgstr ""
+
+#: similarsubmits/forms.py:29
 msgid ""
 "If any two submissions are marked as similar in the input they will be put "
 "in one group."
 msgstr "Jeśli jakiekolwiek dwa zgłoszenia są oznaczone jako podobne pod względem wejścia, umieszczone zostaną one w jednej grupie."
 
-#: similarsubmits/forms.py:50
+#: similarsubmits/forms.py:51
 #, python-format
 msgid ""
 "Can't parse nonempty line:\n"
 "%(line)s"
 msgstr "Nie można przeanalizować niepustego wiersza:\n%(line)s"
 
-#: similarsubmits/forms.py:61
+#: similarsubmits/forms.py:62
 #, python-format
 msgid "Submission %(id)s does not exists in line: %(line)s"
 msgstr "Zgłoszenie %(id)s nie istnieje w wierszu: %(line)s"
 
-#: similarsubmits/forms.py:67
+#: similarsubmits/forms.py:68
 #, python-format
 msgid ""
 "You can't say that this guy cooperated with model solution author.... It's "
 "ridiculous! In line: %(line)s"
 msgstr "Nie możesz twierdzić, że ten uczestnik współpracował z autorem zadania wzorcowego… to niedorzeczne! W wierszu: %(line)s"
 
-#: similarsubmits/forms.py:72
+#: similarsubmits/forms.py:73
 #, python-format
 msgid ""
 "Submission's %(id)s incorrect author:\n"
 "Expected: %(expected)s, but got %(given)s in line %(line)s."
 msgstr "Niepoprawny autor zgłsozenia %(id)s:\nOczekiwano: %(expected)s, choć otrzymano %(given)s w wierszu %(line)s."
 
-#: similarsubmits/forms.py:84
+#: similarsubmits/forms.py:85
 msgid "No group found in given data."
 msgstr "Nie znaleziono żadnych grup."
 
@@ -6267,7 +6272,7 @@ msgstr "podobne zgłoszenia"
 #: similarsubmits/templates/similarsubmits/bulk_add.html:4
 #: similarsubmits/templates/similarsubmits/bulk_add.html:15
 msgid "Bulk add similar submits"
-msgstr "Zbiorcze dodawanie podobnych zgłsozeń"
+msgstr "Zbiorcze dodawanie podobnych zgłoszeń"
 
 #: similarsubmits/templates/similarsubmits/bulk_add.html:12
 msgid "Add by selecting"
@@ -6279,6 +6284,11 @@ msgid ""
 "szubrawcy-compatible format. Please note that this feature is optimized for "
 "OI and may not work as well for other contest types."
 msgstr "Tutaj możesz wyeksportować zgłoszenia z tego konkursu do archiwum w formacie szubrawcy. Pamiętaj, że ta funkcja jest dostosowana do OI i może nie równie dobrze działać w przypadku innych typów konkursów."
+
+#: similarsubmits/templates/similarsubmits/export_submissions.html:9
+msgid ""
+"For large contests building the archive may take a while. Please be patient."
+msgstr ""
 
 #: similarsubmits/templates/similarsubmits/programming_similar_submissions.html:4
 #: similarsubmits/templates/similarsubmits/programming_similar_submissions_admin.html:4
