@@ -51,7 +51,7 @@ python23_universal_requirements = [
         "pygments",
         "django-libsass>=0.7",
 
-        "django-debug-toolbar>=1.4",
+        "django-debug-toolbar>=1.4,<1.10",  # latest version for Django 1.9
         "django-extensions>=1.0.0",
         "werkzeug",
 
