@@ -5,7 +5,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.http import JsonResponse
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 import six.moves.xmlrpc_client
 from six.moves import map
 
