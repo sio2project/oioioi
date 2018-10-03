@@ -4,6 +4,9 @@
 
 {% block content %}
 <div class="text-center">
-    <p>{% trans "403 &mdash; Sorry, but you're not allowed to see anything here. " %}</p>
+    <h1>403</h1>
+    <p class="django-http-error-message">
+        {% trans "Sorry, but you're not allowed to see anything here. " %}
+    </p>
 </div>
 {% endblock %}

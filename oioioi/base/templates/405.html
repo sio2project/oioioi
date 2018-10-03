@@ -4,7 +4,13 @@
 
 {% block content %}
 <div class="text-center">
-    <p>{% blocktrans %}405 &mdash; Sorry, but this method is not allowed. You can try again using {{ allowed }}.{% endblocktrans %}</p>
+    <h1>405</h1>
+    <p class="django-http-error-message">
+        {% blocktrans %}
+            Sorry, but this method is not allowed.
+        {% endblocktrans %}
+    </p>
+    <p>{% blocktrans %}You can try again using {{ allowed }}.{% endblocktrans %}</p>
     <p><small>{% trans "In other words, you probably typed URL directly to the browser. Instead of this, use proper link from the website." %}</small></p>
 </div>
 {% endblock %}
