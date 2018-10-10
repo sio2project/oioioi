@@ -1,13 +1,15 @@
 version: '3'
 services:
-  dev-db:
+  db:
     image: library/postgres
     restart: always
     environment:
       POSTGRES_USER: "oioioi"
       POSTGRES_PASSWORD: ""
       POSTGRES_DB: "oioioi"
-  dev-web:
+    networks:
+      - oioioi_net
+  web:
     command: /sio2/oioioi/oioioi_init.sh
     volumes:
       - $PWD:/sio2/oioioi
@@ -20,10 +22,10 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - dev-db
-    links:
-      - dev-db:db
-  dev-worker:
+      - db
+    networks:
+      - oioioi_net
+  worker:
     cap_add:
       - ALL
     command: /sio2/oioioi/worker_init.sh
@@ -36,10 +38,12 @@ services:
       args:
         - "oioioi_uid=${OIOIOI_UID}"
     depends_on:
-      - dev-db
-      - dev-web
-    links:
-      - dev-db:db
-      - dev-web:web
+      - db
+      - web
     deploy:
-      replicas: 10
+      replicas: 1
+    networks:
+      - oioioi_net
+
+networks:
+  oioioi_net:

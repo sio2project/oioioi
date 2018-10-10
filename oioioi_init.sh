@@ -29,6 +29,8 @@ sleep 10
 
 ./manage.py supervisor start all
 
+./manage.py download_sandboxes -q -y -c /sio2/sandboxes
+
 ./manage.py runserver 0.0.0.0:8000 \
        > /sio2/logs/runserver/out.log \
        2> /sio2/logs/runserver/err.log

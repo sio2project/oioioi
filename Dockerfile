@@ -10,14 +10,12 @@ RUN chmod a+rw -R /sio2/logs
 # Create users and set permissions
 RUN useradd -U oioioi -m -d /home/oioioi/
 RUN adduser oioioi sudo
-ADD . /sio2/oioioi
-RUN chown -R oioioi /sio2
+
 RUN echo "oioioi ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # Modify locale
 RUN sed -i -e "s/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/" /etc/locale.gen
 RUN locale-gen
-
 
 # Configure rabbitmq-server
 RUN echo "[{rabbit, [{tcp_listeners, [5672]}, {loopback_users, []}]}]." > /etc/rabbitmq/rabbitmq.config
@@ -29,21 +27,24 @@ RUN echo "source /sio2/venv/bin/activate" >> ~/.bashrc
 RUN echo "cd /sio2" >> ~/.bashrc
 RUN echo "export PATH=$PATH:~/.local/bin" >> ~/.bashrc
 
+RUN mkdir -p /sio2/oioioi
+RUN chown -R oioioi:oioioi /sio2
 # Installing python dependencies
 USER oioioi
 
-WORKDIR /sio2/oioioi
 RUN easy_install --user distribute
-RUN pip install -r requirements.txt --user
 RUN pip install psycopg2-binary --user
 RUN pip install twisted --user
 
-ENV PATH $PATH:~/.local/bin/
+WORKDIR /sio2/oioioi
+ADD --chown=oioioi:oioioi . /sio2/oioioi
+RUN pip install -r requirements.txt --user
+
+ENV PATH $PATH:/home/oioioi/.local/bin/
 
 RUN oioioi-create-config /sio2/deployment
 
 WORKDIR /sio2/deployment
-
 RUN sed -i -e \
        "s/django.db.backends./django.db.backends.postgresql_psycopg2/g;\
         s/'NAME': ''/'NAME': 'oioioi'/g;\
@@ -79,4 +80,3 @@ RUN sed -i \
 RUN cp settings.py test_settings.py
 RUN sed -i -e "s/from oioioi.default_settings/from oioioi.test_settings/g" test_settings.py
 RUN mkdir /sio2/sandboxes
-RUN ./manage.py download_sandboxes -q -y -c /sio2/sandboxes
