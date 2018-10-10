@@ -5,5 +5,7 @@ ARG oioioi_uid
 RUN rm -r /sio2/oioioi
 
 # Change uid and permissions
+USER root
 RUN usermod -u $oioioi_uid oioioi
 RUN chown -R oioioi:oioioi /sio2/ ~oioioi
+USER oioioi
