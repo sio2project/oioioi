@@ -28,6 +28,16 @@ You can specify configuration in `vagrant.yml`. Supported configuration options 
 
 .. _vagrant: https://www.vagrantup.com/docs/
 
+Don't forget to create the superuser. In order to do so,
+you should login into virtual machine created by Vagrant (default password is "vagrant")::
+
+  ssh 127.0.0.1 -p 2222 -l vagrant
+
+and run::
+
+  cd deployment
+  python manage.py createsuperuser
+
 Docker (for deployment)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
