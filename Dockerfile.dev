@@ -7,5 +7,5 @@ RUN rm -r /sio2/oioioi
 # Change uid and permissions
 USER root
 RUN usermod -u $oioioi_uid oioioi
-RUN chown -R oioioi:oioioi /sio2/ ~oioioi
+RUN find /sio2/ ~oioioi ! -user oioioi -exec chown oioioi:oioioi {} \;
 USER oioioi
