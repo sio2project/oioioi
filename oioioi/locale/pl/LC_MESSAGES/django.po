@@ -1412,7 +1412,7 @@ msgstr[3] "Rozmiar kodu źródłowego: %(size)s bajtów"
 #: confirmations/templates/confirmations/email_body.txt:13
 msgid ""
 "\n"
-"Please save this message together with the submittied source code. There is\n"
+"Please save this message together with the submitted source code. There is\n"
 "a cryptographic confirmation code below, which, together with the code,\n"
 "is a proof that the system properly registered your submission.\n"
 "\n"

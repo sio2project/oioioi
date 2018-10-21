@@ -11,7 +11,7 @@ Submission date: {{ submission_date }}{% endblocktrans %}
 {% blocktrans count size=size %}Source code size: {{ size }} byte{% plural %}Source code size: {{ size }} bytes{% endblocktrans %}
 
 {% blocktrans %}
-Please save this message together with the submittied source code. There is
+Please save this message together with the submitted source code. There is
 a cryptographic confirmation code below, which, together with the code,
 is a proof that the system properly registered your submission.
 
