@@ -86,11 +86,6 @@ class TestInline(admin.TabularInline):
     ordering = ('kind', 'order', 'name')
     formset = ValidationFormset
 
-    class Media(object):
-        css = {
-            'all': ('programs/admin.css',),
-        }
-
     def has_add_permission(self, request):
         return False
 
