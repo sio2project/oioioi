@@ -176,10 +176,10 @@ class TestPortalViews(TestCase):
         self.assertContains(response, _("Main page"))
 
     def test_admin_buttons(self):
-        show = _("Show node")
-        edit = _("Edit node")
-        add = _("Add child node")
-        delete = _("Delete node")
+        show = _("View page")
+        edit = _("Edit page")
+        add = _("Add a subpage")
+        delete = _("Delete page")
         manage = _("Manage portal")
         all = {show, edit, add, delete, manage}
         root = {show, edit, add, manage}

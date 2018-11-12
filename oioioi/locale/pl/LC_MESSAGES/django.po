@@ -3364,6 +3364,10 @@ msgstr "Na pewno chcesz usunąć %(news_version.title)s?"
 msgid "Delete"
 msgstr "Usuń"
 
+#: portals/templates/portals/menu.html:10
+msgid "Add menu items"
+msgstr "Dodaj pozycje menu"
+
 #: newsfeed/templates/newsfeed/newsfeed-view.html:4
 #: newsfeed/templates/newsfeed/newsfeed-view.html:7
 msgid "Newsfeed"

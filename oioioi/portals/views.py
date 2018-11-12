@@ -119,6 +119,7 @@ def _portal_view(request, portal, portal_path):
 
     request.portal = portal
     request.action = action
+    request.is_portal_admin = is_portal_admin(request)
 
     if action in node_actions:
         request.current_node = resolve_path(request.portal, portal_path)
@@ -143,7 +144,7 @@ def user_portal_view(request, username, portal_path):
     return _portal_view(request, portal, portal_path)
 
 
-@register_node_action('show_node', menu_text=_("Show node"), menu_order=100)
+@register_node_action('show_node', menu_text=_("View page"), menu_order=100)
 def show_node_view(request):
     rendered_panel = mark_safe(render_panel(
         request, request.current_node.get_lang_version(request).panel_code))
@@ -152,7 +153,7 @@ def show_node_view(request):
 
 
 @register_node_action('edit_node', condition=is_portal_admin,
-                      menu_text=_("Edit node"), menu_order=200)
+                      menu_text=_("Edit page"), menu_order=200)
 def edit_node_view(request):
     if request.method != 'POST':
         current_language = get_language_from_request(request)
@@ -194,7 +195,7 @@ def edit_node_view(request):
 
 
 @register_node_action('add_node', condition=is_portal_admin,
-                      menu_text=_("Add child node"), menu_order=300)
+                      menu_text=_("Add a subpage"), menu_order=300)
 def add_node_view(request):
     if request.method != 'POST':
         form = NodeForm(initial={'parent': request.current_node})
@@ -231,7 +232,7 @@ def add_node_view(request):
 
 @register_node_action('delete_node',
                       condition=is_portal_admin & ~current_node_is_root,
-                      menu_text=_("Delete node"), menu_order=400)
+                      menu_text=_("Delete page"), menu_order=400)
 def delete_node_view(request):
     if request.method != 'POST':
         return render(request, 'portals/delete-node.html')

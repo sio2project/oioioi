@@ -3,13 +3,28 @@
 <div class="panel panel-default">
     <div class="panel-heading">Menu</div>
     {% if current_node.is_leaf_node %}
-    <p class="text-center">
-        <small><em>{% trans "no child nodes" %}</em></small>
-    </p>
+    <div class="text-center">
+        <small>
+            <em>
+                {% if request.is_portal_admin %}
+                    <a href="{% portal_url portal=portal node=current_node action='add_node' %}">
+                        {% trans "Add subpages" %}
+                    </a>
+                {% else %}
+                    <span>
+                        {% trans "There are no subpages" %}
+                    </span>
+                {% endif %}
+            </em>
+        </small>
+    </div>
     {% else %}
         <div class="list-group"></div>
         {% for node in current_node.get_children %}
-            <a class="list-group-item" href="{% portal_url node=node %}">{{ node|full_name:request }}</a>
+            <a class="list-group-item"
+               href="{% portal_url node=node %}">
+                {{ node|full_name:request }}
+            </a>
         {% endfor %}
     {% endif %}
 </div>

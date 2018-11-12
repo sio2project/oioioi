@@ -2651,6 +2651,10 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
+#: portals/templates/portals/menu.html:10
+msgid "Add menu items"
+msgstr "Add menu items"
+
 #: disqualification/admin.py:76
 #: similarsubmits/templates/similarsubmits/programming_similar_submissions_admin.html:28
 msgid "Guilty"

@@ -4,7 +4,12 @@
 {% block title %}{% trans "Delete portal" %}{% endblock %}
 
 {% block content %}
-    <p>{% trans "Are you sure you want to delete your portal? All nodes will be deleted. This cannot be undone." %}</p>
+    <p>
+        {% blocktrans %}
+            Are you sure you want to delete your portal?
+            All its pages will be deleted too. This cannot be undone.
+        {% endblocktrans %}
+    </p>
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger" name="confirmation" value="">{% trans "Delete" %}</button>
