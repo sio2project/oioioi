@@ -41,9 +41,15 @@ class TeamMembership(models.Model):
 
     def validate_unique(self, *args, **kwargs):
         super(TeamMembership, self).validate_unique(*args, **kwargs)
-        if TeamMembership.objects.filter(user=self.user,
-                              team__contest=self.team.contest) \
-                                  .exclude(team=self.team).exists():
+
+        query = TeamMembership.objects.filter(user=self.user,
+                                              team__contest=self.team.contest)
+        # Excluding unsaved object excludes everything see:
+        # https://code.djangoproject.com/ticket/25467
+        if self.team.pk is not None:
+            query = query.exclude(team=self.team)
+
+        if query.exists():
             raise ValidationError(
                     {'user': {"The user is already in another team"}})
 
