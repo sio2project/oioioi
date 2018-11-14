@@ -14,7 +14,7 @@ from oioioi.portals.utils import join_paths
 if 'oioioi.portals.processors.portal_processor' \
         not in settings.TEMPLATES[0]['OPTIONS']['context_processors']:
     raise ImproperlyConfigured("When using portals module "
-                               "you have to add  oioioi.protals.processors.portal_processor "
+                               "you have to add oioioi.portals.processors.portal_processor "
                                "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py")
 
 
