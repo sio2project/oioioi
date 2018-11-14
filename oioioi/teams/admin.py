@@ -37,9 +37,10 @@ class TeamsAdmin(admin.ModelAdmin):
         qs = qs.filter(contest=request.contest)
         return qs
 
-    def save_model(self, request, obj, form, change):
+    def save_form(self, request, *args, **kwargs):
+        obj = super(TeamsAdmin, self).save_form(request, *args, **kwargs)
         obj.contest = request.contest
-        obj.save()
+        return obj
 
 
 contest_site.contest_register(Team, TeamsAdmin)
