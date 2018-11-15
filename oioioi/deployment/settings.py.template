@@ -264,6 +264,7 @@ INSTALLED_APPS = (
 #    'oioioi.contestlogo',
 #    'oioioi.avatar',
 #    'oioioi.teachers',
+#    'oioioi.simpleui',
 #    'oioioi.ipdnsauth',
 #    'oioioi.ipauthsync',
 #    'oioioi.participants',
