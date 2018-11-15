@@ -1,7 +1,5 @@
 @import "scss/style";
 
-$grapelli-table-cell-margin: 10px !default;
-
 .test-actions {
   visibility: hidden;
 }
@@ -30,6 +28,6 @@ $grapelli-table-cell-margin: 10px !default;
 
 .submission-admin {
   display: block;
-  padding: $grapelli-table-cell-margin !important;
-  margin: -$grapelli-table-cell-margin !important;
+  padding: 10px !important;
+  margin: -10px !important;
 }
