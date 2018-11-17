@@ -5,6 +5,7 @@ from django.forms import ValidationError
 from django.forms.extras.widgets import SelectDateWidget
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
 from six.moves import range, zip
 
 from oioioi.oi.models import PROVINCES, OIRegistration, School
@@ -80,6 +81,13 @@ class OIRegistrationForm(forms.ModelForm):
         self.fields['birthday'].widget = SelectDateWidget(years=years)
         self.fields['school'].widget = SchoolSelect()
         self.fields['class_type'].widget.attrs['class'] = 'input-xlarge'
+
+    def set_terms_accepted_text(self, terms_accepted_phrase):
+        if terms_accepted_phrase is None:
+            self.fields['terms_accepted'].label = _("terms accepted")
+        else:
+            self.fields['terms_accepted'].label = \
+                mark_safe(terms_accepted_phrase.text)
 
     def clean_school(self):
         school = self.cleaned_data['school']

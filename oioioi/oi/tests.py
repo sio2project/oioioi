@@ -3,6 +3,7 @@ import os
 import re
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
+from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.utils import override_settings
@@ -15,12 +16,13 @@ from oioioi.contests.models import Contest, ProblemInstance, Round
 from oioioi.evalmgr.tasks import create_environ
 from oioioi.oi.management.commands import import_schools
 from oioioi.oi.models import OIRegistration, School
-from oioioi.participants.models import Participant
+from oioioi.participants.models import Participant, TermsAcceptedPhrase
 from oioioi.programs.tests import SubmitFileMixin
 
 
 class TestOIAdmin(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users', 'test_contest', 'test_oi_registration',
+                'test_permissions']
 
     def test_admin_menu(self):
         contest = Contest.objects.get()
@@ -47,9 +49,61 @@ class TestOIAdmin(TestCase):
         contest = Contest.objects.get()
         self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
 
+    def test_terms_accepted_phrase_inline_admin_permissions(self):
+        OIRegistration.objects.all().delete()
+
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
+        contest.save()
+
+        # Logging as superuser.
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:contests_contest_change',
+                      args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertContains(response,
+                            'Text asking participant to accept contest terms')
+
+        # Checks if the field is editable.
+        self.assertContains(response, 'id_terms_accepted_phrase-0-text')
+
+        # Logging as contest admin.
+        self.client.login(username='test_contest_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:contests_contest_change',
+                      args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertContains(response,
+                            'Text asking participant to accept contest terms')
+
+        # Checks if the field is editable.
+        self.assertContains(response, 'id_terms_accepted_phrase-0-text')
+
+    def test_terms_accepted_phrase_inline_edit_restrictions(self):
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.oi.controllers.OIContestController'
+        contest.save()
+
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:contests_contest_change',
+                      args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertContains(response,
+                            'Text asking participant to accept contest terms')
+
+        # Checks if the field is not editable.
+        self.assertNotContains(response, 'id_terms_accepted_phrase-0-text')
+
+
 
 class TestOIRegistration(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_schools']
+    fixtures = ['test_users', 'test_contest', 'test_schools',
+                'test_terms_accepted_phrase']
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -104,6 +158,17 @@ class TestOIRegistration(TestCase):
         self.assertEqual(403, response.status_code)
         self.assertEqual(Participant.objects.count(), 1)
 
+    def test_default_terms_accepted_phrase(self):
+        TermsAcceptedPhrase.objects.get().delete()
+        contest = Contest.objects.get()
+        url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+
+        self.assertContains(response, 'terms accepted')
+
     def test_participants_registration(self):
         contest = Contest.objects.get()
         user = User.objects.get(username='test_user')
@@ -111,9 +176,11 @@ class TestOIRegistration(TestCase):
                       kwargs={'contest_id': contest.id})
         self.client.login(username='test_user')
         response = self.client.get(url)
+
         self.assertContains(response, 'Postal code')
         self.assertContains(response, 'School')
         self.assertContains(response, 'add it')
+        self.assertContains(response, 'Test terms accepted')
 
         user.first_name = 'Sir Lancelot'
         user.last_name = 'du Lac'

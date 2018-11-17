@@ -15,7 +15,7 @@ from oioioi.contests.controllers import (ContestController,
                                          RegistrationController)
 from oioioi.contests.utils import can_see_personal_data, is_contest_admin
 from oioioi.participants.models import (OnsiteRegistration, Participant,
-                                        RegistrationModel)
+                                        RegistrationModel, TermsAcceptedPhrase)
 
 
 class ParticipantsController(RegistrationController):
@@ -161,6 +161,20 @@ class ParticipantsController(RegistrationController):
             'can_unregister': can_unregister,
         }
         return TemplateResponse(request, self.registration_template, context)
+
+    def get_terms_accepted_phrase(self):
+        try:
+            return self.contest.terms_accepted_phrase
+        except TermsAcceptedPhrase.DoesNotExist:
+            return None
+
+    def can_change_terms_accepted_phrase(self, request):
+        """
+        :return: Whether the given contest has custom registered
+        participants (like the ones in OI and PA).
+        Then and only then we allow to change terms accepted phrase.
+        """
+        return True
 
 
 class OpenParticipantsController(ParticipantsController):

@@ -9,7 +9,7 @@ from oioioi.acm.controllers import ACMContestController
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import (all_non_trial_public_results_visible,
                                    is_contest_admin, is_contest_observer)
-from oioioi.pa.models import PAProblemInstanceData
+from oioioi.pa.models import PAProblemInstanceData, PARegistration
 from oioioi.pa.score import PAScore
 from oioioi.participants.controllers import (OnsiteContestControllerMixin,
                                              ParticipantsController)
@@ -62,6 +62,8 @@ class PARegistrationController(ParticipantsController):
             del request.session['pa_paregistrationformdata']
         else:
             form = self.get_form(request, participant)
+        form.set_terms_accepted_text(self.get_terms_accepted_phrase())
+
         if request.method == 'POST':
             # pylint: disable=maybe-no-member
             if form.is_valid():
@@ -76,6 +78,15 @@ class PARegistrationController(ParticipantsController):
 
         context = {'form': form, 'participant': participant}
         return TemplateResponse(request, self.registration_template, context)
+
+    def mixins_for_admin(self):
+        from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
+        return super(PARegistrationController, self).mixins_for_admin() \
+                + (TermsAcceptedPhraseAdminMixin,)
+
+    def can_change_terms_accepted_phrase(self, request):
+        return not PARegistration.objects.filter(
+                    participant__contest=request.contest).exists()
 
 
 class PAContestController(ProgrammingContestController):

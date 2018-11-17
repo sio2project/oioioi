@@ -102,6 +102,8 @@ class OIRegistrationInline(admin.StackedInline):
     form = OIRegistrationForm
     can_delete = False
     inline_classes = ('collapse open',)
+    # We don't allow admins to change users' acceptance of contest's terms.
+    exclude = ('terms_accepted',)
 
 
 class OIRegistrationParticipantAdmin(ParticipantAdmin):

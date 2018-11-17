@@ -3,6 +3,7 @@ import re
 import urllib
 from datetime import datetime  # pylint: disable=E0611
 
+from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
@@ -21,7 +22,7 @@ from oioioi.pa import utils
 from oioioi.pa.controllers import A_PLUS_B_RANKING_KEY, B_RANKING_KEY
 from oioioi.pa.models import PAProblemInstanceData, PARegistration
 from oioioi.pa.score import PAScore, ScoreDistribution
-from oioioi.participants.models import Participant
+from oioioi.participants.models import Participant, TermsAcceptedPhrase
 from oioioi.problems.models import Problem
 
 
@@ -219,7 +220,7 @@ class TestPARanking(TestCase):
 
 
 class TestPARegistration(TestCase):
-    fixtures = ['test_users', 'test_contest']
+    fixtures = ['test_users', 'test_contest', 'test_terms_accepted_phrase']
 
     def setUp(self):
         contest = Contest.objects.get()
@@ -236,6 +237,21 @@ class TestPARegistration(TestCase):
             'terms_accepted': 'y',
         }
 
+    def test_default_terms_accepted_phrase(self):
+        TermsAcceptedPhrase.objects.get().delete()
+        contest = Contest.objects.get()
+        url = reverse('participants_register',
+                      kwargs={'contest_id': contest.id})
+
+        self.client.login(username='test_user')
+        response = self.client.get(url)
+
+        self.assertContains(response,
+                            'I declare that I have read the contest rules and '
+                            'the technical arrangements. I fully understand '
+                            'them and accept them unconditionally.')
+
+
     def test_participants_registration(self):
         contest = Contest.objects.get()
         user = User.objects.get(username='test_user')
@@ -243,7 +259,9 @@ class TestPARegistration(TestCase):
                       kwargs={'contest_id': contest.id})
         self.client.login(username='test_user')
         response = self.client.get(url)
+
         self.assertContains(response, 'Postal code')
+        self.assertContains(response, 'Test terms accepted')
 
         user.first_name = 'Sir Lancelot'
         user.last_name = 'du Lac'
@@ -386,3 +404,55 @@ class TestPASafeExecModes(TestCase):
     def test_pa_finals_controller_safe_exec_mode(self):
         c = Contest.objects.get(pk="finals")
         self.assertEqual(c.controller.get_safe_exec_mode(), 'cpu')
+
+
+class TestPAAdmin(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_pa_registration',
+                'test_permissions']
+
+    def setUp(self):
+        contest = Contest.objects.get()
+        contest.controller_name = 'oioioi.pa.controllers.PAContestController'
+        contest.save()
+
+    def test_terms_accepted_phrase_inline_admin_permissions(self):
+        PARegistration.objects.all().delete()
+
+        # Logging as superuser.
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:contests_contest_change',
+                      args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertContains(response,
+                            'Text asking participant to accept contest terms')
+
+        # Checks if the field is editable.
+        self.assertContains(response, 'id_terms_accepted_phrase-0-text')
+
+        # Logging as contest admin.
+        self.client.login(username='test_contest_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:contests_contest_change',
+                      args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertContains(response,
+                            'Text asking participant to accept contest terms')
+
+        # Checks if the field is editable.
+        self.assertContains(response, 'id_terms_accepted_phrase-0-text')
+
+    def test_terms_accepted_phrase_inline_edit_restrictions(self):
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:contests_contest_change',
+                      args=(quote('c'),))
+
+        response = self.client.get(url)
+        self.assertContains(response,
+                            'Text asking participant to accept contest terms')
+
+        # Checks if the field is not editable.
+        self.assertNotContains(response, 'id_terms_accepted_phrase-0-text')

@@ -38,10 +38,9 @@ class PARegistration(RegistrationModel):
     newsletter = models.BooleanField(_("newsletter"), help_text=_("I want to "
         "receive the information about further editions of the contest."),
         default=False)
-    terms_accepted = models.BooleanField(_("terms accepted"),
-        help_text=_("I declare that I have read the contest rules and "
-                    "the technical arrangements. I fully understand them and "
-                     "accept them unconditionally."), default=False)
+    # It is presented with the default verbose name in all contexts, except for
+    # the custom registration form (in contests like OI and PA)
+    terms_accepted = models.BooleanField(_("terms accepted"), default=False)
 
     def erase_data(self):
         self.address = 'Account deleted'

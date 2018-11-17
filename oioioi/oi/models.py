@@ -111,6 +111,8 @@ class OIRegistration(RegistrationModel):
     school = models.ForeignKey(School, null=True, verbose_name=_("school"))
     class_type = models.CharField(max_length=7, choices=CLASS_TYPES,
         verbose_name=_("class"))
+    # It is presented with the default verbose name in all contexts, except for
+    # the custom registration form (in contests like OI and PA)
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
 
     def __unicode__(self):

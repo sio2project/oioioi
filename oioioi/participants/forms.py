@@ -1,9 +1,13 @@
+import bleach
 from django import forms
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.models import Round
-from oioioi.participants.models import OpenRegistration, Participant, Region
+from oioioi.participants.models import (OpenRegistration,
+                                        Participant,
+                                        Region,
+                                        TermsAcceptedPhrase)
 
 
 class ParticipantForm(forms.ModelForm):
@@ -55,3 +59,41 @@ class ExtendRoundForm(forms.Form):
         super(ExtendRoundForm, self).__init__(*args, **kwargs)
         self.fields['round'] = forms.ModelChoiceField(Round.objects
                 .filter(contest=request_contest))
+
+
+class TermsAcceptedPhraseForm(forms.ModelForm):
+    allowed_tags = ['a', 'article', 'b', 'blockquote', 'br',
+                    'center', 'code', 'em', 'font', 'h1', 'h2', 'h3', 'h4',
+                    'h5', 'h6', 'i', 'p', 'strong', 'u']
+
+    allowed_attributes = {'a': ['href', 'title', 'target'],
+                          'font': ['color', 'size'], 'table': ['align']}
+
+    def tag_as_str(self, tag):
+        if tag in self.allowed_attributes:
+            return '{} ({})'.format(
+                    tag, ', '.join(sorted(self.allowed_attributes[tag])))
+        else:
+            return tag
+
+    class Meta(object):
+        model = TermsAcceptedPhrase
+        fields = ['text']
+        verbose_name = 'fsaf'
+
+    def __init__(self, *args, **kwargs):
+        super(TermsAcceptedPhraseForm, self).__init__(*args, **kwargs)
+
+        if 'text' in self.fields:
+            self.fields['text'].widget \
+                    .attrs['class'] = 'input-xxlarge monospace'
+            self.fields['text'].help_text = \
+                    _("You can use the following tags and attributes: {}.") \
+                    .format(', '.join(self.tag_as_str(tag)
+                    for tag in sorted(self.allowed_tags)))
+
+    def clean_content(self):
+        return bleach.clean(self.cleaned_data['text'],
+                tags=self.allowed_tags,
+                attributes=self.allowed_attributes,
+                strip=True)

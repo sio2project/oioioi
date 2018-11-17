@@ -15,9 +15,14 @@ from oioioi.contests.admin import (RoundTimeExtensionAdmin, SubmissionAdmin,
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import RoundTimeExtension
 from oioioi.contests.utils import is_contest_admin
-from oioioi.participants.forms import (ExtendRoundForm, ParticipantForm,
-                                       RegionForm)
-from oioioi.participants.models import OnsiteRegistration, Participant, Region
+from oioioi.participants.forms import (ExtendRoundForm,
+                                       ParticipantForm,
+                                       RegionForm,
+                                       TermsAcceptedPhraseForm)
+from oioioi.participants.models import (OnsiteRegistration,
+                                        Participant,
+                                        Region,
+                                        TermsAcceptedPhrase)
 from oioioi.participants.utils import (contest_has_participants,
                                        contest_is_onsite,
                                        has_participants_admin)
@@ -362,3 +367,48 @@ class ParticipantsRoundTimeExtensionMixin(object):
         return super(ParticipantsRoundTimeExtensionMixin, self) \
             .formfield_for_foreignkey(db_field, request, **kwargs)
 RoundTimeExtensionAdmin.mix_in(ParticipantsRoundTimeExtensionMixin)
+
+
+# Normally it would be better to use TabularInline,
+# because we have at most one object of this type per contest.
+# StackedInline was used instead,
+# because help_text didn't want to work with tabular one.
+# If you are reading this and know how to fix this, feel free to do it!
+class TermsAcceptedPhraseInline(admin.StackedInline):
+    model = TermsAcceptedPhrase
+    can_delete = False
+    form = TermsAcceptedPhraseForm
+    max_num = 0
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    # We don't want anyone (even admins) to be able to change terms accepted
+    # phrase, if some participant has already registered.
+    # This is because we cannot assume participants would accept the new one.
+    def get_readonly_fields(self, request, obj=None):
+        result = super(TermsAcceptedPhraseInline,
+                       self).get_readonly_fields(request, obj)
+
+        if not is_contest_admin(request) or \
+                not request.contest.controller.registration_controller() \
+                 .can_change_terms_accepted_phrase(request):
+            result = result + ('text',)
+
+        return result
+
+
+class TermsAcceptedPhraseAdminMixin(object):
+    """Adds :class:`~oioioi.participants.models.TermsAcceptedPhrase` to an admin
+       panel.
+    """
+    def __init__(self, *args, **kwargs):
+        super(TermsAcceptedPhraseAdminMixin, self) \
+            .__init__(*args, **kwargs)
+        self.inlines = self.inlines + [TermsAcceptedPhraseInline]

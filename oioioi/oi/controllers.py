@@ -60,6 +60,8 @@ class OIRegistrationController(ParticipantsController):
             del request.session['oi_oiregistrationformdata']
         else:
             form = self.get_form(request, participant)
+        form.set_terms_accepted_text(self.get_terms_accepted_phrase())
+
         if request.method == 'POST':
             if '_add_school' in request.POST:
                 data = request.POST.copy()
@@ -96,6 +98,15 @@ class OIRegistrationController(ParticipantsController):
                 prev.append((2, rendered_sensitive_info))
 
         return prev
+
+    def mixins_for_admin(self):
+        from oioioi.participants.admin import TermsAcceptedPhraseAdminMixin
+        return super(OIRegistrationController, self).mixins_for_admin() \
+                + (TermsAcceptedPhraseAdminMixin,)
+
+    def can_change_terms_accepted_phrase(self, request):
+        return not OIRegistration.objects.filter(
+                    participant__contest=request.contest).exists()
 
 
 class OIContestController(ProgrammingContestController):

@@ -1,0 +1,26 @@
+[
+  {
+    "pk": 1,
+    "model": "participants.participant",
+    "fields": {
+      "contest": "c",
+      "user": 1001,
+      "status": "ACTIVE",
+      "anonymous": "False"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "pa.paregistration",
+    "fields": {
+      "participant": 1,
+      "address": "The Castle",
+      "postal_code": "31-337",
+      "city": "Camelot",
+      "t_shirt_size": "L",
+      "job": "AS",
+      "job_name": "WSRH",
+      "terms_accepted": "True"
+    }
+  }
+]

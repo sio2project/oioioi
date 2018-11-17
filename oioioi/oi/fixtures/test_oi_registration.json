@@ -1,0 +1,44 @@
+[
+  {
+    "pk": 1,
+    "model": "oi.school",
+    "fields": {
+      "province": "mazowieckie",
+      "city": "Warszawa",
+      "name": "XIV LO im. S.Staszica",
+      "is_active": true,
+      "phone": "4004004",
+      "postal_code": "02-010",
+      "address": "Nowowiejska 37a",
+      "email": "a@staszic.waw.pl",
+      "is_approved": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "participants.participant",
+    "fields": {
+      "contest": "c",
+      "user": 1001,
+      "status": "ACTIVE",
+      "anonymous": "False"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "oi.oiregistration",
+    "fields": {
+      "participant": 1,
+      "address": "The Castle",
+      "postal_code": "31-337",
+      "city": "Camelot",
+      "phone": "000-000-000",
+      "birthday": "1975-05-25",
+      "birthplace": "Lac",
+      "t_shirt_size": "L",
+      "school": "1",
+      "class_type": "1LO",
+      "terms_accepted": "True"
+    }
+  }
+]

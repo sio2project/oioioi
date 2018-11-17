@@ -125,3 +125,27 @@ class TestRegistration(RegistrationModel):
     __test__ = False
     """Used only for testing"""
     name = models.CharField(max_length=255)
+
+
+class TermsAcceptedPhrase(models.Model):
+    """This model stores text asking user to accept contest's terms.
+
+       It is used in contests with custom registration: PA and OI.
+    """
+    text = models.TextField(_("text"), null=True, max_length=500)
+    contest = models.OneToOneField(Contest, related_name='terms_accepted_phrase')
+
+    # Verbose names in Meta could be a little misleading.
+    # This is because they are not 100% accurate, but look nice in admin view.
+    class Meta(object):
+        # In StackedInline verbose_name_plural is used as a header of inline.
+        verbose_name_plural = \
+            _("text asking participant to accept contest terms")
+        verbose_name = _("text")
+
+    # This is used as a name of the given object displayed in TabularInline.
+    # We are using it to display only one object of type TermsAcceptedPhrase so
+    # it is not necessary to name it.
+    def __unicode__(self):
+        return ""
+
