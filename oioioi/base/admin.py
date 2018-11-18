@@ -10,6 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import router
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.encoding import force_text
 from django.utils.html import escape
@@ -123,7 +124,7 @@ class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
             return qs
 
 
-def delete_selected(modeladmin, request, queryset):
+def delete_selected(modeladmin, request, queryset, **kwargs):
     """Default ModelAdmin action that deletes the selected objects.
 
        Django's default handler doesn't even check the
@@ -166,8 +167,11 @@ def delete_selected(modeladmin, request, queryset):
                 "items": model_ngettext(modeladmin.opts, n)
             }
             modeladmin.message_user(request, message_text, messages.SUCCESS)
-        # Return None to display the change list page again.
-        return None
+        # If specific_redirect was not given in kwargs, return None to display the change list page again.
+        if kwargs.get('specific_redirect') is None:
+            return None
+        else:
+            return redirect(kwargs['specific_redirect'])
 
     if len(queryset) == 1:
         objects_name = force_text(opts.verbose_name)

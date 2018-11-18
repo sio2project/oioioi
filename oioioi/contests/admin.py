@@ -18,6 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 
 from oioioi.base import admin
+from oioioi.base.admin import delete_selected
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.contests.forms import (ProblemInstanceForm, SimpleContestForm,
@@ -229,6 +230,19 @@ class ContestAdmin(admin.ModelAdmin):
                     object_id, contest_id=contest_id)
         return super(ContestAdmin, self).change_view(request,
                 object_id, form_url, extra_context)
+
+    def delete_selected_contests(self, modeladmin, request, queryset):
+        # Redirect to contest-unprefixed view, just in case we deleted the current contest.
+        return delete_selected(modeladmin, request, queryset,
+                               specific_redirect='noncontest:oioioiadmin:contests_contest_changelist')
+
+    def get_actions(self, request):
+        # Use delete_selected with a custom redirect.
+        actions = super(ContestAdmin, self).get_actions(request)
+        actions['delete_selected'] = (
+            self.delete_selected_contests, 'delete_selected',
+            delete_selected.short_description)
+        return actions
 
 
 class BaseContestAdmin(admin.MixinsAdmin):
