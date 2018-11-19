@@ -64,7 +64,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     def get_submissions_limit(self, request, problem_instance):
         problem = problem_instance.problem
 
-        if can_admin_problem(request, problem):
+        if problem_instance.contest is None \
+                or can_admin_problem(request, problem):
+            # submissions limit for main_problem_instance (without contest)
+            # makes no sense
             return None
         return problem_instance.submissions_limit
 
@@ -80,18 +83,29 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         return True
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind):
-        if problem_instance.contest is None:
-            # submissions limit for main_problem_instance (without contest)
-            # makes no sense
+        submissions_limit = problem_instance.controller \
+            .get_submissions_limit(request, problem_instance)
+        if not submissions_limit:
             return False
 
         submissions_number = Submission.objects.filter(user=request.user,
             problem_instance__id=problem_instance.id, kind=kind).count()
+        return submissions_number >= submissions_limit
+
+    def get_submissions_left(self, request, problem_instance, kind='NORMAL'):
+        """Returns number of submissions left until reaching problem limit
+        """
+        if request.user.is_anonymous():
+            return None
+
         submissions_limit = problem_instance.controller \
             .get_submissions_limit(request, problem_instance)
-        if submissions_limit and submissions_number >= submissions_limit:
-            return True
-        return False
+        if not submissions_limit:
+            return None
+        submissions_number = Submission.objects.filter(user=request.user,
+            problem_instance__id=problem_instance.id, kind=kind).count()
+
+        return max(0, submissions_limit - submissions_number)
 
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         """Fills a minimal environment with evaluation receipt and other values

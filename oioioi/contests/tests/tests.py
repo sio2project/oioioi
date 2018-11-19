@@ -1971,3 +1971,54 @@ class TestSubmissionAdminWithoutContest(TestCase, SubmitFileMixin):
         response = self.client.get(url)
         self.assertContains(response, '<th class="field-id">', count=1,
                             status_code=200)
+
+
+def see_limits_on_problems_list(self, username, displays_submissions_limit,
+                                displays_tries_left, additional=[]):
+    def assert_contains_if(should_contain):
+        return self.assertContains if should_contain else self.assertNotContains
+
+    if username is None:
+        self.client.logout()
+    else:
+        self.client.login(username=username)
+
+    response = self.client.get('/c/c/p', follow=True)
+    assert_contains_if(displays_tries_left)(response, 'Tries left')
+    assert_contains_if(displays_submissions_limit)(response, 'Submissions limit')
+    for text in additional:
+        self.assertContains(response, text)
+
+
+class TestSubmissionsLimitOnListView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission']
+
+    def test_anonymous_user(self):
+        see_limits_on_problems_list(self, None,
+                                    displays_submissions_limit=True,
+                                    displays_tries_left=False,
+                                    additional=['10'])
+
+    def test_user(self):
+        see_limits_on_problems_list(self, 'test_user',
+                                    displays_submissions_limit=False,
+                                    displays_tries_left=True,
+                                    additional=['9 of 10'])
+
+    def test_admin(self):
+        see_limits_on_problems_list(self, 'test_admin',
+                                    displays_submissions_limit=False,
+                                    displays_tries_left=False)
+
+
+class TestNoSubmissionsLimitOnListView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_submission',
+                'test_problem_instance_with_no_submissions_limit']
+
+    def test_not_displaying_limits(self):
+        for user in [None, 'test_user', 'test_admin']:
+            see_limits_on_problems_list(self, user,
+                                        displays_submissions_limit=False,
+                                        displays_tries_left=False)

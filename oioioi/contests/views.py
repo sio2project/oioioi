@@ -78,6 +78,7 @@ def problems_list_view(request):
     # 2) statement_visible
     # 3) round end time
     # 4) user result
+    # 5) number of submissions left
     # Sorted by (start_date, end_date, round name, problem name)
     problems_statements = sorted([
         (
@@ -86,7 +87,7 @@ def problems_list_view(request):
             controller.get_round_times(request, pi.round),
 
             # Because this view can be accessed by an anynomous user we can't
-            # use `user=request.user` (it would cause TypeError). Suprisingly
+            # use `user=request.user` (it would cause TypeError). Surprisingly
             # using request.user.id is ok since for AnynomousUser id is set
             # to None.
             next((r for r in UserResultForProblem.objects.filter(
@@ -94,17 +95,21 @@ def problems_list_view(request):
                     if r and r.submission_report
                         and controller.can_see_submission_score(request,
                             r.submission_report.submission)),
-                 None)
+                 None),
+            pi.controller.get_submissions_left(request, pi),
+            pi.controller.get_submissions_limit(request, pi)
         )
         for pi in problem_instances
     ], key=lambda p: (p[2].get_start(), p[2].get_end(), p[0].round.name,
                       p[0].short_name))
 
+    show_submissions_limit = any([p[5] for p in problems_statements])
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
     return TemplateResponse(request, 'contests/problems_list.html',
         {'problem_instances': problems_statements,
          'show_rounds': show_rounds,
          'show_scores': request.user.is_authenticated(),
+         'show_submissions_limit': show_submissions_limit,
          'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100)})
 
 
@@ -183,7 +188,10 @@ def submit_view(request, problem_instance_id=None):
         if problem_instance_id is not None:
             initial = {'problem_instance_id': int(problem_instance_id)}
         form = SubmissionForm(request, initial=initial)
-    return TemplateResponse(request, 'contests/submit.html', {'form': form})
+    submissions_left = {pi.id: pi.controller.get_submissions_left(request, pi)
+         for pi in form.get_problem_instances()}
+    return TemplateResponse(request, 'contests/submit.html',
+                            {'form': form, 'submissions_left': submissions_left})
 
 
 @menu_registry.register_decorator(_("My submissions"), lambda request:

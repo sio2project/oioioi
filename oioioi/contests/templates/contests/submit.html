@@ -1,10 +1,11 @@
 {% extends "base-with-menu.html" %}
-{% load i18n %}
+{% load i18n staticfiles simple_filters %}
 
 {% block title %}{% trans "Submit solution" %}{% endblock %}
 
 {% block main-content %}
 <h2>{% trans "Submit solution" %}</h2>
+<h4 id="submissions-left"></h4>
 <form enctype="multipart/form-data" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
@@ -14,4 +15,9 @@
         </button>
     </div>
 </form>
+
+<script>
+    const submissionsLeft = {{ submissions_left | json_parse }}
+</script>
+<script src="{{ STATIC_URL }}contests/display-submissions-left.js"></script>
 {% endblock %}

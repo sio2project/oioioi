@@ -6,13 +6,13 @@ from json import loads
 from datetime import datetime  # pylint: disable=E0611
 
 from django import forms
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import Permission, User, AnonymousUser
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.http import HttpResponse
-from django.test import TransactionTestCase
+from django.test import TransactionTestCase, RequestFactory
 from django.test.utils import override_settings
 from django.utils.timezone import utc
 import six.moves.urllib.parse
@@ -2006,3 +2006,64 @@ class TestAddToContestFromProblemset(TestCase):
             response.content.index('Contest4'))
         self.assertLess(response.content.index('Contest4'),
             response.content.index('Contest2'))
+
+
+def get_submission_left(username, contest_id='c', pi_pk=1):
+    request = RequestFactory().request()
+    request.user = User.objects.get(username=username) \
+        if username is not None else AnonymousUser()
+
+    if contest_id is not None:
+        request.contest = Contest.objects.get(id=contest_id)
+    problem_instance = ProblemInstance.objects.get(pk=pi_pk)
+    return problem_instance.controller.get_submissions_left(request,
+                                                            problem_instance)
+
+
+class TestSubmissionLeft(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission']
+
+    def test_admin(self):
+        assert get_submission_left('test_admin') is None
+
+    def test_user_without_submissions(self):
+        assert get_submission_left('test_user2') == 10
+
+    def test_user_with_submissions(self):
+        assert get_submission_left('test_user') == 9
+
+    def test_not_authenticated_user(self):
+        assert get_submission_left(None) is None
+
+
+class TestSubmissionLeftWhenNoLimit(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance_with_no_submissions_limit',
+                'test_submission']
+
+    def test_admin(self):
+        assert get_submission_left('test_admin') is None
+
+    def test_user_without_submissions(self):
+        assert get_submission_left('test_user2') is None
+
+    def test_user_with_submissions(self):
+        assert get_submission_left('test_user') is None
+
+    def test_not_authenticated_user(self):
+        assert get_submission_left(None) is None
+
+
+class TestSubmissionLeftWhenNoContest(TestCase):
+    fixtures = ['test_users', 'test_full_package',
+                'test_problem_instance_with_no_contest']
+
+    def test_admin(self):
+        assert get_submission_left('test_admin', None) is None
+
+    def test_user_without_submissions(self):
+        assert get_submission_left('test_user', None) is None
+
+    def test_not_authenticated_user(self):
+        assert get_submission_left(None, None) is None
