@@ -5,11 +5,13 @@
 # Translators:
 # Translators:
 # Accounts-Payable - Alkemics, 2015
+# Artur Puzio <cytadela8@op.pl>, 2018
 # Chen-Do LU <clu@alkemics.com>, 2015
+# Filip Mikina <filipmikina@gmail.com>, 2018
 # François Breysse <fb@alkemics.com>, 2015
 # Jacek Olczyk <joaldek@gmail.com>, 2018
 # Jakub Sieroń <j.sieron@student.uw.edu.pl>, 2018
-# konrad … <konrad.krulikowski@gmail.com>, 2016-2017
+# konrad … <konrad.krulikowski@gmail.com>, 2016-2018
 # Maciej Dębski <md319428@students.mimuw.edu.pl>, 2014
 # Maciej Matraszek <matraszek.maciej@gmail.com>, 2013,2016
 # welter <macio92@gmail.com>, 2013
@@ -27,7 +29,7 @@
 # Rafał Stefański <ravst94@gmail.com>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2013
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
-# sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014,2016
+# sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014,2016,2018
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # teqwve <mrtaddewicz@gmail.com>, 2016
@@ -38,9 +40,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-12 09:32+0200\n"
-"PO-Revision-Date: 2018-09-12 08:02+0000\n"
-"Last-Translator: Jacek Olczyk <joaldek@gmail.com>\n"
+"POT-Creation-Date: 2018-11-21 17:00+0100\n"
+"PO-Revision-Date: 2018-11-21 16:21+0000\n"
+"Last-Translator: Artur Puzio <cytadela8@op.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -553,32 +555,42 @@ msgid ""
 "href='%(link)s'>here</a> to change it. It will take only a while."
 msgstr "Twój login – %(login)s – zawiera niedozwolone znaki. Przejdź <a href='%(link)s'>tutaj</a>, aby go zmienić. To potrwa tylko chwilę."
 
-#: base/templates/403.html:7
-msgid "403 &mdash; Sorry, but you're not allowed to see anything here. "
-msgstr "403 &mdash; Niestety, nie ma tu niczego co moglibyśmy Ci pokazać."
+#: base/templates/403.html:9
+#| msgid " &mdash; Sorry, but you're not allowed to see anything here. "
+msgid "Sorry, but you're not allowed to see anything here. "
+msgstr "Niestety, nie ma tu niczego co moglibyśmy Ci pokazać."
 
-#: base/templates/404.html:7
-msgid "404 &mdash; Page not found"
-msgstr "404 &mdash; Nie znaleziono strony"
+#: base/templates/404.html:8
+#| msgid "File not found: "
+msgid "Page not found"
+msgstr "Nie znaleziono strony"
 
-#: base/templates/405.html:7
-#, python-format
+#: base/templates/405.html:9
+#| msgid ""
+#| "dash; Sorry, but this method is not allowed. You can try again ng llowed)s."
 msgid ""
-"405 &mdash; Sorry, but this method is not allowed. You can try again using "
-"%(allowed)s."
-msgstr "405 &mdash; Ta metoda protokołu HTTP nie jest dozwolona; spróbuj ponownie korzystając z %(allowed)s."
+"\n"
+"            Sorry, but this method is not allowed.\n"
+"        "
+msgstr "\nTa metoda protokołu HTTP nie jest dozwolona."
 
-#: base/templates/405.html:8
+#: base/templates/405.html:13
+#, python-format
+msgid "You can try again using %(allowed)s."
+msgstr "Spróbuj ponownie korzystając z %(allowed)s."
+
+#: base/templates/405.html:14
 msgid ""
 "In other words, you probably typed URL directly to the browser. Instead of "
 "this, use proper link from the website."
 msgstr "Innymi słowy prawdopodobnie wpisałeś adres do przeglądarki; zamiast tego spróbuj użyć odpowiedniego odnośnika na stronie."
 
-#: base/templates/500.html:7
-msgid "500 &mdash; Holy guacamole, internal server error!"
-msgstr "500 &mdash; Ojej, toż to straszny błąd wewnętrzny serwera!"
+#: base/templates/500.html:9
+#| msgid "500 &mdash; Holy guacamole, internal server error!"
+msgid "Holy guacamole, internal server error!"
+msgstr "Ojej, toż to straszny błąd wewnętrzny serwera!"
 
-#: base/templates/500.html:15
+#: base/templates/500.html:18
 msgid "A report has been emailed to the admins. They will love it."
 msgstr "Administratorzy już zostali powiadomieni. Na pewno się ucieszą."
 
@@ -956,8 +968,8 @@ msgstr "Potwierdź"
 #: base/templates/two_factor/_wizard_actions.html:23
 #: portals/templates/portals/create-global-portal.html:23
 #: portals/templates/portals/create-user-portal.html:11
-#: portals/templates/portals/delete-node.html:12
-#: portals/templates/portals/delete-portal.html:11
+#: portals/templates/portals/delete-node.html:15
+#: portals/templates/portals/delete-portal.html:16
 msgid "Cancel"
 msgstr "Anuluj"
 
@@ -1548,7 +1560,7 @@ msgstr "Edytuj"
 msgid "Edit quiz questions"
 msgstr "Edytuj pytania"
 
-#: contests/admin.py:318 programs/admin.py:263
+#: contests/admin.py:318 programs/admin.py:258
 #: programs/templates/programs/admin/model_solutions.html:4
 #: programs/templates/programs/admin/model_solutions.html:17
 msgid "Model solutions"
@@ -1947,7 +1959,7 @@ msgstr "Runda %d"
 msgid "Visible"
 msgstr "Widoczne"
 
-#: contests/models.py:233 teams/models.py:55
+#: contests/models.py:233 teams/models.py:61
 msgid "Not visible"
 msgstr "Niewidoczne"
 
@@ -2284,7 +2296,7 @@ msgstr "Niestety nie ma tu żadnych zadań, do których możesz przysłać rozwi
 #: contests/templates/contests/reattach_problem_contest_list.html:17
 #: contests/templates/contests/select_contest.html:16
 #: oi/templates/oi/sensitive_participant_info.html:17
-#: portals/templates/portals/portals_main_page.html:71
+#: portals/templates/portals/portals_main_page.html:70
 #: prizes/templates/prizes/email_footer.txt:6
 #: problems/templates/problems/problemset/problem-list.html:14
 #: problems/templates/problems/problemset/select-contest.html:15
@@ -3319,7 +3331,7 @@ msgstr "Ustaw"
 msgid "Turn off"
 msgstr "Wyłącz"
 
-#: newsfeed/forms.py:15 programs/admin.py:318
+#: newsfeed/forms.py:15 programs/admin.py:313
 msgid "Language"
 msgstr "Język"
 
@@ -3354,8 +3366,8 @@ msgid "Are you sure you want to delete %(news_version.title)s?"
 msgstr "Na pewno chcesz usunąć %(news_version.title)s?"
 
 #: newsfeed/templates/newsfeed/news.html:20
-#: portals/templates/portals/delete-node.html:11
-#: portals/templates/portals/delete-portal.html:10
+#: portals/templates/portals/delete-node.html:14
+#: portals/templates/portals/delete-portal.html:15
 #: questions/templates/admin/questions/change_message.html:50
 #: simpleui/templates/simpleui/problem_settings/ingredients/attachments.html:40
 #: simpleui/templates/simpleui/problem_settings/ingredients/tags.html:28
@@ -3363,10 +3375,6 @@ msgstr "Na pewno chcesz usunąć %(news_version.title)s?"
 #: teams/templates/teams/team.html:48
 msgid "Delete"
 msgstr "Usuń"
-
-#: portals/templates/portals/menu.html:10
-msgid "Add menu items"
-msgstr "Dodaj pozycje menu"
 
 #: newsfeed/templates/newsfeed/newsfeed-view.html:4
 #: newsfeed/templates/newsfeed/newsfeed-view.html:7
@@ -4231,9 +4239,10 @@ msgid "Exactly one from following should be chosen: owner, link_name"
 msgstr "Dokładnie jedno z poniższych musi zostać wybrane: owner, link_name"
 
 #: portals/templates/portals/add-node.html:4 portals/tests.py:181
-#: portals/views.py:197
-msgid "Add child node"
-msgstr "Dodaj węzeł podrzędny"
+#: portals/views.py:198
+#| msgid "Add a problem"
+msgid "Add a subpage"
+msgstr "Dodaj podstronę"
 
 #: portals/templates/portals/create-global-portal.html:4
 msgid "Create the global portal"
@@ -4261,38 +4270,49 @@ msgid "You do not have a portal yet. Do you want to create one?"
 msgstr "Nie masz jeszcze portalu. Chcesz go utworzyć?"
 
 #: portals/templates/portals/delete-node.html:6
-msgid "Are you sure you want to delete the following node:"
-msgstr "Na pewno chcesz usunąć następujący węzeł:"
+#| msgid "Are you sure you want to delete the following node:"
+msgid "Are you sure you want to delete the following page:"
+msgstr "Na pewno chcesz usunąć następującą stronę:"
 
-#: portals/templates/portals/delete-node.html:7
-msgid "Its descendants will be deleted as well. This cannot be undone."
-msgstr "Usunięte zostaną również jego elementy potomne; tej czynności nie można cofnąć."
+#: portals/templates/portals/delete-node.html:10
+#| msgid " descendants will be deleted as well. This cannot be undone."
+msgid "Its subpages will be deleted as well. This cannot be undone."
+msgstr "Podstrony zostaną również usunięte. Ta operacja jest nieodwracalna."
 
 #: portals/templates/portals/delete-portal.html:4
 #: portals/templates/portals/manage-portal.html:84
 msgid "Delete portal"
 msgstr "Usuń portal"
 
-#: portals/templates/portals/delete-portal.html:7
+#: portals/templates/portals/delete-portal.html:8
+#| msgid ""
+#| "u sure you want to delete your portal? All nodes will be deleted. s not be "
+#| "undone."
 msgid ""
-"Are you sure you want to delete your portal? All nodes will be deleted. This"
-" cannot be undone."
-msgstr "Na pewno chcesz usunąć swój portal? Usunięte zostaną wszystkie węzły. Tej czynności nie można cofnąć."
+"\n"
+"            Are you sure you want to delete your portal?\n"
+"            All its pages will be deleted too. This cannot be undone.\n"
+"        "
+msgstr "\nNa pewno chcesz usunąć swój portal?\nUsunięte zostaną wszystkie jego strony. Ta operacja jest nieodwracalna."
 
 #: portals/templates/portals/edit-node.html:4 portals/tests.py:180
-#: portals/views.py:155
-msgid "Edit node"
-msgstr "Edytuj węzeł"
+#: portals/views.py:156
+#| msgid "Edit tags"
+msgid "Edit page"
+msgstr "Edytuj stronę"
 
 #: portals/templates/portals/global-portal-initial-main-page-body.txt:1
+#| msgid ""
+#| "s the main page of the global portal. Click \"Edit node\" on the ht to ify "
+#| "it."
 msgid ""
-"This is the main page of the global portal. Click \"Edit node\" on the right"
-" to modify it."
-msgstr "Oto strona główna portalu globalnego. Naciśnij „Edytuj węzeł” po prawej, by ją zmodyfikować."
+"\n"
+"This is the main page of the global portal. Click \"Edit page\" above to modify it.\n"
+msgstr "\nOto strona główna portalu globalnego. Naciśnij „Edytuj stronę” powyżej, by ją zmodyfikować.\n"
 
 #: portals/templates/portals/manage-portal.html:4
 #: portals/templates/portals/manage-portal.html:61 portals/tests.py:183
-#: portals/views.py:248
+#: portals/views.py:249
 msgid "Manage portal"
 msgstr "Zarządzaj portalem"
 
@@ -4310,13 +4330,19 @@ msgid "Save description"
 msgstr "Zapisz opis"
 
 #: portals/templates/portals/manage-portal.html:78
-msgid "Drag and drop nodes to reorganize the portal structure."
-msgstr "Przeciągaj i upuszczaj węzły, by reorganizować strukturę portalu."
+#| msgid "Drag and drop nodes to reorganize the portal structure."
+msgid "Drag and drop pages to reorganize the portal structure."
+msgstr "Przeciągaj i upuszczaj strony, by reorganizować strukturę portalu."
 
-#: portals/templates/portals/menu.html:7
-#| msgid "Add child node"
-msgid "no child nodes"
-msgstr "brak węzłów podrzędnych"
+#: portals/templates/portals/menu.html:11
+#| msgid "Add tag"
+msgid "Add subpages"
+msgstr "Dodaj podstrony"
+
+#: portals/templates/portals/menu.html:15
+#| msgid "There are no problems here :("
+msgid "There are no subpages"
+msgstr "Brak podstron"
 
 #: portals/templates/portals/node-form.html:79
 #| msgid "Problem Name"
@@ -4332,7 +4358,7 @@ msgstr "Zapis matematyczny (w tej samej linii)"
 msgid "Math mode"
 msgstr "Zapis matematyczny (w nowej linii)"
 
-#: portals/templates/portals/portals_main_page.html:18
+#: portals/templates/portals/portals_main_page.html:17
 #, python-format
 msgid ""
 "\n"
@@ -4341,7 +4367,7 @@ msgid ""
 "        "
 msgstr "\nJeśli chcesz utworzyć lub edytować swój portal <a href=\"%(user_portal)s\">kliknij tutaj</a>.\nJeśli chcesz, by Twój portal pojawił się na liście, prosimy, napisz do nas."
 
-#: portals/templates/portals/portals_main_page.html:29
+#: portals/templates/portals/portals_main_page.html:28
 #, python-format
 msgid ""
 "\n"
@@ -4349,25 +4375,27 @@ msgid ""
 "                "
 msgstr "\nJeśli chcesz stworzyć nowy globalny portal <a href=\"%(create_global_portal)s\">kliknij tutaj</a>."
 
-#: portals/templates/portals/portals_main_page.html:72
+#: portals/templates/portals/portals_main_page.html:71
 msgid "URL"
 msgstr "URL"
 
-#: portals/templates/portals/portals_main_page.html:73
+#: portals/templates/portals/portals_main_page.html:72
 #| msgid "description"
 msgid "Short description"
 msgstr "Krótki opis"
 
-#: portals/templates/portals/portals_main_page.html:97
+#: portals/templates/portals/portals_main_page.html:96
 #| msgid "There are no problems here :("
 msgid "There are no portals here :("
 msgstr "Brak portali :("
 
 #: portals/templates/portals/user-portal-initial-main-page-body.txt:1
+#| msgid ""
+#| "s the main page of your portal. Click \"Edit node\" on the right to ify "
 msgid ""
-"This is the main page of your portal. Click \"Edit node\" on the right to "
-"modify it."
-msgstr "Oto strona główna twojego portalu. Naciśnij „Edytuj węzeł” po prawej, by ją zmodyfikować."
+"\n"
+"This is the main page of your portal. Click \"Edit page\" above to modify it.\n"
+msgstr "\nOto strona główna twojego portalu. Naciśnij „Edytuj stronę” powyżej, by ją zmodyfikować.\n"
 
 #: portals/templates/portals/widgets/redirect.html:9
 #, python-format
@@ -4389,35 +4417,37 @@ msgid ""
 "underscores or hyphens."
 msgstr "Wpisz poprawny ciąg znaków składający się wyłącznie z małych liter, podkreśleń i myślników. "
 
-#: portals/tests.py:179 portals/views.py:146
-msgid "Show node"
-msgstr "Pokaż węzeł"
+#: portals/tests.py:179 portals/views.py:147
+#| msgid "Main page"
+msgid "View page"
+msgstr "Pokaż stronę"
 
-#: portals/tests.py:182 portals/views.py:234
-msgid "Delete node"
-msgstr "Usuń węzeł"
+#: portals/tests.py:182 portals/views.py:235
+#| msgid "Delete tag"
+msgid "Delete page"
+msgstr "Usuń stronę"
 
-#: portals/views.py:344
+#: portals/views.py:345
 #| msgid "Main page"
 msgid "Portals main page"
 msgstr "Strona główna portali"
 
-#: portals/views.py:345 portals/views.py:381
+#: portals/views.py:346 portals/views.py:382
 #| msgid "Public problems"
 msgid "Public portals"
 msgstr "Portale publiczne"
 
-#: portals/views.py:346
+#: portals/views.py:347
 #| msgid "My portal"
 msgid "All portals"
 msgstr "Wszystkie portale"
 
-#: portals/views.py:347
+#: portals/views.py:348
 #| msgid "Create the global portal"
 msgid "Global portals"
 msgstr "Portale globalne"
 
-#: portals/views.py:393
+#: portals/views.py:394
 msgid "My portal"
 msgstr "Mój portal"
 
@@ -5001,32 +5031,32 @@ msgid ""
 " exceed %(limit)ds."
 msgstr "Suma limitów czasu wszystkich testów jest zbyt duża; wynosi %(sum)ds, choć nie powinna przekraczać %(limit)ds."
 
-#: programs/admin.py:113 simpleui/forms.py:94
+#: programs/admin.py:108 simpleui/forms.py:94
 msgid "Input file"
 msgstr "Plik wejściowy"
 
-#: programs/admin.py:122 simpleui/forms.py:102
+#: programs/admin.py:117 simpleui/forms.py:102
 msgid "Output/hint file"
 msgstr "Plik wyjściowy"
 
-#: programs/admin.py:159
+#: programs/admin.py:154
 msgid "No checker for this task."
 msgstr "To zadanie nie ma weryfikatora wyjścia."
 
-#: programs/admin.py:166
+#: programs/admin.py:161
 msgid "Checker exe"
 msgstr "Pliki wykonywalne weryfikatora"
 
-#: programs/admin.py:323
+#: programs/admin.py:318
 msgid "You shall select exactly two submissions to diff"
 msgstr "Wybierz dokładnie dwa zgłoszenia do porównania"
 
-#: programs/admin.py:330
+#: programs/admin.py:325
 #: programs/templates/programs/my_submissions_table_diff.html:10
 msgid "Diff submissions"
 msgstr "Porównaj zgłoszenia"
 
-#: programs/admin.py:336
+#: programs/admin.py:331
 msgid "language"
 msgstr "język"
 
@@ -5094,19 +5124,19 @@ msgstr "raport zgłoszenia"
 
 #: programs/models.py:22
 msgid "Real CPU"
-msgstr ""
+msgstr "Prawdziwe CPU"
 
 #: programs/models.py:23
 msgid "OITimeTool"
-msgstr ""
+msgstr "OITimeTool"
 
 #: programs/models.py:24
 msgid "SIO2Jail"
-msgstr ""
+msgstr "SIO2Jail"
 
 #: programs/models.py:31
 msgid "execution mode"
-msgstr ""
+msgstr "tryb wykonania"
 
 #: programs/models.py:32
 #| msgid ""
@@ -5114,17 +5144,17 @@ msgstr ""
 msgid ""
 "If set to Auto, the execution mode is determined according to the type of "
 "the contest."
-msgstr ""
+msgstr "W przypadku ustawienia Auto tryb wykonywania jest ustalany na podstawie typu konkursu."
 
 #: programs/models.py:36
 #| msgid "teams configuration"
 msgid "programs configuration"
-msgstr ""
+msgstr "konfiguracja programów"
 
 #: programs/models.py:37
 #| msgid "teams configurations"
 msgid "programs configurations"
-msgstr ""
+msgstr "konfiguracje programów"
 
 #: programs/models.py:40
 msgid "Normal test"
@@ -5302,7 +5332,7 @@ msgstr "Brak wzorcówek dla tego zadania"
 msgid "Total"
 msgstr "W sumie"
 
-#: programs/templates/programs/admin/tests_inline.html:64
+#: programs/templates/programs/admin/tests_inline.html:52
 msgid ""
 "Use TAB to effectively move between the boxes. Use Shift-Enter to copy the "
 "current value down up to the end of the table."
@@ -6211,7 +6241,7 @@ msgstr "Każdy wiersz reprezentuje grupę, zgłoszenia powinny być przedstawion
 
 #: similarsubmits/forms.py:28
 msgid "Find transitive closure"
-msgstr ""
+msgstr "Znajdź domknięcie przechodnie"
 
 #: similarsubmits/forms.py:29
 msgid ""
@@ -6292,7 +6322,7 @@ msgstr "Tutaj możesz wyeksportować zgłoszenia z tego konkursu do archiwum w f
 #: similarsubmits/templates/similarsubmits/export_submissions.html:9
 msgid ""
 "For large contests building the archive may take a while. Please be patient."
-msgstr ""
+msgstr "W przypadku dużych konkursów tworzenie archiwum może zająć dłuższą chwilę. Prosimy o cierpliwość."
 
 #: similarsubmits/templates/similarsubmits/programming_similar_submissions.html:4
 #: similarsubmits/templates/similarsubmits/programming_similar_submissions_admin.html:4
@@ -7259,7 +7289,7 @@ msgstr "Aktywacja zakończona."
 msgid "Import members completed successfully."
 msgstr "Pomyślnie zakończono importowanie członków."
 
-#: teams/admin.py:46 teams/templates/teams/confirm-join-team.html:4
+#: teams/admin.py:47 teams/templates/teams/confirm-join-team.html:4
 #: teams/templates/teams/team.html:4 teams/templates/teams/teams.html:4
 #: teams/templates/teams/teams.html:7 teams/views.py:29
 msgid "Teams"
@@ -7313,31 +7343,31 @@ msgstr "nazwa drużyny"
 msgid "login"
 msgstr "login"
 
-#: teams/models.py:52
+#: teams/models.py:58
 msgid "Visible for all"
 msgstr "Widoczne dla wszystkich"
 
-#: teams/models.py:54
+#: teams/models.py:60
 msgid "Visible only for registered users"
 msgstr "Widoczne tylko dla zarejestrowanych użytkowników"
 
-#: teams/models.py:64
+#: teams/models.py:70
 msgid "team modification begin date"
 msgstr "data początkowa modyfikacji drużyny"
 
-#: teams/models.py:66
+#: teams/models.py:72
 msgid "team modification end date"
 msgstr "data końcowa modyfikacji drużyny"
 
-#: teams/models.py:68
+#: teams/models.py:74
 msgid "teams list visibility"
 msgstr "widoczność listy drużyn"
 
-#: teams/models.py:71
+#: teams/models.py:77
 msgid "teams configuration"
 msgstr "konfiguracja drużyn"
 
-#: teams/models.py:72
+#: teams/models.py:78
 msgid "teams configurations"
 msgstr "konfiguracje drużyn"
 
@@ -7644,8 +7674,26 @@ msgstr "Liczba węzłów"
 msgid "Zeus id"
 msgstr "ID Zeusa"
 
+#~ msgid "404 &mdash; Page not found"
+#~ msgstr "404 &mdash; Page not found"
+
+#~ msgid "Add menu items"
+#~ msgstr "Add menu items"
+
+#~ msgid "Add child node"
+#~ msgstr "Add child node"
+
 #~ msgid "The global portal does not exist yet. Do you want to create it?"
 #~ msgstr "The global portal does not exist yet. Do you want to create it?"
+
+#~ msgid "Edit node"
+#~ msgstr "Edit node"
+
+#~ msgid "Show node"
+#~ msgstr "Show node"
+
+#~ msgid "Delete node"
+#~ msgstr "Delete node"
 
 #~ msgid "Last edit"
 #~ msgstr "Last edit"
@@ -7874,15 +7922,6 @@ msgstr "ID Zeusa"
 
 #~ msgid "Tags:"
 #~ msgstr "Tags:"
-
-#~ msgid "Add tag"
-#~ msgstr "Add tag"
-
-#~ msgid "Delete tag"
-#~ msgstr "Delete tag"
-
-#~ msgid "Edit tags"
-#~ msgstr "Edit tags"
 
 #~ msgid "Select tag to add or remove from selected workers"
 #~ msgstr "Select tag to add or remove from selected workers"
