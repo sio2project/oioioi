@@ -289,7 +289,7 @@ PROBLEM_PACKAGE_BACKENDS = (
 # extensions. Allowed languages are determined by contest and problem
 # controllers.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
-                          'Java': ['java']}
+                          'Java': ['java'], 'Python': ['py']}
 USE_UNSAFE_EXEC = False
 USE_LOCAL_COMPILERS = False
 RUN_LOCAL_WORKERS = False

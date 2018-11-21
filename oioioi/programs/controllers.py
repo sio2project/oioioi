@@ -591,7 +591,7 @@ class ProgrammingProblemController(ProblemController):
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions.
         """
-        return ['C', 'C++', 'Pascal']
+        return ['C', 'C++', 'Pascal', 'Python']
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
@@ -814,4 +814,4 @@ class ProgrammingContestController(ContestController):
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions.
         """
-        return ['C', 'C++', 'Pascal']
+        return ['C', 'C++', 'Pascal', 'Python']
