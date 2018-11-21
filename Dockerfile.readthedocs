@@ -1,0 +1,3 @@
+FROM readthedocs/build:latest
+
+RUN apt-get -y install libdb-dev

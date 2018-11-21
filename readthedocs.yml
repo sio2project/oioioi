@@ -1,0 +1,7 @@
+build:
+  image: sio2project/oioioi-readdthedocs-build:latest
+
+python:
+  version: 3
+
+requirements_file: requirements_py3.txt
