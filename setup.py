@@ -60,6 +60,7 @@ python23_universal_requirements = [
         'pytest-html',
         'pytest-xdist',
         'pytest-cov',
+        'requests',
 
         # http://stackoverflow.com/questions/31417964/importerror-cannot-import-name-wraps
         # ¯\_(ツ)_/¯
