@@ -15,9 +15,10 @@ from django.utils.translation import ugettext_noop
 from oioioi.base.utils import (ObjectWithMixins, RegisteredSubclassesBase,
                                get_user_display_name)
 from oioioi.contests.models import (Contest, ProblemStatementConfig, Round,
-                                    RoundTimeExtension, Submission,
-                                    UserResultForContest, UserResultForProblem,
-                                    UserResultForRound, submission_kinds)
+                                    RoundTimeExtension, Submission, ScoreReport,
+                                    SubmissionReport, UserResultForContest,
+                                    UserResultForProblem, UserResultForRound,
+                                    submission_kinds)
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import (generic_rounds_times, has_any_active_round,
                                    is_contest_admin, is_contest_observer,
@@ -52,10 +53,44 @@ def submission_template_context(request, submission):
     valid_kinds_for_submission = export_entries(submission_kinds,
             valid_kinds)
 
+    message = submission.get_status_display
+
+    if can_see_score and (submission.status == 'INI_OK' or submission.status == 'OK'):
+        submission_report = SubmissionReport.objects.filter(submission=submission).first()
+        score_report = ScoreReport.objects.filter(submission_report=submission_report).first()
+
+        try:
+            score_percentage = float(score_report.score.to_int()) / score_report.max_score.to_int()
+
+            if score_percentage < 0.25:
+                display_type = 'OK0'
+            elif score_percentage < 0.5:
+                display_type = 'OK25'
+            elif score_percentage < 0.75:
+                display_type = 'OK50'
+            elif score_percentage < 1.0:
+                display_type = 'OK75'
+            else:
+                display_type = 'OK100'
+
+        except ZeroDivisionError:
+            message = 'PENDING'
+            display_type = 'IGN'
+
+        # If by any means there is no 'score' or 'max_score' field then
+        # we just treat the submission as without them
+        except AttributeError:
+            display_type = submission.status
+
+    else:
+        display_type = submission.status
+
     return {'submission': submission,
             'can_see_status': can_see_status,
             'can_see_score': can_see_score,
             'can_see_comment': can_see_comment,
+            'display_type': display_type,
+            'message': message,
             'link': link,
             'valid_kinds_for_submission': valid_kinds_for_submission}
 

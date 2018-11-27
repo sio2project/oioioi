@@ -4,7 +4,11 @@
 {% for record in submissions %}
     $(document).ready(function() {
         $("#report{{ record.submission.id }}").hide();
-        $("[id^=submission{{ record.submission.id }}]").click(function() {
+        var elements = $("[id^=submission{{ record.submission.id }}]");
+
+        elements.addClass("clickable");
+
+        elements.click(function() {
             {% url 'get_report_HTML' submission_id=record.submission.id as link %}
             $("#report{{ record.submission.id }}div").load("{{ link }}");
             $("#report{{ record.submission.id }}div").addClass("col-lg-6");
@@ -39,7 +43,8 @@
                             <span class="glyphicon glyphicon-chevron-down"></span>
                         </td>
                     {% else %}
-                        <td class="{% if record.can_see_status %}submission__margin submission--{{ record.submission.status }}{% endif %}"></td>
+                        <td class="{% if record.can_see_status %}submission__margin
+                            submission--{{ record.display_type }}{% endif %}"></td>
                     {% endif %}
                     <td><a href="{{ record.link }}">
                         {{ record.submission.get_date_display }}
@@ -53,9 +58,9 @@
                         {{ record.submission.get_kind_display }}
                     </td>
                     <td id="submission{{ record.submission.id }}-status"
-                        class="{% if record.can_see_status %}submission--{{ record.submission.status }}{% endif %}">
+                        class="{% if record.can_see_status %}submission--{{ record.display_type }} {% endif %}">
                         {% if record.can_see_status %}
-                            {{ record.submission.get_status_display }}
+                            {{ record.message }}
                         {% endif %}
                     </td>
                     {% if show_scores %}

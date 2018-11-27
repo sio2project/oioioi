@@ -22,7 +22,7 @@ from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import GetUserInfoForm, SubmissionForm
 from oioioi.contests.models import (Contest, ContestAttachment,
-                                    ProblemInstance, Submission,
+                                    ProblemInstance, Submission, ScoreReport,
                                     SubmissionReport, UserResultForProblem)
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import (can_admin_contest, can_enter_contest,
@@ -210,6 +210,7 @@ def my_submissions_view(request):
     header = controller.render_my_submissions_header(request, queryset.all())
     submissions = [submission_template_context(request, s) for s in queryset]
     show_scores = any(s['can_see_score'] for s in submissions)
+
     return TemplateResponse(request, 'contests/my_submissions.html',
         {'header': header,
          'submissions': submissions, 'show_scores': show_scores,

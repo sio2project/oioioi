@@ -522,13 +522,15 @@ class TestContestViews(TestCase):
         self.assertEqual(response.content.count('0 / 0'), 2)
 
         status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
+        header_match = re.findall(status_pattern % ('OK[0-9]+', 'OK'), response.content)
         ok_match = re.findall(status_pattern % ('OK', 'OK'), response.content)
         re_match = re.findall(status_pattern % ('RE', 'Runtime error'),
                               response.content)
         wa_match = re.findall(status_pattern % ('WA', 'Wrong answer'),
                               response.content)
 
-        self.assertEqual(len(ok_match), 5)  # One in the header
+        self.assertEqual(len(header_match), 1)
+        self.assertEqual(len(ok_match), 4)
         self.assertEqual(len(re_match), 1)
         self.assertEqual(len(wa_match), 1)
         self.assertIn('program exited with code 1', response.content)
@@ -742,6 +744,28 @@ class TestMultilingualStatements(TestCase, TestStreamingMixin):
 class ContestWithoutStatementsController(ProgrammingContestController):
     def default_can_see_statement(self, request_or_context, problem_instance):
         return False
+
+
+# Check all variables propagated to 'my_submissions.html'
+class TestMySubmissionsContext(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance']
+
+    def test_config(self):
+        self.client.login(username='test_user2')
+        contest = Contest.objects.get()
+        url = reverse('my_submissions', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertIn('submissions', response.context)
+        self.assertIn('header', response.context)
+
+        for s in response.context['submissions']:
+            self.assertIn('display_type', s)
+            self.assertIn('message', s)
+            self.assertIn('submission', s)
+            self.assertIn('can_see_status', s)
+            self.assertIn('can_see_score', s)
+            self.assertIn('can_see_comment')
 
 
 class TestStatementsVisibility(TestCase):
