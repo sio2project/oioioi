@@ -53,6 +53,7 @@ class Contest(models.Model):
             db_index=True, verbose_name=_("creation date"))
     default_submissions_limit = models.IntegerField(
             verbose_name=_("default submissions limit"),
+            help_text=_("Use 0 for unlimited submissions."),
             default=settings.DEFAULT_SUBMISSIONS_LIMIT, blank=True)
     contact_email = models.EmailField(blank=True,
             verbose_name=_("contact email"),
@@ -256,6 +257,7 @@ class ProblemInstance(models.Model):
             validators=[validate_db_string_id])
     submissions_limit = models.IntegerField(
         default=settings.DEFAULT_SUBMISSIONS_LIMIT,
+        help_text=_("Use 0 for unlimited submissions."),
         verbose_name=_("submissions limit"))
 
     # set on True only when problem_instace's tests were overriden but there
