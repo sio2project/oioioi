@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django import forms
 from django.db.models import Q
@@ -20,6 +21,8 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.rankings.controllers import (CONTEST_RANKING_KEY,
                                          DefaultRankingController)
 
+
+auditLogger = logging.getLogger(__name__ + ".audit")
 
 class PARegistrationController(ParticipantsController):
     @property
@@ -70,6 +73,13 @@ class PARegistrationController(ParticipantsController):
                 participant, created = Participant.objects \
                         .get_or_create(contest=self.contest, user=request.user)
                 self.handle_validated_form(request, form, participant)
+                auditLogger.info("User %d (%s) registered in %s from IP %s UA: %s",
+                            request.user.id,
+                            request.user.username,
+                            self.contest.id,
+                            request.META.get('REMOTE_ADDR', '?'),
+                            request.META.get('HTTP_USER_AGENT', '?')
+                        )
                 if 'next' in request.GET:
                     return safe_redirect(request, request.GET['next'])
                 else:

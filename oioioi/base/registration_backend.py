@@ -17,6 +17,10 @@ from oioioi.base.forms import (OioioiPasswordResetForm,
 from oioioi.base.preferences import PreferencesFactory
 from oioioi.base.models import PreferencesSaved
 
+import logging
+
+auditLogger = logging.getLogger(__name__ + '.audit')
+
 
 class RegistrationView(DefaultRegistrationView):
     def form_class(self, instance=None, *args, **kwargs):
@@ -34,6 +38,14 @@ class RegistrationView(DefaultRegistrationView):
         user.last_name = data['last_name']
         user.is_active = not settings.SEND_USER_ACTIVATION_EMAIL
         user.save()
+
+        auditLogger.info("User %d (%s) created account from IP %s UA: %s",
+                    user.id,
+                    user.username,
+                    request.META.get('REMOTE_ADDR', '?'),
+                    request.META.get('HTTP_USER_AGENT', '?')
+                )
+
 
         registration_profile = RegistrationProfile.objects.create_profile(user)
         signals.user_registered.send(sender=self.__class__, user=user,

@@ -20,6 +20,10 @@ from oioioi.participants.utils import is_participant
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.scoresreveal.utils import is_revealed
 
+import logging
+
+auditLogger = logging.getLogger(__name__ + ".audit")
+
 
 class OIRegistrationController(ParticipantsController):
     @property
@@ -71,6 +75,14 @@ class OIRegistrationController(ParticipantsController):
             elif form.is_valid():  # pylint: disable=maybe-no-member
                 participant, created = Participant.objects \
                         .get_or_create(contest=self.contest, user=request.user)
+
+                auditLogger.info("User %d (%s) registered in %s from IP %s UA: %s",
+                            request.user.id,
+                            request.user.username,
+                            self.contest.id,
+                            request.META.get('REMOTE_ADDR', '?'),
+                            request.META.get('HTTP_USER_AGENT', '?')
+                        )
                 self.handle_validated_form(request, form, participant)
                 if 'next' in request.GET:
                     return safe_redirect(request, request.GET['next'])
