@@ -655,7 +655,7 @@ class SinolPackage(object):
         sinol_cls_tgz = os.path.join(
             os.path.dirname(__file__), 'files', 'sinol-cls.tgz'
         )
-        execute(['tar', '-C', docdir, '-kzxf', sinol_cls_tgz], cwd=docdir)
+        execute(['tar', '-C', docdir, '--skip-old-files','-zxf',  sinol_cls_tgz], cwd=docdir)
 
         try:
             execute('make', cwd=docdir)
