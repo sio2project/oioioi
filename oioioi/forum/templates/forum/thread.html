@@ -31,9 +31,11 @@
                         {% include "forum/thread-element-heading.html" with post=post %}
                     </div>
                 {% endif %}
-                <div class="panel-body {% if post.hidden %} collapse {% endif %}">
-                    {{ post.content|urlize|linebreaksbr }}
-                </div>
+                {% if not post.hidden or is_admin %}
+                    <div class="panel-body {% if post.hidden %} collapse {% endif %}">
+                        {{ post.content|urlize|linebreaksbr }}
+                    </div>
+                {% endif %}
                 <div class="panel-footer forum-panel-footer">
                     {% include "forum/thread-element-footer.html" with post=post %}
                 </div>
