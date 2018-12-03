@@ -61,13 +61,15 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             return 'IGNORED'
         return 'NORMAL'
 
-    def get_submissions_limit(self, request, problem_instance):
+    def get_submissions_limit(self, request, problem_instance, kind='NORMAL'):
+        # in the future it should always return None as submissions limit
+        # for main_problem_instance (without contest) makes no sense and
+        # rest of logic should  be moved to contest controller
         problem = problem_instance.problem
 
         if problem_instance.contest is None \
-                or can_admin_problem(request, problem):
-            # submissions limit for main_problem_instance (without contest)
-            # makes no sense
+                or can_admin_problem(request, problem) \
+                or kind == 'IGNORED':
             return None
         return problem_instance.submissions_limit
 
@@ -84,7 +86,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
     def is_submissions_limit_exceeded(self, request, problem_instance, kind):
         submissions_limit = problem_instance.controller \
-            .get_submissions_limit(request, problem_instance)
+            .get_submissions_limit(request, problem_instance, kind)
         if not submissions_limit:
             return False
 
@@ -99,7 +101,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             return None
 
         submissions_limit = problem_instance.controller \
-            .get_submissions_limit(request, problem_instance)
+            .get_submissions_limit(request, problem_instance, kind)
         if not submissions_limit:
             return None
         submissions_number = Submission.objects.filter(user=request.user,

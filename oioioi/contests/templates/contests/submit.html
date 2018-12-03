@@ -15,9 +15,12 @@
         </button>
     </div>
 </form>
+{% endblock %}
 
-<script>
-    const submissionsLeft = {{ submissions_left | json_parse }}
-</script>
+{% block scripts %}
+{{ block.super }}
 <script src="{{ STATIC_URL }}contests/display-submissions-left.js"></script>
+<script>
+    displaySubmissionsLeft({{ submissions_left | json_parse }});
+</script>
 {% endblock %}

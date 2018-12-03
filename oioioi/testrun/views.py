@@ -34,7 +34,10 @@ def testrun_submit_view(request):
     else:
         form = SubmissionForm(request, kind='TESTRUN',
                               problem_filter=filter_testrun_problem_instances)
-    return TemplateResponse(request, 'testrun/submit.html', {'form': form})
+    submissions_left = {pi.id: pi.controller.get_submissions_left(request, pi, 'TESTRUN')
+                        for pi in form.get_problem_instances()}
+    return TemplateResponse(request, 'testrun/submit.html',
+                            {'form': form, 'submissions_left': submissions_left})
 
 
 def get_preview_size_limit():
