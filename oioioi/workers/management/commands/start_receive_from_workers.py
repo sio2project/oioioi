@@ -10,6 +10,7 @@ from django.db import transaction
 
 from oioioi.evalmgr.tasks import delay_environ
 
+logger = logging.getLogger(__name__)
 
 class ServerHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -17,6 +18,7 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_POST(self):
+        logger.info("Swd receiver got POST from %r", self.client_address)
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
@@ -28,20 +30,23 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
         if "data" not in form:
             self.send_error(404)
         else:
-            logging.debug("Sioworkersd receiver got: " + form.getvalue('data'))
+            #logger.debug("Sioworkersd receiver got: " + form.getvalue('data'))
             env = json.loads(form.getvalue('data'))
             del env['workers_jobs']
             if 'workers_jobs.extra_args' in env:
                 del env['workers_jobs.extra_args']
             assert 'workers_jobs.results' in env or 'error' in env
 
+            logger.info("Swd receiver enqueuing environ")
             with transaction.atomic():
                 delay_environ(env)
 
+            logger.info("Swd receiver sending response")
             self.send_response(200, 'OK')
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(b'OK')
+            logger.info("Swd receiver done with %r", self.client_address)
 
 
 class Server(socketserver.TCPServer):
