@@ -1,5 +1,6 @@
 <div class="input-group date oioioi-narrow-input">
-    <input type="text" class="form-control" value="{{ value|date:"Y-m-d H:i" }}" {{ attrs }}/>
+    <input type="text" class="form-control" name="{{ name }}"
+                            value="{{ value|date:"Y-m-d H:i" }}" {{ attrs }}/>
     <span class="input-group-addon">
         <span class="glyphicon glyphicon-calendar"></span>
     </span>
