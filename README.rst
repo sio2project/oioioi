@@ -67,13 +67,9 @@ Docker (for development)
 It is possible to develop using docker images, but this we do not recommend it.
 Better use Vagrant or install OIOIOI manually, as described in the next section.
 
-To develop with docker after creating oioioi-base image, create oioioi image with::
+To develop with docker after creating oioioi-base image run::
 
-  docker build -t oioioi .
-
-Then run::
-
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up
+  OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up
 
 to start the infrastructure in development mode. Current dirrectory with source
 code will be binded to /sio2/oioioi/ inside running container, and logs from

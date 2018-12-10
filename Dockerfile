@@ -1,4 +1,5 @@
 FROM oioioi-base
+ARG oioioi_uid=1234
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
@@ -8,7 +9,7 @@ RUN mkdir -pv /sio2/logs/
 RUN chmod a+rw -R /sio2/logs
 
 # Create users and set permissions
-RUN useradd -U oioioi -m -d /home/oioioi/
+RUN useradd -U oioioi -m -d /home/oioioi/ -u $oioioi_uid
 RUN adduser oioioi sudo
 
 RUN echo "oioioi ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
