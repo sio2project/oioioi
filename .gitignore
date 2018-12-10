@@ -20,3 +20,4 @@ vagrant.yml
 /.tox/
 /.pytest_cache/
 /.eggs/
+*.swp
