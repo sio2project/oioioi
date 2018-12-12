@@ -11,7 +11,7 @@ mkdir -pv /sio2/logs/{supervisor,runserver,database}
 
 echo "LOG: Launching worker at `hostname`"
 export FILETRACKER_URL="http://web:9999"
-twistd --nodaemon --pidfile=/home/oioioi/worker.pid \
+exec twistd --nodaemon --pidfile=/home/oioioi/worker.pid \
         -l /sio2/logs/worker`hostname`.log worker \
         -n worker`hostname` -c 2 web \
         > /sio2/logs/twistd_worker.out \

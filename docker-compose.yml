@@ -9,6 +9,7 @@ services:
       POSTGRES_DB: "oioioi"
   web:
     command: /sio2/oioioi/oioioi_init.sh
+    image: oioioi
     build:
       context: .
       dockerfile: Dockerfile
@@ -20,11 +21,8 @@ services:
     cap_add:
       - ALL
     command: /sio2/oioioi/worker_init.sh
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: oioioi
     depends_on:
-      - db
       - web
     deploy:
       replicas: 10

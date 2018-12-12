@@ -1,4 +1,11 @@
 Dockerfile*
+docker*
 .idea
 .github
 *.swp
+venv
+logs
+deployment
+/test*
+*.rst
+/rst

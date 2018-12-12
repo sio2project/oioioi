@@ -43,15 +43,17 @@ and run::
 Docker (for deployment)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Additionally, there are available docker files to create images containing our services.
+Additionally, there are available docker files to create images containing our services. We do not recommend this method of running OIOIOI. Please inspect Docker files and startup scripts before using in production.
 
-To start with, create oioioi-base image with a command::
-
-  docker build -t oioioi-base -f Dockerfile.base .
-
-To run the infrastructure::
+To run the infrastructure simply::
 
   docker-compose up
+
+Make sure to change default superuser password. To do that:
+   1. Login to the superuser with default credentials (username:admin, password:admin)
+   2. Click username ("admin") in upper-right corner of the webpage.
+   3. Click "Change password"
+   4. Fill and submit password change form
 
 To start additional number of workers::
 
@@ -67,9 +69,22 @@ Docker (for development)
 It is possible to develop using docker images, but this we do not recommend it.
 Better use Vagrant or install OIOIOI manually, as described in the next section.
 
-To develop with docker after creating oioioi-base image run::
+Working directory should be the repository root.
 
-  OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up
+First prepare the image with::
+
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml build
+
+Create config files and logs folder on host::
+
+    id=$(docker create oioioi)  #Create oioioi container
+    docker cp $id:/sio2/logs logs  #Copy initial logs folder from oioioi container
+    docker cp $id:/sio2/deployment deployment  #Copy initial deployment config from oioioi contanier
+    docker rm -v $id  #Remove unneeded container
+
+Then you can start oioioi with::
+
+    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up
 
 to start the infrastructure in development mode. Current dirrectory with source
 code will be binded to /sio2/oioioi/ inside running container, and logs from

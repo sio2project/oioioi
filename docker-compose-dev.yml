@@ -11,9 +11,7 @@ services:
       - oioioi_net
   web:
     command: /sio2/oioioi/oioioi_init.sh
-    volumes:
-      - $PWD:/sio2/oioioi
-      - $PWD/logs/:/sio2/oioioi/logs
+    image: oioioi-dev
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,19 +23,17 @@ services:
       - db
     networks:
       - oioioi_net
+    volumes:
+      - $PWD:/sio2/oioioi
+      - $PWD/logs:/sio2/logs
+      - $PWD/deployment:/sio2/deployment
   worker:
     cap_add:
       - ALL
     command: /sio2/oioioi/worker_init.sh
     volumes:
       - $PWD:/sio2/oioioi
-      - $PWD/logs/:/sio2/oioioi/logs
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - "oioioi_uid=${OIOIOI_UID}"
-    image: oioioi_dev
+    image: oioioi-dev
     depends_on:
       - db
       - web

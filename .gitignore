@@ -21,3 +21,5 @@ vagrant.yml
 /.pytest_cache/
 /.eggs/
 *.swp
+/deployment/
+/venv/
