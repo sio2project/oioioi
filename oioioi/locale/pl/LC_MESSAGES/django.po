@@ -41,8 +41,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-12-05 17:38+0100\n"
-"PO-Revision-Date: 2018-11-29 08:02+0000\n"
+"POT-Creation-Date: 2018-12-12 17:39+0100\n"
+"PO-Revision-Date: 2018-12-12 17:05+0000\n"
 "Last-Translator: Zuzanna Opała <opala.zuzanna@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -700,7 +700,7 @@ msgid "Log in"
 msgstr "Zaloguj się"
 
 #: base/templates/ingredients/navbar-user.html:17 contests/admin.py:580
-#: contests/admin.py:745 mailsubmit/admin.py:74 participants/admin.py:48
+#: contests/admin.py:745 mailsubmit/admin.py:74 participants/admin.py:53
 #: rankings/controllers.py:266
 msgid "Login"
 msgstr "Login"
@@ -1651,7 +1651,7 @@ msgstr "Nie można ponownie ocenić zgłoszeń z powodu braku aktywnych raportó
 
 #: contests/admin.py:587 contests/admin.py:753 contests/admin.py:787
 #: disqualification/admin.py:71 mailsubmit/admin.py:81
-#: participants/admin.py:59
+#: participants/admin.py:64
 #: programs/templates/programs/submission_header.html:108
 #: similarsubmits/admin.py:75
 msgid "User name"
@@ -2074,7 +2074,7 @@ msgstr "Aktywny"
 msgid "Superseded"
 msgstr "Przestarzały"
 
-#: contests/models.py:481 participants/forms.py:52
+#: contests/models.py:481 participants/forms.py:56
 msgid "Extra time (in minutes)"
 msgstr "Dodatkowy czas (w minutach)"
 
@@ -2455,7 +2455,7 @@ msgstr "Zresetowanie limitów powiodło się"
 msgid "Problem {} added successfully."
 msgstr "Dodano zadanie {}."
 
-#: dashboard/forms.py:36
+#: dashboard/forms.py:36 participants/forms.py:91
 msgid "You can use the following tags and attributes: {}."
 msgstr "Możesz używać następujących tagów i atrybutów: {}."
 
@@ -3408,7 +3408,7 @@ msgstr "Aktualności"
 msgid "You have no new notifications."
 msgstr "Brak nowych powiadomień."
 
-#: oi/admin.py:29 oi/admin.py:31 participants/admin.py:191
+#: oi/admin.py:29 oi/admin.py:31 participants/admin.py:196
 msgid "Participants"
 msgstr "Uczestnicy"
 
@@ -3450,52 +3450,56 @@ msgstr "Scal zaznaczone (niezatwierdzone szkoły zostaną scalone z zatwierdzon�
 msgid "Schools"
 msgstr "Szkoły"
 
-#: oi/admin.py:127
+#: oi/admin.py:129
 msgid "-- school deleted --"
 msgstr "-- szkoła usunięta --"
 
-#: oi/admin.py:129 oi/templates/oi/sensitive_participant_info.html:15
+#: oi/admin.py:131 oi/templates/oi/sensitive_participant_info.html:15
 #: teachers/forms.py:20
 msgid "School"
 msgstr "Szkola"
 
-#: oi/controllers.py:102
+#: oi/controllers.py:113
 msgid "Polish Olympiad in Informatics - Online"
 msgstr "Olimpiada Informatyczna – zdalnie"
 
-#: oi/controllers.py:168
+#: oi/controllers.py:179
 msgid "Polish Olympiad in Informatics - Onsite"
 msgstr "Olimpiada Informatyczna – lokalnie"
 
-#: oi/controllers.py:175
+#: oi/controllers.py:186
 msgid "Polish Olympiad in Informatics - Onsite - Finals"
 msgstr "Olimpiada Informatyczna – lokalnie: finał"
 
-#: oi/controllers.py:208
+#: oi/controllers.py:219
 msgid "Baltic Olympiad in Informatics"
 msgstr "Bałtycka Olimpiada Informatyczna"
 
-#: oi/controllers.py:280
+#: oi/controllers.py:291
 msgid "Baltic Olympiad in Informatics - online"
 msgstr "Bałtycka Olimpiada Informatyczna – zdalnie"
 
-#: oi/forms.py:23
+#: oi/forms.py:24
 msgid "-- Choose city --"
 msgstr "— Wybierz miasto —"
 
-#: oi/forms.py:31
+#: oi/forms.py:32
 msgid "-- Choose school --"
 msgstr "— Wybierz szkołę —"
 
-#: oi/forms.py:49
+#: oi/forms.py:50
 msgid "-- Choose province --"
 msgstr "— Wybierz województwo —"
 
-#: oi/forms.py:87
+#: oi/forms.py:87 oi/models.py:116 pa/models.py:43 participants/models.py:93
+msgid "terms accepted"
+msgstr "Znam i akceptuję regulamin"
+
+#: oi/forms.py:95
 msgid "This school is no longer active."
 msgstr "Szkoła nie jest już aktywna."
 
-#: oi/forms.py:92 pa/forms.py:20 participants/forms.py:45
+#: oi/forms.py:100 pa/forms.py:31 participants/forms.py:49
 msgid "Terms not accepted"
 msgstr "Nie zaakceptowano regulaminu"
 
@@ -3651,11 +3655,7 @@ msgstr "szkoła"
 msgid "class"
 msgstr "klasa"
 
-#: oi/models.py:114 pa/models.py:41 participants/models.py:93
-msgid "terms accepted"
-msgstr "Znam i akceptuję regulamin"
-
-#: oi/models.py:117
+#: oi/models.py:119
 #, python-format
 msgid "%(class_type)s of %(school)s"
 msgstr "%(class_type)s, %(school)s"
@@ -3924,41 +3924,47 @@ msgstr "ONTAK"
 msgid "ONTAK-eternal"
 msgstr "ONTAK – konkurs stały"
 
-#: pa/controllers.py:82
+#: pa/controllers.py:93
 msgid "Algorithmic Engagements"
 msgstr "Potyczki Algorytmiczne"
 
-#: pa/controllers.py:139 pa/models.py:67 pa/models.py:70
+#: pa/controllers.py:150 pa/models.py:66 pa/models.py:69
 msgid "Division"
 msgstr "Liga"
 
-#: pa/controllers.py:140
+#: pa/controllers.py:151
 msgid "A"
 msgstr "A"
 
-#: pa/controllers.py:140
+#: pa/controllers.py:151
 msgid "B"
 msgstr "B"
 
-#: pa/controllers.py:140 pa/models.py:62
+#: pa/controllers.py:151 pa/models.py:61
 msgid "None"
 msgstr "Brak"
 
-#: pa/controllers.py:181
+#: pa/controllers.py:192
 msgid "PA style ranking"
 msgstr "Ranking w stylu PA"
 
-#: pa/controllers.py:201
+#: pa/controllers.py:212
 msgid "Division A + B"
 msgstr "Liga A + B"
 
-#: pa/controllers.py:202 pa/models.py:61
+#: pa/controllers.py:213 pa/models.py:60
 msgid "Division B"
 msgstr "Liga B"
 
-#: pa/controllers.py:222
+#: pa/controllers.py:233
 msgid "Algorithmic Engagements finals"
 msgstr "Finały Potyczek Algorytmicznych"
+
+#: pa/forms.py:22 participants/models.py:94
+msgid ""
+"I declare that I have read the contest rules and the technical arrangements."
+" I fully understand them and accept them unconditionally."
+msgstr "Oświadczam, że zapoznałem się z Regulaminem konkursu i Ustaleniami technicznymi, w pełni je rozumiem oraz bezwarunkowo akceptuję."
 
 #: pa/models.py:33
 msgid "job or school kind"
@@ -3977,17 +3983,11 @@ msgid ""
 "I want to receive the information about further editions of the contest."
 msgstr "Chcę otrzymywać informacje o kolejnych edycjach konkursu."
 
-#: pa/models.py:42 participants/models.py:94
-msgid ""
-"I declare that I have read the contest rules and the technical arrangements."
-" I fully understand them and accept them unconditionally."
-msgstr "Oświadczam, że zapoznałem się z Regulaminem konkursu i Ustaleniami technicznymi, w pełni je rozumiem oraz bezwarunkowo akceptuję."
-
-#: pa/models.py:60
+#: pa/models.py:59
 msgid "Division A"
 msgstr "Liga A"
 
-#: pa/models.py:71
+#: pa/models.py:70
 msgid "Divisions"
 msgstr "Ligi"
 
@@ -4000,15 +4000,15 @@ msgid ""
 "    "
 msgstr "\n        <strong>Witaj!</strong> Aby móc wysyłać rozwiązania zadań, wypełnij\n        <a href=\"%(reg_url)s\">formularz rejestracyjny</a>.\n    "
 
-#: participants/admin.py:99
+#: participants/admin.py:104
 msgid "Mark selected participants as active"
 msgstr "Oznacz wybranych uczestników jako aktywnych"
 
-#: participants/admin.py:103
+#: participants/admin.py:108
 msgid "Mark selected participants as banned"
 msgstr "Oznacz wybranych uczestników jako wykluczonych"
 
-#: participants/admin.py:135
+#: participants/admin.py:140
 #, python-format
 msgid "Updated one %(name)s."
 msgid_plural "%(name)s updated: %(existing_count)d."
@@ -4017,7 +4017,7 @@ msgstr[1] "Zaktualizowano %(existing_count)d obiekty %(name)s."
 msgstr[2] "Zaktualizowano %(existing_count)d obiektów %(name)s."
 msgstr[3] "Zaktualizowano %(existing_count)d obiektów %(name)s."
 
-#: participants/admin.py:146
+#: participants/admin.py:151
 #, python-format
 msgid "Created one %(name)s."
 msgid_plural "%(name)s created: %(new_count)d."
@@ -4026,15 +4026,15 @@ msgstr[1] "Utworzono %(new_count)d obiekty %(name)s."
 msgstr[2] "Utworzono %(new_count)d obiektów %(name)s."
 msgstr[3] "Utworzono %(new_count)d obiektów %(name)s."
 
-#: participants/admin.py:160
+#: participants/admin.py:165
 msgid "Extend round"
 msgstr "Przedłuż rundę"
 
-#: participants/admin.py:245
+#: participants/admin.py:250
 msgid "Regions"
 msgstr "Regiony"
 
-#: participants/admin.py:307 participants/models.py:106
+#: participants/admin.py:312 participants/models.py:106
 msgid "region"
 msgstr "region"
 
@@ -4049,12 +4049,12 @@ msgid ""
 "rankings."
 msgstr "W przypadku uczestnika anonimowego w rankingu używany jest jego identyfikator, a nie jego prawdziwe personalia."
 
-#: participants/forms.py:19
+#: participants/forms.py:23
 #, python-format
 msgid "%s is already a participant of this contest."
 msgstr "%s jest już uczestnikiem tego konkursu."
 
-#: participants/forms.py:34
+#: participants/forms.py:38
 msgid "Region with this name already exists."
 msgstr "Region z tą nazwą już istnieje."
 
@@ -4105,6 +4105,14 @@ msgstr "numer lokalny"
 #, python-format
 msgid "%(number)s/%(region)s/%(local_number)s"
 msgstr "%(number)s/%(region)s/%(local_number)s"
+
+#: participants/models.py:135 participants/models.py:144
+msgid "text"
+msgstr "tekst"
+
+#: participants/models.py:143
+msgid "text asking participant to accept contest terms"
+msgstr "Tekst proszący uczestnika o zaakceptowanie regulaminu."
 
 #: participants/templates/admin/participants/extend_round.html:4
 #: participants/templates/admin/participants/extend_round.html:7
