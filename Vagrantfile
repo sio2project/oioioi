@@ -143,14 +143,8 @@ Vagrant.configure("2") do |config|
     echo "* downloading sandboxes"
     cd ..
     mkdir sandboxes
-    cd sandboxes
 
-    sandboxes=$(curl -s https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest)
-    for sandbox in $sandboxes; do
-      curl -s -O https://downloads.sio2project.mimuw.edu.pl/sandboxes/${sandbox}.tar.gz
-    done
-
-    cd ../deployment/
+    cd deployment
     ./manage.py download_sandboxes -q -y -c /sio2/sandboxes
     cd ..
 
