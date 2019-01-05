@@ -33,7 +33,7 @@
                     {% if show_rounds %}
                         {% ifchanged pi.round %}
                             <tr class="problemlist-subheader">
-                                <td colspan="3">
+                                <td colspan={% if show_submissions_limit %} "4" {% else %} "3" {% endif %}>
                                     <strong>{{ pi.round }}</strong>
                                     {% if round_time.get_end %}
                                         <em>({{ round_time.get_end|date:"j F Y, H:i" }})</em>
