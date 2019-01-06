@@ -32,6 +32,8 @@ forum_patterns = [
         views.hide_post_view, name='forum_post_hide'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/$',
         views.show_post_view, name='forum_post_show'),
+    url(r'^user/(?P<user_id>\d+)/ban/$',
+        views.ban_user_view, name='forum_user_ban'),
 ]
 
 contest_patterns = [

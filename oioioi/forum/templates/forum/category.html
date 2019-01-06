@@ -1,14 +1,13 @@
-{% extends "forum/forum.html" %}
+{% extends "forum/forum-base.html" %}
 {% load i18n %}
 {% load check_perm %}
 {% load get_user_name %}
 
 {% block title %}{% trans "Category" %}: {{ category.name }}{% endblock %}
 
-{% block main-content %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% block forum-head %}
 <div class="clearfix">
-    {% if user.is_authenticated and not is_locked or is_admin %}
+    {% if user.is_authenticated and can_interact_with_users %}
         <div class="pull-right">
             <a role="button" class="btn btn-sm btn-default"
                 href="{% url 'forum_add_thread' contest_id=contest.id category_id=category.id %}">
@@ -19,12 +18,9 @@
     {% endif %}
     <h1 class="pull-left">{% trans "Category" %}: {{ category.name }}</h1>
 </div>
+{% endblock %}
 
-<ol class="breadcrumb">
-    <li><a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a></li>
-    <li> {{ category.name }} </li>
-</ol>
-{% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
+{% block forum-contents %}
 {% if threads %}
 <div class="table-responsive">
     <table class="table auto-width">

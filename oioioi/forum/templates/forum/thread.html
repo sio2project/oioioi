@@ -1,27 +1,15 @@
-{% extends "forum/forum.html" %}
+{% extends "forum/forum-base.html" %}
 {% load i18n %}
 {% load check_perm %}
 {% load get_user_name %}
 
 {% block title %}{% trans "Thread" %}: {{ thread.name }}{% endblock %}
 
-{% block main-content %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
-
-<article class="col-md-10">
+{% block forum-head %}
     <h2>{% trans "Thread" %}: {{ thread.name }}</h2>
-    <ol class="breadcrumb">
-        <li>
-            <a href="{% url 'forum' contest_id=contest.id %}">{{ forum }}</a>
-        </li>
-        <li>
-            <a href="{% url 'forum_category' contest_id=contest.id category_id=category.id %}">{{ category.name }}</a>
-        </li>
-        <li>
-            {{ thread.name }}
-        </li>
-    </ol>
-    {% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
+{% endblock %}
+
+{% block forum-contents %}
     <div class="panel-group">
         {% for post in post_set %}
             <div class="panel panel-default" id="forum-post-{{ post.id }}">
@@ -52,5 +40,4 @@
             </div>
         </form>
     {% endif %}
-</article>
 {% endblock %}

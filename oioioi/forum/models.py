@@ -166,6 +166,37 @@ class Post(models.Model):
         return bool((timezone.now() - self.add_date)
                     < datetime.timedelta(minutes=15))
 
+    def is_author_banned(self):
+        return Ban.is_banned(self.thread.category.forum, self.author)
+
+    def is_reporter_banned(self):
+        if not self.reported:
+            return False
+        return Ban.is_banned(self.thread.category.forum, self.reported_by)
+
+
+class Ban(models.Model):
+    """ Ban model - represents a ban on a forum. Banned person should not be
+    allowed any 'write' interaction with forum. This includes reporting
+    posts. """
+    user = models.ForeignKey(User, verbose_name=_("user"),
+                             on_delete=models.CASCADE)
+    forum = models.ForeignKey(Forum, verbose_name=_("forum"),
+                              on_delete=models.CASCADE)
+    admin = models.ForeignKey(User, verbose_name=_("admin who banned"),
+                              on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name='created_forum_ban_set')
+    created_at = models.DateTimeField(auto_now_add=True, editable=False,
+                                      verbose_name=_("banned at"))
+    reason = models.TextField(verbose_name=_("reason"))
+
+    @staticmethod
+    def is_banned(forum, user):
+        return Ban.objects.filter(forum=forum, user=user).exists()
+
+    def __unicode__(self):
+        return unicode(self.user)
+
 
 @receiver(post_save, sender=Post)
 def _set_as_new_last_post(sender, instance, created, **kwargs):

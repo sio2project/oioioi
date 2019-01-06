@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.forum.models import Post, Thread
+from oioioi.forum.models import Post, Thread, Ban
 
 
 class PostForm(forms.ModelForm):
@@ -28,3 +28,18 @@ class NewThreadForm(forms.ModelForm):
         self.fields['name'].widget.attrs['class'] = 'input-xxlarge monospace'
         self.fields['content'].widget.attrs['class'] = \
                 'input-xxlarge monospace'
+
+
+class BanForm(forms.ModelForm):
+    class Meta(object):
+        model = Ban
+        fields = ['reason']
+
+    delete_reports = forms.BooleanField(widget=forms.CheckboxInput(),
+                                        label=_("Remove user reports"),
+                                        required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(BanForm, self).__init__(*args, **kwargs)
+        self.fields['reason'].label = _("Reason")
+        self.fields['reason'].widget.attrs['class'] = 'input-xxlarge monospace'

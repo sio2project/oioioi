@@ -36,7 +36,7 @@ class TestScoresReveal(TestCase):
         if success:
             self.assertIn(b'has been revealed', response.content)
         else:
-            self.assertIn(b'<div class="alert alert-error">', response.content)
+            self.assertIn(b'<div class="alert alert-danger">', response.content)
 
         return response
 

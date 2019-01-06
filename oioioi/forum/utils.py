@@ -5,7 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.permissions import make_condition, make_request_condition
 from oioioi.base.utils import request_cached
 from oioioi.contests.utils import is_contest_admin
-from oioioi.forum.models import Category, Post, Thread
+from oioioi.forum.models import Category, Post, Thread, Ban
 
 
 @make_request_condition
@@ -52,16 +52,20 @@ def is_proper_forum(request, *args, **kwargs):
 
 
 @make_request_condition
-def is_not_locked(request):
-    # returns True if forum is not locked (or user is an admin)
-    # it is used to strengthen 'forum_exists_and_viible'
-    return (not request.contest.forum.is_locked(request.timestamp)) or \
-            is_contest_admin(request)
+def can_interact_with_users(request):
+    if request.user.is_anonymous():
+        return False
+    is_banned = Ban.is_banned(request.contest.forum, request.user)
+    is_locked = request.contest.forum.is_locked(request.timestamp)
+    return is_contest_admin(request) or (not is_banned and not is_locked)
 
 
 @make_request_condition
-def forum_is_locked(request):
-    return request.contest.forum.is_locked(request.timestamp)
+def can_interact_with_admins(request):
+    if request.user.is_anonymous():
+        return False
+    is_banned = Ban.is_banned(request.contest.forum, request.user)
+    return is_contest_admin(request) or not is_banned
 
 
 def get_forum_ct(category_id, thread_id):
@@ -78,17 +82,22 @@ def get_msgs(request, forum=None):
     now = timezone.now()
     if forum is None:
         forum = request.contest.forum
+    msgs = []
+    if Ban.is_banned(forum, request.user):
+        msgs.append(_("You are banned on this forum. You can't add, edit or "
+                      "report posts. To appeal contact contest administrators.")
+                    )
     if forum.is_locked(request.timestamp):
-        return _("This forum is locked, it is not possible to add "
-                 "or edit posts right now")
+        msgs.append(_("This forum is locked, it is not possible to add "
+                      "or edit posts right now"))
     if forum.lock_date and forum.lock_date > now and \
-       not forum.is_locked(request.timestamp):
+            not forum.is_locked(request.timestamp):
         localtime = timezone.localtime(forum.lock_date)
-        return _("Forum is going to be locked at %s") % \
-                        localtime.strftime('%Y-%m-%d %H:%M:%S')
+        msgs.append(_("Forum is going to be locked at %s") % \
+                    localtime.strftime('%Y-%m-%d %H:%M:%S'))
     if forum.unlock_date and forum.unlock_date > now and \
-       forum.is_locked(request.timestamp):
+            forum.is_locked(request.timestamp):
         localtime = timezone.localtime(forum.unlock_date)
-        return _("Forum is going to be unlocked at %s") % \
-                        localtime.strftime('%Y-%m-%d %H:%M:%S')
-    return None
+        msgs.append(_("Forum is going to be unlocked at %s") % \
+                    localtime.strftime('%Y-%m-%d %H:%M:%S'))
+    return msgs

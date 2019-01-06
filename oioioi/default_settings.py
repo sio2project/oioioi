@@ -13,6 +13,8 @@ djcelery.setup_loader()
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
+from django.contrib.messages import constants as messages
+
 INSTALLATION_CONFIG_VERSION = 26
 
 DEBUG = False
@@ -527,3 +529,13 @@ MAILNOTIFYD_INTERVAL = 60
 # If your contest has no access to the internet and you need MathJax typesetting,
 # either whitelist this link or download your own copy of MathJax and link it here.
 MATHJAX_LOCATION = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/"
+
+# Django message framework CSS classes
+# https://docs.djangoproject.com/en/1.9/ref/contrib/messages/#message-tags
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert-info',
+    messages.INFO: 'alert-info',
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+}

@@ -1,0 +1,34 @@
+{% extends "forum/forum-base.html" %}
+{% load i18n %}
+{% load get_user_name %}
+
+{% block title %}{% trans "Ban user" %}{% endblock %}
+
+{% block forum-head %}
+    <h1>{% trans "Ban user: " %} {% full_name banned_user %}</h1>
+{% endblock %}
+
+{% block forum-breadcrumbs %}{% endblock %}
+
+{% block forum-contents %}
+    <p>
+        {% blocktrans %}
+            Banned user is denied any interaction with forum. This includes
+            reporting, making and editing posts. Reading forum contents will
+            not be affected.
+        {% endblocktrans %}
+    </p>
+
+    <form method="post">
+        {% csrf_token %}
+        {% include "ingredients/form.html" %}
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                {% trans "Confirm" %}
+            </button>
+            <a href="{{ next }}" class="btn btn-block">
+                {% trans "Cancel" %}
+            </a>
+        </div>
+    </form>
+{% endblock %}

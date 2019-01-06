@@ -9,7 +9,7 @@ from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import contest_site
 from oioioi.contests.utils import is_contest_admin
-from oioioi.forum.models import Category, Forum, Post, Thread
+from oioioi.forum.models import Category, Forum, Post, Thread, Ban
 
 
 def make_list_elem(elem, text=None):
@@ -28,8 +28,8 @@ def get_permission(self, request):
 
 class ForumAdmin(admin.ModelAdmin):
     fields = ('visible', 'lock_date', 'unlock_date', 'categories',
-              'add_category', 'posts_admin')
-    readonly_fields = ('categories', 'add_category', 'posts_admin')
+              'add_category', 'posts_admin', 'bans')
+    readonly_fields = ('categories', 'add_category', 'posts_admin', 'bans')
 
     def categories(self, obj):
         slist = [make_list_elem(c) for c in obj.category_set
@@ -52,6 +52,12 @@ class ForumAdmin(admin.ModelAdmin):
                 _("Posts admin view"))
     posts_admin.allow_tags = True
     posts_admin.short_description = _("Posts")
+
+    def bans(self, obj):
+        return make_html_link(reverse('oioioiadmin:forum_ban_changelist', ),
+                              _("Bans"))
+    bans.allow_tags = True
+    bans.short_description = _("Bans")
 
     def has_add_permission(self, request):
         return False
@@ -268,6 +274,28 @@ class PostAdmin(admin.ModelAdmin):
         qs = qs.filter(thread__category__forum=request.contest.forum)
         return qs
 
+
+class BanAdmin(admin.ModelAdmin):
+    list_display = ['user', 'admin', 'created_at']
+    fields = ['user', 'admin', 'created_at', 'reason']
+    readonly_fields = ['user', 'admin', 'created_at']
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return get_permission(self, request)
+
+    def has_delete_permission(self, request, obj=None):
+        return get_permission(self, request)
+
+    def get_queryset(self, request):
+        qs = super(BanAdmin, self).get_queryset(request)
+        qs = qs.filter(forum=request.contest.forum)
+        return qs
+
+
+contest_site.contest_register(Ban, BanAdmin)
 contest_site.contest_register(Forum, ForumAdmin)
 contest_site.contest_register(Category, CategoryAdmin)
 contest_site.contest_register(Thread, ThreadAdmin)

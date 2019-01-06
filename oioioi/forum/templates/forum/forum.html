@@ -1,12 +1,9 @@
-{% extends "base-with-menu.html" %}
+{% extends 'forum/forum-base.html' %}
+
 {% load i18n %}
 {% load check_perm %}
 
-{% block title %}{{ forum }} - {% trans "Forum" %}{% endblock %}
-
-{% block main-content %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
-{% if not forum_error %}
+{% block forum-head %}
     <div class="clearfix">
         {% if is_admin %}
             <div class="pull-right">
@@ -29,12 +26,9 @@
         {% endif %}
         <h1 class="pull-left">{% trans "Forum" %}: {{ forum }}</h1>
     </div>
+{% endblock %}
 
-    <ol class="breadcrumb">
-        <li>{{ forum }}</li>
-    </ol>
-
-    {% if msgs %}<h6>{{ msgs }}</h6>{% endif %}
+{% block forum-contents %}
     {% if category_set.exists %}
         <div class="table-responsive">
             <table class="table auto-width">
@@ -64,8 +58,7 @@
                             <td>{{ c.count_posts }}</td>
                             {% if is_admin %}
                                 <td>
-                                    <a href="#" data-post-url="{% url 'forum_category_delete'
-                                        contest_id=contest.id category_id=c.id %}">
+                                    <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
                                 </td>
@@ -83,8 +76,4 @@
     {% else %}
         <h5>{% trans "There is no category in the forum, sorry." %}</h5>
     {% endif %}
-{% else %}
-    <h1>{% trans "Forum" %}</h1>
-    <h5>{{ forum_error }}</h5>
-{% endif %}
 {% endblock %}
