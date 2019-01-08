@@ -77,15 +77,6 @@ class AttachmentInline(admin.TabularInline):
     extra = 0
     readonly_fields = ['content_link']
 
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
     def content_link(self, instance):
         if instance.id is not None:
             href = reverse(
@@ -132,15 +123,6 @@ class TagInline(admin.StackedInline):
     extra = 0
     verbose_name = _("Tag")
     verbose_name_plural = _("Tags")
-
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    def has_delete_permission(self, request, obj=None):
-        return True
 
 
 class ProblemAdmin(admin.ModelAdmin):

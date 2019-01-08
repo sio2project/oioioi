@@ -32,15 +32,6 @@ class TestsPackageInline(admin.TabularInline):
         return super(TestsPackageInline, self).formfield_for_manytomany(
                 db_field, request, **kwargs)
 
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
     def package_link(self, instance):
         if instance.id is not None:
             href = reverse('oioioi.testspackages.views.test_view',

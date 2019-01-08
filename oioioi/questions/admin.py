@@ -91,15 +91,6 @@ class MessageNotifierConfigInline(admin.TabularInline):
     can_delete = True
     extra = 0
 
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         contest_admin_perm = ContestPermission.objects \
                 .filter(contest=request.contest) \

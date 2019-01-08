@@ -48,7 +48,10 @@ class TestTeacherAddContest(TestCase):
                 'end_date_1': '05:06:07',
                 'results_date_0': '2012-02-05',
                 'results_date_1': '06:07:08',
-                'controller_name': controller_name
+                'controller_name': controller_name,
+                'problemstatementconfig-0-visible': 'AUTO',
+                'teamsconfig-0-max_team_size': 3,
+                'teamsconfig-0-teams_list_visible': 'NO'
         })
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)

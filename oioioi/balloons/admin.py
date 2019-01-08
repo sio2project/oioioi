@@ -107,15 +107,6 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
     fields = ('access_link', 'valid_until', 'regeneration_link')
     readonly_fields = ('access_link', 'valid_until', 'regeneration_link')
 
-    def has_add_permission(self, request):
-        return is_contest_admin(request)
-
-    def has_change_permission(self, request, obj=None):
-        return is_contest_admin(request)
-
-    def has_delete_permission(self, request, obj=None):
-        return self.has_change_permission(request, obj)
-
     def access_link(self, instance):
         if instance.access_key:
             url = reverse('balloons_access_set_cookie', kwargs={

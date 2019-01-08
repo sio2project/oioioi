@@ -115,15 +115,6 @@ class SubmisionsSimilarityEntryInline(admin.TabularInline):
     extra = 0
     raw_id_fields = ['submission']
 
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'submission':
             qs = Submission.objects

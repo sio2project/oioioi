@@ -23,8 +23,31 @@ from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ClassInitMeta, ObjectWithMixins
 from oioioi.base.utils.redirect import safe_redirect
 
-TabularInline = admin.TabularInline
-StackedInline = admin.StackedInline
+
+class TabularInline(admin.TabularInline):
+    # by default we assume that if item is added to specific
+    # admin menu mixin it should be visible and editable
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+
+class StackedInline(admin.StackedInline):
+    # by default we assume that if item is added to specific
+    # admin menu mixin it should be visible and editable
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
 
 
 class ModelAdminMeta(admin.ModelAdmin.__class__, ClassInitMeta):

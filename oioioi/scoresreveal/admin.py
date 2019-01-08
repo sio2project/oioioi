@@ -30,15 +30,6 @@ class ScoresRevealConfigInline(admin.TabularInline):
     can_delete = True
     extra = 0
 
-    def has_add_permission(self, request):
-        return True
-
-    def has_change_permission(self, request, obj=None):
-        return True
-
-    def has_delete_permission(self, request, obj=None):
-        return True
-
 
 class ScoresRevealProgrammingProblemAdminMixin(object):
     """Adds :class:`~oioioi.scoresreveal.models.ScoreRevealConfig` to an admin
