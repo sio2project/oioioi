@@ -37,13 +37,6 @@ class DottedNameField(models.CharField):
         self.superclass_name = superclass
         self._superclass = superclass
 
-        # In Django 1.9 choices array is calculated when referenced (even in
-        # models file, which caused circular dependencies. Actual choices are
-        # populated in `get_choices` and `validate` via `_generate_choices`.
-        # The assignment below notifies django to use <select> type input in
-        # admin interface.
-        self.choices = (('dummy', 'Dummy'),)
-
     # pylint: disable=W0102
     def get_choices(self, include_blank=True, blank_choice=BLANK_CHOICE_DASH,
                     limit_choices_to=None):
@@ -79,6 +72,19 @@ class DottedNameField(models.CharField):
                    for x in rel_model._default_manager.complex_filter(
                     limit_choices_to)]
         return first_choice + lst
+
+    def _get_choices(self):
+        try:
+            return self.get_choices()
+        except ImportError:
+            # In Django 1.9 choices array is calculated when referenced (even in
+            # models file, which caused circular dependencies. Actual choices
+            # are populated in `get_choices` and `validate` via
+            # `_generate_choices`.
+            # The assignment below notifies django to use <select> type input in
+            # admin interface.
+            return (('dummy', 'Dummy'),)
+    choices = property(_get_choices, lambda self, value: None)
 
     def validate(self, value, model_instance):
         # Our custom validation

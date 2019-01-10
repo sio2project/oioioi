@@ -988,8 +988,10 @@ class TestContestAdmin(TestCase):
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote('cid'),)) + '?simple=true'
         response = self.client.get(url, follow=True)
+
         self.assertIn('2012-02-05', response.content)
         self.assertIn('06:07:08', response.content)
+        self.assertContains(response, contest.controller.description)
         self.assertNotContains(response, "Judging priority")
         self.assertNotContains(response, "Judging weight")
 
