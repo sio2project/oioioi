@@ -17,10 +17,12 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from six.moves import map, range
 
+from oioioi.base.models import PreferencesSaved
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.controllers import (ContestController,
                                          ContestControllerContext)
-from oioioi.contests.models import ProblemInstance, UserResultForProblem
+from oioioi.contests.models import Contest, ProblemInstance, \
+         UserResultForProblem
 from oioioi.contests.utils import is_contest_admin, is_contest_observer
 from oioioi.filetracker.utils import make_content_disposition_header
 from oioioi.rankings.models import Ranking, RankingPage
@@ -393,3 +395,13 @@ class DefaultRankingController(RankingController):
                 'problem_instances': self._get_pis_with_visibility(key, pis),
                 'participants_on_page': getattr(settings,
                     'PARTICIPANTS_ON_PAGE', 100)}
+
+
+def update_rankings_with_user_callback(sender, **kwargs):
+    user = sender.instance
+    contests = Contest.objects.filter(probleminstance__submission__user=user)
+    for contest in contests:
+        Ranking.invalidate_contest(contest)
+
+
+PreferencesSaved.connect(update_rankings_with_user_callback)

@@ -1,7 +1,5 @@
 from collections import OrderedDict
 
-import django.dispatch
-
 import oioioi.base.forms
 
 
@@ -42,7 +40,7 @@ class PreferencesFactory(object):
            opens his preferences, preferably some saved info from before.
 
            To actually get the results you should use the PreferencesSaved
-           signal below (and to validate use the field validators, fool)
+           signal from models (and to validate use the field validators, fool)
 
            Keep in mind that adding fields that already exist is an
            undefined behavior.
@@ -96,6 +94,3 @@ class PreferencesFactory(object):
             initial=initial,
             **kwargs
         )
-
-# Sender will be equal to the form that was completed
-PreferencesSaved = django.dispatch.Signal()

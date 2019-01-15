@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.conf import settings
+import django.dispatch
 
 # pylint: disable=unused-import
 # Important. This import is to register signal handlers. Do not remove it.
@@ -18,3 +19,6 @@ for app in settings.INSTALLED_APPS:
             import_module(app + '.controllers')
         except ImportError:
             pass
+
+# Sender will be equal to the form that was completed
+PreferencesSaved = django.dispatch.Signal()

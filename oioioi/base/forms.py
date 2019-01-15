@@ -9,7 +9,7 @@ from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 
-from oioioi.base.preferences import PreferencesSaved
+from oioioi.base.models import PreferencesSaved
 from oioioi.base.utils.user import USERNAME_REGEX
 from oioioi.base.utils.validators import ValidationError
 

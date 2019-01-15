@@ -310,6 +310,32 @@ class TestRecalc(TestCase):
         recalc = choose_for_recalculation()
         self.assertIsNotNone(recalc)
 
+    def test_invalidate_preferences_saved(self):
+        # PreferencesSaved signal is sent after user changes their preferences
+        # (like name), so we need to test that ranking is invalidated after
+        # this signal is broadcasted
+        class MockSender:
+            def __init__(self, instance):
+                self.instance = instance
+        from oioioi.base.models import PreferencesSaved
+        result = UserResultForProblem.objects.first()
+        sender = MockSender(result.user)
+        contest = Contest.objects.get()
+        contest.controller_name = \
+            'oioioi.rankings.tests.MockRankingContestController'
+        contest.save()
+        ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key',
+            needs_recalculation=False)
+        ranking.save()
+        self.assertTrue(ranking.is_up_to_date())
+        recalc = choose_for_recalculation()
+        self.assertIsNone(recalc)
+        PreferencesSaved.send(sender)
+        ranking.refresh_from_db()
+        self.assertFalse(ranking.is_up_to_date())
+        recalc = choose_for_recalculation()
+        self.assertIsNotNone(recalc)
+
     def test_null_checking(self):
         contest = Contest.objects.get()
         ranking, _ = Ranking.objects.get_or_create(contest=contest, key='key')

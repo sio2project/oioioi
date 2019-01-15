@@ -792,8 +792,8 @@ class TestBaseViews(TestCase):
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
 
     def test_profile_dynamic_fields(self):
-        from oioioi.base.preferences import PreferencesFactory, \
-                PreferencesSaved
+        from oioioi.base.preferences import PreferencesFactory
+        from oioioi.base.models import PreferencesSaved
 
         def callback_func(sender, **kwargs):
             self.assertEquals(sender.cleaned_data['dog'], 'Janusz')
