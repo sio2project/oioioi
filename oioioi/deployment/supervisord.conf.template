@@ -14,114 +14,135 @@ command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --ma
 {% endif %}
 stopsignal=INT
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
+stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
 {% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
 
 [program:celerycam]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
+stderr_logfile={{ PROJECT_DIR }}/logs/celerycam-err.log
 
 [program:rankingsd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/rankingsd.log
+stderr_logfile={{ PROJECT_DIR }}/logs/rankingsd-err.log
 
 [program:mailnotifyd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py mailnotifyd
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
+stderr_logfile={{ PROJECT_DIR }}/logs/mailnotifyd-err.log
 
 [program:unpackmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
+stderr_logfile={{ PROJECT_DIR }}/logs/unpackmgr-err.log
 
 [program:evalmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
 startretries=0
 stopwaitsecs=15
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
+stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-err.log
 
 [program:evalmgr-zeus]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-zeus -c 1
 startretries=0
 stopwaitsecs=15
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus.log
+stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus-err.log
 {% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
 
 [program:prizesmgr]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q prizesmgr -c 1
 startretries=0
 stopwaitsecs=15
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/prizesmgr.log
+stderr_logfile={{ PROJECT_DIR }}/logs/prizesmgr-err.log
 {% if 'oioioi.prizes' not in settings.INSTALLED_APPS %}exclude=true{% endif %}
 
 [program:filetracker-server]
 command=filetracker-server -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/filetracker.log
+stderr_logfile={{ PROJECT_DIR }}/logs/filetracker-err.log
 {% if not settings.FILETRACKER_SERVER_ENABLED %}exclude=true{% endif %}
 
 [program:filetracker-cache-cleaner]
 command=filetracker-cache-cleaner -c {{ FILETRACKER_CACHE_ROOT }} -s {{ FILETRACKER_CACHE_SIZE }} -i {{ FILETRACKER_CACHE_CLEANER_SCAN_INTERVAL }} -p {{ FILETRACKER_CACHE_CLEANER_CLEAN_LEVEL }}
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/filetracker-cache-cleaner.log
+stderr_logfile={{ PROJECT_DIR }}/logs/filetracker-cache-cleaner-err.log
 {% if not settings.FILETRACKER_CACHE_CLEANER_ENABLED %}exclude=true{% endif %}
 
 [program:notifications-server]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py notifications_server
-redirect_stderr=true
+redirect_stderr=false
+stdout_logfile={{ PROJECT_DIR }}/logs/notifications-server.log
+stderr_logfile={{ PROJECT_DIR }}/logs/notifications-server-err.log
 {% if not settings.NOTIFICATIONS_SERVER_ENABLED %}exclude=true{% endif %}
 
 [program:receive_from_workers]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py start_receive_from_workers
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/receive_from_workers.log
+stderr_logfile={{ PROJECT_DIR }}/logs/receive_from_workers-err.log
 {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' %}exclude=true{% endif %}
 
 [program:sioworkersd]
 command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/sioworkersd.pid sioworkersd --database={{ PROJECT_DIR }}/sioworkersd.db
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
+stderr_logfile={{ PROJECT_DIR }}/logs/sioworkersd-err.log
 {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
 
 [program:cleanupd]
 command={{ PROJECT_DIR }}/manage.py cleanupd
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/cleanupd.log
+stderr_logfile={{ PROJECT_DIR }}/logs/cleanupd-err.log
 
 [program:ipauthsyncd]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauthsyncd
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/ipauthsyncd.log
+stderr_logfile={{ PROJECT_DIR }}/logs/ipauthsyncd-err.log
 {% if not 'oioioi.ipauthsync' in settings.INSTALLED_APPS %}exclude=true{% endif %}
 
 [program:ipauth-dnsserver]
 command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauth-dnsserver
 startretries=0
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/ipauth-dnsserver.log
+stderr_logfile={{ PROJECT_DIR }}/logs/ipauth-dnsserver-err.log
 {% if not settings.IPAUTH_DNSSERVER_DOMAIN %}exclude=true{% endif %}
 
 [program:oioioiworker]
 command=twistd -n -l- --pidfile={{ PROJECT_DIR }}/pidfiles/oioioiworker.pid worker -c 2 localhost
-redirect_stderr=true
+redirect_stderr=false
 stdout_logfile={{ PROJECT_DIR }}/logs/oioioiworker.log
+stderr_logfile={{ PROJECT_DIR }}/logs/oioioiworker-err.log
 {% if not settings.RUN_LOCAL_WORKERS %}exclude=true{% endif %}
 
 [program:autoreload]
 # Comment this out to enable auto-reloading when code changes.
 exclude=true
+redirect_stderr=false
+stdout_logfile={{ PROJECT_DIR }}/logs/autoreload.log
+stderr_logfile={{ PROJECT_DIR }}/logs/autoreload-err.log

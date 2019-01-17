@@ -474,5 +474,18 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          ```
 
 
+#. * Changed error (stderr) logging for processes spawned by supervisor. Now each process
+     has its own log file. Changes to *deployment/supervisord.conf*::
 
+        For each [program:A] entry change redirect_stderr=true to redirect_stderr=false and
+        add the following line (where A is the name of process):
+        stderr_logfile={{ PROJECT_DIR }}/logs/A-err.log
 
+        Additionally in [program:notifications-server] add the following line:
+        stdout_logfile={{ PROJECT_DIR }}/logs/notifications-server.log
+        stderr_logfile={{ PROJECT_DIR }}/logs/notifications-server-err.log
+
+        In [program:autoreload] add the following lines:
+        redirect_stderr=false
+        stdout_logfile={{ PROJECT_DIR }}/logs/autoreload.log
+        stderr_logfile={{ PROJECT_DIR }}/logs/autoreload-err.log
