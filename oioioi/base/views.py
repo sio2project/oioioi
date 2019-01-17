@@ -14,7 +14,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.vary import vary_on_cookie, vary_on_headers
-from django.views.defaults import page_not_found
 from two_factor.views import LoginView as Login2FAView
 
 from oioioi.base.menu import account_menu_registry
@@ -69,7 +68,15 @@ def handler404(request, exception):
     if request.is_ajax():
         return HttpResponse('404 Not Found', status=404,
                             content_type='text/plain')
-    return page_not_found(request, exception)
+    # DO NOT USE django.views.defaults.page_not_found here
+    # It has a known vulnaribility before 1.11.18
+    # DO NOT DISPLAY request.path without using urllib.parse.quote() first
+    # See:
+    # https://security.archlinux.org/AVG-838
+    # https://www.djangoproject.com/weblog/2019/jan/04/security-releases/
+    # https://github.com/django/django/commit/64d2396e83aedba3fcc84ca40f23fbd22f0b9b5b
+    # https://github.com/django/django/commit/1cd00fcf52d089ef0fe03beabd05d59df8ea052a
+    return render(request, '404.html', status=404)
 
 
 def handler403(request):
