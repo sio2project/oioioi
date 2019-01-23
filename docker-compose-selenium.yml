@@ -1,13 +1,13 @@
 version: '3'
 services:
-  test-db:
+  db:
     image: library/postgres
     restart: always
     environment:
       POSTGRES_USER: "oioioi"
       POSTGRES_PASSWORD: ""
       POSTGRES_DB: "oioioi"
-  test-web:
+  web:
     command: /sio2/oioioi/oioioi_init.sh
     image: oioioi
     build:
@@ -16,24 +16,19 @@ services:
     ports:
       - "8001:8000"
     depends_on:
-      - test-db
-    links:
-      - test-db:db
+      - db
     environment:
-      DJANGO_SETTINGS_MODULE: "test_settings"
-  test-worker:
+      DJANGO_SETTINGS_MODULE: "selenium_settings"
+  worker:
     cap_add:
       - ALL
     command: /sio2/oioioi/worker_init.sh
     image: oioioi
     depends_on:
-      - test-db
-      - test-web
-    links:
-      - test-db:db
-      - test-web:web
+      - db
+      - web
     environment:
-      DJANGO_SETTINGS_MODULE: "test_settings"
+      DJANGO_SETTINGS_MODULE: "selenium_settings"
   selenium-hub:
     image: selenium/hub
     ports:
@@ -45,4 +40,4 @@ services:
       HUB_PORT_4444_TCP_PORT: "4444"
     links:
       - selenium-hub:hub
-      - test-web:oioioi
+      - web:oioioi

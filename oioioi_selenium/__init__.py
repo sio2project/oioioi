@@ -4,14 +4,20 @@ from functools import wraps
 
 from selenium.webdriver.remote import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import six
 from six.moves import range
 
 
 class WebDriver(webdriver.WebDriver):
     def __init__(self):
+        firefox_profile = FirefoxProfile()
+        # we need to turn off stylesheets because otherwise Selenium couldn't find
+        # the the buttons in tests
+        firefox_profile.set_preference('permissions.default.stylesheet', 2)
         super(WebDriver, self).__init__(
                 command_executor='http://127.0.0.1:4444/wd/hub',
+                browser_profile=firefox_profile,
                 desired_capabilities=DesiredCapabilities.FIREFOX)
         self.set_page_load_timeout(60)
         self.implicitly_wait(60)
@@ -37,16 +43,18 @@ class WebDriver(webdriver.WebDriver):
            :raises: Assertion error when login fails.
         """
         self.get("/login/")
+        self.wait_for_load()
         self.submit_form({
-            'username': username,
-            'password': password},
-            submit="//*[@id='id_submit']")
+            'auth-username': username,
+            'auth-password': password},
+            submit="//button[@type='submit']")
 
         assert self.current_url.find("login") == -1, "Not logged in"
 
     def logout(self):
         self.get("/")
         self.find_element_by_id("navbar-username").click()
+        self.wait_for_load()
         self.find_element_by_link_text("Log out").click()
         self.wait_for_load()
 
@@ -57,6 +65,7 @@ class WebDriver(webdriver.WebDriver):
         for k, v in six.iteritems(data):
             elem = self.find_element_by_name(k)
             elem.clear()
+            elem.click()
             elem.send_keys(v)
         self.find_element_by_xpath(submit).click()
         self.wait_for_load()

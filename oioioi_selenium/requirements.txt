@@ -1,3 +1,7 @@
-selenium==2.46.0
-nose
-nose-html
+selenium==3.141.0
+pytest
+pytest-html
+six
+pathlib2
+funcsigs
+scandir

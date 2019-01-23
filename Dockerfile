@@ -109,5 +109,6 @@ RUN ./manage.py supervisor > /dev/null --daemonize && \
 
 RUN sed -i -e "s|FILETRACKER_URL = '.*'|FILETRACKER_URL = 'http://web:9999'|g" settings.py && \
     cp settings.py test_settings.py && \
-    sed -i -e "s/from oioioi.default_settings/from oioioi.test_settings/g" test_settings.py
-
+    sed -i -e "s/from oioioi.default_settings/from oioioi.test_settings/g" test_settings.py && \
+    cp settings.py selenium_settings.py && \
+    sed -i -e "s/from oioioi.default_settings/from oioioi.selenium_settings/g" selenium_settings.py

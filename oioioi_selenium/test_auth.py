@@ -16,13 +16,15 @@ class TestAuth(OIOIOISeleniumTestCase):
             'last_name': username,
             'email': username + '@example.com',
             'password1': password,
-            'password2': password})
+            'password2': password},
+            "//button[text()='Submit']")
+        driver.wait_for_load()
         driver.login(username, password)
         driver.logout()
         driver.login(username, password)
         driver.get("/edit_profile/")
         driver.wait_for_load()
-        driver.find_element_by_link_text("Delete account").click()
+        driver.find_element_by_xpath("//a[text()='Delete account']").click()
         driver.wait_for_load()
         driver.find_element_by_xpath("//button[@type='submit']").click()
         driver.wait_for_load()

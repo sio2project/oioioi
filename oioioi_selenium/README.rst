@@ -6,6 +6,29 @@ As opposed to regular django tests these are integration tests
 run under production-like environment, with external filetracker and
 database.
 
+USELEFUL TIPS AND TRICKS
+........................
+
+1. Do not run tests straight by invoking `test_selenium.sh` script.
+   Instead build docker images without the -d flag in another terminal
+   (just copy and paste the command from the script and remove -d)
+   [`docker-compose -f docker-compose-selenium.yml up`]. Why?
+   You can easily navigate through the logs there real-time
+   (instance is visible at 8001 port).
+2. Run the docker images and test from a different terminal
+   (using pytest). There is one problem with this, though.
+   When you need to reload the database, just connect to the docker
+   and manually restart it.
+3. Use firefox to take correct XPATHs to some elements (just inspect and copy).
+   The alternatives are third-party extensions to Chrome, they can even export
+   test to python2 code - but watch out here, sometimes the IDs in OIOIOI are broken
+   (e.g. the ID of a date is a date itself).
+4. When in trouble you can connect your own webdriver (f.e. chrome webdriver)
+   and write tests to see the results right at your screen.
+5. Firefox and selenium are broken. Clicking the element once is not enough
+   for most cases, just click twice with an exception catching phrases or
+   send some KEY presses to the element.
+
 Test creation process
 .....................
 
@@ -48,7 +71,7 @@ Selenium tests are excluded from default Django tests because they need
 different environment.
 In OIOIOI's root directory there's script `test_selenium.sh`
 which runs all Selenium tests.
-Any arguments passed to it are forwarded to nose.
+Any arguments passed to it are forwarded to pytest.
 This script is responsible for launching docker containers with fresh OIOIOI
 and stuff needed by Selenium. By default it take some time to perform whole
 process so you may customize script to just wipe data between launches etc.
@@ -56,11 +79,17 @@ process so you may customize script to just wipe data between launches etc.
 What to do when tests are not working
 .....................................
 
-If there were errors in testing, the first place to go
-is `test_screenshots.tar.gz` archive in project root directory. Test engine
-makes screenshot on every failure so you can determine what's gone wrong.
-When screen looks like page is not loaded properly, consider adding
-:meth:`~oioioi_selenium.__init__.WebDriver.wait_for_load` to wait for it.
+Selenium tests easily get broken after frontend updates -- for example
+adding new buttons.
+If there were errors in testing the first place to go
+are the logs. Unfortunately, you can't rely on screenshots because
+stylesheets can't be parsed by Selenium (maybe that will be
+fixed soon...). The best alternative we came up with is printing the
+whole page source and url after each important step of a test.
+
+Sometimes the tests themselves may be working fine and the real culprit
+is Docker or Selenium. Sometimes new Firefox version may become incompatible
+with Selenium, so update each of them with care.
 
 .. _`Predefined selenium actions`:
 

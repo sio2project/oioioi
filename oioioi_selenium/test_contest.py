@@ -1,6 +1,9 @@
-from selenium.webdriver.support.ui import Select
+import time
 
+from selenium.webdriver.support.ui import Select
+from selenium.webdriver.common.keys import Keys
 from . import OIOIOISeleniumTestCase
+import os
 
 
 class TestSimpleContest(OIOIOISeleniumTestCase):
@@ -13,8 +16,9 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         contest_name = "simple contest " + contest_id
         driver.get("/admin/contests/contest/add/")
         driver.wait_for_load()
-        Select(driver.find_element_by_id("id_controller_name")).\
-                select_by_visible_text("Simple programming contest")
+        Select(driver.find_element_by_id("id_controller_name")). \
+            select_by_visible_text("Simple programming contest")
+        driver.find_element_by_id("id_name").click()
         driver.find_element_by_id("id_name").clear()
         driver.find_element_by_id("id_name").send_keys(contest_name)
         driver.find_element_by_id("id_id").clear()
@@ -26,40 +30,40 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         # Let's add a problem.
         driver.get("/c/" + contest_id + "/admin/contests/probleminstance/")
         driver.find_element_by_link_text("Add problem").click()
-
         driver.find_element_by_id("id_package_file").clear()
-        driver.find_element_by_id("id_package_file").send_keys(
-                "../oioioi/sinolpack/files/test_full_package.tgz")
-        self.get_primary_button_with_text("Submit").click()
+        driver.find_element_by_id("id_package_file").send_keys(os.path.dirname(
+            os.path.dirname(os.path.abspath(__file__))) + "/oioioi/sinolpack/files/test_full_package.tgz")
+        submit_problem_button = driver.find_element_by_xpath("/html/body/div[2]/div/div/section/div/form/div[2]/button")
+        submit_problem_button.click()
+        submit_problem_button.send_keys(Keys.RETURN)
         driver.wait_for_load()
 
-        # Wait for problem package to process, at most ~25s.
-        self.wait_for_action(self.wait_for_package, timeout=25,
-                             url="/admin/problems/problempackage/")
+        # Wait for problem package to process, at most ~20s.
+        time.sleep(20)
+        driver.get("/c/" + contest_id + "/admin/problems/problempackage/")
+        self.assertEqual("Uploaded", driver.find_element_by_xpath(
+            "/html/body/div[2]/div[1]/div/section/div/div[2]/div/div/form/div[2]/table/tbody/tr[1]/td[4]/span").text)
 
         # Submit some dummy code as administrator.
         driver.get("/c/" + contest_id + "/submit/")
+        driver.find_element_by_id("id_code").click()
         driver.find_element_by_id("id_code").clear()
-        driver.find_element_by_id("id_code").send_keys("int main(){}")
-        Select(driver.find_element_by_id("id_prog_lang")).\
-                select_by_visible_text("C")
-        Select(driver.find_element_by_id("id_kind")).\
-                select_by_visible_text("Normal")
-        driver.find_element_by_css_selector(
-                "div.form-group > button.btn.btn-primary").click()
-        driver.wait_for_load()
+        driver.find_element_by_id("id_code").send_keys("int main() {}")
+        driver.find_element_by_id("id_prog_lang").click()
+        Select(driver.find_element_by_id("id_prog_lang")).select_by_visible_text("C")
+        driver.find_element_by_id("id_prog_lang").click()
+        Select(driver.find_element_by_id("id_kind")).select_by_visible_text("Normal")
+        driver.find_element_by_id("id_kind").click()
+        submit_solution_button = driver.find_element_by_xpath(
+            "(.//*[normalize-space(text()) and normalize-space(.)='Kind'])[1]/following::button[1]")
+        submit_solution_button.click()
+        submit_solution_button.send_keys(Keys.RETURN)
 
         # Check if it was submitted.
-        driver.get("/c/" + contest_id + "/admin/contests/submission/")
-
-        self.get_from_result_table(
-            "//th[@class='field-id']", 1).click()
-        driver.wait_for_load()
-        submission_url = driver.current_url
-
-        # Wait for it to be judged, at most 1 min.
-        self.wait_for_action(self.wait_for_submission_result,
-                             url=submission_url)
+        time.sleep(30)
+        driver.get("/c/" + contest_id + "/submissions/")
+        self.assertEqual("0", driver.find_element_by_xpath(
+            "(.//*[normalize-space(text()) and normalize-space(.)='Score'])[1]/following::td[6]").text)
 
     def wait_for_package(self):
         state = self.get_from_result_table(
