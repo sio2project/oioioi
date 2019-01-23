@@ -218,15 +218,40 @@ class TestThread(TestCase):
         response = self.try_to_remove_post(p0)
         self.assertEqual(403, response.status_code)
 
-    def test_report_post(self):
-        p = Post(thread=self.thr, content='This post will be reported.',
-                 author=self.user, add_date=self.past)
-        p.save()
+
+class TestPost(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def setUp(self):
+        delta = timedelta(days=3)
+        self.past = timezone.now() - delta
+        self.contest = get_contest_with_forum()
+        self.user = User.objects.get(username='test_user')
+        self.forum = self.contest.forum
+        self.cat = Category(forum=self.forum, name='test_category')
+        self.cat.save()
+        self.thr = Thread(category=self.cat, name='test_thread')
+        self.thr.save()
+        self.p = Post(thread=self.thr, content='Test post!',
+                      author=self.user, add_date=self.past)
+        self.p.save()
+
+    def assertContainsReportOption(self, response):
+        self.assertNotContains(response, 'This post was reported')
+        self.assertContains(response, 'report')
+
+    def assertContainsApproveOption(self, response):
+        self.assertNotContains(response,
+                               'This post was approved.')
+        self.assertContains(response, 'approve')
+
+    def test_report(self):
         self.client.login(username='test_user')
-        url = reverse('forum_post_report', kwargs={'contest_id': self.contest.id,
-                                                   'category_id': self.cat.id,
-                                                   'thread_id': self.thr.id,
-                                                   'post_id': p.id})
+        url = reverse('forum_post_report',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
         name = self.user.first_name
         surname = self.user.last_name
         response = self.client.post(url, follow=True)
@@ -239,6 +264,222 @@ class TestThread(TestCase):
         reported_pattern = r"was reported\s*by\s*<a[^>]*>\s*%s %s\s*<\/a>" \
                            % (name, surname)
         self.assertTrue(re.search(reported_pattern, response.content))
+
+    def test_approve_after_report(self):
+        self.client.login(username='test_admin')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertContainsReportOption(response)
+        self.assertContainsApproveOption(response)
+
+        self.client.login(username='test_user')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertContainsReportOption(response)
+        self.assertNotContains(response, 'approve')
+
+        url = reverse('forum_post_report',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        response = self.client.post(url, follow=True)
+        self.assertContains(response, 'This post was reported')
+
+        self.client.login(username='test_admin')
+        url = reverse('forum_post_approve',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        response = self.client.post(url, follow=True)
+        self.assertContains(response, 'revoke approval')
+
+        self.client.login(username='test_user')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertNotContains(response, 'report')
+        self.assertContains(response,
+                            'This post was approved.')
+        self.assertNotContains(response, 'revoke approval')
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+    def test_approve_without_report(self):
+        self.client.login(username='test_admin')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertContainsReportOption(response)
+        self.assertContainsApproveOption(response)
+
+        url = reverse('forum_post_approve',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        self.client.post(url, follow=True)
+
+        self.client.login(username='test_user')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertNotContains(response, 'report')
+        self.assertContains(response,
+                            'This post was approved.')
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+    def test_report_after_approve(self):
+        self.p.approved = True
+        self.p.save()
+
+        self.client.login(username='test_admin')
+        url = reverse('forum_post_report',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        self.client.post(url)
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+        self.client.login(username='test_user')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertNotContains(response, 'report')
+        self.assertContains(response,
+                            'This post was approved.')
+
+    def test_revoking_approval_after_edit(self):
+        self.p.approved = True
+        self.p.save()
+
+        self.client.login(username='test_user')
+        url = reverse('forum_post_edit',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        self.client.get(url, follow=True)
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+
+        url = reverse('forum_post_edit',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        self.client.post(url, {'content': 'Test content'})
+
+        self.p.refresh_from_db()
+        self.assertFalse(self.p.approved)
+
+    def test_admin_approval_edit(self):
+        self.p.reported = True
+        self.p.save()
+
+        data = {
+            'content': self.p.content,
+            'thread': self.thr.id,
+            'reported': self.p.reported,
+            'approved': True
+        }
+
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:forum_post_change', args=(self.p.id,))
+        self.client.post(url, data)
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+        data['reported'] = True
+        self.client.post(url, data)
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+    def test_admin_approve_action(self):
+        self.p.reported = True
+        self.p.save()
+
+        data = {'_selected_action': (self.p.id, ),
+                'action': 'approve_action'}
+
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:forum_post_changelist')
+        self.client.post(url, data, follow=True)
+
+        self.p.refresh_from_db()
+        self.assertTrue(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+    def test_admin_revoke_approval_action(self):
+        self.p.approved = True
+        self.p.save()
+
+        data = {'_selected_action': (self.p.id, ),
+                'action': 'revoke_approval_action'}
+
+        self.client.login(username='test_admin')
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:forum_post_changelist')
+        self.client.post(url, data, follow=True)
+
+        self.p.refresh_from_db()
+        self.assertFalse(self.p.approved)
+        self.assertFalse(self.p.reported)
+
+    def test_revoke_approval(self):
+        self.p.approved = True
+        self.p.save()
+
+        self.client.login(username='test_user')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertNotContains(response, 'revoke approval')
+
+        self.client.login(username='test_admin')
+        url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
+                                              'category_id': self.cat.id,
+                                              'thread_id': self.thr.id})
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'revoke approval')
+
+        url = reverse('forum_post_revoke_approval',
+                      kwargs={'contest_id': self.contest.id,
+                              'category_id': self.cat.id,
+                              'thread_id': self.thr.id,
+                              'post_id': self.p.id})
+        response = self.client.post(url, follow=True)
+        self.assertNotContains(response, 'revoke approval')
+
+        self.p.refresh_from_db()
+        self.assertFalse(self.p.approved)
+        self.assertFalse(self.p.reported)
 
 
 class TestBan(TestCase):

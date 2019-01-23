@@ -204,11 +204,12 @@ class ThreadAdmin(admin.ModelAdmin):
 
 class PostAdmin(admin.ModelAdmin):
     list_display = ['id', 'author', 'thread_link', 'content', 'reported',
-            'hidden']
-    list_display_links = ['id', 'reported', 'hidden']
-    list_filter = ['reported', 'hidden', 'thread']
-    actions = ['hide_action', 'unreport_action']
-    fields = ['content', 'thread', 'author', 'reported', 'hidden']
+                    'approved', 'hidden']
+    list_display_links = ['id', 'reported', 'approved', 'hidden']
+    list_filter = ['reported', 'approved', 'hidden', 'thread']
+    actions = ['hide_action', 'unreport_action', 'approve_action',
+               'revoke_approval_action']
+    fields = ['content', 'thread', 'author', 'reported', 'approved', 'hidden']
     readonly_fields = ['author']
 
     def thread_link(self, obj):
@@ -268,6 +269,29 @@ class PostAdmin(admin.ModelAdmin):
                            "posts.", counter)
                 % {'counter': counter})
     unreport_action.short_description = _("Dismiss reports for selected posts")
+
+    def approve_action(self, request, queryset):
+        queryset.update(approved=True, reported=False)
+
+        counter = queryset.count()
+        self.message_user(
+            request,
+            ungettext_lazy("One post was approved.",
+                           "%(counter)d posts were approved.", counter)
+            % {'counter': counter})
+    approve_action.short_description = _("Approve selected posts")
+
+    def revoke_approval_action(self, request, queryset):
+        queryset.update(approved=False)
+
+        counter = queryset.count()
+        self.message_user(
+            request,
+            ungettext_lazy("\"Approved\" status removed from one post.",
+                           "\"Approved\" status removed from %(counter)d "
+                           "posts.", counter)
+            % {'counter': counter})
+    revoke_approval_action.short_description = _("Revoke approval of selected posts")
 
     def get_queryset(self, request):
         qs = super(PostAdmin, self).get_queryset(request)

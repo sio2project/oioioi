@@ -25,9 +25,12 @@ forum_patterns = [
         views.delete_post_view, name='forum_post_delete'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/report/$',
         views.report_post_view, name='forum_post_report'),
-    url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/unreport/'
+    url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/approve/'
         r'$',
-        views.unreport_post_view, name='forum_post_unreport'),
+        views.approve_post_view, name='forum_post_approve'),
+    url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)'
+        r'/revoke_approval/$',
+        views.revoke_approval_post_view, name='forum_post_revoke_approval'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/hide/$',
         views.hide_post_view, name='forum_post_hide'),
     url(r'^(?P<category_id>\d+)/(?P<thread_id>\d+)/(?P<post_id>\d+)/$',

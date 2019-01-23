@@ -138,6 +138,7 @@ def edit_post_view(request, category_id, thread_id, post_id):
         form = PostForm(request, request.POST, instance=post)
         if form.is_valid():
             instance = form.save(commit=False)
+            instance.approved = False
             instance.last_edit_date = request.timestamp
             instance.save()
             return redirect('forum_thread', contest_id=request.contest.id,
@@ -193,7 +194,7 @@ def delete_post_view(request, category_id, thread_id, post_id):
 @require_POST
 def report_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
-    if not post.reported:
+    if not post.reported and not post.approved:
         post.reported = True
         post.reported_by = request.user
         post.save()
@@ -204,10 +205,19 @@ def report_post_view(request, category_id, thread_id, post_id):
 @enforce_condition(contest_exists & is_contest_admin)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 @require_POST
-def unreport_post_view(request, category_id, thread_id, post_id):
+def approve_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
-    post.reported = False
-    post.reported_by = None
+    post.approved = True
+    post.save()
+    return redirect('forum_thread', contest_id=request.contest.id,
+                    category_id=category.id, thread_id=thread.id)
+
+@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(forum_exists_and_visible & is_proper_forum)
+@require_POST
+def revoke_approval_post_view(request, category_id, thread_id, post_id):
+    (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
+    post.approved = False
     post.save()
     return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)

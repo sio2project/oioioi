@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -132,6 +132,7 @@ class Post(models.Model):
                                           blank=True, null=True)
     author = models.ForeignKey(User, verbose_name=_("author"))
     reported = models.BooleanField(verbose_name=_("reported"), default=False)
+    approved = models.BooleanField(verbose_name=_("approved"), default=False)
     hidden = models.BooleanField(verbose_name=_("hidden"), default=False)
     reported_by = models.ForeignKey(User, null=True,
                                     related_name='%(class)s_user_reported')
@@ -218,3 +219,10 @@ def _update_last_post(sender, instance, **kwargs):
     except Post.DoesNotExist:
         thread.last_post = None
     thread.save()
+
+
+@receiver(pre_save, sender=Post)
+def _remove_reports_if_approved(sender, instance, **kwargs):
+    if instance.approved:
+        instance.reported = False
+        instance.reported_by = None
