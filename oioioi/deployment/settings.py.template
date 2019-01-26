@@ -213,6 +213,13 @@ RUN_LOCAL_WORKERS = True
 USE_UNSAFE_EXEC = True
 USE_LOCAL_COMPILERS = True
 
+# Default safe execution tool
+# You can change the safe execution tool. Current options are:
+# - "vcpu" - (default) OITimeTool
+# - "sio2jail" - SIO2Jail
+# - "cpu" - ptrace (measures real time)
+#DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
+
 # WARNING: setting this to False is experimental until we make sure that
 # checkers do work well in sandbox
 #

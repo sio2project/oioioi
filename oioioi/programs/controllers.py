@@ -586,7 +586,7 @@ class ProgrammingProblemController(ProblemController):
            Return 'vcpu' if you want to use OITimeTool,
            'sio2jail' if you want to use SIO2Jail. Otherwise return 'cpu'.
         """
-        return 'vcpu'
+        return settings.DEFAULT_SAFE_EXECUTION_MODE
 
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions.
@@ -809,7 +809,7 @@ class ProgrammingContestController(ContestController):
             return self.get_default_safe_exec_mode()
 
     def get_default_safe_exec_mode(self):
-        return 'vcpu'
+        return settings.DEFAULT_SAFE_EXECUTION_MODE
 
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions.

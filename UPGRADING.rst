@@ -458,9 +458,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 
 #. * Added `'oioioi.portals.processors.portals_main_page_link_visible'`, to
-    `TEMPLATES[0]['OPTIONS']['context_processors']`
+     `TEMPLATES[0]['OPTIONS']['context_processors']`::
 
-    ```
         --- oioioi/deployment/settings.py.template	(date 1524038411000)
         +++ oioioi/deployment/settings.py.template	(date 1528164979000)
         @@ -333,6 +333,7 @@
@@ -471,7 +470,6 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          ]
 
          MIDDLEWARE_CLASSES += (
-         ```
 
 
 #. * Changed error (stderr) logging for processes spawned by supervisor. Now each process
@@ -489,3 +487,25 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         redirect_stderr=false
         stdout_logfile={{ PROJECT_DIR }}/logs/autoreload.log
         stderr_logfile={{ PROJECT_DIR }}/logs/autoreload-err.log
+
+
+#. * Added `DEFAULT_SAFE_EXECUTION_MODE` to Django settings with default of
+     `"vcpu"` - OITimeTool.::
+
+        diff --git a/oioioi/deployment/settings.py.template b/oioioi/deployment/settings.py.template
+        index ea64d434..50c178b6 100755
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -213,6 +213,12 @@ RUN_LOCAL_WORKERS = True
+         USE_UNSAFE_EXEC = True
+         USE_LOCAL_COMPILERS = True
+         
+        +# Default safe execution sandbox
+        +# You can change the safe execution sandbox. Current options are:
+        +# - "vcpu" - OITimeTool
+        +# - "sio2jail" - SIO2Jail
+        +#DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
+        +
+         # WARNING: setting this to False is experimental until we make sure that
+         # checkers do work well in sandbox
+         #
