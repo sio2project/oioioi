@@ -148,6 +148,7 @@ TEMPLATES = [
 ]
 
 MIDDLEWARE_CLASSES = (
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'oioioi.base.middleware.TimestampingMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -159,7 +160,6 @@ MIDDLEWARE_CLASSES = (
     'oioioi.su.middleware.SuAuthenticationMiddleware',
     'oioioi.su.middleware.SuFirstTimeRedirectionMiddleware',
     'oioioi.base.middleware.UserInfoInErrorMessage',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'dj_pagination.middleware.PaginationMiddleware',
     'oioioi.contests.middleware.CurrentContestMiddleware',
@@ -194,6 +194,7 @@ COMPRESS_PRECOMPILERS = (
 LIBSASS_PRECISION = 8
 
 INSTALLED_APPS = (
+    'debug_toolbar',
     'oioioi.filetracker',
     'oioioi.contests',
     'oioioi.problems',
@@ -220,7 +221,6 @@ INSTALLED_APPS = (
     'djsupervisor',
     'registration',
     'django_extensions',
-    'debug_toolbar',
     'compressor',
     'dj_pagination',
     'mptt',
@@ -242,7 +242,7 @@ INSTALLED_APPS = (
     'django_otp.plugins.otp_totp',
     'two_factor',
 
-    'nested_admin'
+    'nested_admin',
 )
 
 AUTHENTICATION_BACKENDS = (
