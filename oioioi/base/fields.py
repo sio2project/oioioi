@@ -230,6 +230,17 @@ class EnumField(models.CharField):
         kwargs.pop('choices', None)
         return name, path, args, kwargs
 
+    # Choices are made into a property so they are always fetched updated
+    @property
+    def choices(self):
+        if self.registry:
+            return self._generate_choices()
+        return []
+
+    @choices.setter
+    def choices(self, new_choices):
+        pass
+
 
 class PhoneNumberField(models.CharField):
     """A ``CharField`` designed to store phone numbers."""

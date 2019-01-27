@@ -522,7 +522,7 @@ class TestContestViews(TestCase):
         self.assertEqual(response.content.count('0 / 0'), 2)
 
         status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
-        header_match = re.findall(status_pattern % ('OK[0-9]+', 'OK'), response.content)
+        header_match = re.findall(status_pattern % ('OK[0-9]+', "OK"), response.content)
         ok_match = re.findall(status_pattern % ('OK', 'OK'), response.content)
         re_match = re.findall(status_pattern % ('RE', 'Runtime error'),
                               response.content)
@@ -556,6 +556,24 @@ class TestContestViews(TestCase):
                 kwargs={'contest_id': contest.id})
         check_not_accessible(self, 'contest_files',
                 kwargs={'contest_id': contest.id})
+
+
+class TestMySubmissions(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission_list']
+
+    def test_submission_messages(self):
+        contest = Contest.objects.get()
+        self.client.login(username='test_user')
+        kwargs = {'contest_id': contest.id}
+        response = self.client.get(reverse('my_submissions', kwargs=kwargs))
+
+        status_pattern = r'<td id=".*"\s*class="[^"]*submission--%s[^"]">\s*%s\s*</td>'
+        ini_ok = re.findall(status_pattern % ('OK[0-9]+', 'Initial tests: OK'), response.content)
+        ini_err = re.findall(status_pattern % ('INI_ERR', 'Initial tests: failed'), response.content)
+
+        self.assertEqual(len(ini_ok), 1)
+        self.assertEqual(len(ini_err), 1)
 
 
 class TestManyRounds(TestsUtilsMixin, TestCase):
