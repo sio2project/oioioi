@@ -13,6 +13,10 @@
                 <span class="glyphicon glyphicon-download"></span>
                 {% trans "Export to CSV" %}
             </a>
+            <a role="button" class="btn btn-sm btn-default"
+                href="#" data-post-url="{% url 'ranking_invalidate' contest_id=contest.id key=key %}">
+                {% trans "Regenerate ranking" %}
+            </a>
         {% endif %}
         {% if form and user.is_authenticated and not is_admin %}
             <a role="button" class="btn btn-sm btn-default"

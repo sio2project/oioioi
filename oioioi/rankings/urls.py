@@ -10,4 +10,6 @@ contest_patterns = [
         name='ranking'),
     url(r'^ranking/(?P<key>[a-z0-9_-]+)/csv/$', views.ranking_csv_view,
             name='ranking_csv'),
+    url(r'^ranking/(?P<key>[a-z0-9_-]+)/invalidate/$',
+            views.ranking_invalidate_view, name='ranking_invalidate'),
 ]

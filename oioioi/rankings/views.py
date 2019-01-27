@@ -5,6 +5,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_POST
 from six.moves import zip
 
 from oioioi.base.menu import menu_registry
@@ -14,6 +15,7 @@ from oioioi.contests.models import Submission
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    is_contest_admin)
 from oioioi.rankings.forms import FilterUsersInRankingForm
+from oioioi.rankings.models import Ranking
 
 
 @make_request_condition
@@ -119,3 +121,12 @@ def ranking_csv_view(request, key):
         raise Http404
 
     return rcontroller.render_ranking_to_csv(request, key)
+
+@enforce_condition(contest_exists & is_contest_admin)
+@require_POST
+def ranking_invalidate_view(request, key):
+    rcontroller = request.contest.controller.ranking_controller()
+    full_key = rcontroller.get_full_key(request, key)
+    ranking = Ranking.objects.filter(key=full_key)
+    Ranking.invalidate_queryset(ranking)
+    return redirect('ranking', key=key)

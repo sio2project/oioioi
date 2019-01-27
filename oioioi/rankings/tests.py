@@ -148,6 +148,7 @@ class TestRankingViews(TestCase):
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Export to CSV')
+            self.assertContains(response, 'Regenerate ranking')
 
         # Check that Admin is filtered out.
         self.client.login(username='test_user')
@@ -157,6 +158,7 @@ class TestRankingViews(TestCase):
             self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
                                        response.content))
             self.assertNotContains(response, 'Export to CSV')
+            self.assertNotContains(response, 'Regenerate ranking')
 
         # Ok, so now we make test_admin a regular user.
         admin = User.objects.get(username='test_admin')
@@ -243,6 +245,29 @@ class TestRankingViews(TestCase):
             self.assertContains(response, 'zad1')
             for task in ['zad2', 'zad3', 'zad3']:
                 self.assertNotContains(response, task)
+
+    def test_invalidate_view(self):
+        contest = Contest.objects.get()
+        url = reverse('ranking_invalidate', kwargs={'contest_id': contest.id,
+                                            'key': 'key'})
+
+        self.assertTrue(self.client.login(username='test_user'))
+        with fake_time(datetime(2019, 1, 27, tzinfo=utc)):
+            check_not_accessible(self, url)
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        with fake_time(datetime(2019, 1, 27, tzinfo=utc)):
+            ranking, _ = Ranking.objects.get_or_create(contest=contest,
+                key='admin#key', needs_recalculation=False)
+            ranking.save()
+            self.assertTrue(ranking.is_up_to_date())
+            recalc = choose_for_recalculation()
+            self.assertIsNone(recalc)
+            response = self.client.post(url, key='key')
+            ranking.refresh_from_db()
+            self.assertFalse(ranking.is_up_to_date())
+            recalc = choose_for_recalculation()
+            self.assertIsNotNone(recalc)
 
 
 class MockRankingController(DefaultRankingController):
