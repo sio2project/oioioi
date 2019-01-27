@@ -86,6 +86,7 @@ Vagrant.configure("2") do |config|
     sudo -u postgres psql --command='create database "vagrant" with owner "vagrant"'
     sudo -u postgres psql --command='create user "oioioi" with password '"'development'"
     sudo -u postgres psql --command='create database "oioioi" with owner "oioioi"'
+    sudo -u postgres psql --command='alter user "oioioi" createdb'
 
 
     echo "* installing python dependencies"
