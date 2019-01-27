@@ -48,12 +48,10 @@ class ExclusivenessConfig(models.Model):
        ``start_date`` and stays active until the date specified by
        ``end_date``.
     """
-    contest = models.OneToOneField(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(
         default=True,
-        verbose_name=_("enabled"),
-        help_text=_("Caution! If you'll disable exclusiveness and you are " +
-        "not superadmin you won't be able to enable it again!"))
+        verbose_name=_("enabled"))
     start_date = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True,

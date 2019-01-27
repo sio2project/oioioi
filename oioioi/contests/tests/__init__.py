@@ -66,7 +66,7 @@ def make_empty_contest_formset():
         ('problemstatementconfig', 1, 0, 0, 1),
         ('balloonsdeliveryaccessdata', 1, 0, 0, 1),
         ('statistics_config', 1, 0, 0, 1),
-        ('exclusivenessconfig', 0, 0, 0, 1),
+        ('exclusivenessconfig_set', 0, 0, 0, 1000),
         ('complaints_config', 1, 0, 0, 1),
         ('contesticon_set', 0, 0, 0, 1000),
         ('contestlogo', 1, 0, 0, 1),
