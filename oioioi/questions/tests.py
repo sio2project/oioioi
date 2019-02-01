@@ -49,11 +49,11 @@ class TestQuestions(TestCase):
                     self.assertIn(m, response.content)
                 else:
                     self.assertNotIn(m, response.content)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_visibility('public-answer', 'private-answer')
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         check_visibility('public-answer')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         check_visibility('public-answer', 'private-answer')
 
     def test_pub_date(self):
@@ -73,9 +73,9 @@ class TestQuestions(TestCase):
                 else:
                     self.assertNotIn(m, response.content)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_visibility('question-visible')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         check_visibility('response-hidden', 'question-hidden1',
                 'visible-response-to-hidden')
 
@@ -104,7 +104,7 @@ class TestQuestions(TestCase):
                 [m.id for m in visible_messages(make_request('test_admin'))])
 
     def test_new_labels(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
@@ -124,7 +124,7 @@ class TestQuestions(TestCase):
         self.assertEqual(response.content.count('>NEW<'), 1)
 
     def test_ask_and_reply(self):
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         url = reverse('add_contest_message', kwargs={'contest_id': contest.id})
@@ -149,7 +149,7 @@ class TestQuestions(TestCase):
         self.assertEqual(new_question.problem_instance, pi)
         self.assertEqual(new_question.author.username, 'test_user2')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
@@ -187,7 +187,7 @@ class TestQuestions(TestCase):
         self.assertEqual(new_reply.problem_instance, pi)
         self.assertEqual(new_reply.author.username, 'test_admin')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         q_url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
         check_not_accessible(self, q_url)
@@ -204,7 +204,7 @@ class TestQuestions(TestCase):
         self.assertIn(b're-new-question', response.content)
         self.assertNotIn(b'the-new-question', response.content)
 
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(q_url)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'the-new-question', response.content)
@@ -232,7 +232,7 @@ class TestQuestions(TestCase):
         NotificationHandler.send_notification = fake_send_notification
 
         # Test user asks a new question
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         url = reverse('add_contest_message', kwargs={'contest_id': contest.id})
@@ -249,7 +249,7 @@ class TestQuestions(TestCase):
         new_question = Message.objects.get(topic='the-new-question')
 
         # Test admin replies his question
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
@@ -292,7 +292,7 @@ class TestQuestions(TestCase):
         NotificationHandler.send_notification = fake_send_notification
 
         # Test user asks a new question
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
 
@@ -310,7 +310,7 @@ class TestQuestions(TestCase):
         new_question = Message.objects.get(topic='the-new-question')
 
         # Test admin replies his question
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
@@ -336,7 +336,7 @@ class TestQuestions(TestCase):
         NotificationHandler.send_notification = send_notification_backup
 
     def test_filtering(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         url = reverse('contest_messages', kwargs={'contest_id': contest.id})
 
@@ -372,7 +372,7 @@ class TestQuestions(TestCase):
         self.assertNotIn(b'public-answer', response.content)
         self.assertNotIn(b'private-answer', response.content)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(b'general-question', response.content)
@@ -381,7 +381,7 @@ class TestQuestions(TestCase):
         self.assertIn(b'private-answer', response.content)
 
     def test_authors_list(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         url = reverse('get_messages_authors',
                       kwargs={'contest_id': contest.id})
@@ -400,7 +400,7 @@ class TestQuestions(TestCase):
         response = json.loads(response.content)
         self.assertListEqual(['test_admin (Test Admin)'], response)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)
 
     def test_change_category(self):
@@ -413,7 +413,7 @@ class TestQuestions(TestCase):
         def change_category(msg, cat):
             url = reverse('oioioiadmin:questions_message_change',
                           args=(msg.id,))
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
             self.assertIn('form', response.context)
 
@@ -448,7 +448,7 @@ class TestQuestions(TestCase):
         self.assertEqual(q.round, pi.round)
 
     def test_change_denied(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         msg = Message.objects.filter(author__username='test_admin')[0]
@@ -458,7 +458,7 @@ class TestQuestions(TestCase):
 
     def test_reply_templates(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url1 = reverse('get_reply_templates',
                        kwargs={'contest_id': contest.id})
         response = self.client.get(url1)
@@ -475,11 +475,11 @@ class TestQuestions(TestCase):
         templates = json.loads(response.content)
         self.assertEqual(templates[0]['name'], "What contest is this?")
         self.assertEqual(len(templates), 4)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url1)
 
     def test_check_new_messages(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('check_new_messages',
                 kwargs={'contest_id': 'c', 'topic_id': 2})
         resp = self.client.get(url, {'timestamp': 1347000000})
@@ -494,7 +494,7 @@ class TestQuestions(TestCase):
         # Admin and regular users have slightly different filter forms,
         # so let's test both types of users.
         for username in ['test_user', 'test_admin']:
-            self.client.login(username=username)
+            self.assertTrue(self.client.login(username=username))
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
             self.assertEqual(response.status_code, 200)
@@ -619,7 +619,7 @@ class TestAllMessagesView(TestCase):
         }]
 
         for d in test_data:
-            self.client.login(username=d['username'])
+            self.assertTrue(self.client.login(username=d['username']))
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             for content in d['visible']:
@@ -632,7 +632,7 @@ class TestAllMessagesView(TestCase):
         url = reverse('contest_all_messages',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'NEW', response.content)
@@ -646,7 +646,7 @@ class TestAllMessagesView(TestCase):
         url = reverse('contest_all_messages',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -675,7 +675,7 @@ class TestAllMessagesView(TestCase):
         }]
 
         for d in test_data:
-            self.client.login(username=d['username'])
+            self.assertTrue(self.client.login(username=d['username']))
             for mid in d['visit_messages']:
                 url_visit = reverse('message_visit',
                                     kwargs={'contest_id': contest.id,
@@ -705,7 +705,7 @@ class TestAllMessagesView(TestCase):
         # Admin and regular users have slightly different filter forms,
         # so let's test both types of users.
         for username in ['test_user', 'test_admin']:
-            self.client.login(username=username)
+            self.assertTrue(self.client.login(username=username))
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
             self.assertEqual(response.status_code, 200)
@@ -729,7 +729,7 @@ class TestUserInfo(TestCase):
         url = reverse('user_info', kwargs={'contest_id': contest.id,
                                            'user_id': user.id})
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertIn(b'User info', response.content)
         self.assertIn(b"User's messages", response.content)

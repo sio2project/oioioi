@@ -58,7 +58,7 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
             self.assertEqual(can_delete_team(request), False)
             self.assertEqual(can_create_team(request), False)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             problem_instance = ProblemInstance.objects.get()
             self.submit_file(contest, problem_instance, user=team.user)
             self.assertEqual(can_quit_team(request), False)
@@ -73,7 +73,7 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
 
         timestamp = datetime(2012, 1, 1, 10, tzinfo=utc)
         with fake_time(timestamp):
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(reverse('default_contest_view',
                               kwargs={'contest_id': contest.id}), follow=True)
             self.assertIn('Team', response.content)
@@ -111,7 +111,7 @@ class TestTeamSubmit(TestCase, SubmitFileMixin):
         user = User.objects.get(username='test_user')
         problem_instance = ProblemInstance.objects.get()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.submit_file(contest, problem_instance, user=user)
 
         self.assertEqual(Submission.objects.get().user, user)
@@ -125,7 +125,7 @@ class TestTeamSubmit(TestCase, SubmitFileMixin):
         tm = TeamMembership(team=team, user=user)
         tm.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.submit_file(contest, problem_instance, user=user)
         self.assertIn('You can&#39;t submit a solution for another team!',
@@ -143,7 +143,7 @@ class TestTeamSubmit(TestCase, SubmitFileMixin):
         tm = TeamMembership(team=team, user=user)
         tm.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
         file = ContentFile('a' * 1024, name='submission.cpp')
@@ -171,7 +171,7 @@ class TestTeamsListView(TestCase):
                 kwargs={'contest_id': contest.id}), follow=True)
         self.assertNotIn('Teams', response.content)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
@@ -187,7 +187,7 @@ class TestTeamsListView(TestCase):
                 kwargs={'contest_id': contest.id}), follow=True)
         self.assertNotIn('Teams', response.content)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
@@ -203,7 +203,7 @@ class TestTeamsListView(TestCase):
                 kwargs={'contest_id': contest.id}), follow=True)
         self.assertIn('Teams', response.content)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)

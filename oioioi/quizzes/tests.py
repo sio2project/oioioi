@@ -39,7 +39,7 @@ class TestSubmission(TestCase, SubmitQuizMixin):
                 'test_quiz_problem_second', 'test_problem_instance']
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_simple_submission(self):
         contest = Contest.objects.get()
@@ -133,7 +133,7 @@ class TestSubmissionView(TestCase):
                 'test_quiz_submission']
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_question_report(self):
         contest = Contest.objects.get()
@@ -160,7 +160,7 @@ class TestEditQuizQuestions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_quiz_problem']
 
     def setUp(self):
-        self.client.login(username='test_user')  # this user is not an admin
+        self.assertTrue(self.client.login(username='test_user'))  # this user is not an admin
 
     def test_edit_quiz_questions(self):
         # test_user is an author of this problem

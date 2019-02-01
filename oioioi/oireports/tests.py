@@ -43,12 +43,12 @@ class TestReportViews(TestCase, TestStreamingMixin):
         }
 
         # Let's check if report is not available for regular user.
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
             self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
             pages = slate.PDF(StringIO(self.streamingContent(response)))
@@ -70,12 +70,12 @@ class TestReportViews(TestCase, TestStreamingMixin):
         }
 
         # Let's check if report is not available for regular user.
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
             self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
             content = self.streamingContent(response)
@@ -98,7 +98,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
             'single_report_user': 'test_user2'
         }
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
             content = self.streamingContent(response)
@@ -109,7 +109,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         contest = Contest.objects.get()
         url = reverse('oireports', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2016, 11, 6, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'selected="selected">Past round')

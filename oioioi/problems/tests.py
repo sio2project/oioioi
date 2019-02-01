@@ -61,7 +61,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
 
     def test_problem_statement_view(self):
         # superuser
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         statement = ProblemStatement.objects.get()
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
@@ -71,18 +71,18 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         content = self.streamingContent(response)
         self.assertTrue(content.startswith('%PDF'))
         # contest admin
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         content = self.streamingContent(response)
         self.assertTrue(content.startswith('%PDF'))
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertIn(response.status_code, (403, 404))
 
     def test_admin_changelist_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_changelist')
@@ -90,7 +90,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         self.assertContains(response, 'Sum')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)
 
         user = User.objects.get(username='test_user')
@@ -102,7 +102,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Sum')
 
     def test_admin_change_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         problem = Problem.objects.get()
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
@@ -115,7 +115,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
             self.assertIn(element, response.content)
 
     def test_admin_delete_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         problem = Problem.objects.get()
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problem_delete',
@@ -144,7 +144,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
 
     def test_problem_permissions(self):
         self._test_problem_permissions()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self._test_problem_permissions()
 
 
@@ -212,7 +212,7 @@ class TestProblemUpload(TransactionTestCase):
     def test_successful_upload(self):
         ProblemInstance.objects.all().delete()
         contest = Contest.objects.get()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo')}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
@@ -235,7 +235,7 @@ class TestProblemUpload(TransactionTestCase):
     def test_failed_upload(self):
         ProblemInstance.objects.all().delete()
         contest = Contest.objects.get()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='FAIL')}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
@@ -258,7 +258,7 @@ class TestProblemUpload(TransactionTestCase):
     )
     def test_handlers(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo')}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
@@ -275,7 +275,7 @@ class TestProblemUpload(TransactionTestCase):
                 'oioioi.problems.tests.DummyContestController'
         contest.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo'),
                 'cc_rulez': True}
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
@@ -290,7 +290,7 @@ class TestProblemUpload(TransactionTestCase):
     def test_problem_submission_limit_changed(self):
         contest = Contest.objects.get()
         package_file = ContentFile('eloziom', name='foo')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id},
                 follow=True)
@@ -332,7 +332,7 @@ class TestProblemPackageAdminView(TestCase):
             'test_problem_instance', 'test_two_empty_contests']
 
     def test_links(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problempackage_changelist')
@@ -379,7 +379,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
                     kwargs={'package_id': str(package.id)})
 
     def test_admin_changelist_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:problems_problempackage_changelist')
@@ -391,7 +391,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package = ProblemPackage.objects.get(pk=1)
         package.package_file = ContentFile('eloziom', name='foo')
         package.save()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioi.problems.views.download_problem_package_view',
@@ -405,7 +405,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package = ProblemPackage.objects.get(pk=2)
         package.traceback = ContentFile('eloziom', name='foo')
         package.save()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioi.problems.views.download_package_traceback_view',
                 kwargs={'package_id': str(package.id)})
@@ -416,7 +416,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
         package.traceback = None
         package.save()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioi.problems.views.download_package_traceback_view',
                 kwargs={'package_id': str(package.id)})
         response = self.client.get(url)
@@ -424,9 +424,9 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
     def test_package_permissions(self):
         self._test_package_permissions()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self._test_package_permissions()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self._test_package_permissions(is_admin=True)
 
 
@@ -492,7 +492,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.count('<tr'), 0)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.assertEqual(response.status_code, 200)
         response = self.client.get(url)
         self.assertEqual(response.content.count('<tr'), 3)
@@ -531,7 +531,7 @@ class TestProblemsetPage(TestCase):
             'test_contest']
 
     def test_problemlist(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('problemset_main')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -556,7 +556,7 @@ class TestProblemsetPage(TestCase):
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn('All problems', str(response.content))
@@ -586,7 +586,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
 
     def test_upload_problem(self):
         filename = get_test_filename('test_simple_package.zip')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         # add problem to problemset
         url = reverse('problemset_add_or_update')
@@ -650,7 +650,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         contest.default_submissions_limit = 42
         contest.save()
         filename = get_test_filename('test_simple_package.zip')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         # Add problem to problemset
         url = reverse('problemset_add_or_update')
         response = self.client.get(url, follow=True)
@@ -773,7 +773,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         # we can add problem directly from contest
         contest = Contest.objects.get()
         filename = get_test_filename('test_simple_package.zip')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id},
                 follow=True)
@@ -803,7 +803,7 @@ class TestTags(TestCase):
                 'test_problem_site', 'test_tags']
 
     def test_tag_hints_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         def get_query_url(query):
@@ -830,7 +830,7 @@ class TestTags(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_problemset_list_search_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         def get_search_url(query):
@@ -863,7 +863,7 @@ class TestTags(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=False)
     def test_problemset_list_search_invisible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         def get_search_url(query):
@@ -900,7 +900,7 @@ class TestSearch(TestCase):
 
     def test_search_hints_view(self):
         self.assertEqual(200, 200)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         def get_query_url_public(query):
             url = reverse('get_search_hints', kwargs={'view_type': 'public'})
@@ -989,7 +989,7 @@ class TestSearch(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_problemset_public_search_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         def get_search_url(query):
             url = reverse('problemset_main')
@@ -1133,7 +1133,7 @@ class TestSearch(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=False)
     def test_problemset_public_search_invisible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         def get_search_url(query):
             url = reverse('problemset_main')
@@ -1277,7 +1277,7 @@ class TestSearch(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_problemset_all_search_visible(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         def get_search_url(query):
             url = reverse('problemset_all_problems')
@@ -1421,7 +1421,7 @@ class TestSearch(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=False)
     def test_problemset_all_search_invisible(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         def get_search_url(query):
             url = reverse('problemset_all_problems')
@@ -1565,7 +1565,7 @@ class TestSearch(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=True)
     def test_problemset_my_search_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         def get_search_url(query):
             url = reverse('problemset_my_problems')
@@ -1709,7 +1709,7 @@ class TestSearch(TestCase):
 
     @override_settings(PROBLEM_TAGS_VISIBLE=False)
     def test_problemset_my_search_invisible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         def get_search_url(query):
             url = reverse('problemset_my_problems')
@@ -1868,14 +1868,14 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
         self.assertIn('Add problem', response.content)
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Add problem', response.content)
@@ -1896,7 +1896,7 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url_main = reverse('problemset_main')
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
@@ -1905,7 +1905,7 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
         self.assertIn('Add problem', response.content)
@@ -1919,7 +1919,7 @@ class TestAddToContestFromProblemset(TestCase):
             'test_problem_instance', 'test_submission', 'test_problem_site']
 
     def test_add_from_problemlist(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         # Visit contest page to register it in recent contests
         contest = Contest.objects.get()
         self.client.get('/c/%s/dashboard/' % contest.id)
@@ -1938,7 +1938,7 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertIn('add_to_contest', str(response.content))
 
     def test_add_from_problemsite(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         self.client.get('/c/%s/dashboard/' % contest.id)
         url = reverse('problem_site', kwargs={'site_key': '123'})
@@ -1967,7 +1967,7 @@ class TestAddToContestFromProblemset(TestCase):
         contest4.creation_date = datetime(2003, 1, 1, tzinfo=utc)
         contest4.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         # Now we're not having any contest in recent contests.
         # As we are contest administrator, the button should still appear.
         url = reverse('problemset_all_problems')

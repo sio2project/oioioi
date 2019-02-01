@@ -142,10 +142,10 @@ class TestFileStorageViews(TestCase, TestStreamingMixin):
                     kwargs={'filename': filename})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
             self.assertStreamingEqual(response, content)
         finally:

@@ -41,7 +41,7 @@ class TestScoresReveal(TestCase):
         return response
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.user = User.objects.get(username='test_user')
         round = Round.objects.get()
         round.start_date = datetime(2012, 7, 31, tzinfo=utc)

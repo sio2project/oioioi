@@ -30,7 +30,7 @@ class TestMaintenanceMode(TestCase):
 
     def test_logged_user_redirect(self):
         set_maintenance_mode(True, 'test message')
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get('/', follow=True)
         self.assertRedirects(response, reverse('maintenance'))
         self.assertContains(response, 'test message')
@@ -43,7 +43,7 @@ class TestMaintenanceMode(TestCase):
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_logged_admin_no_redirect(self):
         set_maintenance_mode(True, 'test message')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get('/')
         self.assertEquals(response.status_code, 200)
 
@@ -56,7 +56,7 @@ class TestMaintenanceMode(TestCase):
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_su_no_redirect(self):
         set_maintenance_mode(True, 'test message')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.post(reverse('su'), {
             'user': 'test_user',
             'backend': 'django.contrib.auth.backends.ModelBackend',
@@ -66,7 +66,7 @@ class TestMaintenanceMode(TestCase):
 
     def test_admin_change_message(self):
         set_maintenance_mode(False)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.post(reverse('set_maintenance_mode'), {
             'message': 'new test message',
             'set_button': 1,

@@ -29,7 +29,7 @@ class TestOIAdmin(TestCase):
         contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
@@ -57,7 +57,7 @@ class TestOIAdmin(TestCase):
         contest.save()
 
         # Logging as superuser.
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                       args=(quote('c'),))
@@ -70,7 +70,7 @@ class TestOIAdmin(TestCase):
         self.assertContains(response, 'id_terms_accepted_phrase-0-text')
 
         # Logging as contest admin.
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                       args=(quote('c'),))
@@ -87,7 +87,7 @@ class TestOIAdmin(TestCase):
         contest.controller_name = 'oioioi.oi.controllers.OIContestController'
         contest.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                       args=(quote('c'),))
@@ -117,7 +117,7 @@ class TestOIRegistration(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
         self.assertIn('Register to the contest', response.content)
         self.assertNotIn('Edit contest registration', response.content)
@@ -126,7 +126,7 @@ class TestOIRegistration(TestCase):
         p = Participant(contest=contest, user=user)
         p.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
         self.assertNotIn('Register to the contest', response.content)
         self.assertIn('Edit contest registration', response.content)
@@ -137,7 +137,7 @@ class TestOIRegistration(TestCase):
         url = reverse('participants_unregister',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
@@ -146,14 +146,14 @@ class TestOIRegistration(TestCase):
         p.save()
         self.assertEqual(Participant.objects.count(), 1)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, {'post': 'yes'})
         self.assertEqual(403, response.status_code)
         self.assertEqual(Participant.objects.count(), 1)
@@ -164,7 +164,7 @@ class TestOIRegistration(TestCase):
         url = reverse('participants_register',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response, 'terms accepted')
@@ -174,7 +174,7 @@ class TestOIRegistration(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_register',
                       kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response, 'Postal code')
@@ -212,7 +212,7 @@ class TestOIRegistration(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_register',
             kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertContains(response, 'Postal code')
         self.assertContains(response, 'School')
@@ -288,18 +288,18 @@ class TestOIViews(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
         p.status = 'ACTIVE'
         p.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
         self.assertEqual(200, response.status_code)
 
@@ -315,10 +315,10 @@ class TestOIViews(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
         with fake_timezone_now(round.results_date + timedelta(days=1)):
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(url)
             self.assertContains(response, "No rankings available.")
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
 
             user_pattern = r'>\s*Test User\s*</a>'
@@ -335,7 +335,7 @@ class TestSchoolAdding(TestCase):
         contest.save()
 
     def test_schools_similar_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('schools_similar')
@@ -374,7 +374,7 @@ class TestSchoolMerging(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_register',
                       kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         user.first_name = 'Sir Lancelot'
@@ -403,7 +403,7 @@ class TestSchoolMerging(TestCase):
         s2.is_approved = False
         s2.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self._call_admin_merge_action((1))
         self.assertContains(response, 'exactly one')
@@ -458,12 +458,12 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             self.assertEqual(200, response.status_code)
             self.assertIn('Sorry, there are no problems', response.content)
 
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
             self.assertIn('Sorry, there are no problems', response.content)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
             self.assertIn('Sorry, there are no problems', response.content)
@@ -471,7 +471,7 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             p.status = 'ACTIVE'
             p.save()
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
@@ -505,18 +505,18 @@ class TestOIOnsiteSubmit(TestCase, SubmitFileMixin):
             response = self.submit_file(contest, problem_instance)
             self._assertNotSubmitted(contest, response)
 
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
 
             p.status = 'ACTIVE'
             p.save()
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self._assertSubmitted(contest, response)
 
@@ -541,7 +541,7 @@ class TestIgnoringCE(TestCase):
             test_env['submission_id'] = i
             update_user_results(test_env)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertIn('Test User', response.content)
         self.assertNotIn('Test User 2', response.content)
@@ -565,7 +565,7 @@ class TestUserInfo(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_register',
                       kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get(url)
 
         user.first_name = 'Sir Lancelot'
@@ -604,7 +604,7 @@ class TestUserInfo(TestCase):
                    ('test_personal_data_user', True)]
 
         for (username, can_see) in can_see_list:
-            self.client.login(username=username)
+            self.assertTrue(self.client.login(username=username))
             response = self.client.get(url)
             self.client.logout()
 

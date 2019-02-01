@@ -39,7 +39,7 @@ class TestForum(TestCase):
     def test_no_forum_menu(self):
         contest = get_contest_with_no_forum()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
@@ -48,7 +48,7 @@ class TestForum(TestCase):
     def test_forum_menu(self):
         contest = get_contest_with_forum()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
@@ -57,7 +57,7 @@ class TestForum(TestCase):
     def test_lock_forum_with_no_unlock_date(self):
         contest = get_contest_with_forum()
         forum = contest.forum
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         with fake_time(self.now):
@@ -88,7 +88,7 @@ class TestForum(TestCase):
         forum.visible = False
         forum.unlock_date = self.future
         forum.save()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         with fake_time(self.now):
@@ -102,7 +102,7 @@ class TestForum(TestCase):
         forum = contest.forum
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(self.now):
             forum.visible = False
             forum.lock_date = self.past
@@ -131,7 +131,7 @@ class TestCategory(TestCase):
         self.category.save()
 
     def test_add_new(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         url = reverse('oioioiadmin:forum_category_add')
@@ -139,7 +139,7 @@ class TestCategory(TestCase):
         self.assertEqual(403, response.status_code)
 
         self.client.logout()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         response = self.client.get(url, follow=True)
@@ -147,7 +147,7 @@ class TestCategory(TestCase):
 
     def test_no_thread(self):
         forum = self.contest.forum
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_category', kwargs={'contest_id': self.contest.id,
                                                 'category_id': self.category.id})
         with fake_time(self.now):
@@ -197,7 +197,7 @@ class TestThread(TestCase):
         p2 = Post(thread=self.thr, content='test2', author=self.user)
         p2.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         # user tries to remove post p1 but cannot (it is not last post)
         response = self.try_to_remove_post(p1)
         self.assertEqual(403, response.status_code)
@@ -246,7 +246,7 @@ class TestPost(TestCase):
         self.assertContains(response, 'approve')
 
     def test_report(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_post_report',
                       kwargs={'contest_id': self.contest.id,
                               'category_id': self.cat.id,
@@ -256,7 +256,7 @@ class TestPost(TestCase):
         surname = self.user.last_name
         response = self.client.post(url, follow=True)
         self.assertIn('This post was reported', response.content)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_thread', kwargs={'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
         response = self.client.post(url, follow=True)
@@ -266,7 +266,7 @@ class TestPost(TestCase):
         self.assertTrue(re.search(reported_pattern, response.content))
 
     def test_approve_after_report(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -274,7 +274,7 @@ class TestPost(TestCase):
         self.assertContainsReportOption(response)
         self.assertContainsApproveOption(response)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -290,7 +290,7 @@ class TestPost(TestCase):
         response = self.client.post(url, follow=True)
         self.assertContains(response, 'This post was reported')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_post_approve',
                       kwargs={'contest_id': self.contest.id,
                               'category_id': self.cat.id,
@@ -299,7 +299,7 @@ class TestPost(TestCase):
         response = self.client.post(url, follow=True)
         self.assertContains(response, 'revoke approval')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -314,7 +314,7 @@ class TestPost(TestCase):
         self.assertFalse(self.p.reported)
 
     def test_approve_without_report(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -329,7 +329,7 @@ class TestPost(TestCase):
                               'post_id': self.p.id})
         self.client.post(url, follow=True)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -346,7 +346,7 @@ class TestPost(TestCase):
         self.p.approved = True
         self.p.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_post_report',
                       kwargs={'contest_id': self.contest.id,
                               'category_id': self.cat.id,
@@ -358,7 +358,7 @@ class TestPost(TestCase):
         self.assertTrue(self.p.approved)
         self.assertFalse(self.p.reported)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -371,7 +371,7 @@ class TestPost(TestCase):
         self.p.approved = True
         self.p.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_post_edit',
                       kwargs={'contest_id': self.contest.id,
                               'category_id': self.cat.id,
@@ -403,7 +403,7 @@ class TestPost(TestCase):
             'approved': True
         }
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:forum_post_change', args=(self.p.id,))
         self.client.post(url, data)
@@ -426,7 +426,7 @@ class TestPost(TestCase):
         data = {'_selected_action': (self.p.id, ),
                 'action': 'approve_action'}
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:forum_post_changelist')
         self.client.post(url, data, follow=True)
@@ -442,7 +442,7 @@ class TestPost(TestCase):
         data = {'_selected_action': (self.p.id, ),
                 'action': 'revoke_approval_action'}
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:forum_post_changelist')
         self.client.post(url, data, follow=True)
@@ -455,14 +455,14 @@ class TestPost(TestCase):
         self.p.approved = True
         self.p.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
         response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'revoke approval')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                               'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -504,7 +504,7 @@ class TestBan(TestCase):
         p = Post(thread=thr, content='This post will be reported.',
                  author=self.user, add_date=timezone.now())
         p.save()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_post_report', kwargs={'contest_id': self.contest.id,
                                                    'category_id': self.cat.id,
                                                    'thread_id': thr.id,
@@ -516,7 +516,7 @@ class TestBan(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_add_thread(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.assertEquals(0, Thread.objects.all().count())
         new_thread_url = reverse('forum_add_thread', kwargs={
                                  'contest_id': self.contest.id,
@@ -542,7 +542,7 @@ class TestBan(TestCase):
         p = Post(thread=thr, content='This post will be reported.',
                  author=self.user, add_date=timezone.now())
         p.save()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         edit_url = reverse('forum_post_edit', kwargs={'contest_id': self.contest.id,
                                                      'category_id': self.cat.id,
                                                      'thread_id': thr.id,
@@ -557,7 +557,7 @@ class TestBan(TestCase):
         thread_url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
                                                      'category_id': self.cat.id,
                                                      'thread_id': thr.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.assertFalse(Post.objects.filter(author=self.user).exists())
         response = self.client.get(thread_url)
         self.assertNotIsInstance(response.context['form'], PostForm)
@@ -601,7 +601,7 @@ class TestBan(TestCase):
 
         self.assertEquals([True, True, False, True], check_reports())
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.assertFalse(Ban.objects.exists())
 
         ban_url = reverse('forum_user_ban', kwargs={'contest_id': self.contest.id,

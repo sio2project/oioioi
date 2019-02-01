@@ -66,7 +66,7 @@ class TestRankingViews(TestCase):
         for i in range(number_of_users):
             users.append(create_score('find_user_generated%s' % i, i))
 
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
 
         url = reverse('ranking', kwargs={'contest_id': contest.id,
                                          'key': pis.round.id})
@@ -108,7 +108,7 @@ class TestRankingViews(TestCase):
 
         # Login as someone who is in the ranking
         user_num = 6  # a users list index
-        self.client.login(username=users[user_num].username)
+        self.assertTrue(self.client.login(username=users[user_num].username))
         response = self.client.get(
                 get_url_for_user(user_not_in_ranking.username))
         self.assertNotIn('User is not in the ranking.', response.content)
@@ -134,7 +134,7 @@ class TestRankingViews(TestCase):
                           response.content)
 
         # Test if user who is not in the ranking receives error message.
-        self.client.login(username=user_not_in_ranking.username)
+        self.assertTrue(self.client.login(username=user_not_in_ranking.username))
         response = self.client.get(
                 get_url_for_user(user_not_in_ranking.username))
 
@@ -144,14 +144,14 @@ class TestRankingViews(TestCase):
         contest = Contest.objects.get()
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Export to CSV')
             self.assertContains(response, 'Regenerate ranking')
 
         # Check that Admin is filtered out.
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
 
@@ -165,7 +165,7 @@ class TestRankingViews(TestCase):
         admin.is_superuser = False
         admin.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_timezone_now(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertIn('rankings/ranking_view.html',
@@ -216,11 +216,11 @@ class TestRankingViews(TestCase):
         url = reverse('ranking_csv', kwargs={'contest_id': contest.id,
                                             'key': 'c'})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             check_not_accessible(self, url)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'User,')

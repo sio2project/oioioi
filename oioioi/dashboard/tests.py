@@ -10,7 +10,7 @@ class TestDashboardMessage(TestCase):
 
     def test_adding_message(self):
         # Add a dashboard message
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         url = reverse('dashboard_message_edit',
                 kwargs={'contest_id': contest.id})
@@ -21,7 +21,7 @@ class TestDashboardMessage(TestCase):
         self.assertEqual(response.status_code, 302)
 
         # Check if message is visible
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         url = reverse('contest_dashboard',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(url)
@@ -34,7 +34,7 @@ class TestMessagesSection(TestCase):
 
     @override_settings(NUM_DASHBOARD_MESSAGES=6)
     def test_show_more_button_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
@@ -43,7 +43,7 @@ class TestMessagesSection(TestCase):
 
     @override_settings(NUM_DASHBOARD_MESSAGES=7)
     def test_show_more_button_not_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
@@ -51,7 +51,7 @@ class TestMessagesSection(TestCase):
         self.assertNotIn('Show more', response.content)
 
     def test_show_all_button_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
         response = self.client.get(url)

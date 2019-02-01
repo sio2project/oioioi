@@ -103,7 +103,7 @@ class TestPARoundTimes(TestCase):
             request.user = user
             request.timestamp = date
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             with fake_timezone_now(date):
                 url = reverse('ranking', kwargs={'contest_id': 'c',
                     'key': A_PLUS_B_RANKING_KEY})
@@ -167,7 +167,7 @@ class TestPARanking(TestCase):
                 else:
                     self.assertNotContains(response, p.short_name)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             response = self.client.get(self._ranking_url(B_RANKING_KEY))
@@ -179,7 +179,7 @@ class TestPARanking(TestCase):
             check_visibility(['NONE'], response)
 
     def test_no_zero_scores_in_ranking(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             response = self.client.get(self._ranking_url(3))
             # Test User should be present in the ranking.
@@ -205,7 +205,7 @@ class TestPARanking(TestCase):
                     'position' % (user,)))
                 prev_pos = pos
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         with fake_timezone_now(datetime(2013, 1, 1, 0, 0, tzinfo=utc)):
             # 28 (10, 8, 6, 4), 28 (9, 9, 7, 3), 10 (10)
@@ -243,7 +243,7 @@ class TestPARegistration(TestCase):
         url = reverse('participants_register',
                       kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response,
@@ -257,7 +257,7 @@ class TestPARegistration(TestCase):
         user = User.objects.get(username='test_user')
         url = reverse('participants_register',
                       kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response, 'Postal code')
@@ -349,7 +349,7 @@ class TestPADivisions(TestCase):
                 'oioioi.pa.controllers.PAContestController'
         contest.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
@@ -419,7 +419,7 @@ class TestPAAdmin(TestCase):
         PARegistration.objects.all().delete()
 
         # Logging as superuser.
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                       args=(quote('c'),))
@@ -432,7 +432,7 @@ class TestPAAdmin(TestCase):
         self.assertContains(response, 'id_terms_accepted_phrase-0-text')
 
         # Logging as contest admin.
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                       args=(quote('c'),))
@@ -445,7 +445,7 @@ class TestPAAdmin(TestCase):
         self.assertContains(response, 'id_terms_accepted_phrase-0-text')
 
     def test_terms_accepted_phrase_inline_edit_restrictions(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
                       args=(quote('c'),))

@@ -56,7 +56,7 @@ class TestClock(TestCase):
         user = User.objects.get(username='test_user')
         RoundTimeExtension(user=user, round=r1, extra_time=10).save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('get_status',
             kwargs={'contest_id': contest.id}))
         response = json.loads(response.content)
@@ -67,7 +67,7 @@ class TestClock(TestCase):
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_admin_time(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         session = self.client.session
         session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc).isoformat()
         session.save()

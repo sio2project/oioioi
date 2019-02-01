@@ -48,7 +48,7 @@ class TestACMRanking(TestCase):
         csv_url = reverse('ranking_csv', kwargs={'contest_id': contest.id,
                                                  'key': 'c'})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         # trial round begins at 11:00, ends at 16:00, results are available
         # at 19:00
@@ -110,7 +110,7 @@ class TestACMRanking(TestCase):
             self.assertEqual(
                 response.content.count(b'data-username="test_user"'), 2)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(csv_url)
@@ -126,11 +126,11 @@ class TestACMRanking(TestCase):
                       kwargs={'contest_id': contest.id,
                               'submission_id': 1})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'0:02', response.content)

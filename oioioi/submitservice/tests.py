@@ -26,14 +26,14 @@ class TestSubmitService(TestCase):
     def test_view_user_token(self):
         url = reverse('oioioi.submitservice.views.view_user_token',
                       kwargs={'contest_id': 'c'})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertIn(b'123456ABCDEF', response.content)
 
     def test_clear_user_token(self):
         url = reverse('oioioi.submitservice.views.clear_user_token',
                       kwargs={'contest_id': 'c'})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.post(url)
         url = reverse('oioioi.submitservice.views.view_user_token',
                       kwargs={'contest_id': 'c'})

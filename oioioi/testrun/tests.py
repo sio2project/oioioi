@@ -26,7 +26,7 @@ class TestTestrunViews(TestCase):
             'test_problem_instance', 'test_testrun']
 
     def test_status_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         submission = TestRunProgramSubmission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -45,7 +45,7 @@ class TestTestrunViews(TestCase):
             self.assertIn('>OK</td>', no_whitespaces)
 
     def test_input_views(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         submission = TestRunProgramSubmission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -66,7 +66,7 @@ class TestTestrunViews(TestCase):
                 download_response['Content-Disposition'])
 
     def test_output_views(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         submission = TestRunProgramSubmission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -92,7 +92,7 @@ class TestTestrunViews(TestCase):
             self.assertContains(show_output, '18')
 
     def test_submit_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': Contest.objects.get().id}
         url = reverse('testrun_submit', kwargs=kwargs)
 
@@ -113,13 +113,13 @@ class TestTestrunViews(TestCase):
         self.assertEqual(submission.input_file.read().strip(), 'i')
         self.assertEqual(submission.source_file.read().strip(), 'a')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertContains(response, 'TESTRUN')
         self.assertNotIn('NORMAL', response.content)
 
     def test_archive_submission(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': Contest.objects.get().id}
         url = reverse('testrun_submit', kwargs=kwargs)
 
@@ -158,7 +158,7 @@ class TestTestrunViews(TestCase):
             self.assertEqual(len(archive.filenames()), 1)
 
     def test_code_pasting(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': Contest.objects.get().id}
         url = reverse('testrun_submit', kwargs=kwargs)
         data = {
@@ -180,7 +180,7 @@ class TestTestrunViews(TestCase):
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
 
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         for view in ['get_testrun_output', 'get_testrun_input',
                         'download_testrun_output', 'download_testrun_input']:
             check_not_accessible(self, view, kwargs=kwargs)
@@ -202,7 +202,7 @@ class TestWithNoTestruns(TestCase):
             'test_problem_instance']
 
     def test_not_visible(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': Contest.objects.get().id}
         url = reverse('testrun_submit', kwargs=kwargs)
         response = self.client.get(url)
@@ -303,7 +303,7 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         self.contest = Contest.objects.get(pk='c')
         self.problem_instance = ProblemInstance.objects.get(pk=1)
 
-        self.client.login(username=self.user.username)
+        self.assertTrue(self.client.login(username=self.user.username))
 
         # Enable test runs for problem
         TestRunConfig(problem=self.problem_instance.problem).save()

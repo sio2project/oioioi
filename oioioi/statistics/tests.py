@@ -130,12 +130,12 @@ class TestStatisticsViews(TestCase):
         url = reverse('statistics_main', kwargs={'contest_id': contest.id})
 
         # Without StatisticsConfig model
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertEquals(403, response.status_code)
@@ -144,12 +144,12 @@ class TestStatisticsViews(TestCase):
                 visibility_date=datetime(2014, 2, 3, tzinfo=utc))
         cfg.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, 'Results histogram')

@@ -11,7 +11,7 @@ class TestNotifications(TestCase):
     fixtures = ['test_users']
 
     def test_notifications(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse_lazy(notifications_authenticate_view)
         response = self.client.post(url, {
             'nsid': get_notifications_session(self.client.session).uid

@@ -25,7 +25,7 @@ class TestContestStatus(TestCase):
         contest = Contest.objects.get()
         url = reverse('get_status', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response, url)
@@ -35,7 +35,7 @@ class TestContestStatus(TestCase):
         data = json.loads(response.content)
         self.assertEquals(data['is_superuser'], False)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
 
         self.assertContains(response, 'test_admin')
@@ -48,7 +48,7 @@ class TestContestStatus(TestCase):
         url = reverse('contest_dashboard',
             kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response, url)
@@ -70,7 +70,7 @@ class TestNoContestStatus(TestCase):
     def test_generating_status(self):
         url = reverse('get_status')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
 
         self.assertContains(response, url)

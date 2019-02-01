@@ -116,7 +116,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             'test_problem_instance', 'test_permissions', 'test_submission']
 
     def test_submission_views(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         submission = ProgramSubmission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -142,7 +142,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             'attachment'))
 
     def test_test_views(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         test = Test.objects.get(name='0')
@@ -167,10 +167,10 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
             'submission2_id': submission.id})
         for view in ['download_input_file', 'download_output_file']:
             check_not_accessible(self, view, kwargs={'test_id': test.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         for view in ['download_input_file', 'download_output_file']:
             check_not_accessible(self, view, kwargs={'test_id': test.id})
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         for view in ['download_input_file', 'download_output_file']:
             url = reverse(view, kwargs={'test_id': test.id})
             response = self.client.get(url)
@@ -183,7 +183,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('model_solutions', args=(pi.id,))
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
 
         no_whitespaces_content = re.sub(r"\s*", "", response.content)
@@ -220,7 +220,7 @@ class TestHeaderLinks(TestCase):
                   'submission_id': submission.id}
 
         # First check if admin can see the link.
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('submission', kwargs=kwargs))
         link_url = reverse('oioioiadmin:contests_submission_changelist')
         link_url += "?" + urlencode(
@@ -231,7 +231,7 @@ class TestHeaderLinks(TestCase):
                             html=True)
 
         # And if normal user can't see it. Check just for href.
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertNotContains(response,
                                '<a href="{}">'.format(link_url),
@@ -243,7 +243,7 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
             'test_problem_instance', 'test_submission_xss']
 
     def test_submission_xss_views(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         submission = Submission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -287,7 +287,7 @@ class TestOtherSubmissions(TestCase):
             'test_problem_instance', 'test_submission', 'test_submissions_CE']
 
     def _test_get(self, username):
-        self.client.login(username=username)
+        self.assertTrue(self.client.login(username=username))
         submission = Submission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -309,7 +309,7 @@ class TestNoOtherSubmissions(TestCase):
             'test_problem_instance', 'test_submission']
 
     def _test_get(self, username):
-        self.client.login(username=username)
+        self.assertTrue(self.client.login(username=username))
         submission = Submission.objects.get(pk=1)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
                 'submission_id': submission.id}
@@ -332,7 +332,7 @@ class TestDiffView(TestCase):
             'test_another_submission']
 
     def test_saving_button(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         submission = Submission.objects.get(pk=1)
         submission2 = Submission.objects.get(pk=2)
         kwargs = {'contest_id': submission.problem_instance.contest.id,
@@ -354,7 +354,7 @@ class TestDiffView(TestCase):
         self.assertContains(response, 'id="diff-button-save"')
 
     def test_diff_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         submission1 = Submission.objects.get(pk=1)
         submission2 = Submission.objects.get(pk=2)
         kwargs = {'contest_id': submission1.problem_instance.contest.id,
@@ -382,7 +382,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
                 'test_extra_problem']
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_submission_completed_notification(self):
         msg_count = defaultdict(int)
@@ -558,7 +558,7 @@ class TestSubmissionAdmin(TestCase):
             'test_problem_instance', 'test_submission']
 
     def test_submissions_changelist(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         pi = ProblemInstance.objects.get()
         ModelSolution.objects.recreate_model_submissions(pi)
 
@@ -578,7 +578,7 @@ class TestSubmittingAsAdmin(TestCase):
             'test_full_package']
 
     def test_ignored_submission(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
@@ -586,7 +586,7 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('IGNORED', response.content)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('IGNORED', response.content)
@@ -609,19 +609,19 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Test User', response.content)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('Ignored', response.content)
 
     def test_submitting_as_self(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('IGNORED', response.content)
@@ -669,7 +669,7 @@ class TestSubmittingAsContestAdmin(TestCase):
         pi = ProblemInstance.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('IGNORED', response.content)
@@ -691,7 +691,7 @@ class TestSubmittingAsObserver(TestCase):
             'test_problem_instance', 'test_permissions']
 
     def test_ignored_submission(self):
-        self.client.login(username='test_observer')
+        self.assertTrue(self.client.login(username='test_observer'))
         contest = Contest.objects.get()
         pi = ProblemInstance.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
@@ -909,7 +909,7 @@ class TestUserOutsGenerating(TestCase):
                 'test_another_submission']
 
     def test_report_after_generate(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         submission = ProgramSubmission.objects.get(pk=1)
         url = reverse('submission', kwargs={'contest_id': contest.id,
@@ -948,7 +948,7 @@ class TestUserOutsGenerating(TestCase):
         self.assertEqual(filtered, [])
 
         # test report visibility for user without permission
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('[processing]', response.content)
@@ -974,7 +974,7 @@ class TestUserOutsGenerating(TestCase):
         self.assertEqual(response.content.count('[processing]'), 1)
 
     def test_generate_and_download_user_permission(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         submission = ProgramSubmission.objects.get(pk=1)
@@ -1015,7 +1015,7 @@ class TestAdminInOutDownload(TestCase):
                 'test_problem_instance', 'test_submission']
 
     def test_report_href_visibility(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         contest = Contest.objects.get()
         submission = ProgramSubmission.objects.get(pk=1)
         url = reverse('submission', kwargs={'contest_id': contest.id,
@@ -1051,7 +1051,7 @@ class TestRejudge(TestCase, SubmitFileMixin):
 
     def _test_rejudge(self, submit_active_tests, rejudge_active_tests,
             rejudge_type, tests_subset, expected_ok, expected_re):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         contest = Contest.objects.get()
         contest.controller_name = \
@@ -1205,7 +1205,7 @@ class TestLimitsLimits(TestCase):
     }
 
     def edit_settings(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')
         return self.client.post(
                 reverse('oioioiadmin:contests_probleminstance_change',

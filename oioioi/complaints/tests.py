@@ -28,7 +28,7 @@ class TestMakingComplaint(TestCase):
         p.save()
 
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.client.post(reverse('add_complaint',
                 kwargs={'contest_id': contest.id}),
                 {'complaint': "I am innocent! It is your fault!"}, follow=True)

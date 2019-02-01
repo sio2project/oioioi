@@ -107,19 +107,19 @@ class TestIndex(TestCase):
         self.assertNotIn('My submissions', response.content)
         self.assertIn('OIOIOI', response.content)
         self.assertIn('method is not allowed', response.content)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(logout_url)
         self.assertEqual(200, response.status_code)
         self.assertIn('been logged out', response.content)
 
     def test_index(self):
         with self.assertNumQueriesLessThan(90):
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotIn('navbar-login', response.content)
             self.assertNotIn('System Administration', response.content)
         with self.assertNumQueriesLessThan(75):
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotIn('navbar-login', response.content)
             self.assertIn('System Administration', response.content)
@@ -127,7 +127,7 @@ class TestIndex(TestCase):
     def test_accounts_menu(self):
         response = self.client.get('/', follow=True)
         self.assertNotIn('Change password', response.content)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get('/', follow=True)
         self.assertIn('Change password', response.content)
 
@@ -142,7 +142,7 @@ class TestIndexNoContest(TestCase):
             self.assertIn('There are no contests available to logged out',
                     response.content)
         with self.assertNumQueriesLessThan(50):
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/')
             self.assertIn('This is a new OIOIOI installation',
                     response.content)
@@ -202,7 +202,8 @@ class TestMenu(TestCase):
         menu_registry._registry = self.saved_menu
 
     def _render_menu(self, user=None):
-        self.client.login(username=user)
+        if user is not None:
+            self.assertTrue(self.client.login(username=user))
         return self.client.get(reverse('index'), follow=True).content
 
     def test_menu(self):
@@ -309,8 +310,9 @@ class TestErrorHandlers(TestCase):
             self._user = AnonymousUser()
 
         def custom_login(*args, **kwargs):
-            self._orig_login(*args, **kwargs)
+            ret = self._orig_login(*args, **kwargs)
             self._user = User.objects.get(**kwargs)
+            return ret
 
         self.client.get = custom_get
         self.client.logout = custom_logout
@@ -347,13 +349,13 @@ class TestErrorHandlers(TestCase):
 
         mid = UserInfoInErrorMessage()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         req = self.client.get(reverse('force_error')).request
         mid.process_exception(req, ForcedError())
         self.assertEqual(req.META['USERNAME'], 'test_admin')
         self.assertEqual(req.META['IS_AUTHENTICATED'], 'True')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         req = self.client.get(reverse('force_error')).request
         mid.process_exception(req, ForcedError())
         self.assertEqual(req.META['USERNAME'], 'test_user')
@@ -733,7 +735,7 @@ class TestAdmin(TestCase):
     fixtures = ['test_users']
 
     def test_admin_delete(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         user = User.objects.get(username='test_user')
         url = reverse('oioioiadmin:auth_user_delete', args=(user.id,))
         response = self.client.get(url)
@@ -763,7 +765,7 @@ class TestBaseViews(TestCase):
     fixtures = ['test_users']
 
     def test_edit_profile(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         user = User.objects.get(username='test_user')
         url = reverse('edit_profile')
         response = self.client.get(url)
@@ -814,7 +816,7 @@ class TestBaseViews(TestCase):
             )
             PreferencesSaved.connect(callback_func)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             url = reverse('edit_profile')
 
             response = self.client.get(url)
@@ -838,7 +840,7 @@ class TestBackendMiddleware(TestCase):
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_backend_middleware(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('index'))
         self.assertEquals('test_user', response.context['user'].username)
         self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
@@ -987,7 +989,7 @@ class TestLoginChange(TestCase):
         self.invalid_logins = ['#', 'p@n', ' user', 'user\xc4\x99']
         self.valid_logins = ['test_user', 'user', 'uSeR', 'U__4']
         self.user = User.objects.get(username='test_user')
-        self.client.login(username=self.user.username)
+        self.assertTrue(self.client.login(username=self.user.username))
         self.client.get('/', follow=True)
         self.url_index = reverse('index')
         self.url_edit_profile = reverse('edit_profile')
@@ -1114,7 +1116,7 @@ class TestUserDeactivationLogout(TestCase):
     def setUp(self):
         self.user = User.objects.get(username='test_user')
         self.profile_index = reverse('edit_profile')
-        self.client.login(username=self.user.username)
+        self.assertTrue(self.client.login(username=self.user.username))
         self.client.get(self.profile_index, follow=True)
 
     def assert_logged(self, logged=True):

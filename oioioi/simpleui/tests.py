@@ -40,7 +40,7 @@ class TestContestDashboard(TestCase):
         submission = Submission.objects.all()
         c = change_contest_type()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')
         url = reverse('teacher_contest_dashboard')
 
@@ -71,7 +71,7 @@ class TestContestDashboard(TestCase):
         self.assertTrue(regex.match(content))
 
     def test_contest_dashboard_lacking_permissions(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')
         url = reverse('teacher_contest_dashboard')
 
@@ -85,7 +85,7 @@ class TestContestDashboard(TestCase):
         for rnd in rounds:
             rnd.delete()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')
         url = reverse('teacher_contest_dashboard')
 
@@ -106,7 +106,7 @@ class TestTeacherDashboard(TestCase):
     def test_teacher_dashboard(self):
         c = change_contest_type()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('teacher_dashboard')
         response = self.client.get(url)
         content = response.content.decode('utf-8')
@@ -127,7 +127,7 @@ class TestTeacherDashboard(TestCase):
         self.assertIn('Teacher dashboard</h1>', content)
 
     def test_teacher_dashboard_empty(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('teacher_dashboard')
         response = self.client.get(url)
         content = response.content.decode('utf-8')
@@ -151,7 +151,7 @@ class TestTeacherDashboard(TestCase):
             cp.contest = c
             cp.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('teacher_dashboard')
         response = self.client.get(url)
         content = response.content.decode('utf-8')
@@ -244,7 +244,7 @@ class TestProblemInstanceSettings(TestCase):
         cp.contest = c
         cp.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')
 
         if get_problems:
@@ -440,7 +440,7 @@ class TestProblemInstanceValidation(TestCase):
         cp.contest = c
         cp.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')
 
         if get_problems:

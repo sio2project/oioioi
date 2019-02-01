@@ -91,7 +91,7 @@ class TestTestsPackages(TestCase):
         tp2.save()
         tp2.tests.add(test2)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('tests', kwargs={'contest_id': contest.id})
 
         with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=utc)):

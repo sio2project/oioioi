@@ -74,7 +74,7 @@ class TestPublicSolutions(TestCase):
                             kwargs={'contest_id': contest.id})
         solutions_url = reverse('list_solutions',
                             kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         with fake_time(self._no_public_rounds()):
             response = self.client.get(dashboard_url)
@@ -106,7 +106,7 @@ class TestPublicSolutions(TestCase):
                     kwargs={'contest_id': contest.id, 'submission_id': sub_id})
 
         def check_categories_forbidden(cats, user):
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             for cat in cats:
                 r = self.client.get(solutions_url, {'category': cat})
                 self.assertIn("Select a valid choice.", r.content)
@@ -117,7 +117,7 @@ class TestPublicSolutions(TestCase):
         def check_visibility(good_ids, category='',
                         users=['test_user', 'test_user2']):
             for user in users:
-                self.client.login(username=user)
+                self.assertTrue(self.client.login(username=user))
                 r = self.client.get(solutions_url, {'category': category})
                 self.assertEqual(200, r.status_code)
 
@@ -139,7 +139,7 @@ class TestPublicSolutions(TestCase):
                 self.client.logout()
 
         def check_sources_access(good_ids, bad_ids, user):
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             for id in good_ids:
                 response = self.client.get(show_source_url(id))
                 self.assertEqual(200, response.status_code)
@@ -149,7 +149,7 @@ class TestPublicSolutions(TestCase):
             self.client.logout()
 
         def change_publication(way, sub_id, user='test_user'):
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.post(change_publication_url(way, sub_id))
             self.assertEqual(302, response.status_code)
             self.client.logout()
@@ -221,7 +221,7 @@ class TestPublicSolutions(TestCase):
                     self.assertNotIn(sb.get_date_display(), r.content)
 
         with fake_time(self._no_public_rounds()):
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             r = self.client.get(publish_url)
             self.assertEqual(403, r.status_code)
             check_access_forbidden([4])
@@ -232,11 +232,11 @@ class TestPublicSolutions(TestCase):
             check_visibility([4], False)
             check_access_forbidden([1, 2])
             self.client.logout()
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             check_visibility([], True)
             check_access_forbidden([3, 4])
             self.client.logout()
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             change_publication(False, 4)
             check_visibility([4], True)
             self.client.logout()
@@ -252,7 +252,7 @@ class TestPublicSolutions(TestCase):
                 'oioioi.publicsolutions.tests.TSolutionSimpleContestController'
             contest.save()
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
 
             url = reverse('default_ranking', kwargs={'contest_id': contest.id})
 
@@ -260,13 +260,13 @@ class TestPublicSolutions(TestCase):
             self.assertUserSubmissionHTMLDataCount(response.content,
                     'test_user', 2)
 
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             cache.clear()
             response = self.client.get(url)
             self.assertUserSubmissionHTMLDataCount(response.content,
                     'test_user2', 0)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             request = self.client.post(change_publication_url(True, 4))
             self.assertEqual(302, request.status_code)
 
@@ -275,7 +275,7 @@ class TestPublicSolutions(TestCase):
             self.assertUserSubmissionHTMLDataCount(response.content,
                     'test_user', 2)
 
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             cache.clear()
             response = self.client.get(url)
             self.assertUserSubmissionHTMLDataCount(response.content,

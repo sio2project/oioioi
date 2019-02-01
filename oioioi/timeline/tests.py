@@ -17,10 +17,10 @@ class TestTimelineView(TestCase):
         contest = Contest.objects.get()
         url = reverse('timeline_view', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url, {'contest': contest})
         self.assertEqual(response.status_code, 200)
 
@@ -38,11 +38,11 @@ class TestTimelineView(TestCase):
     def test_menu(self):
         contest = Contest.objects.get()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get('/c/%s/dashboard/' % contest.id)
         self.assertNotIn(b'Timeline', response.content)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get('/c/%s/dashboard/' % contest.id)
         self.assertIn(b'Timeline', response.content)
 
@@ -60,7 +60,7 @@ class TestChangingDates(TestCase):
 
         url = reverse('timeline_view', kwargs={'contest_id': contest.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, user_code)
 
@@ -68,7 +68,7 @@ class TestChangingDates(TestCase):
                        'test_admin': admin_code}
 
         for admin in admin_codes:
-            self.client.login(username=admin)
+            self.assertTrue(self.client.login(username=admin))
             response = self.client.post(url, data=data)
             self.assertEqual(response.status_code, admin_codes[admin])
 

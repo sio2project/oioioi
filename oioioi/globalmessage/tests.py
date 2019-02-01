@@ -68,13 +68,13 @@ class TestOnPage(TestCase):
     def test_visible_on_user_pages(self):
         url = reverse('index')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertIn(self.msg.message, response.content)
 
     def test_visible_on_admin_pages(self):
         url = reverse('admin:index')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertIn(self.msg.message, response.content)

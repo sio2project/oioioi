@@ -387,7 +387,7 @@ class TestViews(TestCase):
                 'test_problem_instance', 'test_submission']
 
     def _get_admin_site(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         show_response = self.client.get(reverse(
                 'oioioiadmin:evalmgr_queuedjob_changelist'))

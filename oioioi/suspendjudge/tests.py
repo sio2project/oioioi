@@ -10,7 +10,7 @@ from oioioi.suspendjudge.handlers import check_problem_instance_state
 
 class TestSuspendjudgeSuper(TestCase):
     def _empty_post(self, login, view, problem_instance):
-        self.client.login(username=login)
+        self.assertTrue(self.client.login(username=login))
         url = reverse('oioioiadmin:suspendjudge_' + view,
                       kwargs={'problem_instance_id': problem_instance.id})
         return self.client.post(url, {})

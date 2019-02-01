@@ -72,7 +72,7 @@ class TestPrizes(TestCase):
         contest.controller_name = \
             'oioioi.prizes.tests.PrizesContestController'
         contest.save()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_menu(self):
         contest = Contest.objects.get()

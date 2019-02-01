@@ -322,7 +322,7 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
         self._assertContestVisible('c1')
         self._assertContestVisible('c2')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         self._assertContestVisible('c1')
         self._assertContestVisible('c2')
@@ -425,7 +425,7 @@ class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
             self.assertIn('c2', message.body)
 
     def test_default_selector(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         add_ex_conf(self.c1,
                     datetime(2012, 1, 1, 10, tzinfo=utc),

@@ -9,7 +9,7 @@ class TestProblemsetPermissions(TestCase):
     fixtures = ['test_users', 'teachers']
 
     def test_problemset_permissions(self):
-        self.client.login(username='test_user')  # test_user is a teacher
+        self.assertTrue(self.client.login(username='test_user'))  # test_user is a teacher
         url_main = reverse('problemset_main')
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
@@ -18,7 +18,7 @@ class TestProblemsetPermissions(TestCase):
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 200)
 
-        self.client.login(username='test_user2')  # test_user2 is not
+        self.assertTrue(self.client.login(username='test_user2'))  # test_user2 is not
         response = self.client.get(url_main)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('Add problem', response.content)
@@ -34,7 +34,7 @@ class TestTeacherAddContest(TestCase):
         controller_name = \
                 'oioioi.teachers.controllers.TeacherContestController'
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

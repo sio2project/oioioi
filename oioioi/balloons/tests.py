@@ -24,12 +24,12 @@ class TestBalloons(TestCase):
         self.pi = ProblemInstance.objects.get()
 
     def test_balloons_link_and_cookie(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         regenerate_url = reverse('balloons_access_regenerate',
                                  kwargs={'contest_id': self.contest.id})
         response = self.client.post(regenerate_url)
         self.assertEqual(response.status_code, 403)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         regenerate_url = reverse('balloons_access_regenerate',
                                  kwargs={'contest_id': self.contest.id})
         response = self.client.post(regenerate_url)
@@ -55,7 +55,7 @@ class TestBalloons(TestCase):
                          access_data.access_key)
 
     def _generate_link_and_set_cookie(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         regenerate_url = reverse('balloons_access_regenerate',
                                  kwargs=self.c_kwargs)
         self.client.post(regenerate_url)
@@ -71,11 +71,11 @@ class TestBalloons(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403)
 
@@ -102,7 +102,7 @@ class TestBalloons(TestCase):
         self.assertEqual(delivery.first_accepted_solution, first)
 
     def test_balloon_request_creation(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         user = User.objects.get(username='test_user')
         self.contest.controller_name = \
             'oioioi.acm.controllers.ACMContestController'
@@ -126,7 +126,7 @@ class TestBalloons(TestCase):
         self.assertEqual(Submission.objects.count(), 3)
         self.assertEqual(BalloonDelivery.objects.count(), 1)
 
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         user = User.objects.get(username='test_user2')
         Participant.objects.create(user=user, contest=self.contest)
 

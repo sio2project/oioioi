@@ -35,7 +35,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
             'test_problem_instance']
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_simple_mailsubmission(self):
         contest = Contest.objects.get()
@@ -108,7 +108,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         self.assertEqual(403, response.status_code)
         self.assertEqual(Submission.objects.count(), 0)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.post(url, invalid_post_data)
         self.assertEqual(200, response.status_code)
         self.assertIn('Invalid confirmation code', response.content)
@@ -147,11 +147,11 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         p.save()
 
         with fake_time(datetime(2012, 8, 13, 0, 5, tzinfo=utc)):
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(403, response.status_code)
 
@@ -160,7 +160,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
 
             self.assertEqual(MailSubmission.objects.count(), 0)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
 
@@ -197,7 +197,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         ms2.source_file.save(f.name, f)
         ms2.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:mailsubmit_mailsubmission_changelist',
             kwargs={'contest_id': 'contest1'})
         response = self.client.get(url)

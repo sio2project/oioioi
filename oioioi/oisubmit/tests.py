@@ -87,7 +87,7 @@ class TestOISubmitSubmission(TestCase, OISubmitFileMixin):
             'test_problem_instance']
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_simple_submission(self):
         contest = Contest.objects.get()

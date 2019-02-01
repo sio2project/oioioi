@@ -190,7 +190,7 @@ class TestSinolPackage(TestCase):
     @both_configurations
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_huge_unpack_update(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         filename = get_test_filename('test_huge_package.tgz')
         call_command('addproblem', filename)
         problem = Problem.objects.get()
@@ -419,7 +419,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         contest.save()
 
         filename = get_test_filename('test_simple_package.zip')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id},
                 follow=True)
@@ -484,7 +484,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
 
         contest = Contest.objects.get()
         filename = get_test_filename('test_inwer_failure.zip')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id},
                 follow=True)
@@ -510,7 +510,7 @@ class TestSinolPackageCreator(TestCase, TestStreamingMixin):
 
     def test_sinol_package_creator(self):
         problem = Problem.objects.get()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(
                 reverse('oioioiadmin:problems_problem_download',
                     args=(problem.id,)))
@@ -544,7 +544,7 @@ class TestJudging(TestCase):
             'test_problem_instance']
 
     def test_judging(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         contest = Contest.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
@@ -584,7 +584,7 @@ class TestLimits(TestCase):
         contest = Contest.objects.get()
         filename = get_test_filename('test_simple_package.zip')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:problems_problem_add')
         response = self.client.get(url, {'contest_id': contest.id},
                 follow=True)

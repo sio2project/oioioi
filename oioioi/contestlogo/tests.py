@@ -33,7 +33,7 @@ class TestProcessorsWithoutUploadedFiles(TestCase):
 
     def _render_menu(self):
         user = User.objects.get(username='test_user')
-        self.client.login(username=user)
+        self.assertTrue(self.client.login(username=user))
         return self.client.get(reverse('index'), follow=True).content
 
     def test_without_defaults(self):
@@ -61,7 +61,7 @@ class TestProcessorsWithUploadedFiles(TestCase):
 
     def _render_menu(self):
         user = User.objects.get(username='test_user')
-        self.client.login(username=user)
+        self.assertTrue(self.client.login(username=user))
         return self.client.get(reverse('index'), follow=True).content
 
     def test_with_defauts_and_uploaded_files(self):

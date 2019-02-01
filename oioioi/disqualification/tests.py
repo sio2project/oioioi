@@ -152,21 +152,21 @@ class TestViews(TestCase):
             self.assertIn(">34<", self.remove_whitespaces(response))
 
     def test_dashboard(self):
-        self.client.login(username="test_user")
+        self.assertTrue(self.client.login(username="test_user"))
         response_cb = lambda: self.client.get(reverse("contest_dashboard",
                                            kwargs=self.contest_kwargs),
                                    follow=True)
         self._assert_disqualification_box(response_cb)
 
     def test_my_submissions(self):
-        self.client.login(username="test_user")
+        self.assertTrue(self.client.login(username="test_user"))
         response_cb = lambda: self.client.get(reverse("my_submissions",
             kwargs=self.contest_kwargs))
 
         self._assert_disqualification_box(response_cb)
 
     def test_submission(self):
-        self.client.login(username="test_user")
+        self.assertTrue(self.client.login(username="test_user"))
         submission = Submission.objects.get(id=1)
 
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -193,13 +193,13 @@ class TestViews(TestCase):
         contest = Contest.objects.get()
         url = reverse("default_ranking", kwargs={"contest_id": contest.id})
 
-        self.client.login(username="test_admin")
+        self.assertTrue(self.client.login(username="test_admin"))
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, "Test User")
             self.assertContains(response, "disqualified")
 
-        self.client.login(username="test_user")
+        self.assertTrue(self.client.login(username="test_user"))
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = self.client.get(url)
             self.assertNotContains(response, "Test User")
@@ -209,7 +209,7 @@ class TestViews(TestCase):
         url = reverse("ranking_csv", kwargs={"contest_id": contest.id,
                                              "key": "c"})
 
-        self.client.login(username="test_admin")
+        self.assertTrue(self.client.login(username="test_admin"))
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
             response = self.client.get(url)
             self.assertContains(response, "Test")
@@ -218,7 +218,7 @@ class TestViews(TestCase):
             self.assertContains(response, "34")
 
     def test_user_info_page(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         user = User.objects.get(username="test_user")
         contest = Contest.objects.get()
         response_callback = lambda: self.client.get(reverse('user_info',

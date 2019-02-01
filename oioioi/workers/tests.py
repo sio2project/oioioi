@@ -21,13 +21,13 @@ class TestWorkersInfo(TestCase):
         views.server = TestServer()
 
     def test_admin_can_see(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('show_workers')
         response = self.client.get(url)
         self.assertIn(b'Komp4', response.content)
 
     def test_mundane_user_cant_see(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('show_workers')
         response = self.client.get(url)
         self.assertNotIn(b'Komp4', response.content)

@@ -56,7 +56,7 @@ class TestCtimes(TestCase):
             'end_sec': None,
         }
         Round.objects.bulk_create(rounds)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
     def test_ctimes_order(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c1'})

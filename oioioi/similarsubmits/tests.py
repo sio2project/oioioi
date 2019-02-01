@@ -13,7 +13,7 @@ class TestSimilarSubmitViews(TestCase):
 
     def test_bulk_add_similar_submits_view(self):
         # superuser
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         url = reverse('bulk_add_similarities', kwargs={'contest_id': 'c'})
         groups = SubmissionsSimilarityGroup.objects.all()
@@ -54,5 +54,5 @@ class TestSimilarSubmitViews(TestCase):
         check_not_accessible(self, url)
 
         # normal user
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)

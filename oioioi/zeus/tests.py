@@ -190,7 +190,7 @@ class TestZeusProblemUpload(TestCase):
 
         contest = Contest.objects.get()
         filename = get_test_filename('test_simple_package.zip')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioi.problems.views.add_or_update_problem_view',
                 kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'zeus'})

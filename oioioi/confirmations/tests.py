@@ -59,7 +59,7 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
     def test_sending_receipt(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.submit_file(contest, problem_instance, file_size=1337)
         self._assertSubmitted(contest, response)
 
@@ -73,7 +73,7 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
         self.assertTrue(proof)
         verify_submission_receipt_proof(proof.group(1), 'a' * 1337)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.submit_file(contest, problem_instance,
                 user='test_admin', kind='NORMAL')
         self._assertSubmitted(contest, response)
@@ -82,7 +82,7 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
     def test_not_sending_receipt(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self.submit_file(contest, problem_instance,
                                     user='test_user')

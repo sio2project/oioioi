@@ -137,7 +137,7 @@ class TestSubmissionListOrder(TestCase):
                 'test_another_submission', 'test_submissions_CE']
 
     def test_score_order(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:contests_submission_changelist',
                 kwargs={'contest_id': 'c'})
 
@@ -344,11 +344,11 @@ class TestCurrentContest(TestCase):
         response = self.client.get(url)
         self.assertEquals(response.status_code, 403)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertEquals(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "None")
@@ -423,7 +423,7 @@ class TestContestViews(TestCase):
             controller_name='oioioi.contests.tests.PrivateContestController')
         invisible_contest.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/%s/dashboard/' % contest.id)
         self.client.get('/c/%s/dashboard/' % invisible_contest.id)
         response = self.client.get(reverse('select_contest'))
@@ -432,7 +432,7 @@ class TestContestViews(TestCase):
         self.assertContains(response, 'Invisible Contest')
         self.client.logout()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get('/c/%s/dashboard/' % contest.id)
         self.assertIn('dropdown open', response.content)
         response = self.client.get('/c/%s/dashboard/' % contest.id)
@@ -456,10 +456,10 @@ class TestContestViews(TestCase):
         self.assertIn('contests/select_contest.html',
                 [t.name for t in response.templates])
         self.assertEqual(len(response.context['contests']), 1)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
         self.assertIn('Invisible Contest', response.content)
@@ -502,7 +502,7 @@ class TestContestViews(TestCase):
     def test_submission_view(self):
         contest = Contest.objects.get()
         submission = Submission.objects.get(pk=1)
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
 
@@ -546,7 +546,7 @@ class TestContestViews(TestCase):
                 'oioioi.contests.tests.PrivateContestController'
         contest.save()
         problem_instance = ProblemInstance.objects.get()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, 'problems_list',
                 kwargs={'contest_id': contest.id})
         check_not_accessible(self, 'problem_statement',
@@ -564,7 +564,7 @@ class TestMySubmissions(TestCase):
 
     def test_submission_messages(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': contest.id}
         response = self.client.get(reverse('my_submissions', kwargs=kwargs))
 
@@ -590,7 +590,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             for user in ['test_admin', 'test_contest_admin']:
-                self.client.login(username=user)
+                self.assertTrue(self.client.login(username=user))
                 response = self.client.get(url)
                 self.assertAllIn(['zad1', 'zad2', 'zad3', 'zad4'],
                         response.content)
@@ -600,7 +600,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
                 self.assertTrue(response.context['show_rounds'])
 
             for user in ['test_user', 'test_observer']:
-                self.client.login(username=user)
+                self.assertTrue(self.client.login(username=user))
                 response = self.client.get(url)
                 self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
                 self.assertNotIn('zad2', response.content)
@@ -609,7 +609,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
     def test_submissions_visibility(self):
         contest = Contest.objects.get()
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
@@ -683,20 +683,20 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         url = reverse('problems_list', kwargs={'contest_id': contest.id})
         with fake_time(datetime(2012, 7, 31, 21, 1, tzinfo=utc)):
             # r3, r4 are active
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertAllIn(['zad3', 'zad4'], response.content)
             self.assertEqual(len(response.context['problem_instances']), 2)
 
         with fake_time(datetime(2015, 7, 31, 20, 1, tzinfo=utc)):
             # r1,r3,r4 are past, preparation time for r2
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertEqual(len(response.context['problem_instances']), 0)
 
         with fake_time(datetime(2015, 7, 31, 20, 28, tzinfo=utc)):
             # r2 is active
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertAllIn(['zad2'], response.content)
             self.assertEqual(len(response.context['problem_instances']), 1)
@@ -707,27 +707,27 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
         with fake_time(datetime(2012, 7, 31, 21, 29, tzinfo=utc)):
             # r1,r3,r4 are past, break = (21.27, 21.40) -- first half
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
             self.assertEqual(len(response.context['problem_instances']), 3)
 
         with fake_time(datetime(2012, 7, 31, 21, 35, tzinfo=utc)):
             # r1,r3,r3 are past, break = (21.27, 21.40) -- second half
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             print(response.context['problem_instances'])
             self.assertEqual(len(response.context['problem_instances']), 0)
 
         with fake_time(datetime(2012, 7, 31, 21, 41, tzinfo=utc)):
             # r2 is active
-            self.client.login(username=user)
+            self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
             self.assertAllIn(['zad2'], response.content)
             print(response.context['problem_instances'])
             self.assertEqual(len(response.context['problem_instances']), 1)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 1)
 
@@ -770,7 +770,7 @@ class TestMySubmissionsContext(TestCase):
                 'test_problem_instance']
 
     def test_config(self):
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
@@ -792,7 +792,7 @@ class TestStatementsVisibility(TestCase):
 
     def test_controller(self):
         contest = Contest.objects.get()
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('problems_list',
                 kwargs={'contest_id': contest.id}))
         self.assertContains(response, 'zad1')
@@ -873,7 +873,7 @@ class TestRejudgeAndFailure(TestCase):
         contest = Contest.objects.get()
         kwargs = {'contest_id': contest.id, 'submission_id': 1}
         rejudge_url = reverse('rejudge_submission', kwargs=kwargs)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(rejudge_url)
         self.assertEqual(405, response.status_code)
         self.assertIn('OIOIOI', response.content)
@@ -887,7 +887,7 @@ class TestRejudgeAndFailure(TestCase):
         contest.save()
 
         submission = Submission.objects.get(pk=1)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.post(reverse('rejudge_submission',
                 kwargs=kwargs))
@@ -902,7 +902,7 @@ class TestRejudgeAndFailure(TestCase):
         self.assertIn('Traceback (most recent call last)', mail.outbox[0].body)
         self.assertEqual(mail.outbox[0].to, ['admin@example.com'])
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertNotIn('failure report', response.content)
         self.assertNotIn('EXPECTED FAILURE', response.content)
@@ -914,7 +914,7 @@ class TestRejudgeAndFailure(TestCase):
         contest.save()
 
         submission = Submission.objects.get(pk=1)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         url = reverse('rejudge_submission', kwargs=kwargs) + '?evil=true'
 
@@ -928,7 +928,7 @@ class TestRejudgeTypesView(TestCase):
                 'test_extra_problem', 'test_another_submission']
 
     def test_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         post_data = {'action': 'rejudge_action',
@@ -962,7 +962,7 @@ class TestContestAdmin(TestCase):
     fixtures = ['test_users']
 
     def test_simple_contest_create_and_change(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -1068,10 +1068,10 @@ class TestContestAdmin(TestCase):
     def test_admin_permissions(self):
         url = reverse('oioioiadmin:contests_contest_changelist')
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -1091,10 +1091,10 @@ class TestContestAdmin(TestCase):
         self.assertTrue(url.startswith(contest_prefix))
         url = url[len(contest_prefix) - 1:]
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
@@ -1102,11 +1102,11 @@ class TestContestAdmin(TestCase):
         self.client.get(contest_prefix)
         url = reverse('oioioiadmin:contests_probleminstance_changelist')
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         check_not_accessible(self, url)
 
         user = User.objects.get(username='test_user')
@@ -1138,7 +1138,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                 round=round)
         ra.save()
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('contest_files',
             kwargs={'contest_id': contest.id}))
         self.assertEqual(response.status_code, 200)
@@ -1213,11 +1213,11 @@ class TestAttachments(TestCase, TestStreamingMixin):
                         kwargs={'contest_id': contest.id, 'attachment_id': id})
 
         with fake_time(datetime(2011, 7, 10, 0, 30, 0, tzinfo=utc)):
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             check_visibility('conatt-null-date.txt', 'conatt-visible.txt')
             check_accessibility([(ca.id, 'content-null'),
                 (cb.id, 'content-visible')], [cc.id])
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             check_visibility('conatt-null-date.txt', 'conatt-visible.txt',
                     'conatt-hidden.txt')
             check_accessibility([(ca.id, 'content-null'),
@@ -1249,11 +1249,11 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         ext.save()
 
         with fake_time(datetime(2012, 8, 5, 0, 5, tzinfo=utc)):
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
             self.assertIn('Sorry, there are no problems', response.content)
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance1)
             self._assertSubmitted(contest, response)
 
@@ -1268,7 +1268,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
             self.assertIn('Sorry, there are no problems', response.content)
 
     def test_round_extension_admin(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_roundtimeextension_add')
@@ -1380,14 +1380,14 @@ class TestPermissions(TestCase):
             self.contest))
 
     def test_menu(self):
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(reverse('default_contest_view',
             kwargs={'contest_id': self.contest.id}), follow=True)
         self.assertNotIn('System Administration', response.content)
         self.assertIn('Contest Administration', response.content)
         self.assertNotIn('Observer Menu', response.content)
 
-        self.client.login(username='test_observer')
+        self.assertTrue(self.client.login(username='test_observer'))
         response = self.client.get(reverse('problems_list',
             kwargs={'contest_id': self.contest.id}), follow=True)
         self.assertIn('Observer Menu', response.content)
@@ -1398,7 +1398,7 @@ class TestSubmissionChangeKind(TestCase):
                 'test_problem_instance', 'test_multiple_submissions']
 
     def setUp(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
     def change_kind(self, submission, kind):
         contest = Contest.objects.get()
@@ -1452,7 +1452,7 @@ class TestDeleteSelectedSubmissions(TestCase):
                 'test_another_submission', 'test_permissions']
 
     def test_delete_one_submission(self):
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         post_data = {'action': 'delete_selected',
@@ -1487,7 +1487,7 @@ class TestDeleteSelectedSubmissions(TestCase):
         self.assertIn('Successfully deleted 1 submission.', response.content)
 
     def test_delete_many_submissions(self):
-        self.client.login(username='test_contest_admin')
+        self.assertTrue(self.client.login(username='test_contest_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         post_data = {'action': 'delete_selected',
@@ -1527,7 +1527,7 @@ class TestSubmitSelectOneProblem(TestCase):
             'test_problem_instance']
 
     def test_problems_list(self):
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
@@ -1542,7 +1542,7 @@ class TestSubmitSelectManyProblems(TestCase):
              'test_full_package', 'test_problem_instance']
 
     def test_problems_list(self):
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
         url = reverse('submit', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
@@ -1583,7 +1583,7 @@ class TestPublicResults(TestCase):
         contest.save()
 
     def test_round_inline(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
         url = reverse('oioioiadmin:contests_contest_change',
@@ -1671,7 +1671,7 @@ class TestContestLinks(TestCase):
     fixtures = ['test_users', 'test_contest']
 
     def test_menu(self):
-        self.client.login(username='test_user2')
+        self.assertTrue(self.client.login(username='test_user2'))
         contest = Contest.objects.get()
 
         ContestLink(contest=contest, description='Test Menu Item 1',
@@ -1697,7 +1697,7 @@ class TestPersonalDataUser(TestCase):
     fixtures = ['test_contest', 'test_permissions']
 
     def testUser(self):
-        self.client.login(username='test_personal_data_user')
+        self.assertTrue(self.client.login(username='test_personal_data_user'))
         self.assertTrue(can_see_personal_data)
 
 
@@ -1711,12 +1711,12 @@ class TestUserInfo(TestCase):
         url = reverse('user_info', kwargs={'contest_id': contest.id,
                                            'user_id': user.id})
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url, follow=True)
             self.assertIn('403', response.content)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url, follow=True)
             self.assertIn('title>Test User - User info', response.content)
@@ -1728,7 +1728,7 @@ class TestUserInfo(TestCase):
         ext = RoundTimeExtension(user=user, round=round, extra_time=20)
         ext.save()
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertIn("<h4>User's round time extensions:</h4>",
                       response.content)
@@ -1741,7 +1741,7 @@ class TestProblemInstanceView(TestCase):
                 'test_problem_site']
 
     def test_admin_change_view(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         problem_instance = Problem.objects.all()[0]
@@ -1776,7 +1776,7 @@ class TestProblemInstanceView(TestCase):
 
     def test_resetting_limits(self):
         self.separate_main_problem_instance()
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         problem_instance = ProblemInstance.objects \
@@ -1808,7 +1808,7 @@ class TestReattachingProblems(TestCase):
         c2.save()
 
         pi_id = ProblemInstance.objects.get().id
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
 
         url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
@@ -1842,7 +1842,7 @@ class TestReattachingProblems(TestCase):
 
     def test_permissions(self):
         pi_id = ProblemInstance.objects.get().id
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         urls = [reverse('reattach_problem_contest_list', args=(pi_id,)),
                 reverse('reattach_problem_confirm', args=(pi_id, 'c1'))]
@@ -1850,7 +1850,7 @@ class TestReattachingProblems(TestCase):
             response = self.client.get(url, follow=True)
             self.assertEqual(response.status_code, 200)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
         for url in urls:
             response = self.client.get(url)
@@ -1867,7 +1867,7 @@ class TestModifyContest(TestCase):
         controller_name = \
                     'oioioi.programs.controllers.ProgrammingContestController'
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -1900,7 +1900,7 @@ class TestModifyContest(TestCase):
         self.assertContains(response, "Judging priority")
         self.assertContains(response, "Judging weight")
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote('yac'),)) + '?simple=true'
         response = self.client.get(url)
@@ -1967,7 +1967,7 @@ class TestRegistrationController(TestCase):
         self.assertFalse(query_private(request).exists())
 
         # Check logged in
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         user = User.objects.get(username='test_user')
 
         assert_public_are_visible()
@@ -1985,11 +1985,11 @@ class TestAdministeredContests(TestCase):
     fixtures = ['test_two_empty_contests', 'test_users']
 
     def test_administered_contests(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         request = self.client.get('/').wsgi_request
         administered = administered_contests(request)
         self.assertEquals(len(administered), 0)
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         request = self.client.get('/').wsgi_request
         administered = administered_contests(request)
         self.assertEquals(len(administered), 2)
@@ -2001,7 +2001,7 @@ class TestSubmissionAdminWithoutContest(TestCase, SubmitFileMixin):
                 'test_extra_problem_instance', 'test_extra_submission']
 
     def setUp(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
     def test_submission_admin_without_contest(self):
         contest1 = Contest.objects.get(pk='c1')
@@ -2025,7 +2025,7 @@ def see_limits_on_problems_list(self, username, displays_submissions_limit,
     if username is None:
         self.client.logout()
     else:
-        self.client.login(username=username)
+        self.assertTrue(self.client.login(username=username))
 
     response = self.client.get('/c/c/p', follow=True)
     assert_contains_if(displays_tries_left)(response, 'Tries left')

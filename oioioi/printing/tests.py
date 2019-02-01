@@ -46,7 +46,7 @@ class TestPrintingView(TestCase):
             'test_problem_instance']
 
     def setUp(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         self.contest = Contest.objects.get()
         self.contest.controller_name = \
             'oioioi.printing.tests.PrintingTestContestController'

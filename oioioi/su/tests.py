@@ -18,7 +18,7 @@ class TestSwitchingUsers(TestCase):
 
     def test_switching_users(self):
         test_user = User.objects.get(username='test_user')
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('su'))
         self.assertEquals(405, response.status_code)
 
@@ -73,7 +73,7 @@ class TestSwitchingUsers(TestCase):
         self.assertContains(response, 'Login as user')
 
     def test_forbidden_su(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.post(reverse('su'), {'user': 'test_admin2'})
         self.assertEquals(200, response.status_code)
         self.assertEquals('test_admin', response.context['user'].username)
@@ -83,7 +83,7 @@ class TestSwitchingUsers(TestCase):
         self.assertEquals(302, response.status_code)
         self.assertNotIn('enemy', response['Location'])
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(reverse('su'), {'user': 'test_admin'})
         self.assertEquals(403, response.status_code)
         self.assertEquals('test_user', response.context['user'].username)
@@ -94,7 +94,7 @@ class TestSwitchingUsers(TestCase):
             response.context['real_user'].backend)
 
     def test_su_redirection(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.post(reverse('su'), {
             'user': 'test_user',
             'backend': 'django.contrib.auth.backends.ModelBackend',
@@ -141,7 +141,7 @@ class TestSwitchingUsers(TestCase):
             request.user.backend)
 
     def test_users_list(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('get_suable_users'), {'substr': ''})
         self.assertEquals(404, response.status_code)
         response = self.client.get(reverse('get_suable_users'))
@@ -163,7 +163,7 @@ class TestSwitchingUsers(TestCase):
         self.assertEquals(403, response.status_code)
 
     def test_su_status(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = json.loads(self.client.get(reverse('get_status')).content)
         self.assertEquals(False, response['is_under_su'])
         self.assertEquals(True, response['is_real_superuser'])

@@ -122,7 +122,7 @@ class TestPortalViews(TestCase):
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(create_url)
         self.assertRedirects(response, '/~test_user/')
 
@@ -148,7 +148,7 @@ class TestPortalViews(TestCase):
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 403)
 
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self.client.get(create_url)
         self.assertEqual(response.status_code, 200)
@@ -186,7 +186,7 @@ class TestPortalViews(TestCase):
 
         def assertAdminButtons(username, path, buttons):
             if username is not None:
-                self.client.login(username=username)
+                self.assertTrue(self.client.login(username=username))
             else:
                 self.client.logout()
 
@@ -217,15 +217,15 @@ class TestPortalViews(TestCase):
             response = self.client.get(url)
             self.assertEquals(response.status_code, 403)
 
-            self.client.login(username='test_user')
+            self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(url)
             self.assertEquals(response.status_code, 200)
 
-            self.client.login(username='test_user2')
+            self.assertTrue(self.client.login(username='test_user2'))
             response = self.client.get(url)
             self.assertEquals(response.status_code, 403)
 
-            self.client.login(username='test_admin')
+            self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
             self.assertEquals(response.status_code, 200)
 
@@ -238,7 +238,7 @@ class TestPortalViews(TestCase):
                                          action=action))
 
     def test_edit_node_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         node = get_portal().root.children.get(short_name='child2')
         response = self.client.post(
@@ -278,7 +278,7 @@ class TestPortalViews(TestCase):
             node.language_versions.get(language='en').panel_code, 'e23f')
 
     def test_add_node_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         root = get_portal().root
         response = self.client.post(
@@ -322,7 +322,7 @@ class TestPortalViews(TestCase):
             node.language_versions.get(language='en').panel_code, '18e0')
 
     def test_delete_node_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.post(portal_url(portal=get_portal(),
                                               path='child1',
@@ -340,7 +340,7 @@ class TestPortalViews(TestCase):
         self.assertQuerysetEqual(node.get_children(), ['<Node: Child 2>'])
 
     def test_portal_tree_json_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(portal_url(portal=get_portal(),
                                               action='portal_tree_json'))
         self.assertJSONEqual(response.content, '''
@@ -377,7 +377,7 @@ class TestPortalViews(TestCase):
     def test_move_node_view(self):
         def assertMoveStatus(username, node, target, position, status_code):
             if username is not None:
-                self.client.login(username=username)
+                self.assertTrue(self.client.login(username=username))
             else:
                 self.client.logout()
 
@@ -406,7 +406,7 @@ class TestPortalViews(TestCase):
         self.assertQuerysetEqual(node.get_children(), ['<Node: Grandchild 1>'])
 
     def test_delete_portal_view(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.post(portal_url(portal=get_portal(),
                                                action='delete_portal'))
@@ -504,7 +504,7 @@ class TestMainPageAndPublicPortals(TestCase):
     fixtures = ['test_users', 'test_portals']
 
     def test_main_page_user(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get('/portals_main_page/')
         self.assertEqual(response.status_code, 200)
@@ -515,7 +515,7 @@ class TestMainPageAndPublicPortals(TestCase):
         self.assertNotContains(response, 'Portal number 2')
 
     def test_public_main_page_admin(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self.client.get('/portals_main_page/public/')
         self.assertEqual(response.status_code, 200)
@@ -526,7 +526,7 @@ class TestMainPageAndPublicPortals(TestCase):
         self.assertNotContains(response, 'seconds root')
 
     def test_all_main_page_admin(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self.client.get('/portals_main_page/all/')
         self.assertEqual(response.status_code, 200)
@@ -537,7 +537,7 @@ class TestMainPageAndPublicPortals(TestCase):
         self.assertContains(response, 'seconds root')
 
     def test_global_main_page_admin(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self.client.get('/portals_main_page/global/')
         self.assertEqual(response.status_code, 200)
@@ -548,7 +548,7 @@ class TestMainPageAndPublicPortals(TestCase):
         self.assertContains(response, 'p/second')
 
     def test_main_page_search(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
 
         response = self.client.get('/portals_main_page/public/?q=root')
         self.assertEqual(response.status_code, 200)
@@ -573,7 +573,7 @@ class TestMainPageAndPublicPortals(TestCase):
         self.assertNotContains(response, 'Second global portal')
 
     def test_user_short_description(self):
-        self.client.login(username='test_user')
+        self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post('/~test_user/' + '?action=manage_portal',
                                     data={'short_description': 'new description'
                                           })
@@ -583,7 +583,7 @@ class TestMainPageAndPublicPortals(TestCase):
         self.assertContains(response, 'new description')
 
     def test_admin_short_description_and_public(self):
-        self.client.login(username='test_admin')
+        self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.post('/p/second/' + '?action=manage_portal',
                                     data={'short_description': 'this will be public',
                                           'is_public': True})
