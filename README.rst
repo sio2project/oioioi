@@ -77,7 +77,7 @@ First prepare the image with::
 
 Create config files and logs folder on host::
 
-    id=$(docker create oioioi)  #Create oioioi container
+    id=$(docker create oioioi-dev)  #Create oioioi container
     docker cp $id:/sio2/logs logs  #Copy initial logs folder from oioioi container
     docker cp $id:/sio2/deployment deployment  #Copy initial deployment config from oioioi contanier
     docker rm -v $id  #Remove unneeded container
