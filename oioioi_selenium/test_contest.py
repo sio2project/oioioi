@@ -2,6 +2,7 @@ import time
 
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import StaleElementReferenceException
 from . import OIOIOISeleniumTestCase
 import os
 
@@ -35,7 +36,11 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
             os.path.dirname(os.path.abspath(__file__))) + "/oioioi/sinolpack/files/test_full_package.tgz")
         submit_problem_button = driver.find_element_by_xpath("/html/body/div[2]/div/div/section/div/form/div[2]/button")
         submit_problem_button.click()
-        submit_problem_button.send_keys(Keys.RETURN)
+        try:
+            submit_problem_button.send_keys(Keys.RETURN)
+        except StaleElementReferenceException:
+            pass
+
         driver.wait_for_load()
 
         # Wait for problem package to process, at most ~20s.
@@ -57,7 +62,10 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         submit_solution_button = driver.find_element_by_xpath(
             "(.//*[normalize-space(text()) and normalize-space(.)='Kind'])[1]/following::button[1]")
         submit_solution_button.click()
-        submit_solution_button.send_keys(Keys.RETURN)
+        try:
+            submit_solution_button.send_keys(Keys.RETURN)
+        except StaleElementReferenceException:
+            pass
 
         # Check if it was submitted.
         time.sleep(30)

@@ -39,7 +39,7 @@ docker-compose -f docker-compose-selenium.yml down --remove-orphans
 
 # Create archive with screenshots.
 cd ./oioioi_selenium/ && \
-    find . -name "*.png" | tar -cvf ../test_screenshots.tar.gz -T - && cd ..
+    find . -name "*.png" | tar -zcvf ../test_screenshots.tar.gz -T - && cd ..
 find ./oioioi_selenium -name "*.png" -delete
 
 exit $result
