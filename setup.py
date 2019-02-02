@@ -55,7 +55,7 @@ python23_universal_requirements = [
         "django-extensions>=1.0.0",
         "werkzeug",
 
-        'pytest',
+        'pytest!=4.2.0',
         'pytest-django',
         'pytest-html',
         'pytest-xdist',
