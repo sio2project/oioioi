@@ -7,7 +7,7 @@ import unicodecsv
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.test import RequestFactory
@@ -125,7 +125,10 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
            If the ranking is still being generated, or the user requested an
            invalid page, displays an appropriate message.
         """
-        page_nr = request.GET.get('page', 1)
+        try:
+            page_nr = int(request.GET.get('page', 1))
+        except ValueError:
+            return HttpResponseBadRequest("Page number must be integer")
         key = self.get_full_key(request, partial_key)
         # Let's pretend the ranking is always up-to-date during tests.
         if getattr(settings, 'MOCK_RANKINGSD', False):
