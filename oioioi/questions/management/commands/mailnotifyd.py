@@ -1,6 +1,5 @@
 import logging
 import time
-from datetime import datetime  # pylint: disable=E0611
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -8,7 +7,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.template.loader import render_to_string
 from django.test import RequestFactory
-from django.utils.timezone import utc
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from oioioi.questions.models import Message, QuestionSubscription
@@ -49,7 +48,7 @@ def mailnotify(instance):
     # It would be best to make it not-None by default (and set pub_date
     # to equal creation date) but it is out of scope of this commit
     # hence the first part of the assertion
-    assert instance.pub_date is None or instance.pub_date <= datetime.now()
+    assert instance.pub_date is None or instance.pub_date <= timezone.now()
 
     subscriptions = QuestionSubscription.objects \
         .filter(contest=instance.contest)
@@ -99,7 +98,7 @@ def fake_request(user, contest):
     request = RequestFactory().get('/', data={'name': u'test'})
     request.user = user
     request.contest = contest
-    request.timestamp = datetime.now().replace(tzinfo=utc)
+    request.timestamp = timezone.now()
     return request
 
 
@@ -121,6 +120,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         while True:
-            for msg in candidate_messages(datetime.now()):
+            for msg in candidate_messages(timezone.now()):
                 mailnotify(msg)
             time.sleep(settings.MAILNOTIFYD_INTERVAL)
