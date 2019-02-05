@@ -27,11 +27,13 @@ class ServerHandler(http.server.BaseHTTPRequestHandler):
                 'CONTENT_TYPE': self.headers['Content-Type'],
             },
         )
+        logger.debug("Sioworkersd receiver got form")
         if "data" not in form:
             self.send_error(404)
         else:
             #logger.debug("Sioworkersd receiver got: " + form.getvalue('data'))
             env = json.loads(form.getvalue('data'))
+            logger.debug("Sioworkersd receiver got env")
             del env['workers_jobs']
             if 'workers_jobs.extra_args' in env:
                 del env['workers_jobs.extra_args']
