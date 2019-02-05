@@ -18,14 +18,14 @@
 # teqwve <mrtaddewicz@gmail.com>, 2017
 # Olaf Tomalka <olaf.tomalka@gmail.com>, 2015
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2014
-# Zuzanna Opała <opala.zuzanna@gmail.com>, 2018
+# Zuzanna Opała <opala.zuzanna@gmail.com>, 2018-2019
 msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-16 17:47+0100\n"
-"PO-Revision-Date: 2019-01-16 15:40+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2019-01-31 17:23+0100\n"
+"PO-Revision-Date: 2019-02-01 10:55+0000\n"
+"Last-Translator: Zuzanna Opała <opala.zuzanna@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -258,10 +258,10 @@ msgstr "Powód: użytkownik związany z tą sesją zmienił się."
 #: testrun/static/testrun/display-testruns-left.js:17
 msgid "You have %(sub_num)s test run left."
 msgid_plural "You have %(sub_num)s test runs left."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "Pozostało %(sub_num)s uruchomienie próbne."
+msgstr[1] "Pozostały %(sub_num)s uruchomienia próbne."
+msgstr[2] "Pozostało %(sub_num)s uruchomień próbnych."
+msgstr[3] "Pozostało %(sub_num)s uruchomień próbnych."
 
 #: timeline/static/timeline/timeline.js:37
 #| msgid ""
