@@ -12,6 +12,8 @@ $(function() {
             languagePicker.prop('disabled', false);
         }
     }
-
-    codeField.bind('input propertychange', updateLanguagePicker);
+    if(codeField.length && languagePicker.length) {
+        codeField.bind('input propertychange', updateLanguagePicker);
+        updateLanguagePicker();
+    }
 });
