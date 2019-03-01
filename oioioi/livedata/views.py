@@ -70,6 +70,10 @@ def livedata_teams_view(request, round_id):
 @jsonify
 def livedata_tasks_view(request, round_id):
     round = get_object_or_404(request.contest.round_set.all(), pk=round_id)
+
+    if not request.contest.controller.can_see_round(request, round):
+        return []
+
     pis = (
         round.probleminstance_set.all()
         .prefetch_related('problem__names')
@@ -124,6 +128,9 @@ def livedata_events_view(request, round_id):
         freeze_time = None
     else:
         freeze_time = request.contest.controller.get_round_freeze_time(round)
+
+    if round.results_date is not None and request.timestamp > round.results_date:
+        freeze_time = None
 
     return [
         {

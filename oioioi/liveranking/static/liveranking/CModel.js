@@ -292,7 +292,7 @@ var CModel = function(adapter) {
 					}); 
 			},
 			error: function(a,b,c) { 
-				alert("Nie udało się pobieranie zespołów"); 
+				alert("Nie udało się pobieranie zadań");
 			}
 		});    	
 	};	
