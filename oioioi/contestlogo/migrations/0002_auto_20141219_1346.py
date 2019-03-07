@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contesticon',
             name='contest',
-            field=models.ForeignKey(verbose_name='contest', to='contests.Contest'),
+            field=models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

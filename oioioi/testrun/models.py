@@ -77,7 +77,7 @@ class TestRunConfigForInstance(models.Model):
 
 class TestRunReport(models.Model):
     __test__ = False
-    submission_report = models.ForeignKey(SubmissionReport)
+    submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
     time_used = models.IntegerField(blank=True)

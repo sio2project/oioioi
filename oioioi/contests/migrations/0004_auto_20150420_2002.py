@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='probleminstance',
             name='contest',
-            field=models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True),
+            field=models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(

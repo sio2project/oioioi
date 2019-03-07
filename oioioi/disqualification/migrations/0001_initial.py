@@ -23,9 +23,9 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=255, verbose_name='title', validators=[django.core.validators.MaxLengthValidator(255), oioioi.base.utils.validators.validate_whitespaces])),
                 ('content', models.TextField(verbose_name='content')),
                 ('guilty', models.BooleanField(default=True)),
-                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest')),
-                ('submission', models.ForeignKey(verbose_name='submission', blank=True, to='contests.Submission', null=True)),
-                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL)),
+                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE)),
+                ('submission', models.ForeignKey(verbose_name='submission', blank=True, to='contests.Submission', null=True, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'disqualification',

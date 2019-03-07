@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='reported_by',
-            field=models.ForeignKey(related_name='post_user_reported', to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(related_name='post_user_reported', to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

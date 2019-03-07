@@ -9,7 +9,8 @@ check_django_app_dependencies(__name__, ['oioioi.disqualification'],
 
 
 class SubmissionsSimilarityGroup(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
+                                on_delete=models.CASCADE)
     comment = models.TextField(blank=True, verbose_name=_("admin comment"))
 
     class Meta(object):
@@ -18,10 +19,13 @@ class SubmissionsSimilarityGroup(models.Model):
 
 
 class SubmissionsSimilarityEntry(models.Model):
-    submission = models.ForeignKey(Submission,
-        verbose_name=_("submission"), related_name='similarities')
-    group = models.ForeignKey(SubmissionsSimilarityGroup,
-        verbose_name=_("group"), related_name='submissions')
+    submission = models.ForeignKey(
+        Submission, verbose_name=_("submission"), related_name='similarities',
+        on_delete=models.CASCADE
+    )
+    group = models.ForeignKey(
+        SubmissionsSimilarityGroup, verbose_name=_("group"),
+        related_name='submissions', on_delete=models.CASCADE)
     guilty = models.BooleanField(default=True, verbose_name=_("guilty"))
 
     class Meta(object):

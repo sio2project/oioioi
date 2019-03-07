@@ -9,11 +9,11 @@ from oioioi.contests.models import Contest, Submission
 
 
 class Disqualification(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
-    user = models.ForeignKey(User, verbose_name=_("user"))
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_("user"), on_delete=models.CASCADE)
     # Leave submission empty to make contest-wide disqualification
     submission = models.ForeignKey(Submission, null=True, blank=True,
-            verbose_name=_("submission"))
+            verbose_name=_("submission"), on_delete=models.CASCADE)
     title = models.CharField(max_length=255,
             validators=[MaxLengthValidator(255), validate_whitespaces],
             verbose_name=_("title"))

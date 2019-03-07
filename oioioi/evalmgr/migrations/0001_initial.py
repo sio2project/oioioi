@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('state', oioioi.base.fields.EnumField(default=b'QUEUED', max_length=64)),
                 ('creation_date', models.DateTimeField(default=django.utils.timezone.now)),
                 ('celery_task_id', models.CharField(max_length=50, unique=True, null=True, blank=True)),
-                ('submission', models.ForeignKey(to='contests.Submission', null=True)),
+                ('submission', models.ForeignKey(to='contests.Submission', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['pk'],

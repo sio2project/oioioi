@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(blank=True)),
                 ('package', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, null=True, verbose_name='package', blank=True)),
                 ('publish_date', models.DateTimeField(help_text='If the date is left blank, the package will never be visible for participants of the contest.', null=True, verbose_name='publish date', blank=True)),
-                ('problem', models.ForeignKey(to='problems.Problem')),
+                ('problem', models.ForeignKey(to='problems.Problem', on_delete=models.CASCADE)),
                 ('tests', models.ManyToManyField(to='programs.Test')),
             ],
             options={

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='region',
             name='contest',
-            field=models.ForeignKey(related_name='regions', to='contests.Contest'),
+            field=models.ForeignKey(related_name='regions', to='contests.Contest', on_delete=models.CASCADE),
         ),
     ]

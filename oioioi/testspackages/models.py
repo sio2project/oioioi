@@ -43,7 +43,7 @@ def _testspackage_qs_filter(qs, contest_id):
 
 class TestsPackage(models.Model):
     __test__ = False
-    problem = models.ForeignKey(Problem)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     name = models.CharField(max_length=30, verbose_name=_("file name"),
             help_text=_("File name can only contain letters, digits,"
                 " - and _. It should not contain file extension such as"

@@ -21,8 +21,8 @@ participant_statuses.register('DELETED', _("Account deleted"))
 
 
 class Participant(models.Model):
-    contest = models.ForeignKey(Contest)
-    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     status = EnumField(participant_statuses, default='ACTIVE')
     anonymous = models.BooleanField(default=False)
 
@@ -66,7 +66,8 @@ class Region(models.Model):
     short_name = models.CharField(max_length=10,
         validators=[validate_db_string_id])
     name = models.CharField(max_length=255)
-    contest = models.ForeignKey(Contest, related_name='regions')
+    contest = models.ForeignKey(Contest, related_name='regions',
+                                on_delete=models.CASCADE)
     region_server = models.CharField(max_length=255, null=True, blank=True,
             verbose_name=_("Region server"),
             help_text=_("IP address or hostname of the regional server"))

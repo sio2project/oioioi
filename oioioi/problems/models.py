@@ -59,9 +59,11 @@ class Problem(models.Model):
         'oioioi.problems.controllers.ProblemController',
         verbose_name=_("type"))
     contest = models.ForeignKey('contests.Contest', null=True, blank=True,
-        verbose_name=_("contest"))
+                                verbose_name=_("contest"),
+                                on_delete=models.SET_NULL)
     author = models.ForeignKey(User, null=True, blank=True,
-        verbose_name=_("author"))
+                               verbose_name=_("author"),
+                               on_delete=models.SET_NULL)
     is_public = models.BooleanField(default=False, verbose_name=_("is public"))
     package_backend_name = \
             DottedNameField('oioioi.problems.package.ProblemPackageBackend',
@@ -74,9 +76,11 @@ class Problem(models.Model):
     # must be temporarily set to Null
     # (ProblemInstance has ForeignKey to Problem
     #  and Problem has ForeignKey to ProblemInstance)
-    main_problem_instance = models.ForeignKey('contests.ProblemInstance',
-            null=True, blank=False, verbose_name=_("main problem instance"),
-            related_name='main_problem_instance')
+    main_problem_instance = models.ForeignKey(
+        'contests.ProblemInstance',
+        null=True, blank=False, verbose_name=_("main problem instance"),
+        related_name='main_problem_instance', on_delete=models.CASCADE
+    )
 
     @property
     def controller(self):
@@ -145,7 +149,8 @@ class ProblemStatement(models.Model):
        or formats. Formats should be detected according to filename extension
        of :attr:`content`.
     """
-    problem = models.ForeignKey(Problem, related_name='statements')
+    problem = models.ForeignKey(Problem, related_name='statements',
+                                on_delete=models.CASCADE)
     language = models.CharField(max_length=6, blank=True, null=True,
         verbose_name=_("language code"))
     content = FileField(upload_to=make_problem_filename,
@@ -178,7 +183,8 @@ class ProblemAttachment(models.Model):
        This may be used for things like input data for open data tasks, or for
        giving users additional libraries etc.
     """
-    problem = models.ForeignKey(Problem, related_name='attachments')
+    problem = models.ForeignKey(Problem, related_name='attachments',
+                                on_delete=models.CASCADE)
     description = models.CharField(max_length=255,
         verbose_name=_("description"))
     content = FileField(upload_to=make_problem_filename,
@@ -224,11 +230,13 @@ class ProblemPackage(models.Model):
     package_file = FileField(upload_to=_make_package_filename,
         verbose_name=_("package"))
     contest = models.ForeignKey('contests.Contest', null=True, blank=True,
-        verbose_name=_("contest"))
+                                verbose_name=_("contest"),
+                                on_delete=models.SET_NULL)
     problem = models.ForeignKey(Problem, verbose_name=_("problem"), null=True,
-            blank=True)
+                                blank=True, on_delete=models.CASCADE)
     created_by = models.ForeignKey(User, verbose_name=_("created by"),
-            null=True, blank=True)
+                                   null=True, blank=True,
+                                   on_delete=models.SET_NULL)
     problem_name = models.CharField(max_length=30, validators=[validate_slug],
             verbose_name=_("problem name"), null=True, blank=True)
     celery_task_id = models.CharField(max_length=50, unique=True, null=True,
@@ -349,8 +357,8 @@ class Tag(models.Model):
 
 
 class TagThrough(models.Model):
-    problem = models.ForeignKey(Problem)
-    tag = models.ForeignKey(Tag)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
     # This string will be visible in admin form
     def __unicode__(self):

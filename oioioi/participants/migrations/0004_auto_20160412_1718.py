@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('short_name', models.CharField(max_length=10, validators=[django.core.validators.RegexValidator(re.compile(b'^[a-z0-9_-]+$'), "Enter a valid 'slug' consisting of lowercase letters, numbers, underscores or hyphens.", b'invalid')])),
                 ('name', models.CharField(max_length=255)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AlterUniqueTogether(

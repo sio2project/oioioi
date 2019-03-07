@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='problem',
             name='main_problem_instance',
-            field=models.ForeignKey(related_name='main_problem_instance', verbose_name='main problem instance', blank=False, to='contests.ProblemInstance', null=True),
+            field=models.ForeignKey(related_name='main_problem_instance', verbose_name='main problem instance', blank=False, to='contests.ProblemInstance', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.RunPython(assign_problem_instances),

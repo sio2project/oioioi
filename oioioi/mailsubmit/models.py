@@ -22,16 +22,19 @@ def make_submission_filename(instance, filename):
 
 class MailSubmission(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance,
-            verbose_name=_("problem"))
+                                         verbose_name=_("problem"),
+                                         on_delete=models.CASCADE)
     user = models.ForeignKey(User, blank=True, null=True,
-            verbose_name=_("user"))
+                             verbose_name=_("user"), on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now, blank=True,
             verbose_name=_("date"), db_index=True)
     source_file = FileField(upload_to=make_submission_filename)
     submission = models.ForeignKey(Submission, blank=True, null=True,
-            verbose_name=_("related submission"))
+                                   verbose_name=_("related submission"),
+                                   on_delete=models.CASCADE)
     accepted_by = models.ForeignKey(User, blank=True, null=True,
-            verbose_name=_("accepted by"), related_name='+')
+                                    verbose_name=_("accepted by"),
+                                    related_name='+', on_delete=models.SET_NULL)
 
 
 @date_registry.register('start_date',

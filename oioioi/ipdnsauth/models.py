@@ -11,7 +11,7 @@ class IpToUser(models.Model):
     """Represents mapping for automatic authorization based on IP address."""
     ip_addr = models.GenericIPAddressField(unique=True, unpack_ipv4=True,
                                            verbose_name=_("IP address"))
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("IP autoauth mapping")
@@ -25,7 +25,7 @@ class DnsToUser(models.Model):
     """Represents mapping for automatic authorization based on DNS hostname."""
     dns_name = models.CharField(unique=True, max_length=255,
                                  verbose_name=_("DNS hostname"))
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("DNS autoauth mapping")

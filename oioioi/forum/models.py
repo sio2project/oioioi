@@ -56,7 +56,8 @@ class Forum(models.Model):
 class Category(models.Model):
     """Category model """
 
-    forum = models.ForeignKey(Forum, verbose_name=_("forum"))
+    forum = models.ForeignKey(Forum, verbose_name=_("forum"),
+                              on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("category"))
 
     class Meta(object):
@@ -91,10 +92,12 @@ class Category(models.Model):
 class Thread(models.Model):
     """Thread model - topic in a category"""
 
-    category = models.ForeignKey(Category, verbose_name=_("category"))
+    category = models.ForeignKey(Category, verbose_name=_("category"),
+                                 on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("thread"))
     last_post = models.ForeignKey('Post', null=True, on_delete=models.SET_NULL,
-            verbose_name=_("last post"), related_name='last_post_of')
+                                  verbose_name=_("last post"),
+                                  related_name='last_post_of')
 
     class Meta(object):
         ordering = ('-last_post__id',)
@@ -124,18 +127,21 @@ class Thread(models.Model):
 class Post(models.Model):
     """Post - the basic part of the forum """
 
-    thread = models.ForeignKey(Thread, verbose_name=_("thread"))
+    thread = models.ForeignKey(Thread, verbose_name=_("thread"),
+                               on_delete=models.CASCADE)
     content = models.TextField(verbose_name=_("post"))
     add_date = models.DateTimeField(verbose_name=_("add date"),
                                     default=timezone.now, blank=True)
     last_edit_date = models.DateTimeField(verbose_name=_("last edit"),
                                           blank=True, null=True)
-    author = models.ForeignKey(User, verbose_name=_("author"))
+    author = models.ForeignKey(User, verbose_name=_("author"),
+                               on_delete=models.CASCADE)
     reported = models.BooleanField(verbose_name=_("reported"), default=False)
     approved = models.BooleanField(verbose_name=_("approved"), default=False)
     hidden = models.BooleanField(verbose_name=_("hidden"), default=False)
     reported_by = models.ForeignKey(User, null=True,
-                                    related_name='%(class)s_user_reported')
+                                    related_name='%(class)s_user_reported',
+                                    on_delete=models.SET_NULL)
 
     @property
     def edited(self):

@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=255, verbose_name='name')),
                 ('file', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename)),
-                ('problem', models.ForeignKey(to='problems.Problem')),
+                ('problem', models.ForeignKey(to='problems.Problem', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': "sinolpack's extra file",
@@ -45,8 +45,8 @@ class Migration(migrations.Migration):
             name='OriginalPackage',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('problem', models.ForeignKey(to='problems.Problem')),
-                ('problem_package', models.ForeignKey(blank=True, to='problems.ProblemPackage', null=True)),
+                ('problem', models.ForeignKey(to='problems.Problem', on_delete=models.CASCADE)),
+                ('problem_package', models.ForeignKey(blank=True, to='problems.ProblemPackage', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'original problem package',

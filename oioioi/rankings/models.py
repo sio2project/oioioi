@@ -68,7 +68,7 @@ class Ranking(models.Model):
        calculations, including the cooldowns, so be careful about drastic
        changes of system time on the generating machine.
     """
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     key = models.CharField(max_length=255)
 
     # advisory
@@ -85,7 +85,8 @@ class Ranking(models.Model):
     # use invalidate_* and is_up_to_date instead
     needs_recalculation = models.BooleanField(default=True)
     cooldown_date = models.DateTimeField(auto_now_add=True)
-    recalc_in_progress = models.ForeignKey(RankingRecalc, null=True)
+    recalc_in_progress = models.ForeignKey(RankingRecalc, null=True,
+                                           on_delete=models.SET_NULL)
 
     @property
     def serialized(self):
@@ -125,7 +126,8 @@ class Ranking(models.Model):
 
 class RankingPage(models.Model):
     """Single page of a ranking"""
-    ranking = models.ForeignKey(Ranking, related_name='pages')
+    ranking = models.ForeignKey(Ranking, related_name='pages',
+                                on_delete=models.CASCADE)
     nr = models.IntegerField()
     data = models.TextField()
 

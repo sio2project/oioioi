@@ -17,13 +17,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='probleminstance',
             name='problem',
-            field=models.ForeignKey(verbose_name='problem', to='problems.Problem'),
+            field=models.ForeignKey(verbose_name='problem', to='problems.Problem', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='probleminstance',
             name='round',
-            field=models.ForeignKey(verbose_name='round', blank=True, to='contests.Round', null=True),
+            field=models.ForeignKey(verbose_name='round', blank=True, to='contests.Round', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -33,19 +33,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='failurereport',
             name='submission_report',
-            field=models.ForeignKey(to='contests.SubmissionReport'),
+            field=models.ForeignKey(to='contests.SubmissionReport', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contestview',
             name='contest',
-            field=models.ForeignKey(to='contests.Contest'),
+            field=models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contestview',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -59,13 +59,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contestpermission',
             name='contest',
-            field=models.ForeignKey(to='contests.Contest'),
+            field=models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contestpermission',
             name='user',
-            field=models.ForeignKey(to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -75,19 +75,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contestlink',
             name='contest',
-            field=models.ForeignKey(verbose_name='contest', to='contests.Contest'),
+            field=models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contestattachment',
             name='contest',
-            field=models.ForeignKey(related_name='c_attachments', verbose_name='contest', to='contests.Contest'),
+            field=models.ForeignKey(related_name='c_attachments', verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contestattachment',
             name='round',
-            field=models.ForeignKey(related_name='r_attachments', verbose_name='round', blank=True, to='contests.Round', null=True),
+            field=models.ForeignKey(related_name='r_attachments', verbose_name='round', blank=True, to='contests.Round', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

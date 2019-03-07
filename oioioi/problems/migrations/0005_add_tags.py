@@ -30,8 +30,8 @@ class Migration(migrations.Migration):
             name='TagThrough',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('problem', models.ForeignKey(to='problems.Problem')),
-                ('tag', models.ForeignKey(to='problems.Tag')),
+                ('problem', models.ForeignKey(to='problems.Problem', on_delete=models.CASCADE)),
+                ('tag', models.ForeignKey(to='problems.Tag', on_delete=models.CASCADE)),
             ],
             options={
             },

@@ -108,7 +108,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('short_name', models.CharField(max_length=30, verbose_name='short name', validators=[django.core.validators.RegexValidator(re.compile(b'^[a-z0-9_-]+$'), "Enter a valid 'slug' consisting of lowercase letters, numbers, underscores or hyphens.", b'invalid')])),
                 ('submissions_limit', models.IntegerField(default=10, verbose_name='submissions limit', blank=True)),
-                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest')),
+                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('round', 'short_name'),
@@ -140,7 +140,7 @@ class Migration(migrations.Migration):
                 ('results_date', models.DateTimeField(null=True, verbose_name='results date', blank=True)),
                 ('public_results_date', models.DateTimeField(help_text="Participants may learn about others' results, what exactly happens depends on the type of the contest (eg. rankings, contestants' solutions are published).", null=True, verbose_name='public results date', blank=True)),
                 ('is_trial', models.BooleanField(default=False, verbose_name='is trial')),
-                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest')),
+                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('contest', 'start_date'),
@@ -154,8 +154,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('extra_time', models.PositiveIntegerField(verbose_name='Extra time (in minutes)')),
-                ('round', models.ForeignKey(to='contests.Round')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('round', models.ForeignKey(to='contests.Round', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'round time extension',
@@ -185,8 +185,8 @@ class Migration(migrations.Migration):
                 ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, verbose_name='score', blank=True)),
                 ('status', oioioi.base.fields.EnumField(default=b'?', max_length=64, verbose_name='status', choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
                 ('comment', models.TextField(verbose_name='comment', blank=True)),
-                ('problem_instance', models.ForeignKey(verbose_name='problem', to='contests.ProblemInstance')),
-                ('user', models.ForeignKey(verbose_name='user', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
+                ('problem_instance', models.ForeignKey(verbose_name='problem', to='contests.ProblemInstance', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name='user', blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'get_latest_by': 'date',
@@ -202,7 +202,7 @@ class Migration(migrations.Migration):
                 ('creation_date', models.DateTimeField(auto_now_add=True)),
                 ('kind', oioioi.base.fields.EnumField(default=b'FINAL', max_length=64, choices=[(b'FINAL', 'Final report'), (b'FAILURE', 'Evaluation failure report'), (b'INITIAL', 'Initial report'), (b'NORMAL', 'Normal report'), (b'FULL', 'Full report'), (b'HIDDEN', 'Hidden report (for admins only)'), (b'USER_OUTS', 'Report with user out'), (b'TESTRUN', 'Test run report')])),
                 ('status', oioioi.base.fields.EnumField(default=b'INACTIVE', max_length=64, choices=[(b'INACTIVE', 'Inactive'), (b'ACTIVE', 'Active'), (b'SUPERSEDED', 'Superseded')])),
-                ('submission', models.ForeignKey(to='contests.Submission')),
+                ('submission', models.ForeignKey(to='contests.Submission', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('-creation_date',),
@@ -215,8 +215,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -228,9 +228,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
                 ('status', oioioi.base.fields.EnumField(blank=True, max_length=64, null=True, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
-                ('problem_instance', models.ForeignKey(to='contests.ProblemInstance')),
-                ('submission_report', models.ForeignKey(blank=True, to='contests.SubmissionReport', null=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('problem_instance', models.ForeignKey(to='contests.ProblemInstance', on_delete=models.CASCADE)),
+                ('submission_report', models.ForeignKey(blank=True, to='contests.SubmissionReport', null=True, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -241,8 +241,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
-                ('round', models.ForeignKey(to='contests.Round')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('round', models.ForeignKey(to='contests.Round', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -267,7 +267,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='scorereport',
             name='submission_report',
-            field=models.ForeignKey(to='contests.SubmissionReport'),
+            field=models.ForeignKey(to='contests.SubmissionReport', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

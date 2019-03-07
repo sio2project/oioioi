@@ -125,13 +125,13 @@ class ContestAttachment(models.Model):
        etc.
     """
     contest = models.ForeignKey(Contest, related_name='c_attachments',
-            verbose_name=_("contest"))
+            verbose_name=_("contest"), on_delete=models.CASCADE)
     description = models.CharField(max_length=255,
             verbose_name=_("description"))
     content = FileField(upload_to=make_contest_filename,
             verbose_name=_("content"))
     round = models.ForeignKey('Round', related_name='r_attachments',
-            blank=True, null=True, verbose_name=_("round"))
+            blank=True, null=True, verbose_name=_("round"), on_delete=models.CASCADE)
     pub_date = models.DateTimeField(default=None, blank=True, null=True,
             verbose_name=_("publication date"))
 
@@ -183,7 +183,8 @@ def _round_end_date_name_generator(obj):
                         round_chooser=(lambda obj: obj),
                         order=31)
 class Round(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
+                                on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("name"),
                             validators=[validate_whitespaces])
     start_date = models.DateTimeField(default=timezone.now,
@@ -249,10 +250,11 @@ class ProblemStatementConfig(models.Model):
 
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"),
-            null=True, blank=True)
+                                null=True, blank=True, on_delete=models.CASCADE)
     round = models.ForeignKey(Round, verbose_name=_("round"), null=True,
-            blank=True)
-    problem = models.ForeignKey('problems.Problem', verbose_name=_("problem"))
+                              blank=True, on_delete=models.CASCADE)
+    problem = models.ForeignKey('problems.Problem', verbose_name=_("problem"),
+                                on_delete=models.CASCADE)
     short_name = models.CharField(max_length=30, verbose_name=_("short name"),
             validators=[validate_db_string_id])
     submissions_limit = models.IntegerField(
@@ -330,9 +332,9 @@ submission_statuses.register('ERR', _("Error"))
 
 class Submission(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance,
-            verbose_name=_("problem"))
+            verbose_name=_("problem"), on_delete=models.CASCADE)
     user = models.ForeignKey(User, blank=True, null=True,
-            verbose_name=_("user"))
+            verbose_name=_("user"), on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now, blank=True,
             verbose_name=_("date"), db_index=True)
     kind = EnumField(submission_kinds, default='NORMAL',
@@ -385,7 +387,7 @@ submission_report_statuses.register('SUPERSEDED', _("Superseded"))
 
 
 class SubmissionReport(models.Model):
-    submission = models.ForeignKey(Submission)
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE)
     creation_date = models.DateTimeField(auto_now_add=True)
     kind = EnumField(submission_report_kinds, default='FINAL')
     status = EnumField(submission_report_statuses, default='INACTIVE')
@@ -404,7 +406,7 @@ class SubmissionReport(models.Model):
 
 
 class ScoreReport(models.Model):
-    submission_report = models.ForeignKey(SubmissionReport)
+    submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
     status = EnumField(submission_statuses, blank=True, null=True)
     score = ScoreField(blank=True, null=True)
     max_score = ScoreField(blank=True, null=True)
@@ -422,7 +424,7 @@ class FailureReport(models.Model):
        The submission should have its status set to ``FAILED``. Such reports
        are not shown to users.
     """
-    submission_report = models.ForeignKey(SubmissionReport)
+    submission_report = models.ForeignKey(SubmissionReport, on_delete=models.CASCADE)
     message = models.TextField()
     json_environ = models.TextField()
 
@@ -433,12 +435,13 @@ class UserResultForProblem(models.Model):
        Each user can have only one class:`UserResultForProblem` per problem
        instance.
     """
-    user = models.ForeignKey(User)
-    problem_instance = models.ForeignKey(ProblemInstance)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    problem_instance = models.ForeignKey(ProblemInstance,
+                                         on_delete=models.CASCADE)
     score = ScoreField(blank=True, null=True)
     status = EnumField(submission_statuses, blank=True, null=True)
     submission_report = models.ForeignKey(SubmissionReport, blank=True,
-            null=True)
+                                          null=True, on_delete=models.CASCADE)
 
     class Meta(object):
         unique_together = ('user', 'problem_instance')
@@ -449,8 +452,8 @@ class UserResultForRound(models.Model):
 
        Each user can have only one :class:`UserResultForRound` per round.
     """
-    user = models.ForeignKey(User)
-    round = models.ForeignKey(Round)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
     score = ScoreField(blank=True, null=True)
 
     class Meta(object):
@@ -463,8 +466,8 @@ class UserResultForContest(models.Model):
        Each user can have only one :class:`UserResultForContest` per contest
        for given type.
     """
-    user = models.ForeignKey(User)
-    contest = models.ForeignKey(Contest)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     score = ScoreField(blank=True, null=True)
 
     class Meta(object):
@@ -476,8 +479,8 @@ class RoundTimeExtension(models.Model):
 
        The extra time is given in minutes.
     """
-    user = models.ForeignKey(User)
-    round = models.ForeignKey(Round)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, on_delete=models.CASCADE)
     extra_time = models.PositiveIntegerField(_("Extra time (in minutes)"))
 
     class Meta(object):
@@ -495,8 +498,8 @@ contest_permissions.register('contests.personal_data', _("Personal Data"))
 
 
 class ContestPermission(models.Model):
-    user = models.ForeignKey(User)
-    contest = models.ForeignKey(Contest)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     permission = EnumField(contest_permissions,
             default='contests.contest_admin', verbose_name=_("permission"))
 
@@ -510,8 +513,8 @@ class ContestPermission(models.Model):
 
 
 class ContestView(models.Model):
-    user = models.ForeignKey(User)
-    contest = models.ForeignKey(Contest)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now,
                                      verbose_name=_("last view"))
 
@@ -526,7 +529,8 @@ class ContestView(models.Model):
 
 
 class ContestLink(models.Model):
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
+                                on_delete=models.CASCADE)
     description = models.CharField(max_length=255,
                                    verbose_name=_("description"))
     url = models.URLField(verbose_name=_("url"))

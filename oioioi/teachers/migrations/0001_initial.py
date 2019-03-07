@@ -50,13 +50,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='contestteacher',
             name='contest',
-            field=models.ForeignKey(to='contests.Contest'),
+            field=models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contestteacher',
             name='teacher',
-            field=models.ForeignKey(to='teachers.Teacher'),
+            field=models.ForeignKey(to='teachers.Teacher', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

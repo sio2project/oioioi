@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('short_name', models.CharField(max_length=30, verbose_name='short name', validators=[django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+$'), "Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens.", 'invalid')])),
                 ('controller_name', oioioi.base.fields.DottedNameField(verbose_name='type', superclass='oioioi.problems.controllers.ProblemController')),
                 ('package_backend_name', oioioi.base.fields.DottedNameField(null=True, verbose_name='package type', superclass='oioioi.problems.package.ProblemPackageBackend', blank=True)),
-                ('contest', models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True)),
+                ('contest', models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'problem',
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('description', models.CharField(max_length=255, verbose_name='description')),
                 ('content', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, verbose_name='content')),
-                ('problem', models.ForeignKey(related_name='attachments', to='problems.Problem')),
+                ('problem', models.ForeignKey(related_name='attachments', to='problems.Problem', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'attachment',
@@ -63,9 +63,9 @@ class Migration(migrations.Migration):
                 ('traceback', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models._make_package_filename, null=True, verbose_name='traceback', blank=True)),
                 ('status', oioioi.base.fields.EnumField(default=b'?', max_length=64, verbose_name='status', choices=[(b'?', 'Pending problem package'), (b'OK', 'Uploaded'), (b'ERR', 'Error')])),
                 ('creation_date', models.DateTimeField(default=django.utils.timezone.now)),
-                ('contest', models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True)),
-                ('created_by', models.ForeignKey(verbose_name='created by', blank=True, to=settings.AUTH_USER_MODEL, null=True)),
-                ('problem', models.ForeignKey(verbose_name='problem', blank=True, to='problems.Problem', null=True)),
+                ('contest', models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True, on_delete=models.CASCADE)),
+                ('created_by', models.ForeignKey(verbose_name='created by', blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
+                ('problem', models.ForeignKey(verbose_name='problem', blank=True, to='problems.Problem', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['-creation_date'],
@@ -80,7 +80,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('language', models.CharField(max_length=6, null=True, verbose_name='language code', blank=True)),
                 ('content', oioioi.filetracker.fields.FileField(upload_to=oioioi.problems.models.make_problem_filename, verbose_name='content')),
-                ('problem', models.ForeignKey(related_name='statements', to='problems.Problem')),
+                ('problem', models.ForeignKey(related_name='statements', to='problems.Problem', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'problem statement',

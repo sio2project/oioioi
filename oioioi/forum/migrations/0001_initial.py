@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 ('last_edit_date', models.DateTimeField(null=True, verbose_name='last edit', blank=True)),
                 ('reported', models.BooleanField(default=False, verbose_name='reported')),
                 ('hidden', models.BooleanField(default=False, verbose_name='hidden')),
-                ('author', models.ForeignKey(verbose_name='author', to=settings.AUTH_USER_MODEL)),
+                ('author', models.ForeignKey(verbose_name='author', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('add_date',),
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=255, verbose_name='thread')),
-                ('category', models.ForeignKey(verbose_name='category', to='forum.Category')),
+                ('category', models.ForeignKey(verbose_name='category', to='forum.Category', on_delete=models.CASCADE)),
                 ('last_post', models.ForeignKey(related_name='last_post_of', on_delete=django.db.models.deletion.SET_NULL, verbose_name='last post', to='forum.Post', null=True)),
             ],
             options={
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='thread',
-            field=models.ForeignKey(verbose_name='thread', to='forum.Thread'),
+            field=models.ForeignKey(verbose_name='thread', to='forum.Thread', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterIndexTogether(
@@ -88,7 +88,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='category',
             name='forum',
-            field=models.ForeignKey(verbose_name='forum', to='forum.Forum'),
+            field=models.ForeignKey(verbose_name='forum', to='forum.Forum', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

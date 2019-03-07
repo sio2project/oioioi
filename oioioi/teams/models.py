@@ -13,7 +13,7 @@ class Team(models.Model):
     name = models.CharField(max_length=50, verbose_name=_("team name"))
     login = models.CharField(max_length=50, verbose_name=_("login"))
     user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"))
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     join_key = models.CharField(max_length=40)
 
     def save(self, *args, **kwargs):
@@ -33,8 +33,8 @@ class Team(models.Model):
 class TeamMembership(models.Model):
     """Represents a realation between an user and a team.
     """
-    user = models.ForeignKey(User)
-    team = models.ForeignKey(Team, related_name='members')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, related_name='members', on_delete=models.CASCADE)
 
     class Meta(object):
         unique_together = ("user", "team")

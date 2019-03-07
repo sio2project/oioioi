@@ -25,12 +25,15 @@ logger = logging.getLogger('oioioi')
 
 
 class Message(models.Model):
-    contest = models.ForeignKey(Contest, null=True, blank=True)
-    round = models.ForeignKey(Round, null=True, blank=True)
+    contest = models.ForeignKey(Contest, null=True, blank=True,
+                                on_delete=models.CASCADE)
+    round = models.ForeignKey(Round, null=True, blank=True,
+                              on_delete=models.CASCADE)
     problem_instance = models.ForeignKey(ProblemInstance, null=True,
-            blank=True)
-    top_reference = models.ForeignKey('self', null=True, blank=True)
-    author = models.ForeignKey(User)
+                                         blank=True, on_delete=models.CASCADE)
+    top_reference = models.ForeignKey('self', null=True, blank=True,
+                                      on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
     kind = EnumField(message_kinds, default='QUESTION', verbose_name=_("kind"))
     topic = models.CharField(max_length=255, verbose_name=_("topic"),
             validators=[MaxLengthValidator(255), validate_whitespaces])
@@ -94,7 +97,8 @@ class Message(models.Model):
 
 
 class ReplyTemplate(models.Model):
-    contest = models.ForeignKey(Contest, null=True, blank=True)
+    contest = models.ForeignKey(Contest, null=True, blank=True,
+                                on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("visible name"),
                             blank=True)
     content = models.TextField(verbose_name=_("content"))
@@ -113,8 +117,8 @@ class ReplyTemplate(models.Model):
 
 
 class MessageView(models.Model):
-    message = models.ForeignKey(Message)
-    user = models.ForeignKey(User)
+    message = models.ForeignKey(Message, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now, editable=False)
 
     class Meta(object):
@@ -122,8 +126,9 @@ class MessageView(models.Model):
 
 
 class MessageNotifierConfig(models.Model):
-    contest = models.ForeignKey(Contest)
-    user = models.ForeignKey(User, verbose_name=_("username"))
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_("username"),
+                             on_delete=models.CASCADE)
 
     class Meta(object):
         unique_together = ('contest', 'user')
@@ -200,5 +205,5 @@ def send_notification(sender, instance, created, **kwargs):
 # an e-mail notification will be spawned for every post
 # with Message.top_reference == EmailSubscription.opening_post
 class QuestionSubscription(models.Model):
-    user = models.ForeignKey(User)
-    contest = models.ForeignKey(Contest)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)

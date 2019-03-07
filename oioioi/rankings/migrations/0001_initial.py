@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('last_recalculation_date', models.DateTimeField(null=True)),
                 ('last_recalculation_duration', models.DurationField(default=datetime.timedelta(0))),
                 ('cooldown_date', models.DateTimeField(auto_now_add=True)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nr', models.IntegerField()),
                 ('data', models.TextField()),
-                ('ranking', models.ForeignKey(related_name='pages', to='rankings.Ranking')),
+                ('ranking', models.ForeignKey(related_name='pages', to='rankings.Ranking', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -45,6 +45,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='ranking',
             name='recalc_in_progress',
-            field=models.ForeignKey(to='rankings.RankingRecalc', null=True),
+            field=models.ForeignKey(to='rankings.RankingRecalc', null=True, on_delete=models.CASCADE),
         ),
     ]

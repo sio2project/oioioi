@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('status', oioioi.base.fields.EnumField(max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
                 ('compiler_output', models.TextField()),
-                ('submission_report', models.ForeignKey(to='contests.SubmissionReport')),
+                ('submission_report', models.ForeignKey(to='contests.SubmissionReport', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 ('score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
                 ('max_score', oioioi.contests.fields.ScoreField(max_length=255, null=True, blank=True)),
                 ('status', oioioi.base.fields.EnumField(max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
-                ('submission_report', models.ForeignKey(to='contests.SubmissionReport')),
+                ('submission_report', models.ForeignKey(to='contests.SubmissionReport', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -125,7 +125,7 @@ class Migration(migrations.Migration):
                 ('memory_limit', models.IntegerField(null=True, verbose_name='memory limit (KiB)', blank=True)),
                 ('max_score', models.IntegerField(default=10, verbose_name='score')),
                 ('order', models.IntegerField(default=0)),
-                ('problem', models.ForeignKey(to='problems.Problem')),
+                ('problem', models.ForeignKey(to='problems.Problem', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['order'],
@@ -166,7 +166,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='testreport',
             name='submission_report',
-            field=models.ForeignKey(to='contests.SubmissionReport'),
+            field=models.ForeignKey(to='contests.SubmissionReport', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -188,13 +188,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='modelsolution',
             name='problem',
-            field=models.ForeignKey(to='problems.Problem'),
+            field=models.ForeignKey(to='problems.Problem', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='modelprogramsubmission',
             name='model_solution',
-            field=models.ForeignKey(to='programs.ModelSolution'),
+            field=models.ForeignKey(to='programs.ModelSolution', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

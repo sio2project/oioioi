@@ -22,8 +22,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('status', oioioi.base.fields.EnumField(default=b'ACTIVE', max_length=64, choices=[(b'ACTIVE', 'Active'), (b'BANNED', 'Banned')])),
                 ('anonymous', models.BooleanField(default=False)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

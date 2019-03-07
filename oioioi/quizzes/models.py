@@ -20,7 +20,8 @@ class QuizQuestion(models.Model):
     is_multiple_choice = models.BooleanField(default=False, verbose_name=_(
         "Is multiple choice"))
     points = models.IntegerField(default=1, verbose_name=_("Points"))
-    quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"))
+    quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"),
+                             on_delete=models.CASCADE)
     order = models.IntegerField(default=0, verbose_name=_("Order"))
 
     class Meta(object):
@@ -30,7 +31,8 @@ class QuizQuestion(models.Model):
 
 
 class QuizAnswer(models.Model):
-    question = models.ForeignKey(QuizQuestion, verbose_name=_("Question"))
+    question = models.ForeignKey(QuizQuestion, verbose_name=_("Question"),
+                                 on_delete=models.CASCADE)
     answer = models.TextField(verbose_name=_("Answer"))
     is_correct = models.BooleanField(default=False,
                                      verbose_name=_("Is answer correct"))
@@ -51,7 +53,8 @@ class QuizSubmission(Submission):
 
 class QuizSubmissionAnswer(models.Model):
     quiz_submission = models.ForeignKey(QuizSubmission,
-                                        verbose_name=_("Quiz submission"))
+                                        verbose_name=_("Quiz submission"),
+                                        on_delete=models.CASCADE)
     answer = models.ForeignKey(QuizAnswer, verbose_name=_("Answer"),
                                on_delete=models.SET_NULL, null=True)
     is_selected = models.BooleanField(default=False,
@@ -64,7 +67,8 @@ class QuizSubmissionAnswer(models.Model):
 
 class QuestionReport(models.Model):
     submission_report = models.ForeignKey(SubmissionReport,
-                                        verbose_name=_("Submission report"))
+                                          verbose_name=_("Submission report"),
+                                          on_delete=models.CASCADE)
     comment = models.TextField(blank=True, null=True,
                                     verbose_name=_("Comment"))
     score = ScoreField(verbose_name=_("Score"))

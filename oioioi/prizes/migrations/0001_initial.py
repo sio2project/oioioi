@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='name')),
                 ('quantity', models.IntegerField(default=1, verbose_name='quantity', validators=[django.core.validators.MinValueValidator(1)])),
                 ('order', models.IntegerField(verbose_name='position in non-strict distribution order', validators=[django.core.validators.MinValueValidator(1)])),
-                ('contest', models.ForeignKey(to='contests.Contest')),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['prize_giving', 'order', 'id'],
@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
             name='PrizeForUser',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('prize', models.ForeignKey(to='prizes.Prize')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('prize', models.ForeignKey(to='prizes.Prize', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['prize', 'user'],
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('state', oioioi.base.fields.EnumField(default=b'NOT_SCHEDULED', max_length=64, editable=False, choices=[(b'NOT_SCHEDULED', 'NOT SCHEDULED'), (b'SCHEDULED', 'SCHEDULED'), (b'FAILURE', 'FAILURE'), (b'SUCCESS', 'SUCCESS')])),
                 ('report', oioioi.filetracker.fields.FileField(upload_to=oioioi.prizes.models._make_report_filename, null=True, editable=False)),
                 ('version', models.DateTimeField(default=django.utils.timezone.now, editable=False)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['-date', 'id'],
@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='prize',
             name='prize_giving',
-            field=models.ForeignKey(verbose_name='prize-giving', to='prizes.PrizeGiving'),
+            field=models.ForeignKey(verbose_name='prize-giving', to='prizes.PrizeGiving', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

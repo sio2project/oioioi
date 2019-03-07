@@ -31,13 +31,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='balloonsdisplay',
             name='contest',
-            field=models.ForeignKey(verbose_name='contest', to='contests.Contest'),
+            field=models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='balloonsdisplay',
             name='user',
-            field=models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -49,13 +49,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='balloondelivery',
             name='problem_instance',
-            field=models.ForeignKey(verbose_name='problem', to='contests.ProblemInstance'),
+            field=models.ForeignKey(verbose_name='problem', to='contests.ProblemInstance', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='balloondelivery',
             name='user',
-            field=models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

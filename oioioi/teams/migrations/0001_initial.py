@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('login', models.CharField(max_length=50, verbose_name='login')),
                 ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, verbose_name='user')),
                 ('join_key', models.CharField(max_length=40)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -34,8 +34,8 @@ class Migration(migrations.Migration):
             name='TeamMembership',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('team', models.ForeignKey(related_name='members', to='teams.Team')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('team', models.ForeignKey(related_name='members', to='teams.Team', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },

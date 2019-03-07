@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='test',
             name='problem_instance',
-            field=models.ForeignKey(default=None, to='contests.ProblemInstance', null=True),
+            field=models.ForeignKey(default=None, to='contests.ProblemInstance', null=True, on_delete=models.CASCADE),
             preserve_default=False,
         ),
         migrations.AlterUniqueTogether(
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='test',
             name='problem_instance',
-            field=models.ForeignKey(to='contests.ProblemInstance', null=False, blank=False),
+            field=models.ForeignKey(to='contests.ProblemInstance', null=False, blank=False, on_delete=models.CASCADE),
             preserve_default=False
         ),
         migrations.RemoveField(

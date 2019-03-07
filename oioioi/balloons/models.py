@@ -30,8 +30,10 @@ class BalloonsDisplay(models.Model):
     """Represents mapping for balloons display."""
     ip_addr = models.GenericIPAddressField(unique=True, unpack_ipv4=True,
                                            verbose_name=_("IP address"))
-    user = models.ForeignKey(User, verbose_name=_("user"))
-    contest = models.ForeignKey(Contest, verbose_name=_("contest"))
+    user = models.ForeignKey(User, verbose_name=_("user"),
+                             on_delete=models.CASCADE)
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"),
+                                on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("balloons display")
@@ -42,9 +44,12 @@ class BalloonsDisplay(models.Model):
 
 
 class BalloonDelivery(models.Model):
-    user = models.ForeignKey(User, verbose_name=_("user"))
+    user = models.ForeignKey(User,
+                             verbose_name=_("user"),
+                             on_delete=models.CASCADE)
     problem_instance = models.ForeignKey(ProblemInstance,
-                                         verbose_name=_("problem"))
+                                         verbose_name=_("problem"),
+                                         on_delete=models.CASCADE)
     delivered = models.BooleanField(default=False, verbose_name=_("delivered"))
     first_accepted_solution = models.BooleanField(
         default=False,

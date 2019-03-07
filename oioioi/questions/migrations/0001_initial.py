@@ -26,11 +26,11 @@ class Migration(migrations.Migration):
                 ('topic', models.CharField(max_length=255, verbose_name='topic', validators=[django.core.validators.MaxLengthValidator(255), oioioi.base.utils.validators.validate_whitespaces])),
                 ('content', models.TextField(verbose_name='content')),
                 ('date', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date', editable=False)),
-                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
-                ('contest', models.ForeignKey(blank=True, to='contests.Contest', null=True)),
-                ('problem_instance', models.ForeignKey(blank=True, to='contests.ProblemInstance', null=True)),
-                ('round', models.ForeignKey(blank=True, to='contests.Round', null=True)),
-                ('top_reference', models.ForeignKey(blank=True, to='questions.Message', null=True)),
+                ('author', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('contest', models.ForeignKey(blank=True, to='contests.Contest', null=True, on_delete=models.CASCADE)),
+                ('problem_instance', models.ForeignKey(blank=True, to='contests.ProblemInstance', null=True, on_delete=models.CASCADE)),
+                ('round', models.ForeignKey(blank=True, to='contests.Round', null=True, on_delete=models.CASCADE)),
+                ('top_reference', models.ForeignKey(blank=True, to='questions.Message', null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -40,8 +40,8 @@ class Migration(migrations.Migration):
             name='MessageNotifierConfig',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('contest', models.ForeignKey(to='contests.Contest')),
-                ('user', models.ForeignKey(verbose_name='username', to=settings.AUTH_USER_MODEL)),
+                ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name='username', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'notified about new questions',
@@ -54,8 +54,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('date', models.DateTimeField(default=django.utils.timezone.now, editable=False)),
-                ('message', models.ForeignKey(to='questions.Message')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('message', models.ForeignKey(to='questions.Message', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255, verbose_name='visible name', blank=True)),
                 ('content', models.TextField(verbose_name='content')),
                 ('usage_count', models.IntegerField(default=0, verbose_name='usage count')),
-                ('contest', models.ForeignKey(blank=True, to='contests.Contest', null=True)),
+                ('contest', models.ForeignKey(blank=True, to='contests.Contest', null=True, on_delete=models.CASCADE)),
             ],
             options={
             },

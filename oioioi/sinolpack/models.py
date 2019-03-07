@@ -26,7 +26,7 @@ class ExtraConfig(models.Model):
 class ExtraFile(models.Model):
     """Model to store extra files (for example ``extra.zip``) present in some
        Sinol packages."""
-    problem = models.ForeignKey(Problem)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("name"))
     file = FileField(upload_to=make_problem_filename)
 
@@ -36,9 +36,9 @@ class ExtraFile(models.Model):
 
 
 class OriginalPackage(models.Model):
-    problem = models.ForeignKey(Problem)
-    problem_package = models.ForeignKey(ProblemPackage, blank=True,
-            null=True)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    problem_package = models.ForeignKey(ProblemPackage, null=True, blank=True,
+                                        on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("original problem package")

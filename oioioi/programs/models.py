@@ -56,7 +56,8 @@ def validate_memory_limit(value):
 
 class Test(models.Model):
     __test__ = False
-    problem_instance = models.ForeignKey(ProblemInstance)
+    problem_instance = models.ForeignKey(ProblemInstance,
+                                         on_delete=models.CASCADE)
     name = models.CharField(max_length=30, verbose_name=_("name"))
     input_file = FileField(upload_to=make_problem_filename,
             verbose_name=_("input"), null=True, blank=True)
@@ -142,7 +143,7 @@ class ModelSolutionsManager(models.Manager):
 class ModelSolution(models.Model):
     objects = ModelSolutionsManager()
 
-    problem = models.ForeignKey(Problem)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     name = models.CharField(max_length=30, verbose_name=_("name"))
     source_file = FileField(upload_to=make_problem_filename,
             verbose_name=_("source"))
@@ -214,7 +215,7 @@ class ProgramSubmission(Submission):
 
 
 class ModelProgramSubmission(ProgramSubmission):
-    model_solution = models.ForeignKey(ModelSolution)
+    model_solution = models.ForeignKey(ModelSolution, on_delete=models.CASCADE)
 
 submission_statuses.register('CE', _("Compilation failed"))
 submission_statuses.register('RE', _("Runtime error"))
@@ -239,7 +240,8 @@ submission_report_kinds.register('USER_OUTS', _("Report with user out"))
 
 
 class CompilationReport(models.Model):
-    submission_report = models.ForeignKey(SubmissionReport)
+    submission_report = models.ForeignKey(SubmissionReport,
+                                          on_delete=models.CASCADE)
     status = EnumField(submission_statuses)
     compiler_output = models.TextField()
 
@@ -254,7 +256,8 @@ def make_output_filename(instance, filename):
 
 class TestReport(models.Model):
     __test__ = False
-    submission_report = models.ForeignKey(SubmissionReport)
+    submission_report = models.ForeignKey(SubmissionReport,
+                                          on_delete=models.CASCADE)
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
     score = ScoreField(null=True, blank=True)
@@ -263,7 +266,7 @@ class TestReport(models.Model):
                             blank=True)
 
     test = models.ForeignKey(Test, blank=True, null=True,
-            on_delete=models.SET_NULL)
+                             on_delete=models.SET_NULL)
     test_name = models.CharField(max_length=30)
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
@@ -271,7 +274,8 @@ class TestReport(models.Model):
 
 
 class GroupReport(models.Model):
-    submission_report = models.ForeignKey(SubmissionReport)
+    submission_report = models.ForeignKey(SubmissionReport,
+                                          on_delete=models.CASCADE)
     group = models.CharField(max_length=30)
     score = ScoreField(null=True, blank=True)
     max_score = ScoreField(null=True, blank=True)

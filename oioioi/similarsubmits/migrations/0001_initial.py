@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('comment', models.TextField(verbose_name='admin comment', blank=True)),
-                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest')),
+                ('contest', models.ForeignKey(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'submissions similarity',
@@ -39,13 +39,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='submissionssimilarityentry',
             name='group',
-            field=models.ForeignKey(related_name='submissions', verbose_name='group', to='similarsubmits.SubmissionsSimilarityGroup'),
+            field=models.ForeignKey(related_name='submissions', verbose_name='group', to='similarsubmits.SubmissionsSimilarityGroup', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='submissionssimilarityentry',
             name='submission',
-            field=models.ForeignKey(related_name='similarities', verbose_name='submission', to='contests.Submission'),
+            field=models.ForeignKey(related_name='similarities', verbose_name='submission', to='contests.Submission', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

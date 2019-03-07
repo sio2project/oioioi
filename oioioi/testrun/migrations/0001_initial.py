@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('time_used', models.IntegerField(blank=True)),
                 ('test_time_limit', models.IntegerField(null=True, blank=True)),
                 ('output_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.testrun.models.make_custom_output_filename)),
-                ('submission_report', models.ForeignKey(to='contests.SubmissionReport')),
+                ('submission_report', models.ForeignKey(to='contests.SubmissionReport', on_delete=models.CASCADE)),
             ],
             options={
             },

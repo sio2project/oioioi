@@ -20,7 +20,7 @@ class QueuedJob(models.Model):
     creation_date = models.DateTimeField(default=timezone.now)
 
     # Optional information about queued jobs.
-    submission = models.ForeignKey(Submission, null=True)
+    submission = models.ForeignKey(Submission, null=True, on_delete=models.CASCADE)
     celery_task_id = models.CharField(max_length=50, unique=True, null=True,
                                       blank=True)
 

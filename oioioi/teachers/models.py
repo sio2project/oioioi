@@ -32,8 +32,8 @@ class Teacher(models.Model):
 
 
 class ContestTeacher(models.Model):
-    contest = models.ForeignKey(Contest)
-    teacher = models.ForeignKey(Teacher)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
 
     class Meta(object):
         unique_together = ('contest', 'teacher')

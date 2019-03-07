@@ -115,7 +115,7 @@ class PrizeGiving(models.Model):
     # At any time you can delete ``pg`` as if it has never existed.
     # pg.delete()
 
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     date = models.DateTimeField(
             _("Distribution date"), blank=True, null=True,
             help_text=_("Leave blank for 'later'."))
@@ -269,9 +269,10 @@ class PrizeGiving(models.Model):
 
 
 class Prize(models.Model):
-    contest = models.ForeignKey(Contest)
+    contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     prize_giving = models.ForeignKey(PrizeGiving,
-                                     verbose_name=_("prize-giving"))
+                                     verbose_name=_("prize-giving"),
+                                     on_delete=models.CASCADE)
     name = models.CharField(_("name"), max_length=100)
     quantity = models.IntegerField(_("quantity"), default=1,
                                    validators=[MinValueValidator(1)])
@@ -288,8 +289,8 @@ class Prize(models.Model):
 
 
 class PrizeForUser(models.Model):
-    user = models.ForeignKey(User)
-    prize = models.ForeignKey(Prize)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    prize = models.ForeignKey(Prize, on_delete=models.CASCADE)
 
     class Meta(object):
         ordering = ['prize', 'user']
