@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.submitservice import views
 
+app_name = 'submitservice'
+
 contest_patterns = [
     url(r'^submitservice/submit/$', views.submit_view,
         name='submitservice_submit'),

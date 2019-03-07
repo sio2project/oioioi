@@ -5,6 +5,7 @@ from django.conf.urls import include, url
 
 from oioioi.contests import admin, views
 
+app_name = 'contests'
 
 def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
     """Creates url patterns to be used in a custom urlconf.
@@ -68,8 +69,8 @@ def make_patterns(neutrals=None, contests=None, noncontests=None, globs=None):
             + neutrals + glob_namespaced_patterns('noncontest')
 
     return [
-        url(r'^c/[a-z0-9_-]+/', include(contests, namespace='contest')),
-        url(r'', include(noncontests, namespace='noncontest')),
+        url(r'^c/[a-z0-9_-]+/', include((contests, 'contest'))),
+        url(r'', include((noncontests, 'noncontest'))),
     ] + globs
 
 

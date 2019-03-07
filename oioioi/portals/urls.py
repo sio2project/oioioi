@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.portals import views
 
+app_name = 'portals'
+
 noncontest_patterns = [
     url(r'^portal/(?P<portal_path>.*)?$', views.redirect_old_global_portal,
         name='redirect_old_global_portal'),

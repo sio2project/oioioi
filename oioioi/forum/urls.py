@@ -2,6 +2,8 @@ from django.conf.urls import include, url
 
 from oioioi.forum import views
 
+app_name = 'forum'
+
 forum_patterns = [
     url(r'^$',
         views.forum_view, name='forum'),

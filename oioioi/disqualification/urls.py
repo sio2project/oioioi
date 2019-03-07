@@ -4,4 +4,6 @@ from django.conf.urls import patterns
 # Force loading views
 from oioioi.disqualification.views import disqualification_fragment
 
+app_name = 'disqualification'
+
 urlpatterns = ()

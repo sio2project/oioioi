@@ -2,6 +2,8 @@ from django.conf.urls import include, url
 
 from oioioi.problems import views
 
+app_name = 'problems'
+
 problem_site_patterns = [
     url(r'^site/$', views.problem_site_view, name='problem_site'),
     url(r'^site/(?P<path>.+)$', views.problem_site_statement_zip_view,

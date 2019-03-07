@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.mailsubmit import views
 
+app_name = 'mailsubmit'
+
 contest_patterns = [
     url(r'^mailsubmit/$', views.mailsubmit_view, name='mailsubmit'),
     url(r'^mailsubmit/accept/$', views.accept_mailsubmission_view,

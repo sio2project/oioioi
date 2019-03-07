@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.testrun import views
 
+app_name = 'testrun'
+
 contest_patterns = [
     url(r'^testrun_submit/$', views.testrun_submit_view,
         name='testrun_submit'),

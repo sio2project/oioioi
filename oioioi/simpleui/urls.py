@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.simpleui import views
 
+app_name = 'simpleui'
+
 noncontest_patterns = [
     url(r'^teacher-dashboard/$', views.teacher_dashboard_view,
         name='teacher_dashboard')

@@ -2,6 +2,8 @@ from django.conf.urls import include, url
 
 from oioioi.teachers import views
 
+app_name = 'teachers'
+
 member_type_dependent_patterns = [
     url(r'^show/$', views.members_view, name='show_members'),
     url(r'^registration/on/$', views.set_registration_view,

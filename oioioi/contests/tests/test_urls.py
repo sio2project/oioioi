@@ -17,7 +17,7 @@ namespaced_patterns = patterns('',
 neutral_patterns = patterns('',
     url(r'^id/$', 'oioioi.contests.tests.tests.print_contest_id_view',
         name='print_contest_id'),
-    url(r'', include(namespaced_patterns, namespace='namespace')),
+    url(r'', include((namespaced_patterns, 'namespace'))),
 )
 
 

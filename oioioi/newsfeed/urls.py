@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.newsfeed import views
 
+app_name = 'newsfeed'
+
 urlpatterns = [
     url(r'^news/add/$', views.add_news_view,
         name='add_news'),

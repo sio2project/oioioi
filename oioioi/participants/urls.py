@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.participants import views
 
+app_name = 'participants'
+
 contest_patterns = [
     url(r'^register/$', views.registration_view,
         name='participants_register'),

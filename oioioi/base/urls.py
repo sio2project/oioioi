@@ -3,8 +3,10 @@ from django.conf.urls import include, url
 from oioioi.base import admin, views
 from oioioi.base.main_page import main_page_view
 
+app_name = 'base'
+
 urlpatterns = [
-    url(r'', include('two_factor.urls', 'two_factor')),
+    url(r'', include('two_factor.urls', namespace='two_factor')),
     url(r'^force_error/$', views.force_error_view, name='force_error'),
     url(r'^force_permission_denied/$', views.force_permission_denied_view,
         name='force_permission_denied'),

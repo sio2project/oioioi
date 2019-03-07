@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.similarsubmits import views
 
+app_name = 'similarsubmits'
+
 contest_patterns = [
     url(r'^(?P<entry_id>\d+)/mark_guilty/$', views.mark_guilty_view,
         name='mark_guilty'),

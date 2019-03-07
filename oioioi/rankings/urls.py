@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.rankings import views
 
+app_name = 'rankings'
+
 contest_patterns = [
     url(r'^ranking/$', views.ranking_view, name='default_ranking'),
     url(r'^ranking/get_users_in_ranking/$', views.get_users_in_ranking_view,

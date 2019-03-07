@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.oi import views
 
+app_name = 'oi'
+
 urlpatterns = [
     url(r'^oi/cities/$', views.cities_view),
     url(r'^oi/schools/$', views.schools_view),

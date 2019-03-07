@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from oioioi.balloons import views
 
+app_name = 'balloons'
+
 contest_patterns = [
     url(r'^balloons/regenerate/$', views.balloons_regenerate_delivery_key_view,
         name='balloons_access_regenerate'),
