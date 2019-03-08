@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.encoding import force_text
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
@@ -271,9 +272,10 @@ class ProblemPackageAdmin(admin.ModelAdmin):
     def colored_status(self, instance):
         status_to_str = {'OK': 'ok', '?': 'in_prog', 'ERR': 'err'}
         package_status = status_to_str[instance.status]
-        return '<span class="submission-admin prob-pack--%s">%s</span>' % \
-                (package_status, force_text(instance.get_status_display()))
-    colored_status.allow_tags = True
+        return format_html(
+            '<span class="submission-admin prob-pack--{}">{}</span>',
+            package_status, instance.get_status_display()
+        )
     colored_status.short_description = _("Status")
     colored_status.admin_order_field = 'status'
 
@@ -310,7 +312,6 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         def inner(instance):
             inline_actions = self.inline_actions(instance, contest)
             return make_html_links(inline_actions)
-        inner.allow_tags = True
         inner.short_description = _("Actions")
         return inner
 

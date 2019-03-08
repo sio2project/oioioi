@@ -27,14 +27,12 @@ class SchoolAdmin(admin.ModelAdmin):
     def participants_link(self, instance):
         return make_html_link(instance.get_participants_url(),
                               _("Participants"))
-    participants_link.allow_tags = True
     participants_link.short_description = _("Participants")
 
     def postal_code_link(self, instance):
         url = reverse('oioioiadmin:oi_school_changelist') + '?' + \
                 six.moves.urllib.parse.urlencode({'q': instance.postal_code})
         return make_html_link(url, instance.postal_code)
-    postal_code_link.allow_tags = True
     postal_code_link.short_description = _("Postal code")
     postal_code_link.admin_order_field = 'postal_code'
 

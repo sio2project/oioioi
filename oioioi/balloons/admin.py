@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.balloons.models import (BalloonsDeliveryAccessData,
@@ -32,9 +33,8 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def color_display(self, instance):
-        return '<span class="balloons_admin" style="background: %s">%s' \
-               '</span>' % (instance.color, instance.color)
-    color_display.allow_tags = True
+        return format_html('<span class="balloons_admin" style="background: {}">'
+                           '{}</span>', instance.color, instance.color)
     color_display.short_description = _("Color")
 
     def get_queryset(self, request):
@@ -116,7 +116,6 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
             return make_html_link(url, url)
         else:
             return _("Not yet generated")
-    access_link.allow_tags = True
     access_link.short_description = _("Access link")
 
     def regeneration_link(self, instance):
@@ -126,7 +125,6 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
             _("Regenerate key"),
             'POST'
         )
-    regeneration_link.allow_tags = True
     regeneration_link.short_description = _("Regeneration link")
 
 

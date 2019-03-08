@@ -13,7 +13,7 @@ from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils.encoding import force_text
-from django.utils.html import conditional_escape
+from django.utils.html import conditional_escape, format_html
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 
@@ -350,20 +350,17 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def actions_field(self, instance):
         return make_html_links(self.inline_actions(instance))
-    actions_field.allow_tags = True
     actions_field.short_description = _("Actions")
 
     def name_link(self, instance):
         href = self._problem_change_href(instance)
         return make_html_link(href, instance.problem.name)
-    name_link.allow_tags = True
     name_link.short_description = _("Problem")
     name_link.admin_order_field = 'problem__name'
 
     def short_name_link(self, instance):
         href = self._problem_change_href(instance)
         return make_html_link(href, instance.short_name)
-    short_name_link.allow_tags = True
     short_name_link.short_description = _("Symbol")
     short_name_link.admin_order_field = 'short_name'
 
@@ -597,11 +594,11 @@ class SubmissionAdmin(admin.ModelAdmin):
     problem_instance_display.admin_order_field = 'problem_instance'
 
     def status_display(self, instance):
-        return '<span class="submission-admin ' \
-               'submission submission--%s">%s</span>' % \
-                (instance.status, conditional_escape(force_text(
-                    instance.get_status_display())))
-    status_display.allow_tags = True
+        return format_html(
+            '<span class="submission-admin submission submission--{}">{}</span>',
+            instance.status,
+            instance.get_status_display()
+        )
     status_display.short_description = _("Status")
     status_display.admin_order_field = 'status'
 
@@ -744,7 +741,6 @@ class RoundTimeExtensionAdmin(admin.ModelAdmin):
                 instance.user.username)
     user_login.short_description = _("Login")
     user_login.admin_order_field = 'user__username'
-    user_login.allow_tags = True
 
     def user_full_name(self, instance):
         if not instance.user:

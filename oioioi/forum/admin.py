@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.utils.translation import string_concat
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
@@ -38,25 +39,21 @@ class ForumAdmin(admin.ModelAdmin):
         ret = "".join(slist)
         if not ret:
             ret = string_concat('<li>', _("Empty forum"), '</li>')
-        return '<ul>%s</ul>' % ret
-    categories.allow_tags = True
+        return mark_safe('<ul>%s</ul>' % ret)
     categories.short_description = _("Categories")
 
     def add_category(self, obj):
         return make_html_link(reverse('oioioiadmin:forum_category_add',), '+')
-    add_category.allow_tags = True
     add_category.short_description = _("Add category")
 
     def posts_admin(self, obj):
         return make_html_link(reverse('oioioiadmin:forum_post_changelist',),
                 _("Posts admin view"))
-    posts_admin.allow_tags = True
     posts_admin.short_description = _("Posts")
 
     def bans(self, obj):
         return make_html_link(reverse('oioioiadmin:forum_ban_changelist', ),
                               _("Bans"))
-    bans.allow_tags = True
     bans.short_description = _("Bans")
 
     def has_add_permission(self, request):
@@ -93,8 +90,7 @@ class CategoryAdmin(admin.ModelAdmin):
         ret = "".join(slist)
         if not ret:
             ret = string_concat('<li>', _("Empty category"), '</li>')
-        return '<ul>%s</ul>' % ret
-    threads.allow_tags = True
+        return mark_safe('<ul>%s</ul>' % ret)
     threads.short_description = _("Threads")
 
     def save_model(self, request, obj, form, change):
@@ -155,8 +151,7 @@ class ThreadAdmin(admin.ModelAdmin):
         ret = "".join(slist)
         if not ret:
             ret = string_concat('<li>', _("Empty thread"), '</li>')
-        return '<ul>%s</ul>' % ret
-    posts.allow_tags = True
+        return mark_safe('<ul>%s</ul>' % ret)
     posts.short_description = _("Posts")
 
     def has_add_permission(self, request):
@@ -214,7 +209,6 @@ class PostAdmin(admin.ModelAdmin):
 
     def thread_link(self, obj):
         return make_html_link(obj.get_in_thread_url(), obj.thread.name)
-    thread_link.allow_tags = True
     thread_link.short_description = _("Thread")
 
     def has_add_permission(self, request):

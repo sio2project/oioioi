@@ -4,6 +4,7 @@ from django.contrib.admin import SimpleListFilter
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils.encoding import force_text
+from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
 from djcelery.models import TaskState
 
@@ -129,7 +130,6 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
                                   task_object_id)
         except TaskState.DoesNotExist:
             return task_id
-    celery_task_id_link.allow_tags = True
     celery_task_id_link.admin_order_field = 'celery_task_id'
     celery_task_id_link.short_description = _("Celery task id")
 
@@ -139,7 +139,6 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         return self._get_link(res, 'submission',
                               contest_id=self._get_contest_id(instance),
                               submission_id=res)
-    submit_id.allow_tags = True
     submit_id.admin_order_field = 'submission__id'
     submit_id.short_description = _("Submission id")
 
@@ -149,7 +148,6 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         return self._get_link(res, 'problem_statement',
                               contest_id=self._get_contest_id(instance),
                               problem_instance=res.short_name)
-    problem_instance.allow_tags = True
     problem_instance.admin_order_field = 'submission__problem_instance'
     problem_instance.short_description = _("Problem")
 
@@ -158,7 +156,6 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         return self._get_link(instance.submission.problem_instance.contest,
                               'default_contest_view',
                               contest_id=self._get_contest_id(instance))
-    contest.allow_tags = True
     contest.admin_order_field = 'submission__problem_instance__contest'
     contest.short_description = _("Contest")
 
@@ -169,9 +166,10 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
     user.short_description = _("User")
 
     def colored_state(self, instance):
-        return '<span class="submission-admin submission--%s">%s</span>' % \
-            (instance.state, force_text(instance.get_state_display()))
-    colored_state.allow_tags = True
+        return format_html(
+            '<span class="submission-admin submission--{}">{}</span>',
+            instance.state, instance.get_state_display()
+        )
     colored_state.short_description = _("Status")
     colored_state.admin_order_field = 'state'
 

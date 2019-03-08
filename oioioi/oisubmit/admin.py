@@ -34,7 +34,6 @@ class OISubmitSubmissionAdminMixin(object):
         return render_to_string('received-suspected.html',
                 {'received_suspected': received_suspected,
                 'is_oisubmit': is_oisubmit, 'comments': comments})
-    received_suspected.allow_tags = True
     received_suspected.short_description = _("Received suspected")
 
     def get_custom_list_select_related(self):
