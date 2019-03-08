@@ -102,14 +102,14 @@ def _fold_registration_models_tree(object):
         objects_used.append(current)
 
         for field in current._meta.fields:
-            if field.rel is not None and \
+            if field.remote_field is not None and \
                     getattr(current, field.name) not in objects_used:
                 objs.append(getattr(current, field.name))
 
     for obj in objects_used:
         for field in obj._meta.fields:
             if not field.auto_created:
-                if field.rel is None:
+                if field.remote_field is None:
                     result += [(obj, field)]
     return result
 
