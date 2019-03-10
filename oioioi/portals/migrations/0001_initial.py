@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('level', models.PositiveIntegerField(editable=False, db_index=True)),
-                ('parent', mptt.fields.TreeForeignKey(related_name='children', verbose_name='parent', to='portals.Node', null=True)),
+                ('parent', mptt.fields.TreeForeignKey(related_name='children', verbose_name='parent', to='portals.Node', null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
             name='Portal',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('owner', models.OneToOneField(null=True, to=settings.AUTH_USER_MODEL)),
-                ('root', models.OneToOneField(to='portals.Node')),
+                ('owner', models.OneToOneField(null=True, to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
+                ('root', models.OneToOneField(to='portals.Node', on_delete=models.CASCADE)),
             ],
             options={
             },

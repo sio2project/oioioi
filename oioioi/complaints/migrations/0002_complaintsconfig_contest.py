@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='complaintsconfig',
             name='contest',
-            field=models.OneToOneField(related_name='complaints_config', to='contests.Contest'),
+            field=models.OneToOneField(related_name='complaints_config', to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

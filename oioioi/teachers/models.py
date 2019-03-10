@@ -18,7 +18,8 @@ if 'oioioi.teachers.auth.TeacherAuthBackend' \
 
 
 class Teacher(models.Model):
-    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"))
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"),
+                                on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False, verbose_name=_("active"))
     school = models.CharField(max_length=255, verbose_name=_("school"))
 
@@ -43,7 +44,8 @@ class ContestTeacher(models.Model):
 
 
 class RegistrationConfig(models.Model):
-    contest = models.OneToOneField(Contest, primary_key=True)
+    contest = models.OneToOneField(Contest, primary_key=True,
+                                   on_delete=models.CASCADE)
     is_active_pupil = models.BooleanField(default=True)
     is_active_teacher = models.BooleanField(default=True)
     pupil_key = models.CharField(max_length=40)

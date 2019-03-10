@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
                 ('visible', models.BooleanField(default=True, verbose_name='forum is visible after lock')),
                 ('lock_date', models.DateTimeField(null=True, verbose_name='autolock date', blank=True)),
                 ('unlock_date', models.DateTimeField(null=True, verbose_name='autounlock date', blank=True)),
-                ('contest', models.OneToOneField(to='contests.Contest')),
+                ('contest', models.OneToOneField(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'forum',

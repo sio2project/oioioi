@@ -8,7 +8,7 @@ check_django_app_dependencies(__name__, ['oioioi.oi'])
 
 
 class OISubmitExtraData(models.Model):
-    submission = models.OneToOneField(Submission)
+    submission = models.OneToOneField(Submission, on_delete=models.CASCADE)
     localtime = models.DateTimeField(blank=True, null=True,
                                     verbose_name=_("local time"))
     siotime = models.DateTimeField(blank=True, null=True,

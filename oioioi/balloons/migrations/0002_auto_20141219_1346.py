@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProblemBalloonsConfig',
             fields=[
-                ('problem_instance', models.OneToOneField(related_name='balloons_config', primary_key=True, serialize=False, to='contests.ProblemInstance', verbose_name='problem')),
+                ('problem_instance', models.OneToOneField(related_name='balloons_config', primary_key=True, serialize=False, to='contests.ProblemInstance', verbose_name='problem', on_delete=models.CASCADE)),
                 ('color', oioioi.base.utils.color.ColorField(verbose_name='color')),
             ],
             options={
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='balloonsdeliveryaccessdata',
             name='contest',
-            field=models.OneToOneField(verbose_name='contest', to='contests.Contest'),
+            field=models.OneToOneField(verbose_name='contest', to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(

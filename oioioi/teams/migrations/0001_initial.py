@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('name', models.CharField(max_length=50, verbose_name='team name')),
                 ('login', models.CharField(max_length=50, verbose_name='login')),
-                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, verbose_name='user', on_delete=models.CASCADE)),
                 ('join_key', models.CharField(max_length=40)),
                 ('contest', models.ForeignKey(to='contests.Contest', on_delete=models.CASCADE)),
             ],
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
                 ('modify_begin_date', models.DateTimeField(null=True, verbose_name='team modification begin date', blank=True)),
                 ('modify_end_date', models.DateTimeField(null=True, verbose_name='team modification end date', blank=True)),
                 ('teams_list_visible', oioioi.base.fields.EnumField(default=b'NO', max_length=64, verbose_name='teams list visibility', choices=[(b'PUBLIC', 'Visible for all'), (b'YES', 'Visible only for registered users'), (b'NO', 'Not visible')])),
-                ('contest', models.OneToOneField(to='contests.Contest')),
+                ('contest', models.OneToOneField(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'teams configuration',

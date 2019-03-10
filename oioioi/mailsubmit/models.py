@@ -47,7 +47,7 @@ class MailSubmission(models.Model):
                         order=0)
 class MailSubmissionConfig(models.Model):
     contest = models.OneToOneField(Contest,
-            related_name='mail_submission_config')
+            related_name='mail_submission_config', on_delete=models.CASCADE)
     enabled = models.BooleanField(verbose_name=_("enabled"), default=False)
     start_date = models.DateTimeField(verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True,

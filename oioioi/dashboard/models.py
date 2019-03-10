@@ -5,7 +5,7 @@ from oioioi.contests.models import Contest
 
 
 class DashboardMessage(models.Model):
-    contest = models.OneToOneField(Contest, primary_key=True)
+    contest = models.OneToOneField(Contest, primary_key=True, on_delete=models.CASCADE)
     content = models.TextField(verbose_name=_("message"), blank=True)
 
     class Meta(object):

@@ -15,7 +15,8 @@ check_django_app_dependencies(__name__, ['oioioi.participants'])
                         name_generator=(lambda obj: _("Disable complaints")))
 class ComplaintsConfig(models.Model):
     contest = models.OneToOneField(Contest,
-                        related_name='complaints_config')
+                                   related_name='complaints_config',
+                                   on_delete=models.CASCADE)
     enabled = models.BooleanField(default=False, verbose_name=_("enabled"))
     start_date = models.DateTimeField(verbose_name=_("start date"))
     end_date = models.DateTimeField(blank=True, null=True,

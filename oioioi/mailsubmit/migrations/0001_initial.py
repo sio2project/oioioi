@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('start_date', models.DateTimeField(verbose_name='start date')),
                 ('end_date', models.DateTimeField(null=True, verbose_name='end date', blank=True)),
                 ('printout_text', models.TextField(default='This document confirms that you have uploaded a file for postal submission on our server. To have this file judged, send this document by mail to us.', help_text='LaTeX-formatted text to show on the printed document sent by regular post; usually contains the instruction on how, where and when to send it.', verbose_name='printout text')),
-                ('contest', models.OneToOneField(related_name='mail_submission_config', to='contests.Contest')),
+                ('contest', models.OneToOneField(related_name='mail_submission_config', to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'postal submission configuration',

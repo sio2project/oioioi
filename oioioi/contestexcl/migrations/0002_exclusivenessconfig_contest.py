@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='exclusivenessconfig',
             name='contest',
-            field=models.OneToOneField(to='contests.Contest'),
+            field=models.OneToOneField(to='contests.Contest', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

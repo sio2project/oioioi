@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('region_server_mysql_user', models.CharField(default=b'oi', max_length=255, verbose_name='MySQL username')),
                 ('region_server_mysql_pass', models.CharField(max_length=255, verbose_name='MySQL password', blank=True)),
                 ('region_server_mysql_db', models.CharField(default=b'oi', max_length=255, verbose_name='MySQL database name')),
-                ('contest', models.OneToOneField(to='contests.Contest')),
+                ('contest', models.OneToOneField(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'IP authentication sync config',
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             name='IpAuthSyncedUser',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('entry', models.OneToOneField(to='ipdnsauth.IpToUser')),
+                ('entry', models.OneToOneField(to='ipdnsauth.IpToUser', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('warnings', models.TextField(verbose_name='Warnings', blank=True)),
                 ('mapping', models.TextField(verbose_name='Mapping', blank=True)),
-                ('region', models.OneToOneField(to='participants.Region')),
+                ('region', models.OneToOneField(to='participants.Region', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'IP authentication sync messages',

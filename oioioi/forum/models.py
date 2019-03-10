@@ -19,7 +19,7 @@ from oioioi.contests.models import Contest
 class Forum(models.Model):
     """Forum is connected with contest"""
 
-    contest = models.OneToOneField(Contest)
+    contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
     visible = models.BooleanField(
         default=True,
         verbose_name=_("forum is visible after lock")

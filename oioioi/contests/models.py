@@ -237,7 +237,7 @@ statements_visibility_options.register('AUTO', _("Auto"))
 
 
 class ProblemStatementConfig(models.Model):
-    contest = models.OneToOneField('contests.Contest')
+    contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
     visible = EnumField(statements_visibility_options, default='AUTO',
             verbose_name=_("statements visibility"),
             help_text=_("If set to Auto, the visibility is determined "

@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='PAProblemInstanceData',
             fields=[
-                ('problem_instance', models.OneToOneField(primary_key=True, serialize=False, to='contests.ProblemInstance')),
+                ('problem_instance', models.OneToOneField(primary_key=True, serialize=False, to='contests.ProblemInstance', on_delete=models.CASCADE)),
                 ('division', oioioi.base.fields.EnumField(max_length=64, verbose_name='Division', choices=[(b'A', 'Division A'), (b'B', 'Division B'), (b'NONE', 'None')])),
             ],
             options={
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 ('t_shirt_size', models.CharField(max_length=7, verbose_name='t-shirt size', choices=[(b'S', b'S'), (b'M', b'M'), (b'L', b'L'), (b'XL', b'XL'), (b'XXL', b'XXL')])),
                 ('newsletter', models.BooleanField(default=False, help_text='I want to receive the information about further editions of the contest.', verbose_name='newsletter')),
                 ('terms_accepted', models.BooleanField(default=False, help_text='I declare that I have read the contest rules and the technical arrangements. I fully understand them and accept them unconditionally.', verbose_name='terms accepted')),
-                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='pa_paregistration', to='participants.Participant')),
+                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='pa_paregistration', to='participants.Participant', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,

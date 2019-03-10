@@ -13,9 +13,10 @@ check_django_app_dependencies(__name__, ['oioioi.participants', 'oioioi.acm'])
 
 class ProblemBalloonsConfig(models.Model):
     problem_instance = models.OneToOneField(ProblemInstance,
-                                   verbose_name=_("problem"),
-                                   related_name='balloons_config',
-                                   primary_key=True)
+                                            verbose_name=_("problem"),
+                                            related_name='balloons_config',
+                                            primary_key=True,
+                                            on_delete=models.CASCADE)
     color = ColorField(verbose_name=_("color"))
 
     class Meta(object):
@@ -71,7 +72,8 @@ class BalloonDelivery(models.Model):
 
 
 class BalloonsDeliveryAccessData(models.Model):
-    contest = models.OneToOneField(Contest, verbose_name=_("contest"))
+    contest = models.OneToOneField(Contest, verbose_name=_("contest"),
+                                   on_delete=models.CASCADE)
     access_key = models.CharField(max_length=16, verbose_name=_("access key"))
     valid_until = models.DateTimeField(null=True,
                                        verbose_name=_("valid until"))

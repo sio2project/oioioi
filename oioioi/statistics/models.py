@@ -9,7 +9,8 @@ from oioioi.contests.models import Contest
                name_generator=(lambda obj: _("Show statistics")))
 class StatisticsConfig(models.Model):
     contest = models.OneToOneField(Contest,
-                        related_name='statistics_config')
+                                   related_name='statistics_config',
+                                   on_delete=models.CASCADE)
     visible_to_users = models.BooleanField(verbose_name=_("visible to users"),
                                            default=False)
     visibility_date = models.DateTimeField(verbose_name=_("visibility date"))

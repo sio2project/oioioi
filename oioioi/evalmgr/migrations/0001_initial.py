@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('environ', models.TextField(help_text='JSON-encoded evaluation environ')),
                 ('save_time', models.DateTimeField(help_text='Time and date when the environ was saved', auto_now=True)),
-                ('queued_job', models.OneToOneField(to='evalmgr.QueuedJob')),
+                ('queued_job', models.OneToOneField(to='evalmgr.QueuedJob', on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(

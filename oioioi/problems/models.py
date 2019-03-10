@@ -322,7 +322,7 @@ class ProblemSite(models.Model):
        Contains configuration necessary to view and submit solutions
        to a :class:`~oioioi.problems.models.Problem`.
     """
-    problem = models.OneToOneField(Problem)
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     url_key = models.CharField(max_length=40, unique=True)
 
     def __unicode__(self):

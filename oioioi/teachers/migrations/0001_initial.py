@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RegistrationConfig',
             fields=[
-                ('contest', models.OneToOneField(primary_key=True, serialize=False, to='contests.Contest')),
+                ('contest', models.OneToOneField(primary_key=True, serialize=False, to='contests.Contest', on_delete=models.CASCADE)),
                 ('is_active_pupil', models.BooleanField(default=True)),
                 ('is_active_teacher', models.BooleanField(default=True)),
                 ('pupil_key', models.CharField(max_length=40)),
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Teacher',
             fields=[
-                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, verbose_name='user')),
+                ('user', models.OneToOneField(primary_key=True, serialize=False, to=settings.AUTH_USER_MODEL, verbose_name='user', on_delete=models.CASCADE)),
                 ('is_active', models.BooleanField(default=False, verbose_name='active')),
                 ('school', models.CharField(max_length=255, verbose_name='school')),
             ],

@@ -7,7 +7,8 @@ from oioioi.problems.models import Problem
 
 class ScoreReveal(models.Model):
     submission = models.OneToOneField(Submission, related_name='revealed',
-                                      verbose_name=_("submission"))
+                                      verbose_name=_("submission"),
+                                      on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("score reveal")
@@ -17,7 +18,8 @@ class ScoreReveal(models.Model):
 class ScoreRevealConfig(models.Model):
     problem = models.OneToOneField(Problem,
                                    verbose_name=_("problem"),
-                                   related_name='scores_reveal_config')
+                                   related_name='scores_reveal_config',
+                                   on_delete=models.CASCADE)
     reveal_limit = models.IntegerField(verbose_name=_("reveal limit"))
     disable_time = models.IntegerField(blank=True, null=True,
         verbose_name=_("disable for last minutes of the round"))

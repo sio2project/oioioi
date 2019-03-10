@@ -23,7 +23,8 @@ class Node(MPTTModel):
                                   help_text=_("Shown in the URL."),
                                   validators=[validate_db_string_id])
     parent = TreeForeignKey('self', null=True, blank=False,
-                            related_name='children', verbose_name=_("parent"))
+                            related_name='children', verbose_name=_("parent"),
+                            on_delete=models.CASCADE)
 
     problems_in_content = models.ManyToManyField('problems.problem',
                                                  blank=True)
@@ -143,8 +144,9 @@ class NodeLanguageVersion(models.Model):
 
 
 class Portal(models.Model):
-    owner = models.OneToOneField(User, null=True, unique=True)
-    root = models.OneToOneField(Node, unique=True)
+    owner = models.OneToOneField(User, null=True, unique=True,
+                                 on_delete=models.CASCADE)
+    root = models.OneToOneField(Node, unique=True, on_delete=models.CASCADE)
     short_description = models.CharField(max_length=256, null=True,
                                          default=_("My portal."),
                                          verbose_name=_("short description"))

@@ -85,7 +85,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ProgramSubmission',
             fields=[
-                ('submission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contests.Submission')),
+                ('submission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='contests.Submission', on_delete=models.CASCADE)),
                 ('source_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.programs.models.make_submission_filename)),
                 ('source_length', models.IntegerField(null=True, verbose_name='Source code length', blank=True)),
             ],
@@ -96,7 +96,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ModelProgramSubmission',
             fields=[
-                ('programsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.ProgramSubmission')),
+                ('programsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.ProgramSubmission', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -105,7 +105,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ReportActionsConfig',
             fields=[
-                ('problem', models.OneToOneField(related_name='report_actions_config', primary_key=True, serialize=False, to='problems.Problem', verbose_name='problem instance')),
+                ('problem', models.OneToOneField(related_name='report_actions_config', primary_key=True, serialize=False, to='problems.Problem', verbose_name='problem instance', on_delete=models.CASCADE)),
                 ('can_user_generate_outs', models.BooleanField(default=False, verbose_name='Allow users to generate their outs on tests from visible reports.')),
             ],
             options={
@@ -155,7 +155,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='UserOutGenStatus',
             fields=[
-                ('testreport', models.OneToOneField(related_name='userout_status', primary_key=True, serialize=False, to='programs.TestReport')),
+                ('testreport', models.OneToOneField(related_name='userout_status', primary_key=True, serialize=False, to='programs.TestReport', on_delete=models.CASCADE)),
                 ('status', oioioi.base.fields.EnumField(default=b'?', max_length=64, choices=[(b'?', 'Pending'), (b'OK', 'OK'), (b'ERR', 'Error'), (b'CE', 'Compilation failed'), (b'RE', 'Runtime error'), (b'WA', 'Wrong answer'), (b'TLE', 'Time limit exceeded'), (b'MLE', 'Memory limit exceeded'), (b'OLE', 'Output limit exceeded'), (b'SE', 'System error'), (b'RV', 'Rule violation'), (b'INI_OK', 'Initial tests: OK'), (b'INI_ERR', 'Initial tests: failed'), (b'TESTRUN_OK', 'No error'), (b'MSE', 'Outgoing message size limit exceeded'), (b'MCE', 'Outgoing message count limit exceeded'), (b'IGN', 'Ignored')])),
                 ('visible_for_user', models.BooleanField(default=True)),
             ],
@@ -182,7 +182,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='outputchecker',
             name='problem',
-            field=models.OneToOneField(to='problems.Problem'),
+            field=models.OneToOneField(to='problems.Problem', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -200,7 +200,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='libraryproblemdata',
             name='problem',
-            field=models.OneToOneField(to='problems.Problem'),
+            field=models.OneToOneField(to='problems.Problem', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

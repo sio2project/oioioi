@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ContestLogo',
             fields=[
-                ('contest', models.OneToOneField(primary_key=True, serialize=False, to='contests.Contest', verbose_name='contest')),
+                ('contest', models.OneToOneField(primary_key=True, serialize=False, to='contests.Contest', verbose_name='contest', on_delete=models.CASCADE)),
                 ('image', oioioi.filetracker.fields.FileField(upload_to=oioioi.contestlogo.models.make_logo_filename, verbose_name='logo image')),
                 ('updated_at', models.DateTimeField(default=django.utils.timezone.now)),
                 ('link', models.URLField(null=True, verbose_name='external contest webpage url', blank=True)),

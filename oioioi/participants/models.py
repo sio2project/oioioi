@@ -81,7 +81,7 @@ class Region(models.Model):
 
 class RegistrationModel(models.Model):
     participant = OneToOneBothHandsCascadingParticipantField(Participant,
-            related_name='%(app_label)s_%(class)s')
+            related_name='%(app_label)s_%(class)s', on_delete=models.CASCADE)
 
     class Meta(object):
         abstract = True
@@ -134,7 +134,9 @@ class TermsAcceptedPhrase(models.Model):
        It is used in contests with custom registration: PA and OI.
     """
     text = models.TextField(_("text"), null=True, max_length=500)
-    contest = models.OneToOneField(Contest, related_name='terms_accepted_phrase')
+    contest = models.OneToOneField(Contest,
+                                   related_name='terms_accepted_phrase',
+                                   on_delete=models.CASCADE)
 
     # Verbose names in Meta could be a little misleading.
     # This is because they are not 100% accurate, but look nice in admin view.

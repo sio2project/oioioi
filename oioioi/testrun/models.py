@@ -22,8 +22,9 @@ class TestRunConfig(models.Model):
     """
     __test__ = False
     problem = models.OneToOneField(Problem,
-                        verbose_name=_("problem"),
-                        related_name='test_run_config')
+                                   verbose_name=_("problem"),
+                                   related_name='test_run_config',
+                                   on_delete=models.CASCADE)
 
     time_limit = models.IntegerField(verbose_name=_("time limit (ms)"),
             null=True, blank=True)
@@ -64,7 +65,8 @@ class TestRunConfigForInstance(models.Model):
     problem_instance = models.OneToOneField(
         ProblemInstance,
         verbose_name=_("problem instance"),
-        related_name='test_run_config')
+        related_name='test_run_config',
+        on_delete=models.CASCADE)
 
     test_runs_limit = models.IntegerField(
         default=settings.DEFAULT_TEST_RUNS_LIMIT,

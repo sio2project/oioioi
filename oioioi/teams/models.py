@@ -12,7 +12,8 @@ from oioioi.contests.models import Contest
 class Team(models.Model):
     name = models.CharField(max_length=50, verbose_name=_("team name"))
     login = models.CharField(max_length=50, verbose_name=_("login"))
-    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"))
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"),
+                                on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     join_key = models.CharField(max_length=40)
 
@@ -62,7 +63,7 @@ teams_list_visibility_options.register('NO', _("Not visible"))
 
 
 class TeamsConfig(models.Model):
-    contest = models.OneToOneField(Contest)
+    contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(default=False)
     max_team_size = models.IntegerField(default=3,
                                         validators=[MinValueValidator(1)])

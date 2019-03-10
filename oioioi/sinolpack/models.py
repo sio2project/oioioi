@@ -9,7 +9,7 @@ from oioioi.problems.models import (Problem, ProblemPackage,
 
 class ExtraConfig(models.Model):
     """Model to store ``config.yml`` present in some Sinol packages."""
-    problem = models.OneToOneField(Problem)
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     config = models.TextField(verbose_name=_("config"))
 
     @property

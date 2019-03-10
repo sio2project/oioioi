@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('number', models.IntegerField(verbose_name='number')),
                 ('local_number', models.IntegerField(verbose_name='local number')),
-                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='participants_onsiteregistration', to='participants.Participant')),
+                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='participants_onsiteregistration', to='participants.Participant', on_delete=models.CASCADE)),
                 ('region', models.IntegerField(verbose_name='region', null=True)),
             ],
         ),

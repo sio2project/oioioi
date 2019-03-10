@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RemoteProblemURL',
             fields=[
-                ('problem', models.OneToOneField(primary_key=True, serialize=False, to='problems.Problem')),
+                ('problem', models.OneToOneField(primary_key=True, serialize=False, to='problems.Problem', on_delete=models.CASCADE)),
                 ('url', models.CharField(max_length=255)),
             ],
             options={

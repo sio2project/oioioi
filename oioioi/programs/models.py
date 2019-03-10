@@ -26,7 +26,8 @@ execuction_mode_options.register('sio2jail', _("SIO2Jail"))
 
 class ProgramsConfig(models.Model):
     contest = models.OneToOneField(Contest,
-                        related_name='programs_config')
+                                   related_name='programs_config',
+                                   on_delete=models.CASCADE)
     execuction_mode = EnumField(execuction_mode_options, default='AUTO',
             verbose_name=_("execution mode"),
             help_text=_("If set to Auto, the execution mode is determined "
@@ -90,7 +91,7 @@ class Test(models.Model):
 
 
 class OutputChecker(models.Model):
-    problem = models.OneToOneField(Problem)
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     exe_file = FileField(upload_to=make_problem_filename,
             null=True, blank=True, verbose_name=_("checker executable file"))
 
@@ -100,7 +101,7 @@ class OutputChecker(models.Model):
 
 
 class LibraryProblemData(models.Model):
-    problem = models.OneToOneField(Problem)
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     libname = models.CharField(max_length=30, verbose_name=_("libname"),
             help_text=_("Filename that the library should be given during compilation"))
 
@@ -286,7 +287,8 @@ class ReportActionsConfig(models.Model):
     problem = models.OneToOneField(Problem,
                                    verbose_name=_("problem instance"),
                                    related_name='report_actions_config',
-                                   primary_key=True
+                                   primary_key=True,
+                                   on_delete=models.CASCADE
                                    )
     can_user_generate_outs = models.BooleanField(default=False,
              verbose_name=_("Allow users to generate their outs on tests "
@@ -295,6 +297,7 @@ class ReportActionsConfig(models.Model):
 
 class UserOutGenStatus(models.Model):
     testreport = models.OneToOneField(TestReport, primary_key=True,
-                                      related_name='userout_status')
+                                      related_name='userout_status',
+                                      on_delete=models.CASCADE)
     status = EnumField(submission_statuses, default='?')
     visible_for_user = models.BooleanField(default=True)

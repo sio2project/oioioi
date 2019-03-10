@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ZeusTestReport',
             fields=[
-                ('testreport_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.TestReport')),
+                ('testreport_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.TestReport', on_delete=models.CASCADE)),
                 ('nodes', models.IntegerField(null=True)),
                 ('check_uid', models.CharField(max_length=255)),
             ],

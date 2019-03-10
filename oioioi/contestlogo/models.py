@@ -16,7 +16,7 @@ def make_logo_filename(instance, filename):
 
 class ContestLogo(models.Model):
     contest = models.OneToOneField(Contest, verbose_name=_("contest"),
-            primary_key=True)
+            primary_key=True, on_delete=models.CASCADE)
     image = FileField(upload_to=make_logo_filename,
             verbose_name=_("logo image"))
     updated_at = models.DateTimeField(default=timezone.now)

@@ -26,7 +26,7 @@ class IpAuthSyncConfigManager(models.Manager):
                         name_generator=(lambda obj:
                                         _("Disable IP authentication sync")))
 class IpAuthSyncConfig(models.Model):
-    contest = models.OneToOneField(Contest)
+    contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
     start_date = models.DateTimeField(default=timezone.now,
                                       verbose_name=_("start date"))
@@ -58,11 +58,11 @@ class IpAuthSyncConfig(models.Model):
 
 
 class IpAuthSyncedUser(models.Model):
-    entry = models.OneToOneField(IpToUser)
+    entry = models.OneToOneField(IpToUser, on_delete=models.CASCADE)
 
 
 class IpAuthSyncRegionMessages(models.Model):
-    region = models.OneToOneField(Region)
+    region = models.OneToOneField(Region, on_delete=models.CASCADE)
     warnings = models.TextField(blank=True, verbose_name=_("Warnings"))
     mapping = models.TextField(blank=True, verbose_name=_("Mapping"))
 

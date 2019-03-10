@@ -10,5 +10,6 @@ job_states.register('SUSPENDED', _("Suspended"))
 
 class SuspendedProblem(models.Model):
     problem_instance = models.OneToOneField(ProblemInstance,
-                                            related_name='suspended')
+                                            related_name='suspended',
+                                            on_delete=models.CASCADE)
     suspend_init_tests = models.BooleanField(default=True)

@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='DashboardMessage',
             fields=[
-                ('contest', models.OneToOneField(primary_key=True, serialize=False, to='contests.Contest')),
+                ('contest', models.OneToOneField(primary_key=True, serialize=False, to='contests.Contest', on_delete=models.CASCADE)),
                 ('content', models.TextField(verbose_name='message', blank=True)),
             ],
             options={

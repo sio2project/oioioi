@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('number', models.IntegerField(verbose_name='number')),
                 ('local_number', models.IntegerField(verbose_name='local number')),
-                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='oi_oionsiteregistration', to='participants.Participant')),
+                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='oi_oionsiteregistration', to='participants.Participant', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('t_shirt_size', models.CharField(max_length=7, verbose_name='t-shirt size', choices=[(b'S', b'S'), (b'M', b'M'), (b'L', b'L'), (b'XL', b'XL'), (b'XXL', b'XXL')])),
                 ('class_type', models.CharField(max_length=7, verbose_name='class', choices=[(b'1LO', b'pierwsza szko\xc5\x82y ponadgimnazjalnej'), (b'2LO', b'druga szko\xc5\x82y ponadgimnazjalnej'), (b'3LO', b'trzecia szko\xc5\x82y ponadgimnazjalnej'), (b'4LO', b'czwarta szko\xc5\x82y ponadgimnazjalnej'), (b'1G', b'pierwsza gimnazjum'), (b'2G', b'druga gimnazjum'), (b'3G', b'trzecia gimnazjum'), (b'1SP', b'pierwsza szko\xc5\x82y podstawowej'), (b'2SP', b'druga szko\xc5\x82y podstawowej'), (b'3SP', b'trzecia szko\xc5\x82y podstawowej'), (b'4SP', b'czwarta szko\xc5\x82y podstawowej'), (b'5SP', b'pi\xc4\x85ta szko\xc5\x82y podstawowej'), (b'6SP', b'sz\xc3\xb3sta szko\xc5\x82y podstawowej')])),
                 ('terms_accepted', models.BooleanField(default=False, verbose_name='terms accepted')),
-                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='oi_oiregistration', to='participants.Participant')),
+                ('participant', oioioi.participants.fields.OneToOneBothHandsCascadingParticipantField(related_name='oi_oiregistration', to='participants.Participant', on_delete=models.CASCADE)),
             ],
             options={
                 'abstract': False,

@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('servertime', models.DateTimeField(null=True, verbose_name='server time', blank=True)),
                 ('received_suspected', models.BooleanField(default=False, verbose_name='received suspected')),
                 ('comments', models.CharField(max_length=255)),
-                ('submission', models.OneToOneField(to='contests.Submission')),
+                ('submission', models.OneToOneField(to='contests.Submission', on_delete=models.CASCADE)),
             ],
             options={
             },

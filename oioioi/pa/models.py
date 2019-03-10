@@ -62,7 +62,8 @@ division_registry.register('NONE', _("None"))
 
 
 class PAProblemInstanceData(models.Model):
-    problem_instance = models.OneToOneField(ProblemInstance, primary_key=True)
+    problem_instance = models.OneToOneField(ProblemInstance, primary_key=True,
+                                            on_delete=models.CASCADE)
     division = EnumField(division_registry, verbose_name=_("Division"))
 
     class Meta(object):

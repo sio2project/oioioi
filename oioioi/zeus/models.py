@@ -16,7 +16,8 @@ submission_statuses.register('MCE', _("Outgoing message count limit exceeded"))
 
 
 class ZeusProblemData(models.Model):
-    problem = models.OneToOneField(Problem, primary_key=True)
+    problem = models.OneToOneField(Problem, primary_key=True,
+                                   on_delete=models.CASCADE)
     zeus_id = models.CharField(max_length=255)
     zeus_problem_id = models.IntegerField(default=0)
 

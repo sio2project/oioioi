@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('config', models.TextField(verbose_name='config')),
-                ('problem', models.OneToOneField(to='problems.Problem')),
+                ('problem', models.OneToOneField(to='problems.Problem', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': "sinolpack's configuration",

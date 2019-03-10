@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('time_limit', models.IntegerField(null=True, verbose_name='time limit (ms)', blank=True)),
                 ('memory_limit', models.IntegerField(null=True, verbose_name='memory limit (KiB)', blank=True)),
-                ('problem', models.OneToOneField(related_name='test_run_config', verbose_name='problem', to='problems.Problem')),
+                ('problem', models.OneToOneField(related_name='test_run_config', verbose_name='problem', to='problems.Problem', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'test run config',
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TestRunProgramSubmission',
             fields=[
-                ('programsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.ProgramSubmission')),
+                ('programsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='programs.ProgramSubmission', on_delete=models.CASCADE)),
                 ('input_file', oioioi.filetracker.fields.FileField(upload_to=oioioi.testrun.models.make_custom_input_filename)),
             ],
             options={

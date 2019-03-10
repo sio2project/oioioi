@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('visible', oioioi.base.fields.EnumField(default=b'AUTO', help_text='If set to Auto, the visibility is determined according to the type of the contest.', max_length=64, verbose_name='statements visibility', choices=[(b'YES', 'Visible'), (b'NO', 'Not visible'), (b'AUTO', 'Auto')])),
-                ('contest', models.OneToOneField(to='contests.Contest')),
+                ('contest', models.OneToOneField(to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'problem statement config',

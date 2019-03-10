@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('visible_to_users', models.BooleanField(default=False, verbose_name='visible to users')),
                 ('visibility_date', models.DateTimeField(verbose_name='visibility date')),
-                ('contest', models.OneToOneField(related_name='statistics_config', to='contests.Contest')),
+                ('contest', models.OneToOneField(related_name='statistics_config', to='contests.Contest', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'statistics configuration',

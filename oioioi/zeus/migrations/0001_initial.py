@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ZeusProblemData',
             fields=[
-                ('problem', models.OneToOneField(primary_key=True, serialize=False, to='problems.Problem')),
+                ('problem', models.OneToOneField(primary_key=True, serialize=False, to='problems.Problem', on_delete=models.CASCADE)),
                 ('zeus_id', models.CharField(max_length=255)),
                 ('zeus_problem_id', models.IntegerField(default=0)),
             ],
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ZeusTestRunProgramSubmission',
             fields=[
-                ('testrunprogramsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='testrun.TestRunProgramSubmission')),
+                ('testrunprogramsubmission_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='testrun.TestRunProgramSubmission', on_delete=models.CASCADE)),
                 ('library_file', oioioi.filetracker.fields.FileField(null=True, upload_to=oioioi.zeus.models.make_custom_library_filename)),
             ],
             options={
@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ZeusTestRunReport',
             fields=[
-                ('testrunreport_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='testrun.TestRunReport')),
+                ('testrunreport_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='testrun.TestRunReport', on_delete=models.CASCADE)),
                 ('full_out_size', models.IntegerField()),
                 ('full_out_handle', models.CharField(max_length=255, blank=True)),
             ],
