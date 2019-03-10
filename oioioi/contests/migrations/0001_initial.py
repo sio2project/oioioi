@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.CharField(max_length=32, serialize=False, verbose_name='ID', primary_key=True, validators=[django.core.validators.RegexValidator(re.compile(b'^[a-z0-9_-]+$'), "Enter a valid 'slug' consisting of lowercase letters, numbers, underscores or hyphens.", b'invalid')])),
                 ('name', models.CharField(max_length=255, verbose_name='full name', validators=[oioioi.base.utils.validators.validate_whitespaces])),
-                ('controller_name', oioioi.base.fields.DottedNameField(verbose_name='type', superclass=b'oioioi.contests.controllers.ContestController')),
+                ('controller_name', oioioi.base.fields.DottedNameField(verbose_name='type', superclass='oioioi.contests.controllers.ContestController')),
                 ('creation_date', models.DateTimeField(auto_now_add=True, verbose_name='creation date', db_index=True)),
                 ('default_submissions_limit', models.IntegerField(default=10, verbose_name='default submissions limit', blank=True)),
                 ('contact_email', models.EmailField(help_text='Address of contest owners. Sent emails related to this contest (i.e. submission confirmations) will have the return address set to this value. Defaults to system admins address if left empty.', max_length=75, verbose_name='contact email', blank=True)),

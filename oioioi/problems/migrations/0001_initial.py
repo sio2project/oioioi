@@ -27,8 +27,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=255, verbose_name='full name')),
                 ('short_name', models.CharField(max_length=30, verbose_name='short name', validators=[django.core.validators.RegexValidator(re.compile('^[-a-zA-Z0-9_]+$'), "Enter a valid 'slug' consisting of letters, numbers, underscores or hyphens.", 'invalid')])),
-                ('controller_name', oioioi.base.fields.DottedNameField(verbose_name='type', superclass=b'oioioi.problems.controllers.ProblemController')),
-                ('package_backend_name', oioioi.base.fields.DottedNameField(null=True, verbose_name='package type', superclass=b'oioioi.problems.package.ProblemPackageBackend', blank=True)),
+                ('controller_name', oioioi.base.fields.DottedNameField(verbose_name='type', superclass='oioioi.problems.controllers.ProblemController')),
+                ('package_backend_name', oioioi.base.fields.DottedNameField(null=True, verbose_name='package type', superclass='oioioi.problems.package.ProblemPackageBackend', blank=True)),
                 ('contest', models.ForeignKey(verbose_name='contest', blank=True, to='contests.Contest', null=True)),
             ],
             options={
