@@ -9,12 +9,13 @@ import os
 import time
 from optparse import make_option
 
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand, CommandError
 from django_extensions.management.shells import import_objects
 import six
 
-class Command(NoArgsCommand):
-    option_list = NoArgsCommand.option_list + (
+
+class Command(BaseCommand):
+    option_list = BaseCommand.option_list + (
         make_option('--plain', action='store_true', dest='plain',
                     help='Tells Django to use plain Python, not BPython nor IPython.'),
         make_option('--bpython', action='store_true', dest='bpython',
@@ -36,7 +37,10 @@ class Command(NoArgsCommand):
 
     requires_model_validation = True
 
-    def handle_noargs(self, **options):
+    def handle(self, *args, **options):
+        if args:
+            raise CommandError("This command doesn't accept any arguments!")
+
         use_notebook = options.get('notebook', False)
         use_ipython = options.get('ipython', False)
         use_bpython = options.get('bpython', False)

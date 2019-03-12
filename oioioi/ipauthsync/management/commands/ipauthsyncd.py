@@ -3,8 +3,7 @@ import traceback
 from optparse import make_option
 
 from django.core.mail import mail_admins
-from django.core.management.base import (BaseCommand, CommandError,
-                                         NoArgsCommand)
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
@@ -19,9 +18,7 @@ except ImportError:
     MySQLdb = None
 
 
-
-
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "Synchronizes the IP authentication database with region servers."
 
     option_list = BaseCommand.option_list + (
@@ -101,7 +98,10 @@ class Command(NoArgsCommand):
                 mail_admins("ipauthsyncd: Sync failing for region %s"
                         % (region.short_name,), traceback.format_exc())
 
-    def handle_noargs(self, **options):
+    def handle(self, *args, **options):
+        if args:
+            raise CommandError("This command doesn't accept any arguments!")
+
         if MySQLdb is None:
             raise CommandError("MySQLdb Python module not found (you may "
                     "install it with 'pip install MySQL-python')")
