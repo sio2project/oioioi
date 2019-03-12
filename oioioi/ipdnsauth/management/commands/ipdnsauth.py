@@ -1,5 +1,4 @@
 import csv
-from optparse import make_option
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
@@ -15,25 +14,24 @@ class Command(BaseCommand):
            "Options can be chained like this (ordering is ignored):\n" \
            "manage.py ipdnsauth --export X.bak --unload X.old --load X.new"
 
-    option_list = BaseCommand.option_list + (
-        make_option('--clear',
-                    action='store_true',
-                    dest='clear',
-                    default=False,
-                    help="Clears all current bindings for ip/dns"),
-        make_option('--export',
-                    dest='exportfile',
-                    help="Exports current settings into FILE",
-                    metavar='FILE'),
-        make_option('--unload',
-                    dest='unloadfile',
-                    help="Deletes bindings from FILE.",
-                    metavar='FILE'),
-        make_option('--load',
-                    dest='loadfile',
-                    help="Loads bindings from FILE.",
-                    metavar='FILE'),
-        )
+    def add_arguments(self, parser):
+        parser.add_argument('--clear',
+                            action='store_true',
+                            dest='clear',
+                            default=False,
+                            help="Clears all current bindings for ip/dns")
+        parser.add_argument('--export',
+                            dest='exportfile',
+                            help="Exports current settings into FILE",
+                            metavar='FILE')
+        parser.add_argument('--unload',
+                            dest='unloadfile',
+                            help="Deletes bindings from FILE.",
+                            metavar='FILE')
+        parser.add_argument('--load',
+                            dest='loadfile',
+                            help="Loads bindings from FILE.",
+                            metavar='FILE')
 
     def _write(self, data, filename):
         with open(filename, 'w') as csvfile:

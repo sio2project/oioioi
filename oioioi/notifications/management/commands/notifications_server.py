@@ -1,5 +1,4 @@
 import os
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -8,10 +7,9 @@ from django.core.management.base import BaseCommand
 class Command(BaseCommand):
     help = "Runs the OIOIOI notifications server"
     requires_model_validation = False
-    option_list = BaseCommand.option_list + (
-        make_option('-i', '--install', action='store_true',
-                    help="install dependencies required by the server"),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('-i', '--install', action='store_true',
+                            help="install dependencies required by the server")
 
     def handle(self, *args, **options):
         path = os.path.join(os.path.dirname(__file__), '..', '..', 'server')

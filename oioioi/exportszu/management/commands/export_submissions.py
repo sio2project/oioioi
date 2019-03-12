@@ -1,7 +1,5 @@
 # ~*~ encoding: utf-8 ~*~
 
-from optparse import make_option
-
 from django.core.management.base import BaseCommand, CommandError
 
 from oioioi.contests.models import Contest, Round
@@ -13,21 +11,20 @@ class Command(BaseCommand):
     args = "contest archive_file"
     help = "Prepare archive containing similar submissions' sources."
 
-    option_list = BaseCommand.option_list + (
-        make_option('-r', '--round',
-                    action='store',
-                    type='int',
-                    dest='round_id',
-                    help="Export only from this round"),
-        make_option('-f', '--finished-rounds',
-                    action='store_true',
-                    dest='finished',
-                    help="Export only from finished rounds"),
-        make_option('-a', '--all',
-                    action='store_true',
-                    dest='all',
-                    help="Export all scored submissions, not only final."),
-        )
+    def add_arguments(self, parser):
+        parser.add_argument('-r', '--round',
+                            action='store',
+                            type=int,
+                            dest='round_id',
+                            help="Export only from this round")
+        parser.add_argument('-f', '--finished-rounds',
+                            action='store_true',
+                            dest='finished',
+                            help="Export only from finished rounds")
+        parser.add_argument('-a', '--all',
+                            action='store_true',
+                            dest='all',
+                            help="Export all scored submissions, not only final.")
 
     def handle(self, *args, **options):
         if len(args) != 2:

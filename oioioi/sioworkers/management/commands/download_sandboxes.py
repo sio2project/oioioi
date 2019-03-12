@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import os
 import os.path
-from optparse import make_option
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -19,29 +18,28 @@ DEFAULT_SANDBOXES_MANIFEST = getattr(settings, 'SANDBOXES_MANIFEST',
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
-        make_option('-m', '--manifest', metavar='URL', dest='manifest_url',
-            default=DEFAULT_SANDBOXES_MANIFEST,
-            help="Specifies URL with the Manifest file listing available "
-                "sandboxes"),
-        make_option('-c', '--cache-dir', metavar='DIR', dest='cache_dir',
-            default=None,
-            help="Load cached sandboxes from a local directory"),
-        make_option('-d', '--download-dir', metavar='DIR', dest='download_dir',
-            default="sandboxes-download",
-            help="Temporary directory where the downloaded files will be "
-                "stored"),
-        make_option('--wget', metavar='PATH', dest='wget',
-            default="wget", help="Specifies the wget binary to use"),
-        make_option('-y', '--yes', dest='license_agreement', default=False,
-            action='store_true',
-            help="Enabling this options means that you agree to the license "
-                "terms and conditions, so no license prompt will be "
-                "displayed"),
-        make_option('-q', '--quiet', dest='quiet', default=False,
-            action='store_true',
-            help="Disables wget interactive progress bars"),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('-m', '--manifest', metavar='URL', dest='manifest_url',
+                            default=DEFAULT_SANDBOXES_MANIFEST,
+                            help="Specifies URL with the Manifest file listing available "
+                                "sandboxes")
+        parser.add_argument('-c', '--cache-dir', metavar='DIR', dest='cache_dir',
+                            default=None,
+                            help="Load cached sandboxes from a local directory")
+        parser.add_argument('-d', '--download-dir', metavar='DIR', dest='download_dir',
+                            default="sandboxes-download",
+                            help="Temporary directory where the downloaded files will be "
+                                "stored")
+        parser.add_argument('--wget', metavar='PATH', dest='wget',
+                            default="wget", help="Specifies the wget binary to use")
+        parser.add_argument('-y', '--yes', dest='license_agreement', default=False,
+                            action='store_true',
+                            help="Enabling this options means that you agree to the license "
+                                "terms and conditions, so no license prompt will be "
+                                "displayed")
+        parser.add_argument('-q', '--quiet', dest='quiet', default=False,
+                            action='store_true',
+                            help="Disables wget interactive progress bars")
 
     args = '[<sandbox-name> ...]'
     help = "Downloads sandboxes and stores them in the Filetracker."

@@ -1,6 +1,8 @@
 from __future__ import print_function
 
-from django.core.management.base import BaseCommand, make_option
+import six
+
+from django.core.management.base import BaseCommand
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 
@@ -12,23 +14,22 @@ class Command(BaseCommand):
     help = _("Display differences between active and last hidden report for"
              " each submission")
 
-    option_list = BaseCommand.option_list + (
-        make_option('-r', '--round',
-                    action='store',
-                    type='int',
-                    dest='round_id',
-                    help="Export only from this round"),
-        make_option('-c', '--contest',
-                    action='store',
-                    type='string',
-                    dest='contest_id',
-                    help="Export only from this contest"),
-        make_option('-a', '--all',
-                    action='store_false',
-                    default=True,
-                    dest='only_final',
-                    help="Check scored submissions, not only final."),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('-r', '--round',
+                            action='store',
+                            type=int,
+                            dest='round_id',
+                            help="Export only from this round")
+        parser.add_argument('-c', '--contest',
+                            action='store',
+                            type=six.text_type,
+                            dest='contest_id',
+                            help="Export only from this contest")
+        parser.add_argument('-a', '--all',
+                            action='store_false',
+                            default=True,
+                            dest='only_final',
+                            help="Check scored submissions, not only final.")
 
     def handle(self, *args, **options):
         q_expressions = Q(user__isnull=False)

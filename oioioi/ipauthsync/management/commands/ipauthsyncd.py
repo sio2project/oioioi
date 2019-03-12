@@ -1,6 +1,5 @@
 import time
 import traceback
-from optparse import make_option
 
 from django.core.mail import mail_admins
 from django.core.management.base import BaseCommand, CommandError
@@ -21,17 +20,16 @@ except ImportError:
 class Command(BaseCommand):
     help = "Synchronizes the IP authentication database with region servers."
 
-    option_list = BaseCommand.option_list + (
-        make_option('--interval',
-                    default=60,
-                    type=int,
-                    help="Time between synchronization rounds"),
-        make_option('--timeout',
-                    metavar='SECONDS',
-                    default=15,
-                    type=int,
-                    help="Connection timeout")
-        )
+    def add_arguments(self, parser):
+        parser.add_argument('--interval',
+                            default=60,
+                            type=int,
+                            help="Time between synchronization rounds")
+        parser.add_argument('--timeout',
+                            metavar='SECONDS',
+                            default=15,
+                            type=int,
+                            help="Connection timeout")
 
     def handle_config(self, config):
         rc = config.contest.controller.registration_controller()

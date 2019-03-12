@@ -3,7 +3,6 @@ import logging
 import SocketServer
 import threading
 import time
-from optparse import make_option
 
 import six.moves.socketserver
 from django.conf import settings
@@ -134,21 +133,20 @@ class Command(BaseCommand):
     help = "DNS server for ipdnsauth.\n\nAnswers DNS queries for names " \
         "and IP addresses managed by ipdnsauth module."
 
-    option_list = BaseCommand.option_list + (
-        make_option('--port', '-p',
-                    type=int,
-                    default=8053,
-                    help="Specify port to listen on"),
-        make_option('--bind-addr',
-                    dest='bind_addr',
-                    type=str,
-                    default='',
-                    help="IP address to bind the server"),
-        make_option('--ttl',
-                    type=int,
-                    default=60,
-                    help="Specify TTL for returned records"),
-        )
+    def add_arguments(self, parser):
+        parser.add_argument('--port', '-p',
+                            type=int,
+                            default=8053,
+                            help="Specify port to listen on")
+        parser.add_argument('--bind-addr',
+                            dest='bind_addr',
+                            type=str,
+                            default='',
+                            help="IP address to bind the server")
+        parser.add_argument('--ttl',
+                            type=int,
+                            default=60,
+                            help="Specify TTL for returned records")
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)

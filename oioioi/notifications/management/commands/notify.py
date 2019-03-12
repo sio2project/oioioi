@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from optparse import make_option
+import six
 
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand, CommandError
@@ -13,18 +13,17 @@ class Command(BaseCommand):
     args = 'message'
     help = "Sends a notification to selected users"
     requires_model_validation = False
-    option_list = BaseCommand.option_list + (
-        make_option('-p', '--popup', action='store_true',
-                    help="make the notification pop-up automatically"),
-        make_option('-c', '--contest', type='string', action='store',
-                    help="notifies all participants of a contest"),
-        make_option('-u', '--user', type='string', action='store',
-                    help="notifies particular user"),
-        make_option('-a', '--address', type='string', action='store',
-                    help="adds a link"),
-        make_option('-d', '--details', type='string', action='store',
-                    help="adds message details"),
-    )
+    def add_arguments(self, parser):
+        parser.add_argument('-p', '--popup', action='store_true',
+                            help="make the notification pop-up automatically")
+        parser.add_argument('-c', '--contest', type=six.text_type, action='store',
+                            help="notifies all participants of a contest")
+        parser.add_argument('-u', '--user', type=six.text_type, action='store',
+                            help="notifies particular user")
+        parser.add_argument('-a', '--address', type=six.text_type, action='store',
+                            help="adds a link")
+        parser.add_argument('-d', '--details', type=six.text_type, action='store',
+                            help="adds message details")
 
     @staticmethod
     def validate_options(*args, **options):

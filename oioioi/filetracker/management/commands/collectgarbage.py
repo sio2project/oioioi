@@ -2,7 +2,6 @@ from __future__ import print_function
 
 import datetime
 import itertools
-import optparse
 
 from django.core.management.base import BaseCommand
 from django.db.models.loading import cache
@@ -15,18 +14,16 @@ from oioioi.filetracker.client import get_client
 
 class Command(BaseCommand):
     help = _("Delete all orphaned files older than specified number of days.")
-    base_options = (
-        optparse.make_option('-d', '--days', action='store', type='int',
-                             dest='days', default=30,
-                             help=_("Orphaned files older than DAYS days will "
-                                    "be deleted. Default value is 30."),
-                             metavar=_("DAYS")),
-        optparse.make_option('-p', '--pretend', action='store_true',
-                             dest='pretend', default=False,
-                             help=_("If set, the orphaned files will only be "
-                                    "displayed, not deleted.")),
-    )
-    option_list = BaseCommand.option_list + base_options
+    def add_arguments(self, parser):
+        parser.add_argument('-d', '--days', action='store', type=int,
+                            dest='days', default=30,
+                            help=_("Orphaned files older than DAYS days will "
+                                   "be deleted. Default value is 30."),
+                            metavar=_("DAYS"))
+        parser.add_argument('-p', '--pretend', action='store_true',
+                            dest='pretend', default=False,
+                            help=_("If set, the orphaned files will only be "
+                                   "displayed, not deleted."))
 
     def _get_needed_files(self):
         result = []
