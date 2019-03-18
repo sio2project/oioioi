@@ -17,8 +17,8 @@ class Command(BaseCommand):
         parser.add_argument('no_throw',
                             type=str,
                             nargs='?',
-                            default="",
-                            choices=['nothrow'])
+                            default='',
+                            choices=['', 'nothrow'])
 
     @transaction.atomic
     def handle(self, *args, **options):
