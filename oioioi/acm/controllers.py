@@ -82,12 +82,11 @@ class ACMContestController(ProgrammingContestController):
         # FIXME: SIO-1387 RoundTimes shouldn't require request
         # Workaround by mock Request object
         class DummyRequest(object):
-            def __init__(self, contest, user):
-                self.contest = contest
+            def __init__(self, user):
                 self.user = user or AnonymousUser()
 
-        rtimes = rounds_times(DummyRequest(self.contest, submission.user or
-                                           AnonymousUser()))
+        rtimes = rounds_times(DummyRequest(submission.user or AnonymousUser()),
+                              self.contest)
         round_start = rtimes[submission.problem_instance.round].get_start()
         submission_time = submission.date - round_start
         # Python2.6 does not support submission_time.total_seconds()

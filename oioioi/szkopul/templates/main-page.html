@@ -7,43 +7,135 @@
     {% include "szkopul/navbar-logo-with-menu.html" %}
 {% endblock %}
 
+{# disables the clock on the main page #}
+{% block countdown-clock %}{% endblock countdown-clock %}
+
 {% block container-class %}container{% endblock %}
 
 {% block body %}
     {% block content %}
-        <div class="row">
-            <div class="text-center" ><img class="szkopul-logo" src="{% static "szkopul/szkopul-logo-5.svg" %}" alt="SZKOpuł"></div>
-        </div>
-        <div class="content-row row">
-            <div class="col-md-8">
-                <h2>{% trans "Welcome!" %}</h2>
-                <p class="welcome-msg">
-                {% blocktrans trimmed %}
-                    Welcome to Szkopuł - a place for solving algorithmic challenges!<br>
-                    In order to submit solutions and register for contests you need to <a href="register">make an account</a>.
-                {% endblocktrans %}
-                </p>
+        {% if user.is_authenticated %}
 
+            <div>
+                <p><h1>{% trans "Welcome back! Let's write some code." %}</h1></p>
+            </div>
+
+            <div class="dashboard-container">
+                <div class="row dashboard-row">
+
+                    <div class="dashboard-panel col-md-8">
+                        <div class="panel-heading dashboard-panel-head">
+                            <a href="{% url 'noncontest:all_submissions' %}" class="plain_link">
+                                <h4>{% trans 'My Submissions' %}</h4>
+                            </a>
+                        </div>
+                        <div class="panel-body dashboard-panel-body">
+                            {% if submissions %}
+                                {% include "submission_panel_table.html" %}
+                                <p class="text-center dashboard-panel-footer">
+                                    <a href="{% url 'all_submissions' %}">
+                                        {% trans 'more' %}
+                                    </a>
+                                </p>
+                            {% else %}
+                                <p>{% trans "You haven't submitted anything yet. Try entering a contest!" %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="dashboard-panel col-md-4">
+                        <div class="panel-heading dashboard-panel-head">
+                            <a href="{% url 'noncontest:select_contest' %}" class="plain_link">
+                                <h4>{% trans 'Latest Contests' %}</h4>
+                            </a>
+                        </div>
+                        <div class="panel-body dashboard-panel-body">
+                            {% if contests %}
+                                <table class="table">
+                                    <tbody>
+                                    {% for contest in contests|slice:":7" %}
+                                        <tr>
+                                            <td>{{ contest.id }}</td>
+                                            <td>
+                                                <a href="{% url 'default_contest_view' contest_id=contest.id %}">
+                                                    {{ contest.name }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <p class="text-center dashboard-panel-footer">
+                                    <a href="{% url 'noncontest:select_contest' %}">
+                                        {% trans 'more' %}
+                                    </a>
+                                </p>
+                            {% else %}
+                                <p>{% trans "There are no contests we can show you right now :(" %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div>
                 <h3>{% trans "News" %}</h3>
                 <p>{% newsfeed %}</p>
 
                 <h3>{% trans "Contact us" %}</h3>
                 <p>
-                {% trans "Send Feedback" as send_feedback %}
-                {% blocktrans trimmed %}
-                    Do you have any questions or feedback? Is something wrong? Use the
-                    {{ send_feedback }} button in the corner of the page.
-                {% endblocktrans %}
+                    {% trans "Send Feedback" as send_feedback %}
+                    {% blocktrans trimmed %}
+                        Do you have any questions or feedback? Is something wrong? Use the
+                        {{ send_feedback }} button in the corner of the page.
+                    {% endblocktrans %}
                 </p>
 
                 <h3>{% trans "We are supported by" %}</h3>
                 <p>
                     <a href="https://www.janestreet.com/">
-                        <img src="//www.janestreet.com/wp-content/themes/janestreet/img/logo.png" alt="Jane Street">
+                        <img src="//www.janestreet.com/assets/logo_horizontal.png"
+                             alt="Jane Street">
                     </a>
                 </p>
             </div>
-        </div>
+        {% else %}
+            <div class="row content-row">
+                <img class="szkopul-logo" src="{% static "szkopul/szkopul-logo-5.svg" %}"
+                     alt="SZKOpuł">
+            </div>
+            <div class="row content-row">
+                <div class="col-md-10">
+                    <h2>{% trans "Welcome!" %}</h2>
+                    <p class="welcome-msg">
+                        {% blocktrans trimmed %}
+                            Welcome to Szkopuł - a place for solving algorithmic challenges!<br>
+                            In order to submit solutions and register for contests you need to
+                            <a href="register">make an account</a>.
+                        {% endblocktrans %}
+                    </p>
 
+                    <h3>{% trans "News" %}</h3>
+                    <p>{% newsfeed %}</p>
+
+                    <h3>{% trans "Contact us" %}</h3>
+                    <p>
+                        {% trans "Send Feedback" as send_feedback %}
+                        {% blocktrans trimmed %}
+                            Do you have any questions or feedback? Is something wrong? Use the
+                            {{ send_feedback }} button in the corner of the page.
+                        {% endblocktrans %}
+                    </p>
+
+                    <h3>{% trans "We are supported by" %}</h3>
+                    <div>
+                        <a href="https://www.janestreet.com/">
+                            <img id="jane-street-logo" src="https://www.janestreet.com/assets/logo_horizontal.png"
+                                 alt="Jane Street">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     {% endblock %}
 {% endblock %}

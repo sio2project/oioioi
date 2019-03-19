@@ -54,6 +54,7 @@ def unregister_main_page_view(view):
 
 
 def main_page_view(request):
+
     for entry in _main_page_registry:
         if entry.condition(request):
             return entry.view(request)

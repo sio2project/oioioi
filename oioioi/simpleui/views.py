@@ -172,7 +172,7 @@ def contest_dashboard_view(request, round_pk=None):
     ss = [submission_template_context(request, s) for s in
           queryset[:NUMBER_OF_RECENT_ACTIONS]]
 
-    rtimes = list(rounds_times(request).items())
+    rtimes = list(rounds_times(request, request.contest).items())
     rtimes.sort(key=lambda r_rt: r_rt[0].start_date)
 
     if round_pk is None and len(rtimes) > 0:

@@ -29,6 +29,7 @@ INSTALLED_APPS = (
     'oioioi.scoresreveal',
     'oioioi.oireports',
     'oioioi.oisubmit',
+    'oioioi.szkopul',
     'oioioi.complaints',
     'oioioi.contestexcl',
     'oioioi.forum',

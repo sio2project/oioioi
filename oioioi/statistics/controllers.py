@@ -161,7 +161,7 @@ ContestController.mix_in(StatisticsMixinForContestController)
 class StatisticsMixinForProgrammingContestController(object):
     def can_see_problem_statistics(self, request, pi):
         controller = pi.controller
-        rtimes = rounds_times(request)
+        rtimes = rounds_times(request, self.contest)
 
         can_see_problem = controller.can_see_problem(request, pi)
         if pi.round:
@@ -194,7 +194,7 @@ class StatisticsMixinForProgrammingContestController(object):
            Does not check user's permission for viewing those statistics."""
 
         result = []
-        rtimes = rounds_times(request)
+        rtimes = rounds_times(request, self.contest)
 
         def plot_kind(name, object):
             return (statistics_plot_kinds[name], object)

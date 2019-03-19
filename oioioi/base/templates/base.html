@@ -57,7 +57,9 @@
                 <div class="oioioi-navbar__flex"></div>
 
                 <div class="oioioi-navbar__countdown">
-                    {% navbar_countdown %}
+                    {% block countdown-clock %}
+                        {% navbar_countdown %}
+                    {% endblock countdown-clock %}
                 </div>
 
                 <div class="oioioi-navbar__flex"></div>

@@ -111,7 +111,9 @@ c_patterns = [
     url(r'^admin/', admin.contest_site.urls),
 ]
 
-nonc_patterns = []
+nonc_patterns = [
+    url(r'^submissions/$', views.all_submissions_view, name='all_submissions'),
+]
 
 neutral_patterns = [
     url(r'^contest/$', views.select_contest_view, name='select_contest'),

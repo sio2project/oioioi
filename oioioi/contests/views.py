@@ -38,6 +38,7 @@ from oioioi.problems.utils import (can_admin_problem_instance,
                                    get_new_problem_instance, query_statement,
                                    query_zip, update_tests_from_main_pi)
 from oioioi.status.registry import status_registry
+from oioioi.szkopul.menu import navbar_links_registry
 
 
 @register_main_page_view(order=900)
@@ -215,6 +216,33 @@ def my_submissions_view(request):
         {'header': header,
          'submissions': submissions, 'show_scores': show_scores,
          'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
+
+
+@enforce_condition(not_anonymous)
+def all_submissions_view(request):
+    submissions = []
+
+    if request.user.is_authenticated():
+        queryset = Submission.objects \
+                .filter(user=request.user) \
+                .order_by('-date') \
+                .select_related('user', 'problem_instance',
+                                'problem_instance__contest',
+                                'problem_instance__round',
+                                'problem_instance__problem')
+
+        for s in queryset:
+            request.contest = s.problem_instance.contest
+            submissions.append(submission_template_context(request, s))
+        request.contest = None
+        show_scores = any(s['can_see_score'] for s in submissions)
+
+    navbar_links = navbar_links_registry.template_context(request)
+
+    return TemplateResponse(request, 'contests/my_submissions_all.html',
+        {'submissions': submissions, 'show_scores': show_scores,
+         'submissions_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100),
+         'navbar_links': navbar_links})
 
 
 @enforce_condition(~contest_exists | can_enter_contest)

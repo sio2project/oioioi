@@ -46,6 +46,7 @@ from oioioi.base.utils import (RegisteredSubclassesBase, archive,
                                split_extension, strip_num_or_hash)
 from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.contests.utils import is_contest_admin
+from oioioi.szkopul.views import main_page_view as szkopul_main_page
 
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
@@ -85,7 +86,7 @@ class TestIndex(TestCase):
             response = self.client.get('/', follow=True)
         self.assertNotIn('test_user', response.content)
         self.assert_(self.client.login(username='test_user'))
-        with self.assertNumQueriesLessThan(60):
+        with self.assertNumQueriesLessThan(65):
             response = self.client.get('/', follow=True)
         self.assertIn('test_user', response.content)
         login_url = reverse('login')
@@ -116,12 +117,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(90):
+        with self.assertNumQueriesLessThan(93):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotIn('navbar-login', response.content)
             self.assertNotIn('System Administration', response.content)
-        with self.assertNumQueriesLessThan(75):
+        with self.assertNumQueriesLessThan(79):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotIn('navbar-login', response.content)
@@ -140,6 +141,7 @@ class TestIndexNoContest(TestCase):
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_no_contest(self):
+        unregister_main_page_view(szkopul_main_page)
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/')
             self.assertIn('There are no contests available to logged out',
@@ -149,6 +151,10 @@ class TestIndexNoContest(TestCase):
             response = self.client.get('/')
             self.assertIn('This is a new OIOIOI installation',
                     response.content)
+
+        @register_main_page_view(order=100)
+        def set_main_page_back(request):
+            return szkopul_main_page(request)
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_navbar_login(self):

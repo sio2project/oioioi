@@ -41,6 +41,6 @@ class PublicSolutionsContestControllerMixin(object):
                 .filter_visible_sources(request, qs)
 
         public = filter_public_solutions(request, qs)
-        return (prev | public).distinct()
+        return (prev.distinct() | public.distinct()).distinct()
 
 ProgrammingContestController.mix_in(PublicSolutionsContestControllerMixin)

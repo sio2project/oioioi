@@ -8,18 +8,18 @@
 {% endblock %}
 
 {% block body %}
-<div class="{% block row-class %}row{% endblock %}">
-    <nav id="menu" class="col-md-3 col-lg-2 hidden-sm hidden-xs">
-        {% block menu %}
-            {% include "ingredients/menu.html" %}
-        {% endblock %}
-    </nav>
+    <div class="{% block row-class %}row{% endblock %}">
+        <nav id="menu" class="col-md-3 col-lg-2 hidden-sm hidden-xs">
+            {% block menu %}
+                {% include "ingredients/menu.html" %}
+            {% endblock %}
+        </nav>
 
-    <section class="{% block main-content-style %}col-md-9 col-lg-10{% endblock %} main-content">
-        {% block flash %}
-            {% include "ingredients/flash.html" %}
-        {% endblock %}
-        {% block main-content %}{% endblock %}
-    </section>
-</div>
+        <section class="{% block main-content-style %}col-md-9 col-lg-10{% endblock %} main-content">
+            {% block flash %}
+                {% include "ingredients/flash.html" %}
+            {% endblock %}
+            {% block main-content %}{% endblock %}
+        </section>
+    </div>
 {% endblock %}

@@ -247,6 +247,7 @@ INSTALLED_APPS = (
 )
 
 AUTHENTICATION_BACKENDS = (
+    # 'oioioi.teachers.auth.TeacherAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
     'oioioi.contests.auth.ContestPermissionsAuthBackend',
 )
@@ -270,11 +271,14 @@ PARTICIPANTS_ON_PAGE = 100
 TESTS_ON_PAGE = 100
 PRIZES_ON_PAGE = 100
 
+NUM_PANEL_SUBMISSIONS = 7
+
 NUM_DASHBOARD_SUBMISSIONS = 8
 NUM_DASHBOARD_MESSAGES = 8
 
 NUM_HINTS = 10
-NUM_RECENT_CONTESTS = 5
+NUM_RECENT_CONTESTS = 7
+NUM_RECENT_IN_MENU = 5
 
 REPLY_TEMPLATE_VISIBLE_NAME_LENGTH = 15
 

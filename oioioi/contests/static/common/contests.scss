@@ -33,3 +33,8 @@ $list-subheader-bgcolor: #eee !default;
 table.table-striped > tbody > tr.problemlist-subheader {
     background-color: $list-subheader-bgcolor;
 }
+
+.centered-title {
+    margin: 3rem;
+    margin-bottom: 4rem;
+}

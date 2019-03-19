@@ -364,7 +364,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            :returns: an instance of :class:`RoundTimes`
         """
         if request is not None:
-            return rounds_times(request)[round]
+            return rounds_times(request, self.contest)[round]
         else:
             return generic_rounds_times(None, self.contest)[round]
 

@@ -1601,7 +1601,7 @@ class TestPublicResults(TestCase):
         request.user = User.objects.get(username='test_admin')
         round = Round.objects.get()
 
-        rtime = rounds_times(request)[round]
+        rtime = rounds_times(request, round.contest)[round]
         for date, exp in zip(dates, expected):
             self.assertEquals(rtime.public_results_visible(date), exp)
 

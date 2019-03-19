@@ -105,9 +105,8 @@ def generic_rounds_times(request=None, contest=None):
         rtexts[r.id]['extra_time'] if r.id in rtexts else 0)) for r in rounds)
 
 
-@request_cached
-def rounds_times(request):
-    return generic_rounds_times(request)
+def rounds_times(request, contest):
+    return generic_rounds_times(request, contest)
 
 
 @make_request_condition
@@ -309,7 +308,7 @@ def last_break_between_rounds(request_or_context):
        Assumes that none of the rounds is active.
     """
     if isinstance(request_or_context, HttpRequest):
-        rtimes = rounds_times(request_or_context)
+        rtimes = rounds_times(request_or_context, request_or_context.contest)
     else:
         rtimes = generic_rounds_times(None, request_or_context.contest)
     ends = [rt.get_end() for rt in six.itervalues(rtimes)

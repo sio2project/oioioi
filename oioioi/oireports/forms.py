@@ -31,7 +31,7 @@ def _rounds(request):
 
 
 def _last_finished_round_id(request):
-    past_rounds = [rt for rt in six.iteritems(rounds_times(request))
+    past_rounds = [rt for rt in six.iteritems(rounds_times(request, request.contest or None))
                    if rt[1].is_past(request.timestamp)]
     if not past_rounds:
         return None
