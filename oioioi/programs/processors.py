@@ -1,5 +1,5 @@
 import six
-from django.core.context_processors import csrf
+from django.template.context_processors import csrf
 from django.template.loader import render_to_string
 from django.utils.functional import lazy
 
