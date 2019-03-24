@@ -1,6 +1,6 @@
 import six
 from django.core.urlresolvers import reverse
-from django.template import Context, loader
+from django.template import loader
 from django.utils.functional import lazy
 
 from oioioi.base.utils import memoized
@@ -32,7 +32,7 @@ def logo_processor(request):
         if not link:
             link = reverse('default_contest_view',
                            kwargs={'contest_id': request.contest.id})
-        context = Context({'url': url, 'link': link})
+        context = {'url': url, 'link': link}
         template = loader.get_template('contestlogo/logo.html')
         return template.render(context)
     return {'extra_menu_top_contestlogo': lazy(generator, six.text_type)()}
@@ -52,6 +52,6 @@ def icon_processor(request):
         if not urls:
             urls = request.contest.controller.default_contesticons_urls()
         template = loader.get_template('contestlogo/icon.html')
-        htmls = [template.render(Context({'url': url})) for url in urls]
+        htmls = [template.render({'url': url}) for url in urls]
         return htmls
     return {'menu_icons': lazy(generator, list)()}

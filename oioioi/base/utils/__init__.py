@@ -15,7 +15,7 @@ import six.moves.urllib.parse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.forms.utils import flatatt
 from django.shortcuts import render
-from django.template import Template, Context
+from django.template import Template
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.html import conditional_escape
@@ -379,11 +379,11 @@ def make_html_links(links, extra_attrs=None):
 
 
 def make_navbar_badge(link, text, id=None):
-    return render_to_string('utils/navbar-badge.html', Context({
+    return render_to_string('utils/navbar-badge.html', context={
         'link': link,
         'text': text,
         'id': id
-    }))
+    })
 
 
 # Creating views
