@@ -1,5 +1,4 @@
 from django.db.models import Q
-from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from oioioi.contests.controllers import submission_template_context
@@ -113,12 +112,13 @@ class SimilarityDisqualificationMixin(object):
                     if is_contest_admin(request) else
                     'similarsubmits/programming_similar_submissions.html')
 
-        context = RequestContext(request, {
+        context = {
             'similarities': similarities,
             'main_submission_id': submission.id,
             'submission_contexts': submission_contexts,
-        })
+        }
 
-        return prev + render_to_string(template, context_instance=context)
+        return prev + render_to_string(template,
+                                       request=request, context=context)
 
 ProgrammingContestController.mix_in(SimilarityDisqualificationMixin)

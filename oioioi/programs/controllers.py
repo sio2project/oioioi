@@ -8,7 +8,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -488,14 +487,16 @@ class ProgrammingProblemController(ProblemController):
             can_admin_problem_instance(request, submission.problem_instance)
 
         return render_to_string('programs/submission_header.html',
-                context_instance=RequestContext(request,
-                    {'submission': submission_template_context(request,
+                request=request,
+                context={
+                    'submission': submission_template_context(request,
                         submission.programsubmission),
                     'saved_diff_id': request.session.get('saved_diff_id'),
                     'supported_extra_args':
                         problem_instance.controller.get_supported_extra_args(
                             submission),
-                    'can_admin': can_admin}))
+                    'can_admin': can_admin
+                })
 
     def render_report_failure(self, request, report):
         return ProblemController.render_report(self, request, report)
@@ -539,14 +540,16 @@ class ProgrammingProblemController(ProblemController):
                 all_outs_generated &= (test.generate_status == 'OK')
 
         return render_to_string('programs/report.html',
-                context_instance=RequestContext(request,
-                    {'report': report, 'score_report': score_report,
-                        'compilation_report': compilation_report,
-                        'groups': groups, 'show_scores': show_scores,
-                        'allow_download_out': allow_download_out,
-                        'allow_test_comments': allow_test_comments,
-                        'all_outs_generated': all_outs_generated,
-                        'is_admin': picontroller.is_admin(request, report)}))
+                request=request,
+                context={
+                    'report': report, 'score_report': score_report,
+                    'compilation_report': compilation_report,
+                    'groups': groups, 'show_scores': show_scores,
+                    'allow_download_out': allow_download_out,
+                    'allow_test_comments': allow_test_comments,
+                    'all_outs_generated': all_outs_generated,
+                    'is_admin': picontroller.is_admin(request, report)
+                })
 
     def can_generate_user_out(self, request, submission_report):
         """Determines if the current user is allowed to generate outs from
@@ -786,14 +789,16 @@ class ProgrammingContestController(ContestController):
             return super_footer
         return super_footer + render_to_string(
                 'programs/other_submissions.html',
-                context_instance=RequestContext(request, {
-                        'submissions': [submission_template_context(request, s)
-                                 for s in queryset],
-                        'show_scores': show_scores,
-                        'can_admin': can_admin,
-                        'main_submission_id': submission.id,
-                        'submissions_on_page': getattr(settings,
-                            'SUBMISSIONS_ON_PAGE', 15)}))
+                request=request,
+                context={
+                    'submissions': [submission_template_context(request, s)
+                             for s in queryset],
+                    'show_scores': show_scores,
+                    'can_admin': can_admin,
+                    'main_submission_id': submission.id,
+                    'submissions_on_page':
+                        getattr(settings, 'SUBMISSIONS_ON_PAGE', 15)
+                })
 
     def valid_kinds_for_submission(self, submission):
         if ModelProgramSubmission.objects.filter(id=submission.id).exists():

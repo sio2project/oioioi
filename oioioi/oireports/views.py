@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -64,10 +63,11 @@ def _render_report(request, template_name, title, users,
         problem_instances, test_groups):
     rows = _serialize_reports(users, problem_instances, test_groups)
     return render_to_string(template_name,
-            context_instance=RequestContext(request, {
-                'rows': rows,
-                'title': title,
-            }))
+                            request=request,
+                            context={
+                                'rows': rows,
+                                'title': title,
+                            })
 
 
 def _serialize_report(user, problem_instances, test_groups):

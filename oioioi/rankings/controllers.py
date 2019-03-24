@@ -8,7 +8,6 @@ from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.test import RequestFactory
 from django.utils import timezone
@@ -265,7 +264,7 @@ class DefaultRankingController(RankingController):
         request = self._fake_request(page)
         data['is_admin'] = self.is_admin_key(key)
         return render_to_string('rankings/default_ranking.html',
-                context_instance=RequestContext(request, data))
+                context=data, request=request)
 
     def _get_csv_header(self, key, data):
         header = [_("No."), _("Login"), _("First name"), _("Last name")]

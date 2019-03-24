@@ -1,4 +1,3 @@
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
 
 from oioioi.contests.utils import is_contest_admin
@@ -23,12 +22,14 @@ class OiSubmitContestControllerMixin(object):
             return getattr(submission.oisubmitextradata, s, '')
 
         return render_to_string('oisubmit/submission-footer.html',
-            context_instance=RequestContext(request, {
-                'received_suspected': _get_extra('received_suspected'),
-                'comments': _get_extra('comments'),
-                'localtime': _get_extra('localtime'),
-                'siotime': _get_extra('siotime'),
-                'servertime': _get_extra('servertime'),
-            })) + super_footer
+                request=request,
+                context={
+                    'received_suspected': _get_extra('received_suspected'),
+                    'comments': _get_extra('comments'),
+                    'localtime': _get_extra('localtime'),
+                    'siotime': _get_extra('siotime'),
+                    'servertime': _get_extra('servertime'),
+                }) + super_footer
+
 
 ProgrammingContestController.mix_in(OiSubmitContestControllerMixin)

@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.template import RequestContext
 from django.template.loader import render_to_string
 
 from oioioi.base.utils import allow_cross_origin, jsonify
@@ -18,7 +17,7 @@ def registration_notice_fragment(request):
             and not is_participant(request) \
             and rc.can_register(request):
         return render_to_string('pa/registration-notice.html',
-            context_instance=RequestContext(request))
+            request=request)
     else:
         return None
 

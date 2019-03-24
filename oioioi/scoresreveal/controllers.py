@@ -1,6 +1,5 @@
 from datetime import timedelta  # pylint: disable=E0611
 
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -129,13 +128,16 @@ class ScoresRevealContestControllerMixin(object):
         can_reveal, reason = self.can_reveal(request, submission)
 
         return render_to_string('scoresreveal/submission-footer.html',
-            context_instance=RequestContext(request,
-                {'submission': submission_template_context(request,
-                 submission.programsubmission),
-                 'scores_reveals': scores_reveals,
-                 'scores_reveals_limit': scores_reveals_limit,
-                 'scores_reveals_disable_time': scores_reveals_disable_time,
-                 'can_reveal': can_reveal,
-                 'can_reveal_reason': reason})) + super_footer
+                request=request,
+                context={
+                    'submission': submission_template_context(request,
+                    submission.programsubmission),
+                    'scores_reveals': scores_reveals,
+                    'scores_reveals_limit': scores_reveals_limit,
+                    'scores_reveals_disable_time': scores_reveals_disable_time,
+                    'can_reveal': can_reveal,
+                    'can_reveal_reason': reason
+                }) + super_footer
+
 
 ProgrammingContestController.mix_in(ScoresRevealContestControllerMixin)

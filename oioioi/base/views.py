@@ -6,7 +6,6 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import redirect, render
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext
@@ -84,7 +83,7 @@ def handler403(request):
         return HttpResponse('403 Forbidden', status=403,
                 content_type='text/plain')
     message = render_to_string('403.html',
-            context_instance=RequestContext(request))
+            request=request)
     return HttpResponseForbidden(message)
 
 

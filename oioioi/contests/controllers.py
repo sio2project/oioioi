@@ -6,7 +6,6 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -339,7 +338,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                 }
                 rendered_submissions = render_to_string(
                         'contests/user_submissions_table.html',
-                        context_instance=RequestContext(request, context))
+                        context=context, request=request)
                 res.append((50, rendered_submissions))
 
         return res

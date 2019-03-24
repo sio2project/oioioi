@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -108,11 +107,12 @@ class DisqualificationContestControllerMixin(object):
         if not reasons:
             return mark_safe("")
         return render_to_string('disqualification/reason.html',
-            context_instance=RequestContext(request, {
-                'submission': submission_template_context(request,
-                    submission.programsubmission),
-                'reasons': reasons,
-            }))
+                request=request,
+                context={
+                    'submission': submission_template_context(request,
+                            submission.programsubmission),
+                    'reasons': reasons,
+                })
 
     def render_submission_disqualifiaction(self, request, submission):
         """Renders the disqualification reason of the given submission to HTML.
@@ -124,11 +124,12 @@ class DisqualificationContestControllerMixin(object):
             template = 'disqualification/generic-admin.html'
 
         return render_to_string(template,
-            context_instance=RequestContext(request, {
-                'submission': submission_template_context(request,
-                    submission.programsubmission),
-                'reason': reason,
-            }))
+                request=request,
+                context={
+                    'submission': submission_template_context(request,
+                            submission.programsubmission),
+                    'reason': reason,
+                })
 
     def _render_contestwide_disqualification_reason(self, request, user):
         """Renders part with reason of the given user disqualification not
@@ -144,9 +145,7 @@ class DisqualificationContestControllerMixin(object):
         if not reasons:
             return None
         return render_to_string('disqualification/reason.html',
-            context_instance=RequestContext(request, {
-                'reasons': reasons,
-            }))
+                request=request, context={'reasons': reasons})
 
     def render_my_submissions_header(self, request, submissions):
         header = super(DisqualificationContestControllerMixin, self) \
@@ -190,10 +189,11 @@ class DisqualificationContestControllerMixin(object):
             template = 'disqualification/submissions.html'
 
         return render_to_string(template,
-            context_instance=RequestContext(request, {
-                'submissions': disqualified_submissions,
-                'contestwide': contestwide,
-            }))
+                request=request,
+                context={
+                    'submissions': disqualified_submissions,
+                    'contestwide': contestwide,
+                })
 
     def get_contest_participant_info_list(self, request, user):
         submissions = Submission.objects.filter(
@@ -262,7 +262,7 @@ class WithDisqualificationRankingControllerMixin(object):
         request = self._fake_request(page)
         data['is_admin'] = self.is_admin_key(key)
         return render_to_string('disqualification/default-ranking.html',
-            context_instance=RequestContext(request, data))
+            context=data, request=request)
 
     def _get_csv_header(self, key, data):
         header = super(WithDisqualificationRankingControllerMixin, self) \

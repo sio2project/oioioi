@@ -3,7 +3,6 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
 
@@ -142,29 +141,30 @@ class QuizProblemController(ProblemController):
             .order_by('question__order')
 
         return render_to_string('quizzes/report.html',
-                                context_instance=RequestContext(request,
-                                {
+                                request=request,
+                                context={
                                     'report': report,
                                     'score_report': score_report,
                                     'question_reports': question_reports,
                                     'is_admin': picontroller.is_admin(
                                         request,
-                                        report)}))
+                                        report)
+                                })
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
         can_admin = \
             can_admin_problem_instance(request, submission.problem_instance)
-        context_instance = RequestContext(request,
-                          {
-                              'submission': submission_template_context(
-                                  request,
-                                  submission.quizsubmission),
-                              'supported_extra_args': problem_instance.controller.get_supported_extra_args(
-                                  submission),
-                              'can_admin': can_admin})
+        context = {
+            'submission':
+                submission_template_context(request, submission.quizsubmission),
+            'supported_extra_args':
+                problem_instance.controller.get_supported_extra_args(submission),
+            'can_admin': can_admin
+        }
         return render_to_string('quizzes/submission_header.html',
-                                context_instance=context_instance)
+                                request=request,
+                                context=context)
 
     def update_submission_score(self, submission):
         try:

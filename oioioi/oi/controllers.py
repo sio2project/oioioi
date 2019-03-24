@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.shortcuts import redirect
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -94,7 +93,7 @@ class OIRegistrationController(ParticipantsController):
                 context = {'model': sensitive_info[0]}
                 rendered_sensitive_info = render_to_string(
                         'oi/sensitive_participant_info.html',
-                        context_instance=RequestContext(request, context))
+                        context=context, request=request)
                 prev.append((2, rendered_sensitive_info))
 
         return prev

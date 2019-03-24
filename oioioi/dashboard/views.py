@@ -3,7 +3,6 @@ import itertools
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -81,7 +80,7 @@ def dashboard_message_fragment(request):
         'is_admin': is_admin,
     }
     return render_to_string('dashboard/dashboard-message.html',
-        context_instance=RequestContext(request, context))
+                            context=context, request=request)
 
 
 @dashboard_headers_registry.register_decorator(order=100)
@@ -91,7 +90,7 @@ def top_links_fragment(request):
         'top_links': top_links,
     }
     return render_to_string('dashboard/dashboard-actions.html',
-        context_instance=RequestContext(request, context))
+                            context=context, request=request)
 
 
 @dashboard_registry.register_decorator(order=100)
@@ -115,7 +114,7 @@ def submissions_fragment(request):
         'show_scores': show_scores
     }
     return render_to_string('dashboard/dashboard-submissions.html',
-        context_instance=RequestContext(request, context))
+                            context=context, request=request)
 
 
 @dashboard_registry.register_decorator(order=200)
@@ -131,7 +130,7 @@ def messages_fragment(request):
         'show_more_button': show_more_button,
     }
     return render_to_string('dashboard/messages.html',
-        context_instance=RequestContext(request, context))
+                            context=context, request=request)
 
 
 @menu_registry.register_decorator(_("Dashboard"), lambda request:
@@ -148,7 +147,7 @@ def public_contest_dashboard_view(request):
     fragments = [frag for frag in fragments if frag is not None]
     if not fragments:
         fragments = [render_to_string('dashboard/dashboard-empty.html',
-            context_instance=RequestContext(request))]
+                                      request=request)]
     context = {
         'headers': headers,
         'fragments': fragments,

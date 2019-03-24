@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -349,9 +348,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             del environ['error_handlers']
             environ = pprint.pformat(environ, indent=4)
             return render_to_string('contests/failure_report.html',
-                    context_instance=RequestContext(request,
-                        {'message': message, 'next_step': next_step,
-                            'environ': environ}))
+                                    request=request,
+                                    context={'message': message,
+                                              'next_step': next_step,
+                                              'environ': environ})
         else:
             raise NotImplementedError
 

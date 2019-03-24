@@ -3,7 +3,6 @@ from django.core.exceptions import SuspiciousOperation
 from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import SimpleTemplateResponse, TemplateResponse
 from django.views.decorators.http import require_GET, require_POST
@@ -26,7 +25,7 @@ def registration_notice_fragment(request):
             and not is_contest_admin(request) \
             and not is_participant(request):
         return render_to_string('oi/registration_notice.html',
-            context_instance=RequestContext(request))
+            request=request)
     else:
         return None
 

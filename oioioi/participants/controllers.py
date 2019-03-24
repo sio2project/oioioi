@@ -4,7 +4,6 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -246,7 +245,7 @@ class AnonymousContestControllerMixin(object):
             context = {'participant': part}
             rendered_info = render_to_string(
                     'participants/participant_info.html',
-                    context_instance=RequestContext(request, context))
+                    context=context, request=request)
             prev.append((98, rendered_info))
         except Participant.DoesNotExist:
             pass
@@ -281,7 +280,7 @@ class OnsiteRegistrationController(ParticipantsController):
         if info.exists():
             context = {'model': info[0]}
             rendered_info = render_to_string('oi/participant_info.html',
-                    context_instance=RequestContext(request, context))
+                    context=context, request=request)
             prev.append((98, rendered_info))
 
         return prev

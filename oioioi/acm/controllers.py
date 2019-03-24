@@ -6,7 +6,6 @@ from operator import attrgetter, itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -229,7 +228,7 @@ class ACMRankingController(DefaultRankingController):
         request = self._fake_request(page)
         data['is_admin'] = self.is_admin_key(key)
         return render_to_string('acm/acm_ranking.html',
-                context_instance=RequestContext(request, data))
+                context=data, request=request)
 
     def _get_csv_header(self, key, data):
         header = [_("#"), _("Username"), _("First name"), _("Last name"),

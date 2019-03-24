@@ -6,7 +6,6 @@ from django import forms
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.base import ContentFile
-from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -245,12 +244,13 @@ class TestRunContestControllerMixin(object):
                       testrunprogramsubmission
 
         return render_to_string('testrun/submission-header.html',
-            context_instance=RequestContext(request,
-                {'submission': submission_template_context(request,
-                    sbm_testrun),
-                'supported_extra_args':
-                    self.get_supported_extra_args(submission),
-                'input_is_zip': is_zipfile(sbm_testrun.input_file)}))
+                request=request,
+                context={
+                    'submission': submission_template_context(request,
+                                                              sbm_testrun),
+                    'supported_extra_args':
+                        self.get_supported_extra_args(submission),
+                    'input_is_zip': is_zipfile(sbm_testrun.input_file)})
 
     def _render_testrun_report(self, request, report, testrun_report,
             template='testrun/report.html'):
@@ -268,12 +268,14 @@ class TestRunContestControllerMixin(object):
                         input_file)
 
         return render_to_string(template,
-            context_instance=RequestContext(request, {
-                'report': report, 'score_report': score_report,
-                'compilation_report': compilation_report,
-                'testrun_report': testrun_report,
-                'output_container_id_prefix': output_container_id_prefix,
-                'input_is_zip': input_is_zip}))
+                request=request,
+                context={
+                    'report': report, 'score_report': score_report,
+                    'compilation_report': compilation_report,
+                    'testrun_report': testrun_report,
+                    'output_container_id_prefix': output_container_id_prefix,
+                    'input_is_zip': input_is_zip
+                })
 
     def render_report(self, request, report, *args, **kwargs):
         if report.kind != 'TESTRUN':

@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
 from django.shortcuts import redirect
-from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -90,14 +89,15 @@ def _generate_pdfdoc(request, mailsubmission):
             }))
 
     doc = render_to_string('mailsubmit/submissiondoc.tex',
-            context_instance=RequestContext(request, {
+            request=request,
+            context={
                 'config': request.contest.mail_submission_config,
                 'submission': mailsubmission,
                 'contest': request.contest,
                 'source_hash': source_hash,
                 'submission_hash': submission_hash,
                 'qrcode_content': accept_link
-            }))
+            })
 
     filename = u'%s-%s-%s.pdf' % (_("confirmation"),
             mailsubmission.problem_instance.short_name,
