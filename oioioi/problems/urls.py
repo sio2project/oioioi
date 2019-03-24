@@ -54,5 +54,8 @@ urlpatterns = [
         name='get_report_HTML'),
 
     url(r'^get_search_hints/(?P<view_type>public|my|all)/$', views.get_search_hints_view, name='get_search_hints'),
+    url(r'^get_origintag_hints/$', views.get_origintag_hints_view, name='get_origintag_hints'),
+    url(r'^get_difficultytag_hints/$', views.get_difficultytag_hints_view, name='get_difficultytag_hints'),
+    url(r'^get_algorithmtag_hints/$', views.get_algorithmtag_hints_view, name='get_algorithmtag_hints'),
     url(r'^get_tag_hints/$', views.get_tag_hints_view, name='get_tag_hints'),
 ]

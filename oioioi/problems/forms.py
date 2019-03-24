@@ -7,7 +7,10 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.contests.models import ProblemStatementConfig
-from oioioi.problems.models import ProblemSite, Tag, TagThrough
+from oioioi.problems.models import (ProblemSite, Tag, TagThrough,
+                                    OriginTag, OriginTagThrough,
+                                    AlgorithmTag, AlgorithmTagThrough,
+                                    DifficultyTag, DifficultyTagThrough)
 
 
 class ProblemUploadForm(forms.Form):
@@ -78,7 +81,8 @@ class TagSelectionWidget(forms.Widget):
             "<span id=\"%(id)s-hints\" style=\"margin-left: 5px;\"></span>" \
             "</div>"
 
-    def __init__(self, hints_url=None, *args, **kwargs):
+    def __init__(self, tag_cls, hints_url=None, *args, **kwargs):
+        self.tag_cls = tag_cls
         self.hints_url = hints_url
         super(TagSelectionWidget, self).__init__(*args, **kwargs)
 
@@ -87,7 +91,7 @@ class TagSelectionWidget(forms.Widget):
         if value is None:
             value = ''
         elif isinstance(value, int):
-            value = Tag.objects.get(id=value).name
+            value = self.tag_cls.objects.get(id=value).name
         arguments = {
             'id': attrs['id'],
             'name': name,
@@ -101,25 +105,50 @@ class TagSelectionWidget(forms.Widget):
 
 
 class TagSelectionField(forms.ModelChoiceField):
-    def __init__(self, data_hints_url):
-        for field in Tag._meta.fields:
+    def __init__(self, tag_cls, data_hints_url):
+        self.tag_cls = tag_cls
+        for field in tag_cls._meta.fields:
             if field.name == 'name':
                 self.default_validators = field.validators
                 break
         else:
             self.default_validators = []
-        self.widget = TagSelectionWidget(data_hints_url)
-        super(TagSelectionField, self).__init__(Tag.objects,
+        self.widget = TagSelectionWidget(tag_cls, data_hints_url)
+        super(TagSelectionField, self).__init__(self.tag_cls.objects,
                 to_field_name='name')
 
     def clean(self, value):
         for validator in self.default_validators:
             validator(value)
-        return Tag.objects.get_or_create(name=value)[0]
+        return self.tag_cls.objects.get_or_create(name=value)[0]
+
+
+class OriginTagThroughForm(forms.ModelForm):
+    tag = TagSelectionField(OriginTag, 'get_origintag_hints')
+
+    class Meta(object):
+        fields = ['problem']
+        model = OriginTagThrough
+
+
+class DifficultyTagThroughForm(forms.ModelForm):
+    tag = TagSelectionField(DifficultyTag, 'get_difficultytag_hints')
+
+    class Meta(object):
+        fields = ['problem']
+        model = DifficultyTagThrough
+
+
+class AlgorithmTagThroughForm(forms.ModelForm):
+    tag = TagSelectionField(AlgorithmTag, 'get_algorithmtag_hints')
+
+    class Meta(object):
+        fields = ['problem']
+        model = AlgorithmTagThrough
 
 
 class TagThroughForm(forms.ModelForm):
-    tag = TagSelectionField('get_tag_hints')
+    tag = TagSelectionField(Tag, 'get_tag_hints')
 
     class Meta(object):
         fields = ['problem']

@@ -23,10 +23,13 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.forms import (ProblemSiteForm, ProblemStatementConfigForm,
-                                   TagThroughForm)
+                                   TagThroughForm, OriginTagThroughForm,
+                                   DifficultyTagThroughForm,
+                                   AlgorithmTagThroughForm)
 from oioioi.problems.models import (MainProblemInstance, Problem,
                                     ProblemAttachment, ProblemPackage,
-                                    ProblemSite, ProblemStatement, Tag)
+                                    ProblemSite, ProblemStatement, Tag,
+                                    AlgorithmTag, OriginTag, DifficultyTag)
 from oioioi.problems.utils import can_add_problems, can_admin_problem
 
 logger = logging.getLogger(__name__)
@@ -117,16 +120,77 @@ class ProblemSiteInline(admin.StackedInline):
         return False
 
 
+class OriginTagInline(admin.StackedInline):
+    model = OriginTag.problems.through
+    form = OriginTagThroughForm
+    extra = 0
+    verbose_name = _("Origin Tag")
+    verbose_name_plural = _("Origin Tags")
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+class DifficultyTagInline(admin.StackedInline):
+    model = DifficultyTag.problems.through
+    form = DifficultyTagThroughForm
+    extra = 0
+    verbose_name = _("Difficulty Tag")
+    verbose_name_plural = _("Difficulty Tags")
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+class AlgorithmTagInline(admin.StackedInline):
+    model = AlgorithmTag.problems.through
+    form = AlgorithmTagThroughForm
+    extra = 0
+    verbose_name = _("Algorithm Tag")
+    verbose_name_plural = _("Algorithm Tags")
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
 class TagInline(admin.StackedInline):
     model = Tag.problems.through
     form = TagThroughForm
     extra = 0
-    verbose_name = _("Tag")
-    verbose_name_plural = _("Tags")
+    verbose_name = _("Tag (deprecated)")
+    verbose_name_plural = _("Tags (deprecated)")
+
+    def has_add_permission(self, request):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [TagInline, StatementInline, AttachmentInline,
+    inlines = [TagInline, OriginTagInline, DifficultyTagInline,
+               AlgorithmTagInline, StatementInline, AttachmentInline,
                ProblemInstanceInline, ProblemSiteInline]
     readonly_fields = ['author', 'name', 'short_name', 'controller_name',
             'package_backend_name', 'main_problem_instance', 'ascii_name']

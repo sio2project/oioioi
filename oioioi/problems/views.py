@@ -24,7 +24,8 @@ from oioioi.contests.utils import administered_contests, is_contest_admin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
-                                    ProblemStatement, Tag)
+                                    ProblemStatement, Tag, OriginTag,
+                                    DifficultyTag, AlgorithmTag)
 
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.problems.problem_sources import problem_sources
@@ -168,11 +169,17 @@ def search_problems_in_problemset(datadict):
         for phrase in query_phrases:
             if phrase.startswith('tag:'):
                 problems |= Problem.objects.filter(tag__name=phrase[len('tag:'):])
+                problems |= Problem.objects.filter(algorithmtag__name=phrase[len('tag:'):])
+                problems |= Problem.objects.filter(origintag__name=phrase[len('tag:'):])
+                problems |= Problem.objects.filter(difficultytag__name=phrase[len('tag:'):])
             elif phrase.startswith('name:'):
                 problems |= Problem.objects.filter(name=phrase[len('name:'):])
             else:
                 problems |= Problem.objects.filter(ascii_name__icontains=unidecode(phrase))
                 problems |= Problem.objects.filter(tag__name__icontains=unidecode(phrase))
+                problems |= Problem.objects.filter(algorithmtag__name__icontains=unidecode(phrase))
+                problems |= Problem.objects.filter(origintag__name__icontains=unidecode(phrase))
+                problems |= Problem.objects.filter(difficultytag__name__icontains=unidecode(phrase))
         problems = problems.distinct()
         return problems, query
 
@@ -435,6 +442,36 @@ def rejudge_model_solutions_view(request, problem_instance_id):
 
 
 @jsonify
+def get_origintag_hints_view(request):
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    queryset_tags = OriginTag.objects.filter(name__icontains=substr)[:num_hints].all()
+    return [str(tag.name) for tag in queryset_tags]
+
+
+@jsonify
+def get_difficultytag_hints_view(request):
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    queryset_tags = DifficultyTag.objects.filter(name__icontains=substr)[:num_hints].all()
+    return [str(tag.name) for tag in queryset_tags]
+
+
+@jsonify
+def get_algorithmtag_hints_view(request):
+    substr = request.GET.get('substr', '')
+    if len(substr) < 2:
+        raise Http404
+    num_hints = getattr(settings, 'NUM_HINTS', 10)
+    queryset_tags = AlgorithmTag.objects.filter(name__icontains=substr)[:num_hints].all()
+    return [str(tag.name) for tag in queryset_tags]
+
+
+@jsonify
 def get_tag_hints_view(request):
     substr = request.GET.get('substr', '')
     if len(substr) < 2:
@@ -463,6 +500,12 @@ def get_search_hints_view(request, view_type):
         queryset_problems = Problem.objects.filter(name__icontains=substr,
                                        problemsite__isnull=False)[:num_hints].all()
     queryset_tags = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
+    queryset_algorithmtags = AlgorithmTag.objects.filter(name__icontains=substr)[:num_hints].all()
+    queryset_origintags = OriginTag.objects.filter(name__icontains=substr)[:num_hints].all()
+    queryset_difficultytags = DifficultyTag.objects.filter(name__icontains=substr)[:num_hints].all()
 
     return list(set(problem.name for problem in queryset_problems) |
-                set(tag.name for tag in queryset_tags))
+                set(tag.name for tag in queryset_tags) |
+                set(tag.name for tag in queryset_origintags) |
+                set(tag.name for tag in queryset_algorithmtags) |
+                set(tag.name for tag in queryset_difficultytags))[:num_hints]

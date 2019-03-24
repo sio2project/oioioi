@@ -374,7 +374,150 @@ class UserStatistics(models.Model):
         unique_together = ('problem_statistics', 'user')
 
 
+class OriginTag(models.Model):
+    name = models.CharField(max_length=20, unique=True,
+            verbose_name=_("name"), null=False, blank=False,
+            validators=[
+                validators.MinLengthValidator(3),
+                validators.MaxLengthValidator(20),
+                validators.validate_slug,
+            ])
+    problems = models.ManyToManyField(Problem, through='OriginTagThrough')
+    parent_tag = models.ForeignKey('self',
+            on_delete=models.CASCADE,
+            related_name='child_tags',
+            null=True,
+            blank=True,
+            help_text=("Tag X is the parent of tag Y, if the presence of Y "
+                "implies the presence of X. For example: tags with names "
+                "'stage 1' and '23' both have the tag with name 'OI' as "
+                "parent, which does not have a parent tag of its own. The "
+                "tags can be written as a path from their most deep ancestor, "
+                "e.g. 'OI / stage 1' or 'OI / 23'. An example of a deeper"
+                "hierarchy would be: 'PA / remote / type A' and "
+                "'PA / remote / type B' tags, for tagging A/B type tasks from "
+                "remote rounds of Potyczki Algorytmiczne. A task can (and "
+                "probably should) have multiple origin tags, for example a "
+                "task from Potyczki Algorytmiczne could have tags: "
+                "'PA / 2010', 'PA / remote / type A', 'PA / remote / round 3', "
+                "which also imply tags 'PA / remote' and 'PA'. If you are still "
+                "unsure, think of how users will filter the problemset: "
+                "'type A' can't be a subtag of 'round 3' or '2010' because "
+                "the user will want to search tasks of type A from all rounds "
+                "and all years of PA, however type A/B tasks only occur in "
+                "remote rounds so we can be more specific and say that "
+                "'remote' is the parent of 'type A'."))
+    display_depth = models.IntegerField(default=-1,
+            help_text=("Sometimes the parent-child relationship does not "
+                "convey the full information about the tag hierarchy. Some "
+                "tags are more 'broad' than others, and less broad tags "
+                "should be grouped under them when displayed (for example in "
+                "the task archive). For example you may want to display the "
+                "following hierarchy - OI -> year X -> stage Y in year X -> "
+                "tasks from stage Y in year X. These tasks would have to be "
+                "tagged with 'OI / X' and 'OI / stage Y' so that we can "
+                "search for them conveniently, so displaying them in this "
+                "particular way requires additional information. The display "
+                "depth lets you specify the 'broadness' which the tag has. "
+                "For the OI example - 'OI' would have display depth equal to "
+                "0, all the 'year X' tags equal to 1, all the 'stage Y' tags "
+                "equal to 2. Not all tags have to be used for grouping, and "
+                "you may not want to specify the display depth at all (set it "
+                "to -1). For instance 'PA / remote / round X' would be depth "
+                "2, but 'PA / remote / type A' and 'PA / distributed task' "
+                "would be depth -1, since it makes no sense to group "
+                "distributed tasks under type A tasks or the other way "
+                "around. Display depth of -1 is displayed after all other "
+                "depths."))
+
+    class Meta(object):
+        verbose_name = _("origin tag")
+        verbose_name_plural = _("origin tags")
+        unique_together = ('name', 'parent_tag')
+
+    def __unicode__(self):
+        return six.text_type(self.name)
+
+
+class OriginTagThrough(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(OriginTag, on_delete=models.CASCADE)
+
+    # This string will be visible in admin form
+    def __unicode__(self):
+        return six.text_type(self.tag.name)
+
+    # pylint: disable=w0221
+    def save(self, *args, **kwargs):
+        instance = super(OriginTagThrough, self).save(*args, **kwargs)
+        if self.tag.parent_tag:
+            OriginTagThrough.objects.get_or_create(problem=self.problem,
+                    tag=self.tag.parent_tag)
+        return instance
+
+    class Meta(object):
+        unique_together = ('problem', 'tag')
+
+
+class DifficultyTag(models.Model):
+    name = models.CharField(max_length=20, unique=True,
+            verbose_name=_("name"), null=False, blank=False,
+            validators=[
+                validators.MinLengthValidator(3),
+                validators.MaxLengthValidator(20),
+                validators.validate_slug,
+            ])
+    problems = models.ManyToManyField(Problem, through='DifficultyTagThrough')
+
+    class Meta(object):
+        verbose_name = _("difficulty tag")
+        verbose_name_plural = _("difficulty tags")
+
+    def __unicode__(self):
+        return six.text_type(self.name)
+
+
+class DifficultyTagThrough(models.Model):
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE)
+
+    # This string will be visible in admin form
+    def __unicode__(self):
+        return six.text_type(self.tag.name)
+
+
+class AlgorithmTag(models.Model):
+    name = models.CharField(max_length=20, unique=True,
+            verbose_name=_("name"), null=False, blank=False,
+            validators=[
+                validators.MinLengthValidator(3),
+                validators.MaxLengthValidator(20),
+                validators.validate_slug,
+            ])
+    problems = models.ManyToManyField(Problem, through='AlgorithmTagThrough')
+
+    class Meta(object):
+        verbose_name = _("algorithm tag")
+        verbose_name_plural = _("algorithm tags")
+
+    def __unicode__(self):
+        return six.text_type(self.name)
+
+
+class AlgorithmTagThrough(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
+
+    # This string will be visible in admin form
+    def __unicode__(self):
+        return six.text_type(self.tag.name)
+
+    class Meta(object):
+        unique_together = ('problem', 'tag')
+
+
 class Tag(models.Model):
+    """Class used for old tags - deprecated."""
     name = models.CharField(max_length=20, unique=True,
             verbose_name=_("name"), null=False, blank=False,
             validators=[
@@ -389,7 +532,7 @@ class Tag(models.Model):
         verbose_name_plural = _("tags")
 
     def __unicode__(self):
-        return str(self.name)
+        return six.text_type(self.name)
 
 
 class TagThrough(models.Model):

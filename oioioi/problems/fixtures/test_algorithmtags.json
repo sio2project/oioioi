@@ -1,0 +1,24 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "mrowkowiec"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "mrowka"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.algorithmtagthrough",
+    "fields": {
+        "problem": 1,
+        "tag": 1
+    }
+  }
+]
