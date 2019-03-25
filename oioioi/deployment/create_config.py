@@ -6,7 +6,7 @@ import pwd
 import shutil
 import sys
 import uuid
-from optparse import OptionParser
+from argparse import ArgumentParser
 
 import six
 
@@ -125,23 +125,22 @@ def generate_all(dir, verbose):
 
 
 def main():
-    usage = "usage: %prog [options] dir"
-    parser = OptionParser(usage=usage)
-    parser.add_option('-v', '--verbose', action='store_true', dest='verbose')
-    _options, args = parser.parse_args()
-    if len(args) != 1:
-        parser.error("expected a single argument: deployment folder to create")
-    dir = os.path.abspath(args[0])
+    usage = "%(prog)s [options] dir"
+    parser = ArgumentParser(usage=usage)
+    parser.add_argument('-v', '--verbose', action='store_true', dest='verbose')
+    parser.add_argument("dir", help="deployment folder to create")
+    args = parser.parse_args()
 
-    if os.path.exists(dir):
-        error("%s already exists; please specify another location" % (dir,))
+    if os.path.exists(args.dir):
+        error("%s already exists; please specify another location" %
+              (args.dir,))
 
-    os.makedirs(dir)
+    os.makedirs(args.dir)
 
     try:
-        generate_all(dir, _options.verbose)
+        generate_all(args.dir, args.verbose)
     except BaseException:
-        shutil.rmtree(dir)
+        shutil.rmtree(args.dir)
         raise
 
     print(file=sys.stderr)

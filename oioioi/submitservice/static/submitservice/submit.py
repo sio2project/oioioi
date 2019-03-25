@@ -12,7 +12,7 @@ import mimetypes
 import sys
 
 import webbrowser
-from optparse import OptionParser
+from argparse import ArgumentParser
 from os.path import expanduser, splitext
 import six.moves.urllib.parse
 import six.moves.urllib.request
@@ -99,41 +99,47 @@ error_code_map = {'UNSUPPORTED_EXTENSION': "Unsupported file extension",
 
 
 def main():
-    parser = OptionParser(usage="Usage: ./submit.py [-ch|-tkusw filename]")
-    parser.add_option('-c', '--configure', action='store_true',
-                      help="start interactive configuration")
-    parser.add_option('-t', '--task', action='store',
-                      help="override task short name (if not specified, " +
-                           "filename with extension is taken)")
-    parser.add_option('-k', '--token', action='store',
-                      help="provide a token for authentication")
-    parser.add_option('-u', '--url', action='store',
-                      help="provide connection URL " +
-                           "(e.g. http://oioioi.com/c/example-contest/)")
-    parser.add_option('-s', '--save-config', action='store_true',
-                      help="used along with --token or/and --url, saves " +
-                           "configuration changes to configuration file")
-    parser.add_option('-w', '--webbrowser', action='store_true',
-                      help="open the web browser after successful submission")
+    parser = ArgumentParser(usage="./submit.py [-ch|-tkusw filename]")
+
+    save_config_and_configure_group = parser.add_mutually_exclusive_group()
+    save_config_and_configure_group.add_argument('-c', '--configure',
+                                                 action='store_true',
+                                                 help="start interactive "
+                                                      "configuration")
+    save_config_and_configure_group.add_argument('-s', '--save-config',
+                                                 action='store_true',
+                                                 help="used along with --token "
+                                                      "or/and --url, saves " +
+                                                      "configuration changes "
+                                                      "to configuration file")
+
+    parser.add_argument('-t', '--task', action='store',
+                        help="override task short name (if not specified, " +
+                        "filename with extension is taken)")
+    parser.add_argument('-k', '--token', action='store',
+                        help="provide a token for authentication")
+    parser.add_argument('-u', '--url', action='store',
+                        help="provide connection URL " +
+                        "(e.g. http://oioioi.com/c/example-contest/)")
+    parser.add_argument('-w', '--webbrowser', action='store_true',
+                        help="open the web browser after successful submission")
+    parser.add_argument("filename", nargs='?')
 
     init_config()
-    opts, args = parser.parse_args()
-    if opts.save_config and opts.configure:
-        parser.error("options --save-config and --configure "
-                     "are mutually exclusive")
-    if opts.token:
-        configuration['token'] = opts.token
-    if opts.url:
-        configuration['contest-url'] = opts.url
+    args = parser.parse_args()
+    if args.token:
+        configuration['token'] = args.token
+    if args.url:
+        configuration['contest-url'] = args.url
 
-    if opts.save_config:
+    if args.save_config:
         save_configuration()
-    elif opts.configure:
+    elif args.configure:
         return create_configuration()
-    elif args:
-        return submit(args[0], opts.task,
+    elif args.filename:
+        return submit(args.filename, args.task,
                       configuration['token'], configuration['contest-url'],
-                      opts.webbrowser)
+                      args.webbrowser)
     parser.print_usage()
     return 1
 
