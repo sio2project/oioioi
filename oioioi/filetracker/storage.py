@@ -6,6 +6,7 @@ import tempfile
 from django.core.files import File
 from django.core.files.storage import Storage
 from django.core.urlresolvers import reverse
+from django.core.exceptions import SuspiciousFileOperation
 
 from oioioi.filetracker.client import get_client
 from oioioi.filetracker.filename import FiletrackerFilename
@@ -83,7 +84,9 @@ class FiletrackerStorage(Storage):
         reader, _version = self.client.get_stream(path, serve_from_cache=True)
         return File(reader, FiletrackerFilename(name))
 
-    def save(self, name, content):
+    # FIXME: max_length might not be implemented properly. It's guaranteed that we won't return
+    # a name exceeding max_length, but we might fail to generate short name even if it's possible.
+    def save(self, name, content, max_length=None):
         # Well, the default Django implementation of save coerces the returned
         # value to unicode using force_text. This is not what we want, as we
         # have to preserve FiletrackerFilename.
@@ -91,8 +94,11 @@ class FiletrackerStorage(Storage):
             name = content.name
         if not hasattr(content, 'chunks'):
             content = File(content)
-        name = self.get_available_name(name)
-        return self._save(name, content)
+        name = self.get_available_name(name, max_length=max_length)
+        name = self._save(name, content)
+        if max_length is not None and len(name) > max_length:
+            raise SuspiciousFileOperation
+        return name
 
     def delete(self, name):
         path = self._make_filetracker_path(name)
