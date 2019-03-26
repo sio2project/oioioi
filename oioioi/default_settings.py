@@ -170,10 +170,6 @@ MIDDLEWARE_CLASSES = (
     'oioioi.maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
-
 COMMON_MEDIA_PREFIX = 'common/'
 
 ROOT_URLCONF = 'oioioi.urls'
