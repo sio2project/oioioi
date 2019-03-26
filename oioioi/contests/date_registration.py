@@ -49,7 +49,7 @@ class DateRegistry(object):
             name_generator = lambda obj: \
                     six.text_type(model._meta.verbose_name) + \
                     " " + \
-                    six.text_type(model._meta.get_field_by_name(date_field)[0]
+                    six.text_type(model._meta.get_field(date_field)
                             .verbose_name)
 
         if round_chooser is None:

@@ -92,8 +92,17 @@ def _fold_registration_models_tree(object):
        all their fields."""
     result = []
     objects_used = [object]
+
+    # https://docs.djangoproject.com/en/1.9/ref/models/meta/#migrating-old-meta-api
+    def get_all_related_objects(_meta):
+        return [
+                f for f in _meta.get_fields()
+                if (f.one_to_many or f.one_to_one)
+                and f.auto_created and not f.concrete
+        ]
+
     objs = [getattr(object, rel.get_accessor_name())
-            for rel in object._meta.get_all_related_objects()
+            for rel in get_all_related_objects(object._meta)
             if hasattr(object, rel.get_accessor_name())]
     while objs:
         current = objs.pop(0)

@@ -42,7 +42,7 @@ def _make_group_registry(registry):
 def _translate_field(field, obj):
     if field == NON_FIELD_ERRORS:
         return None
-    return obj._meta.get_field_by_name(field)[0].verbose_name
+    return obj._meta.get_field(field).verbose_name
 
 
 @contest_admin_menu_registry.register_decorator(_("Timeline"), lambda request:
