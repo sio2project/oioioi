@@ -390,11 +390,11 @@ class TestParticipantsModelAdmin(TestCase):
 
 
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
-    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',))
+                   ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,
                                                        ContestIdViewCheckMixin
                                                        ):
-    urls = 'oioioi.contests.tests.test_urls'
     fixtures = ['test_users', 'test_two_empty_contests']
 
     def setUp(self):

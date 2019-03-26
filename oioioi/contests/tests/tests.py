@@ -178,10 +178,10 @@ class TestSubmissionListOrder(TestCase):
         )
 
 
-@override_settings(CONTEST_MODE=ContestMode.neutral)
+@override_settings(CONTEST_MODE=ContestMode.neutral,
+                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestUrls(TestCase):
     fixtures = ['test_contest']
-    urls = 'oioioi.contests.tests.test_urls'
 
     def test_make_patterns(self):
         # The 'urlpatterns' variable in test_urls is created using
@@ -264,9 +264,9 @@ class TestUrls(TestCase):
         self.assertFalse(url.startswith(contest_prefix))
 
 
+@override_settings(ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestCurrentContest(TestCase):
     fixtures = ['test_users', 'test_two_empty_contests']
-    urls = 'oioioi.contests.tests.test_urls'
 
     def _test_redirecting_contest_mode(self):
         # assuming contest mode contest_if_possible or contest_only

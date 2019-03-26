@@ -36,9 +36,9 @@ class ContestIdViewCheckMixin(object):
 
 
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
-    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',))
+                   ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
-    urls = 'oioioi.contests.tests.test_urls'
     fixtures = ['test_permissions', 'test_users', 'test_contest']
 
     def setUp(self):
@@ -309,9 +309,9 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
 
 
 @override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
-    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',))
+                    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
+                   ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):
-    urls = 'oioioi.contests.tests.test_urls'
     fixtures = ['test_users', 'test_two_empty_contests']
 
     def setUp(self):
