@@ -11,36 +11,39 @@
 
 {% block body %}
     {% block content %}
-        <div class="text-center">
-            <img src="{% static "szkopul/szkopul-logo-3.svg" %}" alt="SZKOpuł">
+        <div class="row">
+            <div class="text-center" ><img class="szkopul-logo" src="{% static "szkopul/szkopul-logo-5.svg" %}" alt="SZKOpuł"></div>
+        </div>
+        <div class="content-row row">
+            <div class="col-md-8">
+                <h2>{% trans "Welcome!" %}</h2>
+                <p class="welcome-msg">
+                {% blocktrans trimmed %}
+                    Welcome to Szkopuł - a place for solving algorithmic challenges!<br>
+                    In order to submit solutions and register for contests you need to <a href="register">make an account</a>.
+                {% endblocktrans %}
+                </p>
+
+                <h3>{% trans "News" %}</h3>
+                <p>{% newsfeed %}</p>
+
+                <h3>{% trans "Contact us" %}</h3>
+                <p>
+                {% trans "Send Feedback" as send_feedback %}
+                {% blocktrans trimmed %}
+                    Do you have any questions or feedback? Is something wrong? Use the
+                    {{ send_feedback }} button in the corner of the page.
+                {% endblocktrans %}
+                </p>
+
+                <h3>{% trans "We are supported by" %}</h3>
+                <p>
+                    <a href="https://www.janestreet.com/">
+                        <img src="//www.janestreet.com/wp-content/themes/janestreet/img/logo.png" alt="Jane Street">
+                    </a>
+                </p>
+            </div>
         </div>
 
-        <h3>{% trans "Welcome!" %}</h3>
-        <p>
-            {% blocktrans trimmed %}
-                Choose the contest you want to enter. To enter a new contest,
-                ask a teacher for a registration link.
-            {% endblocktrans %}
-        </p>
-        {% contest_selection %}
-
-        <h3>{% trans "News" %}</h3>
-        <p>{% newsfeed %}</p>
-
-        <h3>{% trans "Contact us" %}</h3>
-        <p>
-            {% trans "Send Feedback" as send_feedback %}
-            {% blocktrans trimmed %}
-                Do you have any questions or feedback? Is something wrong? Use the
-                {{ send_feedback }} button in the corner of the page.
-            {% endblocktrans %}
-        </p>
-
-        <h3>{% trans "We are supported by" %}</h3>
-        <p>
-            <a href="https://www.janestreet.com/">
-                <img src="//www.janestreet.com/wp-content/themes/janestreet/img/logo.png" alt="Jane Street">
-            </a>
-        </p>
     {% endblock %}
 {% endblock %}
