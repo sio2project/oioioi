@@ -1,7 +1,10 @@
 from django.conf.urls import include, url
+from django.conf import settings
 
-from oioioi.base import admin, views
+from oioioi.base import admin, views, api
 from oioioi.base.main_page import main_page_view
+
+from rest_framework.documentation import include_docs_urls
 
 app_name = 'base'
 
@@ -28,3 +31,18 @@ urlpatterns = [
 urlpatterns += [
     url(r'^$', main_page_view, name='index'),
 ]
+
+noncontest_patterns = []
+
+if settings.USE_API:
+    urlpatterns += [
+        url(r'^api/token', api.api_token, name='api_token'),
+        url(r'^api/regenerate_token', api.regenerate_token, name='api_regenerate_key'),
+    ]
+    noncontest_patterns += [
+        # the c prefix doesn't make sense for non contest related endpoints as
+        # well as for the documentation which anyway does not require authorization
+        url(r'^api/docs/', include_docs_urls(title='OIOIOI API'), name='api_docs'),
+        url(r'^api/ping', api.ping),
+        url(r'^api/auth_ping', api.auth_ping),
+    ]

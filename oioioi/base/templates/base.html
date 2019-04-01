@@ -124,6 +124,15 @@
                     });
                 </script>
                 <script>hljs.initHighlightingOnLoad();</script>
+                <script type="text/javascript" src="{{ STATIC_URL }}common/clipboard.min.js"></script>
+                <script type="text/javascript">
+                    new Clipboard('.btn-copy')
+                        .on('success', function(e) {
+                            e.trigger.outerHTML = '<small><span class="glyphicon glyphicon-ok"></span> {% trans "copied!" %}</small>';
+                        }).on('error', function(e) {
+                            e.trigger.outerHTML = '<small>{% trans "Press Ctrl+C to copy" %}</small>';
+                        });
+                </script>
             {% endcompress %}
             <script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
             <script type="text/javascript" async

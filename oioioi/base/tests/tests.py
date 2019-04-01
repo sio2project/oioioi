@@ -47,6 +47,10 @@ from oioioi.base.utils import (RegisteredSubclassesBase, archive,
 from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.contests.utils import is_contest_admin
 
+from rest_framework.authtoken.models import Token
+from rest_framework.test import APITestCase
+
+
 if not getattr(settings, 'TESTS', False):
     print('The tests are not using the required test '
             'settings from test_settings.py.', file=sys.stderr)
@@ -1135,3 +1139,60 @@ class TestUserDeactivationLogout(TestCase):
         self.client.get(self.profile_index, follow=True)
         # At this point we should check if user is deactivated and log him out.
         self.assert_logged(False)
+
+
+# Test for the API
+class TestObtainingAPIToken(TestCase):
+    fixtures = ['test_users']
+
+    def setUp(self):
+        self.user = User.objects.get(username='test_user')
+        self.assertTrue(self.client.login(username=self.user.username))
+
+    def test_api_token_view(self):
+        self.assertRaises(Token.DoesNotExist, Token.objects.get, user=self.user)
+        self.client.get(reverse('api_token'))
+        self.assertRaises(Token.DoesNotExist, Token.objects.get, user=self.user)
+        response = self.client.post(reverse('api_token'))
+        token = Token.objects.get(user=self.user)
+        self.assertIn(str(token), response.content)
+
+    def test_api_token_regeneration(self):
+        response = self.client.post(reverse('api_token'))
+        self.assertIn(reverse('api_regenerate_key'), response.content.decode('utf-8'))
+        old_token = Token.objects.get(user=self.user)
+        response = self.client.get(reverse('api_regenerate_key'))
+        self.assertEqual(old_token, Token.objects.get(user=self.user),
+                         'Get request should not trigger token regeneration')
+        response = self.client.post(reverse('api_regenerate_key'))
+        new_token = Token.objects.get(user=self.user)
+        self.assertNotEqual(old_token, new_token)
+        self.assertIn('was regenerated', response.content)
+        self.assertIn(str(new_token), response.content)
+        self.assertNotIn(str(old_token), response.content)
+
+
+class TestPingEndpointsAndAuthentication(APITestCase):
+    fixtures = ['test_users']
+
+    def test_ping(self):
+        response = self.client.get('/api/ping')
+        self.assertEqual(response.content, '"pong"')
+
+    def test_auth_ping(self):
+        self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
+        self.client.force_authenticate(user=User.objects.get(username='test_user'))
+        self.assertEqual(self.client.get('/api/auth_ping').content, '"pong test_user"')
+
+    # Below tests test authentication methods. For endpoints tests use
+    # force_authenticate rather than specific method like token or session.
+    def test_auth_ping_with_token(self):
+        self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
+        token, _ = Token.objects.get_or_create(user=User.objects.get(username='test_user'))
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
+        self.assertEqual(self.client.get('/api/auth_ping').content, '"pong test_user"')
+
+    def test_auth_ping_with_session(self):
+        self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
+        self.assertTrue(self.client.login(username='test_user'))
+        self.assertEqual(self.client.get('/api/auth_ping').content, '"pong test_user"')

@@ -1,19 +1,6 @@
 {% extends "base-with-menu.html" %}
 {% load i18n simple_filters %}
 
-{% block scripts %}
-{{ block.super }}
-<script type="text/javascript" src="{{ STATIC_URL }}teachers/clipboard.min.js"></script>
-<script type="text/javascript">
-    new Clipboard('.btn')
-        .on('success', function(e) {
-            e.trigger.outerHTML = '<small><span class="glyphicon glyphicon-ok"></span> {% trans "copied!" %}</small>';
-        }).on('error', function(e) {
-            e.trigger.outerHTML = '<small>{% trans "Press Ctrl+C to copy" %}</small>';
-        });
-</script>
-{% endblock %}
-
 {% block title %}
     {% if member_type == 'teacher' %}
         {% trans "Contest teachers" %}
@@ -45,7 +32,7 @@
         <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'teachers_regenerate_key' contest_id=contest.id member_type=member_type %}">
             {% trans "Re-generate key" %}
         </a>
-        <button class="btn btn-default btn-xs" data-clipboard-target="#registration_link">
+        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#registration_link">
             {% trans "Copy to clipboard" %}
         </button>
     </p>

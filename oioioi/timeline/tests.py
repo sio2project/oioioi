@@ -81,7 +81,7 @@ class TestChangingDates(TestCase):
         return response
 
     def test_empty_post(self):
-        self._send_post(admin_assertnotin='error')
+        self._send_post(admin_assertnotin='alert-danger')
 
     def test_valid_date_change(self):
         contest = Contest.objects.get(pk='c')
@@ -96,7 +96,7 @@ class TestChangingDates(TestCase):
                 new_dates[_get_date_id(item)] = new_date
 
         response = self._send_post(contest, data=new_dates,
-                                   admin_assertnotin='error')
+                                   admin_assertnotin='alert-danger')
 
         for item in date_registry.tolist(contest.id):
             obj = item['model'].objects.get(pk=item['id'])

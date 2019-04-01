@@ -1,0 +1,39 @@
+{% extends "rest_framework/base.html" %}
+
+{% block style %}
+<style>
+    .navbar a {
+        color: lightgray;
+    }
+    .navbar a:hover {
+        color: white;
+        text-decoration: none;
+    }
+    .navbar li {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+</style>
+{{ block.super }}
+{% endblock %}
+
+{% block branding %}
+<span class='navbar-brand'>
+    {% include "ingredients/navbar-logo.html" with always_visible=True %}
+</span>
+{% endblock %}
+
+{% block userlinks %}
+{% comment %} For now there is no support for translating the documentation for API
+<li>
+    {% block navbar_language_selector %}
+        {% include 'ingredients/language-picker.html' %}
+    {% endblock %}
+</li>
+{% endcomment %}
+<li>
+    {% block navbar_user_panel %}
+        {% include "ingredients/navbar-user.html" %}
+    {% endblock %}
+</li>
+{% endblock %}

@@ -239,6 +239,9 @@ INSTALLED_APPS = (
     'two_factor',
 
     'nested_admin',
+    'coreapi',
+    'rest_framework',
+    'rest_framework.authtoken',
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -535,4 +538,17 @@ MESSAGE_TAGS = {
     messages.SUCCESS: 'alert-success',
     messages.WARNING: 'alert-warning',
     messages.ERROR: 'alert-danger',
+}
+
+USE_API = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }

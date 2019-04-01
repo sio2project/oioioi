@@ -1,0 +1,43 @@
+{% extends "base-with-menu.html" %}
+{% load i18n staticfiles simple_filters %}
+
+{% block title %}{% trans "Api token" %}{% endblock %}
+
+{% block main-content %}
+{% if regenerated %}
+<div class="alert alert-success" role="alert">
+<strong>{% trans "Your key was regenerated." %}</strong>
+{% trans "Remember to change it in all your applications." %}
+</div>
+{% endif %}
+<h1> Here is your secret API token</h1>
+
+<p>{% trans "The token allows you to authenticate through the API. Remember to protect it. If the token is no longer a secret you should regenerate it." %}
+</p>
+
+{% if not token %}
+<form action="{% url 'api_token' %}" method="post">
+    {% csrf_token %}
+    <button role="button" type="submit" class="btn btn-default">
+        {% trans "Show key" %}
+    </button>
+</form>
+{% else %}
+<pre id="api_token">{{ token }}</pre>
+
+    <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#api_token">
+        {% trans "Copy to clipboard" %}
+    </button>
+    <form action="{% url 'api_regenerate_key' %}" method="post">
+        {% csrf_token %}
+        <button role="button" type="submit" class="btn btn-default btn-xs">
+            {% trans "Re-generate key" %}
+        </button>
+    </form>
+
+{% endif %}
+
+<p> {% trans "To learn more about the API see " %}
+    <a href="/api/docs">{% trans "the documentation" %}</a>.
+</p>
+{% endblock %}

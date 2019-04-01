@@ -44,6 +44,7 @@ python23_universal_requirements = [
         "django-registration-redux>=1.6,<2.0",
 
         "Celery>=3.1.15,<4.0.0",
+        "coreapi>=2.3.0",
         "django-celery>=3.1.15,<=3.1.17",
         "dj-pagination",
         "django-compressor==2.2",
@@ -53,6 +54,7 @@ python23_universal_requirements = [
 
         "django-debug-toolbar>=1.4,<1.10",  # latest version for Django 1.9
         "django-extensions>=1.0.0",
+        "djangorestframework==3.6.4",               # latest version for Django 1.9
         "werkzeug",
 
         'pytest!=4.2.0',
