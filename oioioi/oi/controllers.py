@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
@@ -39,9 +40,8 @@ class OIRegistrationController(ParticipantsController):
     def can_enter_contest(self, request):
         return True
 
-    @classmethod
-    def filter_visible_contests(cls, request, contest_queryset):
-        return contest_queryset
+    def visible_contests_query(self, request):
+        return Q(pk__isnull=False)  # (True)
 
     def can_register(self, request):
         return True

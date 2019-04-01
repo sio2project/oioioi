@@ -2,10 +2,12 @@ import logging
 from datetime import timedelta  # pylint: disable=E0611
 
 from django.conf import settings
+from django.contrib import auth
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -18,7 +20,6 @@ from oioioi.contests.models import (Contest, ProblemStatementConfig, Round,
                                     SubmissionReport, UserResultForContest,
                                     UserResultForProblem, UserResultForRound,
                                     submission_kinds)
-from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import (generic_rounds_times, has_any_active_round,
                                    is_contest_observer, is_contest_basicadmin,
                                    last_break_between_rounds, rounds_times,
@@ -110,14 +111,45 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         queryset = Contest.objects.filter(id=self.contest.id)
         return self.filter_visible_contests(request, queryset).exists()
 
-    @classmethod
-    def filter_visible_contests(cls, request, contest_queryset):
+    def visible_contests_query(self, request):
+        """Provides a :class:`django.db.models.Q` expression which can be used
+           on :class:`oioioi.contests.models.Contest` queryset already limited
+           to contests using this controller to filter for contests the user
+           can enter.
+
+           It must not make use of attribute `contest` of the controller,
+           as it is not guaranteed to be set. It is called with None contest
+           in :function:`oioioi.contests.utils.visible_contests`.
+        """
+        filt = self.user_contests_query(request)
+        for backend in auth.get_backends():
+            if not hasattr(backend, 'filter_for_perm'):
+                continue
+            filt |= backend.filter_for_perm(Contest, 'contests.contest_admin', request.user) \
+                | backend.filter_for_perm(Contest, 'contests.contest_observer', request.user) \
+                | backend.filter_for_perm(Contest, 'contests.personal_data', request.user) \
+                | backend.filter_for_perm(Contest, 'contests.contest_basicadmin', request.user)
+        return filt
+
+    def user_contests_query(self, request):
+        """Provides a :class:`django.db.models.Q` expression which can be used
+           on :class:`oioioi.contests.models.Contest` queryset already limited
+           to contests using this controller to filter for contests the user
+           has entered.
+
+           It must not make use of attribute `contest` of the controller,
+           as it is not guaranteed to be set. It is called with None contest
+           in :function:`oioioi.contests.utils.visible_contests`.
+        """
+        raise NotImplementedError
+
+    def filter_visible_contests(self, request, contest_queryset):
         """Filters a queryset of :class:`oioioi.contests.models.Contest`
            leaving only contests that the user can enter.
 
-           contest_queryset should containin only contests that use a
-           :class:`oioioi.base.controllers.RegistractionController` subclass
-           which :meth:`filter_visible_contests` is being called.
+           contest_queryset should contain only contests that use a
+           :class:`oioioi.contests.controllers.RegistrationController`
+           subclass which :meth:`filter_visible_contests` is being called.
 
            For non-anonymous users default implementation checks their
            permissions and returns a union with what is returned from
@@ -126,29 +158,11 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 
            :rtype: :class:`~django.db.models.query.QuerySet`
         """
-        if request.user.is_anonymous and cls.anonymous_can_enter_contest():
+        if request.user.is_anonymous and self.anonymous_can_enter_contest():
             return contest_queryset.distinct()
-        contests = set()
-        for contest in contest_queryset:
-            if request.user.has_perm('contests.contest_admin', contest):
-                contests.add(contest.id)
-                continue
-            if request.user.has_perm('contests.contest_basicadmin', contest):
-                contests.add(contest.id)
-                continue
-            if request.user.has_perm('contests.contest_observer', contest):
-                contests.add(contest.id)
-                continue
-            if request.user.has_perm('contests.personal_data', contest):
-                contests.add(contest.id)
-                continue
-        permissions = Contest.objects.filter(id__in=contests)
-        participated = \
-                cls.filter_user_contests(request, contest_queryset)
-        return (permissions | participated).distinct()
+        return contest_queryset.filter(self.visible_contests_query(request)).distinct()
 
-    @classmethod
-    def filter_user_contests(cls, request, contest_queryset):
+    def filter_user_contests(self, request, contest_queryset):
         """Filters a queryset of :class:`oioioi.contests.models.Contest`
            leaving only contests that the user has entered.
 
@@ -158,7 +172,7 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 
            :rtype: :class:`~django.db.models.query.QuerySet`
         """
-        raise NotImplementedError
+        return contest_queryset.filter(self.user_contests_query(request))
 
     @classmethod
     def anonymous_can_enter_contest(self):
@@ -237,13 +251,11 @@ class PublicContestRegistrationController(RegistrationController):
     def anonymous_can_enter_contest(cls):
         return True
 
-    @classmethod
-    def filter_visible_contests(cls, request, contest_queryset):
-        return contest_queryset
+    def visible_contests_query(self, request):
+        return Q(pk__isnull=False)  # (True)
 
-    @classmethod
-    def filter_user_contests(cls, request, contest_queryset):
-        return contest_queryset
+    def user_contests_query(self, request):
+        return Q(pk__isnull=False)  # (True)
 
     def filter_participants(self, queryset):
         return queryset

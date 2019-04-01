@@ -4,8 +4,10 @@ from datetime import timedelta  # pylint: disable=E0611
 import six
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+from django.utils.module_loading import import_string
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
@@ -203,36 +205,25 @@ def aggregate_statuses(statuses):
         return 'OK'
 
 
-def contests_by_registration_controller():
-    """Returns a mapping from RegistrationController class to contest ids.
-
-       This is useful for limiting the number of database queries required
-       to check which contests can be shown to the user.  It allows
-       RegistrationController subclasses to operate on contest querysets
-       and filter many of them at once.
-
-       :rtype: :class:`~collections.defaultdict` containing `set` objects
+def used_controllers():
+    """Returns list of dotted paths to contest controller classes in use
+       by contests on this instance.
     """
-    rcontrollers = defaultdict(set)
-    for contest in Contest.objects.all():
-        rc = contest.controller.registration_controller()
-        rcontrollers[rc.__class__].add(contest.id)
-    return rcontrollers
+    return Contest.objects.values_list('controller_name', flat=True).distinct()
 
 
 @request_cached
 def visible_contests(request):
-    visible = set()
-    rc_mapping = contests_by_registration_controller()
-    for rcontroller, contest_ids in six.iteritems(rc_mapping):
-        contests = Contest.objects.filter(id__in=contest_ids)
-        # These querysets could be concatenated and evaluated in a single
-        # query, however it turns out, that it results in so big and complex
-        # WHERE clauses that Postgres doesn't even attempt to optimize it
-        # (which means ~100x longer execution times).
-        filtered = set(rcontroller.filter_visible_contests(request, contests))
-        visible = visible | filtered
-    return visible
+    """Returns materialized set of contests visible to the logged in user."""
+    visible_query = Q(pk__isnull=True)  # (False)
+    for controller_name in used_controllers():
+        controller_class = import_string(controller_name)
+        # HACK: we pass None contest just to call visible_contests_query.
+        # This is a workaround for mixins not taking classmethods very well.
+        controller = controller_class(None)
+        visible_query |= (Q(controller_name=controller_name) & controller
+                          .registration_controller().visible_contests_query(request))
+    return set(Contest.objects.filter(visible_query))
 
 
 @request_cached
@@ -364,6 +355,7 @@ def best_round_to_display(request, allow_past_rounds=False):
         return past_rtimes[-1][0]
     else:
         return None
+
 
 @make_request_condition
 def has_any_contest(request):

@@ -1,6 +1,7 @@
 import datetime
 
 from django import forms
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
@@ -42,9 +43,8 @@ class PARegistrationController(ParticipantsController):
     def can_enter_contest(self, request):
         return True
 
-    @classmethod
-    def filter_visible_contests(cls, request, contest_queryset):
-        return contest_queryset
+    def visible_contests_query(self, request):
+        return Q(pk__isnull=False)  # (True)
 
     def can_register(self, request):
         return True

@@ -2,6 +2,7 @@ import six.moves.urllib.parse
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -43,10 +44,8 @@ class ParticipantsController(RegistrationController):
         return queryset.filter(participant__contest=self.contest,
                 participant__status='ACTIVE')
 
-    @classmethod
-    def filter_user_contests(cls, request, contest_queryset):
-        return contest_queryset.filter(participant__user__id=request.user.id,
-            participant__status='ACTIVE')
+    def user_contests_query(self, request):
+        return Q(participant__user__id=request.user.id, participant__status='ACTIVE')
 
     def filter_users_with_accessible_personal_data(self, queryset):
         return self.filter_participants(queryset)
@@ -193,9 +192,8 @@ class OpenParticipantsController(ParticipantsController):
     def can_enter_contest(self, request):
         return True
 
-    @classmethod
-    def filter_visible_contests(cls, request, contest_queryset):
-        return contest_queryset
+    def visible_contests_query(self, request):
+        return Q(pk__isnull=False)  # (True)
 
     def can_register(self, request):
         return True

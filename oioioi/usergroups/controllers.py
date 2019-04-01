@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from oioioi.teachers.controllers import TeacherRegistrationController
 
 
@@ -8,14 +10,11 @@ class UserGroupsParticipantsControllerMixin(object):
         groups_qs = queryset.filter(usergroups__contests__id=self.contest.id)
         return base_qs | groups_qs
 
-    @classmethod
-    def filter_user_contests(cls, request, contest_queryset):
-        base_qs = super(UserGroupsParticipantsControllerMixin, cls)\
-            .filter_user_contests(request, contest_queryset)
+    def user_contests_query(self, request):
+        base_query = super(UserGroupsParticipantsControllerMixin, self).user_contests_query(request)
         if not request.user.is_authenticated:
-            return base_qs
-        groups_qs = contest_queryset.filter(usergroups__members__id=request.user.id)
-        return base_qs | groups_qs
+            return base_query
+        return base_query | Q(usergroups__members__id=request.user.id)
 
 
 TeacherRegistrationController.mix_in(UserGroupsParticipantsControllerMixin)

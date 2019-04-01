@@ -2305,9 +2305,8 @@ class TestRegistrationController(TestCase):
 
         request = self.client.get('/').wsgi_request
 
-        public_rc = c1.controller.registration_controller().__class__
-        private_rc = invisible_contest.controller \
-               .registration_controller().__class__
+        public_rc = c1.controller.registration_controller()
+        private_rc = invisible_contest.controller.registration_controller()
 
         def assert_public_are_visible():
             results = public_rc.filter_visible_contests(request,
