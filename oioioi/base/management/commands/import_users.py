@@ -14,8 +14,6 @@ class Command(BaseCommand):
     COLUMNS = ['username', 'password', 'first_name', 'last_name', 'email']
     columns_str = ', '.join(COLUMNS)
 
-    args = _("<filename_or_url>")
-
     @property
     def help(self):
         return _("Creates user accounts from a CSV file <filename or url> "
@@ -27,11 +25,13 @@ class Command(BaseCommand):
 
     requires_model_validation = True
 
-    def handle(self, *args, **options):
-        if len(args) != 1:
-            raise CommandError(_("Expected one argument"))
+    def add_arguments(self, parser):
+        parser.add_argument('filename_or_url',
+                            type=str,
+                            help='Source CSV file')
 
-        arg = args[0]
+    def handle(self, *args, **options):
+        arg = options['filename_or_url']
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))

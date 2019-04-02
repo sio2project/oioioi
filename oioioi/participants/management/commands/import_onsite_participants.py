@@ -20,7 +20,6 @@ class Command(BaseCommand):
     COLUMNS = ['number', 'username', 'region_short_name', 'local_number']
     columns_str = ', '.join(COLUMNS)
 
-    args = _("<contest_id> <filename_or_url>")
     help = _("Updates the list of participants of <contest_id> from the given "
              "CSV file <filename or url>, with the following columns: "
              "%(columns)s.\n\n"
@@ -30,14 +29,19 @@ class Command(BaseCommand):
 
     requires_model_validation = True
 
-    def handle(self, *args, **options):
-        if len(args) != 2:
-            raise CommandError(_("Expected two arguments"))
+    def add_arguments(self, parser):
+        parser.add_argument('contest_id',
+                            type=str,
+                            help='Contest to import to')
+        parser.add_argument('filename_or_url',
+                            type=str,
+                            help='Source CSV file')
 
+    def handle(self, *args, **options):
         try:
-            contest = Contest.objects.get(id=args[0])
+            contest = Contest.objects.get(id=options['contest_id'])
         except Contest.DoesNotExist:
-            raise CommandError(_("Contest %s does not exist") % args[0])
+            raise CommandError(_("Contest %s does not exist") % options['contest_id'])
 
         rcontroller = contest.controller.registration_controller()
         print(rcontroller)
@@ -45,7 +49,7 @@ class Command(BaseCommand):
                           OnsiteRegistrationParticipantAdmin):
             raise CommandError(_("Wrong type of contest"))
 
-        arg = args[1]
+        arg = options['filename_or_url']
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))

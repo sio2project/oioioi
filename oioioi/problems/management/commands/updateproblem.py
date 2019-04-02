@@ -10,22 +10,18 @@ from oioioi.problems.package import NoBackend, backend_for_package
 
 
 class Command(BaseCommand):
-    args = _("<problem_id> <filename>")
     help = _("Updates an existing problem using the given package file.")
+
+    def add_arguments(self, parser):
+        parser.add_argument('problem_id',
+                            type=int)
+        parser.add_argument('filename',
+                            type=str)
 
     @transaction.atomic
     def handle(self, *args, **options):
-        if len(args) < 2:
-            raise CommandError(_("Not enough arguments"))
-        if len(args) > 2:
-            raise CommandError(_("Too many arguments"))
-
-        try:
-            problem_id = int(args[0])
-        except ValueError:
-            raise CommandError(_("Invalid problem id: ") + args[0])
-
-        filename = args[1]
+        problem_id = options['problem_id']
+        filename = options['filename']
         if not os.path.exists(filename):
             raise CommandError(_("File not found: ") + filename)
 

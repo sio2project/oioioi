@@ -7,29 +7,29 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Command(BaseCommand):
-
-    args = _("<out_filename_json> [<in_filename_txt>]").encode('utf-8')
     help = _("Creates json describing portal structure from list of all "
              "tasks from MAIN portal (default one in "
              "oioioi/portals/management/commands/res) you may then edit "
              "to add contest descriptions and all of the other necessary "
              "polish.").encode('utf-8')
 
+    def add_arguments(self, parser):
+        parser.add_argument('out_filename_json',
+                            type=str,
+                            help='File json will be written to')
+        parser.add_argument('in_filename_txt',
+                            type=str,
+                            nargs='?',
+                            default=os.path.join(os.path.dirname(__file__), 'data.txt'),
+                            help='Input file')
+
     def handle(self, *args, **options):
-
-        if len(args) < 1:
-            raise CommandError(_("Expected at least one argument"))
-        if len(args) > 2:
-            raise CommandError(_("Expected two arguments at most"))
-
         try:
-            base_dir = os.path.dirname(__file__)
-            default_data_file = os.path.join(base_dir, 'data.txt')
             in_data = open(
-                args[1] if len(args) == 2 else default_data_file,
+                options['in_filename_txt'],
                 "r"
             ).read()
-            out_file = open(args[0], "w")
+            out_file = open(options['out_filename_json'], "w")
         except IOError as e:
             raise CommandError(e.message)
 

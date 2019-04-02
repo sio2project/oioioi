@@ -17,20 +17,20 @@ def username_to_dns_name(username):
 
 
 class Command(BaseCommand):
-    args = _("<contest_id>")
     help = _("Updates the ipdnsauth module entries from the participants of "
              "the specified contest.")
 
     requires_model_validation = True
 
-    def handle(self, *args, **options):
-        if len(args) != 1:
-            raise CommandError(_("Expected one argument"))
+    def add_arguments(self, parser):
+        parser.add_argument('contest_id',
+                            type=str)
 
+    def handle(self, *args, **options):
         try:
-            contest = Contest.objects.get(id=args[0])
+            contest = Contest.objects.get(id=options['contest_id'])
         except Contest.DoesNotExist:
-            raise CommandError(_("Contest %s does not exist") % args[0])
+            raise CommandError(_("Contest %s does not exist") % options['contest_id'])
 
         rcontroller = contest.controller.registration_controller()
         if not issubclass(getattr(rcontroller, 'participant_admin', None),

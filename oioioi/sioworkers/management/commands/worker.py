@@ -8,12 +8,22 @@ from six.moves.xmlrpc_client import Server
 
 
 class Command(BaseCommand):
-    args = '<command> [args]'   # TODO
     help = 'TODO'
 
     def __init__(self, *args, **kwargs):
         super(Command, self).__init__(*args, **kwargs)
         self.server = Server(settings.SIOWORKERSD_URL)
+
+    def add_arguments(self, parser):
+        parser.add_argument('command',
+                            type=str,
+                            nargs='?',
+                            default=None,
+                            help='Command to be run')
+        parser.add_argument('args',
+                            type=str,
+                            nargs='*',
+                            help='Command\' arguments')
 
     def cmd_list(self, **kwargs):
         l = self.server.get_workers()
@@ -61,15 +71,15 @@ class Command(BaseCommand):
             return
         self.stdout.write(six.text_type(q).encode('utf-8'))
 
-    def handle(self, *args, **kwargs):
-        if not args:
+    def handle(self, *args, **options):
+        if not options['command']:
             cmds = [i[4:] for i in dir(self) if i.startswith('cmd_')]
             self.stdout.write('Available commands: %s\n' % ', '.join(cmds))
             return
-        cmd = args[0]
-        args = args[1:]
+        cmd = options['command']
+        args = options['args']
         try:
             f = getattr(self, 'cmd_' + cmd)
         except AttributeError:
             raise CommandError('Invalid command: %s' % cmd)
-        f(*args, **kwargs)
+        f(*args, **options)

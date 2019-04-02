@@ -4,8 +4,7 @@ import threading
 import six
 from enum import Enum
 
-from django.core import urlresolvers
-from django.core.urlresolvers import NoReverseMatch
+from django.urls import NoReverseMatch
 from django.utils.functional import lazy
 
 ContestMode = Enum('ContestMode', 'neutral contest_if_possible contest_only')
@@ -112,10 +111,14 @@ django_reverse = None
 def patch():
     global django_reverse
     # Will not patch twice.
-    if urlresolvers.reverse is not reverse:
-        django_reverse = urlresolvers.reverse
-        urlresolvers.reverse = reverse
-        urlresolvers.reverse_lazy = lazy(reverse, str)
+    from django import urls
+    if urls.reverse is not reverse:
+        from django.core import urlresolvers as urls_old
+        django_reverse = urls.reverse
+        urls.reverse = reverse
+        urls.reverse_lazy = lazy(reverse, str)
+        urls_old.reverse = reverse
+        urls_old.reverse_lazy = urls.reverse_lazy
 
 
 patch()

@@ -197,7 +197,7 @@ class TestOIRegistration(TestCase):
             't_shirt_size': 'L',
             'school': '1',
             'class_type': '1LO',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
         }
 
         response = self.client.post(url, reg_data)
@@ -225,7 +225,7 @@ class TestOIRegistration(TestCase):
             'address': 'The Castle',
             'postal_code': '31-337',
             'school': '999',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
             '_add_school': 'add it'
         }
 
@@ -392,7 +392,7 @@ class TestSchoolMerging(TestCase):
             't_shirt_size': 'L',
             'school': '2',
             'class_type': '1LO',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
         }
 
         response = self.client.post(url, reg_data)
@@ -583,7 +583,7 @@ class TestUserInfo(TestCase):
             't_shirt_size': 'L',
             'school': '1',
             'class_type': '1LO',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
         }
 
         response = self.client.post(url, reg_data)

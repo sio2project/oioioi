@@ -32,32 +32,32 @@ python3_specific_requirements = [
 ]
 
 python23_universal_requirements = [
-        "Django>=1.9,<1.10",  # when upgrading, upgrade also django-two-factor-auth!
+        "Django>=1.10,<1.11",  # when upgrading, upgrade also django-two-factor-auth!
         "pytz>=2013b",
         "sqlalchemy",
-        "django-otp==0.3.4",  # latest version for Django 1.9 and django-two-factor-auth 1.5.0
+        "django-otp<0.5",  # latest version for Django 1.10 and django-two-factor-auth 1.6.*
         "beautifulsoup4",
         "PyYAML",
         "python-dateutil",
-        "django-two-factor-auth==1.5.0",  # latest version for Django 1.9
+        "django-two-factor-auth<1.7",  # latest version for Django 1.10
 
-        "django-registration-redux>=1.6,<2.0",
+        "django-registration-redux>=1.6,<2.0",  # latest for Django 1.10
 
         "Celery>=3.1.15,<4.0.0",
         "coreapi>=2.3.0",
         "django-celery>=3.1.15,<=3.1.17",
         "dj-pagination",
-        "django-compressor==2.2",
+        "django-compressor==2.2",  # latest version
         "django-overextends>=0.4.1",
         "pygments",
         "django-libsass>=0.7",
 
-        "django-debug-toolbar>=1.4,<1.10",  # latest version for Django 1.9
+        "django-debug-toolbar>=1.4,<1.10",  # latest version for Django 1.10
         "django-extensions>=1.0.0",
         "djangorestframework==3.6.4",               # latest version for Django 1.9
         "werkzeug",
 
-        'pytest!=4.2.0',
+        'pytest',
         'pytest-django',
         'pytest-html',
         'pytest-xdist',
@@ -79,8 +79,7 @@ python23_universal_requirements = [
 
         "django-gravatar2",
 
-        "django-mptt>=0.8.7,<0.9.1",
-
+        "django-mptt>=0.8.7,<0.9.1",  # latest version for Dango 1.11, supports 2.0
         "mistune",
 
         # Some of celery dependencies (kombu) require amqp to be <2.0.0

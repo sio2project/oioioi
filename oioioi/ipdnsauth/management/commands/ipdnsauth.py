@@ -1,13 +1,12 @@
 import csv
 
 from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from oioioi.ipdnsauth.models import DnsToUser, IpToUser
 
 
 class Command(BaseCommand):
-    args = "ip|dns"
     help = "Manages ipdnsauth module.\n" \
            "First argument specifies, which bindings should be handled.\n" \
            "Load/export format is simple csv-like 'user binding'.\n\n" \
@@ -32,6 +31,10 @@ class Command(BaseCommand):
                             dest='loadfile',
                             help="Loads bindings from FILE.",
                             metavar='FILE')
+        parser.add_argument('model',
+                            type=str,
+                            choices=('ip', 'dns'),
+                            help='Model')
 
     def _write(self, data, filename):
         with open(filename, 'w') as csvfile:
@@ -100,16 +103,11 @@ class Command(BaseCommand):
                        }
         command_seq = ('exportfile', 'clear', 'unloadfile', 'loadfile')
 
-        if len(args) != 1:
-            raise CommandError("Exactly one argument is required.")
-
-        if args[0] == 'ip':
+        if options['model'] == 'ip':
             modelMgr = IpToUser.objects
-        elif args[0] == 'dns':
+        elif options['model'] == 'dns':
             modelMgr = DnsToUser.objects
-        else:
-            raise CommandError("First argument has to be 'ip' or 'dns'.")
 
         for cmd in command_seq:
             if options[cmd]:
-                command_map[cmd](args[0], modelMgr, options[cmd])
+                command_map[cmd](options['model'], modelMgr, options[cmd])

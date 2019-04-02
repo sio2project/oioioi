@@ -10,7 +10,6 @@ from oioioi.contests.models import Contest, Round, Submission, SubmissionReport
 
 
 class Command(BaseCommand):
-    args = ""
     help = _("Display differences between active and last hidden report for"
              " each submission")
 

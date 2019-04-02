@@ -17,7 +17,6 @@ class Command(BaseCommand):
     COLUMNS = ['username', 'ip_addr']
     columns_str = ', '.join(COLUMNS)
 
-    args = _("<contest_id> <filename_or_url>")
     help = _("Updates the list of balloons displays of <contest_id> from the "
              "given CSV file <filename or url>, with the following columns: "
              "%(columns)s.\n\n"
@@ -27,16 +26,21 @@ class Command(BaseCommand):
 
     requires_model_validation = True
 
+    def add_arguments(self, parser):
+        parser.add_argument('contest_id',
+                            type=str,
+                            help='Contest id')
+        parser.add_argument('filename_or_url',
+                            type=str,
+                            help='Given CSV file')
+
     def handle(self, *args, **options):
-        if len(args) != 2:
-            raise CommandError(_("Expected two arguments"))
-
         try:
-            contest = Contest.objects.get(id=args[0])
+            contest = Contest.objects.get(id=options['contest_id'])
         except Contest.DoesNotExist:
-            raise CommandError(_("Contest %s does not exist") % args[0])
+            raise CommandError(_("Contest %s does not exist") % options['contest_id'])
 
-        arg = args[1]
+        arg = options['filename_or_url']
 
         if arg.startswith('http://') or arg.startswith('https://'):
             self.stdout.write(_("Fetching %s...\n") % (arg,))

@@ -11,17 +11,18 @@ from oioioi.confirmations.utils import (ProofCorrupted,
 
 
 class Command(BaseCommand):
-    args = _("source_file")
     help = _("Verifies the cryptographic confirmation of submission receipt "
              "given to the users. Pass the source file as the first argument "
              "and paste the email with the '--- BEGIN PROOF DATA ---' "
              "to the standard input.")
 
-    def handle(self, *args, **options):
-        if len(args) != 1:
-            raise CommandError(_("Expected exactly one argument"))
+    def add_arguments(self, parser):
+        parser.add_argument('source_file',
+                            type=str,
+                            help='Source file')
 
-        filename = args[0]
+    def handle(self, *args, **options):
+        filename = options['source_file']
         if not os.path.exists(filename):
             raise CommandError(_("File not found: ") + filename)
         source = open(filename, 'r').read()

@@ -34,7 +34,7 @@ def school_options(province, city):
 
 
 class SchoolSelect(forms.Select):
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None):
         school_id = -1
         province = ''
         city = ''

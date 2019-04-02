@@ -97,9 +97,6 @@ class Command(BaseCommand):
                         % (region.short_name,), traceback.format_exc())
 
     def handle(self, *args, **options):
-        if args:
-            raise CommandError("This command doesn't accept any arguments!")
-
         if MySQLdb is None:
             raise CommandError("MySQLdb Python module not found (you may "
                     "install it with 'pip install MySQL-python')")

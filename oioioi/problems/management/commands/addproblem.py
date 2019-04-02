@@ -9,31 +9,29 @@ from oioioi.problems.package import NoBackend, backend_for_package
 
 
 class Command(BaseCommand):
-    args = _("<filename>")
     help = _("Adds the problem from the given package to the database.")
+
+    def add_arguments(self, parser):
+        parser.add_argument('filename',
+                            type=str)
+        parser.add_argument('no_throw',
+                            type=str,
+                            nargs='?',
+                            default="",
+                            choices=['nothrow'])
 
     @transaction.atomic
     def handle(self, *args, **options):
-        if not args:
-            raise CommandError(_("Missing argument (filename)"))
-        if len(args) > 2:
-            raise CommandError(_("Expected at most two arguments"))
-
         # The second argument can have only one value - 'nothrow'.
         # It's meant to be used in unit tests,
         # so that if adding the problem failed,
         # we can still investigate the problem package
         # and make sure that the errors there are what we expected.
         throw_on_problem_not_added = True
-        if len(args) > 1:
-            if args[1] == "nothrow":
-                throw_on_problem_not_added = False
-            else:
-                raise CommandError(_("The second argument (if provided) "
-                                     "can only have value 'nothrow'"
-                                     " - to be used in testing"))
+        if options['no_throw']:
+            throw_on_problem_not_added = False
 
-        filename = args[0]
+        filename = options['filename']
         if not os.path.exists(filename):
             raise CommandError(_("File not found: ") + filename)
         try:

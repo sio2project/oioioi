@@ -113,8 +113,7 @@ class TestIndex(TestCase):
         self.assertIn('method is not allowed', response.content)
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(logout_url)
-        self.assertEqual(200, response.status_code)
-        self.assertIn('been logged out', response.content)
+        self.assertEqual(302, response.status_code)
 
     def test_index(self):
         with self.assertNumQueriesLessThan(90):
@@ -1022,8 +1021,8 @@ class TestLoginChange(TestCase):
             response = self.client.get(self.url_edit_profile)
             # The html strings underneath may change with any django upgrade.
             self.assertIn('<input class="form-control" id="id_username" '
-                    'maxlength="30" name="username" type="text" '
-                    'value="%s" />' % l, response.content)
+                    'maxlength="150" name="username" type="text" '
+                    'value="%s" required />' % l, response.content)
 
             self.client.post(self.url_edit_profile, {'username': 'valid_user'},
                     follow=True)
@@ -1035,8 +1034,8 @@ class TestLoginChange(TestCase):
 
             response = self.client.get(self.url_edit_profile)
             self.assertIn('<input class="form-control" id="id_username" '
-                    'maxlength="30" name="username" type="text" '
-                    'value="valid_user" readonly />', response.content)
+                    'maxlength="150" name="username" type="text" '
+                    'value="valid_user" readonly required />', response.content)
 
     def test_login_cannot_change_from_valid(self):
         for l in self.valid_logins:
@@ -1045,8 +1044,8 @@ class TestLoginChange(TestCase):
 
             response = self.client.get(self.url_edit_profile)
             self.assertIn('<input class="form-control" id="id_username" '
-                          'maxlength="30" name="username" type="text" '
-                          'value="%s" readonly />' % l, response.content)
+                          'maxlength="150" name="username" type="text" '
+                          'value="%s" readonly required />' % l, response.content)
 
             response = self.client.post(self.url_edit_profile,
                     {'username': 'valid_user'}, follow=True)

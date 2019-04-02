@@ -73,12 +73,6 @@ class FileField(files.FileField):
         kwargs.setdefault('max_length', 255)
         super(FileField, self).__init__(*args, **kwargs)
 
-    def get_prep_lookup(self, lookup_type, value):
-        if hasattr(value, 'name') \
-                and isinstance(value.name, FiletrackerFilename):
-            value = value.name.versioned_name
-        return super(FileField, self).get_prep_lookup(lookup_type, value)
-
     def get_prep_value(self, value):
         if hasattr(value, 'name') \
                 and isinstance(value.name, FiletrackerFilename):

@@ -40,8 +40,11 @@ class Command(BaseCommand):
         parser.add_argument('-q', '--quiet', dest='quiet', default=False,
                             action='store_true',
                             help="Disables wget interactive progress bars")
+        parser.add_argument('sandboxes',
+                            type=str,
+                            nargs='*',
+                            help='List of sandboxes to be downloaded')
 
-    args = '[<sandbox-name> ...]'
     help = "Downloads sandboxes and stores them in the Filetracker."
 
     requires_model_validation = False
@@ -80,6 +83,7 @@ class Command(BaseCommand):
             if e.code != 404:
                 raise
 
+        args = options['sandboxes']
         if not args:
             args = manifest
 

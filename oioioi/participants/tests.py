@@ -222,7 +222,7 @@ class TestOpenParticipantsRegistration(TestCase):
                 'oioioi.acm.controllers.ACMOpenContestController'
         contest.save()
         self.reg_data = {
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
         }
 
     def test_participants_registration(self):
@@ -524,7 +524,7 @@ class TestAnonymousParticipants(TestCase):
             't_shirt_size': 'L',
             'school': '1',
             'class_type': '1LO',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
             'anonymous': anonymous,
         }
 
@@ -633,7 +633,7 @@ class TestParticipantsDataViews(TestCase):
             't_shirt_size': 'L',
             'school': '1',
             'class_type': '1LO',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
             'anonymous': False,
         }
         self.client.post(reg_url, reg_data)

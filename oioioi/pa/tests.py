@@ -234,7 +234,7 @@ class TestPARegistration(TestCase):
             't_shirt_size': 'L',
             'job': 'AS',
             'job_name': 'WSRH',
-            'terms_accepted': 'y',
+            'terms_accepted': 't',
         }
 
     def test_default_terms_accepted_phrase(self):

@@ -2,7 +2,7 @@ import sys
 
 import unicodecsv
 from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 from pytz import timezone
 
@@ -10,19 +10,23 @@ from oioioi.contests.models import Contest, Submission
 
 
 class Command(BaseCommand):
-    args = _("<contest_id> <output_file> <user1> [<user2> ...]")
     help = _("Export data for oi-timepres final presentation.")
 
     requires_model_validation = True
 
-    def handle(self, *args, **options):
-        if len(args) < 3:
-            raise CommandError(_("Expected contest_id, output_file"
-                                 " and non-empty list of usernames"))
+    def add_arguments(self, parser):
+        parser.add_argument('contest_id',
+                            type=str)
+        parser.add_argument('output_file',
+                            type=str)
+        parser.add_argument('user_list',
+                            type=str,
+                            nargs='+')
 
-        contest = Contest.objects.get(id=args[0])
-        out_file = args[1]
-        logins_to_show = args[2:]
+    def handle(self, *args, **options):
+        contest = Contest.objects.get(id=options['contest_id'])
+        out_file = options['output_file']
+        logins_to_show = options['user_list']
 
         users = User.objects.filter(username__in=logins_to_show)
         all_submissions = Submission.objects \

@@ -1,7 +1,7 @@
 import sys
 
 import unicodecsv
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 
 from oioioi.participants.models import Participant
@@ -17,8 +17,15 @@ COLUMNS = [
 
 
 class Command(BaseCommand):
-    args = _("<contest_id> <csv_output>")
     help = _("Export personal data.")
+
+    def add_arguments(self, parser):
+        parser.add_argument('contest_id',
+                            type=str,
+                            help="Contest to export from")
+        parser.add_argument('out_file',
+                            type=str,
+                            help="File path to export to")
 
     def gen_csv_header(self):
         def render_sublist(sublist, prefix):
@@ -48,11 +55,8 @@ class Command(BaseCommand):
         return [render_sublist(COLUMNS, p) for p in participants]
 
     def handle(self, *args, **options):
-        if len(args) != 2:
-            raise CommandError(_("Exactly two arguments are required."))
-
-        contest_id = args[0]
-        out_file = args[1]
+        contest_id = options['contest_id']
+        out_file = options['out_file']
 
         csv_header = self.gen_csv_header()
 

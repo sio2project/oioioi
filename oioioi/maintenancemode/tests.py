@@ -38,7 +38,7 @@ class TestMaintenanceMode(TestCase):
             'user': 'test_user',
             'backend': 'django.contrib.auth.backends.ModelBackend',
         })
-        self.assertIn('been logged out', response.content)
+        self.assertEquals(response.status_code, 302)
 
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_logged_admin_no_redirect(self):

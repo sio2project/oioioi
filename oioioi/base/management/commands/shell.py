@@ -8,7 +8,7 @@ from __future__ import print_function
 import os
 import time
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django_extensions.management.shells import import_objects
 import six
 
@@ -22,7 +22,7 @@ class Command(BaseCommand):
         parser.add_argument('--ipython', action='store_true', dest='ipython',
                             help='Tells Django to use IPython, not BPython.')
         parser.add_argument('--notebook', action='store_true', dest='notebook',
-                            help='Tells Django to use IPython Notebook.')
+                            help='Tells Django to use IPython args.')
         parser.add_argument('--no-pythonrc', action='store_true', dest='no_pythonrc',
                             help='Tells Django not to execute PYTHONSTARTUP file')
         parser.add_argument('--print-sql', action='store_true', default=False,
@@ -36,9 +36,6 @@ class Command(BaseCommand):
     requires_model_validation = True
 
     def handle(self, *args, **options):
-        if args:
-            raise CommandError("This command doesn't accept any arguments!")
-
         use_notebook = options.get('notebook', False)
         use_ipython = options.get('ipython', False)
         use_bpython = options.get('bpython', False)

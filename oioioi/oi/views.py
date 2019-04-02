@@ -37,7 +37,7 @@ def cities_view(request):
         raise SuspiciousOperation
     province = request.GET['province']
     options = city_options(province)
-    return HttpResponse(SchoolSelect().render_options(options, []))
+    return HttpResponse(SchoolSelect(choices=options).render_options([]))
 
 
 @require_GET
@@ -48,7 +48,7 @@ def schools_view(request):
     province = request.GET['province']
     city = request.GET['city']
     options = school_options(province, city)
-    return HttpResponse(SchoolSelect().render_options(options, []))
+    return HttpResponse(SchoolSelect(choices=options).render_options([]))
 
 
 @enforce_condition(not_anonymous)

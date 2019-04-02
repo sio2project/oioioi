@@ -10,37 +10,28 @@ from oioioi.contests.models import Contest
 
 
 class Command(BaseCommand):
-    args = 'message'
     help = "Sends a notification to selected users"
     requires_model_validation = False
+
     def add_arguments(self, parser):
+        group = parser.add_mutually_exclusive_group(required=True)
+        group.add_argument('-c', '--contest', type=six.text_type, action='store',
+                            help="notifies all participants of a contest")
+        group.add_argument('-u', '--user', type=six.text_type, action='store',
+                            help="notifies particular user")
+
         parser.add_argument('-p', '--popup', action='store_true',
                             help="make the notification pop-up automatically")
-        parser.add_argument('-c', '--contest', type=six.text_type, action='store',
-                            help="notifies all participants of a contest")
-        parser.add_argument('-u', '--user', type=six.text_type, action='store',
-                            help="notifies particular user")
         parser.add_argument('-a', '--address', type=six.text_type, action='store',
                             help="adds a link")
         parser.add_argument('-d', '--details', type=six.text_type, action='store',
                             help="adds message details")
-
-    @staticmethod
-    def validate_options(*args, **options):
-        opts = args[1]
-        if opts['contest'] and opts['user']:
-            raise CommandError(
-                "options --contest and --user are mutually exclusive")
-        elif not (opts['contest'] or opts['user']):
-            raise CommandError("neither user nor contest provided")
-
-        if len(args[0]) == 0:
-            raise CommandError("a message should be provided")
+        parser.add_argument('message',
+                            type=str,
+                            nargs='+')
 
     def handle(self, *args, **options):
-        self.validate_options(args, options)
-
-        message = ' '.join(args)
+        message = ' '.join(options['message'])
         if options['user']:
             try:
                 users = [User.objects.get(username=options['user'])]

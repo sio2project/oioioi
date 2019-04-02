@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 from six.moves import map
 
@@ -9,18 +9,21 @@ from oioioi.programs.models import TestReport
 
 
 class Command(BaseCommand):
-
-    args = _("[contest_id]")
     help = _("List submissions graded as SE")
 
     requires_model_validation = True
 
+    def add_arguments(self, parser):
+        parser.add_argument('contest_id',
+                            nargs='?',
+                            default=None,
+                            type=str,
+                            help='Contest id')
+
     def handle(self, *args, **options):
-        c = None
-        if len(args) > 1:
-            raise CommandError(_("Expected at most one argument"))
-        if len(args) == 1:
-            c = Contest.objects.get(id=args[0])
+        c = options['contest_id']
+        if c:
+            c = Contest.objects.get(id=c)
 
         frs = FailureReport.objects.filter(submission_report__status='ACTIVE')
         trs = TestReport.objects.filter(status='SE',
