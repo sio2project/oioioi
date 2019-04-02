@@ -138,8 +138,7 @@ class TestFileStorageViews(TestCase, TestStreamingMixin):
         content = 'foo'
         default_storage.save(filename, ContentFile(content))
         try:
-            url = reverse('oioioi.filetracker.views.raw_file_view',
-                    kwargs={'filename': filename})
+            url = reverse('raw_file', kwargs={'filename': filename})
             response = self.client.get(url)
             self.assertEqual(response.status_code, 403)
             self.assertTrue(self.client.login(username='test_user'))

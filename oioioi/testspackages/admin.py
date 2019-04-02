@@ -34,7 +34,7 @@ class TestsPackageInline(admin.TabularInline):
 
     def package_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.testspackages.views.test_view',
+            href = reverse('test',
                     kwargs={'package_id': instance.id, 'contest_id':
                         instance.problem.contest.id})
             return make_html_link(href, instance.package.file.name)

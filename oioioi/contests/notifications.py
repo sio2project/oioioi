@@ -21,7 +21,7 @@ def notification_function_submission_judged(arguments):
             arguments.submission):
         return
 
-    url = reverse('oioioi.contests.views.submission_view',
+    url = reverse('submission',
         kwargs={'contest_id': pi.contest.pk,
         'submission_id': arguments.submission.pk})
 

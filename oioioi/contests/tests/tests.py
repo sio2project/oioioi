@@ -189,7 +189,7 @@ class TestUrls(TestCase):
         # different sources by trying to reverse them.
         try:
             # local contest pattern
-            reverse(render_contest_id_view, kwargs={'contest_id': 'c'})
+            reverse('render_contest_id', kwargs={'contest_id': 'c'})
             # local neutral pattern
             reverse('print_contest_id')
             # local noncontest pattern
@@ -232,13 +232,6 @@ class TestUrls(TestCase):
             reverse('oioioiadmin:contests_probleminstance_changelist')
         url = reverse('oioioiadmin:contests_probleminstance_changelist',
                 kwargs={'contest_id': contest.id})
-        self.assertTrue(url.startswith(contest_prefix))
-
-        # imported view
-        from oioioi.contests.views import select_contest_view
-        url = reverse(select_contest_view)
-        self.assertFalse(url.startswith(contest_prefix))
-        url = reverse(select_contest_view, kwargs={'contest_id': contest.id})
         self.assertTrue(url.startswith(contest_prefix))
 
         self.client.get(contest_prefix)  # contest active
@@ -316,7 +309,7 @@ class TestCurrentContest(TestCase):
         response = self.client.get(url)
         self.assertEquals(response.content, 'c1')
 
-        url = reverse(render_contest_id_view)
+        url = reverse('render_contest_id')
         response = self.client.get(url)
         self.assertEquals(response.content, 'c1')
 

@@ -59,7 +59,7 @@
                 </li>
                 {% if package %}
                 <li>
-                    <a href="{% url 'oioioi.problems.views.download_problem_package_view' package_id=package.id %}">{% trans "Download problem package" %}</a>
+                    <a href="{% url 'download_package' package_id=package.id %}">{% trans "Download problem package" %}</a>
                 </li>
                 {% endif %}
                 {% for url, name in extra_actions %}

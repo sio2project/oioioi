@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse_lazy
 
 from oioioi.base.tests import TestCase
 from oioioi.notifications.processors import get_notifications_session
-from oioioi.notifications.views import notifications_authenticate_view
 
 
 class TestNotifications(TestCase):
@@ -12,7 +11,7 @@ class TestNotifications(TestCase):
 
     def test_notifications(self):
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse_lazy(notifications_authenticate_view)
+        url = reverse_lazy('notifications_authenticate')
         response = self.client.post(url, {
             'nsid': get_notifications_session(self.client.session).uid
         })

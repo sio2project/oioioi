@@ -100,7 +100,7 @@ class TestInline(admin.TabularInline):
 
     def input_file_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.programs.views.download_input_file_view',
+            href = reverse('download_input_file',
                     kwargs={'test_id': str(instance.id)})
             return make_html_link(href,
                                   instance.input_file.name.split('/')[-1])
@@ -109,7 +109,7 @@ class TestInline(admin.TabularInline):
 
     def output_file_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.programs.views.download_output_file_view',
+            href = reverse('download_output_file',
                     kwargs={'test_id': instance.id})
             return make_html_link(href,
                                   instance.output_file.name.split('/')[-1])
@@ -154,7 +154,7 @@ class OutputCheckerInline(admin.TabularInline):
             return _("No checker for this task.")
 
         if instance.id is not None:
-            href = reverse('oioioi.programs.views.download_checker_exe_view',
+            href = reverse('download_checker_file',
                 kwargs={'checker_id': str(instance.id)})
             return make_html_link(href, instance.exe_file.name.split('/')[-1])
         return None

@@ -44,7 +44,7 @@ class SinolpackExtraFilesInline(admin.StackedInline):
 
     def file_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.sinolpack.views.download_extra_file_view',
+            href = reverse('download_extra_file',
                 kwargs={'file_id': str(instance.id)})
             return make_html_link(href, instance.name)
         return None

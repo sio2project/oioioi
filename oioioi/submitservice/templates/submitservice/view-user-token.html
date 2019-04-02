@@ -3,7 +3,7 @@
 {% block title %}{% trans "Submitting solutions from terminal" %}{% endblock %}
 
 {% block main-content %}
-{% url "oioioi.submitservice.views.clear_user_token" contest_id=contest.id as clear_token_url %}
+{% url "submitservice_clear_user_token" contest_id=contest.id as clear_token_url %}
 {% static "submitservice/submit.py" as script_url %}
 {% blocktrans %}
 <h1>Submitting solutions from terminal</h1>

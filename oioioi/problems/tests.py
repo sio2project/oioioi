@@ -214,8 +214,8 @@ class TestProblemUpload(TransactionTestCase):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo')}
-        url = reverse('oioioi.problems.views.add_or_update_problem_view',
-                kwargs={'contest_id': contest.id}) + '?' + \
+        url = reverse('add_or_update_problem',
+                      kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('Package information', response.content)
@@ -237,8 +237,8 @@ class TestProblemUpload(TransactionTestCase):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='FAIL')}
-        url = reverse('oioioi.problems.views.add_or_update_problem_view',
-                kwargs={'contest_id': contest.id}) + '?' + \
+        url = reverse('add_or_update_problem',
+                      kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('DUMMY_FAILURE', response.content)
@@ -260,8 +260,8 @@ class TestProblemUpload(TransactionTestCase):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo')}
-        url = reverse('oioioi.problems.views.add_or_update_problem_view',
-                kwargs={'contest_id': contest.id}) + '?' + \
+        url = reverse('add_or_update_problem',
+                      kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('Package information', response.content)
@@ -278,8 +278,8 @@ class TestProblemUpload(TransactionTestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo'),
                 'cc_rulez': True}
-        url = reverse('oioioi.problems.views.add_or_update_problem_view',
-                kwargs={'contest_id': contest.id}) + '?' + \
+        url = reverse('add_or_update_problem',
+                      kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
         response = self.client.post(url, data, follow=True)
         self.assertIn('Package information', response.content)
@@ -371,12 +371,9 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
                 check_not_accessible(self, prefix + 'delete',
                         args=(package.id,))
         if not is_admin:
-            check_not_accessible(self,
-                    'oioioi.problems.views.download_problem_package_view',
-                    args=(package.id,))
-            check_not_accessible(self,
-                    'oioioi.problems.views.download_package_traceback_view',
-                    kwargs={'package_id': str(package.id)})
+            check_not_accessible(self, 'download_package', args=(package.id,))
+            check_not_accessible(self, 'download_package_traceback',
+                                       kwargs={'package_id': str(package.id)})
 
     def test_admin_changelist_view(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -394,8 +391,8 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
 
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioi.problems.views.download_problem_package_view',
-                kwargs={'package_id': str(package.id)})
+        url = reverse('download_package',
+                      kwargs={'package_id': str(package.id)})
 
         response = self.client.get(url)
         content = self.streamingContent(response)
@@ -407,8 +404,8 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package.save()
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
-        url = reverse('oioioi.problems.views.download_package_traceback_view',
-                kwargs={'package_id': str(package.id)})
+        url = reverse('download_package_traceback',
+                      kwargs={'package_id': str(package.id)})
 
         response = self.client.get(url)
         content = self.streamingContent(response)
@@ -417,8 +414,8 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
         package.traceback = None
         package.save()
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('oioioi.problems.views.download_package_traceback_view',
-                kwargs={'package_id': str(package.id)})
+        url = reverse('download_package_traceback',
+                      kwargs={'package_id': str(package.id)})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 

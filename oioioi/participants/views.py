@@ -18,14 +18,14 @@ from oioioi.participants.utils import (can_edit_registration, can_register,
 
 account_menu_registry.register('participants_registration',
         _("Register to the contest"),
-        lambda request: reverse(registration_view,
+        lambda request: reverse('participants_register',
             kwargs={'contest_id': request.contest.id}),
         condition=contest_exists & contest_has_participants & can_register,
         order=80)
 
 account_menu_registry.register('participants_edit_registration',
         _("Edit contest registration"),
-        lambda request: reverse(registration_view,
+        lambda request: reverse('participants_register',
             kwargs={'contest_id': request.contest.id}),
         condition=contest_exists & contest_has_participants
             & can_edit_registration,

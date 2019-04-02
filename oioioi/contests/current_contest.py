@@ -1,6 +1,7 @@
 import copy
 import re
 import threading
+import six
 from enum import Enum
 
 from django.core import urlresolvers
@@ -67,12 +68,14 @@ def reverse(target, *args, **kwargs):
        preprocessed. For that we created the
        :func:`~oioioi.contests.urls.make_patterns` function.
     """
-    m = getattr(target, '__module__', None)
-    n = getattr(target, '__name__', None)
-    if m is not None and n is not None:
-        name = "%s.%s" % (m, n)
-    else:
-        name = target
+    if not isinstance(target, six.string_types):
+        if callable(target):
+            # It's not possible to reverse with callable view object
+            # in namespace. As we use namespaces heavily and reversing with
+            # callable view object is discouraged by Django documentation,
+            # we don't implement this behaviour.
+            raise NotImplementedError
+        raise ValueError
 
     if 'kwargs' in kwargs and kwargs['kwargs'] \
             and 'contest_id' in kwargs['kwargs']:
@@ -85,7 +88,7 @@ def reverse(target, *args, **kwargs):
 
     if contest_id:
         try:
-            ret = django_reverse('contest:' + name, *args, **kwargs)
+            ret = django_reverse('contest:' + target, *args, **kwargs)
             return re.sub(contest_re, r'/c/{}/'.format(contest_id), ret)
         except NoReverseMatch:
             if explicit_contest:
@@ -93,14 +96,14 @@ def reverse(target, *args, **kwargs):
             # Else we will try the noncontest version.
 
     try:
-        return django_reverse('noncontest:' + name, *args, **kwargs)
+        return django_reverse('noncontest:' + target, *args, **kwargs)
     except NoReverseMatch:
         if explicit_contest and not contest_id:
             raise
         # It can still be one of those urls defined in the global urls.py
         # because we didn't namespace them.
 
-    return django_reverse(name, *args, **kwargs)
+    return django_reverse(target, *args, **kwargs)
 
 
 django_reverse = None

@@ -130,8 +130,7 @@ class FiletrackerStorage(Storage):
     def url(self, name):
         if isinstance(name, FiletrackerFilename):
             name = name.versioned_name
-        return reverse('oioioi.filetracker.views.raw_file_view',
-                kwargs={'file_name': name})
+        return reverse('raw_file', kwargs={'file_name': name})
 
     def path(self, name):
         raise NotImplementedError("File is in Filetracker, cannot get its"

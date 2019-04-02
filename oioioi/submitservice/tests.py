@@ -13,8 +13,7 @@ class TestSubmitService(TestCase):
 
     def test_submit(self):
         ufile = SimpleUploadedFile('file.cpp', "int main() {}")
-        url = reverse('oioioi.submitservice.views.submit_view',
-                      kwargs={'contest_id': 'c'})
+        url = reverse('submitservice_submit', kwargs={'contest_id': 'c'})
         response = self.client.post(url, {
             'file': ufile,
             'task': 'zad1',
@@ -24,18 +23,18 @@ class TestSubmitService(TestCase):
         self.assertRegexpMatches(response_data['result_url'], r'\/c\/c\/s\/[0-9]+\/')
 
     def test_view_user_token(self):
-        url = reverse('oioioi.submitservice.views.view_user_token',
+        url = reverse('submitservice_view_user_token',
                       kwargs={'contest_id': 'c'})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertIn(b'123456ABCDEF', response.content)
 
     def test_clear_user_token(self):
-        url = reverse('oioioi.submitservice.views.clear_user_token',
+        url = reverse('submitservice_clear_user_token',
                       kwargs={'contest_id': 'c'})
         self.assertTrue(self.client.login(username='test_user'))
         self.client.post(url)
-        url = reverse('oioioi.submitservice.views.view_user_token',
+        url = reverse('submitservice_view_user_token',
                       kwargs={'contest_id': 'c'})
         response = self.client.get(url)
         self.assertNotIn('123456ABCDEF', response.content)

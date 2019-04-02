@@ -23,7 +23,7 @@ def notification_function_initial_results(arguments):
         return
 
     if pi.contest:
-        url = reverse('oioioi.contests.views.submission_view',
+        url = reverse('submission',
             kwargs={'contest_id': pi.contest.pk,
             'submission_id': arguments.submission.pk})
     elif pi.problem.problemsite:

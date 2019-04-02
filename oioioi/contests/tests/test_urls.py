@@ -5,7 +5,8 @@ from oioioi.contests.urls import make_patterns
 from oioioi.contests.tests import tests
 
 contest_patterns = [
-    url(r'^render_contest_id/$', tests.render_contest_id_view),
+    url(r'^render_contest_id/$', tests.render_contest_id_view,
+        name='render_contest_id'),
 ]
 
 namespaced_patterns = [

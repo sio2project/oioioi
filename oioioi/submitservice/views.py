@@ -74,9 +74,9 @@ def submit_view(request):
             raise SubmitServiceException('INVALID_SUBMISSION', form.errors)
         submission = request.contest.controller \
             .create_submission(request, pi, form.cleaned_data)
-        result_url = reverse('oioioi.contests.views.submission_view',
-                                kwargs={'contest_id': request.contest.id,
-                                'submission_id': submission.id})
+        result_url = reverse('submission',
+                             kwargs={'contest_id': request.contest.id,
+                                     'submission_id': submission.id})
         result = {'result_url': result_url, 'submission_id': submission.id}
     except SubmitServiceException as exception_info:
         result = {'error_code': exception_info.args[0],
@@ -101,7 +101,7 @@ def view_user_token(request):
     return TemplateResponse(request, 'submitservice/view-user-token.html',
                             {'token': current_token.token,
                              'contest_url': request.build_absolute_uri(reverse(
-                                 'oioioi.contests.views.default_contest_view',
+                                 'default_contest_view',
                                  kwargs={'contest_id': request.contest.id}))
                              })
 

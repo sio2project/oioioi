@@ -14,7 +14,7 @@ class ContestLogoInline(admin.TabularInline):
 
     def logo_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.contestlogo.views.logo_image_view',
+            href = reverse('logo_image_view',
                     kwargs={'contest_id': str(instance.contest.id)})
             return make_html_link(href, instance.filename)
         return None
@@ -39,7 +39,7 @@ class ContestIconInline(admin.TabularInline):
 
     def icon_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.contestlogo.views.icon_image_view',
+            href = reverse('icon_image_view',
                     kwargs={'icon_id': str(instance.id),
                             'contest_id': str(instance.contest.id)})
             return make_html_link(href, instance.filename)

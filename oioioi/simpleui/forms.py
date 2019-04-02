@@ -87,7 +87,7 @@ class TestForm(forms.ModelForm):
 
     def input_file_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.programs.views.download_input_file_view',
+            href = reverse('download_input_file',
                     kwargs={'test_id': instance.id})
             return make_html_link(href, _("in"))
         return None
@@ -95,7 +95,7 @@ class TestForm(forms.ModelForm):
 
     def output_file_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.programs.views.download_output_file_view',
+            href = reverse('download_output_file',
                     kwargs={'test_id': instance.id})
             return make_html_link(href, _("out"))
         return None

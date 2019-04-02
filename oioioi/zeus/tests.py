@@ -170,10 +170,10 @@ class ZeusViewsTest(TestCase):
         saved_environ_id = saved_environ.id
         signature = zeus_url_signature(saved_environ_id)
 
-        url = reverse('oioioi.zeus.views.push_grade',
-                kwargs={
-                    'saved_environ_id': saved_environ_id,
-                    'signature': signature})
+        url = reverse('zeus_push_grade_callback',
+                      kwargs={
+                        'saved_environ_id': saved_environ_id,
+                        'signature': signature})
         data = {u'compilation_output': Base64String("CE")}
         response = self.client.post(url, _json_base64_encode(data),
                 follow=True, content_type="application/json")
@@ -191,8 +191,8 @@ class TestZeusProblemUpload(TestCase):
         contest = Contest.objects.get()
         filename = get_test_filename('test_simple_package.zip')
         self.assertTrue(self.client.login(username='test_admin'))
-        url = reverse('oioioi.problems.views.add_or_update_problem_view',
-                kwargs={'contest_id': contest.id}) + '?' + \
+        url = reverse('add_or_update_problem',
+                      kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'zeus'})
         data = {
             'package_file': open(filename, 'rb'),

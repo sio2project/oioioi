@@ -127,7 +127,7 @@ class AttachmentInline(admin.StackedInline):
 
     def content_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.contests.views.contest_attachment_view',
+            href = reverse('contest_attachment',
                         kwargs={'contest_id': str(instance.contest.id),
                                 'attachment_id': str(instance.id)})
             return make_html_link(href, instance.content.name)
@@ -368,9 +368,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         problem_package = ProblemPackage.objects \
                 .filter(problem=instance.problem).first()
         if problem_package and problem_package.package_file:
-            href = reverse(
-                    'oioioi.problems.views.download_problem_package_view',
-                    kwargs={'package_id': str(problem_package.id)})
+            href = reverse('download_package',
+                           kwargs={'package_id': str(problem_package.id)})
             return make_html_link(href, problem_package.package_file)
         return None
     package.short_description = _("Package file")

@@ -24,7 +24,7 @@ class PrizeGivingInline(admin.TabularInline):
             return instance.state
 
         if instance.id is not None:
-            href = reverse('oioioi.prizes.views.download_report_view',
+            href = reverse('download_report',
                            kwargs={'pg_id': instance.id,
                                    'contest_id': instance.contest.id})
             return make_html_link(href, instance.state)

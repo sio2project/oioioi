@@ -48,7 +48,7 @@ def is_not_teacher(request):
 def send_request_email(request, teacher, message):
     context = {
         'teacher': teacher,
-        'accept_link': request.build_absolute_uri(reverse(accept_teacher_view,
+        'accept_link': request.build_absolute_uri(reverse('accept_teacher',
             kwargs={'user_id': teacher.user_id})),
         'message': message.strip(),
     }
@@ -75,7 +75,7 @@ def send_acceptance_email(request, teacher):
 
 
 @account_menu_registry.register_decorator(_("Request teacher account"),
-    lambda request: reverse(add_teacher_view),
+    lambda request: reverse('add_teacher'),
     order=100)
 @enforce_condition(not_anonymous & is_not_teacher)
 def add_teacher_view(request):
@@ -119,10 +119,10 @@ def accept_teacher_view(request, user_id):
 
 
 @contest_admin_menu_registry.register_decorator(_("Pupils"), lambda request:
-        reverse(members_view, kwargs={'contest_id': request.contest.id,
+        reverse('show_members', kwargs={'contest_id': request.contest.id,
                                       'member_type': 'pupil'}), order=30)
 @contest_admin_menu_registry.register_decorator(_("Teachers"), lambda request:
-        reverse(members_view, kwargs={'contest_id': request.contest.id,
+        reverse('show_members', kwargs={'contest_id': request.contest.id,
                                       'member_type': 'teacher'}), order=31)
 @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
 def members_view(request, member_type):
@@ -142,7 +142,7 @@ def members_view(request, member_type):
         raise Http404
 
     registration_link = request.build_absolute_uri(
-        reverse(activate_view, kwargs={
+        reverse('teachers_activate_member', kwargs={
             'contest_id': request.contest.id,
             'key': key
         })
@@ -214,7 +214,7 @@ def activate_view(request, key):
 
 
 def redirect_to_members(request, member_type='pupil'):
-    return redirect(reverse(members_view, kwargs={'contest_id':
+    return redirect(reverse('show_members', kwargs={'contest_id':
         request.contest.id, 'member_type': member_type}))
 
 

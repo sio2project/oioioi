@@ -9,7 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.portals.models import Node, Portal, NodeLanguageVersion
 from oioioi.problems.models import Tag
-from oioioi.problems.views import problem_site_view
 
 
 def make_problemtree(tree, root, stdout):
@@ -60,7 +59,7 @@ def make_problemtree(tree, root, stdout):
                                 .format(task, edition['tag']))
                             continue
 
-                        l.append(reverse(problem_site_view, kwargs={
+                        l.append(reverse('problem_site', kwargs={
                                 'site_key': task_obj.problemsite.url_key}))
                     except ObjectDoesNotExist:
                         stdout.write('Ignoring task: {} from {}, task\'s \

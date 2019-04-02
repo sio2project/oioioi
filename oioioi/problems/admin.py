@@ -66,7 +66,7 @@ class StatementInline(admin.TabularInline):
 
     def content_link(self, instance):
         if instance.id is not None:
-            href = reverse('oioioi.problems.views.show_statement_view',
+            href = reverse('show_statement',
                     kwargs={'statement_id': str(instance.id)})
             return make_html_link(href, instance.content.name)
         return None
@@ -80,9 +80,8 @@ class AttachmentInline(admin.TabularInline):
 
     def content_link(self, instance):
         if instance.id is not None:
-            href = reverse(
-                'oioioi.problems.views.show_problem_attachment_view',
-                kwargs={'attachment_id': str(instance.id)})
+            href = reverse('show_problem_attachment',
+                           kwargs={'attachment_id': str(instance.id)})
             return make_html_link(href, instance.content.name)
         return None
     content_link.short_description = _("Content file")
@@ -281,9 +280,8 @@ class ProblemPackageAdmin(admin.ModelAdmin):
 
     def package(self, instance):
         if instance.package_file:
-            href = reverse(
-                    'oioioi.problems.views.download_problem_package_view',
-                    kwargs={'package_id': str(instance.id)})
+            href = reverse('download_package',
+                           kwargs={'package_id': str(instance.id)})
             return make_html_link(href, instance.package_file)
         return None
     package.short_description = _("Package file")
@@ -302,9 +300,8 @@ class ProblemPackageAdmin(admin.ModelAdmin):
                                 {'came_from': self.came_from()})
                 actions.append((problem_view, _("Edit problem")))
         if instance.status == 'ERR' and instance.traceback:
-            traceback_view = reverse(
-                    'oioioi.problems.views.download_package_traceback_view',
-                    kwargs={'package_id': str(instance.id)})
+            traceback_view = reverse('download_package_traceback',
+                                     kwargs={'package_id': str(instance.id)})
             actions.append((traceback_view, _("Error details")))
         return actions
 

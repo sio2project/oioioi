@@ -10,10 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from mistune import BlockLexer, InlineGrammar, InlineLexer, Markdown, Renderer
 
 from oioioi.contests.models import UserResultForProblem
-from oioioi.contests.views import submission_view
 from oioioi.portals.conditions import is_portal_admin
 from oioioi.problems.models import Problem
-from oioioi.problems.views import problem_site_view
 
 REGISTERED_WIDGETS = []
 
@@ -168,7 +166,7 @@ class ProblemTableWidget(object):
         for problem in problems:
             row = {}
 
-            row['url'] = reverse(problem_site_view,
+            row['url'] = reverse('problem_site',
                 kwargs={'site_key': problem.problemsite.url_key})
             row['name'] = problem.name
 
@@ -183,10 +181,10 @@ class ProblemTableWidget(object):
                 if result is None:
                     return False
                 row_['score'] = str(result.score.to_int())
-                row_['submission_url'] = reverse(
-                    submission_view,
-                    kwargs={'submission_id':
-                        result.submission_report.submission.id}
+                row_['submission_url'] = \
+                    reverse('submission',
+                            kwargs={'submission_id':
+                                    result.submission_report.submission.id}
                 )
                 return True
 
