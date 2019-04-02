@@ -13,10 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelManagers(
-            name='node',
-            managers=[
-                ('_default_manager', django.db.models.manager.Manager()),
-            ],
-        ),
+        # Previously this migration was a migrations.AlterModelManagers,
+        # but the _base_manager attribute was removed and this errors
+        # on Django1.10
     ]

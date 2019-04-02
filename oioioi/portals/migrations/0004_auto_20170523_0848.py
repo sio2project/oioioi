@@ -12,9 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterModelManagers(
-            name='node',
-            managers=[
-            ],
-        ),
+        # Previously this migration was a migrations.AlterModelManagers,
+        # but the _base_manager attribute was removed and this errors
+        # on Django1.10
     ]
