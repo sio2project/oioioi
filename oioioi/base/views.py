@@ -78,7 +78,7 @@ def handler404(request, exception):
     return render(request, '404.html', status=404)
 
 
-def handler403(request):
+def handler403(request, exception):
     if request.is_ajax():
         return HttpResponse('403 Forbidden', status=403,
                 content_type='text/plain')
