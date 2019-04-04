@@ -16,7 +16,7 @@ class ExtraConfig(models.Model):
     def parsed_config(self):
         if not self.config:
             return {}
-        return yaml.load(self.config)
+        return yaml.safe_load(self.config)
 
     class Meta(object):
         verbose_name = _("sinolpack's configuration")
