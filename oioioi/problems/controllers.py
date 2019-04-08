@@ -313,29 +313,32 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         if not settings.PROBLEM_STATISTICS_AVAILABLE:
             return
 
-        problem_statistics = ProblemStatistics.objects \
+        problem_statistics, created = ProblemStatistics.objects \
                 .select_for_update() \
-                .get(problem=self.problem)
-        user_statistics = UserStatistics.objects \
+                .get_or_create(problem=self.problem)
+        user_statistics, created = UserStatistics.objects \
                 .select_for_update() \
-                .get(problem_statistics=problem_statistics, user=user)
+                .get_or_create(problem_statistics=problem_statistics, user=user)
 
-        # Rollback the user's statistics
-        if user_statistics.has_submitted:
-            problem_statistics.submitted -= 1
-        if user_statistics.has_solved:
-            problem_statistics.solved -= 1
-        problem_statistics._best_score_sum -= user_statistics.best_score
-        if problem_statistics.submitted == 0:
-            problem_statistics.avg_best_score = 0
-        else:
-            problem_statistics.avg_best_score = \
-                problem_statistics._best_score_sum / problem_statistics.submitted
-        user_statistics.delete()
+        if not created:
+            # Rollback the user's statistics
+            if user_statistics.has_submitted:
+                problem_statistics.submitted -= 1
+            if user_statistics.has_solved:
+                problem_statistics.solved -= 1
+            problem_statistics._best_score_sum -= user_statistics.best_score
+            if problem_statistics.submitted == 0:
+                problem_statistics.avg_best_score = 0
+            else:
+                problem_statistics.avg_best_score = \
+                    problem_statistics._best_score_sum / problem_statistics.submitted
+            user_statistics.delete()
+            user_statistics, created = UserStatistics.objects \
+                    .select_for_update() \
+                    .get_or_create(problem_statistics=problem_statistics,
+                                   user=user)
 
         # Recreate statistics from every relevant submission one by one
-        user_statistics, created = UserStatistics.objects.select_for_update() \
-                .get_or_create(problem_statistics=problem_statistics, user=user)
         user_submissions = Submission.objects \
                 .filter(user=user,
                         problem_instance__problem=self.problem)

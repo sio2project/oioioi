@@ -352,12 +352,6 @@ class ProblemStatistics(models.Model):
     _best_score_sum = models.IntegerField(default=0)
 
 
-@receiver(post_save, sender=Problem)
-def create_statistics_for_new_problem(created, instance, **kwargs):
-    if created:
-        ProblemStatistics.objects.create(problem=instance)
-
-
 class UserStatistics(models.Model):
     problem_statistics = models.ForeignKey(ProblemStatistics,
                                            on_delete=models.CASCADE)

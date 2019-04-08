@@ -13,6 +13,7 @@ from django.db import transaction
 from django.http import HttpResponse
 from django.test import TransactionTestCase, RequestFactory
 from django.test.utils import override_settings
+from django.utils.html import strip_tags
 from django.utils.timezone import utc
 import six.moves.urllib.parse
 from six.moves import range
@@ -2419,7 +2420,7 @@ class TestProblemStatistics(TestCase):
                 .filter(id__gt=4) \
                 .update(kind='IGNORED')
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2489,7 +2490,7 @@ class TestProblemStatistics(TestCase):
                 .update(kind='IGNORED')
 
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2532,7 +2533,7 @@ class TestProblemStatistics(TestCase):
 
     def test_recalculate_statistics(self):
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2557,7 +2558,7 @@ class TestProblemStatisticsSpecialCases(TestCase):
 
     def test_statistics_null_score(self):
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2570,7 +2571,7 @@ class TestProblemStatisticsSpecialCases(TestCase):
 
     def test_statistics_zero_max_score(self):
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2583,7 +2584,7 @@ class TestProblemStatisticsSpecialCases(TestCase):
 
     def test_statistics_weird_scores(self):
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2604,7 +2605,7 @@ class TestProblemStatisticsSpecialCases(TestCase):
     # score_report.max_score are handled correctly.
     def test_statistics_imported(self):
         problem = Problem.objects.get(id=1)
-        ps = problem.statistics
+        ps, created = ProblemStatistics.objects.get_or_create(problem=problem)
         self.assertTrue(ps.submitted == 0)
         self.assertTrue(ps.solved == 0)
         self.assertTrue(ps.avg_best_score == 0)
@@ -2614,3 +2615,127 @@ class TestProblemStatisticsSpecialCases(TestCase):
         self.assertTrue(ps.submitted == 1)
         self.assertTrue(ps.solved == 1)
         self.assertTrue(ps.avg_best_score == 100)
+
+
+@override_settings(PROBLEM_STATISTICS_AVAILABLE=True)
+class TestProblemStatisticsDisplay(TestCase):
+    fixtures = ['test_users', 'test_statistics_display']
+
+    problem_columns = ['short_name', 'name', 'submitted', 'solved_pc',
+                       'avg_best_score']
+    problem_data = [['aaa', 'Aaaa', '7', '14%', '50'],
+                    ['bbb', 'Bbbb', '8', '25%', '45'],
+                    ['ccc', 'Cccc', '5', '60%', '90'],
+                    ['ddd', 'Dddd', '6', '66%', '80']]
+
+    def _get_table_contents(self, html):
+        col_n = html.count('<th') - html.count('<thead>')
+        row_n = html.count('<tr') - 1
+        # Skip first `<tr>`
+        pos = html.find('<tr') + 1
+        self.assertNotEqual(pos, -1)
+        rows = []
+        for _ in range(row_n):
+            pos = html.find('<tr', pos)
+            self.assertNotEqual(pos, -1)
+            rows.append([])
+            for _ in range(col_n):
+                pos = html.find('<td', pos)
+                self.assertNotEqual(pos, -1)
+                pos2 = html.find('</td>', pos)
+                self.assertNotEqual(pos2, -1)
+                rows[-1].append(strip_tags(html[pos:pos2]).strip())
+                pos = pos2 + len('</td>')
+        return rows
+
+    def _assert_rows_sorted(self, rows, order_by=0, desc=False):
+        self.assertEqual(rows, sorted(self.problem_data,
+                                      key=lambda x: x[order_by],
+                                      reverse=desc))
+
+    def test_statistics_problem_list(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+        url_main = reverse('problemset_main')
+        response = self.client.get(url_main)
+        self.assertEqual(response.status_code, 200)
+
+        rows = self._get_table_contents(response.content.decode('utf-8'))
+        self.assertEqual(rows, self.problem_data)
+
+    def test_statistics_sorting(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+        for i, column in enumerate(self.problem_columns):
+            url_main = reverse('problemset_main')
+            response = self.client.get(url_main, {'order_by': column})
+            self.assertEqual(response.status_code, 200)
+
+            rows = self._get_table_contents(response.content.decode('utf-8'))
+            self._assert_rows_sorted(rows, order_by=i)
+
+            response = self.client.get(url_main,
+                                       {'order_by': column, 'desc': None})
+            self.assertEqual(response.status_code, 200)
+
+            rows = self._get_table_contents(response.content.decode('utf-8'))
+            self._assert_rows_sorted(rows, order_by=i, desc=True)
+
+    def test_statistics_nulls(self):
+        ProblemStatistics.objects.get(problem__short_name='ccc').delete()
+
+        self.assertTrue(self.client.login(username='test_user'))
+
+        for column in self.problem_columns[2:]:
+            url_main = reverse('problemset_main')
+            response = self.client.get(url_main, {'order_by': column})
+            self.assertEqual(response.status_code, 200)
+
+            rows = self._get_table_contents(response.content.decode('utf-8'))
+            self.assertEqual(rows[0], ['ccc', 'Cccc', '0', '0%', '0'])
+
+            response = self.client.get(url_main,
+                                       {'order_by': column, 'desc': None})
+            self.assertEqual(response.status_code, 200)
+
+            rows = self._get_table_contents(response.content.decode('utf-8'))
+            self.assertEqual(rows[-1], ['ccc', 'Cccc', '0', '0%', '0'])
+
+    # Check that the query and the ordering are correctly preserved in links
+    def test_statistics_sorting_with_query(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+        col_no = 3
+        q = 'Bbbb Dddd'
+        order = self.problem_columns[col_no-1]
+        url_main = reverse('problemset_main')
+
+        response = self.client.get(url_main,
+                {'q': q, 'foo': 'bar', 'order_by': order, 'desc': None})
+        self.assertEqual(response.status_code, 200)
+
+        rows = self._get_table_contents(response.content.decode('utf-8'))
+        self.assertEqual(len(rows), 2)
+
+        html = response.content.decode('utf-8')
+        pos = html.find('<tr>')
+        for _ in range(col_no):
+            pos = html.find('<th', pos) + 1
+            self.assertNotEqual(pos, -1)
+        pos2 = html.find('</th>', pos)
+        self.assertNotEqual(pos2, -1)
+        th = html[pos:pos2]
+        self.assertIn('q='+q, th)
+        self.assertIn('foo=bar', th)
+        # The current column link should be to reverse ordering
+        self.assertNotIn('desc', th)
+
+        pos = html.find('<th', pos) + 1
+        self.assertNotEqual(pos, -1)
+        pos2 = html.find('</th>', pos)
+        self.assertNotEqual(pos2, -1)
+        th = html[pos:pos2]
+        self.assertIn('q='+q, th)
+        self.assertIn('foo=bar', th)
+        # Any other column links should be to (default) descending ordering
+        self.assertIn('desc', th)

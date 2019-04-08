@@ -1,6 +1,7 @@
 # coding: utf-8
 import urllib
 from collections import defaultdict
+from functools import wraps
 import re
 
 from django.conf import settings
@@ -8,6 +9,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
+from django.db.models import Case, F, When
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -219,11 +221,74 @@ def search_problems_in_problemset(datadict):
         return Problem.objects.all(), ''
 
 
+def problemset_get_problems(request):
+    problems, query = search_problems_in_problemset(request.GET)
+
+    if settings.PROBLEM_STATISTICS_AVAILABLE:
+        # We need to annotate all of the statistics, because NULLs are difficult
+        # to sort by before Django 1.11, this can be changed if we upgrade...
+        problems = problems.select_related('statistics').annotate(
+            statistics_submitted=Case(
+                When(statistics__isnull=True, then=0),
+                default=F('statistics__submitted')
+            ),
+            statistics_solved_pc=Case(
+                When(statistics__isnull=True, then=0),
+                When(statistics__submitted=0, then=0),
+                default=100*F('statistics__solved')/F('statistics__submitted')
+            ),
+            statistics_avg_best_score=Case(
+                When(statistics__isnull=True, then=0),
+                default=F('statistics__avg_best_score')
+            )
+        )
+
+    order_fields = ('name', 'short_name')
+    order_statistics = ('submitted', 'solved_pc', 'avg_best_score')
+    if 'order_by' in request.GET:
+        field = request.GET['order_by']
+        if field in order_fields:
+            problems = problems \
+                .order_by(('-' if 'desc' in request.GET else '') + field)
+        elif field in order_statistics:
+            problems = problems \
+                .order_by(('-' if 'desc' in request.GET else '')
+                          + 'statistics_' + field)
+        else:
+            raise Http404
+
+    problems = problems.select_related('problemsite')
+    problems = problems.prefetch_related('tag_set', 'algorithmtag_set',
+                                         'origintag_set', 'difficultytag_set')
+    return problems, query
+
+
 def problemset_generate_view(request, page_title, problems, query_string, view_type):
     # We want to show "Add to contest" button only
     # if user is contest admin for any contest.
     show_add_button, administered_recent_contests = \
         _generate_add_to_contest_metadata(request)
+    show_tags = settings.PROBLEM_TAGS_VISIBLE
+    show_statistics = settings.PROBLEM_STATISTICS_AVAILABLE
+    col_proportions = {
+        'id': 2,
+        'name': 2,
+        'tags': 4,
+        'statistics1': 1,
+        'statistics2': 1,
+        'statistics3': 1,
+        'add_button': 1
+    }
+    if not show_add_button:
+        col_proportions['tags'] += col_proportions.pop('add_button')
+    if not show_statistics:
+        col_proportions['id'] += col_proportions.pop('statistics1')
+        col_proportions['name'] += col_proportions.pop('statistics2')
+        col_proportions['tags'] += col_proportions.pop('statistics3')
+    if not show_tags:
+        col_proportions['name'] += col_proportions.pop('tags')
+    assert sum(col_proportions.values()) == 12
+
     form = ProblemsetSourceForm("")
 
     navbar_links = navbar_links_registry.template_context(request)
@@ -235,10 +300,12 @@ def problemset_generate_view(request, page_title, problems, query_string, view_t
        'page_title': page_title,
         'select_problem_src': request.GET.get('select_problem_src'),
        'problem_search': query_string,
-       'show_tags': getattr(settings, 'PROBLEM_TAGS_VISIBLE', False),
+       'show_tags': show_tags,
+       'show_statistics': show_statistics,
        'show_search_bar': True,
        'show_add_button': show_add_button,
        'administered_recent_contests': administered_recent_contests,
+       'col_proportions': col_proportions,
        'form': form,
        'view_type': view_type})
 
@@ -246,18 +313,16 @@ def problemset_generate_view(request, page_title, problems, query_string, view_t
 def problemset_main_view(request):
     page_title = \
         _("Welcome to problemset, the place where all the problems are.")
-    problems_pool, query_string = search_problems_in_problemset(request.GET)
-    problems = problems_pool.filter(is_public=True, problemsite__isnull=False). \
-        order_by('name')
+    problems_pool, query_string = problemset_get_problems(request)
+    problems = problems_pool.filter(is_public=True, problemsite__isnull=False)
 
     return problemset_generate_view(request, page_title, problems, query_string, "public")
 
 
 def problemset_my_problems_view(request):
     page_title = _("My problems")
-    problems_pool, query_string = search_problems_in_problemset(request.GET)
-    problems = problems_pool.filter(author=request.user, problemsite__isnull=False)\
-        .order_by('name')
+    problems_pool, query_string = problemset_get_problems(request)
+    problems = problems_pool.filter(author=request.user, problemsite__isnull=False)
     return problemset_generate_view(request, page_title, problems, query_string, "my")
 
 
@@ -265,8 +330,8 @@ def problemset_all_problems_view(request):
     if not request.user.is_superuser:
         raise PermissionDenied
     page_title = _("All problems")
-    problems_pool, query_string = search_problems_in_problemset(request.GET)
-    problems = problems_pool.filter(problemsite__isnull=False).order_by('name')
+    problems_pool, query_string = problemset_get_problems(request)
+    problems = problems_pool.filter(problemsite__isnull=False)
 
     return problemset_generate_view(request, page_title, problems, query_string, "all")
 

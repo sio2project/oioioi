@@ -9,21 +9,12 @@ $(document).ready(function() {
 
     // Set up "Add to contest" links
     link.one('click', function() {
-        const problemsetProblemSite = $('.problemset__problem-site');
         const addToContest = $('#add_to_contest');
         const urlKey = $('#url_key');
-        let spinner;
+        const button = $(this).closest('.btn-group').children('.btn');
 
-        if (problemsetProblemSite.length) {
-            spinner = $('.loading-spinner');
-            spinner.removeClass('hidden');
-            spinner.addClass('job-active');
-            $('.add-contest-caret').addClass('hidden');
-        } else {
-            spinner = $(this).closest('.add-to-contest-group')
-                .children('.loading-spinner');
-            spinner.addClass('job-active');
-        }
+        button.children('.loading-spinner').removeClass('hidden');
+        button.children('.add-contest-caret').addClass('hidden');
 
         // Fill form
         addToContest.attr('action', $(this).attr('data-addorupdate') +

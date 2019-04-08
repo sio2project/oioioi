@@ -1,5 +1,5 @@
 {% extends "problems/problemset/base.html" %}
-{% load i18n pagination_tags tag staticfiles %}
+{% load i18n pagination_tags tag statistics_tags staticfiles %}
 
 {% block main_content %}
 
@@ -9,13 +9,57 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>{% trans "ID" %}</th>
-                    <th>{% trans "Name" %}</th>
-                    {%if show_tags %}
-                        <th>{% trans "Tags" %}</th>
+                    <th class="col-xs-{{ col_proportions.id }}">
+                        <a href="{% ordered_col request.GET "short_name" %}">
+                            {% trans "ID" %}
+                        </a>
+                    </th>
+
+                    <th class="col-xs-{{ col_proportions.name }}">
+                        <a href="{% ordered_col request.GET "name" %}">
+                            {% trans "Name" %}
+                        </a>
+                    </th>
+
+                    {% if show_tags %}
+                        <th class="col-xs-{{ col_proportions.tags }}">
+                            {% trans "Tags" %}
+                        </th>
                     {% endif %}
+
+                    {% if show_statistics %}
+                        <th class="col-xs-{{ col_proportions.statistics1 }} text-center">
+                            <a href="{% ordered_col request.GET "submitted" True %}"
+                               data-toggle="tooltip"
+                               title="{% trans "How many users submitted a solution for this task" %}">
+                                {% trans "Submitters" %}
+                            </a>
+                        </th>
+                        <th class="col-xs-{{ col_proportions.statistics2 }} text-center">
+                            <a href="{% ordered_col request.GET "solved_pc" True %}"
+                               data-toggle="tooltip"
+                               title="{% trans "Percentage of users who submitted that also solved this task" %}">
+                                {% trans "% Correct" %}
+                            </a>
+                        </th>
+                        <th class="col-xs-{{ col_proportions.statistics3 }} text-center">
+                            <a href="{% ordered_col request.GET "avg_best_score" True %}"
+                               data-toggle="tooltip"
+                               title="{% trans "Average score result for this task" %}">
+                                {% trans "Average" %}
+                            </a>
+                        </th>
+                        <script type="text/javascript">
+                            $(document).ready(function(){
+                                $('[data-toggle="tooltip"]').tooltip();
+                            });
+                        </script>
+                    {% endif %}
+
                     {% if show_add_button %}
-                        <th>{% trans "Select problem" %}</th>
+                        <th class="col-xs-{{ col_proportions.add_button }} text-center">
+                            {% trans "Select problem" %}
+                        </th>
                     {% endif %}
                 </tr>
             </thead>
@@ -47,12 +91,24 @@
                         </td>
                     {% endif %}
 
-                    <td>
-                        {% if administered_recent_contests %}
+                    {% if show_statistics %}
+                        {% comment %}
+                            Use annotations instead of related when displaying
+                            statistics in case problem.statistics is null
+                        {% endcomment %}
+                        <td class="text-center">{{ problem.statistics_submitted }}</td>
+                        <td class="text-center">{{ problem.statistics_solved_pc }}%</td>
+                        <td class="text-center">{{ problem.statistics_avg_best_score }}</td>
+                    {% endif %}
+
+                    {% if administered_recent_contests %}
+                        <td class="text-center">
                             <div class="btn-group">
                                 <button class="btn btn-default dropdown-toggle add-to-contest-button" type="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    {% trans "Add to contest" %} <span class="caret"></span>
+                                    {% trans "Add to contest" %}
+                                    <span class="add-contest-caret caret"></span>
+                                    <span class="hidden loading-spinner job-active"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
                                     <li class="dropdown-header">{% trans "Choose contest" %}</li>
@@ -70,17 +126,15 @@
                                     </li>
                                 </ul>
                             </div>
-                            &nbsp;<span class="loading-spinner hidden"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></span>
-                    {% else %}
-                        {% if show_add_button %}
-                        <a type="button" class="btn btn-default"
-                        href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
-                        {% trans "Add to contest" %}
-                        </a>
-                        {% endif %}
+                        </td>
+                    {% elif show_add_button %}
+                        <td class="text-center">
+                            <a type="button" class="btn btn-default"
+                               href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                                {% trans "Add to contest" %}
+                            </a>
+                        </td>
                     {% endif %}
-                    </td>
-
                 </tr>
                 {% endfor %}
             </tbody>

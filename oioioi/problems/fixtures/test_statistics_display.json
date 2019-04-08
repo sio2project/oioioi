@@ -1,0 +1,118 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Aaaa",
+      "ascii_name": "Aaaa",
+      "short_name": "aaa",
+      "is_public": true
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Bbbb",
+      "ascii_name": "Bbbb",
+      "short_name": "bbb",
+      "is_public": true
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Cccc",
+      "ascii_name": "Cccc",
+      "short_name": "ccc",
+      "is_public": true
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Dddd",
+      "ascii_name": "Dddd",
+      "short_name": "ddd",
+      "is_public": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "aaa"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "bbb"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "ccc"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 4,
+      "url_key": "ddd"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemstatistics",
+    "fields": {
+      "problem_id": 1,
+      "submitted": 7,
+      "solved": 1,
+      "_best_score_sum": 350,
+      "avg_best_score": 50
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemstatistics",
+    "fields": {
+      "problem_id": 2,
+      "submitted": 8,
+      "solved": 2,
+      "_best_score_sum": 360,
+      "avg_best_score": 45
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemstatistics",
+    "fields": {
+      "problem_id": 3,
+      "submitted": 5,
+      "solved": 3,
+      "_best_score_sum": 450,
+      "avg_best_score": 90
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemstatistics",
+    "fields": {
+      "problem_id": 4,
+      "submitted": 6,
+      "solved": 4,
+      "_best_score_sum": 480,
+      "avg_best_score": 80
+    }
+  }
+]
