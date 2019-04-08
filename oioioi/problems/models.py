@@ -338,6 +338,42 @@ class MainProblemInstance(ProblemInstance):
         proxy = True
 
 
+class ProblemStatistics(models.Model):
+    problem = models.OneToOneField(Problem, on_delete=models.CASCADE,
+                                   related_name='statistics')
+    user_statistics = models.ManyToManyField(User, through='UserStatistics')
+
+    submitted = models.IntegerField(default=0,
+                                    verbose_name=_("attempted solutions"))
+    solved = models.IntegerField(default=0,
+                                 verbose_name=_("correct solutions"))
+    avg_best_score = models.IntegerField(default=0,
+                                         verbose_name=_("average result"))
+    _best_score_sum = models.IntegerField(default=0)
+
+
+@receiver(post_save, sender=Problem)
+def create_statistics_for_new_problem(created, instance, **kwargs):
+    if created:
+        ProblemStatistics.objects.create(problem=instance)
+
+
+class UserStatistics(models.Model):
+    problem_statistics = models.ForeignKey(ProblemStatistics,
+                                           on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    has_submitted = models.BooleanField(default=False,
+                                        verbose_name=_("user submitted"))
+    has_solved = models.BooleanField(default=False,
+                                     verbose_name=_("user solved"))
+    best_score = models.IntegerField(default=0,
+                                     verbose_name=_("user's best score"))
+
+    class Meta(object):
+        unique_together = ('problem_statistics', 'user')
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=20, unique=True,
             verbose_name=_("name"), null=False, blank=False,

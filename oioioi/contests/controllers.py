@@ -614,6 +614,13 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         problem = result.problem_instance.problem
         problem.controller.update_user_result_for_problem(result)
 
+    def update_problem_statistics(self, problem_statistics, user_statistics,
+                                  submission):
+        problem = submission.problem_instance.problem
+        problem.controller.update_problem_statistics(problem_statistics,
+                                                     user_statistics,
+                                                     submission)
+
     def _sum_scores(self, scores):
         scores = [s for s in scores if s is not None]
         return scores and sum(scores[1:], scores[0]) or None

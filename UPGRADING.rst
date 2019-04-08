@@ -509,3 +509,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          # WARNING: setting this to False is experimental until we make sure that
          # checkers do work well in sandbox
          #
+
+
+#. * Added `PROBLEM_STATISTICS_AVAILABLE` to settings (`False` by default).::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -321,6 +321,11 @@ PROBLEMSET_LINK_VISIBLE = True
+         # Comment out to show tags on the list of problems
+         #PROBLEM_TAGS_VISIBLE = True
+
+        +# Enables problem statistics at the cost of some per-submission performance hit.
+        +# Set to True if you want to see statistics in the Problemset and problem sites.
+        +# After enabling you should use ./manage.py recalculate_statistics
+        +#PROBLEM_STATISTICS_AVAILABLE = True
+        +
+         # Set to True to allow every logged in user to add problems directly to Problemset
+         EVERYBODY_CAN_ADD_TO_PROBLEMSET = False

@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -14,10 +16,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import ObjectWithMixins, RegisteredSubclassesBase
 from oioioi.contests.models import (FailureReport, Submission,
-                                    SubmissionReport, UserResultForProblem)
+                                    SubmissionReport, ScoreReport,
+                                    UserResultForProblem)
 from oioioi.contests.scores import IntegerScore
 from oioioi.evalmgr.tasks import create_environ, delay_environ
 from oioioi.problems.utils import can_admin_problem
+from oioioi.problems.models import ProblemStatistics, UserStatistics
 
 logger = logging.getLogger(__name__)
 
@@ -148,6 +152,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                     'oioioi.contests.handlers.update_submission_score'),
                 ('update_user_results',
                     'oioioi.contests.handlers.update_user_results'),
+            ] + ([
+                ('update_problem_statistics',
+                    'oioioi.contests.handlers.update_problem_statistics'),
+            ] if settings.PROBLEM_STATISTICS_AVAILABLE else []) + [
                 ('call_submission_judged',
                     'oioioi.contests.handlers.call_submission_judged'),
                 ('dump_final_env',
@@ -217,6 +225,106 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             result.score = None
             result.status = None
             result.submission_report = None
+
+    def update_problem_statistics(self, problem_statistics, user_statistics,
+                                  submission):
+        """Updates :class:`~oioioi.problems.models.ProblemStatistics` and
+           :class:`~oioioi.problems.models.UserStatistics` with data from a new
+           :class:`~oioioi.contests.models.Submission`.
+
+           This is called when a new submission is checked, and for performance
+           reasons performs as few database queries as possible. The default
+           implementation only checks the submission report kind, and retrieves
+           the score report for the submission.
+
+           By default, only ACTIVE and NORMAL submissions are counted for
+           statistics. If you change this behaviour make sure to also update
+           :func:`~oioioi.problems.controllers.ProblemController.change_submission_kind`.
+
+           Saving both statistics objects is a responsibility of the caller.
+        """
+        if submission.kind != 'NORMAL':
+            return
+        try:
+            report = SubmissionReport.objects.get(submission=submission,
+                                                  status='ACTIVE',
+                                                  kind='NORMAL')
+            score_report = ScoreReport.objects.get(submission_report=report)
+
+            if not user_statistics.has_submitted:
+                user_statistics.has_submitted = True
+                problem_statistics.submitted += 1
+
+            if not user_statistics.has_solved \
+            and score_report.score == score_report.max_score:
+                user_statistics.has_solved = True
+                problem_statistics.solved += 1
+
+            problem_statistics._best_score_sum -= user_statistics.best_score
+            user_statistics.best_score = max(user_statistics.best_score,
+                                             score_report.score.to_int())
+            problem_statistics._best_score_sum += user_statistics.best_score
+
+            # problem_statistics.submitted won't be 0 because we have a submit
+            problem_statistics.avg_best_score = \
+                problem_statistics._best_score_sum / problem_statistics.submitted
+
+        except SubmissionReport.DoesNotExist:
+            pass
+
+    @transaction.atomic
+    def recalculate_statistics_for_user(self, user):
+        """Recalculates user's statistics for this problem controller's problem
+
+           Sometimes (for example when a submission's type changes) we can't
+           update user statistics quickly, and need to recalculate them.
+           This function by default erases the user statistics for the problem
+           and recalculates them from all of this user's submissions to every
+           probleminstance of the problem.
+        """
+        if not settings.PROBLEM_STATISTICS_AVAILABLE:
+            return
+
+        problem_statistics = ProblemStatistics.objects \
+                .select_for_update() \
+                .get(problem=self.problem)
+        user_statistics = UserStatistics.objects \
+                .select_for_update() \
+                .get(problem_statistics=problem_statistics, user=user)
+
+        # Rollback the user's statistics
+        if user_statistics.has_submitted:
+            problem_statistics.submitted -= 1
+        if user_statistics.has_solved:
+            problem_statistics.solved -= 1
+        problem_statistics._best_score_sum -= user_statistics.best_score
+        if problem_statistics.submitted == 0:
+            problem_statistics.avg_best_score = 0
+        else:
+            problem_statistics.avg_best_score = \
+                problem_statistics._best_score_sum / problem_statistics.submitted
+        user_statistics.delete()
+
+        # Recreate statistics from every relevant submission one by one
+        user_statistics = UserStatistics(problem_statistics=problem_statistics,
+                                         user=user)
+        user_submissions = Submission.objects \
+                .filter(user=user,
+                        problem_instance__problem=self.problem)
+        for submission in user_submissions:
+            submission.problem_instance.controller \
+                    .update_problem_statistics(problem_statistics,
+                                               user_statistics,
+                                               submission)
+        user_statistics.save()
+        problem_statistics.save()
+
+    @staticmethod
+    @receiver(post_delete, sender=Submission)
+    def recalculate_statistics_on_submission_deleted(instance, **kwargs):
+        if instance.user:
+            instance.problem_instance.problem.controller \
+                .recalculate_statistics_for_user(instance.user)
 
     def _activate_newest_report(self, submission, queryset, kind=None):
         """Activates the newest report.
@@ -437,8 +545,9 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             .results_visible(request, submission)
 
     def change_submission_kind(self, submission, kind):
-        """Changes kind of the submission. Also updates user reports for
-           problem, round and contest which may contain given submission.
+        """Changes kind of the submission, updates user reports for problem,
+           round and contest which may contain given submission, and
+           updates statistics for the submission's user if necessary.
         """
         assert kind in submission.problem_instance.controller \
             .valid_kinds_for_submission(submission)
@@ -452,6 +561,10 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             submission.problem_instance.controller \
                 .update_user_results(submission.user,
                     submission.problem_instance)
+            if old_kind == 'NORMAL' or kind == 'NORMAL':
+                submission.problem_instance.problem.controller \
+                    .recalculate_statistics_for_user(submission.user)
+
 
     def _is_partial_score(self, test_report):
         if not test_report:

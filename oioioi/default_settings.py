@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 28
+INSTALLATION_CONFIG_VERSION = 29
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -103,6 +103,8 @@ CACHED_TEMPLATE_LOADERS = (
 PROBLEMSET_LINK_VISIBLE = True
 
 PROBLEM_TAGS_VISIBLE = False
+
+PROBLEM_STATISTICS_AVAILABLE = False
 
 EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
 

@@ -1,0 +1,120 @@
+[
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "CE",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "compile error description",
+      "score": null,
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000000",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 2,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "WA",
+      "comment": null,
+      "score": "int:0000000000000000000",
+      "submission_report": 2,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+  {
+    "pk": 3,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000042",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 3,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "WA",
+      "comment": null,
+      "score": "int:0000000000000000042",
+      "submission_report": 3,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+  {
+    "pk": 4,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000100",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 4,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:0000000000000000100",
+      "submission_report": 4,
+      "max_score": "int:0000000000000000100"
+    }
+  }
+]

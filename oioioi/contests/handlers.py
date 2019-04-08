@@ -14,6 +14,7 @@ from six.moves import range
 from oioioi.base.utils.db import require_transaction
 from oioioi.contests.models import (FailureReport, ProblemInstance, Submission,
                                     SubmissionReport)
+from oioioi.problems.models import ProblemStatistics, UserStatistics
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +103,27 @@ def update_user_results(env, **kwargs):
 
     problem_instance.controller.update_user_results(user, problem_instance)
 
+    return env
+
+
+@transaction.atomic
+@_get_submission_or_skip
+def update_problem_statistics(env, submission, **kwargs):
+    problem_statistics, created = ProblemStatistics.objects \
+            .select_for_update() \
+            .get_or_create(problem=submission.problem_instance.problem)
+
+    user_statistics, created = UserStatistics.objects \
+            .select_for_update() \
+            .get_or_create(user=submission.user,
+                           problem_statistics=problem_statistics)
+
+    submission.problem_instance.controller \
+            .update_problem_statistics(problem_statistics, user_statistics,
+                                       submission)
+
+    user_statistics.save()
+    problem_statistics.save()
     return env
 
 

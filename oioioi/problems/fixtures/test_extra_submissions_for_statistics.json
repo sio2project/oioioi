@@ -1,0 +1,191 @@
+[
+  {
+    "pk": 5,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000100",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 5,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:0000000000000000100",
+      "submission_report": 5,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+  {
+    "pk": 6,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000000",
+      "user": 1002,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 6,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:0000000000000000000",
+      "submission_report": 6,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+  {
+    "pk": 7,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000050",
+      "user": 1002,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 7,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:0000000000000000050",
+      "submission_report": 7,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+  {
+    "pk": 8,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000100",
+      "user": 1002,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 8,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:0000000000000000100",
+      "submission_report": 8,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+
+  {
+    "pk": 9,
+    "model": "contests.submission",
+    "fields": {
+      "status": "INI_OK",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000000",
+      "user": 1003,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 9,
+      "creation_date": "2012-08-03T22:07:39.662Z"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": "OK",
+      "comment": null,
+      "score": "int:0000000000000000000",
+      "submission_report": 9,
+      "max_score": "int:0000000000000000100"
+    }
+  },
+
+  {
+    "pk": 10,
+    "model": "contests.submission",
+    "fields": {
+      "status": "CE",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "compile error description",
+      "score": null,
+      "user": 1004,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  }
+]
