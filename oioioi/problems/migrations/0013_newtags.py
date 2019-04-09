@@ -11,7 +11,7 @@ import re
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('problems', '0011_auto_20190312_1517'),
+        ('problems', '0012_problem_statistics'),
     ]
 
     operations = [
