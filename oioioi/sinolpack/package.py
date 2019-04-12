@@ -736,7 +736,7 @@ class SinolPackage(object):
 
         if created:
             instance.time_limit = self.time_limits.get(name,
-                    self.time_limits.get(re.search('^\d+', name).group(0), DEFAULT_TIME_LIMIT))
+                    self.time_limits.get(group, DEFAULT_TIME_LIMIT))
 
         memory_limit = self._get_memory_limit(created, name)
         if memory_limit:
