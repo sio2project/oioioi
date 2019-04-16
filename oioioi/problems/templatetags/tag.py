@@ -10,7 +10,7 @@ register = Library()
 def tag_label(tag):
     colors = get_tag_colors(tag.name)
     return format_html(
-        '<a title="{name}" class="label" href="{href}" '
+        u'<a title="{name}" class="label" href="{href}" '
         'style="background-color: {bgcolor}; color: {textcolor};">{name}</a>',
         name=tag.name,
         bgcolor=colors[0],

@@ -167,7 +167,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
 
     def colored_state(self, instance):
         return format_html(
-            '<span class="submission-admin submission--{}">{}</span>',
+            u'<span class="submission-admin submission--{}">{}</span>',
             instance.state, instance.get_state_display()
         )
     colored_state.short_description = _("Status")

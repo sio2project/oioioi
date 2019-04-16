@@ -594,7 +594,7 @@ class SubmissionAdmin(admin.ModelAdmin):
 
     def status_display(self, instance):
         return format_html(
-            '<span class="submission-admin submission submission--{}">{}</span>',
+            u'<span class="submission-admin submission submission--{}">{}</span>',
             instance.status,
             instance.get_status_display()
         )

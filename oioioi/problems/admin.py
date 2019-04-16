@@ -336,7 +336,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         status_to_str = {'OK': 'ok', '?': 'in_prog', 'ERR': 'err'}
         package_status = status_to_str[instance.status]
         return format_html(
-            '<span class="submission-admin prob-pack--{}">{}</span>',
+            u'<span class="submission-admin prob-pack--{}">{}</span>',
             package_status, instance.get_status_display()
         )
     colored_status.short_description = _("Status")

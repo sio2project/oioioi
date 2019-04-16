@@ -33,7 +33,7 @@ class ProblemBalloonsConfigAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def color_display(self, instance):
-        return format_html('<span class="balloons_admin" style="background: {}">'
+        return format_html(u'<span class="balloons_admin" style="background: {}">'
                            '{}</span>', instance.color, instance.color)
     color_display.short_description = _("Color")
 
