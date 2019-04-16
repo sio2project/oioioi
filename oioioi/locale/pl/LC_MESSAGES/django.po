@@ -46,9 +46,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-16 12:50+0200\n"
-"PO-Revision-Date: 2019-04-16 13:00+0000\n"
-"Last-Translator: Jakub Bartmiński <jakub.bartminski@students.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2019-04-16 18:55+0200\n"
+"PO-Revision-Date: 2019-04-16 15:57+0000\n"
+"Last-Translator: Zuzanna Opała <opala.zuzanna@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -607,7 +607,7 @@ msgid "No, go back"
 msgstr "Nie, wróć."
 
 #: base/templates/api-key.html:4
-msgid "Api token"
+msgid "API token"
 msgstr "Token API"
 
 #: base/templates/api-key.html:9
@@ -627,8 +627,8 @@ msgstr "Token pozwala autoryzować się poprzez API. Pamiętaj, żeby go chroni�
 
 #: base/templates/api-key.html:22
 #| msgid "Show more"
-msgid "Show key"
-msgstr "Pokaż klucz"
+msgid "Show token"
+msgstr "Pokaż token"
 
 #: base/templates/api-key.html:29 teachers/templates/teachers/members.html:36
 msgid "Copy to clipboard"
@@ -3379,7 +3379,7 @@ msgid ""
 msgstr "\n    <p>Hej! Konkurs, w którym bierzesz udział odbywa się w warunkach kontrolowanej samodzielności. Po co chciałbyś logować się w ten sposób?</p>\n    "
 
 #: jotform/templates/jotform/jotform-head.html:8
-#: szkopul/templates/main-page.html:87 szkopul/templates/main-page.html:123
+#: szkopul/templates/ingredients/main-page-bottom.html:8
 msgid "Send Feedback"
 msgstr "Kontakt"
 
@@ -7198,6 +7198,25 @@ msgstr "Wstrzymane"
 msgid "Navigation Bar Menu"
 msgstr "Menu Paska Nawigacji"
 
+#: szkopul/templates/ingredients/main-page-bottom.html:3
+msgid "News"
+msgstr "Aktualności"
+
+#: szkopul/templates/ingredients/main-page-bottom.html:6
+msgid "Contact us"
+msgstr "Kontakt"
+
+#: szkopul/templates/ingredients/main-page-bottom.html:9
+#, python-format
+msgid ""
+"Do you have any questions or feedback? Is something wrong? Use the "
+"%(send_feedback)s button in the corner of the page."
+msgstr "Masz pytania lub uwagi? Coś jest nie tak? Skorzystaj z przycisku %(send_feedback)s w rogu strony."
+
+#: szkopul/templates/ingredients/main-page-bottom.html:15
+msgid "We are supported by"
+msgstr "Wspiera nas"
+
 #: szkopul/templates/main-page.html:20
 msgid "Welcome back! Let's write some code."
 msgstr "Witaj ponownie! Czas napisać trochę kodu."
@@ -7227,30 +7246,11 @@ msgstr "Ostatnie Konkursy"
 msgid "There are no contests we can show you right now :("
 msgstr "Nie ma tutaj konkursów, które mógłbyś zobaczyć :("
 
-#: szkopul/templates/main-page.html:82 szkopul/templates/main-page.html:118
-msgid "News"
-msgstr "Aktualności"
-
-#: szkopul/templates/main-page.html:85 szkopul/templates/main-page.html:121
-msgid "Contact us"
-msgstr "Kontakt"
-
-#: szkopul/templates/main-page.html:88 szkopul/templates/main-page.html:124
-#, python-format
-msgid ""
-"Do you have any questions or feedback? Is something wrong? Use the "
-"%(send_feedback)s button in the corner of the page."
-msgstr "Masz pytania lub uwagi? Coś jest nie tak? Skorzystaj z przycisku %(send_feedback)s w rogu strony."
-
-#: szkopul/templates/main-page.html:94 szkopul/templates/main-page.html:130
-msgid "We are supported by"
-msgstr "Wspiera nas"
-
-#: szkopul/templates/main-page.html:109
+#: szkopul/templates/main-page.html:91
 msgid "Welcome!"
 msgstr "Witaj!"
 
-#: szkopul/templates/main-page.html:111
+#: szkopul/templates/main-page.html:93
 msgid ""
 "Welcome to Szkopuł - a place for solving algorithmic challenges!<br> In "
 "order to submit solutions and register for contests you need to <a "
