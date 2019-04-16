@@ -1,0 +1,21 @@
+{% load i18n staticfiles newsfeed %}
+
+<h3>{% trans "News" %}</h3>
+<p>{% newsfeed %}</p>
+
+<h3>{% trans "Contact us" %}</h3>
+<p>
+    {% trans "Send Feedback" as send_feedback %}
+    {% blocktrans trimmed %}
+        Do you have any questions or feedback? Is something wrong? Use the
+        {{ send_feedback }} button in the corner of the page.
+    {% endblocktrans %}
+</p>
+
+<h3>{% trans "We are supported by" %}</h3>
+<div>
+    <a href="https://www.janestreet.com/">
+        <img id="jane-street-logo" src="https://www.janestreet.com/assets/logo_horizontal.png"
+             alt="Jane Street">
+    </a>
+</div>
