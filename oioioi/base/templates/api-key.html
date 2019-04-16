@@ -1,7 +1,7 @@
 {% extends "base-with-menu.html" %}
 {% load i18n staticfiles simple_filters %}
 
-{% block title %}{% trans "Api token" %}{% endblock %}
+{% block title %}{% trans "API token" %}{% endblock %}
 
 {% block main-content %}
 {% if regenerated %}
@@ -19,7 +19,7 @@
 <form action="{% url 'api_token' %}" method="post">
     {% csrf_token %}
     <button role="button" type="submit" class="btn btn-default">
-        {% trans "Show key" %}
+        {% trans "Show token" %}
     </button>
 </form>
 {% else %}
