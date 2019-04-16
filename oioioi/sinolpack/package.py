@@ -291,6 +291,7 @@ class SinolPackage(object):
             env['exe_file'] = env['compiled_file']
             env['re_string'] = re_string
             env['use_sandboxes'] = self.use_sandboxes
+            env['ingen_mem_limit'] = 512 * 1024 #TMPHACK
             env['collected_files_path'] = _make_filename_in_job_dir(self.env, 'in')
 
             renv = run_sioworkers_job(env)
