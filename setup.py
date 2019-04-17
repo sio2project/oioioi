@@ -45,7 +45,7 @@ python23_universal_requirements = [
 
         "Celery>=3.1.15,<4.0.0",
         "coreapi>=2.3.0",
-        "django-celery>=3.1.15,<=3.1.17",
+        "django-celery>=3.2",
         "dj-pagination",
         "django-compressor==2.2",  # latest version
         "django-overextends>=0.4.1",
