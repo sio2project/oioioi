@@ -432,7 +432,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 2)
-        self.assertEquals(ProblemInstance.objects.get(contest=contest)
+        self.assertEqual(ProblemInstance.objects.get(contest=contest)
                           .submissions_limit, 123)
 
         contest.default_submissions_limit = 124

@@ -215,19 +215,19 @@ class TestPortalViews(TestCase):
         def assertAdminAccess(url):
             self.client.logout()
             response = self.client.get(url)
-            self.assertEquals(response.status_code, 403)
+            self.assertEqual(response.status_code, 403)
 
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(url)
-            self.assertEquals(response.status_code, 200)
+            self.assertEqual(response.status_code, 200)
 
             self.assertTrue(self.client.login(username='test_user2'))
             response = self.client.get(url)
-            self.assertEquals(response.status_code, 403)
+            self.assertEqual(response.status_code, 403)
 
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
-            self.assertEquals(response.status_code, 200)
+            self.assertEqual(response.status_code, 200)
 
         for action in ('edit_node', 'add_node', 'delete_node'):
             assertAdminAccess(portal_url(portal=get_portal(),
@@ -452,9 +452,9 @@ class TestMarkdown(TestCase):
             site.save()
 
     def test_double_asterisk(self):
-        self.assertEquals(render_panel(self.request, '**word**').strip(),
+        self.assertEqual(render_panel(self.request, '**word**').strip(),
                           '<p><strong>word</strong></p>')
-        self.assertEquals(render_panel(self.request, '**word').strip(),
+        self.assertEqual(render_panel(self.request, '**word').strip(),
                           '<p>**word</p>')
 
     def test_youtube_widget(self):
@@ -476,8 +476,8 @@ class TestMarkdown(TestCase):
         tag = '[[ProblemTable|%s]]' % ';'.join(urls)
 
         rendered = render_panel(self.request, tag)
-        self.assertEquals(rendered.count('<tr>'), 6)
-        self.assertEquals(rendered.count('href'), 5)
+        self.assertEqual(rendered.count('<tr>'), 6)
+        self.assertEqual(rendered.count('href'), 5)
         self.assertNotIn('i_dont_exist', rendered)
         self.assertIn('>problem_1_name</a>', rendered)
         self.assertIn('>problem_2_name</a>', rendered)

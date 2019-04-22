@@ -303,7 +303,7 @@ class TestProblemInstanceSettings(TestCase):
         form_data = self.form_data.copy()
         form_data['tag-0-DELETE'] = 'on'
 
-        self.assertEquals(TagThrough.objects.filter(problem=p).count(), 1)
+        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
 
         response = self.client.post(
                 reverse('problem_settings',
@@ -312,7 +312,7 @@ class TestProblemInstanceSettings(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Tag.objects.filter(name="mrowkowiec").exists())
-        self.assertEquals(TagThrough.objects.filter(problem=p).count(), 0)
+        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 0)
 
     def test_tag_create(self):
         (pi, p) = self.login(True)
@@ -321,7 +321,7 @@ class TestProblemInstanceSettings(TestCase):
         form_data['tag-TOTAL_FORMS'] = '2'
         form_data['tag-1-name'] = 'foobar'
 
-        self.assertEquals(TagThrough.objects.filter(problem=p).count(), 1)
+        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
         self.assertFalse(Tag.objects.filter(name="foobar").exists())
 
         response = self.client.post(
@@ -332,7 +332,7 @@ class TestProblemInstanceSettings(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(Tag.objects.filter(name="mrowkowiec").exists())
         self.assertTrue(Tag.objects.filter(name="foobar").exists())
-        self.assertEquals(TagThrough.objects.filter(problem=p).count(), 2)
+        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 2)
 
     def test_tag_create_invalid(self):
         (pi, p) = self.login(True)
@@ -342,7 +342,7 @@ class TestProblemInstanceSettings(TestCase):
         form_data['tag-1-name'] = 'foobar'
         form_data['tag-2-name'] = 'invalid!'
 
-        self.assertEquals(TagThrough.objects.filter(problem=p).count(), 1)
+        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
         self.assertFalse(Tag.objects.filter(name="foobar").exists())
 
         response = self.client.post(
@@ -354,7 +354,7 @@ class TestProblemInstanceSettings(TestCase):
         self.assertTrue(Tag.objects.filter(name="mrowkowiec").exists())
         self.assertFalse(Tag.objects.filter(name="foobar").exists())
         self.assertFalse(Tag.objects.filter(name="invalid!").exists())
-        self.assertEquals(TagThrough.objects.filter(problem=p).count(), 1)
+        self.assertEqual(TagThrough.objects.filter(problem=p).count(), 1)
 
 
 class TestProblemInstanceValidation(TestCase):

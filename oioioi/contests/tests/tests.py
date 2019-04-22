@@ -171,7 +171,7 @@ class TestSubmissionListOrder(TestCase):
         test_OK_index = table_content.index(test_OK)
         test_CE_index = table_content.index(test_CE)
 
-        self.assertEquals(
+        self.assertEqual(
             is_descending,
             test_OK_index < test_CE_index,
             error_msg
@@ -276,50 +276,50 @@ class TestCurrentContest(TestCase):
             self.assertRedirects(response, url_c1)
 
             response = self.client.get(url, follow=True)
-            self.assertEquals(response.content, 'c1')
+            self.assertEqual(response.content, 'c1')
 
         response = self.client.get(url)
         # 'c1' - most recently visited contest
         self.assertRedirects(response, url_c1)
 
         response = self.client.get(url, follow=True)
-        self.assertEquals(response.content, 'c1')
+        self.assertEqual(response.content, 'c1')
 
         response = self.client.get(url_c2)
-        self.assertEquals(response.content, 'c2')
+        self.assertEqual(response.content, 'c2')
 
         Contest.objects.get(id='c2').delete()
 
         response = self.client.get(url_c2)
-        self.assertEquals(response.status_code, 404)
+        self.assertEqual(response.status_code, 404)
 
         response = self.client.get(url)
         self.assertRedirects(response, url_c1)
 
         response = self.client.get(url, follow=True)
-        self.assertEquals(response.content, 'c1')
+        self.assertEqual(response.content, 'c1')
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_neutral_contest_mode(self):
         url = reverse('print_contest_id')
         response = self.client.get(url)
-        self.assertEquals(response.content, 'None')
+        self.assertEqual(response.content, 'None')
 
         url = reverse('print_contest_id', kwargs={'contest_id': 'c1'})
         response = self.client.get(url)
-        self.assertEquals(response.content, 'c1')
+        self.assertEqual(response.content, 'c1')
 
         url = reverse('render_contest_id')
         response = self.client.get(url)
-        self.assertEquals(response.content, 'c1')
+        self.assertEqual(response.content, 'c1')
 
         url = reverse('print_contest_id', kwargs={'contest_id': 'c2'})
         response = self.client.get(url)
-        self.assertEquals(response.content, 'c2')
+        self.assertEqual(response.content, 'c2')
 
         url = reverse('noncontest_print_contest_id')
         response = self.client.get(url)
-        self.assertEquals(response.content, 'None')
+        self.assertEqual(response.content, 'None')
 
     @override_settings(CONTEST_MODE=ContestMode.contest_if_possible)
     def test_contest_if_possible_contest_mode(self):
@@ -327,7 +327,7 @@ class TestCurrentContest(TestCase):
 
         url = reverse('noncontest_print_contest_id')
         response = self.client.get(url)
-        self.assertEquals(response.content, "None")
+        self.assertEqual(response.content, "None")
 
     @override_settings(CONTEST_MODE=ContestMode.contest_only)
     def test_contest_only_contest_mode(self):
@@ -335,16 +335,16 @@ class TestCurrentContest(TestCase):
 
         url = reverse('noncontest_print_contest_id')
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "None")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, "None")
 
     @override_settings(CONTEST_MODE=ContestMode.contest_if_possible)
     def test_namespaced_redirect(self):
@@ -474,7 +474,7 @@ class TestContestViews(TestCase):
         contest4.save()
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 5)
-        self.assertEquals(list(response.context['contests']),
+        self.assertEqual(list(response.context['contests']),
             list(Contest.objects.order_by('-creation_date').all()))
         self.assertContains(response, 'Contest2', count=1)
         self.assertContains(response, 'Contest3', count=1)
@@ -1603,7 +1603,7 @@ class TestPublicResults(TestCase):
 
         rtime = rounds_times(request, round.contest)[round]
         for date, exp in zip(dates, expected):
-            self.assertEquals(rtime.public_results_visible(date), exp)
+            self.assertEqual(rtime.public_results_visible(date), exp)
 
     def test_public_results_visible(self):
         # Default controller implementation, there is only one results date
@@ -1826,7 +1826,7 @@ class TestReattachingProblems(TestCase):
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2')
                         .exists())
-        self.assertEquals(ProblemInstance.objects.get(contest__id='c2')
+        self.assertEqual(ProblemInstance.objects.get(contest__id='c2')
                           .submissions_limit, 123)
 
         for test in Problem.objects.get().main_problem_instance.test_set.all():
@@ -1970,7 +1970,7 @@ class TestRegistrationController(TestCase):
                 permission='contests.contest_admin').save()
         request = self.client.get('/', follow=True).wsgi_request
         visible = list(query_private(request).values_list('id', flat=True))
-        self.assertEquals(len(visible), 1)
+        self.assertEqual(len(visible), 1)
         self.assertTrue(invisible_contest.id in visible)
 
 
@@ -1981,11 +1981,11 @@ class TestAdministeredContests(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         request = self.client.get('/').wsgi_request
         administered = administered_contests(request)
-        self.assertEquals(len(administered), 0)
+        self.assertEqual(len(administered), 0)
         self.assertTrue(self.client.login(username='test_admin'))
         request = self.client.get('/').wsgi_request
         administered = administered_contests(request)
-        self.assertEquals(len(administered), 2)
+        self.assertEqual(len(administered), 2)
 
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)

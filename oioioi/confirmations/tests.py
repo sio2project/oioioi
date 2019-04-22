@@ -23,8 +23,8 @@ class TestMetadataProving(TestCase):
         proof_data = verify_submission_receipt_proof(proof,
                 submission.source_file.read())
 
-        self.assertEquals(proof_data['id'], submission.id)
-        self.assertEquals(proof_data['date'], submission.date)
+        self.assertEqual(proof_data['id'], submission.id)
+        self.assertEqual(proof_data['date'], submission.date)
 
     def test_invalid_proof(self):
         submission = ProgramSubmission.objects.get(pk=1)
@@ -77,7 +77,7 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance,
                 user='test_admin', kind='NORMAL')
         self._assertSubmitted(contest, response)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
     def test_not_sending_receipt(self):
         contest = Contest.objects.get()
@@ -87,9 +87,9 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance,
                                     user='test_user')
         self._assertSubmitted(contest, response)
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)
 
         response = self.submit_file(contest, problem_instance,
                 user='test_admin', kind='IGNORED')
         self._assertSubmitted(contest, response)
-        self.assertEquals(len(mail.outbox), 0)
+        self.assertEqual(len(mail.outbox), 0)

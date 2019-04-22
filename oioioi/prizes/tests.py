@@ -224,7 +224,7 @@ class TestPrizes(TestCase):
         m = mail.outbox[0].message()
 
         self.assertIn("PG", m['Subject'])
-        self.assertEquals("admin@example.com", m['To'])
+        self.assertEqual("admin@example.com", m['To'])
         self.assertIn("no fair", m.as_string())
         self.assertIn("prizes_conflict.csv", m.as_string())
 

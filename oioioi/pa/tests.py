@@ -113,10 +113,10 @@ class TestPARoundTimes(TestCase):
                 else:
                     self.assertNotContains(response, 'taskA1')
 
-            self.assertEquals(expected[1],
+            self.assertEqual(expected[1],
                     controller.can_see_source(request, not_my_submission))
 
-            self.assertEquals(False,
+            self.assertEqual(False,
                     controller.can_see_source(request, not_last_submission))
 
         dates = [
@@ -268,10 +268,10 @@ class TestPARegistration(TestCase):
         user.save()
 
         response = self.client.post(url, self.reg_data)
-        self.assertEquals(302, response.status_code)
+        self.assertEqual(302, response.status_code)
 
         registration = PARegistration.objects.get(participant__user=user)
-        self.assertEquals(registration.address, self.reg_data['address'])
+        self.assertEqual(registration.address, self.reg_data['address'])
 
     def test_contest_info(self):
         contest = Contest.objects.get()
@@ -281,7 +281,7 @@ class TestPARegistration(TestCase):
         PARegistration(participant_id=p.id, **self.reg_data).save()
         url = reverse('contest_info', kwargs={'contest_id': contest.id})
         data = json.loads(self.client.get(url).content.decode('utf-8'))
-        self.assertEquals(data['users_count'], 1)
+        self.assertEqual(data['users_count'], 1)
 
 
 class TestPAScorer(TestCase):
@@ -315,11 +315,11 @@ class TestPAScorer(TestCase):
     def test_pa_test_scorer(self):
         results = list(map(utils.pa_test_scorer,
                 *list(zip(*self.t_results_ok))))
-        self.assertEquals(self.t_expected_ok, results)
+        self.assertEqual(self.t_expected_ok, results)
 
         results = list(map(utils.pa_test_scorer,
                 *list(zip(*self.t_results_wrong))))
-        self.assertEquals(self.t_expected_wrong, results)
+        self.assertEqual(self.t_expected_wrong, results)
 
 
 class TestPAResults(TestCase):
@@ -334,7 +334,7 @@ class TestPAResults(TestCase):
             contest.controller.update_user_results(user, pi)
         new_results = sorted([result.score for result in
             UserResultForProblem.objects.filter(user=user)])
-        self.assertEquals(old_results, new_results)
+        self.assertEqual(old_results, new_results)
 
 
 @override_settings(
@@ -365,8 +365,8 @@ class TestPADivisions(TestCase):
         self.assertEqual(response.status_code, 200)
         pid = PAProblemInstanceData.objects.get()
         problem = Problem.objects.get()
-        self.assertEquals(pid.division, 'A')
-        self.assertEquals(pid.problem_instance.problem, problem)
+        self.assertEqual(pid.division, 'A')
+        self.assertEqual(pid.problem_instance.problem, problem)
 
         url = reverse('add_or_update_problem',
                 kwargs={'contest_id': contest.id}) + '?' + \

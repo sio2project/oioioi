@@ -41,9 +41,9 @@ class TestOIAdmin(TestCase):
                                 'schools.csv')
         manager = import_schools.Command()
         manager.run_from_argv(['manage.py', 'import_schools', filename])
-        self.assertEquals(School.objects.count(), 3)
+        self.assertEqual(School.objects.count(), 3)
         school = School.objects.get(postal_code='02-044')
-        self.assertEquals(school.city, u'Bielsko-Biała Zdrój')
+        self.assertEqual(school.city, u'Bielsko-Biała Zdrój')
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()
@@ -201,11 +201,11 @@ class TestOIRegistration(TestCase):
         }
 
         response = self.client.post(url, reg_data)
-        self.assertEquals(302, response.status_code)
+        self.assertEqual(302, response.status_code)
 
         registration = OIRegistration.objects.get(participant__user=user)
-        self.assertEquals(registration.address, reg_data['address'])
-        self.assertEquals(registration.school.address, 'Nowowiejska 37a')
+        self.assertEqual(registration.address, reg_data['address'])
+        self.assertEqual(registration.school.address, 'Nowowiejska 37a')
 
     def test_registration_with_new_school(self):
         contest = Contest.objects.get()
@@ -247,7 +247,7 @@ class TestOIRegistration(TestCase):
         response = self.client.post(add_school_url, school_data, follow=True)
         self.assertRedirects(response, url)
         school = School.objects.get(pk=5)
-        self.assertEquals(school.name, school_data['name'])
+        self.assertEqual(school.name, school_data['name'])
         self.assertTrue(school.is_active)
         self.assertFalse(school.is_approved)
 
@@ -396,7 +396,7 @@ class TestSchoolMerging(TestCase):
         }
 
         response = self.client.post(url, reg_data)
-        self.assertEquals(302, response.status_code)
+        self.assertEqual(302, response.status_code)
 
         s1 = School.objects.get(pk=1)
         s2 = School.objects.get(pk=2)
@@ -587,7 +587,7 @@ class TestUserInfo(TestCase):
         }
 
         response = self.client.post(url, reg_data)
-        self.assertEquals(302, response.status_code)
+        self.assertEqual(302, response.status_code)
         url = reverse('user_info', kwargs={'contest_id': contest.id,
                                            'user_id': user.id})
 

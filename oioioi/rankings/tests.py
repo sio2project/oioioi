@@ -486,10 +486,10 @@ class TestResultColorClassFilter(TestCase):
         return PAScore(IntegerScore(int_score))
 
     def test_empty_scores(self):
-        self.assertEquals(result_color_class(''), '')
-        self.assertEquals(result_color_class(None), '')
+        self.assertEqual(result_color_class(''), '')
+        self.assertEqual(result_color_class(None), '')
 
     def check_score_color(self, int_score,
                           color_class_name, score_class_factory):
         score = score_class_factory(int_score)
-        self.assertEquals(result_color_class(score), color_class_name)
+        self.assertEqual(result_color_class(score), color_class_name)

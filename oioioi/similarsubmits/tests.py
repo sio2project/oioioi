@@ -17,7 +17,7 @@ class TestSimilarSubmitViews(TestCase):
 
         url = reverse('bulk_add_similarities', kwargs={'contest_id': 'c'})
         groups = SubmissionsSimilarityGroup.objects.all()
-        self.assertEquals(len(groups), 0)
+        self.assertEqual(len(groups), 0)
 
         submissions_unions = [
             (('1:test_user:zad1.cpp 2:test_user2:zad1.cpp\n'
@@ -31,10 +31,10 @@ class TestSimilarSubmitViews(TestCase):
                 'similar_groups': sim_groups_str,
             }
             response = self.client.post(url, post_data, follow=True)
-            self.assertEquals(response.status_code, 200)
+            self.assertEqual(response.status_code, 200)
 
             groups = SubmissionsSimilarityGroup.objects.all()
-            self.assertEquals(len(groups), sim_groups_cnt)
+            self.assertEqual(len(groups), sim_groups_cnt)
 
     def test_invalid_bulk_form(self):
         invalid_bulks = ['1:user:test.cpp', '1:usertestcpp 1:user:test.cpp']

@@ -65,10 +65,10 @@ class TestMakingComplaint(TestCase):
         self.assertEqual(expected, jurym['Subject'])
         self.assertEqual(expected, userm['Subject'])
 
-        self.assertEquals("dummy@example.com", jurym['To'])
-        self.assertEquals("test_user@example.com", userm['To'])
-        self.assertEquals(jurym['Message-ID'], userm['References'])
-        self.assertEquals(userm['Message-ID'], jurym['References'])
+        self.assertEqual("dummy@example.com", jurym['To'])
+        self.assertEqual("test_user@example.com", userm['To'])
+        self.assertEqual(jurym['Message-ID'], userm['References'])
+        self.assertEqual(userm['Message-ID'], jurym['References'])
 
         self.assertIn("your fault!", jurym.as_string())
         self.assertIn("your fault!", userm.as_string())

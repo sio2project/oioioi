@@ -2294,7 +2294,7 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertIn('add_to_contest', str(response.content))
         self.assertIn('123', str(response.content))
         self.assertEqual(len(response.context['administered_contests']), 4)
-        self.assertEquals(list(response.context['administered_contests']),
+        self.assertEqual(list(response.context['administered_contests']),
             list(Contest.objects.order_by('-creation_date').all()))
         self.assertContains(response, 'Contest2', count=1)
         self.assertContains(response, 'Contest3', count=1)

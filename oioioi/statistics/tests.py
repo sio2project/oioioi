@@ -138,7 +138,7 @@ class TestStatisticsViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEquals(403, response.status_code)
+            self.assertEqual(403, response.status_code)
 
         cfg = StatisticsConfig(contest=contest, visible_to_users=True,
                 visibility_date=datetime(2014, 2, 3, tzinfo=utc))

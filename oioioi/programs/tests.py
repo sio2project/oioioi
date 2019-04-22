@@ -807,15 +807,15 @@ class TestScorers(TestCase):
 
         results = list(map(utils.discrete_test_scorer,
                 *list(zip(*self.t_results_ok))))
-        self.assertEquals(expected, results)
+        self.assertEqual(expected, results)
 
         results = list(map(utils.discrete_test_scorer,
                 *list(zip(*self.t_results_wrong))))
-        self.assertEquals(self.t_expected_wrong, results)
+        self.assertEqual(self.t_expected_wrong, results)
 
         results = list(map(utils.discrete_test_scorer,
                 *list(zip(*self.t_results_unequal_max_scores))))
-        self.assertEquals(self.t_expected_unequal_max_scores, results)
+        self.assertEqual(self.t_expected_unequal_max_scores, results)
 
     def test_threshold_linear_test_scorer(self):
         exp_scores = [100, 100, 99, 50, 1, 100, 100]
@@ -825,7 +825,7 @@ class TestScorers(TestCase):
 
         results = list(map(utils.threshold_linear_test_scorer,
                         *list(zip(*self.t_results_ok))))
-        self.assertEquals(expected, results)
+        self.assertEqual(expected, results)
 
         exp_scores = [99, 25, 0, 1]
         exp_max_scores = [100] * len(self.t_results_ok_perc)
@@ -834,7 +834,7 @@ class TestScorers(TestCase):
 
         results = list(map(utils.threshold_linear_test_scorer,
                         *list(zip(*self.t_results_ok_perc))))
-        self.assertEquals(expected, results)
+        self.assertEqual(expected, results)
 
         malformed = ({'exec_time_limit': 100, 'max_score': 100},
                         {'result_code': 'OK', 'time_used': 101})
@@ -843,11 +843,11 @@ class TestScorers(TestCase):
 
         results = list(map(utils.threshold_linear_test_scorer,
                         *list(zip(*self.t_results_wrong))))
-        self.assertEquals(self.t_expected_wrong, results)
+        self.assertEqual(self.t_expected_wrong, results)
 
         results = list(map(utils.threshold_linear_test_scorer,
                         *list(zip(*self.t_results_unequal_max_scores))))
-        self.assertEquals(self.t_expected_unequal_max_scores, results)
+        self.assertEqual(self.t_expected_unequal_max_scores, results)
 
     @memoized_property
     def g_results_ok(self):

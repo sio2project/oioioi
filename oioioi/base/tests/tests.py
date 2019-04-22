@@ -492,8 +492,8 @@ class TestUtils(TestCase):
         Derived.mix_in(DerivedMixin)
         Base.mix_in(BaseMixin)
 
-        self.assertEquals(Derived().derivedmixin, 'spam')
-        self.assertEquals(Derived().basemixin, 'spam')
+        self.assertEqual(Derived().derivedmixin, 'spam')
+        self.assertEqual(Derived().basemixin, 'spam')
         with self.assertRaises(AttributeError):
             _none = Base().derivedmixin
 
@@ -644,7 +644,7 @@ class TestMisc(TestCase):
         tmp_file = TemporaryUploadedFile('whatever',
                 'application/octet-stream', 0, 'utf-8')
         with utils.uploaded_file_name(tmp_file) as name:
-            self.assertEquals(name, tmp_file.file.name)
+            self.assertEqual(name, tmp_file.file.name)
         mem_file = SimpleUploadedFile('whatever', 'hello42')
         with utils.uploaded_file_name(mem_file) as name:
             self.assertTrue(name.endswith('whatever'))
@@ -807,8 +807,8 @@ class TestBaseViews(TestCase):
         from oioioi.base.models import PreferencesSaved
 
         def callback_func(sender, **kwargs):
-            self.assertEquals(sender.cleaned_data['dog'], 'Janusz')
-            self.assertEquals(sender.cleaned_data['answer'], 42)
+            self.assertEqual(sender.cleaned_data['dog'], 'Janusz')
+            self.assertEqual(sender.cleaned_data['answer'], 42)
 
         try:
             PreferencesFactory.add_field(
@@ -851,8 +851,8 @@ class TestBackendMiddleware(TestCase):
     def test_backend_middleware(self):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('index'))
-        self.assertEquals('test_user', response.context['user'].username)
-        self.assertEquals('oioioi.base.tests.IgnorePasswordAuthBackend',
+        self.assertEqual('test_user', response.context['user'].username)
+        self.assertEqual('oioioi.base.tests.IgnorePasswordAuthBackend',
             response.context['user'].backend)
 
 

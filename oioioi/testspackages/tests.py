@@ -25,7 +25,7 @@ class TestTestsPackages(TestCase):
                 file_name = strip_num_or_hash(os.path.basename(f.file.name))
                 content1 = zipf.open(file_name).read()
                 content2 = f.file.file.read()
-                self.assertEquals(content1, content2)
+                self.assertEqual(content1, content2)
         zipf.close()
 
     def _assertTestsNotInPackage(self, tests, tp):

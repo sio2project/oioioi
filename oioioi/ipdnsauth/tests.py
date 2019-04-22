@@ -83,7 +83,7 @@ class TestIpDnsManagement(TestCase):
 
         manager.clear('ip', IpToUser.objects)
         loaded = manager.export_data('ip', IpToUser.objects)
-        self.assertEquals(len(loaded), 0)
+        self.assertEqual(len(loaded), 0)
 
     def test_dns_management(self):
         filename = _test_filename('dns_bindings.csv')
@@ -104,4 +104,4 @@ class TestIpDnsManagement(TestCase):
         manager.run_from_argv(['manage.py', 'ipdnsauth', 'dns',
                                 '--unload', filename])
         loaded = manager.export_data('dns', DnsToUser.objects)
-        self.assertEquals(len(loaded), 0)
+        self.assertEqual(len(loaded), 0)

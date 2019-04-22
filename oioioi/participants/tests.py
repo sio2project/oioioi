@@ -185,9 +185,9 @@ class TestParticipantsRegistration(TestCase):
         register_url = reverse('participants_register',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(register_url)
-        self.assertEquals(403, response.status_code)
+        self.assertEqual(403, response.status_code)
         response = self.client.post(register_url)
-        self.assertEquals(403, response.status_code)
+        self.assertEqual(403, response.status_code)
         self.assertEqual(Participant.objects.count(), 0)
 
     def test_participants_unregister(self):
@@ -239,7 +239,7 @@ class TestOpenParticipantsRegistration(TestCase):
         user.save()
 
         response = self.client.post(url, self.reg_data)
-        self.assertEquals(302, response.status_code)
+        self.assertEqual(302, response.status_code)
 
         registration = OpenRegistration.objects.get(participant__user=user)
         self.assertTrue(registration.terms_accepted)
@@ -252,7 +252,7 @@ class TestOpenParticipantsRegistration(TestCase):
         OpenRegistration(participant_id=p.id, **self.reg_data).save()
         url = reverse('contest_info', kwargs={'contest_id': contest.id})
         data = json.loads(self.client.get(url).content)
-        self.assertEquals(data['users_count'], 1)
+        self.assertEqual(data['users_count'], 1)
 
 
 class NoAdminParticipantsRegistrationController(ParticipantsController):
@@ -458,10 +458,10 @@ class TestRegistrationModel(TestCase):
 
     def test_both_hands_cascading_on_registration_delete(self):
         def _assert_equals_len(expectedLen=None):
-            self.assertEquals(Participant.objects.count(),
+            self.assertEqual(Participant.objects.count(),
                               TestRegistration.objects.count())
             if expectedLen:
-                self.assertEquals(Participant.objects.count(), expectedLen)
+                self.assertEqual(Participant.objects.count(), expectedLen)
 
         contest = Contest.objects.get()
         contest.controller_name = \

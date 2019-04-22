@@ -33,7 +33,7 @@ class TestContestStatus(TestCase):
         self.assertContains(response, 'test_user')
         self.assertContains(response, 'testing an app')
         data = json.loads(response.content)
-        self.assertEquals(data['is_superuser'], False)
+        self.assertEqual(data['is_superuser'], False)
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
@@ -41,7 +41,7 @@ class TestContestStatus(TestCase):
         self.assertContains(response, 'test_admin')
         self.assertContains(response, 'testing an app')
         data = json.loads(response.content)
-        self.assertEquals(data['is_superuser'], True)
+        self.assertEqual(data['is_superuser'], True)
 
     def test_initial(self):
         contest = Contest.objects.get()

@@ -82,8 +82,8 @@ class TestQuestions(TestCase):
     def test_user_date(self):
         ta = datetime(1970, 1, 1, 12, 30, tzinfo=timezone.utc)
         tb = datetime(1970, 1, 1, 13, 30, tzinfo=timezone.utc)
-        self.assertEquals(Message(date=ta, pub_date=None).get_user_date(), ta)
-        self.assertEquals(Message(date=ta, pub_date=tb).get_user_date(), tb)
+        self.assertEqual(Message(date=ta, pub_date=None).get_user_date(), ta)
+        self.assertEqual(Message(date=ta, pub_date=tb).get_user_date(), tb)
 
     def test_visible_messages(self):
         contest = Contest.objects.get()
@@ -386,12 +386,12 @@ class TestQuestions(TestCase):
         url = reverse('get_messages_authors',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, {'substr': ''})
-        self.assertEquals(404, response.status_code)
+        self.assertEqual(404, response.status_code)
         response = self.client.get(url)
-        self.assertEquals(404, response.status_code)
+        self.assertEqual(404, response.status_code)
 
         response = self.client.get(url, {'substr': 'te'})
-        self.assertEquals(200, response.status_code)
+        self.assertEqual(200, response.status_code)
         response = json.loads(response.content)
         self.assertListEqual(['test_admin (Test Admin)',
                               'test_user (Test User)'], response)
@@ -509,9 +509,9 @@ class TestQuestions(TestCase):
 
     def test_candidate_notifications(self):
         timestamp = datetime(2000, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
-        self.assertEquals(len(candidate_messages(timestamp)), 5)
+        self.assertEqual(len(candidate_messages(timestamp)), 5)
         timestamp = datetime(2015, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
-        self.assertEquals(len(candidate_messages(timestamp)), 10)
+        self.assertEqual(len(candidate_messages(timestamp)), 10)
 
     def test_unescaped(self):
         message = Message.objects.get(pk=10)
@@ -526,10 +526,10 @@ class TestQuestions(TestCase):
         # Notify about a private message
         message = Message.objects.get(pk=3)
         mailnotify(message)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
         m = mail.outbox[0]
         self.assertIn("[OIOIOI][Test contest]", m.subject)
-        self.assertEquals("test_user@example.com", m.to[0])
+        self.assertEqual("test_user@example.com", m.to[0])
         self.assertIn("A new message has just appeared", m.body)
         self.assertIn("private-answer-body", m.body)
         # Private answer, the user has access to the top reference, so they
@@ -539,7 +539,7 @@ class TestQuestions(TestCase):
         # Do not notify about a question
         question = Message.objects.get(pk=2)
         mailnotify(question)
-        self.assertEquals(len(mail.outbox), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         # Do not notify again about the same question
         with self.assertRaises(AssertionError):
@@ -548,17 +548,17 @@ class TestQuestions(TestCase):
         # Notify two users about a public message
         pubmsg = Message.objects.get(pk=4)
         mailnotify(pubmsg)
-        self.assertEquals(len(mail.outbox), 3)
+        self.assertEqual(len(mail.outbox), 3)
         m = mail.outbox[1]
         mm = mail.outbox[2]
         self.assertIn("[OIOIOI][Test contest]", m.subject)
-        self.assertEquals("test_user@example.com", m.to[0])
-        self.assertEquals("test_user2@example.com", mm.to[0])
+        self.assertEqual("test_user@example.com", m.to[0])
+        self.assertEqual("test_user2@example.com", mm.to[0])
         self.assertIn("A new message has just appeared", m.body)
         self.assertIn("public-answer-body", m.body)
         self.assertIn("A new message has just appeared", mm.body)
         self.assertIn("public-answer-body", mm.body)
-        self.assertEquals(m.subject, mm.subject)
+        self.assertEqual(m.subject, mm.subject)
         # the author should receive the link to the top_reference
         # and the original question
         assertMessageId(pubmsg.top_reference.id, m.body)
@@ -576,7 +576,7 @@ class TestQuestions(TestCase):
         with mock.patch(mock_name, return_value=Message.objects.none()):
             message = Message.objects.get(pk=4)
             mailnotify(message)
-            self.assertEquals(len(mail.outbox), 0)
+            self.assertEqual(len(mail.outbox), 0)
 
 
 class TestAllMessagesView(TestCase):

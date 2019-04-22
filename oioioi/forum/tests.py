@@ -517,23 +517,23 @@ class TestBan(TestCase):
 
     def test_add_thread(self):
         self.assertTrue(self.client.login(username='test_user'))
-        self.assertEquals(0, Thread.objects.all().count())
+        self.assertEqual(0, Thread.objects.all().count())
         new_thread_url = reverse('forum_add_thread', kwargs={
                                  'contest_id': self.contest.id,
                                  'category_id': self.cat.id})
         self.client.post(new_thread_url,
                          {'name': "Test Thread",
                           'content': "lorem ipsum lorem ipsum!"})
-        self.assertEquals(0, Thread.objects.all().count())
+        self.assertEqual(0, Thread.objects.all().count())
         self.ban.delete()
         self.client.post(new_thread_url,
                          {'name': "Test Thread",
                           'content': "lorem ipsum lorem ipsum!"})
         thread = Thread.objects.all()[0]
-        self.assertEquals("Test Thread", thread.name)
-        self.assertEquals(1, thread.count_posts())
-        self.assertEquals("lorem ipsum lorem ipsum!", thread.last_post.content)
-        self.assertEquals(User.objects.get(username='test_user'),
+        self.assertEqual("Test Thread", thread.name)
+        self.assertEqual(1, thread.count_posts())
+        self.assertEqual("lorem ipsum lorem ipsum!", thread.last_post.content)
+        self.assertEqual(User.objects.get(username='test_user'),
                           thread.last_post.author)
 
     def test_edit_post(self):
@@ -547,9 +547,9 @@ class TestBan(TestCase):
                                                      'category_id': self.cat.id,
                                                      'thread_id': thr.id,
                                                      'post_id': p.id})
-        self.assertEquals(403, self.client.get(edit_url).status_code)
+        self.assertEqual(403, self.client.get(edit_url).status_code)
         self.ban.delete()
-        self.assertEquals(200, self.client.get(edit_url).status_code)
+        self.assertEqual(200, self.client.get(edit_url).status_code)
 
     def test_add_post(self):
         thr = Thread(category=self.cat, name='test_thread')
@@ -573,8 +573,8 @@ class TestBan(TestCase):
         self.client.post(thread_url, {'content': "lorem ipsum?"})
         self.assertTrue(Post.objects.filter(author=self.user).exists())
         post = Post.objects.filter(author=self.user)[0]
-        self.assertEquals("lorem ipsum?", post.content)
-        self.assertEquals(self.user, post.author)
+        self.assertEqual("lorem ipsum?", post.content)
+        self.assertEqual(self.user, post.author)
 
     def test_ban_view_without_removing_reports(self):
         self.ban.delete()
@@ -599,7 +599,7 @@ class TestBan(TestCase):
             p3.refresh_from_db()
             return [p0.reported, p1.reported, p2.reported, p3.reported]
 
-        self.assertEquals([True, True, False, True], check_reports())
+        self.assertEqual([True, True, False, True], check_reports())
 
         self.assertTrue(self.client.login(username='test_admin'))
         self.assertFalse(Ban.objects.exists())
@@ -608,20 +608,20 @@ class TestBan(TestCase):
                                                     'user_id': self.user.id})
 
         self.client.post(ban_url, {'reason': 'Abuse'})
-        self.assertEquals(1, Ban.objects.count())
+        self.assertEqual(1, Ban.objects.count())
         ban = Ban.objects.all()[0]
-        self.assertEquals(self.user, ban.user)
-        self.assertEquals('test_admin', ban.admin.username)
-        self.assertEquals('Abuse', ban.reason)
-        self.assertEquals(self.contest.forum, ban.forum)
-        self.assertEquals([True, True, False, True], check_reports())
+        self.assertEqual(self.user, ban.user)
+        self.assertEqual('test_admin', ban.admin.username)
+        self.assertEqual('Abuse', ban.reason)
+        self.assertEqual(self.contest.forum, ban.forum)
+        self.assertEqual([True, True, False, True], check_reports())
         ban.delete()
 
         self.client.post(ban_url, {'reason': 'Abuse', 'delete_reports': True})
-        self.assertEquals(1, Ban.objects.count())
+        self.assertEqual(1, Ban.objects.count())
         ban = Ban.objects.all()[0]
-        self.assertEquals(self.user, ban.user)
-        self.assertEquals('test_admin', ban.admin.username)
-        self.assertEquals('Abuse', ban.reason)
-        self.assertEquals(self.contest.forum, ban.forum)
-        self.assertEquals([False, False, False, True], check_reports())
+        self.assertEqual(self.user, ban.user)
+        self.assertEqual('test_admin', ban.admin.username)
+        self.assertEqual('Abuse', ban.reason)
+        self.assertEqual(self.contest.forum, ban.forum)
+        self.assertEqual([False, False, False, True], check_reports())

@@ -48,20 +48,20 @@ class ZeusJsonTest(TestCase):
         self._json_base64_decode = lambda v: _json_base64_decode(v, wrap=True)
 
     def test_json_base64_encode(self):
-        self.assertEquals(_json_base64_encode(self._ob), self._ob_json)
+        self.assertEqual(_json_base64_encode(self._ob), self._ob_json)
 
     def test_json_base64_decode(self):
-        self.assertEquals(self._ob, self._json_base64_decode(self._ob_json))
+        self.assertEqual(self._ob, self._json_base64_decode(self._ob_json))
         for j in self._jsons:
             self._json_base64_decode(j)
 
     def test_json_base64_identity(self):
-        self.assertEquals(self._ob, self._json_base64_decode(
+        self.assertEqual(self._ob, self._json_base64_decode(
                           _json_base64_encode(self._ob)))
-        self.assertEquals(self._ob_json, _json_base64_encode(
+        self.assertEqual(self._ob_json, _json_base64_encode(
                           self._json_base64_decode(self._ob_json)))
         for j in self._jsons:
-            self.assertEquals(j, _json_base64_encode(
+            self.assertEqual(j, _json_base64_encode(
                     self._json_base64_decode(j)))
 
 
@@ -88,7 +88,7 @@ class ZeusHandlersTest(TestsUtilsMixin, TestCase):
         def check_str(metadata, name, group, score):
             data = handlers.from_csv_metadata(metadata)
             self._verify_metadata_decoder(data)
-            self.assertEquals(data,
+            self.assertEqual(data,
                     {'name': name, 'group': group, 'max_score': score})
 
         check_str('1b,1,99', '1b', '1', 99)
