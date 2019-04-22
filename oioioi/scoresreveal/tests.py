@@ -24,9 +24,9 @@ class TestScoresReveal(TestCase):
         response = self.client.get(submission_url)
         self.assertEqual(response.status_code, 200)
         if success:
-            self.assertIn(b'</span> Reveal score', response.content)
+            self.assertContains(response, '</span> Reveal score')
         else:
-            self.assertNotIn(b'</span> Reveal score', response.content)
+            self.assertNotContains(response, '</span> Reveal score')
 
         url = reverse('submission_score_reveal', kwargs=kwargs)
         response = self.client.post(url, follow=True)
@@ -34,9 +34,9 @@ class TestScoresReveal(TestCase):
 
         self.assertEqual(response.status_code, 200)
         if success:
-            self.assertIn(b'has been revealed', response.content)
+            self.assertContains(response, 'has been revealed')
         else:
-            self.assertIn(b'<div class="alert alert-danger">', response.content)
+            self.assertContains(response, '<div class="alert alert-danger">')
 
         return response
 
@@ -59,7 +59,7 @@ class TestScoresReveal(TestCase):
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
             response = self.reveal_submit(1)
 
-            self.assertIn(b'34', response.content)
+            self.assertContains(response, '34')
 
     def test_disable_time(self):
         contest = Contest.objects.get()
@@ -73,8 +73,7 @@ class TestScoresReveal(TestCase):
             kwargs = {'contest_id': contest.id, 'submission_id': 1}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
-            self.assertIn(b'is disabled during the last <strong>60</strong>',
-                          response.content)
+            self.assertContains(response, 'is disabled during the last <strong>60</strong>')
             self.reveal_submit(1, success=False)
 
     def test_round_time_extension(self):
@@ -91,8 +90,7 @@ class TestScoresReveal(TestCase):
             self.reveal_submit(5)
             response = self.reveal_submit(1, success=False)
 
-            self.assertIn(b'used <strong>2</strong> out of 2 reveals',
-                          response.content)
+            self.assertContains(response, 'used <strong>2</strong> out of 2 reveals')
 
     def test_compilation_error(self):
         with fake_time(datetime(2012, 8, 8, tzinfo=utc)):
@@ -105,7 +103,7 @@ class TestScoresReveal(TestCase):
             kwargs = {'contest_id': contest.id, 'submission_id': 3}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
-            self.assertIn(b'has not been scored yet', response.content)
+            self.assertContains(response, 'has not been scored yet')
 
             self.reveal_submit(3, success=False)
 
@@ -119,9 +117,8 @@ class TestScoresReveal(TestCase):
             kwargs = {'contest_id': contest.id, 'submission_id': 4}
             response = self.client.get(reverse('submission', kwargs=kwargs))
             self.assertEqual(response.status_code, 200)
-            self.assertIn(b'already used <strong>1</strong> out of 2 reveals.',
-                          response.content)
+            self.assertContains(response, 'already used <strong>1</strong> out of 2 reveals.')
 
-            no_whitespaces_response = re.sub(r'\s*', '', response.content)
+            no_whitespaces_response = re.sub(r'\s*', '', response.content.decode('utf-8'))
             self.assertIn(b'<td>100</td>', no_whitespaces_response)
             self.reveal_submit(5, success=False)

@@ -28,23 +28,22 @@ class TestTimelineView(TestCase):
             obj = item['model'].objects.get(pk=item['id'])
             date = getattr(obj, item['date_field'])
             if date is not None:
-                self.assertIn(date.strftime('%Y-%m-%d %H:%M'),
-                              response.content)
+                self.assertContains(response, date.strftime('%Y-%m-%d %H:%M'))
 
         for round in Round.objects.filter(contest=contest.id).values():
-            self.assertIn(round['start_date'].strftime('%Y-%m-%d %H:%M'),
-                          response.content)
+            self.assertContains(response,
+                                round['start_date'].strftime('%Y-%m-%d %H:%M'))
 
     def test_menu(self):
         contest = Contest.objects.get()
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get('/c/%s/dashboard/' % contest.id)
-        self.assertNotIn(b'Timeline', response.content)
+        self.assertNotContains(response, 'Timeline')
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get('/c/%s/dashboard/' % contest.id)
-        self.assertIn(b'Timeline', response.content)
+        self.assertContains(response, 'Timeline')
 
 
 class TestChangingDates(TestCase):
@@ -73,10 +72,12 @@ class TestChangingDates(TestCase):
             self.assertEqual(response.status_code, admin_codes[admin])
 
             if admin_assertin is not None:
-                self.assertIn(admin_assertin, response.content)
+                self.assertContains(response, admin_assertin,
+                                    status_code=admin_codes[admin])
 
             if admin_assertnotin is not None:
-                self.assertNotIn(admin_assertnotin, response.content)
+                self.assertNotContains(response, admin_assertnotin,
+                                       status_code=admin_codes[admin])
 
         return response
 
@@ -104,7 +105,7 @@ class TestChangingDates(TestCase):
             if date is not None:
                 date = date.strftime("%Y-%m-%d %H:%M")
                 self.assertEqual(date, new_dates[_get_date_id(item)])
-                self.assertIn(date, response.content)
+                self.assertContains(response, date)
 
     def test_valid_unset_date_change(self):
         contest = Contest.objects.get(pk='c')
@@ -151,7 +152,7 @@ class TestChangingDates(TestCase):
             old_date = getattr(obj, item['date_field'])
             if old_date is not None:
                 new_date = new_dates[_get_date_id(item)]
-                self.assertIn(new_date, response.content)
+                self.assertContains(response, new_date)
                 self.assertNotEqual(new_date,
                                     old_date.strftime("%Y-%m-%d %H:%M"))
 

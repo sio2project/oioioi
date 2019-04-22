@@ -48,8 +48,8 @@ class TestContestDashboard(TestCase):
         content = response.content.decode('utf-8')
         self.assertEqual(response.status_code, 200)
 
-        self.assertIn('Recent activity', content)
-        self.assertIn(c.name + '</h1>', content)
+        self.assertContains(response, 'Recent activity')
+        self.assertContains(response, c.name + '</h1>')
 
         submission = Submission.objects.get(id=1)
         problem_name = r'Sum.*yce \(zad1\)'
@@ -90,11 +90,10 @@ class TestContestDashboard(TestCase):
         url = reverse('teacher_contest_dashboard')
 
         response = self.client.get(url)
-        content = response.content.decode('utf-8')
         self.assertEqual(response.status_code, 200)
 
-        self.assertIn('<p>There are no rounds in this contest.</p>',
-                      content)
+        self.assertContains(response,
+                            '<p>There are no rounds in this contest.</p>')
 
 
 class TestTeacherDashboard(TestCase):
@@ -117,23 +116,23 @@ class TestTeacherDashboard(TestCase):
         regex = re.compile(regex, self.compile_flags)
         self.assertTrue(regex.match(content))
 
-        self.assertIn('0 submissions', content)
-        self.assertIn('1 submission', content)
-        self.assertIn('0 questions', content)
-        self.assertIn('1 round', content)
-        self.assertIn('1 problem', content)
-        self.assertIn('0 users', content)
+        self.assertContains(response, '0 submissions')
+        self.assertContains(response, '1 submission')
+        self.assertContains(response, '0 questions')
+        self.assertContains(response, '1 round')
+        self.assertContains(response, '1 problem')
+        self.assertContains(response, '0 users')
 
-        self.assertIn('Teacher dashboard</h1>', content)
+        self.assertContains(response, 'Teacher dashboard</h1>')
 
     def test_teacher_dashboard_empty(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('teacher_dashboard')
         response = self.client.get(url)
-        content = response.content.decode('utf-8')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('There are no teacher contests to display.', content)
+        self.assertContains(response,
+                            'There are no teacher contests to display.')
 
     def test_teacher_dashboard_full(self):
         user = User.objects.get(username='test_user')
@@ -154,10 +153,9 @@ class TestTeacherDashboard(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('teacher_dashboard')
         response = self.client.get(url)
-        content = response.content.decode('utf-8')
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Show all contests', content)
+        self.assertContains(response, 'Show all contests')
 
 
 class TestProblemInstanceSettings(TestCase):
@@ -280,9 +278,9 @@ class TestProblemInstanceSettings(TestCase):
                 reverse('problem_settings',
                         kwargs={'problem_instance_id': str(pi.id)}),
                 self.form_data, follow=True)
-        content = response.content.decode('utf-8')
-        self.assertIn("Sum of time limits for all tests is too big. It&#39;s "
-                      "51s, but it shouldn&#39;t exceed 6s.", content)
+        self.assertContains(response,
+                "Sum of time limits for all tests is too big. It&#39;s "
+                "51s, but it shouldn&#39;t exceed 6s.")
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=100)
     def test_memory_limit(self):
@@ -293,9 +291,9 @@ class TestProblemInstanceSettings(TestCase):
                 reverse('problem_settings',
                         kwargs={'problem_instance_id': str(pi.id)}),
                 self.form_data, follow=True)
-        content = response.content.decode('utf-8')
-        self.assertIn("Memory limit mustn&#39;t be greater than %dKiB."
-                        % settings.MAX_MEMORY_LIMIT_FOR_TEST, content)
+        self.assertContains(response,
+                            "Memory limit mustn&#39;t be greater than %dKiB."
+                            % settings.MAX_MEMORY_LIMIT_FOR_TEST)
 
     def test_tag_delete(self):
         (pi, p) = self.login(True)
@@ -456,6 +454,5 @@ class TestProblemInstanceValidation(TestCase):
             reverse('problem_settings',
                     kwargs={'problem_instance_id': str(pi.id)}),
             self.form_data, follow=True)
-        content = response.content.decode('utf-8')
-        self.assertIn("Scores for tests in the same group must be equal",
-                      content)
+        self.assertContains(response,
+                            "Scores for tests in the same group must be equal")

@@ -96,23 +96,22 @@ class TestTestsPackages(TestCase):
 
         with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotIn(b'>Tests<', response.content)
-            self.assertNotIn(b'some_name.zip', response.content)
-            self.assertNotIn(b'some_name2.zip', response.content)
-            self.assertEqual(403, response.status_code)
+            self.assertNotContains(response, '>Tests<', status_code=403)
+            self.assertNotContains(response, 'some_name.zip', status_code=403)
+            self.assertNotContains(response, 'some_name2.zip', status_code=403)
 
         with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertIn(b'>Tests<', response.content)
-            self.assertIn(b'some_name.zip', response.content)
-            self.assertNotIn(b'some_name2.zip', response.content)
+            self.assertContains(response, '>Tests<')
+            self.assertContains(response, 'some_name.zip')
+            self.assertNotContains(response, 'some_name2.zip')
             self.assertEqual(200, response.status_code)
 
         with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertIn(b'>Tests<', response.content)
-            self.assertIn(b'some_name.zip', response.content)
-            self.assertIn(b'some_name2.zip', response.content)
+            self.assertContains(response, '>Tests<')
+            self.assertContains(response, 'some_name.zip')
+            self.assertContains(response, 'some_name2.zip')
             self.assertEqual(200, response.status_code)
 
         url = reverse('test', kwargs={'contest_id': contest.id,

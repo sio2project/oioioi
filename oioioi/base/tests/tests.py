@@ -84,11 +84,11 @@ class TestIndex(TestCase):
     def test_login(self):
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/', follow=True)
-        self.assertNotIn('test_user', response.content)
+        self.assertNotContains(response, 'test_user')
         self.assertTrue(self.client.login(username='test_user'))
         with self.assertNumQueriesLessThan(65):
             response = self.client.get('/', follow=True)
-        self.assertIn('test_user', response.content)
+        self.assertContains(response, 'test_user')
         login_url = reverse('login')
         with self.assertNumQueriesLessThan(50):
             response = self.client.get(login_url)
@@ -108,10 +108,9 @@ class TestIndex(TestCase):
         self.client.get('/', follow=True)
         logout_url = reverse('logout')
         response = self.client.get(logout_url)
-        self.assertEqual(405, response.status_code)
-        self.assertNotIn('My submissions', response.content)
-        self.assertIn('OIOIOI', response.content)
-        self.assertIn('method is not allowed', response.content)
+        self.assertNotContains(response, 'My submissions', status_code=405)
+        self.assertContains(response, 'OIOIOI', status_code=405)
+        self.assertContains(response, 'method is not allowed', status_code=405)
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.post(logout_url)
         self.assertEqual(302, response.status_code)
@@ -120,20 +119,20 @@ class TestIndex(TestCase):
         with self.assertNumQueriesLessThan(93):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
-            self.assertNotIn('navbar-login', response.content)
-            self.assertNotIn('System Administration', response.content)
+            self.assertNotContains(response, 'navbar-login')
+            self.assertNotContains(response, 'System Administration')
         with self.assertNumQueriesLessThan(79):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
-            self.assertNotIn('navbar-login', response.content)
-            self.assertIn('System Administration', response.content)
+            self.assertNotContains(response, 'navbar-login')
+            self.assertContains(response, 'System Administration')
 
     def test_accounts_menu(self):
         response = self.client.get('/', follow=True)
-        self.assertNotIn('Change password', response.content)
+        self.assertNotContains(response, 'Change password')
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get('/', follow=True)
-        self.assertIn('Change password', response.content)
+        self.assertContains(response, 'Change password')
 
 
 class TestIndexNoContest(TestCase):
@@ -144,13 +143,11 @@ class TestIndexNoContest(TestCase):
         unregister_main_page_view(szkopul_main_page)
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/')
-            self.assertIn('There are no contests available to logged out',
-                    response.content)
+            self.assertContains(response, 'There are no contests available to logged out')
         with self.assertNumQueriesLessThan(50):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/')
-            self.assertIn('This is a new OIOIOI installation',
-                    response.content)
+            self.assertContains(response, 'This is a new OIOIOI installation')
 
         @register_main_page_view(order=100)
         def set_main_page_back(request):
@@ -159,7 +156,7 @@ class TestIndexNoContest(TestCase):
     @override_settings(DEFAULT_GLOBAL_PORTAL_AS_MAIN_PAGE=False)
     def test_navbar_login(self):
         response = self.client.get('/')
-        self.assertIn('navbar-login', response.content)
+        self.assertContains(response, 'navbar-login')
 
 
 class TestMainPage(TestCase):
@@ -180,7 +177,7 @@ class TestMainPage(TestCase):
 
         try:
             response = self.client.get('/')
-            self.assertIn('This is a test index template', response.content)
+            self.assertContains(response, 'This is a test index template')
         finally:
             # Perform cleanup regardless of the test failure/success
             unregister_main_page_view(inaccessible)
@@ -331,13 +328,11 @@ class TestErrorHandlers(TestCase):
         return self.client.get(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def assertHtml(self, response, code):
-        self.assertEqual(response.status_code, code)
-        self.assertIn('<html', response.content)
+        self.assertContains(response, '<html', status_code=code)
         self.assertIn('text/html', response['Content-type'])
 
     def assertPlain(self, response, code):
-        self.assertEqual(response.status_code, code)
-        self.assertNotIn('<html', response.content)
+        self.assertNotContains(response, '<html', status_code=code)
         self.assertLess(len(response.content), 250)
         self.assertIn('text/plain', response['Content-type'])
 
@@ -749,10 +744,10 @@ class TestAdmin(TestCase):
         url = reverse('oioioiadmin:auth_user_delete', args=(user.id,))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('User: test_user', response.content)
-        self.assertIn('well', response.content)
+        self.assertContains(response, 'User: test_user')
+        self.assertContains(response, 'well')
         response = self.client.post(url, {'post': 'yes'}, follow=True)
-        self.assertIn('was deleted successfully', response.content)
+        self.assertContains(response, 'was deleted successfully')
         self.assertEqual(User.objects.filter(username='test_user').count(), 0)
 
     def test_import_users(self):
@@ -831,7 +826,7 @@ class TestBaseViews(TestCase):
             response = self.client.get(url)
 
             for text in ['Doggy', 'Andrzej', '72', 'The answer to everything']:
-                self.assertIn(text, response.content)
+                self.assertContains(response, text)
 
             data = {'username': 'test_user', 'first_name': 'fn',
                     'last_name': 'ln', 'email': 'foo@bar.com',
@@ -1009,15 +1004,14 @@ class TestLoginChange(TestCase):
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
-            self.assertIn('contains forbidden characters', response.content)
+            self.assertContains(response, 'contains forbidden characters')
 
         for l in self.valid_logins:
             self.user.username = l
             self.user.save()
 
             response = self.client.get(self.url_index, follow=True)
-            self.assertNotIn('contains forbidden characters',
-                    response.content)
+            self.assertNotContains(response, 'contains forbidden characters')
 
     def test_can_change_login_from_invalid(self):
         for l in self.invalid_logins:
@@ -1026,22 +1020,23 @@ class TestLoginChange(TestCase):
 
             response = self.client.get(self.url_edit_profile)
             # The html strings underneath may change with any django upgrade.
-            self.assertIn('<input class="form-control" id="id_username" '
+            self.assertContains(response,
+                    '<input class="form-control" id="id_username" '
                     'maxlength="150" name="username" type="text" '
-                    'value="%s" required />' % l, response.content)
+                    'value="%s" required />' % l)
 
             self.client.post(self.url_edit_profile, {'username': 'valid_user'},
                     follow=True)
             self.assertEqual(self.user.username, l)
 
             response = self.client.post(self.url_index, follow=True)
-            self.assertNotIn('contains not allowed characters',
-                    response.content)
+            self.assertNotContains(response, 'contains not allowed characters')
 
             response = self.client.get(self.url_edit_profile)
-            self.assertIn('<input class="form-control" id="id_username" '
+            self.assertContains(response,
+                    '<input class="form-control" id="id_username" '
                     'maxlength="150" name="username" type="text" '
-                    'value="valid_user" readonly required />', response.content)
+                    'value="valid_user" readonly required />')
 
     def test_login_cannot_change_from_valid(self):
         for l in self.valid_logins:
@@ -1049,21 +1044,21 @@ class TestLoginChange(TestCase):
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
-            self.assertIn('<input class="form-control" id="id_username" '
-                          'maxlength="150" name="username" type="text" '
-                          'value="%s" readonly required />' % l, response.content)
+            self.assertContains(response,
+                        '<input class="form-control" id="id_username" '
+                        'maxlength="150" name="username" type="text" '
+                        'value="%s" readonly required />' % l)
 
             response = self.client.post(self.url_edit_profile,
                     {'username': 'valid_user'}, follow=True)
             self.assertEqual(self.user.username, l)
-            self.assertIn('You cannot change your username.', response.content)
+            self.assertContains(response, 'You cannot change your username.')
 
             response = self.client.get(self.url_index, follow=True)
-            self.assertNotIn('contains not allowed characters',
-                    response.content)
+            self.assertNotContains(response, 'contains not allowed characters')
 
             response = self.client.get(self.url_edit_profile)
-            self.assertNotIn('valid_user', response.content)
+            self.assertNotContains(response, 'valid_user')
 
     def test_failed_login_change(self):
         url_edit_profile = reverse('edit_profile')
@@ -1084,7 +1079,7 @@ class TestTranslate(TestCase):
         url = reverse('translate')
         response = self.client.get(url, get_data)
         self.assertEqual(200, response.status_code)
-        self.assertIn('konkurs', response.content)
+        self.assertContains(response, 'konkurs')
 
 
 class TestFileUtils(TestCase):
@@ -1160,11 +1155,11 @@ class TestObtainingAPIToken(TestCase):
         self.assertRaises(Token.DoesNotExist, Token.objects.get, user=self.user)
         response = self.client.post(reverse('api_token'))
         token = Token.objects.get(user=self.user)
-        self.assertIn(str(token), response.content)
+        self.assertContains(response, str(token))
 
     def test_api_token_regeneration(self):
         response = self.client.post(reverse('api_token'))
-        self.assertIn(reverse('api_regenerate_key'), response.content.decode('utf-8'))
+        self.assertContains(response, reverse('api_regenerate_key'))
         old_token = Token.objects.get(user=self.user)
         response = self.client.get(reverse('api_regenerate_key'))
         self.assertEqual(old_token, Token.objects.get(user=self.user),
@@ -1172,9 +1167,9 @@ class TestObtainingAPIToken(TestCase):
         response = self.client.post(reverse('api_regenerate_key'))
         new_token = Token.objects.get(user=self.user)
         self.assertNotEqual(old_token, new_token)
-        self.assertIn('was regenerated', response.content)
-        self.assertIn(str(new_token), response.content)
-        self.assertNotIn(str(old_token), response.content)
+        self.assertContains(response, 'was regenerated')
+        self.assertContains(response, str(new_token))
+        self.assertNotContains(response, str(old_token))
 
 
 class TestPingEndpointsAndAuthentication(APITestCase):

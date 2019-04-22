@@ -25,7 +25,7 @@ class TestDashboardMessage(TestCase):
         url = reverse('contest_dashboard',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(url)
-        self.assertIn(b'Test dashboard message', response.content)
+        self.assertContains(response, 'Test dashboard message')
 
 
 class TestMessagesSection(TestCase):
@@ -39,7 +39,7 @@ class TestMessagesSection(TestCase):
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Show more', response.content)
+        self.assertContains(response, 'Show more')
 
     @override_settings(NUM_DASHBOARD_MESSAGES=7)
     def test_show_more_button_not_visible(self):
@@ -48,7 +48,7 @@ class TestMessagesSection(TestCase):
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Show more', response.content)
+        self.assertNotContains(response, 'Show more')
 
     def test_show_all_button_visible(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -56,4 +56,4 @@ class TestMessagesSection(TestCase):
         url = reverse('contest_dashboard', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Show all', response.content)
+        self.assertContains(response, 'Show all')

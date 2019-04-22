@@ -33,8 +33,8 @@ class TestOIAdmin(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
-        self.assertIn('Schools', response.content)
-        self.assertNotIn('Regions', response.content)
+        self.assertContains(response, 'Schools')
+        self.assertNotContains(response, 'Regions')
 
     def test_schools_import(self):
         filename = os.path.join(os.path.dirname(__file__), 'files',
@@ -119,8 +119,8 @@ class TestOIRegistration(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
-        self.assertIn('Register to the contest', response.content)
-        self.assertNotIn('Edit contest registration', response.content)
+        self.assertContains(response, 'Register to the contest')
+        self.assertNotContains(response, 'Edit contest registration')
 
         user = User.objects.get(username='test_user')
         p = Participant(contest=contest, user=user)
@@ -128,8 +128,8 @@ class TestOIRegistration(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
-        self.assertNotIn('Register to the contest', response.content)
-        self.assertIn('Edit contest registration', response.content)
+        self.assertNotContains(response, 'Register to the contest')
+        self.assertContains(response, 'Edit contest registration')
 
     def test_participants_unregister_forbidden(self):
         contest = Contest.objects.get()
@@ -269,11 +269,11 @@ class TestOIViews(TestCase):
 
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
-        self.assertIn('Visible Contest', response.content)
+        self.assertContains(response, 'Visible Contest')
 
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
-        self.assertIn('Visible Contest', response.content)
+        self.assertContains(response, 'Visible Contest')
 
     def test_contest_access(self):
         contest = Contest.objects.get()
@@ -456,17 +456,17 @@ class TestOISubmit(TestCase, SubmitFileMixin):
             self.client.logout()
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
             self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
             self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
             p.status = 'ACTIVE'
             p.save()
@@ -543,9 +543,9 @@ class TestIgnoringCE(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertIn('Test User', response.content)
-        self.assertNotIn('Test User 2', response.content)
-        self.assertIn('34', response.content)
+        self.assertContains(response, 'Test User')
+        self.assertNotContains(response, 'Test User 2')
+        self.assertContains(response, '34')
 
     def test_all_oi_style_contests(self):
         self._test('oioioi.oi.controllers.OIContestController')
@@ -610,6 +610,6 @@ class TestUserInfo(TestCase):
 
             for k in reg_data:
                 if can_see:
-                    self.assertIn(reg_data[k], response.content)
+                    self.assertContains(response, reg_data[k])
                 else:
-                    self.assertNotIn(reg_data[k], response.content)
+                    self.assertNotContains(response, reg_data[k], status_code=403)

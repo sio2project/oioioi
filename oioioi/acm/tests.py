@@ -79,46 +79,49 @@ class TestACMRanking(TestCase):
 
         with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertActiveTaskNotIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertActiveTaskIn(task, response.content)
-            self.assertNotIn(b'The ranking is frozen.', response.content)
+            content = response.content.decode('utf-8')
+            self.assertActiveTaskNotIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertActiveTaskIn(task, content)
+            self.assertNotContains(response, 'The ranking is frozen.')
 
         with fake_timezone_now(datetime(2013, 12, 15, 1, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertActiveTaskNotIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertActiveTaskIn(task, response.content)
-            self.assertIn(b'The ranking is frozen.', response.content)
+            content = response.content.decode('utf-8')
+            self.assertActiveTaskNotIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertActiveTaskIn(task, content)
+            self.assertContains(response, 'The ranking is frozen.')
 
         with fake_timezone_now(datetime(2013, 12, 15, 7, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskNotIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertInactiveTaskIn(task, response.content)
-            self.assertIn(b'The ranking is frozen.', response.content)
+            content = response.content.decode('utf-8')
+            self.assertInactiveTaskNotIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertInactiveTaskIn(task, content)
+            self.assertContains(response, 'The ranking is frozen.')
 
         with fake_timezone_now(datetime(2013, 12, 15, 9, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskNotIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertInactiveTaskIn(task, response.content)
-            self.assertNotIn(b'The ranking is frozen.', response.content)
+            content = response.content.decode('utf-8')
+            self.assertInactiveTaskNotIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertInactiveTaskIn(task, content)
+            self.assertNotContains(response, 'The ranking is frozen.')
 
         with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertEqual(
-                response.content.count(b'data-username="test_user"'), 2)
+            self.assertContains(response, 'data-username="test_user"', count=2)
 
         self.assertTrue(self.client.login(username='test_admin'))
 
         with fake_timezone_now(datetime(2013, 12, 15, 0, 40, tzinfo=utc)):
             response = self.client.get(csv_url)
             self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.content.count(b'\n'), 4)
+            self.assertContains(response, '\n', count=4)
 
             response = self.client.get(url)
-            self.assertEqual(response.content.count(b'data-result_url'), 8)
+            self.assertContains(response, 'data-result_url', count=8)
 
     def test_model_solution_submission_view(self):
         contest = Contest.objects.get()
@@ -133,7 +136,7 @@ class TestACMRanking(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'0:02', response.content)
+        self.assertContains(response, '0:02')
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()

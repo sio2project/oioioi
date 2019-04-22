@@ -111,7 +111,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.post(url, invalid_post_data)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Invalid confirmation code', response.content)
+        self.assertContains(response, 'Invalid confirmation code')
         self.assertEqual(Submission.objects.count(), 0)
 
         response = self.client.post(url, valid_post_data, follow=True)
@@ -119,7 +119,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
         self.assertEqual(Submission.objects.count(), 1)
         response = self.client.post(url, valid_post_data, follow=True)
         self.assertEqual(200, response.status_code)
-        self.assertIn('already accepted', response.content)
+        self.assertContains(response, 'already accepted')
         ms = MailSubmission.objects.get()
         self.assertEqual(ms.accepted_by,
                          User.objects.get(username='test_admin'))

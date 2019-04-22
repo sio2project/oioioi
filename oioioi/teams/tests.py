@@ -76,11 +76,11 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get(reverse('default_contest_view',
                               kwargs={'contest_id': contest.id}), follow=True)
-            self.assertIn('Team', response.content)
+            self.assertContains(response, 'Team')
 
             response = self.client.get(reverse('team_view',
                               kwargs={'contest_id': contest.id}), follow=True)
-            self.assertIn('Create a team', response.content)
+            self.assertContains(response, 'Create a team')
 
             user = User.objects.get(username='test_user')
             team = create_team('test_team', 'Super Team!', contest)
@@ -89,8 +89,8 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
 
             response = self.client.get(reverse('team_view',
                               kwargs={'contest_id': contest.id}), follow=True)
-            self.assertIn('Super Team!', response.content)
-            self.assertIn('delete the team', response.content)
+            self.assertContains(response, 'Super Team!')
+            self.assertContains(response, 'delete the team')
 
             user2 = User.objects.get(username='test_user2')
             tm = TeamMembership(team=team, user=user2)
@@ -98,8 +98,8 @@ class TestTeamsViews(TestCase, SubmitFileMixin):
 
             response = self.client.get(reverse('team_view',
                               kwargs={'contest_id': contest.id}), follow=True)
-            self.assertIn('Super Team!', response.content)
-            self.assertIn('Leave the team', response.content)
+            self.assertContains(response, 'Super Team!')
+            self.assertContains(response, 'Leave the team')
 
 
 class TestTeamSubmit(TestCase, SubmitFileMixin):
@@ -128,8 +128,8 @@ class TestTeamSubmit(TestCase, SubmitFileMixin):
         self.assertTrue(self.client.login(username='test_user'))
 
         response = self.submit_file(contest, problem_instance, user=user)
-        self.assertIn('You can&#39;t submit a solution for another team!',
-                      response.content)
+        self.assertContains(response,
+                            'You can&#39;t submit a solution for another team!')
 
         response = self.submit_file(contest, problem_instance, user=team.user)
         self.assertEqual(Submission.objects.get().user, team.user)
@@ -169,13 +169,13 @@ class TestTeamsListView(TestCase):
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
-        self.assertNotIn('Teams', response.content)
+        self.assertNotContains(response, 'Teams')
 
         self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
-        self.assertNotIn('Teams', response.content)
+        self.assertNotContains(response, 'Teams')
 
     def test_visibility_yes(self):
         contest = Contest.objects.get()
@@ -185,13 +185,13 @@ class TestTeamsListView(TestCase):
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
-        self.assertNotIn('Teams', response.content)
+        self.assertNotContains(response, 'Teams')
 
         self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
-        self.assertIn('Teams', response.content)
+        self.assertContains(response, 'Teams')
 
     def test_visibility_public(self):
         contest = Contest.objects.get()
@@ -201,13 +201,13 @@ class TestTeamsListView(TestCase):
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
-        self.assertIn('Teams', response.content)
+        self.assertContains(response, 'Teams')
 
         self.assertTrue(self.client.login(username='test_user'))
 
         response = self.client.get(reverse('default_contest_view',
                 kwargs={'contest_id': contest.id}), follow=True)
-        self.assertIn('Teams', response.content)
+        self.assertContains(response, 'Teams')
 
     def test_list(self):
         contest = Contest.objects.get()
@@ -218,9 +218,9 @@ class TestTeamsListView(TestCase):
         response = self.client.get(reverse('teams_list',
                 kwargs={'contest_id': contest.id}), follow=True)
 
-        self.assertIn('test_team', response.content)
-        self.assertIn('Test Team1', response.content)
-        self.assertIn('Test Team2', response.content)
+        self.assertContains(response, 'test_team')
+        self.assertContains(response, 'Test Team1')
+        self.assertContains(response, 'Test Team2')
 
 
 class TestTeamMembership(TestCase):

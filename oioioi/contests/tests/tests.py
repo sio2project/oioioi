@@ -427,9 +427,9 @@ class TestContestViews(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get('/c/%s/dashboard/' % contest.id)
-        self.assertIn('dropdown open', response.content)
+        self.assertContains(response, 'dropdown open')
         response = self.client.get('/c/%s/dashboard/' % contest.id)
-        self.assertNotIn('dropdown open', response.content)
+        self.assertNotContains(response, 'dropdown open')
 
         contests = [cv.contest for cv in ContestView.objects.all()]
         self.assertEqual(contests, [contest, invisible_contest])
@@ -455,7 +455,7 @@ class TestContestViews(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
-        self.assertIn('Invisible Contest', response.content)
+        self.assertContains(response, 'Invisible Contest')
 
         contest2 = Contest(id='c2', name='Contest2',
             controller_name='oioioi.contests.tests.PrivateContestController')
@@ -510,9 +510,9 @@ class TestContestViews(TestCase):
             self.assertTrue(re.search(td_pattern_with_class % (t,),
                                       response.content))
 
-        self.assertEqual(response.content.count('34 / 34'), 1)
-        self.assertEqual(response.content.count('0 / 33'), 2)
-        self.assertEqual(response.content.count('0 / 0'), 2)
+        self.assertContains(response, '34 / 34', count=1)
+        self.assertContains(response, '0 / 33', count=2)
+        self.assertContains(response, '0 / 0', count=2)
 
         status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
         header_match = re.findall(status_pattern % ('OK[0-9]+', "OK"), response.content)
@@ -526,7 +526,7 @@ class TestContestViews(TestCase):
         self.assertEqual(len(ok_match), 4)
         self.assertEqual(len(re_match), 1)
         self.assertEqual(len(wa_match), 1)
-        self.assertIn('program exited with code 1', response.content)
+        self.assertContains(response, 'program exited with code 1')
 
     def test_submissions_permissions(self):
         contest = Contest.objects.get()
@@ -585,8 +585,8 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             for user in ['test_admin', 'test_contest_admin']:
                 self.assertTrue(self.client.login(username=user))
                 response = self.client.get(url)
-                self.assertAllIn(['zad1', 'zad2', 'zad3', 'zad4'],
-                        response.content)
+                for task in ['zad1', 'zad2', 'zad3', 'zad4']:
+                    self.assertContains(response, task)
                 self.assertIn('contests/problems_list.html',
                         [t.name for t in response.templates])
                 self.assertEqual(len(response.context['problem_instances']), 4)
@@ -595,8 +595,9 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             for user in ['test_user', 'test_observer']:
                 self.assertTrue(self.client.login(username=user))
                 response = self.client.get(url)
-                self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
-                self.assertNotIn('zad2', response.content)
+                for task in ['zad1', 'zad3', 'zad4']:
+                    self.assertContains(response, task)
+                self.assertNotContains(response, 'zad2')
                 self.assertEqual(len(response.context['problem_instances']), 3)
 
     def test_submissions_visibility(self):
@@ -605,8 +606,9 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
-            self.assertNoneIn(['zad2', ], response.content)
+            for task in ['zad1', 'zad3', 'zad4']:
+                self.assertContains(response, task)
+            self.assertNotContains(response, 'zad2')
 
             self.assertIn('contests/my_submissions.html',
                     [t.name for t in response.templates])
@@ -620,7 +622,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
         with fake_time(datetime(2012, 7, 31, 20, tzinfo=utc)):
             response = self.client.get(url)
             self.assertNotIn('>34<', self.remove_ws(response))
-            self.assertNotIn('Score', response.content)
+            self.assertNotContains(response, 'Score')
 
         with fake_time(datetime(2012, 7, 31, 21, tzinfo=utc)):
             response = self.client.get(url)
@@ -678,7 +680,8 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             # r3, r4 are active
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
-            self.assertAllIn(['zad3', 'zad4'], response.content)
+            for task in ['zad3', 'zad4']:
+                self.assertContains(response, task)
             self.assertEqual(len(response.context['problem_instances']), 2)
 
         with fake_time(datetime(2015, 7, 31, 20, 1, tzinfo=utc)):
@@ -691,7 +694,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             # r2 is active
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
-            self.assertAllIn(['zad2'], response.content)
+            self.assertContains(response, 'zad2')
             self.assertEqual(len(response.context['problem_instances']), 1)
 
         r2 = Round.objects.get(pk=2)
@@ -702,7 +705,8 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             # r1,r3,r4 are past, break = (21.27, 21.40) -- first half
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
-            self.assertAllIn(['zad1', 'zad3', 'zad4'], response.content)
+            for task in ['zad1', 'zad3', 'zad4']:
+                self.assertContains(response, task)
             self.assertEqual(len(response.context['problem_instances']), 3)
 
         with fake_time(datetime(2012, 7, 31, 21, 35, tzinfo=utc)):
@@ -716,7 +720,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
             # r2 is active
             self.assertTrue(self.client.login(username=user))
             response = self.client.get(url)
-            self.assertAllIn(['zad2'], response.content)
+            self.assertContains(response, 'zad2')
             print(response.context['problem_instances'])
             self.assertEqual(len(response.context['problem_instances']), 1)
 
@@ -868,10 +872,9 @@ class TestRejudgeAndFailure(TestCase):
         rejudge_url = reverse('rejudge_submission', kwargs=kwargs)
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(rejudge_url)
-        self.assertEqual(405, response.status_code)
-        self.assertIn('OIOIOI', response.content)
-        self.assertIn('method is not allowed', response.content)
-        self.assertIn('Log out', response.content)
+        self.assertContains(response, 'OIOIOI', status_code=405)
+        self.assertContains(response, 'method is not allowed', status_code=405)
+        self.assertContains(response, 'Log out', status_code=405)
 
     def test_rejudge_and_failure(self):
         contest = Contest.objects.get()
@@ -886,8 +889,8 @@ class TestRejudgeAndFailure(TestCase):
                 kwargs=kwargs))
         self.assertEqual(response.status_code, 302)
         response = self.client.get(reverse('submission', kwargs=kwargs))
-        self.assertIn('failure report', response.content)
-        self.assertIn('EXPECTED FAILURE', response.content)
+        self.assertContains(response, 'failure report')
+        self.assertContains(response, 'EXPECTED FAILURE')
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('System Error evaluating submission #',
@@ -897,8 +900,8 @@ class TestRejudgeAndFailure(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('submission', kwargs=kwargs))
-        self.assertNotIn('failure report', response.content)
-        self.assertNotIn('EXPECTED FAILURE', response.content)
+        self.assertNotContains(response, 'failure report')
+        self.assertNotContains(response, 'EXPECTED FAILURE')
 
     def test_suspicious_rejudge_request(self):
         contest = Contest.objects.get()
@@ -929,11 +932,11 @@ class TestRejudgeTypesView(TestCase):
         response = self.client.post(
             reverse('oioioiadmin:contests_submission_changelist'),
             post_data)
-        self.assertIn('You have selected 2 submission(s) from 1 problem(s)',
-                      response.content)
-        self.assertIn('Rejudge submissions on judged tests only',
-                      response.content)
-        self.assertIn('Tests:', response.content)
+        self.assertContains(response,
+                'You have selected 2 submission(s) from 1 problem(s)')
+        self.assertContains(response,
+                'Rejudge submissions on judged tests only')
+        self.assertContains(response, 'Tests:')
 
         problem_instance = ProblemInstance.objects.get(id=2)
         submission = Submission()
@@ -944,11 +947,11 @@ class TestRejudgeTypesView(TestCase):
         response = self.client.post(
             reverse('oioioiadmin:contests_submission_changelist'),
             post_data)
-        self.assertIn('You have selected 3 submission(s) from 2 problem(s)',
-                      response.content)
-        self.assertNotIn('Rejudge submissions on judged tests only',
-                         response.content)
-        self.assertNotIn('Tests:', response.content)
+        self.assertContains(response,
+                'You have selected 3 submission(s) from 2 problem(s)')
+        self.assertNotContains(response,
+                'Rejudge submissions on judged tests only')
+        self.assertNotContains(response, 'Tests:')
 
 
 class TestContestAdmin(TestCase):
@@ -1000,8 +1003,8 @@ class TestContestAdmin(TestCase):
                 args=(quote('cid'),)) + '?simple=true'
         response = self.client.get(url, follow=True)
 
-        self.assertIn('2012-02-05', response.content)
-        self.assertIn('06:07:08', response.content)
+        self.assertContains(response, '2012-02-05')
+        self.assertContains(response, '06:07:08')
         self.assertContains(response, contest.controller.description)
         self.assertNotContains(response, "Judging priority")
         self.assertNotContains(response, "Judging weight")
@@ -1053,8 +1056,7 @@ class TestContestAdmin(TestCase):
         })
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Start date should be before end date.",
-                response.content)
+        self.assertContains(response, "Start date should be before end date.")
         '''
         # pylint: enable=pointless-string-statement
 
@@ -1137,7 +1139,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         for part in ['contest-attachment', 'conatt.txt', 'problem-attachment',
                      'probatt.txt', 'round-attachment', 'roundatt.txt']:
-            self.assertIn(part, response.content)
+            self.assertContains(response, part)
         response = self.client.get(reverse('contest_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
         self.assertStreamingEqual(response, 'content-of-conatt')
@@ -1153,10 +1155,10 @@ class TestAttachments(TestCase, TestStreamingMixin):
                 kwargs={'contest_id': contest.id}))
             self.assertEqual(response.status_code, 200)
             for part in ['contest-attachment', 'conatt.txt']:
-                self.assertIn(part, response.content)
+                self.assertContains(response, part)
             for part in ['problem-attachment', 'probatt.txt',
                          'round-attachment', 'roundatt.txt']:
-                self.assertNotIn(part, response.content)
+                self.assertNotContains(response, part)
             response = self.client.get(reverse('contest_attachment',
                 kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
             self.assertStreamingEqual(response, 'content-of-conatt')
@@ -1192,9 +1194,9 @@ class TestAttachments(TestCase, TestStreamingMixin):
             for name in ['conatt-null-date.txt', 'conatt-visible.txt',
                     'conatt-hidden.txt']:
                 if name in should_be_visible:
-                    self.assertIn(name, response.content)
+                    self.assertContains(response, name)
                 else:
-                    self.assertNotIn(name, response.content)
+                    self.assertNotContains(response, name)
 
         def check_accessibility(should_be_accesible, should_not_be_accesible):
             for (id, content) in should_be_accesible:
@@ -1245,7 +1247,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
             self.assertTrue(self.client.login(username='test_user2'))
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
             self.assertTrue(self.client.login(username='test_user'))
             response = self.submit_file(contest, problem_instance1)
             self._assertSubmitted(contest, response)
@@ -1253,12 +1255,12 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 8, 5, 0, 11, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance1)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
         with fake_time(datetime(2012, 8, 12, 0, 5, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance2)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
     def test_round_extension_admin(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -1275,7 +1277,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
             }
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('was added successfully', response.content)
+        self.assertContains(response, 'was added successfully')
         self.assertEqual(RoundTimeExtension.objects.count(), 1)
         rext = RoundTimeExtension.objects.get()
         self.assertEqual(rext.round, Round.objects.get(pk=1))
@@ -1285,7 +1287,7 @@ class TestRoundExtension(TestCase, SubmitFileMixin):
         url = reverse('oioioiadmin:contests_roundtimeextension_change',
                 args=('1',))
         response = self.client.get(url)
-        self.assertIn('31415926', response.content)
+        self.assertContains(response, '31415926')
         post_data = {
                 'user': '1001',
                 'round': '1',
@@ -1376,14 +1378,14 @@ class TestPermissions(TestCase):
         self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(reverse('default_contest_view',
             kwargs={'contest_id': self.contest.id}), follow=True)
-        self.assertNotIn('System Administration', response.content)
-        self.assertIn('Contest Administration', response.content)
-        self.assertNotIn('Observer Menu', response.content)
+        self.assertNotContains(response, 'System Administration')
+        self.assertContains(response, 'Contest Administration')
+        self.assertNotContains(response, 'Observer Menu')
 
         self.assertTrue(self.client.login(username='test_observer'))
         response = self.client.get(reverse('problems_list',
             kwargs={'contest_id': self.contest.id}), follow=True)
-        self.assertIn('Observer Menu', response.content)
+        self.assertContains(response, 'Observer Menu')
 
 
 class TestSubmissionChangeKind(TestCase):
@@ -1455,18 +1457,16 @@ class TestDeleteSelectedSubmissions(TestCase):
             post_data)
 
         # Test confirmation dialog
-        self.assertIn(
-            'Are you sure you want to delete the selected submission?',
-            response.content)
-        self.assertIn(
+        self.assertContains(response,
+            'Are you sure you want to delete the selected submission?')
+        self.assertContains(response,
             'All of the following objects and their related items '
-            'will be deleted:',
-            response.content)
-        self.assertIn('Submission(', response.content)
-        self.assertIn('NORMAL, OK)', response.content)
-        self.assertIn('Score report', response.content)
-        self.assertIn('Compilation report', response.content)
-        self.assertIn('Program submission: Submission(1, ', response.content)
+            'will be deleted:')
+        self.assertContains(response, 'Submission(')
+        self.assertContains(response, 'NORMAL, OK)')
+        self.assertContains(response, 'Score report')
+        self.assertContains(response, 'Compilation report')
+        self.assertContains(response, 'Program submission: Submission(1, ')
 
         # Delete it and check if there is one submission remaining
         post_data = {'action': 'delete_selected',
@@ -1477,7 +1477,7 @@ class TestDeleteSelectedSubmissions(TestCase):
             post_data,
             follow=True)
 
-        self.assertIn('Successfully deleted 1 submission.', response.content)
+        self.assertContains(response, 'Successfully deleted 1 submission.')
 
     def test_delete_many_submissions(self):
         self.assertTrue(self.client.login(username='test_contest_admin'))
@@ -1490,18 +1490,16 @@ class TestDeleteSelectedSubmissions(TestCase):
             post_data)
 
         # Test confirmation dialog
-        self.assertIn(
-            'Are you sure you want to delete the selected submissions?',
-            response.content)
-        self.assertIn(
+        self.assertContains(response,
+            'Are you sure you want to delete the selected submissions?')
+        self.assertContains(response,
             'All of the following objects and their related items '
-            'will be deleted:',
-            response.content)
-        self.assertIn('Submission(', response.content)
-        self.assertIn('NORMAL, OK)', response.content)
-        self.assertIn('Score report', response.content)
-        self.assertIn('Compilation report', response.content)
-        self.assertIn('Program submission: Submission(1, ', response.content)
+            'will be deleted:')
+        self.assertContains(response, 'Submission(')
+        self.assertContains(response, 'NORMAL, OK)')
+        self.assertContains(response, 'Score report')
+        self.assertContains(response, 'Compilation report')
+        self.assertContains(response, 'Program submission: Submission(1, ')
 
         # Delete them and check if there are no submissions remaining
         post_data = {'action': 'delete_selected',
@@ -1512,7 +1510,7 @@ class TestDeleteSelectedSubmissions(TestCase):
             post_data,
             follow=True)
 
-        self.assertIn('Successfully deleted 2 submissions.', response.content)
+        self.assertContains(response, 'Successfully deleted 2 submissions.')
 
 
 class TestSubmitSelectOneProblem(TestCase):
@@ -1676,10 +1674,10 @@ class TestContestLinks(TestCase):
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Test Menu Item 1', response.content)
-        self.assertIn('Test Menu Item 2', response.content)
-        self.assertIn('/test_menu_link1', response.content)
-        self.assertIn('/test_menu_link2', response.content)
+        self.assertContains(response, 'Test Menu Item 1')
+        self.assertContains(response, 'Test Menu Item 2')
+        self.assertContains(response, '/test_menu_link1')
+        self.assertContains(response, '/test_menu_link2')
         self.assertLess(response.content.index('Test Menu Item 1'),
                         response.content.index('Test Menu Item 2'))
         self.assertLess(response.content.index('/test_menu_link1'),
@@ -1707,15 +1705,14 @@ class TestUserInfo(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url, follow=True)
-            self.assertIn('403', response.content)
+            self.assertContains(response, '403', status_code=403)
 
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
             response = self.client.get(url, follow=True)
-            self.assertIn('title>Test User - User info', response.content)
-            self.assertIn("User's submissions", response.content)
-            self.assertNotIn("<h4>User's round time extensions:</h4>",
-                             response.content)
+            self.assertContains(response, 'title>Test User - User info')
+            self.assertContains(response, "User's submissions")
+            self.assertNotContains(response, "<h4>User's round time extensions:</h4>")
 
         round = Round.objects.get()
         ext = RoundTimeExtension(user=user, round=round, extra_time=20)
@@ -1723,9 +1720,8 @@ class TestUserInfo(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertIn("<h4>User's round time extensions:</h4>",
-                      response.content)
-        self.assertIn("Extra time: 20", response.content)
+        self.assertContains(response, "<h4>User's round time extensions:</h4>")
+        self.assertContains(response, "Extra time: 20")
 
 
 class TestProblemInstanceView(TestCase):
@@ -1743,7 +1739,7 @@ class TestProblemInstanceView(TestCase):
         response = self.client.get(url)
         elements_to_find = ['0', '1a', '1b', '1ocen', '2', 'Example', 'Normal']
         for element in elements_to_find:
-            self.assertIn(element, response.content)
+            self.assertContains(response, element)
 
     def separate_main_problem_instance(self):
         # in fixtures there is only one ProblemInstance
@@ -1784,7 +1780,7 @@ class TestProblemInstanceView(TestCase):
         response = self.client.post(url, data={'submit': True},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Tests limits resetted successfully", response.content)
+        self.assertContains(response, "Tests limits resetted successfully")
         self.assertEqual(problem_instance.test_set.count(),
              problem_instance.problem.main_problem_instance.test_set.count())
         self.assertNotEqual(problem_instance.test_set.count(), 0)
@@ -1807,22 +1803,22 @@ class TestReattachingProblems(TestCase):
         url = reverse('reattach_problem_contest_list', args=(pi_id, 'full'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Choose a contest to attach the problem to", response.content)
-        self.assertEqual(response.content.count('<td><a'),
-                         Contest.objects.count())
+        self.assertContains(response,
+                "Choose a contest to attach the problem to")
+        self.assertContains(response, '<td><a', count=Contest.objects.count())
 
         url = reverse('reattach_problem_confirm', args=(pi_id, 'c2'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn("Extra test contest 2", response.content)
+        self.assertContains(response, "Extra test contest 2")
         self.assertContains(response, u'Sum\u017cyce')
-        self.assertIn("Attach", response.content)
+        self.assertContains(response, "Attach")
 
         response = self.client.post(url, data={'submit': True}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'c2')
         self.assertEqual(ProblemInstance.objects.count(), 2)
-        self.assertIn(' added successfully.', response.content)
+        self.assertContains(response, ' added successfully.')
         self.assertContains(response, u'Sum\u017cyce')
         self.assertTrue(ProblemInstance.objects.filter(contest__id='c2')
                         .exists())
@@ -1880,7 +1876,7 @@ class TestModifyContest(TestCase):
         })
         response = self.client.post(url, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        # self.assertIn('was added successfully', response.content)
+        # self.assertContains(response, 'was added successfully')
         contest = Contest.objects.get()
         self.assertEqual(controller_name, contest.controller_name)
         ContestPermission(user=User.objects.get(pk=1001), contest=contest,

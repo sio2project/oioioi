@@ -91,13 +91,13 @@ class TestRankingViews(TestCase):
         self.assertContains(response, 'User is not in the ranking.', 1)
 
         response = self.client.get(get_url_for_user('not_existing_username'))
-        self.assertIn('User not found', response.content)
+        self.assertContains(response, 'User not found')
 
         # User has already received more accurate error.
-        self.assertNotIn('User is not in the ranking.', response.content)
+        self.assertNotContains(response, 'User is not in the ranking.')
 
         # Contest admin shouldn't see 'Find my position' button
-        self.assertNotIn('Find my place', response.content)
+        self.assertNotContains(response, 'Find my place')
 
         for i in range(number_of_users):
             user = users[i]
@@ -111,11 +111,11 @@ class TestRankingViews(TestCase):
         self.assertTrue(self.client.login(username=users[user_num].username))
         response = self.client.get(
                 get_url_for_user(user_not_in_ranking.username))
-        self.assertNotIn('User is not in the ranking.', response.content)
+        self.assertNotContains(response, 'User is not in the ranking.')
         # Normal user shouldn't see the form
-        self.assertNotIn('<div class="search-for-user">', response.content)
+        self.assertNotContains(response, '<div class="search-for-user">')
         # Normal user should see 'Find my position' button
-        self.assertIn('Find my place', response.content)
+        self.assertContains(response, 'Find my place')
 
         # Test if users[0] can find himself
         response = self.client.get(get_url_for_user(users[user_num].username))
@@ -130,8 +130,7 @@ class TestRankingViews(TestCase):
             response = self.client.get(get_url_for_user(user.username))
             # Checking if user wasn't redirected (is on page 1)
             # User with the highest score should be visible
-            self.assertIn('<tr id="ranking_row_%s"' % users[-1].id,
-                          response.content)
+            self.assertContains(response, '<tr id="ranking_row_%s"' % users[-1].id)
 
         # Test if user who is not in the ranking receives error message.
         self.assertTrue(self.client.login(username=user_not_in_ranking.username))
@@ -231,7 +230,7 @@ class TestRankingViews(TestCase):
             prev_pos = 0
             for user in expected_order:
                 pattern = '%s,' % (user,)
-                self.assertIn(user, response.content)
+                self.assertContains(response, user)
                 pos = response.content.find(pattern)
                 self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
                        'position' % (user,)))

@@ -78,15 +78,13 @@ class TestPublicSolutions(TestCase):
 
         with fake_time(self._no_public_rounds()):
             response = self.client.get(dashboard_url)
-            self.assertNotIn(self._href(solutions_url).encode('utf-8'),
-                response.content)
+            self.assertNotContains(response, self._href(solutions_url))
             response = self.client.get(solutions_url)
             self.assertEqual(403, response.status_code)
 
         with fake_time(self._rounds_14()):
             response = self.client.get(dashboard_url)
-            self.assertIn(self._href(solutions_url).encode('utf-8'),
-                response.content)
+            self.assertContains(response, self._href(solutions_url))
             response = self.client.get(solutions_url)
             self.assertEqual(200, response.status_code)
 
@@ -109,7 +107,7 @@ class TestPublicSolutions(TestCase):
             self.assertTrue(self.client.login(username=user))
             for cat in cats:
                 r = self.client.get(solutions_url, {'category': cat})
-                self.assertIn("Select a valid choice.", r.content)
+                self.assertContains(r, "Select a valid choice.")
             self.client.logout()
 
         # Checks categories and solutions
@@ -124,18 +122,13 @@ class TestPublicSolutions(TestCase):
                 for id in range(1, 5):
                     sb = Submission.objects.all().select_related().get(pk=id)
                     if id in good_ids:
-                        self.assertIn(str(sb.problem_instance), r.content)
-                        self.assertIn(str(sb.user.get_full_name()), r.content)
-                        self.assertIn(
-                            self._href(show_source_url(id)).encode('utf-8'),
-                            r.content)
+                        self.assertContains(r, str(sb.problem_instance))
+                        self.assertContains(r, str(sb.user.get_full_name()))
+                        self.assertContains(r, self._href(show_source_url(id)))
                     else:
-                        self.assertNotIn(
-                            self._href(show_source_url(id)).encode('utf-8'),
-                            r.content)
+                        self.assertNotContains(r, self._href(show_source_url(id)))
                         if not category:
-                            self.assertNotIn(str(sb.problem_instance),
-                                    r.content)
+                            self.assertNotContains(r, str(sb.problem_instance))
                 self.client.logout()
 
         def check_sources_access(good_ids, bad_ids, user):
@@ -207,18 +200,12 @@ class TestPublicSolutions(TestCase):
             for id in range(1, 5):
                 sb = Submission.objects.get(pk=id)
                 if id in good_ids:
-                    self.assertIn(sb.get_date_display(), r.content)
-                    self.assertIn(
-                        self._href(show_source_url(id)).encode('utf-8'),
-                        r.content)
-                    self.assertIn(
-                        change_publication_url(way, id).encode('utf-8'),
-                        r.content)
-                    self.assertIn(
-                        self._href(submission_url(id)).encode('utf-8'),
-                        r.content)
+                    self.assertContains(r, sb.get_date_display())
+                    self.assertContains(r, self._href(show_source_url(id)))
+                    self.assertContains(r, change_publication_url(way, id))
+                    self.assertContains(r, self._href(submission_url(id)))
                 else:
-                    self.assertNotIn(sb.get_date_display(), r.content)
+                    self.assertNotContains(r, sb.get_date_display())
 
         with fake_time(self._no_public_rounds()):
             self.assertTrue(self.client.login(username='test_user'))

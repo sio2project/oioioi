@@ -46,9 +46,9 @@ class TestQuestions(TestCase):
             response = self.client.get(url)
             for m in all_messages:
                 if m in should_be_visible:
-                    self.assertIn(m, response.content)
+                    self.assertContains(response, m)
                 else:
-                    self.assertNotIn(m, response.content)
+                    self.assertNotContains(response, m)
         self.assertTrue(self.client.login(username='test_user'))
         check_visibility('public-answer', 'private-answer')
         self.assertTrue(self.client.login(username='test_user2'))
@@ -69,9 +69,9 @@ class TestQuestions(TestCase):
                 response = self.client.get(url)
             for m in all_messages:
                 if m in should_be_visible:
-                    self.assertIn(m, response.content)
+                    self.assertContains(response, m)
                 else:
-                    self.assertNotIn(m, response.content)
+                    self.assertNotContains(response, m)
 
         self.assertTrue(self.client.login(username='test_user'))
         check_visibility('question-visible')
@@ -116,9 +116,9 @@ class TestQuestions(TestCase):
         with fake_time(timestamp):
             response = self.client.get(reverse('message', kwargs={
                 'contest_id': contest.id, 'message_id': public_answer.id}))
-        self.assertIn(b'public-answer-body', response.content)
-        self.assertNotIn(b'contest-question', response.content)
-        self.assertNotIn(b'problem-question', response.content)
+        self.assertContains(response, 'public-answer-body')
+        self.assertNotContains(response, 'contest-question')
+        self.assertNotContains(response, 'problem-question')
         with fake_time(timestamp):
             response = self.client.get(list_url)
         self.assertEqual(response.content.count('>NEW<'), 1)
@@ -153,7 +153,7 @@ class TestQuestions(TestCase):
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
-        self.assertIn(b'the-new-question', response.content)
+        self.assertContains(response, 'the-new-question')
 
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
@@ -195,25 +195,25 @@ class TestQuestions(TestCase):
             'message_id': new_reply.id})
         response = self.client.get(repl_url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b're-new-question', response.content)
-        self.assertIn(b're-new-body', response.content)
-        self.assertNotIn(b'the-new-question', response.content)
-        self.assertNotIn(b'the-new-body', response.content)
+        self.assertContains(response, 're-new-question')
+        self.assertContains(response, 're-new-body')
+        self.assertNotContains(response, 'the-new-question')
+        self.assertNotContains(response, 'the-new-body')
         response = self.client.get(list_url)
-        self.assertIn(repl_url.encode('utf-8'), response.content)
-        self.assertIn(b're-new-question', response.content)
-        self.assertNotIn(b'the-new-question', response.content)
+        self.assertContains(response, repl_url)
+        self.assertContains(response, 're-new-question')
+        self.assertNotContains(response, 'the-new-question')
 
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(q_url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'the-new-question', response.content)
-        self.assertIn(b'the-new-body', response.content)
-        self.assertIn(b're-new-body', response.content)
+        self.assertContains(response, 'the-new-question')
+        self.assertContains(response, 'the-new-body')
+        self.assertContains(response, 're-new-body')
         response = self.client.get(list_url)
-        self.assertIn(q_url.encode('utf-8'), response.content)
-        self.assertIn(b're-new-question', response.content)
-        self.assertNotIn(b'the-new-question', response.content)
+        self.assertContains(response, q_url)
+        self.assertContains(response, 're-new-question')
+        self.assertNotContains(response, 'the-new-question')
 
     def test_reply_notification(self):
         flags = {}
@@ -253,7 +253,7 @@ class TestQuestions(TestCase):
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
-        self.assertIn(b'the-new-question', response.content)
+        self.assertContains(response, 'the-new-question')
 
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
@@ -314,7 +314,7 @@ class TestQuestions(TestCase):
         list_url = reverse('contest_messages',
                 kwargs={'contest_id': contest.id})
         response = self.client.get(list_url)
-        self.assertIn(b'the-new-question', response.content)
+        self.assertContains(response, 'the-new-question')
 
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
@@ -343,42 +343,42 @@ class TestQuestions(TestCase):
         get_data = {'author': 'test_admin'}
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(b'general-question', response.content)
-        self.assertNotIn(b'problem-question', response.content)
-        self.assertIn(b'public-answer', response.content)
-        self.assertIn(b'private-answer', response.content)
+        self.assertNotContains(response, 'general-question')
+        self.assertNotContains(response, 'problem-question')
+        self.assertContains(response, 'public-answer')
+        self.assertContains(response, 'private-answer')
 
         get_data['author'] = 'test_user'
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'general-question', response.content)
-        self.assertIn(b'problem-question', response.content)
-        self.assertNotIn(b'public-answer', response.content)
-        self.assertNotIn(b'private-answer', response.content)
+        self.assertContains(response, 'general-question')
+        self.assertContains(response, 'problem-question')
+        self.assertNotContains(response, 'public-answer')
+        self.assertNotContains(response, 'private-answer')
 
         get_data['category'] = 'r_1'
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'general-question', response.content)
-        self.assertNotIn(b'problem-question', response.content)
-        self.assertNotIn(b'public-answer', response.content)
-        self.assertNotIn(b'private-answer', response.content)
+        self.assertContains(response, 'general-question')
+        self.assertNotContains(response, 'problem-question')
+        self.assertNotContains(response, 'public-answer')
+        self.assertNotContains(response, 'private-answer')
 
         get_data['category'] = 'p_1'
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(b'general-question', response.content)
-        self.assertIn(b'problem-question', response.content)
-        self.assertNotIn(b'public-answer', response.content)
-        self.assertNotIn(b'private-answer', response.content)
+        self.assertNotContains(response, 'general-question')
+        self.assertContains(response, 'problem-question')
+        self.assertNotContains(response, 'public-answer')
+        self.assertNotContains(response, 'private-answer')
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, get_data)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(b'general-question', response.content)
-        self.assertNotIn(b'problem-question', response.content)
-        self.assertNotIn(b'public-answer', response.content)
-        self.assertIn(b'private-answer', response.content)
+        self.assertNotContains(response, 'general-question')
+        self.assertNotContains(response, 'problem-question')
+        self.assertNotContains(response, 'public-answer')
+        self.assertContains(response, 'private-answer')
 
     def test_authors_list(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -498,14 +498,14 @@ class TestQuestions(TestCase):
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
             self.assertEqual(response.status_code, 200)
-            self.assertIn(b'private-answer', response.content)
-            self.assertIn(b'public-answer', response.content)
+            self.assertContains(response, 'private-answer')
+            self.assertContains(response, 'public-answer')
 
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
             self.assertEqual(response.status_code, 200)
-            self.assertNotIn(b'private-answer', response.content)
-            self.assertIn(b'public-answer', response.content)
+            self.assertNotContains(response, 'private-answer')
+            self.assertContains(response, 'public-answer')
 
     def test_candidate_notifications(self):
         timestamp = datetime(2000, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
@@ -623,9 +623,9 @@ class TestAllMessagesView(TestCase):
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             for content in d['visible']:
-                self.assertIn(content, response.content)
+                self.assertContains(response, content)
             for content in d['hidden']:
-                self.assertNotIn(content, response.content)
+                self.assertNotContains(response, content)
 
     def test_marking_as_read(self):
         contest = Contest.objects.get()
@@ -635,11 +635,11 @@ class TestAllMessagesView(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'NEW', response.content)
+        self.assertContains(response, 'NEW')
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(b'NEW', response.content)
+        self.assertNotContains(response, 'NEW')
 
     def test_marking_as_needs_reply(self):
         contest = Contest.objects.get()
@@ -709,14 +709,14 @@ class TestAllMessagesView(TestCase):
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_ALL_MESSAGES})
             self.assertEqual(response.status_code, 200)
-            self.assertIn(b'private-answer', response.content)
-            self.assertIn(b'public-answer', response.content)
+            self.assertContains(response, 'private-answer')
+            self.assertContains(response, 'public-answer')
 
             response = self.client.get(url,
                 {'message_type': FilterMessageForm.TYPE_PUBLIC_ANNOUNCEMENTS})
             self.assertEqual(response.status_code, 200)
-            self.assertNotIn(b'private-answer', response.content)
-            self.assertIn(b'public-answer', response.content)
+            self.assertNotContains(response, 'private-answer')
+            self.assertContains(response, 'public-answer')
 
 
 class TestUserInfo(TestCase):
@@ -731,6 +731,6 @@ class TestUserInfo(TestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertIn(b'User info', response.content)
-        self.assertIn(b"User's messages", response.content)
-        self.assertIn(b'general-question', response.content)
+        self.assertContains(response, 'User info')
+        self.assertContains(response, "User's messages")
+        self.assertContains(response, 'general-question')

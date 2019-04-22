@@ -54,7 +54,7 @@ class TestTestrunViews(TestCase):
             show_output = self.client.get(reverse('get_testrun_input',
                 kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '9 9')
-            self.assertIn(b'Input', show_output.content)
+            self.assertContains(show_output, 'Input')
 
             download_response = self.client.get(reverse(
                 'download_testrun_input', kwargs=kwargs))
@@ -75,7 +75,7 @@ class TestTestrunViews(TestCase):
             show_output = self.client.get(reverse('get_testrun_output',
                 kwargs=kwargs), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
             self.assertContains(show_output, '18')
-            self.assertIn(b'Output', show_output.content)
+            self.assertContains(show_output, 'Output')
 
             download_response = self.client.get(reverse(
                 'download_testrun_output', kwargs=kwargs))
@@ -116,7 +116,7 @@ class TestTestrunViews(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertContains(response, 'TESTRUN')
-        self.assertNotIn('NORMAL', response.content)
+        self.assertNotContains(response, 'NORMAL')
 
     def test_archive_submission(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -206,7 +206,7 @@ class TestWithNoTestruns(TestCase):
         kwargs = {'contest_id': Contest.objects.get().id}
         url = reverse('testrun_submit', kwargs=kwargs)
         response = self.client.get(url)
-        self.assertIn("for which you could run", response.content)
+        self.assertContains(response, "for which you could run")
 
 
 class TestHandlers(TestCase):

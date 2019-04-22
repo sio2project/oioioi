@@ -86,7 +86,7 @@ class TestPrizes(TestCase):
                             kwargs={'contest_id': contest.id})
 
         response = self.client.get(dashboard_url)
-        self.assertNotIn(prizes_url.encode('utf-8'), response.content)
+        self.assertNotContains(response, prizes_url)
         response = self.client.get(prizes_url)
         self.assertEqual(403, response.status_code)
 
@@ -96,7 +96,7 @@ class TestPrizes(TestCase):
         pg.save()
 
         response = self.client.get(dashboard_url)
-        self.assertIn(prizes_url.encode('utf-8'), response.content)
+        self.assertContains(response, prizes_url)
         response = self.client.get(prizes_url)
         self.assertEqual(200, response.status_code)
 
@@ -152,17 +152,17 @@ class TestPrizes(TestCase):
 
         response = self.client.get(prizes_url)
         self.assertEqual(200, response.status_code)
-        self.assertIn('common', response.content)
-        self.assertIn('lonely', response.content)
+        self.assertContains(response, 'common')
+        self.assertContains(response, 'lonely')
         groups = response.context['groups']
         Group = namedtuple('Group', 'name ids')
         self.assertEqual(groups, [
                 Group(name='common', ids=[pgl[2].pk, pgl[0].pk]),
                 Group(name='lonely', ids=[pgl[1].pk]),
         ])
-        self.assertIn('P0', response.content)
-        self.assertNotIn('P1', response.content)
-        self.assertIn('P2', response.content)
+        self.assertContains(response, 'P0')
+        self.assertNotContains(response, 'P1')
+        self.assertContains(response, 'P2')
 
         pfus = response.context['pfus']
         self.assertEqual([pfu.prize.name for pfu in pfus], ['P2', 'P2', 'P0'])

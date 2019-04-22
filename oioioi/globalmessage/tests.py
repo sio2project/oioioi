@@ -70,11 +70,11 @@ class TestOnPage(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
-        self.assertIn(self.msg.message, response.content)
+        self.assertContains(response, self.msg.message)
 
     def test_visible_on_admin_pages(self):
         url = reverse('admin:index')
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertIn(self.msg.message, response.content)
+        self.assertContains(response, self.msg.message)

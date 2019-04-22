@@ -191,21 +191,16 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
                 '>0<']:
             self.assertIn(element, no_whitespaces_content)
 
-        self.assertEqual(response.content
-                         .count('submission--INI_OK'), 0)
-        self.assertEqual(response.content
-                         .count('submission--INI_ERR'), 1)
-        self.assertEqual(response.content
-                         .count('submission--OK25'), 8)
-        self.assertEqual(response.content
-                         .count('submission--WA'), 5)
-        self.assertEqual(response.content
-                         .count('submission--CE'), 2)
+        self.assertNotContains(response, 'submission--INI_OK')
+        self.assertContains(response, 'submission--INI_ERR', count=1)
+        self.assertContains(response, 'submission--OK25', count=8)
+        self.assertContains(response, 'submission--WA', count=5)
+        self.assertContains(response, 'submission--CE', count=2)
 
-        self.assertNotIn('submission--WA25', response.content)
-        self.assertNotIn('submission--WA50', response.content)
-        self.assertNotIn('submission-- ', response.content)
-        self.assertNotIn('submission-- ', response.content)
+        self.assertNotContains(response, 'submission--WA25')
+        self.assertNotContains(response, 'submission--WA50')
+        self.assertNotContains(response, 'submission-- ')
+        self.assertNotContains(response, 'submission-- ')
 
         self.assertEqual(no_whitespaces_content.count('>10.00s<'), 5)
 
@@ -293,9 +288,9 @@ class TestOtherSubmissions(TestCase):
                 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Other submissions for this problem', response.content)
-        self.assertIn('submission--OK', response.content)
-        self.assertIn('submission--CE', response.content)
+        self.assertContains(response, 'Other submissions for this problem')
+        self.assertContains(response, 'submission--OK')
+        self.assertContains(response, 'submission--CE')
 
     def test_admin(self):
         self._test_get('test_admin')
@@ -315,9 +310,8 @@ class TestNoOtherSubmissions(TestCase):
                 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Other submissions for this problem',
-                         response.content)
-        self.assertIn('submission--OK', response.content)
+        self.assertNotContains(response, 'Other submissions for this problem')
+        self.assertContains(response, 'submission--OK')
 
     def test_admin(self):
         self._test_get('test_admin')
@@ -346,8 +340,7 @@ class TestDiffView(TestCase):
         kwargs2 = {'contest_id': submission.problem_instance.contest.id,
                    'submission1_id': submission2.id,
                    'submission2_id': submission.id}
-        self.assertIn(reverse('source_diff', kwargs=kwargs2).encode('utf-8'),
-                response.content)
+        self.assertContains(response, reverse('source_diff', kwargs=kwargs2))
         response = self.client.get(reverse('source_diff', kwargs=kwargs2))
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse('submission', kwargs=kwargs))
@@ -366,14 +359,10 @@ class TestDiffView(TestCase):
         response = self.client.get(reverse('source_diff', kwargs=kwargs))
         self.assertContains(response, reverse('source_diff',
                                               kwargs=kwargsrev))
-        self.assertIn('diff-highlight diff-highlight__line left',
-                      response.content)
-        self.assertIn('diff-highlight diff-highlight__line right',
-                      response.content)
-        self.assertIn('diff-highlight diff-highlight__num left',
-                      response.content)
-        self.assertIn('diff-highlight diff-highlight__num right',
-                      response.content)
+        self.assertContains(response, 'diff-highlight diff-highlight__line left')
+        self.assertContains(response, 'diff-highlight diff-highlight__line right')
+        self.assertContains(response, 'diff-highlight diff-highlight__num left')
+        self.assertContains(response, 'diff-highlight diff-highlight__num right')
 
 
 class TestSubmission(TestCase, SubmitFileMixin):
@@ -418,7 +407,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         response = self.submit_file(contest, problem_instance)
         response = self.submit_file(contest, problem_instance)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Please resubmit', response.content)
+        self.assertContains(response, 'Please resubmit')
 
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_repeated_submission_different_problems(self):
@@ -449,7 +438,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
         with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
@@ -466,23 +455,23 @@ class TestSubmission(TestCase, SubmitFileMixin):
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
             response = self.submit_file(contest, problem_instance)
             self.assertEqual(200, response.status_code)
-            self.assertIn('Sorry, there are no problems', response.content)
+            self.assertContains(response, 'Sorry, there are no problems')
 
     def test_huge_submission(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.submit_file(contest, problem_instance,
                                     file_size=102405)
-        self.assertIn('File size limit exceeded.', response.content)
-        self.assertNotIn('You have to either choose file or paste',
-                         response.content)
+        self.assertContains(response, 'File size limit exceeded.')
+        self.assertNotContains(response,
+                               'You have to either choose file or paste')
 
     def test_huge_code_length(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         code = 'a' * 102401
         response = self.submit_code(contest, problem_instance, code=code)
-        self.assertIn('Code length limit exceeded.', response.content)
+        self.assertContains(response, 'Code length limit exceeded.')
 
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
@@ -500,14 +489,13 @@ class TestSubmission(TestCase, SubmitFileMixin):
         self._assertSubmitted(contest, response)
         response = self.submit_file(contest, problem_instance)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Submission limit for the problem', response.content)
+        self.assertContains(response, 'Submission limit for the problem')
 
     def _assertUnsupportedExtension(self, contest, problem_instance, name,
                                     ext):
         response = self.submit_file(contest, problem_instance,
                 file_name='%s.%s' % (name, ext))
-        self.assertIn('Unknown or not supported file extension.',
-                        response.content)
+        self.assertContains(response, 'Unknown or not supported file extension.')
 
     def test_extension_checking(self):
         contest = Contest.objects.get()
@@ -526,15 +514,12 @@ class TestSubmission(TestCase, SubmitFileMixin):
         response = self.submit_code(contest, problem_instance, 'some code')
         self._assertSubmitted(contest, response)
         response = self.submit_code(contest, problem_instance, 'some code', '')
-        self.assertIn('You have to choose programming language.',
-                response.content)
+        self.assertContains(response, 'You have to choose programming language.')
         response = self.submit_code(contest, problem_instance, '')
-        self.assertIn('You have to either choose file or paste code.',
-                response.content)
+        self.assertContains(response, 'You have to either choose file or paste code.')
         response = self.submit_code(contest, problem_instance, 'some code',
                 send_file=True)
-        self.assertIn('You have to either choose file or paste code.',
-                response.content)
+        self.assertContains(response, 'You have to either choose file or paste code.')
 
     @override_settings(WARN_ABOUT_REPEATED_SUBMISSION=True)
     def test_pasting_unicode_code(self):
@@ -567,10 +552,10 @@ class TestSubmissionAdmin(TestCase):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('(sum.c)', response.content)
-        self.assertIn('test_user', response.content)
-        self.assertIn('submission--OK', response.content)
-        self.assertIn('submission_diff_action', response.content)
+        self.assertContains(response, '(sum.c)')
+        self.assertContains(response, 'test_user')
+        self.assertContains(response, 'submission--OK')
+        self.assertContains(response, 'submission_diff_action')
 
 
 class TestSubmittingAsAdmin(TestCase):
@@ -584,12 +569,12 @@ class TestSubmittingAsAdmin(TestCase):
         url = reverse('submit', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('IGNORED', response.content)
+        self.assertNotContains(response, 'IGNORED')
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('IGNORED', response.content)
+        self.assertContains(response, 'IGNORED')
 
         data = {
             'problem_instance_id': pi.id,
@@ -607,13 +592,13 @@ class TestSubmittingAsAdmin(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Test User', response.content)
+        self.assertNotContains(response, 'Test User')
 
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Ignored', response.content)
+        self.assertContains(response, 'Ignored')
 
     def test_submitting_as_self(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -624,8 +609,8 @@ class TestSubmittingAsAdmin(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('IGNORED', response.content)
-        self.assertIn('NORMAL', response.content)
+        self.assertContains(response, 'IGNORED')
+        self.assertContains(response, 'NORMAL')
 
         f = open(get_test_filename('sum-various-results.cpp'), 'rb')
         data = {
@@ -648,8 +633,8 @@ class TestSubmittingAsAdmin(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Test Admin', response.content)
-        self.assertIn('no one in this ranking', response.content)
+        self.assertNotContains(response, 'Test Admin')
+        self.assertContains(response, 'no one in this ranking')
 
 
 class PrivateProgrammingContestController(ProgrammingContestController):
@@ -672,7 +657,7 @@ class TestSubmittingAsContestAdmin(TestCase):
         self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('IGNORED', response.content)
+        self.assertContains(response, 'IGNORED')
 
         data = {
             'problem_instance_id': pi.id,
@@ -683,7 +668,7 @@ class TestSubmittingAsContestAdmin(TestCase):
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.count(), 0)
-        self.assertIn('enough privileges', response.content)
+        self.assertContains(response, 'enough privileges')
 
 
 class TestSubmittingAsObserver(TestCase):
@@ -697,7 +682,7 @@ class TestSubmittingAsObserver(TestCase):
         url = reverse('submit', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('IGNORED', response.content)
+        self.assertNotContains(response, 'IGNORED')
 
         data = {
             'problem_instance_id': pi.id,
@@ -713,12 +698,12 @@ class TestSubmittingAsObserver(TestCase):
         url = reverse('default_ranking', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Test Observer', response.content)
+        self.assertNotContains(response, 'Test Observer')
 
         url = reverse('my_submissions', kwargs={'contest_id': contest.id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Ignored', response.content)
+        self.assertContains(response, 'Ignored')
 
 
 class TestNotifications(TestCase):
@@ -951,8 +936,8 @@ class TestUserOutsGenerating(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('[processing]', response.content)
-        self.assertNotIn('Generate all', response.content)
+        self.assertNotContains(response, '[processing]')
+        self.assertNotContains(response, 'Generate all')
 
         # test report visibility for user with permission
         ReportActionsConfig(problem=submission.problem_instance.problem,
@@ -1215,11 +1200,13 @@ class TestLimitsLimits(TestCase):
     @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=6000)
     def test_time_limit(self):
         response = self.edit_settings()
-        self.assertIn("Sum of time limits for all tests is too big. It&#39;s "
-                      "7s, but it shouldn&#39;t exceed 6s.", response.content)
+        self.assertContains(response,
+                    "Sum of time limits for all tests is too big. It&#39;s "
+                    "7s, but it shouldn&#39;t exceed 6s.")
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=100)
     def test_memory_limit(self):
         response = self.edit_settings()
-        self.assertIn("Memory limit mustn&#39;t be greater than %dKiB."
-                        % settings.MAX_MEMORY_LIMIT_FOR_TEST, response.content)
+        self.assertContains(response,
+                        "Memory limit mustn&#39;t be greater than %dKiB."
+                        % settings.MAX_MEMORY_LIMIT_FOR_TEST)

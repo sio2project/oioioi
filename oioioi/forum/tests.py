@@ -47,7 +47,7 @@ class TestForum(TestCase):
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Forum', response.content)
+        self.assertNotContains(response, 'Forum')
 
     def test_forum_menu(self):
         contest = get_contest_with_forum()
@@ -56,7 +56,7 @@ class TestForum(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
-        self.assertIn('Forum', response.content)
+        self.assertContains(response, 'Forum')
 
     def test_lock_forum_with_no_unlock_date(self):
         contest = get_contest_with_forum()
@@ -72,7 +72,7 @@ class TestForum(TestCase):
 
             # locked & not visible, so user does not see forum
             response = self.client.get(url, follow=True)
-            self.assertNotIn('Forum', response.content)
+            self.assertNotContains(response, 'Forum')
             url = reverse('forum', kwargs={'contest_id': contest.id})
             response = self.client.get(url, follow=True)
             self.assertEqual(403, response.status_code)
@@ -82,7 +82,7 @@ class TestForum(TestCase):
             forum.save()
             # locked & visible, so user sees forum
             response = self.client.get(url, follow=True)
-            self.assertIn('Forum', response.content)
+            self.assertContains(response, 'Forum')
             self.assertEqual(True, forum.is_locked(self.now))
 
     def test_lock_forum_with_unlock_date(self):
@@ -97,7 +97,7 @@ class TestForum(TestCase):
                       kwargs={'contest_id': contest.id})
         with fake_time(self.now):
             response = self.client.get(url, follow=True)
-            self.assertNotIn('Forum', response.content)
+            self.assertNotContains(response, 'Forum')
             self.assertEqual(True, forum.is_locked(self.now))
 
     def test_unlock_forum(self):
@@ -113,13 +113,13 @@ class TestForum(TestCase):
             forum.save()
             self.assertEqual(True, forum.is_locked(self.now))
             response = self.client.get(url, follow=True)
-            self.assertNotIn('Forum', response.content)
+            self.assertNotContains(response, 'Forum')
 
             forum.unlock_date = self.past
             forum.save()
             self.assertEqual(False, forum.is_locked(self.now))
             response = self.client.get(url, follow=True)
-            self.assertIn('Forum', response.content)
+            self.assertContains(response, 'Forum')
 
 
 class TestCategory(TestCase):
@@ -157,7 +157,7 @@ class TestCategory(TestCase):
         with fake_time(self.now):
             response = self.client.get(url, follow=True)
             # not locked, adding new thread possible
-            self.assertIn('Add new thread', response.content)
+            self.assertContains(response, 'Add new thread')
 
             forum.lock_date = self.past
             forum.save()
@@ -168,7 +168,7 @@ class TestCategory(TestCase):
             response = self.client.get(url, follow=True)
             # locked, adding new thread not possible
             self.assertEqual(200, response.status_code)
-            self.assertNotIn('Add new thread', response.content)
+            self.assertNotContains(response, 'Add new thread')
 
 
 class TestThread(TestCase):
@@ -209,13 +209,13 @@ class TestThread(TestCase):
         # user can remove p2 (last post, added by user)
         response = self.try_to_remove_post(p2)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Delete confirmation', response.content)
+        self.assertContains(response, 'Delete confirmation')
         p2.delete()
 
         # user tries to remove post p1 (and he can!)
         response = self.try_to_remove_post(p1)
         self.assertEqual(200, response.status_code)
-        self.assertIn('Delete confirmation', response.content)
+        self.assertContains(response, 'Delete confirmation')
         p1.delete()
 
         # user tries to remove post p0 but can't (added earlier than 15min ago)
@@ -259,7 +259,7 @@ class TestPost(TestCase):
         name = self.user.first_name
         surname = self.user.last_name
         response = self.client.post(url, follow=True)
-        self.assertIn('This post was reported', response.content)
+        self.assertContains(response, 'This post was reported')
         self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_thread', kwargs={'category_id': self.cat.id,
                                               'thread_id': self.thr.id})

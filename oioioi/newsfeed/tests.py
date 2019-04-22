@@ -12,7 +12,7 @@ class TestNewsfeedVisibility(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Test news', response.content)
+        self.assertContains(response, 'Test news')
 
     def test_newsfeed_options_visibility(self):
         url_newsfeed = reverse('newsfeed')
@@ -24,17 +24,17 @@ class TestNewsfeedVisibility(TestCase):
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
         # superuser can see all newsfeed options
-        self.assertIn(str(url_add_news), response.content)
-        self.assertIn(str(url_edit_news), response.content)
-        self.assertIn(str(url_delete_news), response.content)
+        self.assertContains(response, str(url_add_news))
+        self.assertContains(response, str(url_edit_news))
+        self.assertContains(response, str(url_delete_news))
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
         # non-superuser cannot see any newsfeed options
-        self.assertNotIn(str(url_add_news), response.content)
-        self.assertNotIn(str(url_edit_news), response.content)
-        self.assertNotIn(str(url_delete_news), response.content)
+        self.assertNotContains(response, str(url_add_news))
+        self.assertNotContains(response, str(url_edit_news))
+        self.assertNotContains(response, str(url_delete_news))
 
 
 class TestNewsfeedPermissions(TestCase):
@@ -90,7 +90,7 @@ class TestNewsfeedOptions(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Testing add', response.content)
+        self.assertNotContains(response, 'Testing add')
         response = self.client.get(url_add_news)
         self.assertEqual(response.status_code, 200)
         post_data = {
@@ -105,7 +105,7 @@ class TestNewsfeedOptions(TestCase):
         }
         response = self.client.post(url_add_news, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Testing add', response.content)
+        self.assertContains(response, 'Testing add')
 
     def test_news_edit(self):
         url_newsfeed = reverse('newsfeed')
@@ -114,8 +114,8 @@ class TestNewsfeedOptions(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Test news', response.content)
-        self.assertNotIn('Test edited news', response.content)
+        self.assertContains(response, 'Test news')
+        self.assertNotContains(response, 'Test edited news')
         response = self.client.get(url_edit_news)
         self.assertEqual(response.status_code, 200)
         post_data = {
@@ -130,8 +130,8 @@ class TestNewsfeedOptions(TestCase):
         }
         response = self.client.post(url_edit_news, post_data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Test edited news', response.content)
-        self.assertNotIn('Test news', response.content)
+        self.assertContains(response, 'Test edited news')
+        self.assertNotContains(response, 'Test news')
 
     def test_news_delete(self):
         url_newsfeed = reverse('newsfeed')
@@ -140,7 +140,7 @@ class TestNewsfeedOptions(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url_newsfeed)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Test news', response.content)
+        self.assertContains(response, 'Test news')
         response = self.client.get(url_delete_news, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn('Test news', response.content)
+        self.assertNotContains(response, 'Test news')

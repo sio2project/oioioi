@@ -62,14 +62,14 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
         response = self.contestadmin.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         if visible:
-            self.assertIn('Exclusiveness configs', response.content)
+            self.assertContains(response, 'Exclusiveness configs')
         else:
-            self.assertNotIn('Exclusiveness configs', response.content)
+            self.assertNotContains(response, 'Exclusiveness configs')
 
     def _check_superadmin_access(self):
         response = self.admin.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Exclusiveness configs', response.content)
+        self.assertContains(response, 'Exclusiveness configs')
 
     def test_no_exclusiveness(self):
         self._check_user_access()

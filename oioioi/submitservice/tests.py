@@ -27,7 +27,7 @@ class TestSubmitService(TestCase):
                       kwargs={'contest_id': 'c'})
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
-        self.assertIn(b'123456ABCDEF', response.content)
+        self.assertContains(response, '123456ABCDEF')
 
     def test_clear_user_token(self):
         url = reverse('submitservice_clear_user_token',
@@ -37,4 +37,4 @@ class TestSubmitService(TestCase):
         url = reverse('submitservice_view_user_token',
                       kwargs={'contest_id': 'c'})
         response = self.client.get(url)
-        self.assertNotIn('123456ABCDEF', response.content)
+        self.assertNotContains(response, '123456ABCDEF')

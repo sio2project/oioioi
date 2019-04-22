@@ -77,7 +77,7 @@ class TestParticipantsContestViews(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
-        self.assertIn('Invisible Contest', response.content)
+        self.assertContains(response, 'Invisible Contest')
 
     def test_participants_contest_access(self):
         contest = Contest.objects.get()
@@ -94,11 +94,10 @@ class TestParticipantsContestViews(TestCase):
 
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(url, follow=True)
-        self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
-        self.assertNotIn('My submissions', response.content)
-        self.assertIn('OIOIOI', response.content)
-        self.assertIn('Log out', response.content)
+        self.assertNotContains(response, 'My submissions', status_code=403)
+        self.assertContains(response, 'OIOIOI', status_code=403)
+        self.assertContains(response, 'Log out', status_code=403)
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
@@ -167,8 +166,8 @@ class TestParticipantsRegistration(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
-        self.assertNotIn('Register to the contest', response.content)
-        self.assertNotIn('Edit contest registration', response.content)
+        self.assertNotContains(response, 'Register to the contest')
+        self.assertNotContains(response, 'Edit contest registration')
 
     def test_participants_registration(self):
         contest = Contest.objects.get()
@@ -280,7 +279,7 @@ class TestOnsiteAdmin(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': self.contest.id})
         response = self.client.get(url, follow=True)
-        self.assertIn('Regions', response.content)
+        self.assertContains(response, 'Regions')
 
     def test_regions_admin(self):
         r = Region(short_name='waw', name='Warszawa', contest=self.contest)
@@ -292,13 +291,13 @@ class TestOnsiteAdmin(TestCase):
         response = self.client.get(url)
         elements_to_find = ['Short name', 'Name', 'waw', 'Warszawa']
         for element in elements_to_find:
-            self.assertIn(element, response.content)
+            self.assertContains(response, element)
 
         url = reverse('oioioiadmin:participants_region_change', args=(r.id,))
         response = self.client.get(url)
         elements_to_find = ['Change region', 'waw', 'Warszawa']
         for element in elements_to_find:
-            self.assertIn(element, response.content)
+            self.assertContains(response, element)
 
         url = reverse('oioioiadmin:participants_region_delete', args=(r.id,))
         self.client.post(url, {'post': 'yes'})
@@ -508,9 +507,9 @@ class TestAnonymousParticipants(TestCase):
         self.assertTrue(self.client.login(username=user.username))
         response = self.client.get(url)
         if possible:
-            self.assertIn('anonymous', response.content)
+            self.assertContains(response, 'anonymous')
         else:
-            self.assertNotIn('anonymous', response.content)
+            self.assertNotContains(response, 'anonymous')
 
         reg_data = {
             'address': 'The Castle',
@@ -609,7 +608,7 @@ class TestAnonymousParticipants(TestCase):
                                            'user_id': user.id})
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertIn('Participant info', response.content)
+        self.assertContains(response, 'Participant info')
 
 
 class TestParticipantsDataViews(TestCase):
@@ -656,7 +655,7 @@ class TestParticipantsDataViews(TestCase):
         self.register(contest)
 
         response = self.client.get(url)
-        self.assertNotIn('<td>email address</td>', response.content)
+        self.assertNotContains(response, '<td>email address</td>')
 
     def test_data_view(self):
         contest = Contest.objects.get()
@@ -681,18 +680,18 @@ class TestParticipantsDataViews(TestCase):
             self.assertTrue(self.client.login(username='test_user'))
 
             response = self.client.get(url)
-            self.assertIn('no participants', response.content)
+            self.assertContains(response, 'no participants')
 
             self.register(contest)
 
             response = self.client.get(url)
-            self.assertIn('<td>{}</td>'.format(user.id), response.content)
-            self.assertIn('<td>The Castle</td>', response.content)
-            self.assertIn('<td>31-337</td>', response.content)
-            self.assertIn('<td>Camelot</td>', response.content)
-            self.assertIn('<td>000-000-000</td>', response.content)
-            self.assertIn('<td>1975-05-25</td>', response.content)
-            self.assertIn('<td>L</td>', response.content)
+            self.assertContains(response, '<td>{}</td>'.format(user.id))
+            self.assertContains(response, '<td>The Castle</td>')
+            self.assertContains(response, '<td>31-337</td>')
+            self.assertContains(response, '<td>Camelot</td>')
+            self.assertContains(response, '<td>000-000-000</td>')
+            self.assertContains(response, '<td>1975-05-25</td>')
+            self.assertContains(response, '<td>L</td>')
         finally:
             self.client.logout()
 
@@ -761,7 +760,7 @@ class TestOnsiteViews(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(reverse('select_contest'))
         self.assertEqual(len(response.context['contests']), 2)
-        self.assertIn('Invisible Contest', response.content)
+        self.assertContains(response, 'Invisible Contest')
 
     def test_contest_access(self):
         contest = Contest.objects.get()
@@ -778,19 +777,17 @@ class TestOnsiteViews(TestCase):
 
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get(url, follow=True)
-        self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
-        self.assertNotIn('My submissions', response.content)
-        self.assertIn('OIOIOI', response.content)
-        self.assertIn('Log out', response.content)
+        self.assertNotContains(response, 'My submissions', status_code=403)
+        self.assertContains(response, 'OIOIOI', status_code=403)
+        self.assertContains(response, 'Log out', status_code=403)
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url, follow=True)
-        self.assertEqual(403, response.status_code)
         # Make sure we get nice page, allowing to log out.
-        self.assertNotIn('My submissions', response.content)
-        self.assertIn('OIOIOI', response.content)
-        self.assertIn('Log out', response.content)
+        self.assertNotContains(response, 'My submissions', status_code=403)
+        self.assertContains(response, 'OIOIOI', status_code=403)
+        self.assertContains(response, 'Log out', status_code=403)
 
         p.status = 'ACTIVE'
         p.save()
@@ -830,8 +827,8 @@ class TestOnsiteRegistration(TestCase):
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
-        self.assertNotIn('Register to the contest', response.content)
-        self.assertNotIn('Edit contest registration', response.content)
+        self.assertNotContains(response, 'Register to the contest')
+        self.assertNotContains(response, 'Edit contest registration')
 
     def test_participants_unregister_forbidden(self):
         contest = Contest.objects.get()
@@ -880,4 +877,4 @@ class TestUserInfo(TestCase):
                                            'user_id': user.id})
         response = self.client.get(url)
 
-        self.assertIn('<h4>OI info:</h4>', response.content)
+        self.assertContains(response, '<h4>OI info:</h4>')

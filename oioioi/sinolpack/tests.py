@@ -599,11 +599,13 @@ class TestLimits(TestCase):
     @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=2000)
     def test_time_limit(self):
         response = self.upload_package()
-        self.assertIn("Sum of time limits for all tests is too big. It&#39;s "
-                      "50s, but it shouldn&#39;t exceed 2s.", response.content)
+        self.assertContains(response,
+                        "Sum of time limits for all tests is too big. It&#39;s "
+                        "50s, but it shouldn&#39;t exceed 2s.")
 
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=10)
     def test_memory_limit(self):
         response = self.upload_package()
-        self.assertIn("Memory limit mustn&#39;t be greater than %dKiB"
-                        % settings.MAX_MEMORY_LIMIT_FOR_TEST, response.content)
+        self.assertContains(response,
+                        "Memory limit mustn&#39;t be greater than %dKiB"
+                        % settings.MAX_MEMORY_LIMIT_FOR_TEST)

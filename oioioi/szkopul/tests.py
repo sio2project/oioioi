@@ -19,12 +19,12 @@ class TestMainPageView(TestCase):
         except NoReverseMatch as e:
             self.fail(str(e))
 
-        self.assertIn('Contests', response.content)
-        self.assertIn('Problemset', response.content)
-        self.assertIn('Task archive', response.content)
+        self.assertContains(response, 'Contests')
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
 
-        self.assertIn('href="/contest/"', response.content)
-        self.assertIn('href="/problemset/"', response.content)
+        self.assertContains(response, 'href="/contest/"')
+        self.assertContains(response, 'href="/problemset/"')
 
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
@@ -34,7 +34,7 @@ class TestMainPageView(TestCase):
         except NoReverseMatch as e:
             self.fail(str(e))
 
-        self.assertIn('class="szkopul-logo"', response.content)
+        self.assertContains(response, 'class="szkopul-logo"')
 
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
@@ -42,16 +42,16 @@ class TestMainPageView(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get('/', follow=True)
 
-        self.assertIn('Contests', response.content)
-        self.assertIn('Problemset', response.content)
-        self.assertIn('Task archive', response.content)
+        self.assertContains(response, 'Contests')
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
 
-        self.assertIn('Latest Contests', response.content)
-        self.assertIn('My Submissions', response.content)
+        self.assertContains(response, 'Latest Contests')
+        self.assertContains(response, 'My Submissions')
 
-        self.assertIn('Test contest', response.content)
-        self.assertIn('2012-06-03', response.content)
-        self.assertIn('34', response.content)
+        self.assertContains(response, 'Test contest')
+        self.assertContains(response, '2012-06-03')
+        self.assertContains(response, '34')
 
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
@@ -59,4 +59,4 @@ class TestMainPageView(TestCase):
         self.assertTrue(self.client.login(username='test_user2'))
         response = self.client.get('/', follow=True)
 
-        self.assertIn("You haven't submitted anything yet. Try entering a contest!", response.content)
+        self.assertContains(response, "You haven't submitted anything yet. Try entering a contest!")
