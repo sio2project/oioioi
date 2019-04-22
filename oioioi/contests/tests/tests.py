@@ -16,8 +16,8 @@ from django.http import HttpResponse
 from django.template import RequestContext, Template
 from django.test import RequestFactory
 from django.test.utils import override_settings
-from django.utils.timezone import LocalTimezone, utc
-import six
+from django.utils.timezone import utc
+import pytz, six
 from six.moves import zip
 
 from oioioi.base.tests import (TestCase, TestsUtilsMixin, check_not_accessible,
@@ -990,11 +990,11 @@ class TestContestAdmin(TestCase):
         self.assertEqual(contest.round_set.count(), 1)
         round = contest.round_set.get()
         self.assertEqual(round.start_date,
-                datetime(2012, 2, 3, 4, 5, 6, tzinfo=LocalTimezone()))
+                datetime(2012, 2, 3, 4, 5, 6, tzinfo=pytz.timezone(settings.TIME_ZONE)))
         self.assertEqual(round.end_date,
-                datetime(2012, 2, 4, 5, 6, 7, tzinfo=LocalTimezone()))
+                datetime(2012, 2, 4, 5, 6, 7, tzinfo=pytz.timezone(settings.TIME_ZONE)))
         self.assertEqual(round.results_date,
-                datetime(2012, 2, 5, 6, 7, 8, tzinfo=LocalTimezone()))
+                datetime(2012, 2, 5, 6, 7, 8, tzinfo=pytz.timezone(settings.TIME_ZONE)))
 
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote('cid'),)) + '?simple=true'
@@ -1032,11 +1032,11 @@ class TestContestAdmin(TestCase):
         self.assertEqual(contest.round_set.count(), 1)
         round = contest.round_set.get()
         self.assertEqual(round.start_date,
-                datetime(2013, 2, 3, 14, 5, 6, tzinfo=LocalTimezone()))
+                datetime(2013, 2, 3, 14, 5, 6, tzinfo=pytz.timezone(settings.TIME_ZONE)))
         self.assertEqual(round.end_date,
-                datetime(2013, 2, 4, 15, 6, 7, tzinfo=LocalTimezone()))
+                datetime(2013, 2, 4, 15, 6, 7, tzinfo=pytz.timezone(settings.TIME_ZONE)))
         self.assertEqual(round.results_date,
-                datetime(2013, 2, 5, 16, 7, 8, tzinfo=LocalTimezone()))
+                datetime(2013, 2, 5, 16, 7, 8, tzinfo=pytz.timezone(settings.TIME_ZONE)))
 
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote('cid'),)) + '?simple=true'
