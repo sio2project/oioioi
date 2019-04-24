@@ -1,0 +1,590 @@
+[
+  {
+    "pk": 10000,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": null,
+      "user": 1001,
+      "date": "2017-10-20T10:42:15.792Z"
+    }
+  },
+  {
+    "pk": 10000,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 10000,
+      "creation_date": "2017-10-20T10:42:15.807Z"
+    }
+  },
+  {
+    "pk": 10000,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": null,
+      "comment": null,
+      "score": null,
+      "submission_report": 10000,
+      "max_score": null
+    }
+  },
+  {
+    "pk": 10002,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000100",
+      "user": 1001,
+      "date": "2017-10-20T10:42:15.792Z"
+    }
+  },
+  {
+    "pk": 10002,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 10002,
+      "creation_date": "2017-10-20T10:42:15.807Z"
+    }
+  },
+  {
+    "pk": 10002,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": null,
+      "comment": null,
+      "score": "int:0000000000000000100",
+      "submission_report": 10002,
+      "max_score": "int:0000000000000000200"
+    }
+  },
+  {
+    "pk": 10003,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000001337",
+      "user": 1001,
+      "date": "2017-10-20T10:42:15.792Z"
+    }
+  },
+  {
+    "pk": 10003,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 10003,
+      "creation_date": "2017-10-20T10:42:15.807Z"
+    }
+  },
+  {
+    "pk": 10003,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": null,
+      "comment": null,
+      "score": "int:0000000000000001337",
+      "submission_report": 10003,
+      "max_score": "int:0000000000000000142"
+    }
+  },
+  {
+    "pk": 10004,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000100",
+      "user": 1001,
+      "date": "2017-10-20T10:42:15.792Z"
+    }
+  },
+  {
+    "pk": 10004,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 10004,
+      "creation_date": "2017-10-20T10:42:15.807Z"
+    }
+  },
+  {
+    "pk": 10004,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": null,
+      "comment": null,
+      "score": "int:0000000000000000100",
+      "submission_report": 10004,
+      "max_score": "int:0000000000000000000"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad1-main",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 10001,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 2,
+      "kind": "NORMAL",
+      "comment": "Imported from main.edu.pl",
+      "score": "int:0000000000000000100",
+      "user": 1001,
+      "date": "2017-10-20T10:42:15.792Z"
+    }
+  },
+  {
+    "pk": 10001,
+    "model": "contests.submissionreport",
+    "fields": {
+      "status": "ACTIVE",
+      "kind": "NORMAL",
+      "submission": 10001,
+      "creation_date": "2017-10-20T10:42:15.807Z"
+    }
+  },
+  {
+    "pk": 10001,
+    "model": "contests.scorereport",
+    "fields": {
+      "status": null,
+      "comment": null,
+      "score": null,
+      "submission_report": 10001,
+      "max_score": null
+    }
+  },
+  {
+    "pk": 1000100,
+    "model": "programs.test",
+    "fields": {
+      "name": "0b",
+      "input_file": null,
+      "output_file": null,
+      "kind": "EXAMPLE",
+      "group": "0b",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 0,
+      "order": 1,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000100,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000100,
+      "test_name": "0b",
+      "test_group": "0",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000101,
+    "model": "programs.test",
+    "fields": {
+      "name": "0",
+      "input_file": null,
+      "output_file": null,
+      "kind": "EXAMPLE",
+      "group": "0",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 0,
+      "order": 0,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000101,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000101,
+      "test_name": "0",
+      "test_group": "0",
+      "test_time_limit": 100,
+      "test_max_score": 0,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000102,
+    "model": "programs.test",
+    "fields": {
+      "name": "1",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "1",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 2,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000102,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000102,
+      "test_name": "1",
+      "test_group": "1",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000103,
+    "model": "programs.test",
+    "fields": {
+      "name": "2",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "2",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 3,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000103,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000103,
+      "test_name": "2",
+      "test_group": "2",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000104,
+    "model": "programs.test",
+    "fields": {
+      "name": "3",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "3",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 4,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000104,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000104,
+      "test_name": "3",
+      "test_group": "3",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000105,
+    "model": "programs.test",
+    "fields": {
+      "name": "4a",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "4",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 5,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000105,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000105,
+      "test_name": "4a",
+      "test_group": "4",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000106,
+    "model": "programs.test",
+    "fields": {
+      "name": "4b",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "4",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 6,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000106,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 0,
+      "test_id": 1000106,
+      "test_name": "4b",
+      "test_group": "4",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000107,
+    "model": "programs.test",
+    "fields": {
+      "name": "5",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "5",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 7,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000107,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 10,
+      "test_id": 1000107,
+      "test_name": "5",
+      "test_group": "5",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000108,
+    "model": "programs.test",
+    "fields": {
+      "name": "6",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "6",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 8,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000108,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 20,
+      "test_id": 1000108,
+      "test_name": "6",
+      "test_group": "6",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000109,
+    "model": "programs.test",
+    "fields": {
+      "name": "7",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "7",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 9,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000109,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 30,
+      "test_id": 1000109,
+      "test_name": "7",
+      "test_group": "7",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000110,
+    "model": "programs.test",
+    "fields": {
+      "name": "8",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "8",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 11,
+      "order": 10,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000110,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 40,
+      "test_id": 1000110,
+      "test_name": "8",
+      "test_group": "8",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  },
+  {
+    "pk": 1000111,
+    "model": "programs.test",
+    "fields": {
+      "name": "9",
+      "input_file": null,
+      "output_file": null,
+      "kind": "NORMAL",
+      "group": "9",
+      "time_limit": null,
+      "memory_limit": null,
+      "max_score": 12,
+      "order": 11,
+      "is_active": true,
+      "problem_instance_id": 2
+    }
+  },
+  {
+    "pk": 1000111,
+    "model": "programs.testreport",
+    "fields": {
+      "submission_report_id": 10001,
+      "status": "OK",
+      "comment": "",
+      "score": "int:0000000000000000010",
+      "time_used": 50,
+      "test_id": 1000111,
+      "test_name": "9",
+      "test_group": "9",
+      "test_time_limit": 100,
+      "test_max_score": 10,
+      "output_file": null
+    }
+  }
+]

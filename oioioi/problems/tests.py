@@ -2508,3 +2508,70 @@ class TestProblemStatistics(TestCase):
         self.assertTrue(ps.submitted == 3)
         self.assertTrue(ps.solved == 2)
         self.assertTrue(ps.avg_best_score == 66)
+
+
+@override_settings(PROBLEM_STATISTICS_AVAILABLE=True)
+class TestProblemStatisticsSpecialCases(TestCase):
+    fixtures = ['test_users', 'test_full_package',
+                'test_contest', 'test_problem_instance',
+                'test_statistics_special_cases']
+
+    def test_statistics_null_score(self):
+        problem = Problem.objects.get(id=1)
+        ps = problem.statistics
+        self.assertTrue(ps.submitted == 0)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 0)
+
+        update_problem_statistics({'submission_id': 10000})
+        ps.refresh_from_db()
+        self.assertTrue(ps.submitted == 1)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 0)
+
+    def test_statistics_zero_max_score(self):
+        problem = Problem.objects.get(id=1)
+        ps = problem.statistics
+        self.assertTrue(ps.submitted == 0)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 0)
+
+        update_problem_statistics({'submission_id': 10004})
+        ps.refresh_from_db()
+        self.assertTrue(ps.submitted == 1)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 0)
+
+    def test_statistics_weird_scores(self):
+        problem = Problem.objects.get(id=1)
+        ps = problem.statistics
+        self.assertTrue(ps.submitted == 0)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 0)
+
+        update_problem_statistics({'submission_id': 10002})
+        ps.refresh_from_db()
+        self.assertTrue(ps.submitted == 1)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 50)
+
+        update_problem_statistics({'submission_id': 10003})
+        ps.refresh_from_db()
+        self.assertTrue(ps.submitted == 1)
+        self.assertTrue(ps.solved == 1)
+        self.assertTrue(ps.avg_best_score == 100)
+
+    # Check if imported submissions lacking score_report.score and
+    # score_report.max_score are handled correctly.
+    def test_statistics_imported(self):
+        problem = Problem.objects.get(id=1)
+        ps = problem.statistics
+        self.assertTrue(ps.submitted == 0)
+        self.assertTrue(ps.solved == 0)
+        self.assertTrue(ps.avg_best_score == 0)
+
+        update_problem_statistics({'submission_id': 10001})
+        ps.refresh_from_db()
+        self.assertTrue(ps.submitted == 1)
+        self.assertTrue(ps.solved == 1)
+        self.assertTrue(ps.avg_best_score == 100)

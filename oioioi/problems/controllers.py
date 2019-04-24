@@ -6,7 +6,7 @@ import six
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Max, Q
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -243,9 +243,11 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
            Saving both statistics objects is a responsibility of the caller.
         """
+        # Do not record ignored or hidden solutions
         if submission.kind != 'NORMAL':
             return
         try:
+            # Get most recent report
             report = SubmissionReport.objects.get(submission=submission,
                                                   status='ACTIVE',
                                                   kind='NORMAL')
@@ -255,14 +257,40 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                 user_statistics.has_submitted = True
                 problem_statistics.submitted += 1
 
+            # Submission may be without final tests or just broken
+            # It's better to use submission.score instead of score_report.score,
+            # since for imported submissions the score_report.score may be NULL
+            if submission.score is None:
+                assert score_report.score is None
+                return
+            if score_report.score is not None:
+                assert submission.score == score_report.score
+
+            # Submission may be imported/from before max_score was implemented
+            # The best we can try doing is looking at the tests for the problem
+            # instance - if the tests are also broken we are doomed anyway
+            if score_report.max_score is None:
+                test_group_max_scores = submission.problem_instance.test_set \
+                        .filter(kind='NORMAL').values_list('group') \
+                        .annotate(group_max_score=Max('max_score'))
+                max_score = sum(dict(test_group_max_scores).values())
+            else:
+                max_score = score_report.max_score.to_int()
+
+            # Submission may have max_score that's invalid for statistics
+            if max_score == 0:
+                return
+
             if not user_statistics.has_solved \
-            and score_report.score == score_report.max_score:
+            and submission.score >= max_score:
                 user_statistics.has_solved = True
                 problem_statistics.solved += 1
 
             problem_statistics._best_score_sum -= user_statistics.best_score
-            user_statistics.best_score = max(user_statistics.best_score,
-                                             score_report.score.to_int())
+            # Scale the score to a percentage of max_score
+            user_statistics.best_score = \
+                max(user_statistics.best_score,
+                    100 * min(max_score, submission.score.to_int()) / max_score)
             problem_statistics._best_score_sum += user_statistics.best_score
 
             # problem_statistics.submitted won't be 0 because we have a submit
@@ -306,8 +334,8 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         user_statistics.delete()
 
         # Recreate statistics from every relevant submission one by one
-        user_statistics = UserStatistics(problem_statistics=problem_statistics,
-                                         user=user)
+        user_statistics, created = UserStatistics.objects.select_for_update() \
+                .get_or_create(problem_statistics=problem_statistics, user=user)
         user_submissions = Submission.objects \
                 .filter(user=user,
                         problem_instance__problem=self.problem)
