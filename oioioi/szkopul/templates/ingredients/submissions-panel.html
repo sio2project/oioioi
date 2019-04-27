@@ -1,0 +1,19 @@
+{% load i18n %}
+
+<div class="panel-heading dashboard-panel-head">
+    <a href="{% url 'noncontest:all_submissions' %}" class="plain_link">
+        <h4>{% trans 'My Submissions' %}</h4>
+    </a>
+</div>
+<div class="panel-body dashboard-panel-body">
+    {% if submissions %}
+        {% include "submission_panel_table.html" %}
+        <p class="text-center dashboard-panel-footer">
+            <a href="{% url 'all_submissions' %}">
+                {% trans 'more' %}
+            </a>
+        </p>
+    {% else %}
+        <p>{% trans "You haven't submitted anything yet. Try entering a contest!" %}</p>
+    {% endif %}
+</div>

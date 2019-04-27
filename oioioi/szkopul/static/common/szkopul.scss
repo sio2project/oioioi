@@ -1,6 +1,7 @@
 .dashboard-container {
   margin-top: 50px;
   margin-bottom: 60px;
+  margin-left: -15px;
 }
 
 .dashboard-row {
@@ -65,7 +66,31 @@
 }
 
 #jane-street-logo {
-  width: 20%;
   margin-top: 1rem;
   margin-left: 1rem;
+  margin-bottom: 3rem;
+}
+
+@media screen and (min-width: 720px){
+  #jane-street-logo {
+    width: 20%;
+  }
+}
+
+@media screen and (min-width: 540px) and (max-width: 720px) {
+  #jane-street-logo {
+    width: 30%;
+  }
+}
+
+@media screen and (min-width: 360px) and (max-width: 540px){
+  #jane-street-logo {
+    width: 40%;
+  }
+}
+
+@media screen and (max-width: 360px){
+  #jane-street-logo {
+    width: 50%;
+  }
 }

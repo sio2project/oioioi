@@ -1,0 +1,32 @@
+{% load i18n %}
+
+<div class="panel-heading dashboard-panel-head">
+    <a href="{% url 'noncontest:select_contest' %}" class="plain_link">
+        <h4>{% trans 'Latest Contests' %}</h4>
+    </a>
+</div>
+<div class="panel-body dashboard-panel-body">
+    {% if contests %}
+        <table class="table break-all-words">
+            <tbody>
+            {% for contest in contests|slice:":7" %}
+                <tr>
+                    <td>{{ contest.id }}</td>
+                    <td>
+                        <a href="{% url 'default_contest_view' contest_id=contest.id %}">
+                            {{ contest.name }}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p class="text-center dashboard-panel-footer">
+            <a href="{% url 'noncontest:select_contest' %}">
+                {% trans 'more' %}
+            </a>
+        </p>
+    {% else %}
+        <p>{% trans "There are no contests we can show you right now :(" %}</p>
+    {% endif %}
+</div>

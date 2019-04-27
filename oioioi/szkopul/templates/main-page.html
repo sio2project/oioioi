@@ -21,62 +21,29 @@
             </div>
 
             <div class="dashboard-container">
-                <div class="row dashboard-row">
 
+                <div class="row dashboard-row hidden-xs hidden-sm">
                     <div class="dashboard-panel col-md-8">
-                        <div class="panel-heading dashboard-panel-head">
-                            <a href="{% url 'noncontest:all_submissions' %}" class="plain_link">
-                                <h4>{% trans 'My Submissions' %}</h4>
-                            </a>
-                        </div>
-                        <div class="panel-body dashboard-panel-body">
-                            {% if submissions %}
-                                {% include "submission_panel_table.html" %}
-                                <p class="text-center dashboard-panel-footer">
-                                    <a href="{% url 'all_submissions' %}">
-                                        {% trans 'more' %}
-                                    </a>
-                                </p>
-                            {% else %}
-                                <p>{% trans "You haven't submitted anything yet. Try entering a contest!" %}</p>
-                            {% endif %}
-                        </div>
+                        {% include "ingredients/submissions-panel.html" %}
                     </div>
 
                     <div class="dashboard-panel col-md-4">
-                        <div class="panel-heading dashboard-panel-head">
-                            <a href="{% url 'noncontest:select_contest' %}" class="plain_link">
-                                <h4>{% trans 'Latest Contests' %}</h4>
-                            </a>
-                        </div>
-                        <div class="panel-body dashboard-panel-body">
-                            {% if contests %}
-                                <table class="table break-all-words">
-                                    <tbody>
-                                    {% for contest in contests|slice:":7" %}
-                                        <tr>
-                                            <td>{{ contest.id }}</td>
-                                            <td>
-                                                <a href="{% url 'default_contest_view' contest_id=contest.id %}">
-                                                    {{ contest.name }}
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                                <p class="text-center dashboard-panel-footer">
-                                    <a href="{% url 'noncontest:select_contest' %}">
-                                        {% trans 'more' %}
-                                    </a>
-                                </p>
-                            {% else %}
-                                <p>{% trans "There are no contests we can show you right now :(" %}</p>
-                            {% endif %}
-                        </div>
+                        {% include "ingredients/contests-panel.html" %}
                     </div>
-
                 </div>
+
+                <div class="row dashboard-row hidden-md hidden-lg">
+                    <div class="dashboard-panel col-xs-10">
+                        {% include "ingredients/submissions-panel.html" %}
+                    </div>
+                </div>
+
+                <div class="row dashboard-row hidden-md hidden-lg">
+                    <div class="dashboard-panel col-xs-10">
+                        {% include "ingredients/contests-panel.html" %}
+                    </div>
+                </div>
+
             </div>
             <div>
                 {% include "ingredients/main-page-bottom.html" %}
