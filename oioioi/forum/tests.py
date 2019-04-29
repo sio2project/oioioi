@@ -9,6 +9,7 @@ from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest
 from oioioi.forum.forms import PostForm
 from oioioi.forum.models import Category, Post, Thread, Ban
+from oioioi.participants.models import Participant
 
 
 def get_contest_with_forum():
@@ -38,11 +39,14 @@ class TestForum(TestCase):
 
     def test_no_forum_menu(self):
         contest = get_contest_with_no_forum()
+        Participant.objects.create(contest=contest,
+                                   user=User.objects.get(username='test_user'))
 
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('default_contest_view',
                       kwargs={'contest_id': contest.id})
         response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
         self.assertNotIn('Forum', response.content)
 
     def test_forum_menu(self):
