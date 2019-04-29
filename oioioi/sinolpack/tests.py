@@ -69,11 +69,11 @@ def both_configurations(fn):
 class TestSinolPackageIdentify(TestCase):
     def test_identify_zip(self):
         filename = get_test_filename('test_simple_package.zip')
-        self.assert_(SinolPackageBackend().identify(filename))
+        self.assertTrue(SinolPackageBackend().identify(filename))
 
     def test_identify_tgz(self):
         filename = get_test_filename('test_full_package.tgz')
-        self.assert_(SinolPackageBackend().identify(filename))
+        self.assertTrue(SinolPackageBackend().identify(filename))
 
 
 @enable_both_unpack_configurations
@@ -265,7 +265,7 @@ class TestSinolPackage(TestCase):
             if settings.USE_SINOLPACK_MAKEFILES:
                 statements = ProblemStatement.objects.filter(problem=problem)
                 self.assertEqual(statements.count(), 1)
-                self.assert_(statements.get().content.read()
+                self.assertTrue(statements.get().content.read()
                         .startswith('%PDF'))
         else:
             self.assertEqual(problem.name, u'sum')

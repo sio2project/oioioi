@@ -94,7 +94,7 @@ class TestFileStorage(TestCase):
 
         storage.save(path, ContentFile(data))
         t = datetime.datetime.now()
-        self.assert_(storage.exists(path))
+        self.assertTrue(storage.exists(path))
         self.assertEqual(storage.open(path, 'rb').read(), data)
         self.assertEqual(storage.size(path), len(data))
 
@@ -103,7 +103,7 @@ class TestFileStorage(TestCase):
         self.assertGreater(ctime, t - datetime.timedelta(seconds=30))
 
         storage.delete(path)
-        self.assert_(not storage.exists(path))
+        self.assertFalse(storage.exists(path))
         with self.assertRaises(Exception):
             storage.open(path, 'rb')
 

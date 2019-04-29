@@ -47,7 +47,7 @@ class TestModels(TestCase):
         problem = Problem(
             controller_name='oioioi.problems.tests.TestProblemController'
         )
-        self.assert_(isinstance(problem.controller, TestProblemController))
+        self.assertIsInstance(problem.controller, TestProblemController)
 
     def test_make_problem_filename(self):
         p12 = Problem(pk=12)

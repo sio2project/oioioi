@@ -85,7 +85,7 @@ class TestIndex(TestCase):
         with self.assertNumQueriesLessThan(50):
             response = self.client.get('/', follow=True)
         self.assertNotIn('test_user', response.content)
-        self.assert_(self.client.login(username='test_user'))
+        self.assertTrue(self.client.login(username='test_user'))
         with self.assertNumQueriesLessThan(65):
             response = self.client.get('/', follow=True)
         self.assertIn('test_user', response.content)
