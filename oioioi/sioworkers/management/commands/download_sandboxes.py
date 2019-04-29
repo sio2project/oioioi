@@ -76,7 +76,7 @@ class Command(BaseCommand):
         try:
             license_url = six.moves.urllib.parse.urljoin(manifest_url,
                     'LICENSE')
-            license = six.moves.urllib.request.urlopen(license_url).read()
+            license = six.moves.urllib.request.urlopen(license_url).read().decode('utf-8')
             if not options['license_agreement']:
                 self.display_license(license)
         except six.moves.urllib.error.HTTPError as e:
