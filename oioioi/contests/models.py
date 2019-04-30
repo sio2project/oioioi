@@ -102,6 +102,8 @@ class Contest(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.controller_name:
+            import traceback
+            traceback.print_exc()
             self.controller_name = 'oioioi.teachers.controllers.TeacherContestController'
         super(Contest, self).save(*args, **kwargs)
 
