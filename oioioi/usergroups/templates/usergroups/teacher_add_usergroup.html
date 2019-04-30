@@ -1,0 +1,18 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %} {% trans "Add new user group" %} {% endblock %}
+
+{% block main-content %}
+<h1>
+    {% trans "New group" %}
+</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {% include "ingredients/form.html" with focus=False display_labels=True %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-success">{% trans "Create group" %}</button>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends "base-with-menu.html" %}
+{% load i18n compress %}
+
+{% block title %}
+    {% trans "User group details" %}
+{% endblock %}
+
+{% block main-content %}
+<h1>
+    {% trans "Group " %}{{ usergroup.name }}
+</h1>
+
+{% if usergroup.addition_config.enabled %}
+    <p>{% trans "To add a user to this group, ask him/her to visit the following link:" %}</p>
+    <pre id="addition_link">{{ addition_link }}</pre>
+    <p>
+        <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'usergroups_disable_addition' usergroup_id=usergroup.id %}">
+            {% trans "Disable link" %}
+        </a>
+        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'usergroups_regenerate_addition_key' usergroup_id=usergroup.id %}">
+            {% trans "Regenerate key" %}
+        </a>
+        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#addition_link">
+            {% trans "Copy to clipboard" %}
+        </button>
+    </p>
+{% else %}
+    <p>{% trans "Addition to this group is currently disabled." %}</p>
+        <a role="button" class="btn btn-info" data-post-url="{% url 'usergroups_enable_addition' usergroup_id=usergroup.id %}">
+            {% trans "Enable addition" %}
+        </a>
+    </p>
+{% endif %}
+
+{% if usergroup.sharing_config.enabled %}
+    <p>
+        {% trans "To share ownership of this group with another teacher ask him/her to visit the following link:" %}
+    </p>
+    <pre id="sharing_link">{{ sharing_link }}</pre>
+    <p>
+        <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'usergroups_disable_sharing' usergroup_id=usergroup.id %}">
+            {% trans "Disable link" %}
+        </a>
+        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'usergroups_regenerate_sharing_key' usergroup_id=usergroup.id %}">
+            {% trans "Regenerate key" %}
+        </a>
+        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#sharing_link">
+            {% trans "Copy to clipboard" %}
+        </button>
+    </p>
+{% else %}
+    <p>{% trans "Option to share this group with others is currently disabled." %}</p>
+        <a role="button" class="btn btn-info" data-post-url="{% url 'usergroups_enable_sharing' usergroup_id=usergroup.id %}">
+            {% trans "Enable sharing" %}
+        </a>
+    </p>
+{% endif %}
+
+<form action="{% url 'usergroups_delete_members' usergroup_id=usergroup.id %}" method="post" id="delete-members-form">
+    {% csrf_token %}
+
+    <h2>{% trans "Members" %}</h2>
+
+    {% if usergroup.members.all %}
+        <div class="row">
+            {% for member in usergroup.members.all %}
+                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="member" value="{{ member.id }}">
+                            {{ member.get_full_name }}
+                        </label>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>
+            {% trans "No members in this group." %}
+        </p>
+    {% endif %}
+
+    <div class="form-group">
+        <button type="button" class="btn btn-default btn-sm"
+            onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
+            {% trans "Select all" %}
+        </button>
+        <button type="button" class="btn btn-default btn-sm"
+            onclick="$('#delete-members-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
+            {% trans "Select none" %}
+        </button>
+        <button type="submit" class="btn btn-danger btn-sm">{% trans "Delete selected" %}</button>
+    </div>
+</form>
+
+<form action="{% url 'usergroups_delete_owners' usergroup_id=usergroup.id %}" method="post" id="delete-owners-form">
+    {% csrf_token %}
+
+    <h2>{% trans "Owners" %}</h2>
+
+    <div class="row">
+            {% for owner in usergroup.owners.all %}
+                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                    <div class="checkbox">
+                        <label>
+                            <input type="checkbox" name="owner" value="{{ owner.id }}" {% if owner == user %}disabled{% endif %}>
+                            {{ owner.get_full_name }}
+                        </label>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+    <div class="form-group">
+        <button type="button" class="btn btn-default btn-sm"
+            onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
+            {% trans "Select all" %}
+        </button>
+        <button type="button" class="btn btn-default btn-sm"
+            onclick="$('#delete-owners-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
+            {% trans "Select none" %}
+        </button>
+        <button type="submit" class="btn btn-danger btn-sm">{% trans "Delete selected" %}</button>
+    </div>
+</form>
+
+<form method="post">
+    {% csrf_token %}
+
+    <h2>{% trans "Group modifications" %}</h2>
+
+    {% include "ingredients/form.html" with focus=False display_labels=True %}
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">{% trans "Change group name" %}</button>
+        <a role="button" class="btn btn-danger" href="{% url 'delete_usergroup_confirmation' usergroup_id=usergroup.id %}"> {% trans "Delete group" %} </a>
+    </div>
+</form>
+{% endblock %}

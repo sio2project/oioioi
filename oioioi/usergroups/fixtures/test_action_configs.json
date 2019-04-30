@@ -1,0 +1,42 @@
+[
+    {
+        "pk": 1000,
+        "model": "usergroups.ActionConfig",
+        "fields": {
+            "enabled": "True",
+            "key": "n3gHn67AmKi5cXNNZdvWqZPw"
+        }
+    },
+    {
+        "pk": 1001,
+        "model": "usergroups.ActionConfig",
+        "fields": {
+            "enabled": "False",
+            "key": "p5gHn67AsKi5cXNNZdvWqZPw"
+        }
+    },
+    {
+        "pk": 1002,
+        "model": "usergroups.ActionConfig",
+        "fields": {
+            "enabled": "True",
+            "key": "u7gHn67AsKi5tXNNZdvWqZPw"
+        }
+    },
+    {
+        "pk": 1003,
+        "model": "usergroups.ActionConfig",
+        "fields": {
+            "enabled": "True",
+            "key": "piiHn67AsKi5tXNNZdvWqZPw"
+        }
+    },
+    {
+        "pk": 1004,
+        "model": "usergroups.ActionConfig",
+        "fields": {
+            "enabled": "False",
+            "key": "bqgHn67AsKi5tXNNZdvWqZPw"
+        }
+    }
+]

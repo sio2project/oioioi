@@ -1,0 +1,37 @@
+{% extends "base-with-menu.html" %}
+{% load i18n pagination_tags %}
+
+{% block title %}
+    {% trans "Your User Groups" %}
+{% endblock %}
+
+{% block main-content %}
+<h1>
+    {% trans "Your Groups" %}
+</h1>
+
+<p>
+    {% trans "By grouping users in groups you can perform certain actions on all of them at the same time, e.g.: add all of them to the given contest without asking them to paste any link into the browser." %} <br>
+    {% trans "You can also share yours groups with other teachers." %}
+</p>
+
+<div id="usergroups-list">
+    {% if not usergroup_list %}
+        <p>{% trans "You don't have any defined user groups at the moment." %}</p>
+    {% else %}
+        {% autopaginate usergroup_list 20 %}
+        {% paginate %}
+
+        <ul class="list-group">
+        {% for group in usergroup_list %}
+            <li class="list-group-item"> <a href="{% url 'teacher_usergroup_detail' group.id %}">{{ group }}</a> </li>
+        {% endfor%}
+        </ul>
+        {% paginate %}
+    {% endif %}
+</div>
+
+<div id="add-new-usergroup">
+    <a role="button" class="btn btn-success" href="{% url 'teacher_usergroups_add_group' %}"> {% trans "Add new group" %} </a>
+</div>
+{% endblock %}

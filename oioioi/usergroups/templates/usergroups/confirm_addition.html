@@ -1,0 +1,8 @@
+{% extends "simple-centered-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm joining group " %}{{ group_name }}{% endblock %}
+
+{% block help_text %}
+    {% trans "Are you sure you want to join group " %} {{ group_name }}?
+{% endblock %}

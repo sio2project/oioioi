@@ -561,3 +561,10 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          ) + INSTALLED_APPS
 
          # Additional Celery configuration necessary for 'prizes' app.
+
+#. * Added ``oioioi.usergroups`` module.::
+	
+	Add the following line at the end of your INSTALLED_APPS variable
+	in settings.py (if you want to use the new app simply uncomment this line):
+	
+	#    'oioioi.usergroups',
