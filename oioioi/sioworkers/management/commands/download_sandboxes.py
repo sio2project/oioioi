@@ -76,7 +76,8 @@ class Command(BaseCommand):
         try:
             license_url = six.moves.urllib.parse.urljoin(manifest_url,
                     'LICENSE')
-            license = six.moves.urllib.request.urlopen(license_url).read().decode('utf-8')
+            license = six.moves.urllib.request.urlopen(license_url).read() \
+                                                        .decode('utf-8')
             if not options['license_agreement']:
                 self.display_license(license)
         except six.moves.urllib.error.HTTPError as e:
@@ -119,7 +120,7 @@ class Command(BaseCommand):
 
             quiet_flag = ['-nv'] if options['quiet'] else []
             execute([options['wget'], '-N', '-i', '-'] + quiet_flag,
-                    stdin='\n'.join(urls), capture_output=False,
+                    stdin='\n'.join(urls).encode('utf-8'), capture_output=False,
                     cwd=download_dir)
 
         print("--- Saving sandboxes to the Filetracker ...", file=self.stdout)

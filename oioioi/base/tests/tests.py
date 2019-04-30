@@ -598,13 +598,13 @@ class TestEnumField(TestCase):
 
 class TestExecute(TestCase):
     def test_echo(self):
-        self.assertEqual("foo\n", execute("echo foo"))
+        self.assertEqual(b"foo\n", execute("echo foo"))
 
     def test_echo_with_list_command(self):
-        self.assertEqual("-n test\n", execute(['echo', '-n test']))
+        self.assertEqual(b"-n test\n", execute(['echo', '-n test']))
 
     def test_cat_with_string_input(self):
-        input_text = 'hello there!'
+        input_text = b'hello there!'
         output_text = execute('cat', stdin=input_text)
         self.assertEqual(input_text, output_text)
 
@@ -622,11 +622,11 @@ class TestExecute(TestCase):
             execute('return 14')
 
     def test_line_splitting(self):
-        self.assertListEqual(['foo', 'lol'],
+        self.assertListEqual([b'foo', b'lol'],
                              execute('echo "foo\nlol"', split_lines=True))
 
     def test_env(self):
-        self.assertEqual('bar\n', execute('echo $foo', env={'foo': 'bar'}))
+        self.assertEqual(b'bar\n', execute('echo $foo', env={'foo': 'bar'}))
 
     def test_cwd(self):
         self.assertEqual(execute(['cat', os.path.basename(__file__)],

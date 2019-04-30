@@ -178,7 +178,8 @@ class SinolPackage(object):
             renv = {}
             if not cwd:
                 cwd = self.rootdir
-            renv['stdout'] = execute('make %s' % (command), cwd=cwd)
+            renv['stdout'] = execute('make %s' % (command),
+                                     cwd=cwd).decode('utf-8', 'replace')
             logger.info(renv['stdout'])
         return renv
 

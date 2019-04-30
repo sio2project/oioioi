@@ -28,7 +28,7 @@ class ExecuteError(RuntimeError):
 
 
 def execute(command, env=None, split_lines=False, ignore_errors=False,
-            errors_to_ignore=(), stdin='', cwd=None, capture_output=True):
+            errors_to_ignore=(), stdin=b'', cwd=None, capture_output=True):
     """Utility function to execute a command and return the output.
        It's basically a little saner version of subprocess.call.
 
@@ -39,11 +39,11 @@ def execute(command, env=None, split_lines=False, ignore_errors=False,
             returned a non-zero return code.
        :param errors_to_ignore: tuple of return codes not to be interpreted as
             errors
-       :param stdin: a string passed to the subprocess
+       :param stdin: a bytestring passed to the subprocess
        :param cwd: working directory to temporarily chdir to
        :param capture_output: if False, output will be passed to stdout/stderr
 
-       :returns: the standard output of the subprocess in a string
+       :returns: the standard output of the subprocess in a bytestring
     """
 
     if env:
