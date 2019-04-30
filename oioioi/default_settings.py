@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 29
+INSTALLATION_CONFIG_VERSION = 30
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -483,6 +483,10 @@ NOTIFICATIONS_OIOIOI_URL = 'http://localhost:8000/'
 
 # URL connection string for RabbitMQ instance used by Notifications Server
 NOTIFICATIONS_RABBITMQ_URL = 'amqp://localhost'
+
+# Extra arguments for pika ConnectionParameters, see
+# https://pika.readthedocs.io/en/stable/modules/parameters.html
+NOTIFICATIONS_RABBITMQ_EXTRA_PARAMS = {}
 
 # Port that the Notifications Server listens on
 NOTIFICATIONS_SERVER_PORT = 7887

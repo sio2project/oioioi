@@ -499,7 +499,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         @@ -213,6 +213,12 @@ RUN_LOCAL_WORKERS = True
          USE_UNSAFE_EXEC = True
          USE_LOCAL_COMPILERS = True
-         
+
         +# Default safe execution sandbox
         +# You can change the safe execution sandbox. Current options are:
         +# - "vcpu" - OITimeTool
@@ -526,3 +526,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +
          # Set to True to allow every logged in user to add problems directly to Problemset
          EVERYBODY_CAN_ADD_TO_PROBLEMSET = False
+
+#. * Added `NOTIFICATIONS_RABBITMQ_EXTRA_PARAMS` to settings::
+
+       --- a/oioioi/deployment/settings.py.template
+       +++ b/oioioi/deployment/settings.py.template
+       @@ -400,6 +400,12 @@ ZEUS_INSTANCES = {
+        # URL connection string for RabbitMQ instance used by Notifications Server
+        #NOTIFICATIONS_RABBITMQ_URL = 'amqp://localhost'
+
+       +# Extra arguments for pika ConnectionParameters, see
+       +# https://pika.readthedocs.io/en/stable/modules/parameters.html
+       +#NOTIFICATIONS_RABBITMQ_EXTRA_PARAMS = {
+       +#    'heartbeat': 8
+       +#}
+       +
+        # Port that the Notifications Server listens on
+        #NOTIFICATIONS_SERVER_PORT = 7887

@@ -52,6 +52,7 @@ class NotificationHandler(logging.StreamHandler):
                     kwargs['virtual_host'] = o.path
                 if o.username and o.password:
                     kwargs['credentials'] = PlainCredentials(o.username, o.password)
+                kwargs.update(settings.NOTIFICATIONS_RABBITMQ_EXTRA_PARAMS)
                 parameters = ConnectionParameters(**kwargs)
                 thread_data.conn = BlockingConnection(parameters)
 
