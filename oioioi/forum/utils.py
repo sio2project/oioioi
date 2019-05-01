@@ -53,7 +53,7 @@ def is_proper_forum(request, *args, **kwargs):
 
 @make_request_condition
 def can_interact_with_users(request):
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     is_banned = Ban.is_banned(request.contest.forum, request.user)
     is_locked = request.contest.forum.is_locked(request.timestamp)
@@ -62,7 +62,7 @@ def can_interact_with_users(request):
 
 @make_request_condition
 def can_interact_with_admins(request):
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return False
     is_banned = Ban.is_banned(request.contest.forum, request.user)
     return is_contest_admin(request) or not is_banned

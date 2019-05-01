@@ -109,7 +109,7 @@ def problems_list_view(request):
     return TemplateResponse(request, 'contests/problems_list.html',
         {'problem_instances': problems_statements,
          'show_rounds': show_rounds,
-         'show_scores': request.user.is_authenticated(),
+         'show_scores': request.user.is_authenticated,
          'show_submissions_limit': show_submissions_limit,
          'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100)})
 
@@ -222,7 +222,7 @@ def my_submissions_view(request):
 def all_submissions_view(request):
     submissions = []
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         queryset = Submission.objects \
                 .filter(user=request.user) \
                 .order_by('-date') \

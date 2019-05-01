@@ -171,7 +171,7 @@ class ProblemTableWidget(object):
             row['name'] = problem.name
 
             def fill_row_with_score(row_, problem_):
-                if not request.user.is_authenticated():
+                if not request.user.is_authenticated:
                     return False
                 result = UserResultForProblem.objects.filter(
                     user=request.user,

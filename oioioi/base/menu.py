@@ -190,7 +190,7 @@ menu_registry = MenuRegistry(_("User Menu"))
 #: The menu registry for the user menu, shown as a drop down when a logged in
 #: user clicks on its login in the navbar.
 account_menu_registry = MenuRegistry(_("Account Menu"),
-        lambda request: request.user.is_authenticated())
+        lambda request: request.user.is_authenticated)
 
 #: The registry for *menus* displayed on the side.
 side_pane_menus_registry = OrderedRegistry()

@@ -68,11 +68,13 @@ class UserInfoInErrorMessage(object):
             if not hasattr(request, 'user'):
                 return
 
-            request.META['IS_AUTHENTICATED'] = str(request.user
-                                                   .is_authenticated())
+            # This is because is_authenticated is a CallableBool not bool until Django 2.0,
+            # so its str is not True/False as expected.
+            request.META['IS_AUTHENTICATED'] =\
+                str(bool(request.user.is_authenticated))
             request.META['IS_UNDER_SU'] = str(is_under_su(request))
 
-            if request.user.is_authenticated():
+            if request.user.is_authenticated:
                 request.META['USERNAME'] = str(request.user.username)
                 request.META['USER_EMAIL'] = str(request.user.email)
 

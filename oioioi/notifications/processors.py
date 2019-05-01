@@ -35,7 +35,7 @@ def get_notifications_session(session):
 
 
 def notification_processor(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return {}
 
     def generator():

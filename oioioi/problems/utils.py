@@ -64,7 +64,7 @@ def can_add_to_problemset(request):
         user is a superuser or
         user is a database admin
     """
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return False
     if settings.EVERYBODY_CAN_ADD_TO_PROBLEMSET:
         return True

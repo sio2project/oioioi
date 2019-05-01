@@ -21,7 +21,7 @@ from oioioi.participants.utils import is_participant
 def registration_notice_fragment(request):
     rc = request.contest.controller.registration_controller()
     if isinstance(rc, OIRegistrationController) \
-            and request.user.is_authenticated() \
+            and request.user.is_authenticated \
             and not is_contest_admin(request) \
             and not is_participant(request):
         return render_to_string('oi/registration_notice.html',

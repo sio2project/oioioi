@@ -118,7 +118,7 @@ def logout_view(request):
 
 
 def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME, **kwargs):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         redirect_to = request.GET.get(redirect_field_name, None)
         return safe_redirect(request, redirect_to)
     else:
@@ -138,7 +138,7 @@ def translate_view(request):
 
 
 def delete_account_view(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponseForbidden()
 
     if request.POST:

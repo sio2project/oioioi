@@ -1131,9 +1131,9 @@ class TestUserDeactivationLogout(TestCase):
     def assert_logged(self, logged=True):
         user = get_user(self.client)
         if logged:
-            self.assertTrue(user.is_authenticated())
+            self.assertTrue(user.is_authenticated)
         else:
-            self.assertFalse(user.is_authenticated())
+            self.assertFalse(user.is_authenticated)
 
     def test_invalidated_user_logout(self):
         self.assert_logged(True)

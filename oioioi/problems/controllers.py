@@ -83,7 +83,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation checks if the user is not anonymous.
            Subclasses should also call this default implementation.
         """
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return False
         return True
 
@@ -100,7 +100,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
     def get_submissions_left(self, request, problem_instance, kind='NORMAL'):
         """Returns number of submissions left until reaching problem limit
         """
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return None
 
         submissions_limit = problem_instance.controller \
@@ -611,7 +611,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
            Should return the updated queryset.
         """
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return queryset.none()
         qs = queryset \
             .filter(problem_instance=self.problem.main_problem_instance)

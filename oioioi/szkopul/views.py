@@ -53,7 +53,7 @@ def main_page_view(request):
 
     submissions = []
     show_scores = False
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         queryset = Submission.objects \
             .filter(user=request.user) \
             .order_by('-date') \

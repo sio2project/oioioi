@@ -30,7 +30,7 @@ def contest_selection(context):
         'more_contests': len(contests) > to_show,
         'is_teacher': request.user.has_perm('teachers.teacher'),
         'is_inactive_teacher':
-            request.user.is_authenticated() and
+            request.user.is_authenticated and
             bool(Teacher.objects.filter(user=request.user, is_active=False))
     }
     return RequestContext(request, contest_selection_context)

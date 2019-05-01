@@ -43,7 +43,7 @@ class ForceDnsIpAuthMiddleware(object):
                 "The ForceDnsIpAuthMiddleware middleware requires the"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
                 " earlier in MIDDLEWARE_CLASSES.")
-        if not request.user.is_anonymous() and \
+        if not request.user.is_anonymous and \
                 not hasattr(request.user, 'backend'):
             raise ImproperlyConfigured(
                 "The ForceDnsIpAuthMiddleware middleware requires the"
@@ -65,7 +65,7 @@ class ForceDnsIpAuthMiddleware(object):
             return
         if not request.contest.controller.is_onsite():
             return
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return
         backend_path = request.user.backend
         if backend_path != 'oioioi.ipdnsauth.backends.IpDnsBackend':

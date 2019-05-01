@@ -96,7 +96,7 @@ def problem_site_files(request, problem):
         condition=lambda request: not request.contest)
 def problem_site_submissions(request, problem):
     controller = problem.main_problem_instance.controller
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         qs = controller.filter_my_visible_submissions(request,
             Submission.objects
                 .filter(problem_instance=problem.main_problem_instance)

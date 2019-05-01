@@ -55,7 +55,7 @@ def get_may_be_published_solutions(request):
 @request_cached
 def get_may_be_published_solutions_for_user(request):
     qs = get_may_be_published_solutions(request)
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return qs.none()
     return qs.filter(user=request.user)
 

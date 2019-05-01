@@ -126,7 +126,7 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
 
            :rtype: :class:`~django.db.models.query.QuerySet`
         """
-        if request.user.is_anonymous() and cls.anonymous_can_enter_contest():
+        if request.user.is_anonymous and cls.anonymous_can_enter_contest():
             return contest_queryset.distinct()
         contests = set()
         for contest in contest_queryset:
@@ -499,7 +499,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            and if the round is active for the given user. Subclasses should
            also call this default implementation.
         """
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return False
         if not problem_instance.round:
             return False
@@ -704,7 +704,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
 
            Should return the updated queryset.
         """
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return queryset.none()
         qs = queryset.filter(user=request.user)
         if is_contest_admin(request):

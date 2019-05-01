@@ -12,7 +12,7 @@ from oioioi.participants.utils import is_participant
 def registration_notice_fragment(request):
     rc = request.contest.controller.registration_controller()
     if isinstance(rc, PARegistrationController) \
-            and request.user.is_authenticated() \
+            and request.user.is_authenticated \
             and not is_contest_admin(request) \
             and not is_participant(request) \
             and rc.can_register(request):

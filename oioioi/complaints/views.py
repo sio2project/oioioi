@@ -22,7 +22,7 @@ from oioioi.participants.models import Participant
 
 @make_request_condition
 def can_make_complaint(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return False
     if is_contest_admin(request):
         return False

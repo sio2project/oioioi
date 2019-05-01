@@ -12,7 +12,7 @@ class TeacherAuthBackend(object):
         return None
 
     def has_perm(self, user_obj, perm, obj=None):
-        if not user_obj.is_authenticated() or not user_obj.is_active:
+        if not user_obj.is_authenticated or not user_obj.is_active:
             return False
         if perm == 'teachers.teacher':
             if not hasattr(user_obj, '_is_teacher'):

@@ -26,7 +26,7 @@ class ExclusiveContestsWithParticipantsMiddlewareMixin(object):
 
         def _participants_selector(user, contest):
             if is_contest_with_participants(contest):
-                if user.is_anonymous():
+                if user.is_anonymous:
                     return False
                 rcontroller = contest.controller.registration_controller()
                 qs = User.objects.filter(id=user.id)

@@ -240,7 +240,7 @@ class ProblemAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super(ProblemAdmin, self).get_queryset(request)
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             combined = queryset.none()
         else:
             combined = request.user.problem_set.all()

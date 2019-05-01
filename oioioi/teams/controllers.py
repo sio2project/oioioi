@@ -43,7 +43,7 @@ class TeamsMixinForContestController(object):
         return self.contest.teamsconfig.max_team_size
 
     def filter_my_visible_submissions(self, request, queryset):
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return queryset.none()
 
         try:

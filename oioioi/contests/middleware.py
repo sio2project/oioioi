@@ -27,7 +27,7 @@ def activate_contest(request, contest):
             recent_contests[:getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
         request.session['recent_contests'] = recent_contests
 
-    if not request.real_user.is_anonymous() \
+    if not request.real_user.is_anonymous \
             and not request.session.get('first_view_after_logging', False):
         cv, created = ContestView.objects \
                 .get_or_create(user=request.real_user, contest=contest)

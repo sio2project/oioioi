@@ -13,7 +13,7 @@ from oioioi.status.registry import status_registry
 def navbar_tip_processor(request):
     if not getattr(request, 'contest', None):
         return {}
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return {}
     if not can_enter_contest(request):
         return {}

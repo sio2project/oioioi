@@ -94,7 +94,7 @@ def generic_rounds_times(request=None, contest=None):
               .select_related('contest')]
     rids = [r.id for r in rounds]
     if not request or not hasattr(request, 'user') or \
-            request.user.is_anonymous():
+            request.user.is_anonymous:
         rtexts = {}
     else:
         rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects

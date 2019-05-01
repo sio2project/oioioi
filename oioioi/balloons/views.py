@@ -53,7 +53,7 @@ def query_context_args(user, contest):
 
 
 def context_args(request):
-    if request.user.is_authenticated() and can_enter_contest(request) \
+    if request.user.is_authenticated and can_enter_contest(request) \
             and request.contest is not None:
         return request.user, query_context_args(request.user, request.contest)
     ip_addr = request.META.get('REMOTE_ADDR')

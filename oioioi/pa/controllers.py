@@ -114,7 +114,7 @@ class PAContestController(ProgrammingContestController):
         return True
 
     def can_submit(self, request, problem_instance, check_round_times=True):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return False
         if request.user.has_perm('contests.contest_admin', self.contest):
             return True

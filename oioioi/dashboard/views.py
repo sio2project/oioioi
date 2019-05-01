@@ -95,7 +95,7 @@ def top_links_fragment(request):
 
 @dashboard_registry.register_decorator(order=100)
 def submissions_fragment(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return None
     submissions = Submission.objects \
             .filter(problem_instance__contest=request.contest) \

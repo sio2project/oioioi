@@ -126,7 +126,7 @@ def enforce_condition(condition, template=None, login_redirect=True):
                 return view_func(request, *args, **kwargs)
             if template is not None:
                 return TemplateResponse(request, template)
-            elif not request.user.is_authenticated() \
+            elif not request.user.is_authenticated \
                     and not request.is_ajax() and login_redirect:
                 return redirect_to_login(request.path)
             else:
@@ -151,7 +151,7 @@ def not_anonymous(request):
     :param request:
     :return:
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         if request.user.is_active:
             return True
         else:

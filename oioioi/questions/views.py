@@ -46,7 +46,7 @@ def visible_messages(request, author=None, category=None, kind=None):
     messages = Message.objects.filter(q_expression).order_by('-date')
     if not is_contest_admin(request):
         q_expression = Q(kind='PUBLIC')
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             q_expression = q_expression \
                     | (Q(author=request.user) & Q(kind='QUESTION')) \
                     | Q(top_reference__author=request.user)
@@ -63,7 +63,7 @@ def visible_messages(request, author=None, category=None, kind=None):
 
 
 def new_messages(request, messages=None):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return messages.none()
     if messages is None:
         messages = visible_messages(request)
@@ -129,7 +129,7 @@ def messages_view(request):
     messages = messages_template_context(
         request, visible_messages(request, **vmsg_kwargs))
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         subscribe_records = QuestionSubscription.objects.filter(
             contest=request.contest, user=request.user
         )
@@ -191,7 +191,7 @@ def all_messages_view(request):
     for entry in tree_list:
         entry['replies'].sort(key=sort_key, reverse=True)
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         mark_messages_read(request.user, vmessages)
 
     return TemplateResponse(request, 'questions/tree.html', {
@@ -220,7 +220,7 @@ def message_visit_view(request, message_id):
         replies.sort(key=Message.get_user_date)
     else:
         replies = []
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         mark_messages_read(request.user, [message] + replies)
     return HttpResponse('OK', 'text/plain', 201)
 
@@ -260,7 +260,7 @@ def message_view(request, message_id):
                 })
     else:
         form = None
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         mark_messages_read(request.user, [message] + replies)
     return TemplateResponse(request, 'questions/message.html',
             {'message': message, 'replies': replies, 'form': form,

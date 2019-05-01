@@ -24,7 +24,7 @@ def register_current_contest(request):
 
 @request_cached
 def recent_contests(request):
-    if request.real_user.is_anonymous():
+    if request.real_user.is_anonymous:
         ids = request.session.get('recent_contests', [])
         mapping = Contest.objects.in_bulk(ids)
         return [c for c in (mapping.get(id) for id in ids)

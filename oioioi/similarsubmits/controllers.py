@@ -76,7 +76,7 @@ class SimilarityDisqualificationMixin(object):
         prev = super(SimilarityDisqualificationMixin, self) \
                 .filter_visible_sources(request, queryset).distinct()
 
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return prev
 
         # TODO: only in grace period, guilty

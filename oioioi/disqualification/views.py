@@ -6,7 +6,7 @@ from oioioi.disqualification.controllers import \
 
 @dashboard_registry.register_decorator(order=10)
 def disqualification_fragment(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return None
     cc = request.contest.controller
     if not isinstance(cc, DisqualificationContestControllerMixin):
