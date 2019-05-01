@@ -131,16 +131,18 @@ def main():
     parser.add_argument("dir", help="deployment folder to create")
     args = parser.parse_args()
 
-    if os.path.exists(args.dir):
-        error("%s already exists; please specify another location" %
-              (args.dir,))
+    absolute_dir = os.path.abspath(args.dir)
 
-    os.makedirs(args.dir)
+    if os.path.exists(absolute_dir):
+        error("%s already exists; please specify another location" %
+              (absolute_dir,))
+
+    os.makedirs(absolute_dir)
 
     try:
-        generate_all(args.dir, args.verbose)
+        generate_all(absolute_dir, args.verbose)
     except BaseException:
-        shutil.rmtree(args.dir)
+        shutil.rmtree(absolute_dir)
         raise
 
     print(file=sys.stderr)
