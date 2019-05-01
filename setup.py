@@ -54,7 +54,7 @@ python23_universal_requirements = [
 
         "django-debug-toolbar>=1.4,<1.10",  # latest version for Django 1.10
         "django-extensions>=1.0.0",
-        "djangorestframework==3.6.4",               # latest version for Django 1.9
+        "djangorestframework==3.8.2",       # latest version for Django 1.10
         "werkzeug",
 
         'pytest',
