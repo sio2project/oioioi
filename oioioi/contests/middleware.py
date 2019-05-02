@@ -77,13 +77,25 @@ class CurrentContestMiddleware(object):
        URLs. Trying to access them then generates a 403 Permission Denied
        unless one is a superuser.
     """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self._process_request(request)
+
+        if response is None:
+            return self.get_response(request)
+
+        return response
+
     def _get_contest(self, contest_id):
         try:
             return Contest.objects.get(id=contest_id)
         except Contest.DoesNotExist:
             return None
 
-    def process_request(self, request):
+    def _process_request(self, request):
         contest = None
         m = contest_re.match(request.path)
 

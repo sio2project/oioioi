@@ -39,6 +39,13 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
           an error message is displayed and an e-mail describing the situation
           is sent to the administrators.
     """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
     def process_view(self, request, view_func,
                      view_args, view_kwargs, selector=None):
 
@@ -91,7 +98,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             raise ImproperlyConfigured(
                 "oioioi.base.middleware.TimestampingMiddleware is required."
                 " If you have it installed check if it comes before"
-                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES"
+                "ExclusiveContestsMiddleware in your MIDDLEWARE"
                 "setting"
             )
 
@@ -99,7 +106,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             raise ImproperlyConfigured(
                 "oioioi.contests.middleware.CurrentContestMiddleware is"
                 " required. If you have it installed check if it comes before "
-                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES"
+                "ExclusiveContestsMiddleware in your MIDDLEWARE"
                 "setting"
             )
 
@@ -107,7 +114,7 @@ class ExclusiveContestsMiddleware(ObjectWithMixins):
             raise ImproperlyConfigured(
                 "django.contrib.auth.middleware.AuthenticationMiddleware is"
                 "required. If you have it installed check if it comes before "
-                "ExclusiveContestsMiddleware in your MIDDLEWARE_CLASSES"
+                "ExclusiveContestsMiddleware in your MIDDLEWARE"
                 "setting"
             )
 

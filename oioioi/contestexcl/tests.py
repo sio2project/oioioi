@@ -9,7 +9,7 @@ from django.utils.timezone import utc
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.models import Contest
-from oioioi.test_settings import MIDDLEWARE_CLASSES
+from oioioi.test_settings import MIDDLEWARE
 
 
 def add_ex_conf(contest, start_date, end_date=None, enabled=True):
@@ -35,7 +35,7 @@ class ContestIdViewCheckMixin(object):
         self.assertIn(where, response['Location'])
 
 
-@override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
+@override_settings(MIDDLEWARE=MIDDLEWARE +
                    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
                    ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
@@ -308,7 +308,7 @@ class TestExclusiveContestsAdmin(TestCase, ContestIdViewCheckMixin):
         self.assertNotContains(response, "is not exclusive from")
 
 
-@override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
+@override_settings(MIDDLEWARE=MIDDLEWARE +
                     ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
                    ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestExclusiveContests(TestCase, ContestIdViewCheckMixin):

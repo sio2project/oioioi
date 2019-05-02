@@ -12,12 +12,12 @@ from oioioi.contestexcl.models import ExclusivenessConfig
 from oioioi.contests.models import Contest
 from oioioi.ipdnsauth.management.commands.ipdnsauth import Command
 from oioioi.ipdnsauth.models import DnsToUser, IpToUser
-from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE_CLASSES
+from oioioi.test_settings import AUTHENTICATION_BACKENDS, MIDDLEWARE
 
 
 @override_settings(AUTHENTICATION_BACKENDS=AUTHENTICATION_BACKENDS +
         ('oioioi.ipdnsauth.backends.IpDnsBackend',))
-@override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
+@override_settings(MIDDLEWARE=MIDDLEWARE +
         ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
          'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',))
 class TestAutoAuthorization(TestCase):

@@ -8,7 +8,18 @@ from oioioi.maintenancemode.models import is_maintenance_mode_enabled
 
 class MaintenanceModeMiddleware(object):
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self._process_request(request)
+
+        if response is None:
+            return self.get_response(request)
+
+        return response
+
+    def _process_request(self, request):
         if not is_maintenance_mode_enabled():
             return None
 

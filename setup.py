@@ -35,7 +35,7 @@ python23_universal_requirements = [
         "Django>=1.10,<1.11",  # when upgrading, upgrade also django-two-factor-auth!
         "pytz>=2013b",
         "sqlalchemy",
-        "django-otp<0.5",  # latest version for Django 1.10 and django-two-factor-auth 1.6.*
+        "django-otp>=0.4.3,<0.5",  # latest version for Django 1.10 and django-two-factor-auth 1.6.*
         "beautifulsoup4",
         "PyYAML",
         "python-dateutil",
@@ -46,13 +46,13 @@ python23_universal_requirements = [
         "Celery>=3.1.15,<4.0.0",
         "coreapi>=2.3.0",
         "django-celery>=3.2",
-        "dj-pagination",
+        "dj-pagination>=2.3.3.final.0",
         "django-compressor==2.2",  # latest version
         "django-overextends>=0.4.1",
         "pygments",
         "django-libsass>=0.7",
 
-        "django-debug-toolbar>=1.4,<1.10",  # latest version for Django 1.10
+        "django-debug-toolbar>=1.9.1,<1.10",  # latest version for Django 1.10
         "django-extensions>=1.0.0",
         "djangorestframework==3.8.2",       # latest version for Django 1.10
         "werkzeug",

@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 30
+INSTALLATION_CONFIG_VERSION = 31
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -149,7 +149,7 @@ TEMPLATES = [
     },
 ]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'oioioi.base.middleware.TimestampingMiddleware',

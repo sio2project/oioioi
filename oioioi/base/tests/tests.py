@@ -21,7 +21,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.core.urlresolvers import reverse
 from django.forms import ValidationError
 from django.forms.fields import CharField, IntegerField
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.template import Context, Template
 from django.template.response import TemplateResponse
 from django.test.client import RequestFactory
@@ -351,7 +351,7 @@ class TestErrorHandlers(TestCase):
     def test_user_in_500(self):
         from oioioi.base.views import ForcedError
 
-        mid = UserInfoInErrorMessage()
+        mid = UserInfoInErrorMessage(lambda request: HttpResponse())
 
         self.assertTrue(self.client.login(username='test_admin'))
         req = self.client.get(reverse('force_error')).request

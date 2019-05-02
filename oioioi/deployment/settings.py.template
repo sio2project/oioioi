@@ -339,7 +339,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 #    'oioioi.portals.processors.portals_main_page_link_visible',
 ]
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += (
 #    'oioioi.ipdnsauth.middleware.IpDnsAuthMiddleware',
 #    'oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',
 #    'oioioi.ipdnsauth.middleware.ForceDnsIpAuthMiddleware',

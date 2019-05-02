@@ -71,7 +71,7 @@ AUTHENTICATION_BACKENDS += (
     'oioioi.teachers.auth.TeacherAuthBackend',
 )
 
-MIDDLEWARE_CLASSES += (
+MIDDLEWARE += (
     'oioioi.base.tests.FakeTimeMiddleware',
 )
 

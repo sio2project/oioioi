@@ -96,7 +96,15 @@ class IgnorePasswordAuthBackend(object):
 class FakeTimeMiddleware(object):
     _fake_timestamp = threading.local()
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        self._process_request(request)
+
+        return self.get_response(request)
+
+    def _process_request(self, request):
         if not hasattr(request, 'timestamp'):
             raise ImproperlyConfigured("FakeTimeMiddleware must go after "
                     "TimestampingMiddleware")

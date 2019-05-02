@@ -10,6 +10,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.user import has_valid_username
+from oioioi.base.utils.middleware import was_response_generated_by_exception
 from oioioi.su.utils import is_under_su
 
 
@@ -22,7 +23,15 @@ class TimestampingMiddleware(object):
        as possible.
     """
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        self._process_request(request)
+
+        return self.get_response(request)
+
+    def _process_request(self, request):
         if 'admin_time' in request.session:
             request.timestamp = parse_date(request.session['admin_time'])
         else:
@@ -30,7 +39,15 @@ class TimestampingMiddleware(object):
 
 
 class HttpResponseNotAllowedMiddleware(object):
-    def process_response(self, request, response):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        return self._process_response(request, response)
+
+    def _process_response(self, request, response):
         if isinstance(response, HttpResponseNotAllowed):
             response.content = render_to_string("405.html",
                     request=request, context={'allowed': response['Allow']})
@@ -42,14 +59,22 @@ class AnnotateUserBackendMiddleware(object):
        backend.
     """
 
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        self._process_request(request)
+
+        return self.get_response(request)
+
+    def _process_request(self, request):
         # Newly authenticated user objects are annotated with succeeded
         # backend, but it's not restored in AuthenticationMiddleware.
         if not hasattr(request, 'user'):
             raise ImproperlyConfigured(
                 "The annotating user with backend middleware requires the"
                 " authentication middleware to be installed.  Edit your"
-                " MIDDLEWARE_CLASSES setting to insert"
+                " MIDDLEWARE setting to insert"
                 " 'django.contrib.auth.middleware.AuthenticationMiddleware'"
                 " before the AnnotateUserBackendMiddleware class.")
 
@@ -61,6 +86,17 @@ class AnnotateUserBackendMiddleware(object):
 class UserInfoInErrorMessage(object):
     """Add username and email of a user who caused an exception
        to error message."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+
+        if was_response_generated_by_exception(response):
+            self.process_exception(request, None)
+
+        return response
 
     def process_exception(self, request, exception):
         # pylint: disable=broad-except
@@ -87,7 +123,15 @@ class UserInfoInErrorMessage(object):
 
 
 class CheckLoginMiddleware(object):
-    def process_request(self, request):
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        self._process_request(request)
+
+        return self.get_response(request)
+
+    def _process_request(self, request):
         if has_valid_username(request.user):
             return
         storage = messages.get_messages(request)

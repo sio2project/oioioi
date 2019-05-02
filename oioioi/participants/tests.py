@@ -26,7 +26,7 @@ from oioioi.participants.models import (OnsiteRegistration, OpenRegistration,
                                         Participant, Region, TestRegistration)
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.tests import SubmitFileMixin
-from oioioi.test_settings import MIDDLEWARE_CLASSES
+from oioioi.test_settings import MIDDLEWARE
 
 basedir = os.path.dirname(__file__)
 
@@ -387,7 +387,7 @@ class TestParticipantsModelAdmin(TestCase):
         self.assertEqual(p.contest, contest)
 
 
-@override_settings(MIDDLEWARE_CLASSES=MIDDLEWARE_CLASSES +
+@override_settings(MIDDLEWARE=MIDDLEWARE +
                    ('oioioi.contestexcl.middleware.ExclusiveContestsMiddleware',),
                    ROOT_URLCONF='oioioi.contests.tests.test_urls')
 class TestParticipantsExclusiveContestsMiddlewareMixin(TestCase,

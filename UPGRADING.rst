@@ -543,3 +543,9 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
        +
         # Port that the Notifications Server listens on
         #NOTIFICATIONS_SERVER_PORT = 7887
+
+#. * Changed middleware classes' style to the new one (Django 1.10).::
+
+	Move all middlewares from MIDDLEWARE_CLASSES to MIDDLEWARE in settings.py.
+	Simply rename MIDDLEWARE_CLASSES settings variable to MIDDLEWARE.
+
