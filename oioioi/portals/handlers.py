@@ -27,7 +27,7 @@ def parse_node_for_problems(node):
 
 @receiver(post_save, sender=Node)
 def update_task_information_cache(sender, instance, **kwargs):
-    instance.problems_in_content = parse_node_for_problems(instance)
+    instance.problems_in_content.set(parse_node_for_problems(instance))
 
 
 @receiver(post_migrate)
