@@ -124,12 +124,14 @@ class ModelAdmin(six.with_metaclass(ModelAdminMeta, admin.ModelAdmin,
         }
         context.update(extra_context or {})
 
+        request.current_app = self.admin_site.name
+
         return TemplateResponse(request, self.delete_confirmation_template or [
             "admin/%s/%s/delete_confirmation.html" % (app_label,
                 opts.object_name.lower()),
             "admin/%s/delete_confirmation.html" % app_label,
             "admin/delete_confirmation.html"
-        ], context, current_app=self.admin_site.name)
+        ], context)
 
     def get_custom_list_select_related(self):
         """Returns a list of fields passed to queryset.select_related
