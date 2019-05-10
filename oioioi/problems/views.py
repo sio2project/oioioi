@@ -17,6 +17,7 @@ import six.moves.urllib.parse
 
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (ProblemInstance, Submission,
                                     SubmissionReport)
 from oioioi.contests.processors import recent_contests
@@ -27,6 +28,7 @@ from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemStatement, Tag, OriginTag,
                                     DifficultyTag, AlgorithmTag)
 
+from oioioi.problems.menu import navbar_links_registry
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.utils import (can_add_to_problemset,
@@ -43,6 +45,34 @@ from unidecode import unidecode
 # instead of views.py to avoid circular imports. We still import
 # it here to use it in urls.py.
 from oioioi.problems.problem_site import problem_site_statement_zip_view
+
+
+if settings.CONTEST_MODE == ContestMode.neutral:
+    navbar_links_registry.register(
+        name='contests_list',
+        text=_('Contests'),
+        url_generator=lambda request: reverse('select_contest'),
+        order=100,
+    )
+
+navbar_links_registry.register(
+    name='problemset',
+    text=_('Problemset'),
+    url_generator=lambda request: reverse('problemset_main'),
+    order=200,
+)
+
+navbar_links_registry.register(
+    name='task_archive',
+    text=_('Task archive'),
+    # TODO Change the following URL when the Task Archive
+    #      gets moved from the global portal on Szkopul.
+    url_generator=lambda request:
+        reverse('global_portal',
+            kwargs={'link_name': 'default',
+                    'portal_path': 'problemset' + ('_eng' if request.LANGUAGE_CODE != 'pl' else '')}),
+    order=300,
+)
 
 
 def show_statement_view(request, statement_id):
@@ -123,7 +153,9 @@ def add_or_update_problem(request, contest, template):
             if contest and (not is_contest_admin(request)):
                 raise PermissionDenied
 
-    context = {'existing_problem': existing_problem}
+    navbar_links = navbar_links_registry.template_context(request)
+
+    context = {'existing_problem': existing_problem, 'navbar_links': navbar_links}
     tab_kwargs = {
         'contest': contest,
         'existing_problem': existing_problem
@@ -194,9 +226,12 @@ def problemset_generate_view(request, page_title, problems, query_string, view_t
         _generate_add_to_contest_metadata(request)
     form = ProblemsetSourceForm("")
 
+    navbar_links = navbar_links_registry.template_context(request)
+
     return TemplateResponse(request,
        'problems/problemset/problem-list.html',
       {'problems': problems,
+       'navbar_links': navbar_links,
        'page_title': page_title,
         'select_problem_src': request.GET.get('select_problem_src'),
        'problem_search': query_string,
@@ -242,6 +277,7 @@ def problem_site_view(request, site_key):
     show_add_button, administered_recent_contests = \
         _generate_add_to_contest_metadata(request)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
+    navbar_links = navbar_links_registry.template_context(request)
     context = {'problem': problem,
                'package': package if package and package.package_file
                         else None,
@@ -249,7 +285,8 @@ def problem_site_view(request, site_key):
                'can_admin_problem': can_admin_problem(request, problem),
                'select_problem_src': request.GET.get('select_problem_src'),
                'show_add_button': show_add_button,
-               'administered_recent_contests': administered_recent_contests}
+               'administered_recent_contests': administered_recent_contests,
+               'navbar_links': navbar_links}
     tab_kwargs = {'problem': problem}
 
     tab_link_params = request.GET.dict()

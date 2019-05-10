@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load i18n simple_tags %}
 
+{% block left-navbar %}
+    {% include 'navbar-left.html' %}
+{% endblock %}
+
 {% block title %}{% trans "Problemset" %}{% endblock %}
 
 {% block container-class %}{% endblock %}
@@ -8,9 +12,44 @@
 
 {% block body %}
 <div class="container">
-    <div class="row">
+    <ul class="nav nav-pills nav-justified nav-margin">
+        <li role="presentation" class="menu-item {% active_url 'problemset_main' 'menu-item-active' %}">
+            <a href="{% url 'problemset_main' %}
+            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                {% trans "Public problems" %}
+            </a>
+        </li>
+
+        {% if user.is_authenticated %}
+        <li role="presentation" class="menu-item {% active_url 'problemset_my_problems' 'menu-item-active' %}">
+            <a href="{% url 'problemset_my_problems' %}
+            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                {% trans "My problems" %}
+            </a>
+        </li>
+
+        {% if user.is_superuser %}
+        <li role="presentation" class="menu-item {% active_url 'problemset_all_problems' 'menu-item-active' %}">
+            <a href="{% url 'problemset_all_problems' %}
+            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                {% trans "All problems" %}
+            </a>
+        </li>
+        {% endif %}
+        {% if can_add_to_problemset %}
+        <li role="presentation" class="menu-item {% active_url 'problemset_add_or_update' 'menu-item-active' %}">
+            <a href="{% url 'problemset_add_or_update' %}
+            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
+                {% trans "Add problem" %}
+            </a>
+        </li>
+        {% endif %}
+        {% endif %}
+    </ul>
+
+    <div class="row search-row">
         {% if show_search_bar %}
-        <form id="problemsite_search-form" class="col-md-4 col-sm-6 col-xs-12">
+        <form id="problemsite_search-form" class="col-md-6 col-sm-8 col-xs-12 search-bar">
             <div class="input-group">
                 <input type="search" class="form-control search-query"
                        id="problemsite_search" name="q"
@@ -30,47 +69,11 @@
         </form>
         {% endif %}
     </div>
-
-    <ul class="nav nav-pills nav-justified nav-margin">
-        <li role="presentation">
-            <a href="{% url 'problemset_main' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "Public problems" %}
-            </a>
-        </li>
-
-        {% if user.is_authenticated %}
-        <li role="presentation" class="{% active_url 'problemset_my_problems' %}">
-            <a href="{% url 'problemset_my_problems' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "My problems" %}
-            </a>
-        </li>
-
-        {% if user.is_superuser %}
-        <li role="presentation" class="{% active_url 'problemset_all_problems' %}">
-            <a href="{% url 'problemset_all_problems' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "All problems" %}
-            </a>
-        </li>
-        {% endif %}
-        {% if can_add_to_problemset %}
-        <li role="presentation" class="{% active_url 'problemset_add_or_update' %}">
-            <a href="{% url 'problemset_add_or_update' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "Add problem" %}
-            </a>
-        </li>
-        {% endif %}
-        {% endif %}
-        <li role="presentation"><a href="/">{% trans "Main page" %}</a>
-    </ul>
 </div>
 
 
 <div class="container">
-    <h3>{{ page_title }}</h3>
+{#    <h3 class="section-title">{{ page_title }}</h3>#}
     {% include "ingredients/flash.html" %}
     {% block main_content %}
     {% endblock %}

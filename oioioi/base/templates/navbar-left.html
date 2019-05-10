@@ -1,6 +1,8 @@
-{% load i18n %}
+{# This is a template for populating the links in the upper navigation bar, next to the logo. #}
+{# For it to work properly, it needs a template_context, preferably generated with MenuRegistry, #}
+{# added under the 'navbar_links' key. #}
 
-{% include "ingredients/navbar-logo.html" with always_visible=False %}
+{% load i18n %}
 
 {% if navbar_links|length > 0 %}
     <div class="oioioi-navbar__menu-uncollapsed">

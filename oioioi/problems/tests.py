@@ -2149,6 +2149,41 @@ class TestSearch(TestCase):
         self.assertNotContains(response, '>publiczny<')
 
 
+class TestNavigationBarItems(TestCase):
+    fixtures = ['test_users']
+
+    def test_navigation_bar_items_anonymous(self):
+        url_main = reverse('problemset_main')
+
+        response = self.client.get(url_main, follow=True)
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+    def test_navigation_bar_items_admin(self):
+        url_main = reverse('problemset_main')
+        url_my = reverse('problemset_my_problems')
+        url_all = reverse('problemset_all_problems')
+        url_add = reverse('problemset_add_or_update')
+
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        response = self.client.get(url_main, follow=True)
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+        response = self.client.get(url_my, follow=True)
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+        response = self.client.get(url_all, follow=True)
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+        response = self.client.get(url_add, follow=True)
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+
 class TestAddToProblemsetPermissions(TestCase):
     fixtures = ['test_users']
 
@@ -2160,8 +2195,6 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_main, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Add problem')
-        self.assertContains(response,
-            'Welcome to problemset, the place where all the problems are.')
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 
@@ -2188,8 +2221,6 @@ class TestAddToProblemsetPermissions(TestCase):
         response = self.client.get(url_main, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Add problem')
-        self.assertContains(response,
-            'Welcome to problemset, the place where all the problems are.')
         response = self.client.get(url_add, follow=True)
         self.assertEqual(response.status_code, 403)
 

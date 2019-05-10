@@ -1,0 +1,41 @@
+@import "scss/utility";
+
+.search-row {
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar {
+  margin: 5rem 0 4rem 0;
+}
+
+@media screen and (min-width: 768px) {
+  .menu-item {
+    border-radius: 12px 12px 0 0;
+  }
+
+  .menu-item:hover {
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+  }
+
+  .menu-item-active {
+    @include gradient-vertical(#eeeeee, #ffffff);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .menu-item {
+    border-radius: 12px 12px 12px 12px;
+  }
+
+  .menu-item:hover {
+    border-radius: 12px 12px 12px 12px;
+    overflow: hidden;
+    background-color: #eeeeee;
+  }
+
+  .menu-item-active {
+    background-color: #f5f5f5;
+  }
+}

@@ -5,9 +5,9 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def active_url(context, pattern_or_urlname):
+def active_url(context, pattern_or_urlname, returned_class='active'):
     """
-    Returns `'active'` if given pattern or url matches
+    Returns returned_class if given pattern or url matches
     context active url.
     .. usage::
      ```
@@ -18,7 +18,8 @@ def active_url(context, pattern_or_urlname):
      ```
     :param context:
     :param pattern_or_urlname: Regex or `name` defined in urls.py
-    :return: `'active'` or `None`
+    :param returned_class: A string to return if the url is active
+    :return: returned_class or `None`
     """
     try:
         pattern = reverse(pattern_or_urlname)
@@ -26,7 +27,7 @@ def active_url(context, pattern_or_urlname):
         pattern = pattern_or_urlname
     path = context['request'].path
     if pattern == path:
-        return 'active'
+        return returned_class
     return ''
 
 

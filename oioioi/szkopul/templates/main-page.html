@@ -3,8 +3,8 @@
 {% load i18n staticfiles contest_selection newsfeed %}
 {% get_current_language as LANGUAGE_CODE %}
 
-{% block navbar-logo %}
-    {% include "szkopul/navbar-logo-with-menu.html" %}
+{% block left-navbar %}
+    {% include "navbar-left.html" %}
 {% endblock %}
 
 {# disables the clock on the main page #}

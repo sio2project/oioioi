@@ -29,8 +29,9 @@ navbar_links_registry.register(
     # TODO Change the following URL when the Task Archive
     #      gets moved from the global portal on Szkopul.
     url_generator=lambda request:
-        'https://szkopul.edu.pl/portal/problemset' +
-        ('_eng' if request.LANGUAGE_CODE != 'pl' else ''),
+        reverse('global_portal',
+                kwargs={'link_name': 'default',
+                        'portal_path': 'problemset' + ('_eng' if request.LANGUAGE_CODE != 'pl' else '')}),
     order=300,
 )
 

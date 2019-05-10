@@ -49,6 +49,8 @@
                     {% include "ingredients/navbar-contests.html" %}
                 </div>
 
+                {% block left-navbar %}{% endblock %}
+
                 <div class="oioioi-navbar__extra">
                     {% all_with_prefix extra_navbar_left_ %}
                     {% block navbar-left-extras %}{% endblock %}
