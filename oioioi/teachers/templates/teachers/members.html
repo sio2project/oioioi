@@ -49,7 +49,7 @@
     </p>
 {% endif %}
 
-<form action="{% url 'teachers_delete_members' contest_id=contest.id member_type=member_type %}" method="post">
+<form action="{% url 'teachers_delete_members' contest_id=contest.id member_type=member_type %}" method="post" id="delete-pupils-form">
     {% csrf_token %}
 
     <h2 class="members">{% trans "Members" %}</h2>
@@ -79,11 +79,11 @@
 
     <div class="form-group">
         <button type="button" class="btn btn-default btn-sm"
-            onclick="$('.teachers-delete-pupils input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
+            onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
             {% trans "Select all" %}
         </button>
         <button type="button" class="btn btn-default btn-sm"
-            onclick="$('.teachers-delete-pupils input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
+            onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
             {% trans "Select none" %}
         </button>
         <button type="submit" class="btn btn-danger btn-sm">{% trans "Delete selected" %}</button>
