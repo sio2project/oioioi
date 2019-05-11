@@ -189,7 +189,7 @@ class TestMailSubmission(TestCase, MailSubmitFileMixin):
             short_name='problem_instance2')
         pi2.save()
         u = User.objects.get(username='test_user')
-        f = ContentFile('aaa', name='bbbb.cpp')
+        f = ContentFile(b'aaa', name='bbbb.cpp')
         ms1 = MailSubmission(problem_instance=pi1, user=u)
         ms1.source_file.save(f.name, f)
         ms1.save()

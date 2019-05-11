@@ -110,7 +110,7 @@ class TestQuestions(TestCase):
         timestamp = timezone.make_aware(datetime.utcfromtimestamp(1347025200))
         with fake_time(timestamp):
             response = self.client.get(list_url)
-        self.assertEqual(response.content.count('>NEW<'), 2)
+        self.assertContains(response, '>NEW<', count=2)
         public_answer = Message.objects.get(topic='public-answer')
         with fake_time(timestamp):
             response = self.client.get(reverse('message', kwargs={
@@ -120,7 +120,7 @@ class TestQuestions(TestCase):
         self.assertNotContains(response, 'problem-question')
         with fake_time(timestamp):
             response = self.client.get(list_url)
-        self.assertEqual(response.content.count('>NEW<'), 1)
+        self.assertContains(response, '>NEW<', count=1)
 
     def test_ask_and_reply(self):
         self.assertTrue(self.client.login(username='test_user2'))

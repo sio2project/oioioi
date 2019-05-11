@@ -22,7 +22,7 @@ from oioioi.filetracker.utils import (django_to_filetracker_path,
 
 class TestFileField(TestCase):
     def test_file_field(self):
-        f = ContentFile('eloziom', name='foo')
+        f = ContentFile(b'eloziom', name='foo')
 
         model = FileTestModel()
         model.file_field = f
@@ -34,12 +34,12 @@ class TestFileField(TestCase):
         del model
 
         model = FileTestModel.objects.get(pk=pk)
-        self.assertEqual(model.file_field.read(), 'eloziom')
+        self.assertEqual(model.file_field.read(), b'eloziom')
 
         model.file_field.delete()
 
     def test_filetracker_to_django_field(self):
-        data = 'eloziom'
+        data = b'eloziom'
         path = 'my/path'
         abspath = '/' + path
 
@@ -86,7 +86,7 @@ class TestFileField(TestCase):
 
 class TestFileStorage(TestCase):
     def _test_file_storage(self, storage):
-        data = 'eloziom'
+        data = b'eloziom'
         path = 'my/path'
 
         with self.assertRaises(ValueError):
@@ -135,7 +135,7 @@ class TestFileStorageViews(TestCase, TestStreamingMixin):
 
     def test_raw_file_view(self):
         filename = 'tests/test_raw_file_view.txt'
-        content = 'foo'
+        content = b'foo'
         default_storage.save(filename, ContentFile(content))
         try:
             url = reverse('raw_file', kwargs={'filename': filename})
@@ -146,7 +146,7 @@ class TestFileStorageViews(TestCase, TestStreamingMixin):
             self.assertEqual(response.status_code, 403)
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
-            self.assertStreamingEqual(response, content)
+            self.assertStreamingEqual(response, content.decode('utf-8'))
         finally:
             default_storage.delete(filename)
 

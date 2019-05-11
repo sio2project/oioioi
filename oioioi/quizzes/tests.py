@@ -141,8 +141,8 @@ class TestSubmissionView(TestCase):
         kwargs = {'contest_id': contest.id, 'submission_id': submission.id}
         response = self.client.get(reverse('submission', kwargs=kwargs))
 
-        self.assertEqual(response.content.count('27 / 27'), 1)
-        self.assertEqual(response.content.count('0 / 27'), 1)
+        self.assertContains(response, '27 / 27', count=1)
+        self.assertContains(response, '0 / 27', count=1)
 
     def test_submission_score_visible(self):
         submission = Submission.objects.get(pk=1)

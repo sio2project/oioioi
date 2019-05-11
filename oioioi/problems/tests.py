@@ -78,7 +78,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         content = self.streamingContent(response)
-        self.assertTrue(content.startswith('%PDF'))
+        self.assertTrue(content.startswith(b'%PDF'))
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(url)
@@ -389,7 +389,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
     def test_package_file_view(self):
         package = ProblemPackage.objects.get(pk=1)
-        package.package_file = ContentFile('eloziom', name='foo')
+        package.package_file = ContentFile(b'eloziom', name='foo')
         package.save()
         self.assertTrue(self.client.login(username='test_admin'))
 
@@ -399,11 +399,11 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
         response = self.client.get(url)
         content = self.streamingContent(response)
-        self.assertEqual(content, 'eloziom')
+        self.assertEqual(content, b'eloziom')
 
     def test_package_traceback_view(self):
         package = ProblemPackage.objects.get(pk=2)
-        package.traceback = ContentFile('eloziom', name='foo')
+        package.traceback = ContentFile(b'eloziom', name='foo')
         package.save()
         self.assertTrue(self.client.login(username='test_admin'))
         self.client.get('/c/c/')  # 'c' becomes the current contest
@@ -412,7 +412,7 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
         response = self.client.get(url)
         content = self.streamingContent(response)
-        self.assertEqual(content, 'eloziom')
+        self.assertEqual(content, b'eloziom')
 
         package.traceback = None
         package.save()
@@ -449,7 +449,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         pa = ProblemAttachment(problem=problem,
                 description='problem-attachment',
-                content=ContentFile('content-of-probatt', name='probatt.txt'))
+                content=ContentFile(b'content-of-probatt', name='probatt.txt'))
         pa.save()
 
     def test_default_tabs(self):
@@ -477,7 +477,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.count('<tr'), 2)
+        self.assertEqual(response.content.decode('utf-8').count('<tr'), 2)
         url_attachment = reverse('problem_site_external_attachment',
                 kwargs={'site_key': '123', 'attachment_id': 1})
         self.assertContains(response, url_attachment)
@@ -516,7 +516,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(url_external_stmt)
         self.assertEqual(response.status_code, 200)
         content = self.streamingContent(response)
-        self.assertTrue(content.startswith('%PDF'))
+        self.assertTrue(content.startswith(b'%PDF'))
 
     def test_external_attachment_view(self):
         self._create_PA()

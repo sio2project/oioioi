@@ -343,7 +343,7 @@ class TestPortalViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(portal_url(portal=get_portal(),
                                               action='portal_tree_json'))
-        self.assertJSONEqual(response.content, '''
+        self.assertJSONEqual(response.content.decode('utf-8'), '''
                 [
                     {
                         "id": 1,

@@ -155,7 +155,7 @@ class TestRankingViews(TestCase):
             response = self.client.get(url)
 
             self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
             self.assertNotContains(response, 'Export to CSV')
             self.assertNotContains(response, 'Regenerate ranking')
 
@@ -171,18 +171,19 @@ class TestRankingViews(TestCase):
                     [t.name for t in response.templates])
             self.assertEqual(len(response.context['choices']), 3)
             self.assertEqual(len(re.findall(USER_CELL_PATTERN % ('Test User',),
-                                            response.content)), 1)
+                                            response.content.decode('utf-8'))), 1)
 
             self.assertFalse(re.search(USER_CELL_PATTERN % ('Test Admin',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
 
         with fake_timezone_now(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.get(url)
             expected_order = ['Test User', 'Test User 2', 'Test Admin']
             prev_pos = 0
+            content = response.content.decode('utf-8')
             for user in expected_order:
                 pattern = USER_CELL_PATTERN % (user,)
-                pattern_match = re.search(pattern, response.content)
+                pattern_match = re.search(pattern, content)
                 self.assertTrue(pattern_match)
                 pos = pattern_match.start()
                 self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
@@ -192,7 +193,7 @@ class TestRankingViews(TestCase):
             response = self.client.get(reverse('ranking',
                 kwargs={'contest_id': contest.id, 'key': '1'}))
             self.assertEqual(len(re.findall(
-                USER_CELL_PATTERN_LEFT % ('Test User',), response.content)), 1)
+                USER_CELL_PATTERN_LEFT % ('Test User',), response.content.decode('utf-8'))), 1)
 
         # Test visibility of links to problem statements
         contest.controller_name = \
@@ -204,11 +205,11 @@ class TestRankingViews(TestCase):
 
             for task in VISIBLE_TASKS:
                 self.assertTrue(re.search(task + r'\s*</a>\s*</th>',
-                                          response.content))
+                                          response.content.decode('utf-8')))
 
             for task in HIDDEN_TASKS:
                 self.assertTrue(re.search(task + r'\s*</th>',
-                                          response.content))
+                                          response.content.decode('utf-8')))
 
     def test_ranking_csv_view(self):
         contest = Contest.objects.get()
@@ -228,10 +229,11 @@ class TestRankingViews(TestCase):
 
             expected_order = ['Test,User', 'Test,User 2']
             prev_pos = 0
+            content = response.content.decode('utf-8')
             for user in expected_order:
                 pattern = '%s,' % (user,)
                 self.assertContains(response, user)
-                pos = response.content.find(pattern)
+                pos = content.find(pattern)
                 self.assertGreater(pos, prev_pos, msg=('User %s has incorrect '
                        'position' % (user,)))
                 prev_pos = pos

@@ -10,7 +10,7 @@ class TestSubmitService(TestCase):
                 'test_submitservice']
 
     def test_submit(self):
-        ufile = SimpleUploadedFile('file.cpp', "int main() {}")
+        ufile = SimpleUploadedFile('file.cpp', b"int main() {}")
         url = reverse('submitservice_submit', kwargs={'contest_id': 'c'})
         response = self.client.post(url, {
             'file': ufile,

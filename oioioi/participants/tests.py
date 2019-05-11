@@ -589,10 +589,10 @@ class TestAnonymousParticipants(TestCase):
             self.assertTrue(self.client.login(username='test_contest_admin'))
             response = self.client.get(url)
             self.assertFalse(re.search(user_pattern % ('test_user2',),
-                                      response.content))
+                                      response.content.decode('utf-8')))
 
             self.assertTrue(re.search(user_pattern % ('Test User 2',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
 
     def test_user_info_page(self):
         contest = Contest.objects.get()

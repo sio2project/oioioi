@@ -120,5 +120,5 @@ class TestScoresReveal(TestCase):
             self.assertContains(response, 'already used <strong>1</strong> out of 2 reveals.')
 
             no_whitespaces_response = re.sub(r'\s*', '', response.content.decode('utf-8'))
-            self.assertIn(b'<td>100</td>', no_whitespaces_response)
+            self.assertIn('<td>100</td>', no_whitespaces_response)
             self.reveal_submit(5, success=False)

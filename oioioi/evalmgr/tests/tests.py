@@ -1,6 +1,7 @@
 import copy
 import os.path
 import uuid
+import six
 
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -400,9 +401,8 @@ class TestViews(TestCase):
         """
         if show_response is None:
             show_response = self._get_admin_site()
-        self.assertEqual(
-                show_response.content.count('>' + state_str + '</span>'),
-                count)
+
+        self.assertContains(show_response, '>' + state_str + '</span>', count=count)
 
     def assertNotPresent(self, state_strs):
         """Asserts that none of the ``state_strs`` is present on the admin

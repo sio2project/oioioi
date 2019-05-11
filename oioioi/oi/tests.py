@@ -322,7 +322,7 @@ class TestOIViews(TestCase):
             response = self.client.get(url)
 
             user_pattern = r'>\s*Test User\s*</a>'
-            self.assertTrue(re.search(user_pattern, response.content))
+            self.assertTrue(re.search(user_pattern, response.content.decode('utf-8')))
 
 
 class TestSchoolAdding(TestCase):

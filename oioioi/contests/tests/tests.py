@@ -1120,15 +1120,15 @@ class TestAttachments(TestCase, TestStreamingMixin):
         problem = Problem.objects.get()
         ca = ContestAttachment(contest=contest,
                 description='contest-attachment',
-                content=ContentFile('content-of-conatt', name='conatt.txt'))
+                content=ContentFile(b'content-of-conatt', name='conatt.txt'))
         ca.save()
         pa = ProblemAttachment(problem=problem,
                 description='problem-attachment',
-                content=ContentFile('content-of-probatt', name='probatt.txt'))
+                content=ContentFile(b'content-of-probatt', name='probatt.txt'))
         pa.save()
         round = Round.objects.get(pk=1)
         ra = ContestAttachment(contest=contest, description='round-attachment',
-                content=ContentFile('content-of-roundatt',
+                content=ContentFile(b'content-of-roundatt',
                     name='roundatt.txt'),
                 round=round)
         ra.save()
@@ -1171,19 +1171,19 @@ class TestAttachments(TestCase, TestStreamingMixin):
         contest = Contest.objects.get()
         ca = ContestAttachment(contest=contest,
                 description='contest-attachment',
-                content=ContentFile('content-null',
+                content=ContentFile(b'content-null',
                     name='conatt-null-date.txt'),
                 pub_date=None)
         ca.save()
         cb = ContestAttachment(contest=contest,
                 description='contest-attachment',
-                content=ContentFile('content-visible',
+                content=ContentFile(b'content-visible',
                     name='conatt-visible.txt'),
                 pub_date=datetime(2011, 7, 10, 0, 0, 0, tzinfo=utc))
         cb.save()
         cc = ContestAttachment(contest=contest,
                 description='contest-attachment',
-                content=ContentFile('content-hidden',
+                content=ContentFile(b'content-hidden',
                     name='conatt-hidden.txt'),
                 pub_date=datetime(2011, 7, 10, 1, 0, 0, tzinfo=utc))
         cc.save()
