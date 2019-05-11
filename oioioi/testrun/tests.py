@@ -327,9 +327,9 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         first_test_run_response = self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
 
-        self.assertNotRegexpMatches(first_test_run_response.content,
+        self.assertNotRegex(first_test_run_response.content,
                                     'limit.*exceeded')
-        self.assertRegexpMatches(second_test_run_response.content,
+        self.assertRegex(second_test_run_response.content,
                                  'limit.*exceeded')
 
     def test_test_run_limit_should_be_independent_from_submission_limit(self):
@@ -345,9 +345,9 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         self.submit_solution(is_testrun=False)
         second_normal_response = self.submit_solution(is_testrun=False)
 
-        self.assertRegexpMatches(second_test_run_response.content,
+        self.assertRegex(second_test_run_response.content,
                                  'limit.*exceeded')
-        self.assertNotRegexpMatches(second_normal_response.content,
+        self.assertNotRegex(second_normal_response.content,
                                     'limit.*exceeded')
 
     def test_zero_test_run_limit_should_mean_unlimited_test_runs(self):
@@ -357,7 +357,7 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         first_test_run_response = self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
 
-        self.assertNotRegexpMatches(first_test_run_response.content,
+        self.assertNotRegex(first_test_run_response.content,
                                     'limit.*exceeded')
-        self.assertNotRegexpMatches(second_test_run_response.content,
+        self.assertNotRegex(second_test_run_response.content,
                                     'limit.*exceeded')

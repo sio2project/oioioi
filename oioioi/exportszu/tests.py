@@ -138,4 +138,4 @@ class TestExportSubmissionsView(TestCase):
             self.assertEqual(index, INDEX_HEADER +
                 '1,1001,test_user,Test,User,NULL,NULL,NULL,zad1,34\r\n')
             submission = tar.extractfile('c/1:test_user:zad1.cpp').read()
-            self.assertRegexpMatches(submission, '.*int main.*')
+            self.assertRegex(submission, '.*int main.*')

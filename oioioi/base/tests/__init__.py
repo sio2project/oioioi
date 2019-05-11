@@ -52,6 +52,18 @@ class TestCase(DjangoTestCase):
         with context:
             func(*args, **kwargs)
 
+    def assertRegex(self, text, regex, msg=None):
+        if six.PY3:
+            super(DjangoTestCase, self).assertRegex(text, regex, msg)
+        else:
+            super(DjangoTestCase, self).assertRegexpMatches(text, regex, msg)
+
+    def assertNotRegex(self, text, regex, msg=None):
+        if six.PY3:
+            super(DjangoTestCase, self).assertNotRegex(text, regex, msg)
+        else:
+            super(DjangoTestCase, self).assertNotRegexpMatches(text, regex, msg)
+
 
 class IgnorePasswordAuthBackend(object):
     """An authentication backend which accepts any password for an existing

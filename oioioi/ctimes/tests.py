@@ -85,8 +85,8 @@ class TestCtimes(TestCase):
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
             response = self.client.get(url).json()
             print(response)
-            self.assertRegexpMatches(response['start'], date_regexp)
-            self.assertRegexpMatches(response['end'], date_regexp)
+            self.assertRegex(response['start'], date_regexp)
+            self.assertRegex(response['end'], date_regexp)
 
     def test_ctimes_with_roundextension(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c1'})
