@@ -71,7 +71,7 @@ class TestProblemViews(TestCase, TestStreamingMixin):
 
         response = self.client.get(url)
         content = self.streamingContent(response)
-        self.assertTrue(content.startswith('%PDF'))
+        self.assertTrue(content.startswith(b'%PDF'))
         # contest admin
         self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(url)
@@ -2337,10 +2337,11 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertContains(response, 'Contest2', count=1)
         self.assertContains(response, 'Contest3', count=1)
         self.assertContains(response, 'Contest4', count=1)
-        self.assertLess(response.content.index('Contest3'),
-            response.content.index('Contest4'))
-        self.assertLess(response.content.index('Contest4'),
-            response.content.index('Contest2'))
+        content = response.content.decode('utf-8')
+        self.assertLess(content.index('Contest3'),
+                        content.index('Contest4'))
+        self.assertLess(content.index('Contest4'),
+                        content.index('Contest2'))
 
 
 def get_submission_left(username, contest_id='c', pi_pk=1):

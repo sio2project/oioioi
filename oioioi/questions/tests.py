@@ -157,7 +157,7 @@ class TestQuestions(TestCase):
         url = reverse('message', kwargs={'contest_id': contest.id,
             'message_id': new_question.id})
         response = self.client.get(url)
-        self.assertIn(b'form', response.context)
+        self.assertIn('form', response.context)
 
         post_data = {
                 'kind': 'PUBLIC',

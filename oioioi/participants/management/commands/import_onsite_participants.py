@@ -74,7 +74,8 @@ class Command(BaseCommand):
                 all_count += 1
 
                 for i, _column in enumerate(self.COLUMNS):
-                    row[i] = row[i].decode('utf8')
+                    if not isinstance(row[i], six.text_type):
+                        row[i] = row[i].decode('utf8')
 
                 try:
                     user = User.objects.get(username=row[1])

@@ -123,11 +123,11 @@ class TestFileStorage(TestCase):
 
 class TestStreamingMixin(object):
     def assertStreamingEqual(self, response, content):
-        self.assertEqual(self.streamingContent(response), content)
+        self.assertEqual(self.streamingContent(response).decode('utf-8'), content)
 
     def streamingContent(self, response):
         self.assertTrue(response.streaming)
-        return ''.join(response.streaming_content)
+        return b''.join(response.streaming_content)
 
 
 class TestFileStorageViews(TestCase, TestStreamingMixin):

@@ -210,7 +210,7 @@ class TestMenu(TestCase):
     def _render_menu(self, user=None):
         if user is not None:
             self.assertTrue(self.client.login(username=user))
-        return self.client.get(reverse('index'), follow=True).content
+        return self.client.get(reverse('index'), follow=True).content.decode('utf-8')
 
     def test_menu(self):
         menu_registry.register('test2', 'Test Menu Item 2',
@@ -640,10 +640,10 @@ class TestMisc(TestCase):
                 'application/octet-stream', 0, 'utf-8')
         with utils.uploaded_file_name(tmp_file) as name:
             self.assertEqual(name, tmp_file.file.name)
-        mem_file = SimpleUploadedFile('whatever', 'hello42')
+        mem_file = SimpleUploadedFile('whatever', b'hello42')
         with utils.uploaded_file_name(mem_file) as name:
             self.assertTrue(name.endswith('whatever'))
-            self.assertEqual(open(name, 'rb').read(), 'hello42')
+            self.assertEqual(open(name, 'rb').read(), b'hello42')
         self.assertFalse(os.path.exists(name))
 
     def test_make_html_links(self):
@@ -715,8 +715,8 @@ class TestArchive(TestCase):
                 archive.extract(filename, tmpdir)
                 self.assertTrue(os.path.exists(a))
                 self.assertTrue(os.path.exists(b))
-                self.assertEqual(open(a, 'rb').read().strip(), 'foo')
-                self.assertEqual(open(b, 'rb').read().strip(), 'bar')
+                self.assertEqual(open(a, 'rb').read().strip(), b'foo')
+                self.assertEqual(open(b, 'rb').read().strip(), b'bar')
                 os.unlink(a)
                 os.unlink(b)
                 self.assertEqual(archive.Archive(filename).filenames(), ['a',
@@ -1177,12 +1177,12 @@ class TestPingEndpointsAndAuthentication(APITestCase):
 
     def test_ping(self):
         response = self.client.get('/api/ping')
-        self.assertEqual(response.content, '"pong"')
+        self.assertEqual(response.content.decode('utf-8'), '"pong"')
 
     def test_auth_ping(self):
         self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
         self.client.force_authenticate(user=User.objects.get(username='test_user'))
-        self.assertEqual(self.client.get('/api/auth_ping').content, '"pong test_user"')
+        self.assertEqual(self.client.get('/api/auth_ping').content.decode('utf-8'), '"pong test_user"')
 
     # Below tests test authentication methods. For endpoints tests use
     # force_authenticate rather than specific method like token or session.
@@ -1190,9 +1190,9 @@ class TestPingEndpointsAndAuthentication(APITestCase):
         self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
         token, _ = Token.objects.get_or_create(user=User.objects.get(username='test_user'))
         self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
-        self.assertEqual(self.client.get('/api/auth_ping').content, '"pong test_user"')
+        self.assertEqual(self.client.get('/api/auth_ping').content.decode('utf-8'), '"pong test_user"')
 
     def test_auth_ping_with_session(self):
         self.assertEqual(self.client.get('/api/auth_ping').status_code, 403)
         self.assertTrue(self.client.login(username='test_user'))
-        self.assertEqual(self.client.get('/api/auth_ping').content, '"pong test_user"')
+        self.assertEqual(self.client.get('/api/auth_ping').content.decode('utf-8'), '"pong test_user"')

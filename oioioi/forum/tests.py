@@ -267,7 +267,7 @@ class TestPost(TestCase):
 
         reported_pattern = r"was reported\s*by\s*<a[^>]*>\s*%s %s\s*<\/a>" \
                            % (name, surname)
-        self.assertTrue(re.search(reported_pattern, response.content))
+        self.assertTrue(re.search(reported_pattern, response.content.decode('utf-8')))
 
     def test_approve_after_report(self):
         self.assertTrue(self.client.login(username='test_admin'))

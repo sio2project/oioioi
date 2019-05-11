@@ -31,7 +31,7 @@ class TestMetadataProving(TestCase):
         _proof_data_orig, proof = submission_receipt_proof(submission)
 
         with self.assertRaises(ProofCorrupted):
-            verify_submission_receipt_proof(proof, 'spam')
+            verify_submission_receipt_proof(proof, b'spam')
 
         submission2 = ProgramSubmission.objects.get(pk=2)
         _proof_data_orig2, proof2 = submission_receipt_proof(submission2)
@@ -71,7 +71,7 @@ class TestEmailReceipt(TestCase, SubmitFileMixin):
                 r'--- BEGIN PROOF DATA ---(.*)--- END PROOF DATA ---',
                 email, re.DOTALL)
         self.assertTrue(proof)
-        verify_submission_receipt_proof(proof.group(1), 'a' * 1337)
+        verify_submission_receipt_proof(proof.group(1), b'a' * 1337)
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.submit_file(contest, problem_instance,

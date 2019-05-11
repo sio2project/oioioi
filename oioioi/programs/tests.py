@@ -55,7 +55,7 @@ class SubmitFileMixin(SubmitMixin):
                     user=None):
         url = reverse('submit', kwargs={'contest_id': contest.id})
 
-        file = ContentFile('a' * file_size, name=file_name)
+        file = ContentFile(b'a' * file_size, name=file_name)
         post_data = {
             'problem_instance_id': problem_instance.id,
             'file': file,
@@ -186,7 +186,7 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
 
-        no_whitespaces_content = re.sub(r"\s*", "", response.content)
+        no_whitespaces_content = re.sub(r"\s*", "", response.content.decode('utf-8'))
         for element in ['>sum<', '>sum1<', '>sumb0<', '>sums1<', '>100<',
                 '>0<']:
             self.assertIn(element, no_whitespaces_content)

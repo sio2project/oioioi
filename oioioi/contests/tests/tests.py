@@ -158,8 +158,8 @@ class TestSubmissionListOrder(TestCase):
     def check_order_in_response(self, response, is_descending, error_msg):
         # Cut off part of the response that is above submission table because
         # it can provide irrelevant noise.
-        table_content = response.content[response.content
-                                         .index('results'):]
+        content = response.content.decode('utf-8')
+        table_content = content[content.index('results'):]
         test_OK = 'OK'
         test_CE = 'CE'
 
@@ -276,17 +276,17 @@ class TestCurrentContest(TestCase):
             self.assertRedirects(response, url_c1)
 
             response = self.client.get(url, follow=True)
-            self.assertEqual(response.content, 'c1')
+            self.assertEqual(response.content.decode('utf-8'), 'c1')
 
         response = self.client.get(url)
         # 'c1' - most recently visited contest
         self.assertRedirects(response, url_c1)
 
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.content, 'c1')
+        self.assertEqual(response.content.decode('utf-8'), 'c1')
 
         response = self.client.get(url_c2)
-        self.assertEqual(response.content, 'c2')
+        self.assertEqual(response.content.decode('utf-8'), 'c2')
 
         Contest.objects.get(id='c2').delete()
 
@@ -297,29 +297,29 @@ class TestCurrentContest(TestCase):
         self.assertRedirects(response, url_c1)
 
         response = self.client.get(url, follow=True)
-        self.assertEqual(response.content, 'c1')
+        self.assertEqual(response.content.decode('utf-8'), 'c1')
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_neutral_contest_mode(self):
         url = reverse('print_contest_id')
         response = self.client.get(url)
-        self.assertEqual(response.content, 'None')
+        self.assertEqual(response.content.decode('utf-8'), 'None')
 
         url = reverse('print_contest_id', kwargs={'contest_id': 'c1'})
         response = self.client.get(url)
-        self.assertEqual(response.content, 'c1')
+        self.assertEqual(response.content.decode('utf-8'), 'c1')
 
         url = reverse('render_contest_id')
         response = self.client.get(url)
-        self.assertEqual(response.content, 'c1')
+        self.assertEqual(response.content.decode('utf-8'), 'c1')
 
         url = reverse('print_contest_id', kwargs={'contest_id': 'c2'})
         response = self.client.get(url)
-        self.assertEqual(response.content, 'c2')
+        self.assertEqual(response.content.decode('utf-8'), 'c2')
 
         url = reverse('noncontest_print_contest_id')
         response = self.client.get(url)
-        self.assertEqual(response.content, 'None')
+        self.assertEqual(response.content.decode('utf-8'), 'None')
 
     @override_settings(CONTEST_MODE=ContestMode.contest_if_possible)
     def test_contest_if_possible_contest_mode(self):
@@ -327,7 +327,7 @@ class TestCurrentContest(TestCase):
 
         url = reverse('noncontest_print_contest_id')
         response = self.client.get(url)
-        self.assertEqual(response.content, "None")
+        self.assertEqual(response.content.decode('utf-8'), 'None')
 
     @override_settings(CONTEST_MODE=ContestMode.contest_only)
     def test_contest_only_contest_mode(self):
@@ -344,7 +344,7 @@ class TestCurrentContest(TestCase):
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, "None")
+        self.assertEqual(response.content.decode('utf-8'), 'None')
 
     @override_settings(CONTEST_MODE=ContestMode.contest_if_possible)
     def test_namespaced_redirect(self):
@@ -479,18 +479,20 @@ class TestContestViews(TestCase):
         self.assertContains(response, 'Contest2', count=1)
         self.assertContains(response, 'Contest3', count=1)
         self.assertContains(response, 'Contest4', count=1)
-        self.assertLess(response.content.index('Contest3'),
-            response.content.index('Contest4'))
-        self.assertLess(response.content.index('Contest4'),
-            response.content.index('Contest2'))
+        content = response.content.decode('utf-8')
+        self.assertLess(content.index('Contest3'),
+            content.index('Contest4'))
+        self.assertLess(content.index('Contest4'),
+            content.index('Contest2'))
 
         contest2.creation_date = datetime(2003, 6, 1, tzinfo=utc)
         contest2.save()
         response = self.client.get(reverse('select_contest'))
-        self.assertLess(response.content.index('Contest3'),
-            response.content.index('Contest2'))
-        self.assertLess(response.content.index('Contest2'),
-            response.content.index('Contest4'))
+        content = response.content.decode('utf-8')
+        self.assertLess(content.index('Contest3'),
+            content.index('Contest2'))
+        self.assertLess(content.index('Contest2'),
+            content.index('Contest4'))
 
     def test_submission_view(self):
         contest = Contest.objects.get()
@@ -506,21 +508,19 @@ class TestContestViews(TestCase):
 
         td_pattern_with_class = r'<td[^>]*>\s*%s'
 
+        content = response.content.decode('utf-8')
         for t in ['0', '1ocen', '1a', '1b', '2', '3']:
-            self.assertTrue(re.search(td_pattern_with_class % (t,),
-                                      response.content))
+            self.assertTrue(re.search(td_pattern_with_class % (t,), content))
 
         self.assertContains(response, '34 / 34', count=1)
         self.assertContains(response, '0 / 33', count=2)
         self.assertContains(response, '0 / 0', count=2)
 
         status_pattern = r'<td class="[^"]*submission--%s">\s*%s\s*</td>'
-        header_match = re.findall(status_pattern % ('OK[0-9]+', "OK"), response.content)
-        ok_match = re.findall(status_pattern % ('OK', 'OK'), response.content)
-        re_match = re.findall(status_pattern % ('RE', 'Runtime error'),
-                              response.content)
-        wa_match = re.findall(status_pattern % ('WA', 'Wrong answer'),
-                              response.content)
+        header_match = re.findall(status_pattern % ('OK[0-9]+', "OK"), content)
+        ok_match = re.findall(status_pattern % ('OK', 'OK'), content)
+        re_match = re.findall(status_pattern % ('RE', 'Runtime error'), content)
+        wa_match = re.findall(status_pattern % ('WA', 'Wrong answer'), content)
 
         self.assertEqual(len(header_match), 1)
         self.assertEqual(len(ok_match), 4)
@@ -562,8 +562,8 @@ class TestMySubmissions(TestCase):
         response = self.client.get(reverse('my_submissions', kwargs=kwargs))
 
         status_pattern = r'<td id=".*"\s*class="[^"]*submission--%s[^"]">\s*%s\s*</td>'
-        ini_ok = re.findall(status_pattern % ('OK[0-9]+', 'Initial tests: OK'), response.content)
-        ini_err = re.findall(status_pattern % ('INI_ERR', 'Initial tests: failed'), response.content)
+        ini_ok = re.findall(status_pattern % ('OK[0-9]+', 'Initial tests: OK'), response.content.decode('utf-8'))
+        ini_err = re.findall(status_pattern % ('INI_ERR', 'Initial tests: failed'), response.content.decode('utf-8'))
 
         self.assertEqual(len(ini_ok), 1)
         self.assertEqual(len(ini_err), 1)
@@ -576,7 +576,7 @@ class TestManyRounds(TestsUtilsMixin, TestCase):
 
     @staticmethod
     def remove_ws(response):
-        return re.sub(r'\s*', '', response.content)
+        return re.sub(r'\s*', '', response.content.decode('utf-8'))
 
     def test_problems_visibility(self):
         contest = Contest.objects.get()
@@ -1678,10 +1678,11 @@ class TestContestLinks(TestCase):
         self.assertContains(response, 'Test Menu Item 2')
         self.assertContains(response, '/test_menu_link1')
         self.assertContains(response, '/test_menu_link2')
-        self.assertLess(response.content.index('Test Menu Item 1'),
-                        response.content.index('Test Menu Item 2'))
-        self.assertLess(response.content.index('/test_menu_link1'),
-                        response.content.index('/test_menu_link2'))
+        content = response.content.decode('utf-8')
+        self.assertLess(content.index('Test Menu Item 1'),
+                        content.index('Test Menu Item 2'))
+        self.assertLess(content.index('/test_menu_link1'),
+                        content.index('/test_menu_link2'))
 
 
 class TestPersonalDataUser(TestCase):

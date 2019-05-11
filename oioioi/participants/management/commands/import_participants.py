@@ -56,7 +56,9 @@ class Command(BaseCommand):
                     continue
                 if line.startswith('#'):
                     continue
-                login = line.decode('utf8')
+                login = line
+                if not isinstance(login, six.text_type):
+                    login = login.decode('utf8')
                 all_count += 1
 
                 try:

@@ -23,19 +23,19 @@ class TestACMRanking(TestCase):
 
     @staticmethod
     def remove_whitespaces(content):
-        return re.sub(r'\s*', b'', content)
+        return re.sub(r'\s*', '', content)
 
     def assertActiveTaskIn(self, task, content):
-        self.assertIn(task + b'</a></th>', self.remove_whitespaces(content))
+        self.assertIn(task + '</a></th>', self.remove_whitespaces(content))
 
     def assertActiveTaskNotIn(self, task, content):
-        self.assertNotIn(task + b'</a></th>', self.remove_whitespaces(content))
+        self.assertNotIn(task + '</a></th>', self.remove_whitespaces(content))
 
     def assertInactiveTaskIn(self, task, content):
-        self.assertIn(task + b'</th>', self.remove_whitespaces(content))
+        self.assertIn(task + '</th>', self.remove_whitespaces(content))
 
     def assertInactiveTaskNotIn(self, task, content):
-        self.assertNotIn(task + b'</th>', self.remove_whitespaces(content))
+        self.assertNotIn(task + '</th>', self.remove_whitespaces(content))
 
     def test_fixture(self):
         self.assertTrue(Contest.objects.exists())
@@ -54,28 +54,32 @@ class TestACMRanking(TestCase):
         # at 19:00
         with fake_timezone_now(datetime(2013, 12, 13, 10, 59, tzinfo=utc)):
             response = self.client.get(url)
-            for task in [b'trial', b'A', b'sum', b'test']:
-                self.assertActiveTaskNotIn(task, response.content)
+            content = response.content.decode('utf-8')
+            for task in ['trial', 'A', 'sum', 'test']:
+                self.assertActiveTaskNotIn(task, content)
 
         with fake_timezone_now(datetime(2013, 12, 13, 11, 30, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertActiveTaskIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertActiveTaskNotIn(task, response.content)
+            content = response.content.decode('utf-8')
+            self.assertActiveTaskIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertActiveTaskNotIn(task, content)
 
         with fake_timezone_now(datetime(2013, 12, 13, 17, 0, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertInactiveTaskNotIn(task, response.content)
+            content = response.content.decode('utf-8')
+            self.assertInactiveTaskIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertInactiveTaskNotIn(task, content)
 
         # round 1 starts at 20:40, ends at 01:40, results are available at
         # 09:00
         with fake_timezone_now(datetime(2013, 12, 14, 20, 39, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertInactiveTaskIn(b'trial', response.content)
-            for task in [b'A', b'sum', b'test']:
-                self.assertInactiveTaskNotIn(task, response.content)
+            content = response.content.decode('utf-8')
+            self.assertInactiveTaskIn('trial', content)
+            for task in ['A', 'sum', 'test']:
+                self.assertInactiveTaskNotIn(task, content)
 
         with fake_timezone_now(datetime(2013, 12, 14, 20, 40, tzinfo=utc)):
             response = self.client.get(url)

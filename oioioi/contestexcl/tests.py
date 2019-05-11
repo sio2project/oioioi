@@ -27,7 +27,7 @@ class ContestIdViewCheckMixin(object):
     def _assertContestVisible(self, contest_id):
         response = self.client.get('/c/' + contest_id + '/id/')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, contest_id)
+        self.assertEqual(response.content.decode('utf-8'), contest_id)
 
     def _assertContestRedirects(self, contest_id, where):
         response = self.client.get('/c/' + contest_id + '/id/')

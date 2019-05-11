@@ -41,7 +41,7 @@ class TestTestrunViews(TestCase):
                 kwargs={'contest_id': submission.problem_instance.contest.id}))
             self.assertContains(submission_view, 'submission--OK"')
 
-            no_whitespaces = re.sub(r'\s*', '', submission_view.content)
+            no_whitespaces = re.sub(r'\s*', '', submission_view.content.decode('utf-8'))
             self.assertIn('>OK</td>', no_whitespaces)
 
     def test_input_views(self):

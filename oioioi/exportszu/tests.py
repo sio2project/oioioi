@@ -117,7 +117,7 @@ class TestExportSubmissionsView(TestCase):
         self.assertInHTML(
             '<a href="/c/c/export_submissions/" class="list-group-item " >\n'
             'Export submissions\n</a>',
-            response.content)
+            response.content.decode('utf-8'))
 
     def test_download(self):
         self.assertTrue(self.client.login(username='test_admin'))

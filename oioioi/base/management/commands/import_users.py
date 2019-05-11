@@ -57,7 +57,9 @@ class Command(BaseCommand):
 
                 kwargs = {}
                 for i, column in enumerate(self.COLUMNS):
-                    value = row[i].decode('utf8')
+                    value = row[i]
+                    if not isinstance(value, six.text_type):
+                        value = value.decode('utf8')
                     if not value:
                         continue
                     kwargs[column] = value

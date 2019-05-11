@@ -78,7 +78,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            content = self.streamingContent(response)
+            content = self.streamingContent(response).decode('utf-8')
             self.assertIn("<user>Test User (test_user)", content)
             self.assertIn("<result>34</result>", content)
             self.assertIn("<taskid>zad1</taskid>", content)
@@ -101,7 +101,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            content = self.streamingContent(response)
+            content = self.streamingContent(response).decode('utf-8')
             self.assertNotIn('test_user2', content)
             self.assertIn('Strange, there is no one', content)
 

@@ -548,9 +548,9 @@ class TestAnonymousParticipants(TestCase):
             user_pattern = r'>\s*%s\s*</a>'
 
             self.assertFalse(re.search(user_pattern % ('test_user',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
             self.assertTrue(re.search(user_pattern % ('Test User',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
 
     def test_anonymous_participants(self):
         contest = Contest.objects.get()
@@ -573,13 +573,13 @@ class TestAnonymousParticipants(TestCase):
             user_pattern = r'>\s*%s\s*</a>'
 
             self.assertFalse(re.search(user_pattern % ('test_user',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
             self.assertTrue(re.search(user_pattern % ('Test User',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
             self.assertTrue(re.search(user_pattern % ('test_user2',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
             self.assertFalse(re.search(user_pattern % ('Test User 2',),
-                                       response.content))
+                                       response.content.decode('utf-8')))
 
             # Edit contest registration
             self._register(u2, anonymous=False, possible=True)

@@ -67,7 +67,8 @@ class Command(BaseCommand):
         print("--- Downloading Manifest ...", file=self.stdout)
         try:
             manifest_url = options['manifest_url']
-            manifest = six.moves.urllib.request.urlopen(manifest_url).read()
+            manifest = six.moves.urllib.request.urlopen(manifest_url).read() \
+                                                        .decode('utf-8')
             manifest = manifest.strip().splitlines()
         except Exception as e:
             raise CommandError("Error downloading manifest: %s" % (e,))

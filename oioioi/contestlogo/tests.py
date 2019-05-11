@@ -34,7 +34,7 @@ class TestProcessorsWithoutUploadedFiles(TestCase):
     def _render_menu(self):
         user = User.objects.get(username='test_user')
         self.assertTrue(self.client.login(username=user))
-        return self.client.get(reverse('index'), follow=True).content
+        return self.client.get(reverse('index'), follow=True).content.decode('utf-8')
 
     def test_without_defaults(self):
         contest = Contest.objects.get()
@@ -62,7 +62,7 @@ class TestProcessorsWithUploadedFiles(TestCase):
     def _render_menu(self):
         user = User.objects.get(username='test_user')
         self.assertTrue(self.client.login(username=user))
-        return self.client.get(reverse('index'), follow=True).content
+        return self.client.get(reverse('index'), follow=True).content.decode('utf-8')
 
     def test_with_defauts_and_uploaded_files(self):
         contest = Contest.objects.get()
@@ -98,12 +98,12 @@ class TestUpdatedAt(TestCase):
 
     def test_icon_last_modified(self):
         icon = ContestIcon.objects.get()
-        icon.image = ContentFile('eloziom', name='foo')
+        icon.image = ContentFile(b'eloziom', name='foo')
         icon.save()
         self.request_file('/c/c/icons/%d/' % icon.pk, icon.updated_at)
 
     def test_logo_last_modified(self):
         logo = ContestLogo.objects.get()
-        logo.image = ContentFile('eloziom', name='foo')
+        logo.image = ContentFile(b'eloziom', name='foo')
         logo.save()
         self.request_file('/c/c/logo/', logo.updated_at)

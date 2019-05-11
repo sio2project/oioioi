@@ -121,7 +121,7 @@ class TestViews(TestCase):
 
     @staticmethod
     def remove_whitespaces(response):
-        return re.sub(r'\s*', '', response.content)
+        return re.sub(r'\s*', '', response.content.decode('utf-8'))
 
     def _assert_disqualification_box(self, response_callback):
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):

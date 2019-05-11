@@ -162,6 +162,9 @@ class IntegerScore(ScoreValue):
             return self.value < other
         return self.value < other.value
 
+    def __str__(self):
+        return str(self.value)
+
     def __unicode__(self):
         return six.text_type(self.value)
 
