@@ -1,4 +1,3 @@
-import json
 from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.admin.utils import quote
@@ -138,7 +137,7 @@ class TestBalloons(TestCase):
         self._check_delivery(balloon_delivery, user)
 
     def _check_balloon_requests(self, response, expected_number, all_number):
-        response_data = json.loads(response.content)
+        response_data = response.json()
         self.assertEqual(len(response_data['new_requests']), expected_number)
         self.assertEqual(response_data['new_last_id'], all_number)
         for attr in ['id', 'team', 'problem_name', 'color', 'first_accepted']:

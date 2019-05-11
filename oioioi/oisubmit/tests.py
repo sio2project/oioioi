@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta  # pylint: disable=E0611
 
 import six
@@ -49,9 +48,6 @@ class OISubmitFileMixin(object):
         }
         return self.client.post(url, post_data)
 
-    def _json(self, response):
-        return json.loads(response.content)
-
     def _assertSubmitted(self, response, submission_number):
         self.assertEqual(200, response.status_code)
         self.assertEqual(submission_number + 1,
@@ -65,21 +61,21 @@ class OISubmitFileMixin(object):
     def _assertSuspected(self, response, submission_number, suspected_number,
                          reason):
         self._assertSubmitted(response, submission_number)
-        self.assertEqual(True, self._json(response)['error_occured'])
-        self.assertIn(reason, self._json(response)['comment'])
+        self.assertEqual(True, response.json()['error_occured'])
+        self.assertIn(reason, response.json()['comment'])
         self.assertEqual(suspected_number + 1,
                          Submission.objects.filter(kind='SUSPECTED').count())
 
     def _assertNotSuspected(self, response, submission_number,
                             suspected_number):
         self._assertSubmitted(response, submission_number)
-        self.assertEqual(False, self._json(response)['error_occured'])
+        self.assertEqual(False, response.json()['error_occured'])
         self.assertEqual(suspected_number,
                          Submission.objects.filter(kind='SUSPECTED').count())
 
     def _assertFormError(self, response, submission_number, error):
         self._assertNotSubmitted(response, submission_number)
-        self.assertIn(six.text_type(error), self._json(response)['comment'])
+        self.assertIn(six.text_type(error), response.json()['comment'])
 
 
 class TestOISubmitSubmission(TestCase, OISubmitFileMixin):

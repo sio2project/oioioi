@@ -1,6 +1,4 @@
 # pylint: disable=maybe-no-member
-import json
-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.test.client import RequestFactory
@@ -149,7 +147,7 @@ class TestSwitchingUsers(TestCase):
 
         response = self.client.get(reverse('get_suable_users'),
                 {'substr': 'te'})
-        response = json.loads(response.content)
+        response = response.json()
         self.assertListEqual(
                 ['test_user (Test User)', 'test_user2 (Test User 2)',
                  'test_user3 (Test User 3)'],
@@ -164,13 +162,13 @@ class TestSwitchingUsers(TestCase):
 
     def test_su_status(self):
         self.assertTrue(self.client.login(username='test_admin'))
-        response = json.loads(self.client.get(reverse('get_status')).content)
+        response = self.client.get(reverse('get_status')).json()
         self.assertEqual(False, response['is_under_su'])
         self.assertEqual(True, response['is_real_superuser'])
         self.assertEqual('test_admin', response['real_user'])
 
         self.client.post(reverse('su'), {'user': 'test_user'})
-        response = json.loads(self.client.get(reverse('get_status')).content)
+        response = self.client.get(reverse('get_status')).json()
         self.assertEqual(True, response['is_under_su'])
         self.assertEqual(True, response['is_real_superuser'])
         self.assertEqual(False, response['is_superuser'])

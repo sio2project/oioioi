@@ -1,4 +1,3 @@
-import json
 import re
 import urllib
 from datetime import datetime  # pylint: disable=E0611
@@ -280,7 +279,7 @@ class TestPARegistration(TestCase):
         p.save()
         PARegistration(participant_id=p.id, **self.reg_data).save()
         url = reverse('contest_info', kwargs={'contest_id': contest.id})
-        data = json.loads(self.client.get(url).content.decode('utf-8'))
+        data = self.client.get(url).json()
         self.assertEqual(data['users_count'], 1)
 
 
@@ -384,7 +383,7 @@ class TestPAContestInfo(TestCase):
         c = Contest.objects.get()
         url = reverse('contest_info', kwargs={'contest_id': c.id})
         self.client.logout()
-        response = json.loads(self.client.get(url).content.decode('utf-8'))
+        response = self.client.get(url).json()
         self.assertEqual(response['users_count'], 2)
 
     def test_cross_origin(self):

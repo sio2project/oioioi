@@ -1,5 +1,3 @@
-import json
-
 from django.core.urlresolvers import reverse
 
 from oioioi.base.tests import TestCase
@@ -32,7 +30,7 @@ class TestContestStatus(TestCase):
         self.assertContains(response, contest.id)
         self.assertContains(response, 'test_user')
         self.assertContains(response, 'testing an app')
-        data = json.loads(response.content)
+        data = response.json()
         self.assertEqual(data['is_superuser'], False)
 
         self.assertTrue(self.client.login(username='test_admin'))
@@ -40,7 +38,7 @@ class TestContestStatus(TestCase):
 
         self.assertContains(response, 'test_admin')
         self.assertContains(response, 'testing an app')
-        data = json.loads(response.content)
+        data = response.json()
         self.assertEqual(data['is_superuser'], True)
 
     def test_initial(self):

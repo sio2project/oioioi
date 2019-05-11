@@ -1,4 +1,3 @@
-import json
 from copy import deepcopy
 from datetime import datetime  # pylint: disable=E0611
 
@@ -392,12 +391,12 @@ class TestQuestions(TestCase):
 
         response = self.client.get(url, {'substr': 'te'})
         self.assertEqual(200, response.status_code)
-        response = json.loads(response.content)
+        response = response.json()
         self.assertListEqual(['test_admin (Test Admin)',
                               'test_user (Test User)'], response)
 
         response = self.client.get(url, {'substr': 'test admin'})
-        response = json.loads(response.content)
+        response = response.json()
         self.assertListEqual(['test_admin (Test Admin)'], response)
 
         self.assertTrue(self.client.login(username='test_user'))
@@ -462,7 +461,7 @@ class TestQuestions(TestCase):
         url1 = reverse('get_reply_templates',
                        kwargs={'contest_id': contest.id})
         response = self.client.get(url1)
-        templates = json.loads(response.content)
+        templates = response.json()
         self.assertEqual(templates[0]['name'], "N/A")
         self.assertEqual(templates[0]['content'], "No answer.")
         self.assertEqual(templates[3]['name'], "What contest is this?")
@@ -472,7 +471,7 @@ class TestQuestions(TestCase):
         for _i in range(12):
             response = self.client.get(url_inc)
         response = self.client.get(url1)
-        templates = json.loads(response.content)
+        templates = response.json()
         self.assertEqual(templates[0]['name'], "What contest is this?")
         self.assertEqual(len(templates), 4)
         self.assertTrue(self.client.login(username='test_user'))
@@ -483,7 +482,7 @@ class TestQuestions(TestCase):
         url = reverse('check_new_messages',
                 kwargs={'contest_id': 'c', 'topic_id': 2})
         resp = self.client.get(url, {'timestamp': 1347000000})
-        data = json.loads(resp.content)['messages']
+        data = resp.json()['messages']
 
         self.assertEqual(data[1][0], u'private-answer')
 

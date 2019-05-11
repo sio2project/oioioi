@@ -1,5 +1,3 @@
-import json
-
 from django.core.urlresolvers import reverse_lazy
 
 from oioioi.base.tests import TestCase
@@ -15,12 +13,12 @@ class TestNotifications(TestCase):
         response = self.client.post(url, {
             'nsid': get_notifications_session(self.client.session).uid
         })
-        resp_obj = json.loads(response.content)
+        resp_obj = response.json()
         self.assertEqual(resp_obj['status'], 'OK')
         self.assertEqual(resp_obj['user'], u'1001')
         self.client.logout()
         response = self.client.post(url, {
             'nsid': '123123122'
         })
-        resp_obj = json.loads(response.content)
+        resp_obj = response.json()
         self.assertEqual(resp_obj['status'], 'UNAUTHORIZED')

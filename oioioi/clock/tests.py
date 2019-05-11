@@ -1,5 +1,4 @@
 import calendar
-import json
 import time
 from datetime import datetime  # pylint: disable=E0611
 
@@ -19,8 +18,7 @@ class TestClock(TestCase):
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)
     def test_clock(self):
-        response = self.client.get(reverse('get_status'))
-        response = json.loads(response.content)
+        response = self.client.get(reverse('get_status')).json()
         response_time = response['time']
         now = time.time()
         self.assertLessEqual(response_time, now)
@@ -39,8 +37,7 @@ class TestClock(TestCase):
         r2.save()
 
         response = self.client.get(reverse('get_status',
-            kwargs={'contest_id': contest.id}))
-        response = json.loads(response.content)
+            kwargs={'contest_id': contest.id})).json()
         round_start_date = response['round_start_date']
         round_end_date = response['round_end_date']
         self.assertEqual(round_start_date, time.mktime(r2_start.timetuple()))
@@ -58,8 +55,7 @@ class TestClock(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
         response = self.client.get(reverse('get_status',
-            kwargs={'contest_id': contest.id}))
-        response = json.loads(response.content)
+            kwargs={'contest_id': contest.id})).json()
         round_start_date = response['round_start_date']
         round_end_date = response['round_end_date']
         self.assertEqual(round_start_date, time.mktime(r1_start.timetuple()))
@@ -71,8 +67,7 @@ class TestClock(TestCase):
         session = self.client.session
         session['admin_time'] = datetime(2012, 12, 12, tzinfo=utc).isoformat()
         session.save()
-        response = self.client.get(reverse('get_status'))
-        response = json.loads(response.content)
+        response = self.client.get(reverse('get_status')).json()
         self.assertTrue(response['is_admin_time_set'])
         self.assertEqual(response['time'],
             calendar.timegm(parse_date(session['admin_time']).timetuple()))

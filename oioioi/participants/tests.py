@@ -1,4 +1,3 @@
-import json
 import os
 import re
 from datetime import datetime  # pylint: disable=E0611
@@ -250,7 +249,7 @@ class TestOpenParticipantsRegistration(TestCase):
         p.save()
         OpenRegistration(participant_id=p.id, **self.reg_data).save()
         url = reverse('contest_info', kwargs={'contest_id': contest.id})
-        data = json.loads(self.client.get(url).content)
+        data = self.client.get(url).json()
         self.assertEqual(data['users_count'], 1)
 
 

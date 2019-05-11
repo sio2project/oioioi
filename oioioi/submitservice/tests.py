@@ -1,5 +1,3 @@
-import json
-
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.urlresolvers import reverse
 
@@ -19,7 +17,7 @@ class TestSubmitService(TestCase):
             'task': 'zad1',
             'token': '123456ABCDEF'
         })
-        response_data = json.loads(response.content)
+        response_data = response.json()
         self.assertRegexpMatches(response_data['result_url'], r'\/c\/c\/s\/[0-9]+\/')
 
     def test_view_user_token(self):

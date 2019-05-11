@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import json
 from datetime import datetime  # pylint: disable=E0611
 
 from django.contrib.auth.models import User
@@ -62,29 +61,29 @@ class TestCtimes(TestCase):
         url = reverse('ctimes', kwargs={'contest_id': 'c1'})
         self.client.get(url)
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response, self.round2_result)
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response, self.round1_result)
         with fake_time(datetime(2013, 10, 22, 9, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response, self.round1_result)
         with fake_time(datetime(2013, 12, 11, 5, 0, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response['status'], 'NO_ROUND')
         Contest.objects.all().delete()
         self.client.get('/')  # removes current contest
         url = reverse('ctimes')
         with fake_time(datetime(2013, 12, 11, 5, 0, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response['status'], 'NO_CONTEST')
 
     def test_ctimes_format(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c1'})
         date_regexp = r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'
         with fake_time(datetime(2013, 10, 1, 21, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             print(response)
             self.assertRegexpMatches(response['start'], date_regexp)
             self.assertRegexpMatches(response['end'], date_regexp)
@@ -95,7 +94,7 @@ class TestCtimes(TestCase):
         user = User.objects.get(username='test_user')
         RoundTimeExtension.objects.create(round=rnd, user=user, extra_time=5)
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response, {
                 'status': 'OK',
                 'round_name': 'round1',
@@ -109,19 +108,19 @@ class TestCtimes(TestCase):
         url = reverse('ctimes', kwargs={'contest_id': 'c2'})
         self.client.logout()
         with fake_time(datetime(2014, 1, 2, 4, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response, self.round1p_result)
 
     def test_ctimes_no_contest_id(self):
         url = reverse('ctimes')
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url, follow=True).content)
+            response = self.client.get(url, follow=True).json()
             self.assertEqual(response, self.round1p_result)
 
     def test_ctimes_no_end(self):
         url = reverse('ctimes', kwargs={'contest_id': 'c2'})
         with fake_time(datetime(2013, 10, 11, 7, 56, tzinfo=utc)):
-            response = json.loads(self.client.get(url).content)
+            response = self.client.get(url).json()
             self.assertEqual(response, self.round1p_result)
 
     def test_cross_origin(self):
