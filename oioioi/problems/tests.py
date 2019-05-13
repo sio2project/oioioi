@@ -497,6 +497,24 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(url)
         self.assertContains(response, '<tr', count=3)
 
+    def test_settings_tab(self):
+        problemsite_url = self._get_site_urls()['statement']
+        url = reverse('problem_site', kwargs={'site_key': '123'}) + '?key=settings'
+
+        response = self.client.get(problemsite_url)
+        self.assertNotContains(response, 'Settings')
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(problemsite_url)
+        self.assertContains(response, 'Settings')
+        response = self.client.get(url)
+        self.assertContains(response, 'Add to contest')
+        self.assertContains(response, 'Current tags')
+        self.assertContains(response, 'Edit problem')
+        self.assertContains(response, 'Edit tests')
+        self.assertContains(response, 'Reupload problem')
+        self.assertContains(response, 'Model solutions')
+
     def test_add_new_tab(self):
         tab_title = 'Test tab'
         tab_contents = 'Hello from test tab'
@@ -2279,9 +2297,9 @@ class TestAddToContestFromProblemset(TestCase):
         contest = Contest.objects.get()
         self.client.get('/c/%s/dashboard/' % contest.id)
         url = reverse('problem_site', kwargs={'site_key': '123'})
-        response = self.client.get(url, follow=True)
+        response = self.client.get(url + '?key=settings', follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Add to contest', count=1)
+        self.assertContains(response, 'Add to contest', count=3)
         self.assertContains(response, 'data-addorupdate')
         self.assertContains(response, 'data-urlkey')
         self.assertContains(response, 'add_to_contest')

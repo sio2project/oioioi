@@ -1,21 +1,17 @@
 {% load i18n %}
 
-<h3>
-    {% if existing_problem %}
-        {% blocktrans with existing_problem as name %}Update problem {{ name }}{% endblocktrans %}
+<div class="tabbed-content">
+    {% if tabs|length > 1 %}
+        <ul class="nav nav-tabs">
+            {% for tab in tabs %}
+                <li {% if tab.obj == current_tab %}class="active"{% endif %}><a
+                        href="{{ tab.link }}">{{ tab.obj.short_description }}</a></li>
+            {% endfor %}
+        </ul>
+        <div class="nav-content">
+            {{ content }}
+        </div>
     {% else %}
-        {% trans "Add problem" %}
-    {% endif %}
-</h3>
-{% if tabs|length > 1 %}
-    <ul class="nav nav-tabs">
-        {% for tab in tabs %}
-        <li {% if tab.obj == current_tab %}class="active"{% endif %}><a href="{{ tab.link }}">{{ tab.obj.short_description }}</a></li>
-        {% endfor %}
-    </ul>
-    <div class="nav-content">
         {{ content }}
-    </div>
-{% else %}
-{{ content }}
-{% endif %}
+    {% endif %}
+</div>

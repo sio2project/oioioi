@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% url 'problemset_add_to_contest' site_key=site_key as contest_url %}
+<p class="text-center">
+    {% blocktrans %}
+        To see the list of available contests click
+        <a href="{{ contest_url }}?problem_name={{ problem.short_name }}">
+            here
+        </a>
+    {% endblocktrans %}
+</p>

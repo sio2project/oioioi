@@ -1,0 +1,60 @@
+{% load i18n runtimeformat %}
+
+
+{% if not model_solutions.submissions %}
+    <p class="text-center">{% trans "There are no model solutions in this problem package." %}</p>
+{% else %}
+    <div id="model-solutions-table">
+        <table class="table table-bordered table--auto-width table--center">
+            <thead>
+            <tr>
+                <th rowspan="3" colspan="2"></th>
+                {% for s in model_solutions.submissions %}
+                    <th>
+                        <a href="{% url 'submission' submission_id=s.id %}">
+                            {{ s.model_solution.short_name }}
+                        </a>
+                    </th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for r in model_solutions.submissions_row %}
+                    <th class="submission submission--{{ r.status }}">{{ r.submission.status }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for s in model_solutions.submissions %}
+                    <th>{{ s.get_score_display|default_if_none:'' }}</th>
+                {% endfor %}
+            </tr>
+            <tr>
+                <th class="force-text-right">{% trans "Total" %}</th>
+                <th>{{ model_solutions.total_row.test|runtimeformat }}</th>
+                {% for result in model_solutions.total_row.results %}
+                    <th>{{ result|runtimeformat }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            {% spaceless %}
+                {% for row in model_solutions.rows %}
+                    <tr>
+                        <th class="force-text-right">{{ row.test.name }}</th>
+                        <td>{{ row.test.time_limit|runtimeformat }}</td>
+                        {% for cell in row.results %}
+                            <td class="submission submission--
+                                    {{ cell.test_report.status }}{% if cell.test_report.status == 'OK' %}{{ cell.percentage_status }}{% endif %}">
+                                {% if cell.test_report.status == 'OK' %}
+                                    {{ cell.test_report.time_used|runtimeformat }}
+                                {% else %}
+                                    {{ cell.test_report.status }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            {% endspaceless %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

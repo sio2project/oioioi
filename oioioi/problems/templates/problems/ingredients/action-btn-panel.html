@@ -1,0 +1,24 @@
+{% load i18n %}
+
+
+<a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">
+    <div class="settings-item settings-button clickable"><h5 class="text-center">{% trans "Edit problem" %}</h5></div>
+</a>
+<a href="{% url 'oioioiadmin:problems_mainprobleminstance_change' problem.main_problem_instance.id %}">
+    <div class="settings-item settings-button clickable"><h5 class="text-center">{% trans "Edit tests" %}</h5></div>
+</a>
+<a href="{% url 'problemset_add_or_update' %}?problem={{ problem.id }}">
+    <div class="settings-item settings-button clickable"><h5 class="text-center">{% trans "Reupload problem" %}</h5></div>
+</a>
+{% if package %}
+    <a href="{% url 'download_package' package_id=package.id %}">
+        <div class="settings-item settings-button clickable">
+            <h5 class="text-center">{% trans "Download problem package" %}</h5>
+        </div>
+    </a>
+{% endif %}
+{% for url, name in extra_actions %}
+    <a href="{{ url }}">
+        <div class="settings-item settings-button clickable"><h5 class="text-center">{{ name }}</h5></div>
+    </a>
+{% endfor %}

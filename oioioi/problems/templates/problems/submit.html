@@ -1,6 +1,5 @@
 {% load i18n %}
 
-<h1>{% trans "Submit solution" %}</h1>
 <form enctype="multipart/form-data" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}

@@ -1,0 +1,55 @@
+.problem-title {
+  margin: 3rem 0 4rem 0;
+}
+
+.bottom-text {
+  margin: 5rem 0 3rem 0;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: center;
+}
+
+.settings-item {
+  border-style: solid;
+  border-color: #555555;
+  border-width: 1px;
+  margin: 2rem 1rem;
+  border-radius: 15px;
+  padding: 5px 20px;
+}
+
+.settings-group {
+  width: 100%;
+  margin: 5px;
+}
+
+.item-title {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.settings-button:hover {
+  background-color: #eeeeee;
+}
+
+.lower-button {
+  display: flex;
+  justify-content: center;
+  margin: 3rem 0 2rem 0;
+}
+
+.separator {
+  border-top-style: solid;
+  border-top-color: #dddddd;
+  border-top-width: 1px;
+}
+
+.item-footer {
+  margin-top: 4rem;
+}
+
+#model-solutions-table {
+  margin: 3rem 3rem 0 3rem;
+}

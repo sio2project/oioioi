@@ -1,0 +1,33 @@
+{% load i18n tag %}
+
+
+<div class="settings-item">
+    <h4 class="text-center item-title">{% trans "Current tags" %}</h4>
+    {% for tag in problem.tag_set.all %}
+        {% tag_label tag %}
+    {% endfor %}
+    {% for tag in problem.origintag_set.all %}
+        {% tag_label tag %}
+    {% endfor %}
+    {% for tag in problem.algorithmtag_set.all %}
+        {% tag_label tag %}
+    {% endfor %}
+    {% for tag in problem.difficultytag_set.all %}
+        {% tag_label tag %}
+    {% endfor %}
+
+    {% if proposed_tags %}
+        <hr class="separator">
+
+        <h4 class="text-center item-title">{% trans "User proposals" %}</h4>
+        {% for tag in proposed_tags %}
+            {% tag_label tag %}
+        {% endfor %}
+    {% endif %}
+
+    <p class="text-center item-footer">
+        <a href="{% url 'oioioiadmin:problems_problem_change' problem.id %}">
+            {% trans 'edit tags' %}
+        </a>
+    </p>
+</div>

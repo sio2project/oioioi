@@ -1,0 +1,92 @@
+{% load i18n %}
+
+
+<div class="row settings-row hidden-xs hidden-sm">
+
+    {#  Adding problem to contest  #}
+    <div class="settings-group col-md-4">
+        {% include 'problems/ingredients/add-to-contest-panel.html' %}
+    </div>
+
+    {#  Tags panel  #}
+    <div class="settings-group col-md-5">
+        {% include 'problems/ingredients/tags-panel.html' %}
+    </div>
+
+    {#  Management buttons  #}
+    <div class="settings-group col-md-3">
+        {% include 'problems/ingredients/action-btn-panel.html' %}
+    </div>
+
+</div>
+
+<div class="row settings-row hidden-xs hidden-md hidden-lg">
+
+    {#  Adding problem to contest  #}
+    <div class="settings-group col-sm-7">
+        {% include 'problems/ingredients/add-to-contest-panel.html' %}
+    </div>
+
+    {#  Management buttons  #}
+    <div class="settings-group col-sm-5">
+        {% include 'problems/ingredients/action-btn-panel.html' %}
+    </div>
+
+</div>
+
+<div class="row settings-row hidden-xs hidden-md hidden-lg">
+
+    {#  Tags panel  #}
+    <div class="settings-group col-sm-12">
+        {% include 'problems/ingredients/tags-panel.html' %}
+    </div>
+
+</div>
+
+<div class="row settings-row hidden-sm hidden-md hidden-lg">
+
+    {#  Management buttons  #}
+    <div class="settings-group col-xs-12">
+        {% include 'problems/ingredients/action-btn-panel.html' %}
+    </div>
+
+</div>
+
+<div class="row settings-row hidden-sm hidden-md hidden-lg">
+
+    {#  Adding problem to contest  #}
+    <div class="settings-group col-xs-12">
+        {% include 'problems/ingredients/add-to-contest-panel.html' %}
+    </div>
+
+</div>
+
+<div class="row settings-row hidden-sm hidden-md hidden-lg">
+
+    {#  Tags panel  #}
+    <div class="settings-group col-xs-12">
+        {% include 'problems/ingredients/tags-panel.html' %}
+    </div>
+
+</div>
+
+<div class="row settings-row">
+
+    {#  Model solutions panel  #}
+    <div class="settings-group col-md-12">
+        <div class="settings-item">
+            <h4 class="text-center item-title">{% trans "Model solutions" %}</h4>
+            {% include 'problems/ingredients/model-solutions-embedded.html' %}
+            {% if model_solutions.submissions %}
+                <div class="lower-button row">
+                    <a role="button" class="btn btn-sm btn-default"
+                       href="{% url 'model_solutions_rejudge' model_solutions.problem_instance.id %}">
+                        <span class="glyphicon glyphicon-repeat"></span>
+                        {% trans "Rejudge" %}
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>

@@ -12,40 +12,7 @@
 
 {% block body %}
 <div class="container">
-    <ul class="nav nav-pills nav-justified nav-margin">
-        <li role="presentation" class="menu-item {% active_url 'problemset_main' 'menu-item-active' %}">
-            <a href="{% url 'problemset_main' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "Public problems" %}
-            </a>
-        </li>
-
-        {% if user.is_authenticated %}
-        <li role="presentation" class="menu-item {% active_url 'problemset_my_problems' 'menu-item-active' %}">
-            <a href="{% url 'problemset_my_problems' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "My problems" %}
-            </a>
-        </li>
-
-        {% if user.is_superuser %}
-        <li role="presentation" class="menu-item {% active_url 'problemset_all_problems' 'menu-item-active' %}">
-            <a href="{% url 'problemset_all_problems' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "All problems" %}
-            </a>
-        </li>
-        {% endif %}
-        {% if can_add_to_problemset %}
-        <li role="presentation" class="menu-item {% active_url 'problemset_add_or_update' 'menu-item-active' %}">
-            <a href="{% url 'problemset_add_or_update' %}
-            {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
-                {% trans "Add problem" %}
-            </a>
-        </li>
-        {% endif %}
-        {% endif %}
-    </ul>
+    {% include 'problems/ingredients/problemset-menu.html' %}
 
     <div class="row search-row">
         {% if show_search_bar %}
@@ -73,7 +40,6 @@
 
 
 <div class="container">
-{#    <h3 class="section-title">{{ page_title }}</h3>#}
     {% include "ingredients/flash.html" %}
     {% block main_content %}
     {% endblock %}

@@ -1,0 +1,24 @@
+{% load i18n %}
+
+
+<div class="settings-item">
+    <h4 class="text-center item-title">{% trans "Add to contest" %}</h4>
+    <table class="table break-all-words panel-table">
+        <tbody>
+        {% for contest in administered_recent_contests %}
+            <tr>
+                <td>{{ contest.id }}</td>
+                <td>
+                    <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
+                       data-urlkey="{{ problem.problemsite.url_key }}">{{ contest.name }}</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p class="text-center">
+        <a href="{% url 'problemset_add_to_contest' site_key=site_key %}?problem_name={{ problem.short_name }}">
+            {% trans 'more' %}
+        </a>
+    </p>
+</div>
