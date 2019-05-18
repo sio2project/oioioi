@@ -2,6 +2,7 @@
 import urllib
 from collections import defaultdict
 from functools import wraps
+from itertools import groupby
 import re
 
 from django.conf import settings
@@ -42,7 +43,7 @@ from oioioi.problems.utils import (can_add_to_problemset,
                                    can_admin_problem_instance,
                                    generate_add_to_contest_metadata,
                                    generate_model_solutions_context,
-                                   query_statement)
+                                   query_statement, get_prefetched_value)
 from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
                                     ModelSolution, TestReport)
 from unidecode import unidecode
@@ -73,12 +74,7 @@ navbar_links_registry.register(
 navbar_links_registry.register(
     name='task_archive',
     text=_('Task archive'),
-    # TODO Change the following URL when the Task Archive
-    #      gets moved from the global portal on Szkopul.
-    url_generator=lambda request:
-        reverse('global_portal',
-            kwargs={'link_name': 'default',
-                    'portal_path': 'problemset' + ('_eng' if request.LANGUAGE_CODE != 'pl' else '')}),
+    url_generator=lambda request: reverse('task_archive'),
     order=300,
 )
 
@@ -481,6 +477,106 @@ def problemset_add_or_update_problem_view(request):
 
     return add_or_update_problem(request, None,
                                  'problems/problemset/add-or-update.html')
+
+
+def task_archive_view(request):
+    origin_tags = OriginTag.objects.all() \
+            .prefetch_related('localizations').order_by('name')
+
+    navbar_links = navbar_links_registry.template_context(request)
+    return TemplateResponse(request, 'problems/task-archive.html', {
+        'navbar_links': navbar_links,
+        'origin_tags': origin_tags,
+    })
+
+
+def _recursive_group_problems(problems, categories, div_id):
+    if not categories:
+        return {
+                'div_id': 'problems-' + div_id,
+                'subnodes': {},
+                'problem_list': list(problems)
+            }
+
+    node = {'div_id': div_id, 'subnodes': {}, 'problem_list': []}
+    category = categories[0]
+    iter = groupby(problems,
+                   key=lambda problem: \
+                           get_prefetched_value(problem, category))
+
+    for value, group in iter:
+        child_id = div_id + '-' + str(value.value)
+        node['subnodes'][value] = \
+                _recursive_group_problems(list(group), categories[1:], child_id)
+    return node
+
+
+def _filter_problems_prefetched(problems, filter_multivaluedict):
+    result = []
+
+    for problem in problems:
+        remaining_filters = set(filter_multivaluedict.keys())
+
+        for infovalue in problem.origininfovalue_set.all():
+            category = infovalue.category
+            value = infovalue.value
+
+            # Check if this info-value combo violates any filters
+            if category.name in remaining_filters:
+                remaining_filters.remove(category.name)
+                allowed_values = filter_multivaluedict.getlist(category.name)
+                if value not in allowed_values:
+                    break
+        else:
+            # If filtering info=value don't include problems with no value
+            if not remaining_filters:
+                result.append(problem)
+
+    return result
+
+
+def task_archive_tag_view(request, origin_tag):
+    origin_tag = OriginTag.objects.filter(name=origin_tag) \
+            .prefetch_related('localizations',
+                              'info_categories__localizations',
+                              'info_categories__parent_tag__localizations',
+                              'info_categories__values__localizations',
+                              'info_categories__values__parent_tag__localizations')
+    origin_tag = get_object_or_404(origin_tag)
+
+    categories = origin_tag.info_categories.all()
+    # We use getparams for filtering by OriginInfo - make sure they are valid
+    for getparam in request.GET.keys():
+        if not categories.filter(name=getparam).exists():
+            raise Http404
+
+    problems = origin_tag.problems.all() \
+            .select_related('problemsite') \
+            .prefetch_related('origininfovalue_set__localizations',
+                              'origininfovalue_set__category')
+    problems = _filter_problems_prefetched(problems, request.GET)
+
+    # We want to achieve something like Django's regroup, but with dynamic keys:
+
+    # 1. Don't use categories with Null order for grouping
+    categories = [cat for cat in sorted(categories, key=lambda cat: cat.order) \
+                        if cat.order]
+
+    # 2. Stable sort the problem list by each category in reverse order.
+    #    This gives the correct order for the final grouping.
+    for cat in categories[::-1]:
+        problems.sort(key=lambda problem: \
+                            get_prefetched_value(problem, cat).order)
+
+    # 3. Now we can recursively group the problem list by each category.
+    problems_root_node = \
+            _recursive_group_problems(problems, categories, 'problemgroups')
+
+    navbar_links = navbar_links_registry.template_context(request)
+    return TemplateResponse(request, 'problems/task-archive-tag.html',
+                            {'origin_tag': origin_tag,
+                             'problems': problems_root_node,
+                             'navbar_links': navbar_links})
 
 
 def model_solutions_view(request, problem_instance_id):

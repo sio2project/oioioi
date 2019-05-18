@@ -55,7 +55,9 @@
   display: flex;
 }
 
-.search-tag {
+.search-tag-root .search-tag {
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
   margin: .2em;
 }
 

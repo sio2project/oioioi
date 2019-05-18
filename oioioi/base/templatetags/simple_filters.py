@@ -41,6 +41,14 @@ def lookup(d, key):
     return d[key]
 
 
+@register.filter
+def multival_lookup(d, key):
+    """
+    Returns a value list corresponding to a key from Django's MultiValueDict
+    """
+    return d.getlist(key)
+
+
 @register.filter(name='indent')
 def indent_string(value, num_spaces=4):
     """

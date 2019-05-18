@@ -1,0 +1,626 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "24_s2 1",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "24_s2 2",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "24_s3_d1",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "24_s3_d2",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problem",
+    "fields": {
+      "name": "25_s3 1",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.problem",
+    "fields": {
+      "name": "25_s3_d2",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.problem",
+    "fields": {
+      "name": "25 bug",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.problem",
+    "fields": {
+      "name": "no info",
+      "visibility": "PU"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "2"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "3"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 4,
+      "url_key": "4"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 5,
+      "url_key": "5"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 6,
+      "url_key": "6"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 7,
+      "url_key": "7"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 8,
+      "url_key": "8"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "oi"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "pa"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origintaglocalization",
+    "fields": {
+      "origin_tag": 1,
+      "language": "pl",
+      "full_name": "Olimpiada Informatyczna"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origintaglocalization",
+    "fields": {
+      "origin_tag": 1,
+      "language": "en",
+      "full_name": "Polish Olympiad in Informatics"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origintaglocalization",
+    "fields": {
+      "origin_tag": 2,
+      "language": "pl",
+      "full_name": "Potyczki Algorytmiczne"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 1
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 2
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 3
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 4
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 4
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 5
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 6
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 7
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag" : 1,
+      "problem": 8
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "name": "edition",
+      "order": 1,
+      "parent_tag": 1
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 1,
+      "language": "pl",
+      "full_name": "Edycja"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 1,
+      "language": "en",
+      "full_name": "Edition"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "name": "stage",
+      "order": 2,
+      "parent_tag" : 1
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 2,
+      "language": "pl",
+      "full_name": "Etap"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 2,
+      "language": "en",
+      "full_name": "Stage"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfocategory",
+      "fields": {
+      "name": "day",
+      "order": null,
+      "parent_tag": 1
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 3,
+      "language": "pl",
+      "full_name": "Dzień"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.origininfocategorylocalization",
+    "fields": {
+      "origin_info_category": 3,
+      "language": "en",
+      "full_name": "Day"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 1,
+      "order": 25,
+      "value": "xxv"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 1,
+      "language": "pl",
+      "full_value": "XXV OI"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 1,
+      "language": "en",
+      "full_value": "XXV OI"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 1,
+      "order": 24,
+      "value": "xxiv"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 2,
+      "language": "pl",
+      "full_value": "XXIV OI"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 2,
+      "language": "en",
+      "full_value": "XXIV OI"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 2,
+      "order": 2,
+      "value": "s2"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 3,
+      "language": "pl",
+      "full_value" : "Drugi Etap"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 3,
+      "language": "en",
+      "full_value" : "Second Stage"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 2,
+      "order": 3,
+      "value": "s3"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 4,
+      "language": "pl",
+      "full_value" : "Finał"
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 4,
+      "language": "en",
+      "full_value" : "Finals"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 3,
+      "order": 1,
+      "value": "d1"
+    }
+  },
+  {
+    "pk": 9,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 5,
+      "language": "pl",
+      "full_value" : "Dzień 1"
+    }
+  },
+  {
+    "pk": 10,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 5,
+      "language": "en",
+      "full_value" : "Day 1"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 3,
+      "order": 2,
+      "value": "d2"
+    }
+  },
+  {
+    "pk": 11,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 6,
+      "language": "pl",
+      "full_value" : "Dzień 2"
+    }
+  },
+  {
+    "pk": 12,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 6,
+      "language": "en",
+      "full_value" : "Day 2"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 1,
+      "origininfovalue" : 2
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 1,
+      "origininfovalue" : 3
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 2,
+      "origininfovalue" : 2
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 2,
+      "origininfovalue" : 3
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 3,
+      "origininfovalue" : 2
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 3,
+      "origininfovalue" : 5
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 3,
+      "origininfovalue" : 4
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 4,
+      "origininfovalue" : 4
+    }
+  },
+  {
+    "pk": 9,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 4,
+      "origininfovalue" : 6
+    }
+  },
+  {
+    "pk": 10,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 4,
+      "origininfovalue" : 2
+    }
+  },
+  {
+    "pk": 11,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 5,
+      "origininfovalue" : 1
+    }
+  },
+  {
+    "pk": 12,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 5,
+      "origininfovalue" : 4
+    }
+  },
+  {
+    "pk": 13,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 6,
+      "origininfovalue" : 6
+    }
+  },
+  {
+    "pk": 14,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 6,
+      "origininfovalue" : 4
+    }
+  },
+  {
+    "pk": 15,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 6,
+      "origininfovalue" : 1
+    }
+  },
+  {
+    "pk": 16,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "problem": 7,
+      "origininfovalue" : 1
+    }
+  }
+]

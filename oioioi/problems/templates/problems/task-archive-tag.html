@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% load i18n simple_filters %}
+
+{% block left-navbar %}
+    {% include 'navbar-left.html' %}
+{% endblock %}
+
+{% block title %}{{ origin_tag.long_name }}{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h3>
+        <a href="..">{% trans "Task Archive" %}</a> /
+        {% if origin_tag.short_name %} {{ origin_tag.short_name }} - {% endif %}
+        {{ origin_tag.full_name }}
+    </h3>
+    <p>{{ origin_tag.description }} </p>
+
+    <div class="panel panel-default">
+        <div id="filters-panel" class="panel-heading">
+            <div class="filters-heading">
+                <a class="collapse-toggle collapsed"
+                    data-toggle="collapse"
+                    href="#filters-collapse">
+                    {% trans "Filters" %}
+                </a>
+            </div>
+            <div id="filters-collapse" class="collapse">
+                <div class="btn-toolbar">
+                    <div class="btn-group">
+                        <form id="task-archive-filters"
+                              method=get>
+                            <button type="submit" class="btn btn-primary">
+                                {% trans "Apply filters" %}
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="btn-group">
+                        <form id="problemset-search"
+                              method=get
+                              action="{% url "problemset_main" %}">
+                            <button type="submit" class="btn btn-default">
+                                {% trans "Search in Problemset" %}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <table id="filters" class="table"
+                       data-origintag="{{ origin_tag.name }}">
+                <tbody>
+                {% for category in origin_tag.info_categories.all %}
+                <tr>
+
+                    <td>
+                    <div class="btn-group btn-block">
+                        <button type="button"
+                                class="btn btn-block btn-default checkbox-menu-toggle collapsed"
+                                style="z-index: {{ forloop.revcounter|add:"2" }}"
+                                data-target="#{{ category.name }}-filters">
+                            {{ category.full_name }}
+                            <span class="caret"></span>
+                        </button>
+
+                        <ul class="dropdown-menu checkbox-menu allow-focus collapse"
+                            id="{{ category.name }}-filters" >
+                            {% for value in category.values.all %}
+                                <li {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                    class="active"
+                                    {% endif %}
+                                >
+                                    <label unselectable>
+                                        <input type="checkbox"
+                                               name="{{ category.name }}"
+                                               value="{{ value.value }}"
+                                               form="task-archive-filters"
+                                               {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                               checked
+                                               {% endif %}
+                                        />
+                                        {{ value.full_value }}
+                                    </label>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    </td>
+
+                    <td>
+                    <div id="{{ category.name }}-search-tags" class="search-tags">
+                        {% for value in category.values.all %}
+                            {% if not request.GET or value.value in request.GET|multival_lookup:category.name %}
+                                {% include "problems/problemset/search-tag.html" with input_name="origin" input_value=value input_text=value.value prop="readonly" input_form="problemset-search" %}
+                            {% else %}
+                                {% include "problems/problemset/search-tag.html" with input_class="collapse" input_name="origin" input_value=value input_text=value.value input_attr="disabled" input_form="problemset-search" %}
+                            {% endif %}
+                        {% endfor %}
+                        &nbsp;
+                     </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="panel-body">
+            {% if not problems.subnodes and not problems.problem_list %}
+                <div class="alert alert-warning">
+                    {% trans "Hmm... there doesn't seem to be anything here..." %}
+                </div>
+            {% else %}
+                {% include "problems/task-archive-problemgroup.html" with problems=problems %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{{ STATIC_URL }}problems/task-archive-filters.js"></script>
+{% endblock %}

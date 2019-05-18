@@ -1,0 +1,92 @@
+.problemgroup-heading {
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.problemgroup-heading:first-child{
+    margin-top: 0;
+}
+
+.problemgroup-heading .collapse-toggle:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+    float: left;
+    color: grey;
+    font-size: xx-small;
+    line-height: 2em;
+    vertical-align: middle;
+    padding-right: 1em;
+}
+
+.problemgroup-heading .collapse-toggle.collapsed:after {
+    content: "\e080";
+}
+
+.problemgroup-body {
+    padding-left: 1em;
+}
+
+.checkbox-menu li label {
+    display: block;
+    padding: 3px 10px;
+    font-weight: normal;
+    line-height: 1.5;
+    white-space: nowrap;
+    user-select: none;
+}
+.checkbox-menu li input {
+    margin: 0px 5px;
+    top: 2px;
+    position: relative;
+}
+
+.checkbox-menu li.active label {
+    font-weight:bold;
+}
+
+.checkbox-menu li label:hover {
+    background-color: #f5f5f5;
+}
+
+.search-tags {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+#filters {
+    margin-top: 1em;
+    background-color: #fcfcfc;
+    border-radius: 4px;
+}
+
+#filters td {
+    border: 0;
+    padding: 1px;
+    vertical-align: middle;
+}
+
+#filters tr td:first-child{
+    width: 1px;
+}
+
+.filters-heading {
+    margin: 0.5em;
+    font-weight: bold;
+}
+
+#filters-collapse {
+    margin-top: 1em;
+}
+
+.filters-heading .collapse-toggle:after {
+    font-family: 'Glyphicons Halflings';
+    content: "\e114";
+    float: left;
+    color: grey;
+    font-size: small;
+    padding-right: 0.5em;
+}
+.filters-heading .collapse-toggle.collapsed:after {
+    content: "\e080";
+}

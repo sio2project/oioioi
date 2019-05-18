@@ -1,0 +1,39 @@
+{% with id=problems.div_id %}
+
+{% if value or id == "problemgroups" %}
+<div class="problemgroup-heading">
+    {% if parent_id %}
+    <a class="collapse-toggle{% if collapse %} collapsed{% endif %}"
+       data-toggle="collapse"
+       data-parent="#{{parent_id}}"
+       href="#{{id}}">
+        {{ value.full_value }}
+    </a>
+    {% endif %}
+</div>
+<div class="problemgroup-body collapse{% if not collapse %} in{% endif %}" id="{{id}}">
+{% endif %}
+
+{% if problems.subnodes %}
+    {% for value, subdict in problems.subnodes.items|dictsort:"0.order" %}
+        {% if value.value is None %}
+            {% include "problems/task-archive-problemgroup.html" with problems=subdict value=None %}
+        {% elif id == "problemgroups" %}
+            {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=True parent_id=id value=value %}
+        {% else %}
+            {% include "problems/task-archive-problemgroup.html" with problems=subdict collapse=False parent_id=id value=value %}
+        {% endif %}
+    {% endfor %}
+{% else %}
+    {% for problem in problems.problem_list %}
+        <p><a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}">
+            {{ problem }}
+        </a></p>
+    {% endfor %}
+{% endif %}
+
+{% if value or id == "problemgroups" %}
+</div>
+{% endif %}
+
+{% endwith %}

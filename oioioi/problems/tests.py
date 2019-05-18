@@ -1854,3 +1854,134 @@ class TestProblemSearchHintsTags(TestCase):
                                    })
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, ['pa_r1', 'pa_r2'])
+
+
+@override_settings(LANGUAGE_CODE='pl')
+class TestTaskArchive(TestCase):
+    fixtures = ['test_task_archive']
+
+    def test_task_archive_main(self):
+        response = self.client.get(reverse('task_archive'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Olimpiada Informatyczna')
+        self.assertContains(response, 'Potyczki Algorytmiczne')
+
+    def test_task_archive_tag(self):
+        url = reverse('task_archive_tag', args=('oi',))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'Olimpiada Informatyczna')
+        self.assertNotContains(response, 'Potyczki Algorytmiczne')
+        self.assertContains(response, 'Edycja')
+        self.assertContains(response, 'XXIV OI')
+        self.assertContains(response, 'XXV OI')
+        self.assertContains(response, 'Etap')
+        self.assertContains(response, 'Drugi Etap')
+        self.assertContains(response, 'Finał')
+
+        self.assertNotContains(response, "Hmm... there doesn't seem to be anything here...")
+        html = response.content.decode('utf-8')
+
+        pos = html.find('problemgroups')
+        self.assertTrue(pos != -1)
+        pos = html.find('problemgroups-xxiv', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('problemgroups-xxiv-s2', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('24_s2 1', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('24_s2 2', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('problemgroups-xxiv-s3', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('24_s3_d1', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('24_s3_d2', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('problemgroups-xxv', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('problemgroups-xxv-s3', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('25_s3 1', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('25_s3_d2', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('</div>', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('25 bug', pos)
+        self.assertTrue(pos != -1)
+
+        pos = html.find('</div>', pos)
+        self.assertTrue(pos != -1)
+        pos = html.find('no info', pos)
+        self.assertTrue(pos != -1)
+
+        self.assertNotContains(response, 'problemgroups-xxv-s2')
+        self.assertNotContains(response, '-d1')
+        self.assertNotContains(response, '-d2')
+
+    def test_task_archive_tag_filter(self):
+
+        def assert_problem_found(filters, found=True):
+            url = reverse('task_archive_tag', args=('oi',)) + filters
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'Olimpiada Informatyczna')
+            if found:
+                self.assertContains(response, '24_s3_d2')
+            else:
+                self.assertNotContains(response, '24_s3_d2')
+
+        assert_problem_found('')
+        assert_problem_found('?edition=xxiv')
+        assert_problem_found('?stage=s3')
+        assert_problem_found('?edition=xxiv&stage=s3')
+
+        assert_problem_found('?stage=s2', found=False)
+        assert_problem_found('?stage=s2&stage=s3')
+        assert_problem_found('?edition=xxv', found=False)
+        assert_problem_found('?edition=xxiv&edition=xxv')
+        assert_problem_found('?stage=s2&edition=xxiv&edition=xxv', found=False)
+        assert_problem_found('?stage=s2&stage=s3&edition=xxv', found=False)
+        assert_problem_found('?stage=s2&stage=s3&edition=xxiv&edition=xxv')
+
+    def test_task_archive_tag_filter_no_meta_on_problem(self):
+        url = reverse('task_archive_tag', args=('oi',)) + '?day=d2'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Olimpiada Informatyczna')
+
+        self.assertContains(response, '24_s3_d2')
+        self.assertContains(response, '25_s3_d2')
+
+        self.assertNotContains(response, '24_s2 1')
+        self.assertNotContains(response, '24_s2 2')
+        self.assertNotContains(response, '24_s3_d1')
+        self.assertNotContains(response, '25_s3 1')
+        self.assertNotContains(response, '25 bug')
+        self.assertNotContains(response, 'no info')
+
+    def test_task_archive_tag_filter_no_problems(self):
+        url = reverse('task_archive_tag', args=('oi',)) + '?stage=1'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'Olimpiada Informatyczna')
+        self.assertContains(response, "Hmm... there doesn't seem to be anything here...")
+        self.assertNotContains(response, 'problemgroups')
+        self.assertNotContains(response, '24_')
+        self.assertNotContains(response, '25_')
+        self.assertNotContains(response, '25 bug')
+        self.assertNotContains(response, 'no info')
+
+    def test_task_archive_tag_invalid_filter(self):
+        url = reverse('task_archive_tag', args=('oi',)) + '?invalid=filter'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 404)

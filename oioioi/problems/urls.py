@@ -53,6 +53,10 @@ urlpatterns = [
         views.get_report_HTML_view,
         name='get_report_HTML'),
 
+    url(r'^task_archive/$', views.task_archive_view, name='task_archive'),
+    url(r'^task_archive/(?P<origin_tag>[0-9a-z-]+)/',
+        views.task_archive_tag_view, name='task_archive_tag'),
+
     url(r'^get_search_hints/(?P<view_type>public|my|all)/$', views.get_search_hints_view, name='get_search_hints'),
     url(r'^get_origininfocategory_hints/$', views.get_origininfocategory_hints_view, name='get_origininfocategory_hints'),
     url(r'^get_difficultytag_hints/$', views.get_difficultytag_hints_view, name='get_difficultytag_hints'),

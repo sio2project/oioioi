@@ -280,3 +280,29 @@ def generate_model_solutions_context(request, problem_instance_id):
         'rows': rows,
         'total_row': total_row
     }
+
+def get_prefetched_value(problem, category):
+    """Returns OriginInfoValue for the given Problem and OriginInfoCategory.
+
+       You can't filter the prefetched sets and since the OriginInfoValue set
+       only has a few elements it should be faster to choose from all of them.
+
+       If there is no OriginInfoValue for this OriginInfoCategory and Problem,
+       a fake object with .value == None and .order == infinity is returned.
+
+       Avoids database queries if and only if the problem was from a queryset on
+       which `prefetch_related('origininfovalue_set__category')` was called. If
+       prefetching was impossible you should just filter instead.
+    """
+    for oiv in problem.origininfovalue_set.all():
+        if oiv.category == category:
+            return oiv
+
+    class FakeOriginInfoValue(object):
+        value = None
+        order = float('inf')
+        cat = category
+        def __eq__(self, other):
+            return self.cat == other.cat
+
+    return FakeOriginInfoValue()
