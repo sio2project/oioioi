@@ -3,7 +3,7 @@ from importlib import import_module
 from django.conf import settings
 from django.conf.urls import include, url
 
-from oioioi.contests import admin, views
+from oioioi.contests import admin, views, api
 
 app_name = 'contests'
 
@@ -135,6 +135,15 @@ neutral_patterns = [
         views.reattach_problem_confirm_view,
         name='reattach_problem_confirm'),
 ]
+
+if settings.USE_API:
+    nonc_patterns += [
+        # the contest information is managed manually and added after api prefix
+        url(r'^api/c/(?P<contest_name>[a-z0-9_-]+)/submit/(?P<problem_short_name>[a-z0-9_-]+)$',
+            api.SubmitContestSolution.as_view(), name='api_contest_submit'),
+        url(r'^api/problemset/submit/(?P<problem_site_key>[0-9a-zA-Z-_=]+)$',
+            api.SubmitProblemsetSolution.as_view(), name='api_problemset_submit'),
+    ]
 
 for app in settings.INSTALLED_APPS:
     if app.startswith('oioioi.'):

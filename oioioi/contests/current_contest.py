@@ -21,7 +21,7 @@ def set_cc_id(val):
     cc_id.value = val
 
 
-contest_re = re.compile(r'^/c/([a-z0-9_-]+)/')
+contest_re = re.compile(r'^(?:/api)?/c/(?P<c_name>[a-z0-9_-]+)/')
 
 
 def reverse(target, *args, **kwargs):

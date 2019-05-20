@@ -43,6 +43,8 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.models import Test
 from oioioi.programs.tests import SubmitFileMixin
 
+from rest_framework.test import APITestCase
+
 
 class TestModels(TestCase):
 
@@ -2056,3 +2058,128 @@ class TestNoSubmissionsLimitOnListView(TestCase):
             see_limits_on_problems_list(self, user,
                                         displays_submissions_limit=False,
                                         displays_tries_left=False)
+
+
+class TestAPISubmitBase(APITestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_submission']
+    extra_fixtures = []
+
+    def __init__(self, *args, **kwargs):
+        self.fixtures += self.extra_fixtures
+        super(TestAPISubmitBase, self).__init__(*args, **kwargs)
+
+    def setUp(self):
+        self.client.force_authenticate(user=User.objects.get(username='test_user'))
+
+    def submit_file(self, url_name, url_kwargs, file_size=1024,
+                    file_name='submission.cpp', kind=None):
+        url = reverse(url_name, kwargs=url_kwargs)
+        file = ContentFile(b'a' * file_size, name=file_name)
+        post_data = { 'file': file }
+        if kind:
+            post_data['kind'] = kind
+        return self.client.post(url, post_data)
+
+    def _assertSubmitted(self, response, i=None):
+        self.assertEqual(response.status_code, 200)
+        if i is not None:
+            self.assertEqual(str(i), response.content)
+        Submission.objects.get(id=response.content)
+
+
+class TestAPIContestSubmit(TestAPISubmitBase):
+    extra_fixtures = ['test_problem_instance']
+
+    def contest_submit(self, contest, pi, *args, **kwargs):
+        return self.submit_file('api_contest_submit',
+                                {'contest_name': contest.id,
+                                 'problem_short_name': pi.short_name},
+                                *args, **kwargs)
+
+    def test_simple_submission(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        round = Round.objects.get()
+        round.start_date = datetime(2012, 7, 31, tzinfo=utc)
+        round.end_date = datetime(2012, 8, 10, tzinfo=utc)
+        round.save()
+
+        with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
+            response = self.contest_submit(contest, problem_instance)
+            self.assertEqual(400, response.status_code)
+            self.assertIn('Permission denied', response.content)
+
+        with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
+            response = self.contest_submit(contest, problem_instance)
+            self._assertSubmitted(response, 2)
+
+        with fake_time(datetime(2012, 8, 5, tzinfo=utc)):
+            response = self.contest_submit(contest, problem_instance)
+            self._assertSubmitted(response, 3)
+
+        with fake_time(datetime(2012, 8, 10, tzinfo=utc)):
+            response = self.contest_submit(contest, problem_instance)
+            self._assertSubmitted(response, 4)
+
+        with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
+            response = self.contest_submit(contest, problem_instance)
+            self.assertEqual(400, response.status_code)
+            self.assertIn('Permission denied', response.content)
+
+    def test_submissions_limitation(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        problem_instance.submissions_limit = 2
+        problem_instance.save()
+        response = self.contest_submit(contest, problem_instance)
+        self._assertSubmitted(response, 2)
+        response = self.contest_submit(contest, problem_instance)
+        self.assertEqual(400, response.status_code)
+        self.assertIn('Submission limit for the problem', response.content)
+
+    def test_huge_submission(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        response = self.contest_submit(contest, problem_instance,
+                                       file_size=102405)
+        self.assertIn('File size limit exceeded.', response.content)
+
+    def test_size_limit_accuracy(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        response = self.contest_submit(contest, problem_instance,
+                                    file_size=102400)
+        self._assertSubmitted(response, 2)
+
+    def _assertUnsupportedExtension(self, contest, problem_instance, name,
+                                    ext):
+        response = self.contest_submit(contest, problem_instance,
+                                       file_name='%s.%s' % (name, ext))
+        self.assertIn('Unknown or not supported file extension.', response.content)
+
+    def test_limiting_extensions(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+        self._assertUnsupportedExtension(contest, problem_instance,
+                'xxx', 'inv4l1d_3xt')
+        response = self.contest_submit(contest, problem_instance, file_name='a.c')
+        self._assertSubmitted(response, 2)
+
+
+class TestAPIProblemsetSubmit(TestAPISubmitBase):
+    extra_fixtures = ['test_problem_site', 'test_problem_instance_with_no_contest']
+
+    # As problemset submissions share most of the logic with contest submissions
+    # they have only few simple tests
+
+    def problemset_submit(self, problem=None, site_key=None, *args, **kwargs):
+        if problem is not None:
+            site_key = problem.problemsite.url_key
+        return self.submit_file('api_problemset_submit',
+                                {'problem_site_key': site_key}, *args, **kwargs)
+
+    def test_problemset_submission(self):
+        response = self.problemset_submit(site_key='123')
+        self.assertEqual(response.status_code, 200)
+        self._assertSubmitted(response, 2)

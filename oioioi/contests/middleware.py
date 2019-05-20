@@ -100,7 +100,7 @@ class CurrentContestMiddleware(object):
         m = contest_re.match(request.path)
 
         if m is not None:
-            contest_id = m.group(1)
+            contest_id = m.group('c_name')
             contest = get_object_or_404(Contest, id=contest_id)
 
         activate_contest(request, contest)
