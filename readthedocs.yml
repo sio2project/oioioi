@@ -4,7 +4,7 @@ sphinx:
   configuration: rst/source/conf.py
 
 build:
-  image: 5.0
+  image: 4.0
 
 python:
   version: 3
