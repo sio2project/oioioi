@@ -695,3 +695,29 @@ class TagThrough(models.Model):
 
     class Meta(object):
         unique_together = ('problem', 'tag')
+
+
+class AlgorithmTagProposal(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __unicode__(self):
+        return six.text_type(self.problem.name) + ' -- ' + six.text_type(self.tag.name)
+
+    class Meta(object):
+        verbose_name = _('algorithm tag proposal')
+        verbose_name_plural = _('algorithm tag proposals')
+
+
+class DifficultyProposal(models.Model):
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    difficulty = models.CharField(max_length=10)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def __unicode__(self):
+        return six.text_type(self.problem.name) + ' -- ' + six.text_type(self.difficulty)
+
+    class Meta(object):
+        verbose_name = _('difficulty proposal')
+        verbose_name_plural = _('difficulty proposals')

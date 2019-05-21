@@ -14,7 +14,8 @@ from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import administered_contests, is_contest_admin
-from oioioi.problems.models import ProblemStatement
+from oioioi.problems.models import (ProblemStatement, AlgorithmTagProposal, DifficultyProposal,
+                                    ProblemStatistics, UserStatistics)
 from oioioi.programs.models import GroupReport, ModelProgramSubmission, TestReport
 
 
@@ -306,3 +307,19 @@ def get_prefetched_value(problem, category):
             return self.cat == other.cat
 
     return FakeOriginInfoValue()
+
+
+def show_proposal_form(problem, user):
+    if not user.is_authenticated:
+        return False
+
+    if AlgorithmTagProposal.objects.all().filter(problem=problem, user=user) or \
+        DifficultyProposal.objects.all().filter(problem=problem, user=user):
+        return False
+
+    ps = ProblemStatistics.objects.all().filter(problem=problem)
+    us = UserStatistics.objects.all().filter(problem_statistics=ps, user=user).first()
+    if not us or not us.has_solved:
+        return False
+
+    return True

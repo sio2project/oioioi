@@ -14,7 +14,7 @@ from oioioi.base.menu import OrderedRegistry
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import Submission
-from oioioi.problems.models import Problem, ProblemAttachment, ProblemPackage
+from oioioi.problems.models import Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal
 from oioioi.problems.utils import (query_statement, query_zip, generate_add_to_contest_metadata,
                                    generate_model_solutions_context, can_admin_problem)
 
@@ -146,11 +146,13 @@ def problem_site_settings(request, problem):
     package = ProblemPackage.objects.filter(problem=problem).first()
     model_solutions = generate_model_solutions_context(request, problem.main_problem_instance_id)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
+    algorithm_tag_proposals = AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
     return TemplateResponse(request, 'problems/settings.html',
                             {'site_key': problem.problemsite.url_key,
                              'problem': problem, 'administered_recent_contests': administered_recent_contests,
                              'package': package if package and package.package_file else None,
                              'model_solutions': model_solutions,
+                             'algorithm_tag_proposals': algorithm_tag_proposals,
                              'can_admin_problem': can_admin_problem(request, problem),
                              'extra_actions': extra_actions})
 

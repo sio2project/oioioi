@@ -1,0 +1,55 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problemstatistics",
+    "fields": {
+      "problem_id": 1,
+      "submitted": 2,
+      "solved": 1,
+      "_best_score_sum": 270,
+      "avg_best_score": 90
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.userstatistics",
+    "fields": {
+      "problem_statistics": 1,
+      "user": 1001,
+      "has_submitted": true,
+      "has_solved": true,
+      "best_score": 100
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.userstatistics",
+    "fields": {
+      "problem_statistics": 1,
+      "user": 1002,
+      "has_submitted": true,
+      "has_solved": false,
+      "best_score": 70
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.userstatistics",
+    "fields": {
+      "problem_statistics": 1,
+      "user": 1003,
+      "has_submitted": true,
+      "has_solved": true,
+      "best_score": 100
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.algorithmtagproposal",
+    "fields": {
+      "problem": 1,
+      "tag": 1,
+      "user": 1003
+    }
+  }
+]

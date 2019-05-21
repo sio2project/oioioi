@@ -34,6 +34,16 @@
   background-color: #eeeeee;
 }
 
+.tagform-icon {
+  margin-top: 0.72em;
+  font-size: 20px;
+  color: #003eff;
+}
+
+.icon-container {
+  margin: 20px 0 0 1rem;
+}
+
 .lower-button {
   display: flex;
   justify-content: center;
@@ -50,6 +60,71 @@
   margin-top: 4rem;
 }
 
+.btn-row {
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  justify-content: space-evenly;
+}
+
+.btn-option {
+  background-color: #e5e5e5;
+}
+
+.tag-input {
+  margin-top: 3rem;
+  margin-bottom: 4rem;
+}
+
+.autocomplete-list {
+  border-style: solid;
+  border-color: #cccccc;
+  border-width: 1px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  list-style-type: none;
+  padding-left: 0;
+  position: absolute;
+  z-index: 100;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+}
+
+.autocomplete-item {
+  padding-left: 1rem;
+}
+
+.autocomplete-item:hover {
+  cursor: pointer;
+}
+
+.autocomplete-active {
+  background-color: #eeeeee;
+}
+
+.tag-proposal {
+  cursor: pointer;
+}
+
+.error-message {
+  text-align: center;
+  font-size: small;
+}
+
+#autocomplete {
+  width: 40%;
+  justify-content: center;
+  position: relative;
+}
+
+#algorithm-tags {
+  width: 100%;
+}
+
 #model-solutions-table {
   margin: 3rem 3rem 0 3rem;
+}
+
+#tag-form > .modal-dialog {
+  max-width: 540px;
 }

@@ -16,12 +16,12 @@
         {% tag_label tag %}
     {% endfor %}
 
-    {% if proposed_tags %}
+    {% if algorithm_tag_proposals %}
         <hr class="separator">
 
         <h4 class="text-center item-title">{% trans "User proposals" %}</h4>
-        {% for tag in proposed_tags %}
-            {% tag_label tag %}
+        {% for proposal in algorithm_tag_proposals %}
+            {% tag_label proposal.tag %}
         {% endfor %}
     {% endif %}
 

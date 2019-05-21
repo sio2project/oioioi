@@ -7,6 +7,7 @@ import re
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
@@ -32,7 +33,8 @@ from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     OriginTagLocalization, OriginInfoValue,
                                     OriginInfoValueLocalization,
                                     OriginInfoCategory,
-                                    DifficultyTag, AlgorithmTag)
+                                    DifficultyTag, AlgorithmTag, AlgorithmTagProposal,
+                                    DifficultyProposal)
 
 from oioioi.problems.menu import navbar_links_registry
 from oioioi.problems.problem_site import problem_site_tab_registry
@@ -43,7 +45,7 @@ from oioioi.problems.utils import (can_add_to_problemset,
                                    can_admin_problem_instance,
                                    generate_add_to_contest_metadata,
                                    generate_model_solutions_context,
-                                   query_statement, get_prefetched_value)
+                                   query_statement, get_prefetched_value, show_proposal_form)
 from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
                                     ModelSolution, TestReport)
 from unidecode import unidecode
@@ -393,6 +395,7 @@ def problem_site_view(request, site_key):
                'can_admin_problem': can_admin_problem(request, problem),
                'select_problem_src': request.GET.get('select_problem_src'),
                'show_add_button': show_add_button,
+               'show_proposal_form': show_proposal_form(problem, request.user),
                'administered_recent_contests': administered_recent_contests,
                'navbar_links': navbar_links,
                'problemset_tabs': problemset_tabs}
@@ -796,3 +799,50 @@ def get_origininfocategory_hints_view(request):
             'value': val.name,
         } for val in category.values.all()
     ]
+
+
+@jsonify
+def get_tag_proposal_hints_view(request):
+    query = request.GET.get('query', '')
+    algorithm_tags = AlgorithmTag.objects.filter(name__istartswith=query)
+    return [str(tag.name) for tag in algorithm_tags]
+
+
+@jsonify
+def get_tag_label_view(request):
+    name = request.GET.get('name', '')
+    tag = AlgorithmTag.objects.filter(name=name)
+    proposed = request.GET.get('proposed', -1)
+
+    if not tag or proposed != '-1':
+        raise Http404
+
+    return [str(tag.name) for tag in tag]
+
+
+def save_proposals_view(request):
+    if request.method == 'POST':
+        tags = request.POST.getlist('tags[]')
+        user = User.objects.all().filter(username=request.POST.get('user', None)).first()
+        problem = Problem.objects.all().filter(pk=request.POST.get('problem', None)).first()
+
+        if not user or not problem:
+            return None
+
+        for tag in tags:
+            proposal = AlgorithmTagProposal(
+                problem = problem,
+                tag = AlgorithmTag.objects.filter(name=tag).first(),
+                user = user
+            )
+            proposal.save()
+
+        if request.POST.get('difficulty', None):
+            proposal = DifficultyProposal(
+                problem = problem,
+                difficulty = request.POST['difficulty'],
+                user = user
+            )
+            proposal.save()
+
+        return HttpResponse('success\n' + str(tags))

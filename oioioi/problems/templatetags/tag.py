@@ -10,7 +10,7 @@ register = Library()
 def tag_label(tag):
     prefix = get_tag_prefix(tag)
     return format_html(
-        u'<a title="{tooltip}" class="label tag-label-{cls}" href="{href}" '
+        u'<a title="{tooltip}" class="label tag-label tag-label-{cls}" href="{href}" '
         '>{name}</a>',
         tooltip=getattr(tag, 'full_name', tag.name),
         name=tag.name,
@@ -23,7 +23,7 @@ def tag_label(tag):
 def origininfo_label(info):
     prefix = get_tag_prefix(info)
     return format_html(
-        u'<a title="{tooltip}" class="label tag-label-{cls}" href="{href}" '
+        u'<a title="{tooltip}" class="label tag-label tag-label-{cls}" href="{href}" '
         '>{name}</a>',
         tooltip=info.full_name,
         name=info.value,

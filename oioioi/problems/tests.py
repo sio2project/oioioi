@@ -434,8 +434,8 @@ class TestProblemPackageViews(TestCase, TestStreamingMixin):
 
 @override_settings(CONTEST_MODE=ContestMode.neutral)
 class TestProblemSite(TestCase, TestStreamingMixin):
-    fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission', 'test_problem_site']
+    fixtures = ['test_users', 'test_contest', 'test_full_package', 'test_problem_instance',
+                'test_submission', 'test_problem_site', 'test_algorithmtags', 'test_proposals']
 
     def _get_site_urls(self):
         url = reverse('problem_site', kwargs={'site_key': '123'})
@@ -516,6 +516,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         self.assertContains(response, 'Edit tests')
         self.assertContains(response, 'Reupload problem')
         self.assertContains(response, 'Model solutions')
+        self.assertContains(response, 'mrowkowiec')
 
     def test_add_new_tab(self):
         tab_title = 'Test tab'
@@ -544,6 +545,23 @@ class TestProblemSite(TestCase, TestStreamingMixin):
                 kwargs={'site_key': '123', 'attachment_id': 1})
         response = self.client.get(url_external_attmt)
         self.assertStreamingEqual(response, 'content-of-probatt')
+
+    def test_form_accessibility(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(self._get_site_urls()['statement'])
+        self.assertNotContains(response, 'id="open-form"')
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(self._get_site_urls()['statement'])
+        self.assertContains(response, 'id="open-form"')
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        response = self.client.get(self._get_site_urls()['statement'])
+        self.assertNotContains(response, 'id="open-form"')
+
+        self.assertTrue(self.client.login(username='test_user3'))
+        response = self.client.get(self._get_site_urls()['statement'])
+        self.assertNotContains(response, 'id="open-form"')
 
 
 class TestProblemsetPage(TestCase):
