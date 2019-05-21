@@ -1,7 +1,12 @@
+version: 2
+
+sphinx:
+  configuration: rst/source/conf.py
+
 build:
-  image: sio2project/oioioi-readdthedocs-build:latest
+  image: 5.0
 
 python:
   version: 3
-
-requirements_file: requirements_py3.txt
+  install:
+    - requirements: requirements_py3.txt
