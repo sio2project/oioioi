@@ -6,4 +6,6 @@ sphinx:
 python:
   version: 3
   install:
+    - method: setuptools
+      path: rst/extra/fake-bsddb3
     - requirements: requirements_py3.txt
