@@ -11,10 +11,10 @@ There is also some documentation on the `OIOIOI Project Documentation Site
 Architecture Overview
 ---------------------
 
-.. _Django 1.9: https://docs.djangoproject.com/en/1.9/
-.. _Django authentication: https://docs.djangoproject.com/en/1.9/topics/auth/
+.. _Django 1.10: https://docs.djangoproject.com/en/1.10/
+.. _Django authentication: https://docs.djangoproject.com/en/1.10/topics/auth/
 .. _django-registration-redux: http://django-registration-redux.readthedocs.org/en/latest/
-.. _Django file storage: https://docs.djangoproject.com/en/1.9/topics/files/
+.. _Django file storage: https://docs.djangoproject.com/en/1.10/topics/files/
 .. _Filetracker: https://github.com/sio2project/filetracker
 .. _Sioworkers: https://github.com/sio2project/sioworkers
 .. _Celery: http://docs.celeryproject.org/en/latest/index.html
@@ -22,10 +22,10 @@ Architecture Overview
 .. _django-pagination: https://code.google.com/p/django-pagination/
 .. _django-nose: https://github.com/jbalogh/django-nose
 .. _selenium: http://www.seleniumhq.org/
-.. _Django i18n: https://docs.djangoproject.com/en/1.9/topics/i18n/
+.. _Django i18n: https://docs.djangoproject.com/en/1.10/topics/i18n/
 .. _Transifex: https://www.transifex.com/projects/p/sio2project/
 
-The OIOIOI source code is a standard `Django 1.9`_ project, with the following
+The OIOIOI source code is a standard `Django 1.10`_ project, with the following
 components used:
 
 * Standard `Django authentication`_
