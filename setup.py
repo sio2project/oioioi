@@ -106,6 +106,9 @@ python23_universal_requirements = [
         # Dependencies from external sources live in requirements.txt
 
         "django-simple-captcha",
+
+        # HOTFIX
+        "phonenumbers",
 ]
 
 if PYTHON_VERSION == 2:
