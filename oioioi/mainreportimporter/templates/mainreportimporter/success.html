@@ -1,0 +1,16 @@
+{% extends "problems/problemset/base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block main_content %}
+<p>
+Twoje zgłoszenie zostało dodane do przetworzenia. Raporty pojawią się w
+<a href="https://szkopul.edu.pl/portal/problemset">archiwum zadań</a>
+za jakiś czas. W zależności od ich liczby,
+może to potrwać kilku minut do kilkunastu godzin.
+</p>
+
+<a href="/">
+<button type="button" class="btn btn-default">Powrót na stronę główną</button>
+</a>
+{% endblock %}

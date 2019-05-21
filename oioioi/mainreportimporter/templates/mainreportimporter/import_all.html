@@ -1,0 +1,50 @@
+{% extends "problems/problemset/base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+
+{% block main_content %}
+<p>
+<img src="/static/images/flags/pl.png">
+Poniżej możesz pobrać swoje zgłoszenia z Twojego konta na
+<a href="http://main.edu.pl">main.edu.pl</a>.
+Zostaną one podpięte pod odpowiednie zadania z
+<a href="https://szkopul.edu.pl/portal/problemset">archiwum zadań</a>.
+</p>
+
+<p>
+Zaimportowane zostaną <b>wszystkie Twoje zgłoszenia</b>.
+Jeśli chcesz pobrać zgłoszenia tylko z jednego zadania,
+przejdź do niego w 
+<a href="https://szkopul.edu.pl/portal/problemset">archiwum zadań</a>,
+a natępnie wejdź w zakładkę "import z MAIN".
+</p>
+
+<p>
+Aby pobrać swoje zgłoszenia,
+wprowadź dane logowania z systemu
+<a href="http://main.edu.pl">main.edu.pl</a>.
+</p>
+
+<p>
+<img src="/static/images/flags/en.png">
+You can import your submissions from your account on 
+<a href="http://main.edu.pl">main.edu.pl</a> using form below.
+It will be attached to appropriate problems from 
+<a href="https://szkopul.edu.pl/portal/problemset">task archieve</a>.
+</p>
+
+<p>
+<b>All your submissions</b> will be imported.
+If you want to import submissions from only one problem,
+choose it in
+<a href="https://szkopul.edu.pl/portal/problemset">task archieve</a>
+and use form from "import from MAIN" tab.
+</p>
+
+<p>
+To import your submissions, enter your login data from
+<a href="http://main.edu.pl">main.edu.pl</a>.
+</p>
+{% include "mainreportimporter/form.html" %}
+
+{% endblock %}

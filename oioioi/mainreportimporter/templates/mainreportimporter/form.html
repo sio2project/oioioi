@@ -1,0 +1,13 @@
+<div style="margin:auto; width:200px;">
+<form method="POST">
+    {% csrf_token %}
+
+    <fieldset style="text-align: left;">
+        Login:<br>
+        <input type="text" name="login" required><br>
+        Hasło / Password:<br>
+        <input type="password" name="password" required><br><br>
+        <input type="submit" value="Wyślij / Submit">
+    </fieldset>
+</form>
+</div>

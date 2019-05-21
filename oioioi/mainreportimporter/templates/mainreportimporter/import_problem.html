@@ -1,0 +1,66 @@
+{% if user.is_authenticated %}
+{% if problem.author.username == "main" or problem.author.username == "maineng" %}
+<center>
+<p>
+<img src="/static/images/flags/pl.png">
+Poniżej możesz pobrać swoje zgłoszenia <b>do tego zadania</b> z Twojego konta na
+<a href="http://main.edu.pl">main.edu.pl</a>. Pojawią się one w zakładce "Zgłoszenia".
+<br>
+Jeśli chcesz zaimportować swoje zgłoszenia do wszystkich zadań,
+możesz to zrobić
+<a href="{% url 'import_report' %}">tutaj</a>.
+</p>
+
+<p>
+Aby pobrać swoje zgłoszenia,
+wprowadź dane logowania z systemu
+<a href="http://main.edu.pl">main.edu.pl</a>.
+</p>
+
+<p>
+<img src="/static/images/flags/en.png">
+You can import your submissions for <b>this problem</b> from your account on
+<a href="http://main.edu.pl">main.edu.pl</a> using form above. It will appear in "Submissions" tab.
+<br>
+If you want to import all your submissions, you can do it by
+<a href="{% url 'import_report' %}">this form</a>.
+</p>
+
+<p>
+To import your submissions, enter your login data from
+<a href="http://main.edu.pl">main.edu.pl</a>.
+</p>
+
+</center>
+{% include "mainreportimporter/form.html" %}
+
+{% else %}
+<center>
+<p>
+    <img src="/static/images/flags/pl.png">
+    Importowanie zgłoszeń jest możliwe jedynie dla zadań z
+    <a href="http://main.edu.pl">main.edu.pl</a>
+</p>
+<p>
+    <img src="/static/images/flags/en.png">
+    Import of submissions is available only for problems from
+    <a href="http://main.edu.pl">main.edu.pl</a>
+</p>
+</center>
+{% endif %}
+
+{% else %}
+
+<center>
+<p>
+<img src="/static/images/flags/pl.png">
+Zaloguj się aby zaimportować swoje zgłoszenia.
+</p>
+
+<p>
+<img src="/static/images/flags/en.png">
+Log in to import your submissions.
+</p>
+</center>
+
+{% endif %}
