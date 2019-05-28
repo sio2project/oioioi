@@ -113,6 +113,10 @@ def update_user_results(env, **kwargs):
 @transaction.atomic
 @_get_submission_or_skip
 def update_problem_statistics(env, submission, **kwargs):
+    # Ignore model solutions
+    if not submission.user:
+        return env
+
     (
         problem_statistics,
         created,
