@@ -3,7 +3,7 @@ import os.path
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_init
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
@@ -301,3 +301,47 @@ class UserOutGenStatus(models.Model):
                                       on_delete=models.CASCADE)
     status = EnumField(submission_statuses, default='?')
     visible_for_user = models.BooleanField(default=True)
+
+
+class ProblemCompiler(models.Model):
+    """Represents compiler used for a given language for this problem.
+       This can be altered by contest specific compilers."""
+
+    problem = models.ForeignKey(Problem, verbose_name=_('problem'), on_delete=models.CASCADE)
+    language = models.CharField(max_length=20, verbose_name=_('language'))
+    compiler = models.CharField(max_length=50, verbose_name=_('compiler'))
+
+    class Meta(object):
+        verbose_name = _('problem compiler')
+        verbose_name_plural = _('problem compilers')
+        ordering = ('problem',)
+        unique_together = ('problem', 'language')
+
+
+@receiver(post_save, sender=Problem)
+def _autocreate_problem_compilers_for_problem(sender, instance, created, raw, using, **kwargs):
+    # we want to do this only if object is newly created
+    if created:
+        # create problem compilers for every language and populate with defaults
+        for language in getattr(settings, "SUBMITTABLE_EXTENSIONS", {}):
+            problem_compiler = ProblemCompiler(
+                problem=instance,
+                language=language,
+                compiler=settings.DEFAULT_COMPILERS[language],
+            )
+            problem_compiler.save()
+
+
+class ContestCompiler(models.Model):
+    """Represents compilers set for languages in different contests.
+    This is used to allow overriding problems' compilers inside a contest."""
+
+    contest = models.ForeignKey(Contest, verbose_name=_("contest"), on_delete=models.CASCADE)
+    language = models.CharField(max_length=20, verbose_name=_('language'))
+    compiler = models.CharField(max_length=50, verbose_name=_('compiler'))
+
+    class Meta(object):
+        verbose_name = _('contest compiler')
+        verbose_name_plural = _('contest compilers')
+        ordering = ('contest',)
+        unique_together = ('contest', 'language')

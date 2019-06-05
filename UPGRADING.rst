@@ -563,8 +563,30 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          # Additional Celery configuration necessary for 'prizes' app.
 
 #. * Added ``oioioi.usergroups`` module.::
-	
+
 	Add the following line at the end of your INSTALLED_APPS variable
 	in settings.py (if you want to use the new app simply uncomment this line):
-	
+
 	#    'oioioi.usergroups',
+#. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supoorted::
+
+        --- a/oioioi/default_settings.py
+        +++ b/oioioi/default_settings.py
+        @@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
+
+         from django.contrib.messages import constants as messages
+
+         DEBUG = False
+         INTERNAL_IPS = ('127.0.0.1',)
+        @@ -302,6 +302,12 @@ USE_LOCAL_COMPILERS = False
+         DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
+         RUN_LOCAL_WORKERS = False
+
+        +# This setting sets the default compilers used throughout the platform.
+        +# There should be an entry for every language supported with key being the same
+        +# as in SUBMITTABLE_EXTENSIONS
+        +DEFAULT_COMPILERS = {'C': 'gcc', 'C++': 'gcc', 'Pascal': 'fpc', 'Java': 'java',
+        +                     'Python': 'gcc'}
+        +
+         # WARNING: experimental, see settings template
+         USE_UNSAFE_CHECKER = True
