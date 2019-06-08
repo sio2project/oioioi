@@ -22,7 +22,7 @@ from pygments.util import ClassNotFound
 from six.moves import range
 
 from oioioi.base.permissions import enforce_condition
-from oioioi.base.utils import strip_num_or_hash
+from oioioi.base.utils import jsonify, strip_num_or_hash
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    get_submission_or_error, is_contest_admin)
 from oioioi.filetracker.utils import stream_file
@@ -367,3 +367,10 @@ def generate_user_output_view(request, testreport_id=None,
 
     return redirect('submission', contest_id=request.contest.id,
                     submission_id=submission.id)
+
+
+@jsonify
+def get_compiler_hints_view(request):
+    language = request.GET.get('language', '')
+    available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
+    return available_compilers.get(language, [])

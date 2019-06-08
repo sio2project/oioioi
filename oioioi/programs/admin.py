@@ -15,10 +15,10 @@ from oioioi.contests.admin import (ProblemInstanceAdmin, SubmissionAdmin,
                                    ContestAdmin)
 from oioioi.contests.models import ProblemInstance
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
+from oioioi.programs.forms import ContestCompilerInlineForm
 from oioioi.programs.models import (LibraryProblemData, ModelSolution,
                                     OutputChecker, ReportActionsConfig, Test,
-                                    ProgramsConfig)
-
+                                    ProgramsConfig, ContestCompiler)
 
 class ProgramsConfigInline(admin.TabularInline):
     model = ProgramsConfig
@@ -32,6 +32,12 @@ class ProgramsConfigInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+class ContestCompilerInline(admin.StackedInline):
+    model = ContestCompiler
+    extra = 0
+    form = ContestCompilerInlineForm
 
 
 class ValidationFormset(BaseInlineFormSet):
@@ -178,16 +184,18 @@ class LibraryProblemDataInline(admin.TabularInline):
         return False
 
 
-class ProgramsConfigAdminMixin(object):
-    """Adds :class:`~oioioi.programs.models.ProgramsConfig` to an admin
+class ProgramsContestAdminMixin(object):
+    """Adds :class:`~oioioi.programs.models.ProgramsConfig`
+       and :class:`~oioioi.programs.models.ContestCompiler` to an admin
        panel.
     """
 
     def __init__(self, *args, **kwargs):
-        super(ProgramsConfigAdminMixin, self) \
+        super(ProgramsContestAdminMixin, self) \
             .__init__(*args, **kwargs)
-        self.inlines = self.inlines + [ProgramsConfigInline]
-ContestAdmin.mix_in(ProgramsConfigAdminMixin)
+        self.inlines = self.inlines + [ProgramsConfigInline,
+                                       ContestCompilerInline]
+ContestAdmin.mix_in(ProgramsContestAdminMixin)
 
 
 class LibraryProblemDataAdminMixin(object):

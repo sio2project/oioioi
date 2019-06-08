@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 34
+INSTALLATION_CONFIG_VERSION = 35
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -302,11 +302,25 @@ USE_LOCAL_COMPILERS = False
 DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
 RUN_LOCAL_WORKERS = False
 
+# This setting specifies which compilers are available in sioworkers.
+# By default that means ones defined here:
+# https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
+# There should be an entry for every language supported with key being the same
+# as in SUBMITTABLE_EXTENSIONS
+AVAILABLE_COMPILERS = {
+        'C': ['gcc'],
+        'C++': ['g++'],
+        'Pascal': ['fpc'],
+        'Java': ['java'],
+        'Python': ['python']
+}
+
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_EXTENSIONS
-DEFAULT_COMPILERS = {'C': 'c', 'C++': 'cpp', 'Pascal': 'pas', 'Java': 'java',
-                     'Python': 'py'}
+DEFAULT_COMPILERS = {'C': 'gcc', 'C++': 'g++', 'Pascal': 'fpc', 'Java': 'java',
+                     'Python': 'python'}
+
 
 # WARNING: experimental, see settings template
 USE_UNSAFE_CHECKER = True

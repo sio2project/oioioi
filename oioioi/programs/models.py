@@ -1,7 +1,7 @@
 import os.path
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_save, pre_save, post_init
 from django.dispatch import receiver
@@ -345,3 +345,18 @@ class ContestCompiler(models.Model):
         verbose_name_plural = _('contest compilers')
         ordering = ('contest',)
         unique_together = ('contest', 'language')
+
+
+def check_compilers_config():
+    SUBMITTABLE_EXTENSIONS = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})
+    AVAILABLE_COMPILERS = getattr(settings, "AVAILABLE_COMPILERS", {})
+    DEFAULT_COMPILERS = getattr(settings, "DEFAULT_COMPILERS", {})
+    for language in SUBMITTABLE_EXTENSIONS:
+        if not AVAILABLE_COMPILERS.get(language):
+            raise ImproperlyConfigured
+        if not DEFAULT_COMPILERS.get(language):
+            raise ImproperlyConfigured
+        if DEFAULT_COMPILERS[language] not in AVAILABLE_COMPILERS[language]:
+            raise ImproperlyConfigured
+
+check_compilers_config()

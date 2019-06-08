@@ -34,4 +34,6 @@ urlpatterns = [
         views.save_diff_id_view, name='save_diff_id'),
     url(r'^diff/(?P<submission1_id>\d+)/(?P<submission2_id>\d+)/$',
         views.source_diff_view, name='source_diff'),
+    url(r'^get_compiler_hints/$', views.get_compiler_hints_view,
+        name='get_compiler_hints'),
 ]

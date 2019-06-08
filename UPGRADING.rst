@@ -568,6 +568,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 	in settings.py (if you want to use the new app simply uncomment this line):
 
 	#    'oioioi.usergroups',
+
 #. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supoorted::
 
         --- a/oioioi/default_settings.py
@@ -590,3 +591,14 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +
          # WARNING: experimental, see settings template
          USE_UNSAFE_CHECKER = True
+
+$. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compilers available in sioworkers for every language supported.::
+        +# This setting specifies which compilers are available in sioworkers
+        +AVAILABLE_COMPILERS = {
+        +        'C': ['gcc'],
+        +        'C++': ['g++'],
+        +        'Pascal': ['fpc'],
+        +        'Java': ['Java'],
+        +        'Python': ['Python']
+        +}
+        +

@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime  # pylint: disable=E0611
 
 from django.conf import settings
+from django.contrib.admin.utils import quote
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.urlresolvers import reverse
@@ -12,6 +13,7 @@ from django.test.utils import override_settings
 from django.utils.html import escape, strip_tags
 from django.utils.http import urlencode
 from django.utils.timezone import utc
+import six
 from six import unichr
 from six.moves import map, range, zip
 
@@ -20,13 +22,15 @@ from oioioi.base.tests import TestCase, check_not_accessible, fake_time
 from oioioi.base.utils import memoized_property
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
-from oioioi.contests.tests import PrivateRegistrationController, SubmitMixin
+from oioioi.contests.tests import (PrivateRegistrationController, SubmitMixin,
+                                   make_empty_contest_formset)
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.handlers import make_report
 from oioioi.programs.models import (ModelSolution, ProgramSubmission,
-                                    ReportActionsConfig, Test, TestReport)
+                                    ReportActionsConfig, Test, TestReport,
+                                    ContestCompiler)
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
 
@@ -1217,3 +1221,54 @@ class TestLimitsLimits(TestCase):
         self.assertContains(response,
                         "Memory limit mustn&#39;t be greater than %dKiB."
                         % settings.MAX_MEMORY_LIMIT_FOR_TEST)
+
+
+class TestContestCompiler(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    @override_settings(AVAILABLE_COMPILERS={
+        'C': ['gcc', 'clang'],
+        'Python': ['python']
+    })
+    def test_compiler_hints_view(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        def get_query_url(query):
+            url = reverse('get_compiler_hints')
+            return url + '?' + six.moves.urllib.parse.urlencode(
+                    {'language': query})
+
+        response = self.client.get(get_query_url('C'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'gcc')
+        self.assertContains(response, 'clang')
+        self.assertNotContains(response, 'python')
+        self.assertNotContains(response, 'g++')
+
+        response = self.client.get(get_query_url('Python'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'python')
+        self.assertNotContains(response, 'gcc')
+        self.assertNotContains(response, 'clang')
+        self.assertNotContains(response, 'g++')
+
+        response = self.client.get(get_query_url('Java'))
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'gcc')
+        self.assertNotContains(response, 'java')
+        self.assertNotContains(response, 'python')
+        self.assertNotContains(response, 'clang')
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'Python': ['py']
+    })
+    def test_admin_inline(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        contest = Contest.objects.get()
+        url = reverse('oioioiadmin:contests_contest_change',
+                args=(quote(contest.id),)) + '?simple=true'
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'C')
+        self.assertContains(response, 'Python')

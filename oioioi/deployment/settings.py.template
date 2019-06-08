@@ -171,6 +171,17 @@ LOGGING['loggers']['oioioi.zeus'] = {
 # because you use instance started by another instance of OIOIOI)
 #RUN_SIOWORKERSD = True
 
+# This setting specifies which compilers are available in sioworkers.
+# By default that means ones defined here:
+# https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
+#AVAILABLE_COMPILERS = {
+#        'C': ['gcc'],
+#        'C++': ['g++'],
+#        'Pascal': ['fpc'],
+#        'Java': ['java'],
+#        'Python': ['python']
+#}
+
 # This setting sets the default compilers used throughout the platform.
 # By uncommenting the below dict you can change all or any one of them.
 #DEFAULT_COMPILERS = {'C': 'c', 'C++': 'cpp', 'Pascal': 'pas', 'Java': 'java',
