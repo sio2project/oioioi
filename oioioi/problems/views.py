@@ -19,6 +19,7 @@ import six.moves.urllib.parse
 
 from oioioi.base.utils import jsonify, tabbed_view
 from oioioi.base.utils.redirect import safe_redirect
+from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (ProblemInstance, Submission,
                                     SubmissionReport)
@@ -453,6 +454,19 @@ def rejudge_model_solutions_view(request, problem_instance_id):
     messages.info(request, _("Model solutions sent for evaluation."))
     return redirect('model_solutions', problem_instance.id)
 
+
+def get_last_submissions(request):
+    queryset = Submission.objects \
+            .filter(user=request.user) \
+            .order_by('-date') \
+            .select_related('problem_instance',
+                            'problem_instance__contest',
+                            'problem_instance__round',
+                            'problem_instance__problem')[:5]
+    submissions = [submission_template_context(request, s) for s in queryset]
+    return TemplateResponse(request, "contests/my_submissions_table.html",
+                            {'submissions': submissions, 'show_scores': True,
+                             'hide_reports': True})
 
 @jsonify
 def get_origintag_hints_view(request):

@@ -58,4 +58,5 @@ urlpatterns = [
     url(r'^get_difficultytag_hints/$', views.get_difficultytag_hints_view, name='get_difficultytag_hints'),
     url(r'^get_algorithmtag_hints/$', views.get_algorithmtag_hints_view, name='get_algorithmtag_hints'),
     url(r'^get_tag_hints/$', views.get_tag_hints_view, name='get_tag_hints'),
+    url(r'^latest_submissions/$', views.get_last_submissions, name='latest_submissions')
 ]

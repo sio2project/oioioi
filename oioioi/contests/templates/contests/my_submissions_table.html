@@ -1,5 +1,6 @@
 {% load i18n %}
 
+{% if not hide_reports %}
 <script>
 {% for record in submissions %}
     $(document).ready(function() {
@@ -17,6 +18,7 @@
     });
     {% endfor %}
 </script>
+{% endif %}
 
 <div class="table-responsive">
     <table class="{% block table-classes %}table table-condensed submission{% endblock %}">
@@ -72,7 +74,7 @@
                     {% endif %}
                     {% block more-columns-after %}{% endblock %}
                 </tr>
-                {% if record.can_see_comment %}
+                {% if record.can_see_comment and not hide_reports %}
                     <tr class="padded-collapsing-content">
                         <td colspan="100">
                             <div id="report{{ record.submission.id }}">
