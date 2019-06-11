@@ -1,8 +1,18 @@
-@import "scss/utility";
-.notifications {
-  .notifications-label {
-    @include absolute(2.2em, 0);
-    z-index: 1;
+@import "bootstrap/stylesheets/bootstrap/variables";
+
+#notifications_panel .dropdown-menu {
+  padding-bottom: 0;
+  > li {
+    white-space: nowrap;
+    &.dropdown-header {
+      font-weight: bold;
+      font-size: 1.2em;
+      padding: 0.5em;
+    }
+    .table {
+      color: $text-color;
+      margin-bottom: 0;
+    }
   }
 }
 
