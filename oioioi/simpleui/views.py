@@ -259,7 +259,8 @@ def teacher_dashboard_view(request):
     context = {
         'contests': contest_context,
         'are_contests_limited': are_contests_limited,
-        'has_portal': has_portal
+        'has_portal': has_portal,
+        'usergroups_active': 'oioioi.usergroups' in settings.INSTALLED_APPS,
     }
     if has_portal:
         context['portal_path'] = Portal.objects.filter(owner=None,

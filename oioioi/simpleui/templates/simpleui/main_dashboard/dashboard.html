@@ -20,6 +20,14 @@
         <div class="inline-menu">
             <a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create contest" %}</a>
         </div>
+        {% if usergroups_active %}
+        <div class="inline-menu">
+            |
+            <a href="{% url 'teacher_usergroups_list' %}">
+                {% trans "Your user groups" %}
+            </a>
+        </div>
+        {% endif %}
         {% if has_portal %}
         <div class="inline-menu">
             |
