@@ -542,6 +542,9 @@ class ContestLink(models.Model):
 
 
 def contest_links_generator(request):
+    if not hasattr(request, 'contest'):
+        return
+
     links = ContestLink.objects.filter(contest=request.contest)
     for link in links:
         # pylint: disable=cell-var-from-loop

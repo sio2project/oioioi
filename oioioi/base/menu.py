@@ -84,6 +84,14 @@ class MenuRegistry(object):
        :type condition: :class:`oioioi.base.permissions.Condition`
     """
 
+    def _get_all_registered_items(self, request):
+        items = []
+        for generator in six.itervalues(self._generators):
+            items.extend(generator(request))
+        items.extend(self._registry)
+
+        return items
+
     def __init__(self, text=None, condition=None):
         self.text = text
         if condition is None:
@@ -166,10 +174,7 @@ class MenuRegistry(object):
         if not self.condition(request):
             return []
 
-        items = []
-        for generator in six.itervalues(self._generators):
-            items.extend(generator(request))
-        items.extend(self._registry)
+        items = self._get_all_registered_items(request)
 
         context_items = []
         for item in sorted(items, key=attrgetter('order')):
@@ -182,6 +187,19 @@ class MenuRegistry(object):
                     text=item.text,
                     attrs=attrs_str))
         return context_items
+
+    def is_anything_accessible(self, request):
+        """Returns whether any registered MenuItem is accessible in the given request"""
+        if not self.condition(request):
+            return False
+
+        items = self._get_all_registered_items(request)
+        for item in items:
+            if item.condition(request):
+                return True
+
+        return False
+
 
 #: The default menu registry. Modules should use this to register menu items
 #: commonly accessible to users.

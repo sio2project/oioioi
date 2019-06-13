@@ -6,33 +6,31 @@
     {% if side_menus|length > 1 %}
         {% for registry in side_menus %}
             {% generate_menu registry %}
-            {% if menu %}
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="menu-heading-{{ forloop.counter }}">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#menu-accordion"
-                                href="#menu-{{ forloop.counter }}" aria-controls="menu-{{ forloop.counter }}"
-                                aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
-                                {{ registry.text }}
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="menu-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.last %}in{% endif %}"
-                         role="tabpanel" aria-labelledby="menu-heading-{{ forloop.counter }}"
-                         aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
-                        <div class="list-group">
-                        {% for item in menu %}
-                            <a href="{{ item.url }}" class="list-group-item {% active_url item.url %}" {{ item.attrs }}>
-                                {% if item.icon %}
-                                    <span class="glyphicon glyphicon-{{ item.icon }}"></span>
-                                {% endif %}
-                                {{ item.text }}
-                            </a>
-                        {% endfor %}
-                        </div>
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="menu-heading-{{ forloop.counter }}">
+                    <h4 class="panel-title">
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#menu-accordion"
+                            href="#menu-{{ forloop.counter }}" aria-controls="menu-{{ forloop.counter }}"
+                            aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
+                            {{ registry.text }}
+                        </a>
+                    </h4>
+                </div>
+                <div id="menu-{{ forloop.counter }}" class="panel-collapse collapse {% if forloop.last %}in{% endif %}"
+                     role="tabpanel" aria-labelledby="menu-heading-{{ forloop.counter }}"
+                     aria-expanded="{% if forloop.last %}true{% else %}false{% endif %}">
+                    <div class="list-group">
+                    {% for item in menu %}
+                        <a href="{{ item.url }}" class="list-group-item {% active_url item.url %}" {{ item.attrs }}>
+                            {% if item.icon %}
+                                <span class="glyphicon glyphicon-{{ item.icon }}"></span>
+                            {% endif %}
+                            {{ item.text }}
+                        </a>
+                    {% endfor %}
                     </div>
                 </div>
-            {% endif %}
+            </div>
         {% endfor %}
     {% else %}
         {% generate_menu side_menus|first %}

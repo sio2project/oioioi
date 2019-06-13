@@ -13,6 +13,9 @@ def teams_enabled(request):
 
 @make_request_condition
 def can_see_teams_list(request):
+    if not hasattr(request, 'contest'):
+        return False
+
     if not Team.objects.filter(contest=request.contest).exists():
         return False
     try:
