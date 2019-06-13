@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "simpleui/simpleui-base.html" %}
 {% load i18n staticfiles compress %}
 
 {% block title %}{% trans "Contest dashboard" %}{% endblock %}
@@ -6,7 +6,6 @@
 {% block styles %}
     {{ block.super }}
     {% compress css %}
-        <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/simpleui.scss">
         <link charset="utf-8" rel="stylesheet" type="text/x-scss" href="{{ STATIC_URL }}simpleui/contest/contest.scss">
     {% endcompress %}
 {% endblock %}
@@ -26,7 +25,7 @@
 
 {% block container-class %}simpleui__container{% endblock %}
 
-{% block body %}
+{% block main-body %}
     <div class="contest">
         <header class="contest__header">
             <h1 class="inline-menu__name contest__name">{{ contest }}</h1>

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "simpleui/simpleui-base.html" %}
 {% load i18n compress staticfiles %}
 
 {% block title %}{% trans "Problem settings" %}{% endblock %}
@@ -20,7 +20,7 @@
 
 {% block container-class %}simpleui__container{% endblock %}
 
-{% block body %}
+{% block main-body %}
     <div class="settings">
         <header class="settings__header">
             <h1>{{ problem.name }} ({{problem_instance.short_name}})</h1>
