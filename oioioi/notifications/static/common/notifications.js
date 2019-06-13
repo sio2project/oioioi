@@ -1,5 +1,42 @@
 let notificationsClient; // jshint ignore:line
 
+function TranslationClient() {
+    this.translationQueue = {};
+    this.translationCache = {};
+}
+
+TranslationClient.prototype.constructor = TranslationClient;
+
+TranslationClient.prototype.translate = function (originalText) {
+    if (this.translationCache[originalText])
+        return Promise.resolve(this.translationCache[originalText]);
+
+    let tClient = this;
+    return new Promise((resolve, reject) => {
+        if (!this.translationQueue[originalText]) {
+            this.translationQueue[originalText] = [];
+            $.get('/translate/', {query: originalText}, 'json')
+                .success(function (data) {
+                    tClient.translationCache[originalText] = data.answer;
+                    for (let request of tClient.translationQueue[originalText]) {
+                        request.resolve(data.answer);
+                    }
+                    delete tClient.translationQueue[originalText];
+                })
+                .fail(function (err) {
+                    console.warn('Translation failed!',  err);
+                    for (let request of tClient.translationQueue[originalText]) {
+                        request.reject(err);
+                    }
+                    delete tClient.translationQueue[originalText];
+                });
+        }
+        this.translationQueue[originalText].push({resolve: resolve, reject: reject});
+    });
+};
+
+let translationClient = new TranslationClient();
+
 function NotificationsClient(serverUrl, sessionId) {
     this.NUMBER_BADGE_ID = "#notifications_number";
     this.TABLE_NOTIFICATIONS_ID = "#balloon_table_notifications";
@@ -21,9 +58,11 @@ function NotificationsClient(serverUrl, sessionId) {
     this.socket = undefined;
     this.notifCount = 0;
     this.messages = [];
-    this.translationCache = {};
-    this.translationQueue = {};
     this.renderSuspended = false;
+
+    this.openNotifications = [];
+    this.waitingPermissions = [];
+    this.permissionBanner = null;
 
     if (typeof(io) === 'undefined') {
         this.setErrorState();
@@ -62,47 +101,6 @@ NotificationsClient.prototype.setErrorState = function() {
     this.clearNumberBadgeClasses();
     this.NUMBER_BADGE.addClass("label-warning");
 };
-
-NotificationsClient.prototype.setTranslatedText =
-    function(messageId, originalText) {
-        $('#notif_msg_' + messageId).text(this.translationCache[originalText]);
-    };
-
-NotificationsClient.prototype.resolveMessageText =
-    function(messageId, originalText, args) {
-        if (this.translationCache[originalText]) {
-            this.setTranslatedText(messageId, originalText);
-            return;
-        }
-        // Only the first query initiates a request
-        if (!this.translationQueue[originalText]) {
-            this.translationQueue[originalText] = [];
-
-            const dispatchCallbacks = (function(text, cacheTranslation) {
-                if (cacheTranslation)
-                    this.translationCache[originalText] = text;
-                const queue = this.translationQueue[originalText];
-                for (let i = 0; i < queue.length; i++)
-                    queue[i]();
-                delete this.translationQueue[originalText];
-            }).bind(this);
-
-            $.get('/translate/', {query: originalText}, 'json')
-                .success(function (data) {
-                    const text = interpolate(data.answer, args, true);
-                    dispatchCallbacks(text, true);
-                })
-                .fail(function (err) {
-                    console.warn('Translation failed!' + err);
-                    const text = interpolate(originalText, args, true);
-                    dispatchCallbacks(text, false);
-                });
-        }
-        // Every query that had a cache miss adds itself to the queue
-        const callback = this.setTranslatedText.bind(this, messageId,
-                                                   originalText);
-        this.translationQueue[originalText].push(callback);
-    };
 
 NotificationsClient.prototype.authenticate = function() {
     let me = this;
@@ -155,9 +153,12 @@ NotificationsClient.prototype.renderMessages = function() {
 
     this.TABLE_NOTIFICATIONS.html(content);
     for (let msgKey of msgsSorted) {
-        this.resolveMessageText(msgKey,
-            this.messages[msgKey].message,
-            this.messages[msgKey].arguments);
+        translationClient.translate(this.messages[msgKey].message)
+            .catch(() => this.messages[msgKey].message)
+            .then((msg) => {
+                let text = interpolate(msg, this.messages[msgKey].arguments, true);
+                $('#notif_msg_' + msgKey).text(text);
+            });
     }
     if (!wereMessages) {
         this.TABLE_NOTIFICATIONS.append(this.NO_NOTIFICATIONS);
@@ -177,6 +178,58 @@ function notifs_getDateTimeOf(timeOfMsg) {
     }
 }
 
+NotificationsClient.prototype.generatePermissionBanner = function () {
+    return $("<div></div>").attr("id", "notifications_banner")
+        .attr("role", "alert").addClass("alert alert-info")
+        .text(gettext("Would you like to enable desktop notifications (for submission results and more)?"))
+        .append(
+            $("<a></a>").addClass("alert-link").attr("href", "#")
+                .text(gettext("Yes, please!"))
+                .click(() => {
+                    this.permissionBanner.hide();
+                    Notification.requestPermission().then((perm) => {
+                        for (let request of this.waitingPermissions) {
+                            if (perm === "granted") {
+                                request.resolve();
+                            } else {
+                                request.reject("Notifications permission denied");
+                            }
+                        }
+                        this.waitingPermissions = [];
+                    });
+                })
+        ).append(
+            $("<a></a>").addClass("alert-link").attr("href", "#")
+                .text(gettext("Never ask again on this computer"))
+                .click(() => {
+                    this.permissionBanner.hide();
+                    window.localStorage.setItem("notif_denied", true);
+                    for (let request of this.waitingPermissions) {
+                        request.reject("User rejected notifications");
+                    }
+                    this.waitingPermissions = [];
+                })
+        );
+}
+
+NotificationsClient.prototype.askPermission = function () {
+    if (window.Notification) {
+        if (Notification.permission === "granted")
+            return Promise.resolve();
+        if (Notification.permission === "denied" || window.localStorage["notif_denied"])
+            return Promise.reject("User rejected notifications");
+        return new Promise((resolve, reject) => {
+            this.waitingPermissions.push({resolve: resolve, reject: reject});
+            if (this.permissionBanner === null) {
+                this.permissionBanner = this.generatePermissionBanner();
+                this.permissionBanner.prependTo($(".body"));
+            }
+            this.permissionBanner.show();
+        });
+    }
+    return Promise.reject("Notifications support missing");
+};
+
 NotificationsClient.prototype.onMessageReceived = function(message, cached) {
     if (this.messages[message.id]) {
         return;
@@ -193,15 +246,36 @@ NotificationsClient.prototype.onMessageReceived = function(message, cached) {
         if (message.popup && !$(this.DROPDOWN_PANEL).hasClass('open')) {
             $(this.DROPDOWN).dropdown('toggle');
         }
+
+        this.askPermission().then(() => {
+            return translationClient.translate(message.message).catch(() => message.message);
+        }).then((translation) => {
+            let content = interpolate(translation, message.arguments, true);
+            let notification = new Notification(content,
+                {tag: message.id, timestamp: message.date, body: content});
+            if (message.address) {
+                notification.addEventListener('click', (ev) => {
+                    ev.preventDefault();
+                    window.open(message.address, '_blank');
+                });
+            }
+            this.openNotifications.push(notification);
+        }).catch((err) => {
+            console.warn("Failed to display notification.", err);
+        });
     }
     if (this.DEBUG) {
-        console.log('Received message: ' + JSON.stringify(message));
+        console.log('Received message:', message);
     }
 };
 
 NotificationsClient.prototype.acknowledgeMessages = function() {
     this.notifCount = 0;
     this.updateNotifCount();
+    this.openNotifications.forEach((notif) => {
+        notif.close();
+    });
+    this.openNotifications = [];
 };
 
 function MessageManager(notificationsClient) {
