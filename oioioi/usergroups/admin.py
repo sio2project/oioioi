@@ -8,7 +8,7 @@ from django.db import models
 from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
 from oioioi.usergroups.models import UserGroup, ActionConfig
-from oioioi.teachers.menu import teacher_menu_registry
+from oioioi.base.menu import personal_menu_registry
 
 
 def get_user_name_and_login_bounded(self, user):
@@ -37,5 +37,7 @@ admin.system_admin_menu_registry.register('user_groups', _("User Groups"),
         lambda request: reverse('oioioiadmin:usergroups_usergroup_changelist'),
         condition=is_superuser, order=10)
 
-teacher_menu_registry.register('user_groups', _("User Groups"),
-        lambda request: reverse('teacher_usergroups_list'), order=20)
+personal_menu_registry.register('user_groups', _("User Groups"),
+        lambda request: reverse('teacher_usergroups_list'),
+        lambda request: request.user.has_perm('teachers.teacher'),
+        order=20)

@@ -213,3 +213,6 @@ account_menu_registry = MenuRegistry(_("Account Menu"),
 #: The registry for *menus* displayed on the side.
 side_pane_menus_registry = OrderedRegistry()
 side_pane_menus_registry.register(menu_registry, order=1000)
+
+personal_menu_registry = MenuRegistry(_("Personal Menu"))
+side_pane_menus_registry.register(personal_menu_registry, order=50)

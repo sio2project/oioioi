@@ -11,7 +11,7 @@ from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin
 from oioioi.teachers.forms import TeacherContestForm
-from oioioi.teachers.menu import teacher_menu_registry
+from oioioi.base.menu import personal_menu_registry
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
 
@@ -101,6 +101,7 @@ class ContestAdminMixin(object):
 ContestAdmin.mix_in(ContestAdminMixin)
 
 if 'oioioi.simpleui' not in settings.INSTALLED_APPS:
-    teacher_menu_registry.register('create_contest', _("New contest"),
+    personal_menu_registry.register('create_contest', _("New contest"),
         lambda request: reverse('oioioiadmin:contests_contest_add'),
+        lambda request: request.user.has_perm('teachers.teacher'),
         order=10)
