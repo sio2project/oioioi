@@ -3,7 +3,7 @@
 <div class="problem">
     <div class="clearfix">
         <div class="problem__settings">
-            <a href="{% url 'problem_settings' problem_instance.problem_instance.id %}">
+            <a href="{% url 'simpleui_problem_settings' problem_instance.problem_instance.id %}">
                 {% blocktrans %}
                 <span class="glyphicon glyphicon-cog"></span> Settings
                 {% endblocktrans %}
@@ -44,9 +44,11 @@
                 </a>
             </div>
         </div>
-        <div class="col-xs-6">
-            <div id="pointsChart-{{ problem_instance.problem_instance.short_name }}" class="problem__stats">
+        {% if not public_contest %}
+            <div class="col-xs-6">
+                <div id="pointsChart-{{ problem_instance.problem_instance.short_name }}" class="problem__stats">
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 </div>

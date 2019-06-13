@@ -30,13 +30,11 @@
         <header class="contest__header">
             <h1 class="inline-menu__name contest__name">{{ contest }}</h1>
             <div class="inline-menu">
-                <a href="{% url 'show_members' member_type='pupil' %}">{% trans "Pupils" %}</a>
-                |
-                <a href="{% url 'show_members' member_type='teacher' %}">{% trans "Teachers" %}</a>
-                |
-                <a href="{% url 'default_ranking' %}">{% trans "Ranking" %}</a>
-                |
-                <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
+                {% block contest-top-menu %}
+                    <a href="{% url 'default_ranking' %}">{% trans "Ranking" %}</a>
+                    |
+                    <a href="{% url 'admin:contests_contest_change' contest.id %}">{% trans "Settings" %}</a>
+                {% endblock %}
             </div>
         </header>
 

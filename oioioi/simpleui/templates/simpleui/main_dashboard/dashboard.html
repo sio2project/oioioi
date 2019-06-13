@@ -1,7 +1,7 @@
 {% extends "simpleui/simpleui-base.html" %}
 {% load i18n static staticfiles compress %}
 
-{% block title %}{% trans "Teacher dashboard" %}{% endblock %}
+{% block title %}{% trans "User dashboard" %}{% endblock %}
 
 {% block styles %}
 {{ block.super }}
@@ -13,42 +13,42 @@
 {% block container-class %}simpleui__container{% endblock %}
 
 {% block main-body %}
+
 <div class="contest">
     <header class="contest__header">
-        <h1 class="inline-menu__name contest__name">{% trans "Teacher dashboard" %}</h1>
-        <div class="inline-menu">
-            <a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create contest" %}</a>
-        </div>
-        {% if usergroups_active %}
-        <div class="inline-menu">
-            |
-            <a href="{% url 'teacher_usergroups_list' %}">
-                {% trans "Your user groups" %}
-            </a>
-        </div>
-        {% endif %}
-        {% if has_portal %}
-        <div class="inline-menu">
-            |
-            <a href="{% url 'global_portal' link_name='default' portal_path=portal_path %}">
-                {% trans "Homepage" %}
-            </a>
-        </div>
-        {% endif %}
-        <div class="inline-menu">
-            |
-            <a href="{% url 'problemset_main' %}">
-                {% trans "Problemset" %}
-            </a>
-        </div>
-
+        <h1 class="inline-menu__name contest__name">{% block dashboard-name %}{% trans "User dashboard" %}{% endblock %}</h1>
+        {% block dashboard-top-menu %}
+            {% if can_create_contest %}
+                <div class="inline-menu">
+                    <a href="{% url 'oioioiadmin:contests_contest_add' %}">{% trans "Create contest" %}</a>
+                    |
+                </div>
+            {% endif %}
+            {% if has_portal %}
+                <div class="inline-menu">
+                    <a href="{% url 'global_portal' link_name='default' portal_path=portal_path %}">
+                        {% trans "Homepage" %}
+                    </a>
+                </div>
+            {% endif %}
+            <div class="inline-menu">
+                |
+                <a href="{% url 'problemset_main' %}">
+                    {% trans "Problemset" %}
+                </a>
+            </div>
+        {% endblock %}
     </header>
     <script type="text/javascript" src="{% static 'js/highcharts.js' %}"></script>
     {% if contests|length == 0 %}
         {% url 'oioioiadmin:contests_contest_add' as link %}
-        {% blocktrans %}
-            <p>There are no teacher contests to display. You can <a href="{{link}}">create one</a>.</p>
-        {% endblocktrans %}
+        {% if can_create_contest %}
+            {% blocktrans %}
+                <p>There are no contests to display. You can <a href="{{link}}">create one</a>.</p>
+            {% endblocktrans %}
+        {% else %}
+            <p>{% trans "There are no contests to display." %}</p>
+        {% endif %}
     {% endif %}
     {% for contest in contests %}
         {% if forloop.counter0|divisibleby:2 %}

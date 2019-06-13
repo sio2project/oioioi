@@ -11,14 +11,15 @@ from django.forms import inlineformset_factory, modelformset_factory
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 
-from oioioi.base.main_page import register_main_page_view
 from oioioi.base.permissions import enforce_condition, is_superuser
-from oioioi.contests.controllers import submission_template_context
+from oioioi.contests.controllers import (submission_template_context,
+                                         PublicContestRegistrationController)
 from oioioi.contests.models import (ProblemInstance, Round, Submission,
                                     UserResultForContest, UserResultForProblem)
+from oioioi.contests.permissions import can_create_contest
 from oioioi.contests.utils import (can_admin_contest, contest_exists,
                                    is_contest_admin, rounds_times,
-                                   visible_contests)
+                                   visible_contests, has_any_contest)
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.portals.conditions import main_page_from_default_global_portal
 from oioioi.portals.models import Portal
@@ -29,16 +30,10 @@ from oioioi.questions.models import Message
 from oioioi.questions.views import messages_template_context, visible_messages
 from oioioi.simpleui.forms import (AttachmentForm, ProblemInstanceForm,
                                    TagForm, TestForm)
-from oioioi.teachers.views import is_teacher, is_teachers, is_teachers_contest
 
 NUMBER_OF_RECENT_ACTIONS = 5
 RECENT_ACTIVITY_DAYS = 7
 MAX_CONTESTS_ON_PAGE = 6
-
-
-@register_main_page_view(order=400, condition=is_teacher & ~is_superuser)
-def main_page_view(request):
-    return redirect('teacher_dashboard')
 
 
 def score_report_is_valid(score_report):
@@ -148,16 +143,11 @@ def get_round_context(request, round_pk):
     }
 
 
-@register_contest_dashboard_view(order=50, condition=(contest_exists &
-                                 is_teachers_contest & is_contest_admin &
-                                 ~is_superuser))
-def contest_dashboard_redirect(request):
-    return redirect(reverse('teacher_contest_dashboard',
-                            kwargs={'contest_id': request.contest.id}))
-
-
-@enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_admin)
 def contest_dashboard_view(request, round_pk=None):
+    if request.user.is_superuser:
+        return redirect('default_contest_view', contest_id=request.contest.id)
+
     messages = messages_template_context(request, visible_messages(request))[
                :NUMBER_OF_RECENT_ACTIONS]
 
@@ -185,7 +175,10 @@ def contest_dashboard_view(request, round_pk=None):
         'round_times': rtimes,
         'selected_round': None,
         'records': messages,
-        'submissions': ss
+        'submissions': ss,
+        'contest_dashboard_url_name': 'simpleui_contest_dashboard',
+        'public_contest': isinstance(request.contest.controller.registration_controller(),
+                                     PublicContestRegistrationController)
     }
 
     if round_pk is not None:
@@ -193,9 +186,8 @@ def contest_dashboard_view(request, round_pk=None):
 
     return TemplateResponse(request, 'simpleui/contest/contest.html', context)
 
-
-@enforce_condition(is_teacher)
-def teacher_dashboard_view(request):
+@enforce_condition(can_create_contest | has_any_contest)
+def user_dashboard_view(request):
     contest_context = []
     min_date = datetime.today() - timedelta(days=7)
 
@@ -203,8 +195,7 @@ def teacher_dashboard_view(request):
     are_contests_limited = len(contests) > MAX_CONTESTS_ON_PAGE
     visible_contests_count = len(contests)
 
-    contests = [x for x in contests if is_teachers(x)
-                                    and can_admin_contest(request.user, x)]
+    contests = [x for x in contests if can_admin_contest(request.user, x)]
     if len(contests) < visible_contests_count:
         are_contests_limited = True
     contests.sort(key=lambda x: x.creation_date, reverse=True)
@@ -217,7 +208,6 @@ def teacher_dashboard_view(request):
         has_portal = False
 
     for contest in contests:
-
         scores = [result.score.to_int() for result in
                   UserResultForContest.objects.filter(contest=contest).all()
                   if result.score is not None]
@@ -242,8 +232,6 @@ def teacher_dashboard_view(request):
             'round_count': Round.objects.filter(contest=contest).count(),
             'task_count': ProblemInstance.objects.filter(
                 contest=contest).count(),
-            'user_count': User.objects.filter(
-                participant__contest=contest).count(),
             'submission_count': Submission.objects.filter(
                 problem_instance__contest=contest).count(),
             'recent_submission_count': Submission.objects.filter(
@@ -254,13 +242,23 @@ def teacher_dashboard_view(request):
             ).count(),
             'max_score': max_score,
             'scores': scores,
+            'contest_controller': contest.controller,
+            'dashboard_url': reverse('simpleui_contest_dashboard',
+                                     kwargs={'contest_id': contest.id}),
+            'public_contest': isinstance(contest.controller.registration_controller(),
+                                         PublicContestRegistrationController),
         }
+
+        if not contest_dict['public_contest']:
+            contest_dict['user_count'] = \
+                User.objects.filter(participant__contest=contest).count()
+
         contest_context.append(contest_dict)
     context = {
         'contests': contest_context,
         'are_contests_limited': are_contests_limited,
         'has_portal': has_portal,
-        'usergroups_active': 'oioioi.usergroups' in settings.INSTALLED_APPS,
+        'can_create_contest': can_create_contest(request),
     }
     if has_portal:
         context['portal_path'] = Portal.objects.filter(owner=None,
@@ -271,7 +269,7 @@ def teacher_dashboard_view(request):
                             'simpleui/main_dashboard/dashboard.html', context)
 
 
-@enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_admin)
 def problem_settings(request, problem_instance_id):
     # Database objects.
     pi = get_object_or_404(ProblemInstance, id=problem_instance_id,
@@ -339,7 +337,7 @@ def problem_settings(request, problem_instance_id):
 
             pif.save()
             test_formset.save()
-            return redirect(reverse('problem_settings', kwargs={
+            return redirect(reverse('simpleui_problem_settings', kwargs={
                 'problem_instance_id': problem_instance_id}))
 
         test_forms = test_formset
@@ -371,3 +369,10 @@ def problem_settings(request, problem_instance_id):
 
     return TemplateResponse(request,
                             'simpleui/problem_settings/settings.html', context)
+
+@register_contest_dashboard_view(order=100,
+                                 condition=(contest_exists & is_contest_admin &
+                                                ~is_superuser))
+def contest_dashboard_redirect(request):
+    return redirect(reverse('simpleui_contest_dashboard',
+                            kwargs={'contest_id': request.contest.id}))

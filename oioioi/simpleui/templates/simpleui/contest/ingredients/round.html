@@ -9,7 +9,7 @@
         <ul class="dropdown-menu">
             {% for round, round_time in round_times %}
                 <li>
-                    <a href="{% url 'teacher_contest_dashboard' round.pk %}">{{ round }}</a>
+                    <a href="{% url contest_dashboard_url_name round.pk %}">{{ round }}</a>
                 </li>
             {% endfor %}
         </ul>

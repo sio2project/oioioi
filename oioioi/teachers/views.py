@@ -282,3 +282,60 @@ def bulk_add_members_view(request, other_contest_id):
 
     messages.info(request, _("Import members completed successfully."))
     return redirect('contest_dashboard', contest_id=request.contest.id)
+
+if 'oioioi.simpleui' in settings.INSTALLED_APPS:
+    from oioioi.base.main_page import register_main_page_view
+    from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
+    from oioioi.simpleui.views import user_dashboard_view
+    from oioioi.simpleui.views import \
+        contest_dashboard_view as simple_contest_dashboard_view
+
+
+    @enforce_condition(is_teacher)
+    def teacher_dashboard_view(request):
+        response = user_dashboard_view(request)
+        if response.status_code != 200:
+            return response
+
+        response.context_data['usergroups_active'] = \
+            'oioioi.usergroups' in settings.INSTALLED_APPS
+
+        contests = response.context_data['contests']
+        for contest in contests:
+            if isinstance(contest['contest_controller'], TeacherContestController):
+                contest['dashboard_url'] = reverse('teacher_contest_dashboard',
+                                                   kwargs={
+                                                       'contest_id': contest['id']
+                                                   })
+
+        response.template_name = 'teachers/simpleui/teacher_dashboard.html'
+        return response
+
+
+    @enforce_condition(contest_exists & is_teachers_contest & is_contest_admin)
+    def contest_dashboard_view(request, round_pk=None):
+        response = simple_contest_dashboard_view(request, round_pk)
+        if response.status_code != 200:
+            return response
+
+        response.context_data['contest_dashboard_url_name'] = 'teacher_contest_dashboard'
+
+        response.template_name = 'teachers/simpleui/teacher_contest_dashboard.html'
+        return response
+
+
+    @register_main_page_view(order=400, condition=is_teacher & ~is_superuser)
+    def main_page_view(request):
+        return redirect('teacher_dashboard')
+
+
+    @register_contest_dashboard_view(order=50,
+                                     condition=(contest_exists & is_contest_admin &
+                                                ~is_superuser))
+    def contest_dashboard_redirect(request):
+        if isinstance(request.contest.controller, TeacherContestController):
+            return redirect(reverse('teacher_contest_dashboard',
+                                    kwargs={'contest_id': request.contest.id}))
+        else:
+            return redirect(reverse('simpleui_contest_dashboard',
+                                    kwargs={'contest_id': request.contest.id}))

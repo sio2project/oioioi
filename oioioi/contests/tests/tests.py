@@ -37,11 +37,14 @@ from oioioi.contests.utils import (administered_contests,
                                    can_enter_contest, can_see_personal_data,
                                    is_contest_admin, is_contest_observer,
                                    rounds_times)
+from oioioi.dashboard.contest_dashboard import unregister_contest_dashboard_view
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemAttachment, ProblemStatement
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.models import Test
 from oioioi.programs.tests import SubmitFileMixin
+from oioioi.simpleui.views import contest_dashboard_redirect as simpleui_contest_dashboard
+from oioioi.teachers.views import contest_dashboard_redirect as teachers_contest_dashboard
 
 from rest_framework.test import APITestCase
 
@@ -1377,6 +1380,9 @@ class TestPermissions(TestCase):
             self.contest))
 
     def test_menu(self):
+        unregister_contest_dashboard_view(simpleui_contest_dashboard)
+        unregister_contest_dashboard_view(teachers_contest_dashboard)
+
         self.assertTrue(self.client.login(username='test_contest_admin'))
         response = self.client.get(reverse('default_contest_view',
             kwargs={'contest_id': self.contest.id}), follow=True)
