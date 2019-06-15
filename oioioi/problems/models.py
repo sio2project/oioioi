@@ -64,7 +64,20 @@ class Problem(models.Model):
     author = models.ForeignKey(User, null=True, blank=True,
                                verbose_name=_("author"),
                                on_delete=models.SET_NULL)
-    is_public = models.BooleanField(default=False, verbose_name=_("is public"))
+    # visibility defines read access to all of problem data (this includes
+    # the package, all tests and attackments)
+    VISIBILITY_PUBLIC = 'PU'
+    VISIBILITY_FRIENDS = 'FR'
+    VISIBILITY_PRIVATE = 'PR'
+    VISIBILITY_LEVELS_CHOICES = [
+        (VISIBILITY_PUBLIC, 'Public'),
+        (VISIBILITY_FRIENDS, 'Friends'),
+        (VISIBILITY_PRIVATE, 'Private'),
+    ]
+    visibility = models.CharField(max_length=2, verbose_name=_("visibility"),
+                                  choices=VISIBILITY_LEVELS_CHOICES,
+                                  default=VISIBILITY_FRIENDS)
+
     package_backend_name = \
             DottedNameField('oioioi.problems.package.ProblemPackageBackend',
                     null=True, blank=True, verbose_name=_("package type"))

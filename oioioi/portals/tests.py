@@ -446,7 +446,7 @@ class TestMarkdown(TestCase):
         for i in range(1, 5):
             name = 'problem_%s_name' % i
             url_key = 'problem_%s_key' % i
-            problem = Problem(name=name, short_name=name, is_public=True)
+            problem = Problem(name=name, short_name=name, visibility=Problem.VISIBILITY_PUBLIC)
             problem.save()
             site = ProblemSite(problem=problem, url_key=url_key)
             site.save()

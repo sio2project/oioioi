@@ -313,7 +313,7 @@ def problemset_main_view(request):
     page_title = \
         _("Welcome to problemset, the place where all the problems are.")
     problems_pool, query_string = problemset_get_problems(request)
-    problems = problems_pool.filter(is_public=True, problemsite__isnull=False)
+    problems = problems_pool.filter(visibility=Problem.VISIBILITY_PUBLIC, problemsite__isnull=False)
 
     return problemset_generate_view(request, page_title, problems, query_string, "public")
 
@@ -517,7 +517,7 @@ def get_search_hints_view(request, view_type):
     queryset_problems = Problem.objects.none
     if view_type == 'public':
         queryset_problems = \
-            Problem.objects.filter(name__icontains=substr, is_public=True,
+            Problem.objects.filter(name__icontains=substr, visibility=Problem.VISIBILITY_PUBLIC,
                                    problemsite__isnull=False)[:num_hints].all()
     elif view_type == 'my':
         queryset_problems = \

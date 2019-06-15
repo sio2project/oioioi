@@ -20,6 +20,7 @@ from six.moves import range
 
 from oioioi.base.tests import TestCase, check_not_accessible, \
         needs_linux
+from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.handlers import update_problem_statistics
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
@@ -553,7 +554,7 @@ class TestProblemsetPage(TestCase):
         url = reverse('problemset_main')
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
-        public_problems = Problem.objects.filter(is_public=True)
+        public_problems = Problem.objects.filter(visibility=Problem.VISIBILITY_PUBLIC)
         for problem in public_problems:
             self.assertContains(response, problem.name)
         # User with no administered contests doesn't see the button
@@ -2757,3 +2758,41 @@ class TestProblemStatisticsDisplay(TestCase):
         self.assertIn('foo=bar', th)
         # Any other column links should be to (default) descending ordering
         self.assertIn('desc', th)
+
+
+class TestVisibilityMigration(TestCaseMigrations):
+    migrate_from = '0013_newtags'
+    migrate_to = '0014_visibility'
+
+    def setUpBeforeMigration(self, apps):
+        Problem = apps.get_model('problems', 'Problem')
+        self.public_problem_id = Problem.objects.create(is_public=True).id
+        self.private_problem_id = Problem.objects.create(is_public=False).id
+
+    def test(self):
+        self.assertEquals(
+            Problem.objects.get(id=self.public_problem_id).visibility,
+            Problem.VISIBILITY_PUBLIC)
+        self.assertEquals(
+            Problem.objects.get(id=self.private_problem_id).visibility,
+            Problem.VISIBILITY_FRIENDS)
+
+
+class TestVisibilityMigrationReverse(TestCaseMigrations):
+    migrate_from = '0014_visibility'
+    migrate_to = '0013_newtags'
+
+    def setUpBeforeMigration(self, apps):
+        Problem = apps.get_model('problems', 'Problem')
+        self.public_problem_id = Problem.objects.create(visibility='PU').id
+        self.friends_problem_id = Problem.objects.create(visibility='FR').id
+        self.private_problem_id = Problem.objects.create(visibility='PR').id
+
+    def test(self):
+        Problem = self.apps.get_model('problems', 'Problem')
+        self.assertEquals(
+            Problem.objects.get(id=self.public_problem_id).is_public, True)
+        self.assertEquals(
+            Problem.objects.get(id=self.friends_problem_id).is_public, False)
+        self.assertEquals(
+            Problem.objects.get(id=self.private_problem_id).is_public, False)

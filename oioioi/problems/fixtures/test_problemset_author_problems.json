@@ -7,7 +7,7 @@
       "contest": null,
       "author": 1001,
       "short_name": "pba",
-      "is_public": true,
+      "visibility": "PU",
       "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
     }
   },
@@ -30,7 +30,7 @@
       "contest": null,
       "short_name": "pub",
       "author":1002,
-      "is_public": true,
+      "visibility": "PU",
       "controller_name": "oioioi.sinolpack.controllers.SinolProblemController"
     }
   },

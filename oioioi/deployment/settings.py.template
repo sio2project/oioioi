@@ -306,6 +306,7 @@ INSTALLED_APPS = (
 #    'oioioi.portals',
 #    'oioioi.globalmessage',
 #    'oioioi.newsfeed',
+#    'oioioi.problemsharing',
 ) + INSTALLED_APPS
 
 # Additional Celery configuration necessary for 'prizes' app.

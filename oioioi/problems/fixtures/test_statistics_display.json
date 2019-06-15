@@ -6,7 +6,7 @@
       "name": "Aaaa",
       "ascii_name": "Aaaa",
       "short_name": "aaa",
-      "is_public": true
+      "visibility": "PU"
     }
   },
   {
@@ -16,7 +16,7 @@
       "name": "Bbbb",
       "ascii_name": "Bbbb",
       "short_name": "bbb",
-      "is_public": true
+      "visibility": "PU"
     }
   },
   {
@@ -26,7 +26,7 @@
       "name": "Cccc",
       "ascii_name": "Cccc",
       "short_name": "ccc",
-      "is_public": true
+      "visibility": "PU"
     }
   },
   {
@@ -36,7 +36,7 @@
       "name": "Dddd",
       "ascii_name": "Dddd",
       "short_name": "ddd",
-      "is_public": true
+      "visibility": "PU"
     }
   },
   {

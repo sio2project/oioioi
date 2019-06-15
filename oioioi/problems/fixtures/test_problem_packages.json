@@ -32,7 +32,7 @@
       "short_name": "xyz",
       "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
       "author": 1000,
-      "is_public": true,
+      "visibility": "PU",
       "ascii_name": "XYZ"
     }
   },

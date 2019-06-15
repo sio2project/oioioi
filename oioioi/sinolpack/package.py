@@ -313,7 +313,9 @@ class SinolPackage(object):
             short_name=self.short_name,
             controller_name=self.controller_name,
             contest=self.package.contest,
-            is_public=(author is None),
+            visibility=(Problem.VISBILITY_PUBLIC
+                        if author is None
+                        else Problem.VISIBILITY_FRIENDS),
             author=author)
 
     def _extract_and_process_package(self):

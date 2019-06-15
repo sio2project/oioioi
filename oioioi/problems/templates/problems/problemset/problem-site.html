@@ -12,7 +12,7 @@
 
     <ul class="nav nav-tabs">
         {% for tab in tabs %}
-            {% if tab.obj.key != "secret_key" or not problem.is_public %}
+            {% if tab.obj.key != "secret_key" or problem.visibility != problem.VISIBILITY_PUBLIC %}
                 {% if tab.obj.key != 'settings' or can_admin_problem %}
                     {% if tab.obj.key != 'add_to_contest' %}
                         <li {% if tab.obj == current_tab %}class="active"{% endif %}>

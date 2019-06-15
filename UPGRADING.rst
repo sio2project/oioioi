@@ -549,3 +549,15 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 	Move all middlewares from MIDDLEWARE_CLASSES to MIDDLEWARE in settings.py.
 	Simply rename MIDDLEWARE_CLASSES settings variable to MIDDLEWARE.
 
+#. * Added ``oioioi.problemsharing`` module. *We suggest enabling if oioioi.teachers module is used*.::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -306,6 +306,7 @@ INSTALLED_APPS = (
+         #    'oioioi.portals',
+         #    'oioioi.globalmessage',
+         #    'oioioi.newsfeed',
+        +#    'oioioi.problemsharing',
+         ) + INSTALLED_APPS
+
+         # Additional Celery configuration necessary for 'prizes' app.
