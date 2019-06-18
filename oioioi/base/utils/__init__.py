@@ -379,11 +379,13 @@ def make_html_links(links, extra_attrs=None):
 
 
 def make_navbar_badge(link, text, id=None):
-    return render_to_string('utils/navbar-badge.html', context={
-        'link': link,
-        'text': text,
-        'id': id
-    })
+    if link is not None or text is not None:
+        return render_to_string('utils/navbar-badge.html', context={
+            'link': link,
+            'text': text,
+            'id': id
+        })
+    return ""
 
 
 # Creating views
