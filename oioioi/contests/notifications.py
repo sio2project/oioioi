@@ -29,7 +29,10 @@ def notification_function_submission_judged(arguments):
             .get_notification_message_submission_judged(arguments.submission)
 
     message_arguments = {'short_name': pi.short_name,
-        'address': url}
+                         'contest_name': pi.contest.name,
+                         'task_name': unicode(pi),
+                         'score': unicode(arguments.submission.score),
+                         'address': url}
     NotificationHandler.send_notification(arguments.user,
         'submission_judged', message, message_arguments)
 

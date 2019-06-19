@@ -375,6 +375,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
 
     def test_submission_completed_notification(self):
         msg_count = defaultdict(int)
+        messages = []
 
         @classmethod
         def fake_send_notification(cls, user, notification_type,
@@ -383,6 +384,7 @@ class TestSubmission(TestCase, SubmitFileMixin):
                 msg_count['user_1002_notifications'] += 1
             if user.pk == 1001:
                 msg_count['user_1001_notifications'] += 1
+            messages.append((notification_message, notificaion_message_arguments))
 
         send_notification_backup = NotificationHandler.send_notification
         NotificationHandler.send_notification = fake_send_notification
@@ -397,6 +399,11 @@ class TestSubmission(TestCase, SubmitFileMixin):
         # And user 1002 doesn't received a notification
         self.assertEqual(msg_count['user_1001_notifications'], 1)
         self.assertEqual(msg_count['user_1002_notifications'], 0)
+
+        self.assertEqual(len(messages), 1)
+        self.assertIn('%(score)s', messages[0][0])
+        self.assertIn('score', messages[0][1])
+        self.assertEqual(messages[0][1]['score'], '34')
 
         NotificationHandler.send_notification = send_notification_backup
 

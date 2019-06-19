@@ -916,10 +916,17 @@ class NotificationsMixinForContestController(object):
         return []
 
     def get_notification_message_submission_judged(self, submission):
-        """Return a message to show in a notification when a
-           submission has been judged.
+        """Returns a message to show in a notification when a submission has
+           been judged. It doesn't validate any permissions.
         """
-        return ugettext_noop("Your submission was judged.")
+        if submission.problem_instance.contest:
+            message = ugettext_noop("%(contest_name)s, %(task_name)s: "
+                                    "Your submission was judged.\n"
+                                    "The score is %(score)s.")
+        else:
+            message = ugettext_noop("%(task_name): Your submission was judged.\n"
+                                    "The score is %(score).")
+        return message
 
 ContestController.mix_in(NotificationsMixinForContestController)
 
