@@ -1,0 +1,72 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Task Private",
+      "ascii_name": "Task Private",
+      "visibility": "PR"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Task User1Private",
+      "ascii_name": "Task User1Private",
+      "author": 1001,
+      "visibility": "PR"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Task User1Public",
+      "ascii_name": "Task User1Public",
+      "author": 1001,
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Task Public",
+      "ascii_name": "Task Public",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "2"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "3"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 4,
+      "url_key": "4"
+    }
+  }
+]

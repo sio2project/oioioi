@@ -1,0 +1,312 @@
+[
+  {
+    "pk": 0,
+    "model": "problems.problem",
+    "fields": {
+      "name": "0_private",
+      "visibility": "PR"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "0_public",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problem",
+    "fields": {
+      "name": "1_pa",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problem",
+    "fields": {
+      "name": "2_pa_2011",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "3_pa_2011_r1",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problem",
+    "fields": {
+      "name": "3_pa_2011_r2",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.problem",
+    "fields": {
+      "name": "2_pa_2012",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.problem",
+    "fields": {
+      "name": "3_pa_2012_r1",
+      "visibility": "PU"
+    }
+  },
+
+  {
+    "pk": 0,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 0,
+      "url_key": "0"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "2"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "3"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 4,
+      "url_key": "4"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 5,
+      "url_key": "5"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 6,
+      "url_key": "6"
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 7,
+      "url_key": "7"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "pa"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "oi"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag": 1,
+      "problem": 2
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag": 1,
+      "problem": 3
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag": 1,
+      "problem": 4
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag": 1,
+      "problem": 5
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag": 1,
+      "problem": 6
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.OriginTag_problems",
+    "fields": {
+      "origintag": 1,
+      "problem": 7
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 1,
+      "name": "year"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 1,
+      "name": "round"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 1,
+      "value": "2011"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 1,
+      "value": "2012"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 2,
+      "value": "r1"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 2,
+      "value": "r2"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 1,
+      "problem": 3
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 1,
+      "problem": 4
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 1,
+      "problem": 5
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 2,
+      "problem": 6
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 2,
+      "problem": 7
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 3,
+      "problem": 4
+    }
+  },
+  {
+    "pk": 7,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 3,
+      "problem": 7
+    }
+  },
+  {
+    "pk": 8,
+    "model": "problems.OriginInfoValue_problems",
+    "fields": {
+      "origininfovalue": 4,
+      "problem": 5
+    }
+  }
+]

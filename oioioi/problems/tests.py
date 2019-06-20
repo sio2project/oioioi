@@ -848,72 +848,6 @@ class TestTags(TestCase):
         self.assertNotContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_list_search_visible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url('mrowkowiec'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('mrowka'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_list_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url('mrowkowiec'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('mrowka'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
 
 class TestAlgorithmTags(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_problem_packages',
@@ -945,72 +879,6 @@ class TestAlgorithmTags(TestCase):
         self.assertNotContains(response, 'mrowka')
         self.assertNotContains(response, 'XYZ')
 
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_list_search_visible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url('mrowkowiec'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('mrowka'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_list_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url('mrowkowiec'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('mrowka'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>mrowka<')
-
 
 class TestDifficultyTags(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_problem_packages',
@@ -1035,1065 +903,6 @@ class TestDifficultyTags(TestCase):
         self.assertNotContains(response, 'trudne')
         self.assertNotContains(response, 'latwe')
         self.assertNotContains(response, 'XYZ')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_list_search_visible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>trudne<')
-        self.assertContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>latwe<')
-
-        response = self.client.get(get_search_url('trudne'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>trudne<')
-        self.assertContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>latwe<')
-
-        response = self.client.get(get_search_url('latwe'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>trudne<')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>latwe<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>trudne<')
-        self.assertNotContains(response, '>mrowkowiec<')
-        self.assertNotContains(response, '>latwe<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_list_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>trudne<')
-        self.assertNotContains(response, '>latwe<')
-
-        response = self.client.get(get_search_url('trudne'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>trudne<')
-        self.assertNotContains(response, '>latwe<')
-
-        response = self.client.get(get_search_url('latwe'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>trudne<')
-        self.assertNotContains(response, '>latwe<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>trudne<')
-        self.assertNotContains(response, '>latwe<')
-
-
-class TestOriginTags(TestCase):
-    fixtures = ['test_origin_tags']
-
-    def test_adding_parent_tag(self):
-        origin_tag = OriginTag.objects.get(pk=1)
-        problem = Problem.objects.get(pk=1)
-        self.assertNotIn(problem, origin_tag.problems.all())
-
-        data = {
-                'category': 1,
-                'value': '2077',
-                'order': 2077,
-                'problems': [1,]
-            }
-        form = OriginInfoValueForm(data)
-        self.assertTrue(form.is_valid())
-        form.save()
-
-        problem.refresh_from_db()
-        origin_tag.refresh_from_db()
-        self.assertIn(problem, origin_tag.problems.all())
-
-
-class TestSearch(TestCase):
-    fixtures = ['test_users', 'test_problem_search']
-
-    def test_search_hints_view(self):
-        self.assertEqual(200, 200)
-        self.assertTrue(self.client.login(username='test_user'))
-
-        def get_query_url_public(query):
-            url = reverse('get_search_hints', kwargs={'view_type': 'public'})
-            return url + '?substr=' + query
-
-        def get_query_url_my(query):
-            url = reverse('get_search_hints', kwargs={'view_type': 'my'})
-            return url + '?substr=' + query
-
-        def get_query_url_all(query):
-            url = reverse('get_search_hints', kwargs={'view_type': 'all'})
-            return url + '?substr=' + query
-
-        response = self.client.get(get_query_url_public('Spa'))
-
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertIn(u'Ze spacj\u0105', content)
-        self.assertNotIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertNotIn('publiczny', content)
-
-        response = self.client.get(get_query_url_public(u'\u017b\u00f3\u0142'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertNotIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertNotIn('publiczny', content)
-
-        response = self.client.get(get_query_url_public('TAGUS'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertNotIn('Niepubliczny', content)
-        self.assertIn('tagus', content)
-        self.assertNotIn('publiczny', content)
-
-        response = self.client.get(get_query_url_public('niepu'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertNotIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertNotIn('publiczny', content)
-
-        response = self.client.get(get_query_url_all('niepu'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertNotIn('publiczny', content)
-
-        response = self.client.get(get_query_url_public('pub'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertNotIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertIn('publiczny', content)
-
-        response = self.client.get(get_query_url_all('pub'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertIn('publiczny', content)
-
-        response = self.client.get(get_query_url_my('pub'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertIn('publiczny', content)
-
-        response = self.client.get(get_query_url_my(u'\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        content = response.json()
-        self.assertNotIn(u'\u017b\u00f3\u0142w', content)
-        self.assertNotIn(u'Ze spacj\u0105', content)
-        self.assertNotIn('Niepubliczny', content)
-        self.assertNotIn('tagus', content)
-        self.assertNotIn('publiczny', content)
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_public_search_visible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?q=' + query
-
-        response = self.client.get(get_search_url('tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('nie'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'spacj\u0105'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('e spa'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('"e spa"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:pub'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:\u017b\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:"Ze spacj\u0105"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:"Ze spacja"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:Ze spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_public_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?q=' + query
-
-        response = self.client.get(get_search_url('tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('nie'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'spacj\u0105'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('e spa'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('"e spa"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:pub'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:\u017b\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:"Ze spacj\u0105"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:"Ze spacja"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:Ze spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_all_search_visible(self):
-        self.assertTrue(self.client.login(username='test_admin'))
-
-        def get_search_url(query):
-            url = reverse('problemset_all_problems')
-            return url + '?q=' + query
-
-        response = self.client.get(get_search_url('tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('nie'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'spacj\u0105'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('e spa'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('"e spa"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:pub'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:\u017b\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:"Ze spacj\u0105"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:"Ze spacja"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:Ze spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_all_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_admin'))
-
-        def get_search_url(query):
-            url = reverse('problemset_all_problems')
-            return url + '?q=' + query
-
-        response = self.client.get(get_search_url('tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('nie'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'spacj\u0105'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('e spa'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('"e spa"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:pub'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:\u017b\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:"Ze spacj\u0105"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:"Ze spacja"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:Ze spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_my_search_visible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-
-        def get_search_url(query):
-            url = reverse('problemset_my_problems')
-            return url + '?q=' + query
-
-        response = self.client.get(get_search_url('tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('nie'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'spacj\u0105'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('e spa'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('"e spa"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:pub'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:"Ze spacj\u0105"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:"Ze spacja"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:Ze spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_my_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-
-        def get_search_url(query):
-            url = reverse('problemset_my_problems')
-            return url + '?q=' + query
-
-        response = self.client.get(get_search_url('tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('nie'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'spacj\u0105'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'\u017c\u00f3\u0142w tagus'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('e spa'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('"e spa"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:pub'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('tag:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:publiczny'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:zolw'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:\u017c\u00f3\u0142w'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('zolw spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url(u'name:"Ze spacj\u0105"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:"Ze spacja"'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertNotContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
-
-        response = self.client.get(get_search_url('name:Ze spacja'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, u'\u017b\u00f3\u0142w')
-        self.assertContains(response, u'Ze spacj\u0105')
-        self.assertNotContains(response, 'Niepubliczny')
-        self.assertNotContains(response, '>tagus<')
-        self.assertNotContains(response, '>publiczny<')
 
 
 class TestNavigationBarItems(TestCase):
@@ -2644,7 +1453,7 @@ class TestProblemStatisticsDisplay(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
 
         col_no = 3
-        q = 'Bbbb Dddd'
+        q = 'Bbbb'
         order = self.problem_columns[col_no-1]
         url_main = reverse('problemset_main')
 
@@ -2653,7 +1462,7 @@ class TestProblemStatisticsDisplay(TestCase):
         self.assertEqual(response.status_code, 200)
 
         rows = self._get_table_contents(response.content.decode('utf-8'))
-        self.assertEqual(len(rows), 2)
+        self.assertEqual(len(rows), 1)
 
         html = response.content.decode('utf-8')
         pos = html.find('<tr>')
@@ -2715,3 +1524,265 @@ class TestVisibilityMigrationReverse(TestCaseMigrations):
             Problem.objects.get(id=self.friends_problem_id).is_public, False)
         self.assertEquals(
             Problem.objects.get(id=self.private_problem_id).is_public, False)
+
+
+class TestProblemSearchPermissions(TestCase):
+    fixtures = ['test_users', 'test_problem_search_permissions']
+    url = reverse('problemset_main')
+
+    task_names = [
+        'Task Public',
+        'Task User1Public',
+        'Task User1Private',
+        'Task Private',
+    ]
+
+    def assert_contains_only(self, response, task_names):
+        for task in self.task_names:
+            if task in task_names:
+                self.assertContains(response, task)
+            else:
+                self.assertNotContains(response, task)
+
+    def test_search_permissions_public(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'Task'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['Task Public', 'Task User1Public'])
+
+        for user in ['test_user', 'test_user2', 'test_admin']:
+            self.assertTrue(self.client.login(username=user))
+            response = self.client.get(self.url, {'q': 'Task'})
+            self.assertEqual(response.status_code, 200)
+            self.assert_contains_only(response, ['Task Public',
+                                                 'Task User1Public'])
+
+    def test_search_permissions_my(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(self.url + 'myproblems', {'q': 'Task'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(self.url + 'myproblems', {'q': 'Task'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['Task User1Public',
+                                             'Task User1Private'])
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        response = self.client.get(self.url + 'myproblems', {'q': 'Task'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+    def test_search_permissions_all(self):
+        self.client.get('/c/c/')
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(self.url + 'all_problems', {'q': 'Task'}, follow=True)
+        self.assertEqual(response.status_code, 403)
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(self.url + 'all_problems', {'q': 'Task'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, self.task_names)
+
+
+class TestProblemSearch(TestCase):
+    fixtures = ['test_problem_search']
+    url = reverse('problemset_main')
+    task_names = [
+        'Prywatne',
+        'Zadanko',
+        'Żółć',
+        'Znacznik',
+        'Algorytm',
+        'Trudność',
+    ]
+
+    def assert_contains_only(self, response, task_names):
+        for task in self.task_names:
+            if task in task_names:
+                self.assertContains(response, task)
+            else:
+                self.assertNotContains(response, task)
+
+    def test_search_name(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'Zadanko'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Zadanko'))
+
+        response = self.client.get(self.url, {'q': 'zADaNkO'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Zadanko'))
+
+        response = self.client.get(self.url, {'q': 'zadan'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Zadanko'))
+
+    def test_search_name_unicode(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'Żółć'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Żółć'))
+
+        response = self.client.get(self.url, {'q': 'żółć'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Żółć'))
+
+        response = self.client.get(self.url, {'q': 'Zolc'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Żółć'))
+
+        response = self.client.get(self.url, {'q': 'żoŁc'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Żółć'))
+
+        response = self.client.get(self.url, {'q': 'olc'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Żółć'))
+
+    def test_search_name_multiple(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'a'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Zadanko', 'Znacznik',
+                                             'Algorytm'))
+
+    def test_search_short_name(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'zad'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Zadanko'))
+
+        response = self.client.get(self.url, {'q': 'zol'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Żółć'))
+
+    def test_search_short_name_multiple(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': '1'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Zadanko', 'Żółć', 'Znacznik'))
+
+    def test_search_tags_basic(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'tag': 'tag_t'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Znacznik', 'Potagowany'))
+
+        response = self.client.get(self.url, {'algorithm': 'tag_a'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Algorytm', 'Potagowany'))
+
+        response = self.client.get(self.url, {'difficulty': 'tag_d'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Trudność', 'Potagowany'))
+
+        response = self.client.get(
+                self.url, {
+                    'tag': 'tag_t',
+                    'algorithm': 'tag_a',
+                    'difficulty': 'tag_d',
+                })
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ('Potagowany'))
+
+        response = self.client.get(
+                self.url, {
+                    'q': 'nic',
+                    'tag': 'tag_t',
+                    'algorithm': 'tag_a',
+                    'difficulty': 'tag_d',
+                })
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ())
+
+
+class TestProblemSearchOrigin(TestCase):
+    fixtures = ['test_problem_search_origin']
+    url = reverse('problemset_main')
+
+    task_names = [
+        '0_private',
+        '0_public',
+        '1_pa',
+        '2_pa_2011',
+        '3_pa_2011_r1',
+        '3_pa_2011_r2',
+        '2_pa_2012',
+        '3_pa_2012_r1',
+    ]
+
+    def assert_contains_only(self, response, task_names):
+        for task in self.task_names:
+            if task in task_names:
+                self.assertContains(response, task)
+            else:
+                self.assertNotContains(response, task)
+
+    def test_search_origintag(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'origin': 'pa'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, self.task_names[2:])
+
+        response = self.client.get(self.url, {'origin': ['pa', 'oi']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])
+
+    def test_search_origininfovalue(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'origin': ['pa_r1']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response,
+                                  ['3_pa_2011_r1', '3_pa_2012_r1'])
+
+        response = self.client.get(self.url, {'origin': ['pa', 'pa_r1']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response,
+                                  ['3_pa_2011_r1', '3_pa_2012_r1'])
+
+    def test_search_origininfovalue_invalid(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'origin': ['r1']})
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(self.url, {'origin': ['pa_2077']})
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(self.url, {'origin': ['pa_2011_r1']})
+        self.assertEqual(response.status_code, 404)
+
+    def test_search_origininfovalue_multiple(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'origin': ['pa_2011', 'pa_r1']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response,
+                                  ['3_pa_2011_r1'])
+
+        response = self.client.get(self.url,
+                                   {'origin': ['pa_2011', 'pa_r1', 'pa_r2']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response,
+                                  ['3_pa_2011_r1', '3_pa_2011_r2'])
+
+        response = self.client.get(self.url, {'origin': ['pa_r1', 'pa_r2']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [
+                                    '3_pa_2011_r1', '3_pa_2011_r2',
+                                    '3_pa_2012_r1'
+                                  ])
+
+        response = self.client.get(self.url,
+                                   {'origin': [
+                                        'pa_2011', 'pa_2012', 'pa_r1', 'pa_r2'
+                                   ]})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [
+                                    '3_pa_2011_r1', '3_pa_2011_r2',
+                                    '3_pa_2012_r1'
+                                  ])
+
+        response = self.client.get(self.url, {'origin': ['pa_2012', 'pa_r2']})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, [])

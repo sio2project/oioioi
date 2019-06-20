@@ -9,12 +9,12 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Case, F, When
+from django.db.models import Case, F, When, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext as _
+from django.utils.translation import get_language, ugettext as _
 import six.moves.urllib.parse
 
 from oioioi.base.utils import jsonify, tabbed_view
@@ -28,14 +28,20 @@ from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemStatement, Tag, OriginTag,
+                                    OriginTagLocalization, OriginInfoValue,
+                                    OriginInfoValueLocalization,
+                                    OriginInfoCategory,
                                     DifficultyTag, AlgorithmTag)
 
 from oioioi.problems.menu import navbar_links_registry
 from oioioi.problems.problem_site import problem_site_tab_registry
 from oioioi.problems.problem_sources import problem_sources
-from oioioi.problems.utils import (can_add_to_problemset, can_admin_instance_of_problem,
-                                   can_admin_problem, can_admin_problem_instance,
-                                   generate_add_to_contest_metadata, generate_model_solutions_context,
+from oioioi.problems.utils import (can_add_to_problemset,
+                                   can_admin_instance_of_problem,
+                                   can_admin_problem,
+                                   can_admin_problem_instance,
+                                   generate_add_to_contest_metadata,
+                                   generate_model_solutions_context,
                                    query_statement)
 from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
                                     ModelSolution, TestReport)
@@ -161,45 +167,70 @@ def add_or_update_problem_view(request):
                                  'problems/add-or-update.html')
 
 
+def filter_problems_by_origin(problems, origintags):
+    """The filters are almost always logical ANDed, the only exception to
+       this are OriginInfoValues within their OriginInfoCategory, which are
+       logical ORred - it is possible to search for example for tasks from
+       round "1 or 2" and year "2011 or 2012 or 2013".
+       Searching in Problemset from the Task Archive relies on this behaviour.
+    """
+    info = {}
+    for tag in origintags:
+        tag = tag.split('_')
+
+        if len(tag) in (1, 2):
+            if not OriginTag.objects.filter(name=tag[0]).exists():
+                raise Http404
+
+            if tag[0] not in info:
+                info[tag[0]] = {}
+
+            if len(tag) == 2:
+                value = OriginInfoValue.objects.filter(parent_tag__name=tag[0],
+                                                       value=tag[1])
+                if not value.exists():
+                    raise Http404
+                value = value.get()
+
+                category = value.category.name
+                if category not in info[tag[0]]:
+                   # pk=None doesn't match any problem, needed for logical OR
+                   info[tag[0]][category] = Q(pk=None)
+                info[tag[0]][category] |= Q(origininfovalue__value=value.value)
+        else:
+            raise Http404
+
+    for tag, categories in info.items():
+        problems = problems.filter(origintag__name=tag)
+        for category, q in categories.items():
+            print(q)
+            problems = problems.filter(q)
+
+    return problems
+
+
 def search_problems_in_problemset(datadict):
+    query = unidecode(datadict.get('q', ''))
+    tags = datadict.getlist('tag')
+    algorithmtags = datadict.getlist('algorithm')
+    difficultytags = datadict.getlist('difficulty')
+    origintags = datadict.getlist('origin')
 
-    try:
-        query = datadict['q']
-        if not query:
-            return Problem.objects.all(), ''
+    problems = Problem.objects.all()
 
-        # query_phrases is list containing all phrases from query - phrase is
-        # compact string (without blank characters) or any string inside "...",
-        # there are special phrases with prefix 'name:' or 'tag:' if phrase
-        # prefix is one of those, rest of phrase would be treated as regular
-        # phrase; for example if
-        # query='word "two words" tag:example name:"Example name"' then
-        # query_phrases=['word', 'two words', 'tag:example', 'name:Example name']
-        # (note no quotation marks)
-        query_phrases = [re.sub(r'"(.*?)"', r'\1', match).strip() for match in
-                         re.findall(r'(?:tag:|name:)?(?:".+?"|\w+)',
-                                    query, flags=re.UNICODE)]
+    if (query):
+        problems = problems.filter(
+                Q(ascii_name__icontains=query) | Q(short_name__icontains=query))
+    if (tags):  # Old tags, deprecated
+        problems = problems.filter(tag__name__in=tags)
+    if (algorithmtags):
+        problems = problems.filter(algorithmtag__name__in=algorithmtags)
+    if (difficultytags):
+        problems = problems.filter(difficultytag__name__in=difficultytags)
+    if (origintags):
+        problems = filter_problems_by_origin(problems, origintags)
 
-        problems = Problem.objects.none()
-        for phrase in query_phrases:
-            if phrase.startswith('tag:'):
-                problems |= Problem.objects.filter(tag__name=phrase[len('tag:'):])
-                problems |= Problem.objects.filter(algorithmtag__name=phrase[len('tag:'):])
-                problems |= Problem.objects.filter(origintag__name=phrase[len('tag:'):])
-                problems |= Problem.objects.filter(difficultytag__name=phrase[len('tag:'):])
-            elif phrase.startswith('name:'):
-                problems |= Problem.objects.filter(name=phrase[len('name:'):])
-            else:
-                problems |= Problem.objects.filter(ascii_name__icontains=unidecode(phrase))
-                problems |= Problem.objects.filter(tag__name__icontains=unidecode(phrase))
-                problems |= Problem.objects.filter(algorithmtag__name__icontains=unidecode(phrase))
-                problems |= Problem.objects.filter(origintag__name__icontains=unidecode(phrase))
-                problems |= Problem.objects.filter(difficultytag__name__icontains=unidecode(phrase))
-        problems = problems.distinct()
-        return problems, query
-
-    except KeyError:
-        return Problem.objects.all(), ''
+    return problems
 
 
 def generate_problemset_tabs(request):
@@ -220,7 +251,7 @@ def generate_problemset_tabs(request):
 
 
 def problemset_get_problems(request):
-    problems, query = search_problems_in_problemset(request.GET)
+    problems = search_problems_in_problemset(request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
         # We need to annotate all of the statistics, because NULLs are difficult
@@ -255,13 +286,15 @@ def problemset_get_problems(request):
         else:
             raise Http404
 
-    problems = problems.select_related('problemsite')
-    problems = problems.prefetch_related('tag_set', 'algorithmtag_set',
-                                         'origintag_set', 'difficultytag_set')
-    return problems, query
+    problems = problems.select_related('problemsite') \
+            .prefetch_related('tag_set', 'algorithmtag_set', 'difficultytag_set',
+                              'origintag_set__localizations',
+                              'origininfovalue_set__localizations',
+                              'origininfovalue_set__parent_tag__localizations')
+    return problems
 
 
-def problemset_generate_view(request, page_title, problems, query_string, view_type):
+def problemset_generate_view(request, page_title, problems, view_type):
     # We want to show "Add to contest" button only
     # if user is contest admin for any contest.
     show_add_button, administered_recent_contests = \
@@ -291,6 +324,17 @@ def problemset_generate_view(request, page_title, problems, query_string, view_t
     navbar_links = navbar_links_registry.template_context(request)
     problemset_tabs = generate_problemset_tabs(request)
 
+    origintags = {}
+    for param in request.GET.getlist('origin'):
+        param = param.split('_')
+        if len(param) in (1, 2):
+            if param[0] not in origintags:
+                origintags[param[0]] = []
+            if len(param) == 2:
+                origintags[param[0]].append(param[1])
+        else:
+            raise Http404
+
     return TemplateResponse(request,
        'problems/problemset/problem-list.html',
       {'problems': problems,
@@ -298,7 +342,11 @@ def problemset_generate_view(request, page_title, problems, query_string, view_t
        'problemset_tabs': problemset_tabs,
        'page_title': page_title,
         'select_problem_src': request.GET.get('select_problem_src'),
-       'problem_search': query_string,
+       'problem_search': request.GET.get('q', ''),
+       'tags': request.GET.getlist('tag'),
+       'origintags': origintags,
+       'algorithmtags': request.GET.getlist('algorithm'),
+       'difficultytags': request.GET.getlist('difficulty'),
        'show_tags': show_tags,
        'show_statistics': show_statistics,
        'show_search_bar': True,
@@ -312,27 +360,25 @@ def problemset_generate_view(request, page_title, problems, query_string, view_t
 def problemset_main_view(request):
     page_title = \
         _("Welcome to problemset, the place where all the problems are.")
-    problems_pool, query_string = problemset_get_problems(request)
+    problems_pool = problemset_get_problems(request)
     problems = problems_pool.filter(visibility=Problem.VISIBILITY_PUBLIC, problemsite__isnull=False)
-
-    return problemset_generate_view(request, page_title, problems, query_string, "public")
+    return problemset_generate_view(request, page_title, problems, "public")
 
 
 def problemset_my_problems_view(request):
     page_title = _("My problems")
-    problems_pool, query_string = problemset_get_problems(request)
+    problems_pool = problemset_get_problems(request)
     problems = problems_pool.filter(author=request.user, problemsite__isnull=False)
-    return problemset_generate_view(request, page_title, problems, query_string, "my")
+    return problemset_generate_view(request, page_title, problems, "my")
 
 
 def problemset_all_problems_view(request):
     if not request.user.is_superuser:
         raise PermissionDenied
     page_title = _("All problems")
-    problems_pool, query_string = problemset_get_problems(request)
+    problems_pool = problemset_get_problems(request)
     problems = problems_pool.filter(problemsite__isnull=False)
-
-    return problemset_generate_view(request, page_title, problems, query_string, "all")
+    return problemset_generate_view(request, page_title, problems, "all")
 
 
 def problem_site_view(request, site_key):
@@ -500,29 +546,4 @@ def get_tag_hints_view(request):
 
 @jsonify
 def get_search_hints_view(request, view_type):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset_problems = Problem.objects.none
-    if view_type == 'public':
-        queryset_problems = \
-            Problem.objects.filter(name__icontains=substr, visibility=Problem.VISIBILITY_PUBLIC,
-                                   problemsite__isnull=False)[:num_hints].all()
-    elif view_type == 'my':
-        queryset_problems = \
-            Problem.objects.filter(name__icontains=substr, author=request.user,
-                                       problemsite__isnull=False)[:num_hints].all()
-    elif view_type == 'all':
-        queryset_problems = Problem.objects.filter(name__icontains=substr,
-                                       problemsite__isnull=False)[:num_hints].all()
-    queryset_tags = Tag.objects.filter(name__icontains=substr)[:num_hints].all()
-    queryset_algorithmtags = AlgorithmTag.objects.filter(name__icontains=substr)[:num_hints].all()
-    queryset_origintags = OriginTag.objects.filter(name__icontains=substr)[:num_hints].all()
-    queryset_difficultytags = DifficultyTag.objects.filter(name__icontains=substr)[:num_hints].all()
-
-    return list(set(problem.name for problem in queryset_problems) |
-                set(tag.name for tag in queryset_tags) |
-                set(tag.name for tag in queryset_origintags) |
-                set(tag.name for tag in queryset_algorithmtags) |
-                set(tag.name for tag in queryset_difficultytags))[:num_hints]
+    return [] # Temporarily removed, see parent/child commits

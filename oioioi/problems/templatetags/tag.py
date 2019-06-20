@@ -15,7 +15,7 @@ def tag_label(tag):
         tooltip=getattr(tag, 'full_name', tag.name),
         name=tag.name,
         cls=prefix,
-        href="?q=tag:" + tag.name
+        href="?" + prefix + "=" + tag.name
     )
 
 

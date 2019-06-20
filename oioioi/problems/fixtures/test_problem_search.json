@@ -1,114 +1,225 @@
 [
   {
+    "pk": 0,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Prywatne",
+      "ascii_name": "Prywatne",
+      "short_name": "abcdefghijklmnopqrstuvw",
+      "visibility": "PR"
+    }
+  },
+  {
     "pk": 1,
     "model": "problems.problem",
     "fields": {
-      "name": "Żółw",
-      "contest": null,
-      "short_name": "zol",
-      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
-      "author": 1000,
-      "visibility": "PU",
-      "ascii_name": "Zolw"
+      "name": "Zadanko",
+      "ascii_name": "Zadanko",
+      "short_name": "zad1",
+      "visibility": "PU"
     }
   },
-
   {
     "pk": 2,
     "model": "problems.problem",
     "fields": {
-      "name": "Ze spacją",
-      "contest": null,
-      "short_name": "zes",
-      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
-      "author": 1001,
-      "visibility": "PU",
-      "ascii_name": "Ze spacja"
+      "name": "Żółć",
+      "ascii_name": "Zolc",
+      "short_name": "zol1",
+      "visibility": "PU"
     }
   },
-
   {
     "pk": 3,
     "model": "problems.problem",
     "fields": {
-      "name": "Niepubliczny",
-      "contest": null,
-      "short_name": "nie",
-      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
-      "author": 1001,
-      "visibility": "FR",
-      "ascii_name": "Niepubliczny"
-    }
-  },
-
-    {
-    "pk": 1,
-    "model": "problems.problemsite",
-    "fields": {
-      "problem": 1,
-      "url_key": "zolw"
-    }
-  },
-      {
-    "pk": 2,
-    "model": "problems.problemsite",
-    "fields": {
-      "problem": 2,
-      "url_key": "spacja"
-    }
-  },
-      {
-    "pk": 3,
-    "model": "problems.problemsite",
-    "fields": {
-      "problem": 3,
-      "url_key": "niepubl"
-    }
-  },
-  {
-    "pk": 1,
-    "model": "problems.tag",
-    "fields": {
-      "name": "tagus"
-    }
-  },
-  {
-    "pk": 2,
-    "model": "problems.tag",
-    "fields": {
-      "name": "publiczny"
-    }
-  },
-      {
-    "pk": 1,
-    "model": "problems.tagthrough",
-    "fields": {
-        "problem": 1,
-        "tag": 1
-    }
-  },
-  {
-    "pk": 2,
-    "model": "problems.tagthrough",
-    "fields": {
-        "problem": 2,
-        "tag": 1
-    }
-  },
-  {
-    "pk": 3,
-    "model": "problems.tagthrough",
-    "fields": {
-        "problem": 1,
-        "tag": 2
+      "name": "Znacznik",
+      "ascii_name": "Znacznik",
+      "short_name": "zna1",
+      "visibility": "PU"
     }
   },
   {
     "pk": 4,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Algorytm",
+      "ascii_name": "Algorytm",
+      "short_name": "alg",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Trudność",
+      "ascii_name": "Trudnosc",
+      "short_name": "tru",
+      "visibility": "PU"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Potagowany",
+      "ascii_name": "Potagowany",
+      "short_name": "pot",
+      "visibility": "PU"
+    }
+  },
+
+  {
+    "pk": 0,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 0,
+      "url_key": "0"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 2,
+      "url_key": "2"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 3,
+      "url_key": "3"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 4,
+      "url_key": "4"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 5,
+      "url_key": "5"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 6,
+      "url_key": "6"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.tag",
+    "fields": {
+      "name": "tag_t"
+    }
+  },
+  {
+    "pk": 1,
     "model": "problems.tagthrough",
     "fields": {
-        "problem": 3,
-        "tag": 1
+      "tag": 1,
+      "problem": 3
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.tagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 6
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.tagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 0
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "tag_a"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.algorithmtagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 4
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.algorithmtagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 6
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.algorithmtagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 0
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.difficultytag",
+    "fields": {
+      "name": "tag_d"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.difficultytagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 5
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.difficultytagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 6
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.difficultytagthrough",
+    "fields": {
+      "tag": 1,
+      "problem": 0
     }
   }
 ]
