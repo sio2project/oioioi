@@ -469,16 +469,6 @@ def get_last_submissions(request):
                              'hide_reports': True})
 
 @jsonify
-def get_origintag_hints_view(request):
-    substr = request.GET.get('substr', '')
-    if len(substr) < 2:
-        raise Http404
-    num_hints = getattr(settings, 'NUM_HINTS', 10)
-    queryset_tags = OriginTag.objects.filter(name__icontains=substr)[:num_hints].all()
-    return [str(tag.name) for tag in queryset_tags]
-
-
-@jsonify
 def get_difficultytag_hints_view(request):
     substr = request.GET.get('substr', '')
     if len(substr) < 2:

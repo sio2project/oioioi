@@ -8,7 +8,6 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.contests.models import ProblemStatementConfig
 from oioioi.problems.models import (ProblemSite, Tag, TagThrough,
-                                    OriginTag, OriginTagThrough,
                                     AlgorithmTag, AlgorithmTagThrough,
                                     DifficultyTag, DifficultyTagThrough)
 
@@ -121,14 +120,6 @@ class TagSelectionField(forms.ModelChoiceField):
         for validator in self.default_validators:
             validator(value)
         return self.tag_cls.objects.get_or_create(name=value)[0]
-
-
-class OriginTagThroughForm(forms.ModelForm):
-    tag = TagSelectionField(OriginTag, 'get_origintag_hints')
-
-    class Meta(object):
-        fields = ['problem']
-        model = OriginTagThrough
 
 
 class DifficultyTagThroughForm(forms.ModelForm):

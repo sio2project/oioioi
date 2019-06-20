@@ -30,7 +30,7 @@ from oioioi.problems.management.commands import recalculate_statistics
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemStatistics, make_problem_filename,
                                     ProblemSite, ProblemStatement, OriginTag,
-                                    OriginTagThrough, make_problem_filename)
+                                    make_problem_filename)
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
 from oioioi.problems.problem_sources import UploadedPackageSource
@@ -1104,111 +1104,6 @@ class TestDifficultyTags(TestCase):
         self.assertNotContains(response, 'XYZ')
         self.assertNotContains(response, '>trudne<')
         self.assertNotContains(response, '>latwe<')
-
-
-class TestOriginTags(TestCase):
-    fixtures = ['test_users', 'test_contest', 'test_problem_packages',
-                'test_problem_site', 'test_tags', 'test_origintags']
-
-    def test_adding_parent_tag(self):
-        problem = Problem.objects.get(pk=1)
-        leaf_tag = OriginTag.objects.get(pk=5)
-        root_tag = OriginTag.objects.get(pk=4)
-        OriginTagThrough.objects.create(problem=problem, tag=leaf_tag)
-        self.assertTrue(OriginTagThrough.objects.filter(problem=problem,
-            tag=root_tag).exists())
-
-    def test_tag_hints_view(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_query_url(query):
-            url = reverse('get_origintag_hints')
-            return url + '?' + six.moves.urllib.parse.urlencode({'substr': query})
-
-        response = self.client.get(get_query_url('etap'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'OI')
-        self.assertContains(response, 'etap I')
-        self.assertNotContains(response, 'PA')
-        self.assertNotContains(response, 'XYZ')
-
-        response = self.client.get(get_query_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'OI')
-        self.assertNotContains(response, 'etap I')
-        self.assertNotContains(response, 'PA')
-        self.assertNotContains(response, 'XYZ')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=True)
-    def test_problemset_list_search_visible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>OI<')
-        self.assertContains(response, '>etap I<')
-        self.assertNotContains(response, '>PA<')
-
-        response = self.client.get(get_search_url('OI'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertContains(response, '>OI<')
-        self.assertContains(response, '>etap I<')
-        self.assertNotContains(response, '>PA<')
-
-        response = self.client.get(get_search_url('PA'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>OI<')
-        self.assertNotContains(response, '>etap I<')
-        self.assertNotContains(response, '>PO<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>OI<')
-        self.assertNotContains(response, '>etap I<')
-        self.assertNotContains(response, '>PA<')
-
-    @override_settings(PROBLEM_TAGS_VISIBLE=False)
-    def test_problemset_list_search_invisible(self):
-        self.assertTrue(self.client.login(username='test_user'))
-        self.client.get('/c/c/')  # 'c' becomes the current contest
-
-        def get_search_url(query):
-            url = reverse('problemset_main')
-            return url + '?' + six.moves.urllib.parse.urlencode({'q': query})
-
-        response = self.client.get(get_search_url(''))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>OI<')
-        self.assertNotContains(response, '>PA<')
-
-        response = self.client.get(get_search_url('OI'))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'XYZ')
-        self.assertNotContains(response, '>OI<')
-        self.assertNotContains(response, '>PA<')
-
-        response = self.client.get(get_search_url('PA'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>OI<')
-        self.assertNotContains(response, '>PA<')
-
-        response = self.client.get(get_search_url('bad_tag'))
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'XYZ')
-        self.assertNotContains(response, '>OI<')
-        self.assertNotContains(response, '>PA<')
 
 
 class TestSearch(TestCase):

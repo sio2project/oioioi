@@ -5,6 +5,7 @@ from traceback import format_exception
 from unidecode import unidecode
 
 import six
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
 from django.core.files.base import ContentFile
@@ -15,13 +16,14 @@ from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator, get_valid_filename
-from django.utils.translation import pgettext_lazy
+from django.utils.translation import get_language, pgettext_lazy
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import DottedNameField, EnumField, EnumRegistry
 from oioioi.base.utils import split_extension, strip_num_or_hash
 from oioioi.contests.models import ProblemInstance
 from oioioi.filetracker.fields import FileField
+from oioioi.problems.validators import validate_origintag
 
 logger = logging.getLogger(__name__)
 
@@ -381,89 +383,230 @@ class UserStatistics(models.Model):
         unique_together = ('problem_statistics', 'user')
 
 
+def _localized(*localized_fields):
+    """ Some models may have fields with language-specific data, which cannot be
+        translated through the normal internalization tools, as it is not
+        defined in the source code (e.g. names of dynamically defined items).
+
+        Decorate a class with this decorator when there exists a class that:
+         - has a ForeignKey to the decorated class with a related_name
+           of `localizations`.
+         - has a `language` field, and all of `localized_fields`.
+        The `localized_fields` can then be accessed directly through the
+        decorated class, and will be matched to the current language.
+
+        Be sure to use prefetch_related('localizations') if you will be
+        querying multiple localized model instances!
+
+        Also see: LocalizationForm
+    """
+    def decorated(cls):
+        def localize(self, key):
+            language = get_language()
+            # In case prefetch_related('localizations') was done don't want to
+            # use filter to avoid database queries. If it wasn't - querying one
+            # language vs all languages is not too much of a difference anyway.
+            for localization in self.localizations.all():
+                if localization.language == language:
+                    return getattr(localization, key)
+            return None
+
+        def __getattr__(self, key):
+            if key in self.localized_fields:
+                return self.localize(key)
+            else:
+                raise AttributeError("'{}' object has no attribute '{}'" \
+                       .format(cls.__name__, key))
+
+        cls.localized_fields = localized_fields
+        cls.localize = localize
+        cls.__getattr__ = __getattr__
+        return cls
+
+    return decorated
+
+
+@_localized('short_name', 'full_name', 'description')
 class OriginTag(models.Model):
-    name = models.CharField(max_length=20, unique=True,
-            verbose_name=_("name"), null=False, blank=False,
-            validators=[
-                validators.MinLengthValidator(3),
-                validators.MaxLengthValidator(20),
-                validators.validate_slug,
-            ])
-    problems = models.ManyToManyField(Problem, through='OriginTagThrough')
-    parent_tag = models.ForeignKey('self',
-            on_delete=models.CASCADE,
-            related_name='child_tags',
-            null=True,
-            blank=True,
-            help_text=("Tag X is the parent of tag Y, if the presence of Y "
-                "implies the presence of X. For example: tags with names "
-                "'stage 1' and '23' both have the tag with name 'OI' as "
-                "parent, which does not have a parent tag of its own. The "
-                "tags can be written as a path from their most deep ancestor, "
-                "e.g. 'OI / stage 1' or 'OI / 23'. An example of a deeper"
-                "hierarchy would be: 'PA / remote / type A' and "
-                "'PA / remote / type B' tags, for tagging A/B type tasks from "
-                "remote rounds of Potyczki Algorytmiczne. A task can (and "
-                "probably should) have multiple origin tags, for example a "
-                "task from Potyczki Algorytmiczne could have tags: "
-                "'PA / 2010', 'PA / remote / type A', 'PA / remote / round 3', "
-                "which also imply tags 'PA / remote' and 'PA'. If you are still "
-                "unsure, think of how users will filter the problemset: "
-                "'type A' can't be a subtag of 'round 3' or '2010' because "
-                "the user will want to search tasks of type A from all rounds "
-                "and all years of PA, however type A/B tasks only occur in "
-                "remote rounds so we can be more specific and say that "
-                "'remote' is the parent of 'type A'."))
-    display_depth = models.IntegerField(default=-1,
-            help_text=("Sometimes the parent-child relationship does not "
-                "convey the full information about the tag hierarchy. Some "
-                "tags are more 'broad' than others, and less broad tags "
-                "should be grouped under them when displayed (for example in "
-                "the task archive). For example you may want to display the "
-                "following hierarchy - OI -> year X -> stage Y in year X -> "
-                "tasks from stage Y in year X. These tasks would have to be "
-                "tagged with 'OI / X' and 'OI / stage Y' so that we can "
-                "search for them conveniently, so displaying them in this "
-                "particular way requires additional information. The display "
-                "depth lets you specify the 'broadness' which the tag has. "
-                "For the OI example - 'OI' would have display depth equal to "
-                "0, all the 'year X' tags equal to 1, all the 'stage Y' tags "
-                "equal to 2. Not all tags have to be used for grouping, and "
-                "you may not want to specify the display depth at all (set it "
-                "to -1). For instance 'PA / remote / round X' would be depth "
-                "2, but 'PA / remote / type A' and 'PA / distributed task' "
-                "would be depth -1, since it makes no sense to group "
-                "distributed tasks under type A tasks or the other way "
-                "around. Display depth of -1 is displayed after all other "
-                "depths."))
+    """ OriginTags are used along with OriginInfoCategories and OriginInfoValue
+        to give information about the problem's origin. OriginTags themselves
+        represent general information about a problem's origin, whereas
+        OriginInfoValues grouped under OriginInfoCategories represent more
+        specific information. A Problem should probably not have more than one
+        OriginTag, and should probably have one OriginInfoValue for each
+        category.
+
+        See also: OriginInfoCategory, OriginInfoValue
+    """
+    name = models.CharField(max_length=20, validators=(validate_origintag,),
+                            verbose_name=_('name'),
+                            help_text=_("Short, searchable name consisting only of lowercase letters, numbers, and hyphens.<br>" \
+                                        "This should refer to general origin, i.e. a particular contest, competition, programming camp, etc.<br>" \
+                                        "This will be displayed verbatim in the Problemset."))
+    problems = models.ManyToManyField(Problem, blank=True,
+                                      verbose_name=_('problems'),
+                                      help_text=_("Selected problems will be tagged with this tag.<br>"))
 
     class Meta(object):
         verbose_name = _("origin tag")
         verbose_name_plural = _("origin tags")
-        unique_together = ('name', 'parent_tag')
 
     def __unicode__(self):
         return six.text_type(self.name)
 
 
-class OriginTagThrough(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    tag = models.ForeignKey(OriginTag, on_delete=models.CASCADE)
+class OriginTagLocalization(models.Model):
+    origin_tag = models.ForeignKey(OriginTag, related_name='localizations',
+                                   on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES,
+                                verbose_name=_("language"))
 
-    # This string will be visible in admin form
-    def __unicode__(self):
-        return six.text_type(self.tag.name)
-
-    # pylint: disable=w0221
-    def save(self, *args, **kwargs):
-        instance = super(OriginTagThrough, self).save(*args, **kwargs)
-        if self.tag.parent_tag:
-            OriginTagThrough.objects.get_or_create(problem=self.problem,
-                    tag=self.tag.parent_tag)
-        return instance
+    full_name = models.CharField(max_length=255, verbose_name=_("full name"),
+                                 help_text=_("Full, official name of the contest, competition, programming camp, etc. which this tag represents."))
+    short_name = models.CharField(max_length=32, blank=True,
+                                  verbose_name=_("abbreviation"),
+                                  help_text=_("(optional) Official abbreviation of the full name."))
+    description = models.TextField(blank=True, verbose_name=_("description"),
+                                   help_text=_("(optional) Longer description which Will be displayed in the Task Archive next to the name."))
 
     class Meta(object):
-        unique_together = ('problem', 'tag')
+        unique_together = ('origin_tag', 'language')
+        verbose_name = _("origin tag localization")
+        verbose_name_plural = _("origin tag localizations")
+
+    def __unicode__(self):
+        return six.text_type("{} - {}".format(self.origin_tag, self.language))
+
+
+@_localized('full_name')
+class OriginInfoCategory(models.Model):
+    """ This class represents a category of information, which further specifies
+        what its parent_tag is already telling about the origin. It doesn't do
+        much by itself and is instead used to group OriginInfoValues by category
+
+        See also: OriginTag, OriginInfoValue
+    """
+    parent_tag = models.ForeignKey(OriginTag,
+                                   related_name='info_categories',
+                                   on_delete=models.CASCADE,
+                                   verbose_name=_("parent tag"),
+                                   help_text=_("This category will be a possible category of information for problems tagged with the selected tag."))
+    name = models.CharField(max_length=20, validators=(validate_origintag,),
+                            verbose_name=_("name"),
+                            help_text=_("Type of information within this category. Short, searchable name consisting of only lowercase letters, numbers, and hyphens.<br>" \
+                                        "Examples: 'year', 'edition', 'stage', 'day'."))
+    order = models.IntegerField(blank=True, null=True,
+                                verbose_name=_("grouping order"),
+                                help_text=_("Sometimes the parent_tag relationship by itself is not enough to convey full information about the information hierarchy.<br>" \
+                                            "Some categories are broader, and others are more specific. More specific tags should probably be visually grouped after/under broader tags when displayed.<br>" \
+                                            "The broader the category is the lower grouping order it should have - e.g. 'year' should have lower order than 'round'.<br>" \
+                                            "Left blank means 'infinity', which usually means that this category will not be used for grouping - some categories could be too specific (e.g. when grouping would result in 'groups' of single Problems).")
+                                )
+
+    class Meta(object):
+        verbose_name = _("origin tag - information category")
+        verbose_name_plural = _("origin tags - information categories")
+        unique_together = ('name', 'parent_tag')
+
+    def __unicode__(self):
+        return six.text_type("{}_{}".format(self.parent_tag, self.name))
+
+
+class OriginInfoCategoryLocalization(models.Model):
+    origin_info_category = models.ForeignKey(OriginInfoCategory,
+                                             related_name='localizations',
+                                             on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES,
+                                verbose_name=_("language"))
+
+    full_name = models.CharField(max_length=32,
+                                 verbose_name=_("name translation"),
+                                 help_text=_("Human-readable name."))
+
+    class Meta(object):
+        unique_together = ('origin_info_category', 'language')
+        verbose_name = _("origin info category localization")
+        verbose_name_plural = _("origin info category localizations")
+
+    def __unicode__(self):
+        return six.text_type("{} - {}".format(self.origin_info_category,
+                                              self.language))
+
+
+@_localized('full_value')
+class OriginInfoValue(models.Model):
+    """ This class represents additional information, further specifying
+        what its parent_tag is already telling about the origin. Each
+        OriginInfoValue has a category, in which it should be unique, and
+        problems should only have one OriginInfoValue within any category.
+
+        See alse: OriginTag, OriginInfoCategory
+    """
+    parent_tag = models.ForeignKey(OriginTag, related_name='info_values',
+                                   on_delete=models.CASCADE,
+                                   verbose_name=_("parent tag"),
+                                   help_text=_("If an OriginTag T is a parent of OriginInfoValue V, the presence of V on a Problem implies the presence of T.<br>"\
+                                               "OriginInfoValues with the same values are also treated as distinct if they have different parents.<br>"\
+                                               "You can think of this distinction as prepending an OriginTag.name prefix to an OriginInfoValue.value<br>"\
+                                               "e.g. for OriginTag 'pa' and OriginInfoValue '2011', this unique OriginInfoValue.name would be 'pa_2011'")
+                                   )
+
+    category = models.ForeignKey(OriginInfoCategory,
+                                 related_name='values',
+                                 on_delete=models.CASCADE,
+                                 verbose_name=_("category"),
+                                 help_text=_("This information should be categorized under the selected category."))
+
+    value = models.CharField(max_length=32, validators=(validate_origintag,),
+                             verbose_name=_("value"),
+                             help_text=_("Short, searchable value consisting of only lowercase letters and numbers.<br>" \
+                                         "This will be displayed verbatim in the Problemset - it must be unique within its parent tag.<br>"\
+                                         "Examples: for year: '2011', but for round: 'r1' (just '1' for round would be ambiguous)."))
+
+    order = models.IntegerField(default=0, verbose_name=_("display order"),
+                                help_text=_("Order in which this value will be sorted within its category."))
+    problems = models.ManyToManyField(Problem, blank=True,
+                                      verbose_name=_("problems"),
+                                      help_text=_("Select problems described by this value. They will also be tagged with the parent tag.<br>"))
+
+    @property
+    def name(self):
+        # Should be unique due to unique constraints on value and parent_tag.name
+        return six.text_type('{}_{}'.format(self.parent_tag, self.value))
+
+    @property
+    def full_name(self):
+        return six.text_type('{} {}'.format(self.parent_tag.full_name,
+                                            self.full_value))
+
+    class Meta(object):
+        unique_together = ('parent_tag', 'value')
+        verbose_name = _("origin tag - information value")
+        verbose_name_plural = _("origin tags - information values")
+
+    def __unicode__(self):
+        return self.name
+
+
+class OriginInfoValueLocalization(models.Model):
+    origin_info_value = models.ForeignKey(OriginInfoValue,
+                                    related_name='localizations',
+                                    on_delete=models.CASCADE)
+    language = models.CharField(max_length=2, choices=settings.LANGUAGES,
+                                verbose_name=_("language"))
+
+    full_value = models.CharField(max_length=64,
+                                  verbose_name=_("translated value"),
+                                  help_text=_("Human-readable value."))
+
+    class Meta(object):
+        unique_together = ('origin_info_value', 'language')
+        verbose_name = _("origin info value localization")
+        verbose_name_plural = _("origin info value localizations")
+
+    def __unicode__(self):
+        return six.text_type("{} - {}".format(self.origin_info_value,
+                                              self.language))
 
 
 class DifficultyTag(models.Model):

@@ -23,13 +23,12 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.forms import (ProblemSiteForm, ProblemStatementConfigForm,
-                                   TagThroughForm, OriginTagThroughForm,
-                                   DifficultyTagThroughForm,
+                                   TagThroughForm, DifficultyTagThroughForm,
                                    AlgorithmTagThroughForm)
 from oioioi.problems.models import (MainProblemInstance, Problem,
                                     ProblemAttachment, ProblemPackage,
                                     ProblemSite, ProblemStatement, Tag,
-                                    AlgorithmTag, OriginTag, DifficultyTag)
+                                    AlgorithmTag, DifficultyTag)
 from oioioi.problems.utils import can_add_problems, can_admin_problem
 
 logger = logging.getLogger(__name__)
@@ -120,23 +119,6 @@ class ProblemSiteInline(admin.StackedInline):
         return False
 
 
-class OriginTagInline(admin.StackedInline):
-    model = OriginTag.problems.through
-    form = OriginTagThroughForm
-    extra = 0
-    verbose_name = _("Origin Tag")
-    verbose_name_plural = _("Origin Tags")
-
-    def has_add_permission(self, request):
-        return request.user.is_superuser
-
-    def has_change_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-    def has_delete_permission(self, request, obj=None):
-        return request.user.is_superuser
-
-
 class DifficultyTagInline(admin.StackedInline):
     model = DifficultyTag.problems.through
     form = DifficultyTagThroughForm
@@ -189,8 +171,8 @@ class TagInline(admin.StackedInline):
 
 
 class ProblemAdmin(admin.ModelAdmin):
-    inlines = [TagInline, OriginTagInline, DifficultyTagInline,
-               AlgorithmTagInline, StatementInline, AttachmentInline,
+    inlines = [TagInline, DifficultyTagInline, AlgorithmTagInline,
+               StatementInline, AttachmentInline,
                ProblemInstanceInline, ProblemSiteInline]
     readonly_fields = ['author', 'name', 'short_name', 'controller_name',
             'package_backend_name', 'main_problem_instance', 'ascii_name']
