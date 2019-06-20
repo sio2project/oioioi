@@ -1580,8 +1580,16 @@ class TestProblemSearchPermissions(TestCase):
         response = self.client.get(self.url + 'all_problems', {'q': 'Task'}, follow=True)
         self.assertEqual(response.status_code, 403)
 
+        hints_url = reverse('get_search_hints', args=('all',))
+        response = self.client.get(hints_url, {'q': 'Task'})
+        self.assertEqual(response.status_code, 403)
+
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(self.url + 'all_problems', {'q': 'Task'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, self.task_names)
+
+        response = self.client.get(hints_url, {'q': 'Task'})
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, self.task_names)
 
@@ -1589,6 +1597,7 @@ class TestProblemSearchPermissions(TestCase):
 class TestProblemSearch(TestCase):
     fixtures = ['test_problem_search']
     url = reverse('problemset_main')
+    hints_url = reverse('get_search_hints', args=('public',))
     task_names = [
         'Prywatne',
         'Zadanko',
@@ -1645,8 +1654,7 @@ class TestProblemSearch(TestCase):
         self.client.get('/c/c/')
         response = self.client.get(self.url, {'q': 'a'})
         self.assertEqual(response.status_code, 200)
-        self.assert_contains_only(response, ('Zadanko', 'Znacznik',
-                                             'Algorytm'))
+        self.assert_contains_only(response, ('Zadanko', 'Znacznik', 'Algorytm'))
 
     def test_search_short_name(self):
         self.client.get('/c/c/')
@@ -1786,3 +1794,63 @@ class TestProblemSearchOrigin(TestCase):
         response = self.client.get(self.url, {'origin': ['pa_2012', 'pa_r2']})
         self.assertEqual(response.status_code, 200)
         self.assert_contains_only(response, [])
+
+class TestProblemSearchHintsTags(TestCase):
+    fixtures = ['test_problem_search_hints_tags']
+    url = reverse('get_search_hints', args=('public',))
+    category_url = reverse('get_origininfocategory_hints')
+    hints = [
+        'tag_t1', 'tag_t2', 'tag_d1', 'tag_d2', 'tag_a1', 'tag_a2',
+        'pa_2011', 'pa_2012', 'pa_r1', 'pa_r2',
+        'oi_2011', 'oi_r1', 'oi_r2',
+        'origintag', 'round', 'year'
+    ]
+
+    def assert_contains_only(self, response, hints):
+        for hint in self.hints:
+            if hint in hints:
+                self.assertContains(response, hint)
+            else:
+                self.assertNotContains(response, hint)
+
+    def test_search_hints_tags_basic(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'tag_t'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['tag_t1', 'tag_t2'])
+
+        response = self.client.get(self.url, {'q': 'tag_d'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['tag_d1', 'tag_d2'])
+
+        response = self.client.get(self.url, {'q': 'tag_a'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['tag_a1', 'tag_a2'])
+
+    def test_search_hints_origininfo(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.url, {'q': 'pa_'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['pa_2011', 'pa_r1', 'pa_r2'])
+
+        response = self.client.get(self.url, {'q': '2011'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['pa_2011', 'oi_2011'])
+
+        response = self.client.get(self.url, {'q': 'Round'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['pa_r1', 'pa_r2', 'oi_r1', 'oi_r2'])
+
+        response = self.client.get(self.url, {'q': 'Potyczki Algorytmiczne'})
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['origintag', 'round', 'year'])
+
+    @override_settings(LANGUAGE_CODE="en")
+    def test_category_hints(self):
+        self.client.get('/c/c/')
+        response = self.client.get(self.category_url, {
+                                        'category': 'round',
+                                        'q': 'Potyczki Algorytmiczne'
+                                   })
+        self.assertEqual(response.status_code, 200)
+        self.assert_contains_only(response, ['pa_r1', 'pa_r2'])

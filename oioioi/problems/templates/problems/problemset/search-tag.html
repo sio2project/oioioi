@@ -1,0 +1,18 @@
+<div class="search-tag-root {{ input_class }}">
+    <div class="search-tag label tag-label-{{ input_name }}">
+        <input type="hidden"
+               name="{{ input_name }}"
+               value="{% firstof input_value input_text %}"
+               {% if input_form %}
+               form="{{ input_form }}"
+               {% endif %}
+               {{ input_attr }}
+        />
+        <span class="search-tag-text">{{ input_text }}</span>
+        <span class="glyphicon glyphicon-remove-sign search-tag-remove"
+              {% if input_script %}
+              onclick="{{ input_script }}"
+              {% endif %}
+        ></span>
+    </div>
+</div>

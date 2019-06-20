@@ -1,0 +1,203 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.tag",
+    "fields": {
+      "name": "tag_t1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.tag",
+    "fields": {
+      "name": "tag_t2"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "tag_a1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.algorithmtag",
+    "fields": {
+      "name": "tag_a2"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.difficultytag",
+    "fields": {
+      "name": "tag_d1"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.difficultytag",
+    "fields": {
+      "name": "tag_d2"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "pa"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "oi"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origintaglocalization",
+    "fields": {
+      "origin_tag": 1,
+      "language": "en",
+      "full_name": "Potyczki Algorytmiczne"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 1,
+      "name": "year"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 1,
+      "name": "round"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 2,
+      "name": "year"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 2,
+      "name": "round"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 1,
+      "value": "2011"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 2,
+      "category": 3,
+      "value": "2011"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 2,
+      "value": "r1"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 2,
+      "category": 4,
+      "value": "r1"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 2,
+      "value": "r2"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 2,
+      "category": 4,
+      "value": "r2"
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 1,
+      "full_value": "2011"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 2,
+      "full_value": "2011"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 3,
+      "full_value": "Round 1"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 4,
+      "full_value": "Round 1"
+    }
+  },
+  {
+    "pk": 5,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 5,
+      "full_value": "Round 2"
+    }
+  },
+  {
+    "pk": 6,
+    "model": "problems.origininfovaluelocalization",
+    "fields": {
+      "origin_info_value": 6,
+      "full_value": "Round 2"
+    }
+  }
+]

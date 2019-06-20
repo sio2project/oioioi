@@ -544,6 +544,159 @@ def get_tag_hints_view(request):
     return [str(tag.name) for tag in queryset_tags]
 
 
+def _uniquefy(key, list_of_dicts):
+    uniquefied = { item[key]: item for item in list_of_dicts}
+    return uniquefied.values()
+
+def uniquefy(key):
+    def decorator(fn):
+        @wraps(fn)
+        def decorated(*args, **kwargs):
+            return _uniquefy(key, fn(*args, **kwargs))
+        return decorated
+    return decorator
+
+def get_origintag_category_hints(origintag):
+    origintag = OriginTag.objects.get(name=origintag)
+    return [{
+            'trigger': 'category-menu',
+            'name': '{} - {}'.format(origintag.full_name, category.full_name),
+            'category': _('Origin Tags'),
+            'search_name': origintag.full_name,  # Avoids breaking the typeahead
+            'value': category.name
+        } for category in origintag.info_categories.all()
+    ]
+
+
+@uniquefy('value')
+def get_origininfovalue_hints(query):
+    query_prefix = query.split('_')
+
+    return [{
+            'trigger': 'origininfo',
+            'name': oiv.full_name,
+            'category': _('Origin Tags'),
+            'prefix': 'origin',
+            'value': oiv.name,
+        } for oiv in OriginInfoValue.objects \
+                .filter(value__istartswith=query)
+    ] + [{
+            'trigger': 'origininfo',
+            'name': oivl.origin_info_value.full_name,
+            'category': _('Origin Tags'),
+            'prefix': 'origin',
+            'value': oivl.origin_info_value.name,
+        } for oivl in OriginInfoValueLocalization.objects \
+                .filter(full_value__istartswith=query)
+    ] + ([{
+            'trigger': 'origininfo',
+            'name': oiv.full_name,
+            'category': _('Origin Tags'),
+            'prefix': 'origin',
+            'value': oiv.name,
+        } for oiv in OriginInfoValue.objects \
+                .filter(parent_tag__name__iexact=query_prefix[0],
+                        value__istartswith=query_prefix[1])
+    ] if len(query_prefix) == 2 else [])
+
+
+def get_origintag_hints(query):
+    res = _uniquefy('name', [{
+            'trigger': 'origintag-menu',
+            'name': otl.origin_tag.full_name,
+            'category': _('Origin Tags'),
+            'prefix': 'origin',
+            'value': otl.origin_tag.name,
+        } for otl in OriginTagLocalization.objects \
+                .filter(full_name__icontains=query)
+    ])
+
+    if len(res) == 1:
+        res[0]['trigger'] = 'origintag'
+        res += get_origintag_category_hints(res[0]['value'])
+    return res
+
+
+def get_tag_hints(query):
+    return [{
+        'name': tag.name,
+        'category': _('Tags'),
+        'prefix': 'tag',
+    } for tag in Tag.objects.filter(name__icontains=query)] \
+    + [{
+        'name': tag.name,
+        'category': _('Algorithm Tags'),
+        'prefix': 'algorithm',
+    } for tag in AlgorithmTag.objects.filter(name__icontains=query)] \
+    + [{
+        'name': tag.name,
+        'category': _('Difficulty Tags'),
+        'prefix': 'difficulty',
+    } for tag in DifficultyTag.objects.filter(name__icontains=query)]
+
+
+@uniquefy('name')
+def get_problem_hints(query, view_type):
+    problems = Problem.objects.filter(
+            Q(ascii_name__icontains=query) | Q(short_name__icontains=query),
+            problemsite__isnull=False)
+    if view_type == 'public':
+        problems = problems.filter(visibility=Problem.VISIBILITY_PUBLIC)
+    elif view_type == 'my':
+        problems = problems.filter(author=request.user)
+    elif view_type != 'all':
+        raise Http404
+
+    # Limit the number of matches sent
+    return [{
+            'trigger': 'problem',
+            'name': problem.name,
+            'category': _('Problems'),
+        } for problem in problems[:getattr(settings, 'NUM_HINTS', 10)]
+    ]
+
+
 @jsonify
 def get_search_hints_view(request, view_type):
-    return [] # Temporarily removed, see parent/child commits
+    """Search hints are JSON objects with the following fields:
+
+       name - name displayed in the dropdown box
+       category (optional) - category for grouping in the dropdown box
+
+       prefix (only search tags) - GET param key and prefix for the search tag
+
+       search_name (optional) - to be passed to the search box instead of `name`
+       value (optional) - to be used as a GET param value instead of `name`
+
+       trigger (optional) - special trigger for the internal logic of the
+                            typeahead script, see `init_search_selection`
+    """
+    if view_type == 'all' and not request.user.is_superuser:
+        raise PermissionDenied
+    query = unidecode(request.GET.get('q', ''))
+
+    return get_problem_hints(query, view_type) \
+        + get_tag_hints(query) \
+        + get_origintag_hints(query) \
+        + get_origininfovalue_hints(query)
+
+
+@jsonify
+def get_origininfocategory_hints_view(request):
+    tag = get_object_or_404(OriginTagLocalization,
+                            language=get_language(),
+                            full_name=request.GET.get('q')) \
+            .origin_tag
+    category = get_object_or_404(OriginInfoCategory,
+                                 parent_tag = tag,
+                                 name=request.GET.get('category'))
+    if not category:
+        raise Http404
+
+    return [{
+            'trigger': 'origininfo',
+            'name': '{} {}'.format(category.parent_tag.full_name, val.full_value),
+            'prefix': 'origin',
+            'value': val.name,
+        } for val in category.values.all()
+    ]
