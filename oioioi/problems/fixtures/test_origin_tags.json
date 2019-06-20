@@ -1,0 +1,33 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "test_problem"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origintag",
+    "fields": {
+      "name": "pa"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origininfocategory",
+    "fields": {
+      "parent_tag": 1,
+      "name": "year"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.origininfovalue",
+    "fields": {
+      "parent_tag": 1,
+      "category": 1,
+      "value": "2011"
+    }
+  }
+]

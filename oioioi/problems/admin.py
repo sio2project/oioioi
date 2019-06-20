@@ -23,12 +23,20 @@ from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.forms import (ProblemSiteForm, ProblemStatementConfigForm,
+                                   OriginTagThroughForm, OriginInfoValueForm,
+                                   OriginInfoValueThroughForm,
                                    TagThroughForm, DifficultyTagThroughForm,
-                                   AlgorithmTagThroughForm)
+                                   AlgorithmTagThroughForm,
+                                   LocalizationFormset)
 from oioioi.problems.models import (MainProblemInstance, Problem,
                                     ProblemAttachment, ProblemPackage,
                                     ProblemSite, ProblemStatement, Tag,
-                                    AlgorithmTag, DifficultyTag)
+                                    AlgorithmTag, DifficultyTag,
+                                    OriginTag, OriginTagLocalization,
+                                    OriginInfoValue,
+                                    OriginInfoValueLocalization,
+                                    OriginInfoCategory,
+                                    OriginInfoCategoryLocalization)
 from oioioi.problems.utils import can_add_problems, can_admin_problem
 
 logger = logging.getLogger(__name__)
@@ -119,6 +127,93 @@ class ProblemSiteInline(admin.StackedInline):
         return False
 
 
+class OriginTagLocalizationInline(admin.StackedInline):
+    model = OriginTagLocalization
+    formset = LocalizationFormset
+
+
+class OriginTagAdmin(admin.ModelAdmin):
+    filter_horizontal = ('problems',)
+    inlines = (OriginTagLocalizationInline,)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'problems':
+            kwargs['queryset'] = Problem.objects \
+                    .filter(visibility=Problem.VISIBILITY_PUBLIC)
+        return super(OriginTagAdmin, self) \
+                .formfield_for_manytomany(db_field, request, **kwargs)
+
+admin.site.register(OriginTag, OriginTagAdmin)
+
+
+class OriginInfoCategoryLocalizationInline(admin.StackedInline):
+    model = OriginInfoCategoryLocalization
+    formset = LocalizationFormset
+
+
+class OriginInfoCategoryAdmin(admin.ModelAdmin):
+    inlines = (OriginInfoCategoryLocalizationInline,)
+
+admin.site.register(OriginInfoCategory, OriginInfoCategoryAdmin)
+
+
+class OriginInfoValueLocalizationInline(admin.StackedInline):
+    model = OriginInfoValueLocalization
+    formset = LocalizationFormset
+
+
+class OriginInfoValueAdmin(admin.ModelAdmin):
+    form = OriginInfoValueForm
+
+    filter_horizontal = ('problems',)
+    inlines = (OriginInfoValueLocalizationInline,)
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if db_field.name == 'problems':
+            kwargs['queryset'] = Problem.objects \
+                    .filter(visibility=Problem.VISIBILITY_PUBLIC)
+        return super(OriginInfoValueAdmin, self) \
+                .formfield_for_manytomany(db_field, request, **kwargs)
+
+admin.site.register(OriginInfoValue, OriginInfoValueAdmin)
+
+
+class OriginTagInline(admin.StackedInline):
+    model = OriginTag.problems.through
+    form = OriginTagThroughForm
+    extra = 0
+    verbose_name = _("origin tag")
+    verbose_name_plural = _("origin tags")
+
+    # Prevent the problem owner from changing the problem's origin tags
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
+class OriginInfoValueInline(admin.StackedInline):
+    model = OriginInfoValue.problems.through
+    form = OriginInfoValueThroughForm
+    extra = 0
+    verbose_name = _("origin information")
+    verbose_name_plural = _("additional origin information")
+
+    # Prevent the problem owner from changing the problem's origin meta
+    def has_add_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+
 class DifficultyTagInline(admin.StackedInline):
     model = DifficultyTag.problems.through
     form = DifficultyTagThroughForm
@@ -172,12 +267,16 @@ class TagInline(admin.StackedInline):
 
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [TagInline, DifficultyTagInline, AlgorithmTagInline,
+               OriginTagInline, OriginInfoValueInline,
                StatementInline, AttachmentInline,
                ProblemInstanceInline, ProblemSiteInline]
     readonly_fields = ['author', 'name', 'short_name', 'controller_name',
             'package_backend_name', 'main_problem_instance', 'ascii_name']
     exclude = ['contest']
     list_filter = ['short_name']
+
+    class Media():
+        js = ('problems/admin-origintag.js',)
 
     def has_add_permission(self, request):
         return can_add_problems(request)

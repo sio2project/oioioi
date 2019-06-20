@@ -26,11 +26,12 @@ from oioioi.contests.handlers import update_problem_statistics
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
+from oioioi.problems.forms import OriginInfoValueForm
 from oioioi.problems.management.commands import recalculate_statistics
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemStatistics, make_problem_filename,
                                     ProblemSite, ProblemStatement, OriginTag,
-                                    make_problem_filename)
+                                    OriginInfoValue, make_problem_filename)
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
 from oioioi.problems.problem_sources import UploadedPackageSource
@@ -1104,6 +1105,29 @@ class TestDifficultyTags(TestCase):
         self.assertNotContains(response, 'XYZ')
         self.assertNotContains(response, '>trudne<')
         self.assertNotContains(response, '>latwe<')
+
+
+class TestOriginTags(TestCase):
+    fixtures = ['test_origin_tags']
+
+    def test_adding_parent_tag(self):
+        origin_tag = OriginTag.objects.get(pk=1)
+        problem = Problem.objects.get(pk=1)
+        self.assertNotIn(problem, origin_tag.problems.all())
+
+        data = {
+                'category': 1,
+                'value': '2077',
+                'order': 2077,
+                'problems': [1,]
+            }
+        form = OriginInfoValueForm(data)
+        self.assertTrue(form.is_valid())
+        form.save()
+
+        problem.refresh_from_db()
+        origin_tag.refresh_from_db()
+        self.assertIn(problem, origin_tag.problems.all())
 
 
 class TestSearch(TestCase):

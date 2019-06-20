@@ -1,7 +1,9 @@
 from collections import OrderedDict
 
 from django import forms
+from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.db import transaction
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -9,7 +11,8 @@ from oioioi.base.utils.input_with_generate import TextInputWithGenerate
 from oioioi.contests.models import ProblemStatementConfig
 from oioioi.problems.models import (ProblemSite, Tag, TagThrough,
                                     AlgorithmTag, AlgorithmTagThrough,
-                                    DifficultyTag, DifficultyTagThrough)
+                                    DifficultyTag, DifficultyTagThrough,
+                                    OriginInfoCategory, OriginInfoValue)
 
 
 class ProblemUploadForm(forms.Form):
@@ -68,6 +71,19 @@ class ProblemsetSourceForm(forms.Form):
             self.initial = {'url_key': url_key}
 
 
+class LocalizationFormset(forms.models.BaseInlineFormSet):
+
+    def __init__(self, *args, **kwargs):
+        self.min_num = len(settings.LANGUAGES)
+        self.max_num = len(settings.LANGUAGES)
+        kwargs['initial'] = [
+                { 'language': lang[0] } for lang in settings.LANGUAGES \
+                    if not kwargs['instance'].localizations \
+                            .filter(language=lang[0]).exists()
+            ]
+        super(LocalizationFormset, self).__init__(*args, **kwargs)
+
+
 # TagSelectionWidget is designed to work with django-admin
 
 class TagSelectionWidget(forms.Widget):
@@ -120,6 +136,46 @@ class TagSelectionField(forms.ModelChoiceField):
         for validator in self.default_validators:
             validator(value)
         return self.tag_cls.objects.get_or_create(name=value)[0]
+
+
+class OriginInfoValueForm(forms.ModelForm):
+
+    @transaction.atomic
+    def save(self, commit=True):
+        instance = super(OriginInfoValueForm, self).save(commit=False)
+
+        # Ensure parent_tag exists on problems
+        category = self.cleaned_data['category']
+        parent_tag = category.parent_tag
+        instance.parent_tag = parent_tag
+        problems = self.cleaned_data.get('problems') \
+                .prefetch_related('origintag_set')
+        for problem in problems:
+            if parent_tag not in problem.origintag_set.all():
+                parent_tag.problems.add(problem)
+
+        if commit:
+            instance.save()
+        return instance
+
+    class Meta(object):
+        model=OriginInfoValue
+        fields=('category', 'value', 'order', 'problems')
+        exclude=('parent_tag',)
+
+
+class OriginTagThroughForm(forms.ModelForm):
+
+    class Meta(object):
+        labels = {'origintag': _("Origin Tag")}
+        help_texts = {'origintag': _("Origin tags inform about the problem's general origin - e.g. a specific competition, olympiad, or programming camp.")}
+
+
+class OriginInfoValueThroughForm(forms.ModelForm):
+
+    class Meta(object):
+        labels = {'origininfovalue': _("Origin Information")}
+        help_texts = {'origininfovalue': _("Origin information values inform about the problem's specific origin - a year, round, day, etc.")}
 
 
 class DifficultyTagThroughForm(forms.ModelForm):
