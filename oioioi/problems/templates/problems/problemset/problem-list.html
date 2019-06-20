@@ -84,6 +84,11 @@
                             {% endfor %}
                             {% for tag in problem.origintag_set.all %}
                                 {% tag_label tag %}
+                                {% for info in problem.origininfovalue_set.all %}
+                                    {% if info.parent_tag == tag %}
+                                        {% origininfo_label info %}
+                                    {% endif %}
+                                {% endfor %}
                             {% endfor %}
                             {% for tag in problem.difficultytag_set.all %}
                                 {% tag_label tag %}

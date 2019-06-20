@@ -1,11 +1,12 @@
-def get_tag_colors(tag):
-    """This function decides how to color a certain tag based on its type"""
+def get_tag_prefix(tag):
+    """This function returns the type of a tag, used for colors and searching"""
 
-    colors = {
-        'OriginTag': ('#C3A877', '#000000'),
-        'AlgorithmTag': ('#2A2C59', '#ffffff'),
-        'DifficultyTag': ('#2DB941', '#ffffff'),
-        'Tag': ('#718D87', '#ffffff')
+    prefixes = {
+        'OriginTag':        'origin',
+        'OriginInfoValue':  'origin',
+        'AlgorithmTag':     'algorithm',
+        'DifficultyTag':    'difficulty',
+        'Tag':              'tag'
     }
 
-    return colors[tag.__class__.__name__]
+    return prefixes[tag.__class__.__name__]
