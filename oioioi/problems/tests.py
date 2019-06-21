@@ -2762,7 +2762,7 @@ class TestProblemStatisticsDisplay(TestCase):
 
 class TestVisibilityMigration(TestCaseMigrations):
     migrate_from = '0013_newtags'
-    migrate_to = '0014_visibility'
+    migrate_to = '0016_visibility_part3'
 
     def setUpBeforeMigration(self, apps):
         Problem = apps.get_model('problems', 'Problem')
@@ -2779,7 +2779,7 @@ class TestVisibilityMigration(TestCaseMigrations):
 
 
 class TestVisibilityMigrationReverse(TestCaseMigrations):
-    migrate_from = '0014_visibility'
+    migrate_from = '0016_visibility_part3'
     migrate_to = '0013_newtags'
 
     def setUpBeforeMigration(self, apps):
