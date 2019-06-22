@@ -113,6 +113,7 @@ class NotificationHandler(logging.StreamHandler):
                        the notification, where the user can check the details.
                    * "details" -- a short information
                        for the user about the event.
+                   * "popup" -- if set the related dropdown will be opened in ui.
         """
 
         NotificationHandler._check_connection()
@@ -124,6 +125,7 @@ class NotificationHandler(logging.StreamHandler):
 
         message['date'] = round(time.time() * 1000)
         message['message'] = notification_message
+        message['type'] = notification_type
 
         if 'details' in notification_message_arguments:
             message['details'] = notification_message_arguments['details']
