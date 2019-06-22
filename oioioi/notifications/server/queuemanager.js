@@ -4,7 +4,6 @@ var EventEmitter = require('events').EventEmitter;
 var eventEmitter = new EventEmitter();
 var context;
 var workers = {};
-var unackMessages = {};
 var rabbit_ready = false;
 var QUEUE_PREFIX = '_notifs_';
 var RETRY_WAIT = 1000 * 30;
@@ -29,7 +28,6 @@ function init(url, onCompleted) {
     function initContext(callback) {
         debug('Initializing rabbitmq context');
         workers = {};
-        unackMessages = {};
 
         context = rabbit.createContext(url);
 
@@ -76,7 +74,6 @@ function subscribe(userId) {
     }
     workers[userId] = context.socket('WORKER');
     workers[userId].connect(getQueueNameForUser(userId));
-    unackMessages[userId] = {};
 
     workers[userId].on('data', function(data) {
        try {
@@ -84,11 +81,10 @@ function subscribe(userId) {
        } catch(obj) {
            // remove bad message from queue
            console.log('Bad message format arrived!');
-           workers[userId].ack();
        }
-       unackMessages[userId][data.id] = data;
+       workers[userId].ack();
        eventEmitter.emit('message', userId, data);
-        debug(userId + ': received ' + data);
+       debug(userId + ': received ' + data);
     });
 }
 
@@ -108,30 +104,9 @@ function unsubscribeAll() {
     }
 }
 
-/* Acknowledges a message, removing it from RabbitMQ queue and internal cache.
-   It is considered as read and no longer exists in the system.
-   No socket will receive it anymore. */
-function acknowledge(userId, messageId) {
-    if (unackMessages[userId] &&
-        Object.keys(unackMessages[userId])[0] === messageId) {
-        workers[userId].ack();
-        delete unackMessages[userId][messageId];
-        debug('Acknowledged msgid '+ messageId);
-        return true;
-    }
-    return false;
-}
-
-// Returns all messages that have not been acknowledged yet.
-function getUnacknowledgedMessages(userId) {
-    return unackMessages[userId];
-}
-
 exports.init = init;
-exports.getUnacknowledgedMessages = getUnacknowledgedMessages;
 exports.subscribe = subscribe;
 exports.unsubscribe = unsubscribe;
-exports.acknowledge = acknowledge;
 exports.unsubscribeAll = unsubscribeAll;
 exports.getQueueNameForUser = getQueueNameForUser;
 exports.on = eventEmitter.on.bind(eventEmitter);

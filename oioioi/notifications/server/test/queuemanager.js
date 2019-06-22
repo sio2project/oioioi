@@ -13,7 +13,6 @@ describe('QueueManager', function() {
             if (!testDone) {
                 assert.equal(userName, 1);
                 assert.equal(message.message, 'hello');
-                assert.ok(queuemanager.acknowledge(1, "a"));
                 done();
                 testDone = true;
             }
@@ -24,10 +23,5 @@ describe('QueueManager', function() {
             push.write('{"id":"a", "message":"hello"}', 'utf8');
         });
     });
-
-    it ('should not acknowledge an unknown message', function() {
-       assert.ok(!queuemanager.acknowledge(2, 1));
-    });
-
 
 });

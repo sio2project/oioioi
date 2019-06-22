@@ -30,7 +30,6 @@ function configureSocket(socket) {
     socket.dict_id = last_dict_id++;
     debug("Connected socket " + socket.dict_id);
     socket.on('authenticate', respond('authenticate', socket, onAuthenticateRequested));
-    socket.on('ack_nots', respond('ack_nots', socket, onAckNotsRequested));
     socket.on('disconnect', onDisconnect(socket));
 }
 
@@ -96,37 +95,7 @@ function onAuthenticateRequested(data, _, socket, onCompleted) {
     auth.login(socket, data.session_id, function(userName) {
         onCompleted(userName ? {status: 'OK'} : {status: 'ERR_AUTH_FAILED'});
         // when a new user logs in, let him know what's up!
-        retransmitNotifications(userName);
     });
-}
-
-/* Called when new socket is associated with user name
-   and there are unacknowledged messages waiting for him.
- */
-function retransmitNotifications(userName) {
-    debug('Retransmitting notifications');
-    var messages = queuemanager.getUnacknowledgedMessages(userName);
-    for (var msgId in messages) {
-        onRabbitMessage(userName, messages[msgId]);
-    }
-}
-
-/* Callback for "acknowledge notifications" request.
-   Parameters:
-   nots - notification IDs wrapped in an array (e.g. [0,1,2])
-   other parameteres: see respond -> handler.
- */
-function onAckNotsRequested(nots, userName, _, onCompleted) {
-    if (!userName) {
-        onCompleted({status: 'ERR_UNAUTHORIZED'});
-        return;
-    }
-
-    for (var notId in nots) {
-        queuemanager.acknowledge(userName, nots[notId]);
-    }
-
-    onCompleted({status: 'OK'});
 }
 
 exports.onSocketConnected = onSocketConnected;

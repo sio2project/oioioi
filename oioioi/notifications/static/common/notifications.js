@@ -20,7 +20,6 @@ function NotificationsClient(serverUrl, sessionId) {
         '<time class="notification-time">%(time)s</time></a></li>';
     this.socket = undefined;
     this.notifCount = 0;
-    this.unconfirmedMessages = [];
     this.messages = [];
     this.translationCache = {};
     this.translationQueue = {};
@@ -41,7 +40,6 @@ function NotificationsClient(serverUrl, sessionId) {
     setInterval(this.notifWatchdog.bind(this), 2000);
     this.storage = new MessageManager(this);
     this.socket.on("message", this.storage.onMessageReceived.bind(this.storage));
-    this.socket.on("ack_nots", this.onAcknowledgeCompleted.bind(this));
 
 }
 
@@ -191,7 +189,7 @@ NotificationsClient.prototype.onMessageReceived = function(message, cached) {
     if (!cached) {
         this.notifCount++;
         this.updateNotifCount();
-        this.unconfirmedMessages.push(message);
+        $.localStorage.set("notif_" + message.date + "_" + message.id, message);
         if (message.popup && !$(this.DROPDOWN_PANEL).hasClass('open')) {
             $(this.DROPDOWN).dropdown('toggle');
         }
@@ -201,27 +199,9 @@ NotificationsClient.prototype.onMessageReceived = function(message, cached) {
     }
 };
 
-NotificationsClient.prototype.onAcknowledgeCompleted = function(result) {
-    if (result && result.status === 'OK') {
-        this.unconfirmedMessages.forEach(function(message) {
-            $.localStorage.set("notif_" + message.date + "_" + message.id,
-                               message);
-        });
-        this.notifCount = 0;
-        this.updateNotifCount();
-    }
-};
-
 NotificationsClient.prototype.acknowledgeMessages = function() {
-    if (this.unconfirmedMessages.length > 0) {
-        this.socket.emits("ack_nots",
-                          this.unconfirmedMessages.map(function(message) {
-                              return message.id;
-                          }));
-        if (this.DEBUG) {
-           console.log('Acknowledging messages: ' + JSON.stringify(this.unconfirmedMessages));
-        }
-    }
+    this.notifCount = 0;
+    this.updateNotifCount();
 };
 
 function MessageManager(notificationsClient) {
