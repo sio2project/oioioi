@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
+from django.conf import settings
 
-from oioioi.problems import views
+from oioioi.problems import views, api
 
 app_name = 'problems'
 
@@ -68,3 +69,12 @@ urlpatterns = [
 
     url(r'^save_proposals/', views.save_proposals_view, name='save_proposals'),
 ]
+
+
+noncontest_patterns = []
+
+if settings.USE_API:
+    noncontest_patterns += [
+        url(r'^api/problems/package_upload/$', api.PackageUploadView.as_view(), name='api_package_upload'),
+        url(r'^api/problems/package_reupload/$', api.PackageReuploadView.as_view(), name='api_package_reupload'),
+    ]

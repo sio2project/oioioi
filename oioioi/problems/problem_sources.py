@@ -1,5 +1,7 @@
 import logging
 
+import sys
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.files import File
@@ -171,53 +173,56 @@ class PackageSource(ProblemSource):
         return redirect('oioioiadmin:problems_%sproblempackage_changelist' %
                 ('' if request.user.is_superuser else 'contest'))
 
+    def handle_form(self, form, request, contest, existing_problem=None):
+        if form.is_valid():
+            try:
+                # We need to make sure that the package is saved in the
+                # database before the Celery task starts.
+                with transaction.atomic():
+                    original_filename, file_manager = \
+                        self.get_package_file(request, contest, form,
+                                              existing_problem)
+                    with file_manager as path:
+                        package = self.create_package_instance(request,
+                                                               contest, path, existing_problem,
+                                                               original_filename)
+                        env = self.create_env(request, contest, form, path,
+                                              package, existing_problem,
+                                              original_filename)
+                        if contest:
+                            contest.controller.fill_upload_environ(request,
+                                                                   form, env)
+                        package.save()
+                    async_task = unpackmgr_job.s(env)
+                    async_result = async_task.freeze()
+                    ProblemPackage.objects.filter(id=package.id).update(
+                        celery_task_id=async_result.task_id)
+                async_task.delay()
+                return True
+
+            # pylint: disable=broad-except
+            except Exception as e:
+                logger.error("Error processing package", exc_info=True,
+                             extra={'omit_sentry': True})
+                form._errors['__all__'] = form.error_class([smart_str(e)])
+
+        return False
+
     def view(self, request, contest, existing_problem=None):
         form = self.make_form(request, contest, existing_problem)
         if contest:
             contest.controller.adjust_upload_form(request, existing_problem,
-                    form)
+                                                  form)
         if request.method == 'POST':
-            if form.is_valid():
-                try:
-                    # We need to make sure that the package is saved in the
-                    # database before the Celery task starts.
-                    with transaction.atomic():
-                        original_filename, file_manager = \
-                                self.get_package_file(request, contest, form,
-                                        existing_problem)
-                        with file_manager as path:
-                            package = self.create_package_instance(request,
-                                    contest, path, existing_problem,
-                                    original_filename)
-                            env = self.create_env(request, contest, form, path,
-                                    package, existing_problem,
-                                    original_filename)
-                            if contest:
-                                contest.controller.fill_upload_environ(request,
-                                        form, env)
-                            package.save()
-                        async_task = unpackmgr_job.s(env)
-                        async_result = async_task.freeze()
-                        ProblemPackage.objects.filter(id=package.id).update(
-                                celery_task_id=async_result.task_id)
-                    async_task.delay()
-                    if request.user.is_superuser or (request.contest and
-                                 is_contest_admin(request)):
-                        messages.success(request,
-                                _("Package queued for processing."))
-                        return self._redirect_response(request)
-
+            if self.handle_form(form, request, contest, existing_problem):
+                if request.user.is_superuser or (request.contest and
+                                                 is_contest_admin(request)):
                     messages.success(request,
-                        _("Package queued for processing. It will appear in "
-                            "problem list when ready. Please be patient."))
-                    return TemplateResponse(request, self.template_name,
-                                            {'form': form})
-
-                # pylint: disable=broad-except
-                except Exception as e:
-                    logger.error("Error processing package", exc_info=True,
-                        extra={'omit_sentry': True})
-                    form._errors['__all__'] = form.error_class([smart_str(e)])
+                                     _("Package queued for processing."))
+                    return self._redirect_response(request)
+                messages.success(request,
+                                 _("Package queued for processing. It will appear in "
+                                   "problem list when ready. Please be patient."))
         return TemplateResponse(request, self.template_name, {'form': form})
 
 
