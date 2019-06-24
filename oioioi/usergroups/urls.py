@@ -28,7 +28,11 @@ urlpatterns = [
     url(r'^usergroups/sharing/key/regenerate/(?P<usergroup_id>\d+)/$',
         views.regenerate_sharing_key_view, name='usergroups_regenerate_sharing_key'),
     url(r'^usergroups/(?P<usergroup_id>\d+)/owners/delete/$', views.delete_owners_view,
-        name='usergroups_delete_owners')
+        name='usergroups_delete_owners'),
+    url(r'^usergroups/attach/$', views.attach_to_contest_view,
+        name='usergroup_attach_to_contest'),
+    url(r'^usergroups/(?P<usergroup_id>\d+)/detach/$', views.detach_from_contest_view,
+        name='usergroup_detach_from_contest'),
 ]
 
 noncontest_patterns = [

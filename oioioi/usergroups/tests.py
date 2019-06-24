@@ -1,9 +1,13 @@
 from django.contrib.auth.models import User
+from django.test import RequestFactory
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 
 from oioioi.base.tests import TestCase
+from oioioi.contests.models import Contest
+from oioioi.participants.models import Participant
 from oioioi.usergroups.models import UserGroup, ActionConfig
+from oioioi.usergroups import utils
 
 class TestAdmin(TestCase):
     fixtures = ['test_users', 'teachers', 'test_action_configs',
@@ -330,3 +334,118 @@ class TestSharing(TestCase):
         url = reverse('usergroups_become_owner', kwargs={'key': key})
         self.assertEqual(self.client.get(url).status_code, 403)
 
+
+class TestContestRegistrationWithUsergroups(TestCase):
+    fixtures = ['test_users', 'teachers', 'test_action_configs', 'test_usergroups',
+                'test_contest']
+
+    def _assertGroupAttached(self, contest, group):
+        self.assertTrue(utils.is_usergroup_attached(contest, group))
+        self.assertIn(group, utils.get_attached_usergroups(contest))
+
+    def _assertGroupNotAttached(self, contest, group):
+        self.assertFalse(utils.is_usergroup_attached(contest, group))
+        self.assertNotIn(group, utils.get_attached_usergroups(contest))
+
+    def test_attaching_usergroup(self):
+        contest = Contest.objects.get(id='c')
+        group = UserGroup.objects.get(pk=1001)
+
+        url = reverse('usergroup_attach_to_contest',
+                      kwargs={'contest_id': 'c'})
+
+        self._assertGroupNotAttached(contest, group)
+
+        self.client.logout()
+        response = self.client.post(url, {'usergroup_id': 1001})
+        self._assertGroupNotAttached(contest, group)
+
+        self.client.login(username='teacher2005')
+        response = self.client.post(url, {'usergroup_id': 1001})
+        self.assertEqual(response.status_code, 403)
+        self._assertGroupNotAttached(contest, group)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url, {})
+        self.assertEqual(response.status_code, 405)
+        self._assertGroupNotAttached(contest, group)
+
+        response = self.client.post(url, {'usergroup_id': 1001})
+        self.assertEqual(response.status_code, 302)
+        self._assertGroupAttached(contest, group)
+
+    def test_registration_controller_mixin(self):
+        contest = Contest.objects.get(id='c')
+        contest.controller_name = \
+            'oioioi.teachers.controllers.TeacherContestController'
+        contest.save()
+        rc = contest.controller.registration_controller()
+        group = UserGroup.objects.get(pk=1001)
+        user = User.objects.get(pk=1001)
+        self.client.login(username=user.username)
+        url = reverse('default_contest_view', kwargs={'contest_id': contest.id})
+
+        request = RequestFactory().request()
+        request.user = user
+
+        self.assertNotIn(user, rc.filter_participants(User.objects.all()))
+        self.assertNotIn(contest, rc.filter_user_contests(request, Contest.objects.all()))
+        self.assertEquals(self.client.get(url).status_code, 403)
+
+        group.contests.add(contest)
+        rc = contest.controller.registration_controller()
+
+        self.assertIn(user, rc.filter_participants(User.objects.all()))
+        self.assertIn(contest, rc.filter_user_contests(request, Contest.objects.all()))
+        self.assertEquals(self.client.get(url, follow=True).status_code, 200)
+
+    def test_creating_group_from_contest(self):
+        contest = Contest.objects.get(pk='c')
+        user = User.objects.get(username='test_user')
+        group_name = 'new group'
+        Participant.objects.create(contest=contest, user=user).save()
+
+        self.assertRaises(UserGroup.DoesNotExist, UserGroup.objects.get, name=group_name)
+        self.client.login(username='test_admin')
+
+        url = reverse('teacher_usergroups_add_group', kwargs={
+            'contest_id': contest.id}) + '?create_from_contest=True'
+
+        response = self.client.post(url, {'name': group_name})
+        self.assertEqual(response.status_code, 302)
+
+        group = UserGroup.objects.get(name=group_name)
+        self.assertIn(user, group.members.all())
+        self.assertRaises(Participant.DoesNotExist, Participant.objects.get,
+                          contest=contest, user=user)
+
+        self._assertGroupAttached(contest, group)
+
+    def test_detaching_usergroup(self):
+        contest = Contest.objects.get(id='c')
+        group = UserGroup.objects.get(pk=1001)
+        group.contests.add(contest)
+        url = reverse('usergroup_detach_from_contest',
+                      kwargs={'contest_id': 'c', 'usergroup_id': 1001})
+        data = {
+            'confirmation': True,
+            'confirmation_sent': True
+        }
+
+        self._assertGroupAttached(contest, group)
+
+        self.client.logout()
+        self.client.post(url, data)
+        self._assertGroupAttached(contest, group)
+
+        self.client.login(username='teacher2005')
+        self.assertEquals(self.client.post(url, data).status_code, 403)
+        self._assertGroupAttached(contest, group)
+
+        self.client.login(username='test_admin')
+        response = self.client.get(url)
+        self.assertContains(response, 'Are you sure you want to remove group')
+        self._assertGroupAttached(contest, group)
+
+        self.assertEquals(self.client.post(url, data).status_code, 302)
+        self._assertGroupNotAttached(contest, group)

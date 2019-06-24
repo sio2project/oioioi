@@ -1,0 +1,24 @@
+{% extends "simple-centered-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Confirm removing group from contest " %}{{ group_name }}{% endblock %}
+
+{% block styles %}
+{{ block.super }}
+    <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}usergroups/detach_confirmation.css">
+{% endblock %}}
+
+{% block help_text %}
+    {% blocktrans %}
+        Are you sure you want to remove group {{ groups }} from contest {{ contest_id }}?
+    {% endblocktrans %}
+
+    {% if removed_users %}
+        <p>{% trans "The following users will lose access to the contest:" %}</p>
+        <ul class="removed_users">
+            {% for user in removed_users %}
+                <li>{{ user.get_full_name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

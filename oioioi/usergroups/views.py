@@ -11,15 +11,13 @@ from django.shortcuts import get_object_or_404, redirect
 from oioioi.base.permissions import not_anonymous, enforce_condition
 from oioioi.base.utils import generate_key
 from oioioi.base.utils.confirmation import confirmation_view
+from oioioi.contests.utils import is_contest_admin, contest_exists
 from oioioi.teachers.views import is_teacher
 from oioioi.usergroups.models import UserGroup
 from oioioi.usergroups.forms import AddUserGroupForm, UserGroupChangeNameForm
+from oioioi.usergroups.utils import is_usergroup_owner, is_usergroup_attached, \
+    add_usergroup_to_members, move_members_to_usergroup, filter_usergroup_exclusive_members
 
-
-# If the requested usergroup does not exist then we return false.
-def is_usergroup_owner(user, usergroup_id):
-    return UserGroup.objects.filter(id=usergroup_id).\
-        filter(owners__in=[user]).exists()
 
 @method_decorator(enforce_condition(not_anonymous & is_teacher), name='dispatch')
 class GroupsListView(ListView):
@@ -37,16 +35,34 @@ class GroupsAddView(FormView):
     form_class = AddUserGroupForm
     template_name = 'usergroups/teacher_add_usergroup.html'
 
+    def __init__(self, *args, **kwargs):
+        super(GroupsAddView, self).__init__(*args, **kwargs)
+        self.from_contest = False
+
     def get_success_url(self):
+        if self.from_contest:
+            return reverse('show_members', kwargs={'member_type': 'pupil',
+                                                   'contest_id': self.request.contest.id})
         return reverse('teacher_usergroups_list')
 
     def form_valid(self, form):
+        self.from_contest = bool(self.request.GET.get('create_from_contest', False))
+
+        if self.from_contest and not is_contest_admin(self.request):
+            raise PermissionDenied
+
         group = form.instance
         group.save()
 
         group.owners.add(self.request.user)
 
-        messages.success(self.request, _('New user group created successfully!'))
+        if self.from_contest:
+            move_members_to_usergroup(self.request.contest, group)
+            group.contests.add(self.request.contest)
+            messages.success(self.request,
+                             _('New user group from contest members created successfully!'))
+        else:
+            messages.success(self.request, _('New user group created successfully!'))
 
         return super(GroupsAddView, self).form_valid(form)
 
@@ -264,3 +280,52 @@ def delete_owners_view(request, usergroup_id):
         messages.success(request, _("Deletion of selected owners successful!"))
 
     return redirect('teacher_usergroup_detail', usergroup_id=usergroup_id)
+
+
+@require_POST
+@enforce_condition(not_anonymous & is_teacher & contest_exists & is_contest_admin)
+def attach_to_contest_view(request):
+    usergroup_id = request.POST.get('usergroup_id')
+    if not is_usergroup_owner(request.user, usergroup_id):
+        raise PermissionDenied
+    usergroup = UserGroup.objects.get(id=usergroup_id)
+    if is_usergroup_attached(request.contest, usergroup):
+        messages.info(request, _("The group is already attached to the contest."))
+    else:
+        usergroup.contests.add(request.contest)
+        messages.info(request, _("The group was successfully attached to the contest!"))
+
+    return redirect('show_members', contest_id=request.contest.id,
+                    member_type='pupil')
+
+
+@enforce_condition(not_anonymous & is_teacher & contest_exists & is_contest_admin)
+def detach_from_contest_view(request, usergroup_id):
+    convert_to_members = request.POST.get('convert_to_members', False)
+    usergroup = UserGroup.objects.get(id=usergroup_id)
+
+    if not is_usergroup_attached(request.contest, usergroup):
+        return redirect('show_members', contest_id=request.contest.id,
+                        member_type='pupil')
+
+    removed_users = filter_usergroup_exclusive_members(request.contest, usergroup)
+
+    confirmation = confirmation_view(request,
+                                     'usergroups/confirm_detaching.html', {
+                                         'contest_id': request.contest.id,
+                                         'group_name': usergroup.name,
+                                         'removed_users': removed_users,
+                                     })
+
+    if not isinstance(confirmation, bool):
+        return confirmation
+
+    if confirmation:
+        if convert_to_members:
+            add_usergroup_to_members(request.contest, usergroup)
+        usergroup.contests.remove(request.contest)
+
+        messages.info(request, _("The group was successfully detached from the contest!"))
+
+    return redirect('show_members', contest_id=request.contest.id,
+                    member_type='pupil')

@@ -15,7 +15,7 @@ def get_user_name_and_login_bounded(self, user):
     return "%s (%s)" % (user.get_full_name(), user.username)
 
 class UserGroupAdmin(admin.ModelAdmin):
-    exclude = ('addition_config', 'sharing_config')
+    exclude = ('addition_config', 'sharing_config', 'contests')
     filter_horizontal = ('owners', 'members')
     search_fields = ('name',)
 
