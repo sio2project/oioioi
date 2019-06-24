@@ -1,5 +1,5 @@
 {% extends "base-with-menu.html" %}
-{% load i18n simple_filters %}
+{% load i18n simple_filters compress simple_tags %}
 
 {% block title %}
     {% if member_type == 'teacher' %}
@@ -9,101 +9,238 @@
     {% endif %}
 {% endblock %}
 
+{% block styles %}
+    {{ block.super }}
+    {% compress css %}
+        <link charset="utf-8" rel="stylesheet" type="text/css" href="{{ STATIC_URL }}teachers/members.css">
+    {% endcompress %}
+{% endblock %}
+
 {% block main-content %}
-<h1>
-    {% if member_type == 'teacher' %}
-        {% trans "Contest teachers" %}
-    {% else %}
-        {% trans "Contest pupils" %}
-    {% endif %}
-</h1>
-
-{% if is_registration_active %}
-    {% if member_type == 'teacher' %}
-        <p>{% trans "To allow a teacher to access this contest, ask him/her to visit the following link:" %}</p>
-    {% else %}
-        <p>{% trans "To allow a pupil to access this contest, ask him/her to visit the following link:" %}</p>
-    {% endif %}
-    <pre id="registration_link">{{ registration_link }}</pre>
-    <p>
-        <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'teachers_disable_registration' contest_id=contest.id member_type=member_type %}">
-            {% trans "Disable link" %}
-        </a>
-        <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'teachers_regenerate_key' contest_id=contest.id member_type=member_type %}">
-            {% trans "Re-generate key" %}
-        </a>
-        <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#registration_link">
-            {% trans "Copy to clipboard" %}
-        </button>
-    </p>
-{% else %}
-    {% if member_type == 'teacher' %}
-        <p>{% trans "Registration of teachers is disabled." %}</p>
-    {% else %}
-        <p>{% trans "Registration of pupils is disabled." %}</p>
-    {% endif %}
-    <p>
-        <a role="button" class="btn btn-info" data-post-url="{% url 'teachers_enable_registration' contest_id=contest.id member_type=member_type %}">
-            {% trans "Re-enable registration" %}
-        </a>
-    </p>
-{% endif %}
-
-<form action="{% url 'teachers_delete_members' contest_id=contest.id member_type=member_type %}" method="post" id="delete-pupils-form">
-    {% csrf_token %}
-
-    <h2 class="members">{% trans "Members" %}</h2>
-
-    {% if members %}
-        <div class="row">
-            {% for member in members %}
-                <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
-                    <div class="checkbox">
-                        <label>
-                            <input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>
-                            {{ member.get_full_name }}
-                        </label>
-                    </div>
-                </div>
-            {% endfor %}
+<div class="container content">
+    <div class="row">
+        <div class="col-md-11">
+            <h1>
+                {% if member_type == 'teacher' %}
+                    {% trans "Contest teachers" %}
+                {% else %}
+                    {% trans "Contest pupils" %}
+                {% endif %}
+            </h1>
         </div>
-    {% else %}
-        <p class="text-center">
-            {% if member_type == 'teacher' %}
-                {% trans "No teachers." %}
-            {% else %}
-                {% trans "No pupils." %}
-            {% endif %}
-        </p>
+    </div>
+
+    {% if member_type == 'pupil' and usergroups_active and has_usergroup %}
+        <div class="row">
+            <div class="col-md-11">
+                {% trans "On this page you can view, add and remove pupils from the contest." %}
+                {% trans "Currently, two options of managing pupils are available." %}<br>
+                {% trans "First (newer one) is to add one of your user groups to the contest with all its users." %}
+                {% trans "Alternatively, you can use older method of sharing access link with your pupils." %}<br>
+                {% trans "All pupils have the same contest rights." %}<br>
+
+                {% if usergroups.count >= 3 %}
+                    <a href="#members-view" class="btn btn-default members-link"> {% trans "Go to members" %} </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-11">
+                <h2 class="method-title">
+                    {% trans "Groups" %}
+                     <button class="disabled btn-link help-tooltip" data-toggle="tooltip" title="{% trans 'Groups enable adding and removing many pupils at once. In the list below you can find all groups added to this contest and manage them. All pupils in the groups below have access to this contest.' %}">
+                        <sup> <small>
+                            <i class="glyphicon glyphicon-question-sign"></i>
+                        </small> </sup>
+                     </button>
+                </h2>
+
+                {% if usergroups_dropdown %}
+                <div class="add-group-top">
+                    <form action="{% url 'usergroup_attach_to_contest' %}" method="POST">
+                        {% csrf_token %}
+                        <select class="form-control" name="usergroup_id">
+                            {% for usergroup in usergroups_dropdown %}
+                                <option value="{{ usergroup.id }}">{{ usergroup.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-default"> Add new group to this contest </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                {% if usergroups.count == 0 %}
+                    <p class="text-center no-groups"> {% trans "You have not added any group to this contest yet." %} </p>
+                {% else %}
+                    {% for usergroup in usergroups %}
+                        <div class="usergroup">
+                            <div class="text-center">
+                                <h5 class="mb-0">
+                                    <button class="usergroup-title btn btn-link collapsed" data-toggle="collapse" data-target="#collapse{{ usergroup.id }}" onclick="this.blur()">
+                                        {{ usergroup.name }}
+                                    </button>
+                                </h5>
+                            </div>
+                            <div id="collapse{{ usergroup.id }}" class="collapse usergroup-body">
+                                <div>
+                                    {% call_method_with_arguments usergroup.members 'values' 'first_name' 'last_name' as group_members %}
+                                    {% if group_members %}
+                                        <ul class="usergroup-user-list">
+                                            {% for group_member in group_members|slice:":23" %}
+                                                <li> {{ group_member.first_name }} {{ group_member.last_name }} </li>
+                                            {% endfor %}
+
+                                            {% if group_members.count > 23 %}
+                                                <li> &hellip; </li>
+                                            {% endif %}
+                                        </ul>
+                                    {% else %}
+                                        <p class="text-center"> {% trans "Strange, this group doesn't have any members." %} </p>
+                                    {% endif %}
+                                </div>
+                                <div class="text-center">
+                                    <a href="{% url 'teacher_usergroup_detail' usergroup_id=usergroup.id %}" class="btn btn-primary group-button"> {% trans "Modify group" %} </a>
+                                    <a href="{% url 'usergroup_detach_from_contest' usergroup_id=usergroup.id %}" class="btn btn-danger group-button"> {% trans "Remove group from this contest" %} </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                {% if usergroups.count >= 3 %}
+                    {% if usergroups_dropdown %}
+                        <div class="add-group-bottom">
+                            <form action="{% url 'usergroup_attach_to_contest' %}" method="POST">
+                                {% csrf_token %}
+                                <select class="form-control" name="usergroup_id">
+                                    {% for usergroup in usergroups_dropdown %}
+                                        <option value="{{ usergroup.id }}">{{ usergroup.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-default"> Add new group to this contest </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
     {% endif %}
 
-    <div class="form-group">
-        <button type="button" class="btn btn-default btn-sm"
-            onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
-            {% trans "Select all" %}
-        </button>
-        <button type="button" class="btn btn-default btn-sm"
-            onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
-            {% trans "Select none" %}
-        </button>
-        <button type="submit" class="btn btn-danger btn-sm">{% trans "Delete selected" %}</button>
-        {% if other_contests %}
-            <span class="dropdown">
-                <button type="button" class="btn btn-default btn-sm dropdown-toggle"
-                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {% trans "Add from other contest" %} <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    {% for c in other_contests %}
-                        <li>
-                            <a data-post-url="{% url 'teachers_bulk_add_members' contest_id=contest.id other_contest_id=c.id %}">
-                                {{ c }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </span>
-        {% endif %}
+    <div class="row">
+        <div class="col-md-11">
+
+            {% if member_type == 'pupil' and usergroups_active and has_usergroup %}
+                <h2 class="method-title" id="members-view">
+                    {% trans "Members" %}
+                    <button class="disabled btn-link help-tooltip" data-toggle="tooltip" title="{% trans 'This section enables you to add pupils to contest in the old fashioned way, by sharing access link. You can also create new user group from members below, which will be automatically added to this contest.' %}">
+                         <sup> <small>
+                            <i class="glyphicon glyphicon-question-sign"></i>
+                        </small> </sup>
+                     </button>
+                </h2>
+            {% endif %}
+
+            {% if is_registration_active %}
+                {% if member_type == 'teacher' %}
+                    <p>{% trans "To allow a teacher to access this contest, ask them to visit the following link:" %}</p>
+                {% else %}
+                    <p>{% trans "To allow a pupil to access this contest, ask them to visit the following link:" %}</p>
+                {% endif %}
+                <pre id="registration_link">{{ registration_link }}</pre>
+                <p>
+                    <a role="button" class="btn btn-info btn-xs" data-post-url="{% url 'teachers_disable_registration' contest_id=contest.id member_type=member_type %}">
+                        {% trans "Disable link" %}
+                    </a>
+                    <a role="button" class="btn btn-default btn-xs" data-post-url="{% url 'teachers_regenerate_key' contest_id=contest.id member_type=member_type %}">
+                        {% trans "Re-generate key" %}
+                    </a>
+                    <button class="btn btn-default btn-copy btn-xs" data-clipboard-target="#registration_link">
+                        {% trans "Copy to clipboard" %}
+                    </button>
+                </p>
+            {% else %}
+                {% if member_type == 'teacher' %}
+                    <p>{% trans "Registration of teachers is disabled." %}</p>
+                {% else %}
+                    <p>{% trans "Registration of pupils is disabled." %}</p>
+                {% endif %}
+                <p>
+                    <a role="button" class="btn btn-info" data-post-url="{% url 'teachers_enable_registration' contest_id=contest.id member_type=member_type %}">
+                        {% trans "Enable registration" %}
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if member_type == 'pupil' and usergroups_active and members %}
+                <div class="text-center">
+                    <form class="convert-members" action="{% url 'teacher_usergroups_add_group' %}" method="get">
+                        <input type="hidden" name="create_from_contest" value="true" />
+                        <button class="btn-lg btn-primary"> {% trans "Create new group from members below" %} </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <form action="{% url 'teachers_delete_members' contest_id=contest.id member_type=member_type %}" method="post" id="delete-pupils-form">
+                {% csrf_token %}
+
+                {% if member_type != 'pupil' or usergroups_active == False or has_usergroup == False %}
+                    <h2 class="members">{% trans "Members" %}</h2>
+                {% endif %}
+
+                {% if members %}
+                    <div class="row">
+                        {% for member in members %}
+                            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="member" value="{{ member.id }}" {% if member_type == 'teacher' and member == user %}disabled{% endif %}>
+                                        {{ member.get_full_name }}
+                                    </label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-center">
+                        {% if member_type == 'teacher' %}
+                            {% trans "No teachers." %}
+                        {% else %}
+                            {% trans "No pupils." %}
+                        {% endif %}
+                    </p>
+                {% endif %}
+
+                <div class="form-group">
+                    <button type="button" class="btn btn-default btn-sm"
+                        onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', true)">
+                        {% trans "Select all" %}
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm"
+                        onclick="$('#delete-pupils-form input[type=\'checkbox\']').not('[disabled]').prop('checked', false)">
+                        {% trans "Select none" %}
+                    </button>
+                    <button type="submit" class="btn btn-danger btn-sm">{% trans "Delete selected" %}</button>
+                    {% if other_contests %}
+                        <span class="dropdown">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% trans "Add from other contest" %} <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                {% for c in other_contests %}
+                                    <li>
+                                        <a data-post-url="{% url 'teachers_bulk_add_members' contest_id=contest.id other_contest_id=c.id %}">
+                                            {{ c }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </span>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
     </div>
-</form>
+</div>
 {% endblock %}

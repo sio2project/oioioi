@@ -7,6 +7,11 @@ from oioioi.contests.tests import make_empty_contest_formset
 from oioioi.contests.tests.utils import make_user_contest_admin
 
 
+def change_contest_type(contest):
+    contest.controller_name = \
+        'oioioi.teachers.controllers.TeacherContestController'
+    contest.save()
+
 class TestProblemsetPermissions(TestCase):
     fixtures = ['test_users', 'teachers']
 
@@ -65,12 +70,6 @@ class TestTeacherAddContest(TestCase):
 class TestSimpleUITeacherContestDashboard(TestCase):
     fixtures = ['test_users', 'test_contest']
 
-    @staticmethod
-    def _change_contest_type(contest):
-        contest.controller_name = \
-            'oioioi.teachers.controllers.TeacherContestController'
-        contest.save()
-
     def test_contest_dashboard(self):
         user = User.objects.get(username='test_user')
         contest = Contest.objects.get(id='c')
@@ -78,7 +77,7 @@ class TestSimpleUITeacherContestDashboard(TestCase):
 
         self.assertTrue(self.client.login(username='test_user'))
 
-        self._change_contest_type(contest)
+        change_contest_type(contest)
         self.client.get('/c/c/')
 
         url = reverse('teacher_contest_dashboard')
@@ -100,7 +99,7 @@ class TestSimpleUITeacherContestDashboard(TestCase):
         self.assertNotContains(response, "Pupils")
         self.assertNotContains(response, "Teachers")
 
-        self._change_contest_type(contest)
+        change_contest_type(contest)
         response = self.client.get('/c/c/', follow=True)
 
         self.assertContains(response, "Pupils")

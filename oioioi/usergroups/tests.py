@@ -5,7 +5,9 @@ from django.urls.exceptions import NoReverseMatch
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest
+from oioioi.contests.tests.utils import make_user_contest_admin
 from oioioi.participants.models import Participant
+from oioioi.teachers.tests import change_contest_type
 from oioioi.usergroups.models import UserGroup, ActionConfig
 from oioioi.usergroups import utils
 
@@ -449,3 +451,79 @@ class TestContestRegistrationWithUsergroups(TestCase):
 
         self.assertEquals(self.client.post(url, data).status_code, 302)
         self._assertGroupNotAttached(contest, group)
+
+    def test_pupils_site(self):
+        self.assertTrue(self.client.login(username='test_user'))  # teacher
+
+        user = User.objects.get(username='test_user')
+        contest = Contest.objects.get(id='c')
+        make_user_contest_admin(user, contest)
+        change_contest_type(contest)
+
+        self.client.get('/c/c/')
+        url = reverse('show_members', kwargs={'member_type': 'pupil'})
+        response = self.client.get(url)
+
+        self.assertContains(response, "Add new group to this contest")
+        self.assertContains(response, "Groups")
+        self.assertContains(response, "Members")
+        self.assertNotContains(response, "Create new group from members below")
+        self.assertContains(response,
+                            "You have not added any group to this contest yet.")
+
+        participant = Participant(contest=contest, user=user)
+        participant.save()
+
+        url = reverse('show_members', kwargs={'member_type': 'pupil'})
+        response = self.client.get(url)
+
+        self.assertContains(response, "Add new group to this contest")
+        self.assertContains(response, "Create new group from members below")
+        self.assertContains(response,
+                            "You have not added any group to this contest yet.")
+
+        group = UserGroup.objects.get(id=1003)
+        group.contests.add(contest)
+        group.save()
+
+        url = reverse('show_members', kwargs={'member_type': 'pupil'})
+        response = self.client.get(url)
+
+        self.assertContains(response, "Add new group to this contest")
+        self.assertContains(response, "Create new group from members below")
+        self.assertContains(response, "teacher group")
+        self.assertContains(response, "Modify group")
+        self.assertContains(response, "Test User 3")
+        self.assertContains(response, "Remove group from this contest")
+        self.assertNotContains(response,
+                            "You have not added any group to this contest yet.")
+
+        with self.modify_settings(INSTALLED_APPS={'remove': 'oioioi.usergroups'}):
+            url = reverse('show_members', kwargs={'member_type': 'pupil'})
+            response = self.client.get(url)
+
+            self.assertNotContains(response, "Add new group to this contest")
+            self.assertNotContains(response, "Create new group from members below")
+            self.assertNotContains(response, "Modify groups")
+            self.assertNotContains(response,
+                                   "You have not added any group to this contest yet.")
+
+        groups = UserGroup.objects.all()
+        for usergroup in groups:
+            usergroup.delete()
+
+        url = reverse('show_members', kwargs={'member_type': 'pupil'})
+        response = self.client.get(url)
+
+        self.assertNotContains(response, "Add new group to this contest")
+        self.assertContains(response, "Create new group from members below")
+        self.assertNotContains(response, "Remove group from this contest")
+        self.assertNotContains(response,
+                               "You have not added any group to this contest yet.")
+
+        participant.delete()
+
+        url = reverse('show_members', kwargs={'member_type': 'pupil'})
+        response = self.client.get(url)
+
+        self.assertNotContains(response, "Create new group from members below")

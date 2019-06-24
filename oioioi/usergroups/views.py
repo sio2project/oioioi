@@ -34,6 +34,7 @@ class GroupsListView(ListView):
 class GroupsAddView(FormView):
     form_class = AddUserGroupForm
     template_name = 'usergroups/teacher_add_usergroup.html'
+    from_contest = False
 
     def __init__(self, *args, **kwargs):
         super(GroupsAddView, self).__init__(*args, **kwargs)

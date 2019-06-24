@@ -24,6 +24,9 @@ from oioioi.teachers.controllers import TeacherContestController
 from oioioi.teachers.forms import AddTeacherForm
 from oioioi.teachers.models import ContestTeacher, RegistrationConfig, Teacher
 
+if 'oioioi.usergroups' in settings.INSTALLED_APPS:
+    import oioioi.usergroups.utils as usergroups
+
 
 @make_request_condition
 def is_teachers_contest(request):
@@ -151,14 +154,24 @@ def members_view(request, member_type):
             .filter(contestteacher__teacher__user=request.user) \
             .exclude(id=request.contest.id)
 
-    return TemplateResponse(request, 'teachers/members.html', {
-                'member_type': member_type,
-                'members': members,
-                'registration_config': registration_config,
-                'registration_link': registration_link,
-                'other_contests': other_contests,
-                'is_registration_active': is_registration_active,
-            })
+    context = {
+        'member_type': member_type,
+        'members': members,
+        'registration_config': registration_config,
+        'registration_link': registration_link,
+        'other_contests': other_contests,
+        'is_registration_active': is_registration_active,
+    }
+
+    if 'oioioi.usergroups' in settings.INSTALLED_APPS:
+        context['usergroups_active'] = True
+        attached = usergroups.get_attached_usergroups(request.contest)
+        rest = usergroups.get_owned_usergroups(request.user).exclude(id__in=attached)
+        context['usergroups'] = attached
+        context['usergroups_dropdown'] = rest
+        context['has_usergroup'] = bool(attached or rest)
+
+    return TemplateResponse(request, 'teachers/members.html', context)
 
 
 @enforce_condition(not_anonymous & is_teachers_contest)
