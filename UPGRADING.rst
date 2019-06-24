@@ -602,3 +602,24 @@ $. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compil
         +        'Python': ['Python']
         +}
         +
+
+#. * Added option to block uploading HTML problem statements in sinol packages
+    by untrusted users.::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -251,6 +251,14 @@ USE_LOCAL_COMPILERS = True
+         # execution (in a sandboxed environment, if USE_UNSAFE_EXEC is set to False).
+         USE_SINOLPACK_MAKEFILES = False
+
+        +# When set to True untrusted users cannot upload sinol packages containing
+        +# problem statement in HTML format (they must use PDF).
+        +# Trusted users are users with superuser access or teachers (if oioioi.teachers
+        +# app is enabled). This option has no effect for packages uploaded
+        +# by management commands or if USE_SINOLPACK_MAKEFILES is enabled.
+        +# We suggest enabling it when using oioioi.usercontests app.
+        +SINOLPACK_RESTRICT_HTML = False
+        +
+         # Scorers below are used for judging submissions without contests,
+         # eg. submitting to problems from problemset.
+         # DEFAULT_TEST_SCORER = \

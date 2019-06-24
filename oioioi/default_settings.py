@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 35
+INSTALLATION_CONFIG_VERSION = 36
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -332,6 +332,14 @@ USE_UNSAFE_CHECKER = True
 # When it equals False, the upload workflow uses sioworkers for programs'
 # execution (in a sandboxed environment, if USE_UNSAFE_EXEC is set to False).
 USE_SINOLPACK_MAKEFILES = True
+
+# When set to True untrusted users cannot upload sinol packages containing
+# problem statement in HTML format (they must use PDF).
+# Trusted users are users with superuser access or teachers (if oioioi.teachers
+# app is enabled). This option has no effect for packages uploaded
+# by management commands or if USE_SINOLPACK_MAKEFILES is enabled.
+# We suggest enabling it when using oioioi.usercontests app.
+SINOLPACK_RESTRICT_HTML = False
 
 # Scorers below are used for judging submissions without contests,
 # eg. submitting to problems from problemset.

@@ -116,6 +116,8 @@ class SinolPackage(object):
                 {'c': C_EXTRA_ARGS, 'cpp': C_EXTRA_ARGS, 'pas': PAS_EXTRA_ARGS}
         self.use_make = settings.USE_SINOLPACK_MAKEFILES
         self.use_sandboxes = not settings.USE_UNSAFE_EXEC
+        self.restrict_html = \
+            settings.SINOLPACK_RESTRICT_HTML and not settings.USE_SINOLPACK_MAKEFILES
 
     def identify(self):
         return self._find_main_dir() is not None
@@ -468,6 +470,11 @@ class SinolPackage(object):
         for lang in lang_prefs:
             htmlzipfile = os.path.join(docdir, self.short_name + 'zad' + lang + '.html.zip')
             if os.path.isfile(htmlzipfile):
+                if self._html_disallowed():
+                    raise ProblemPackageError(_("You cannot upload package with "
+                                                "problem statement in HTML. "
+                                                "Try again using PDF format."))
+
                 self._force_index_encoding(htmlzipfile)
                 statement = ProblemStatement(problem=self.problem, language=lang[1:])
                 statement.content.save(self.short_name + lang + '.html.zip',
@@ -977,6 +984,18 @@ class SinolPackage(object):
                 OriginalPackage.objects.get_or_create(problem=self.problem)
         original_package.problem_package = self.package
         original_package.save()
+
+    def _html_disallowed(self):
+        if not self.restrict_html:
+            return False
+
+        author_username = self.env.get('author')
+        if author_username:
+            author = User.objects.get(username=author_username)
+        else:
+            return True
+
+        return not (author.is_superuser or author.has_perm('teachers.teacher'))
 
 
 class SinolPackageCreator(object):

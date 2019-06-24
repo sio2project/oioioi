@@ -4,11 +4,13 @@ import os.path
 import zipfile
 
 from django.conf import settings
+from django.core.files import File
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.urlresolvers import reverse
 from django.test import TransactionTestCase
 from django.test.utils import override_settings
+from django.utils.module_loading import import_string
 import pytest
 import six.moves.urllib.parse
 from six.moves import cStringIO as StringIO
@@ -20,6 +22,7 @@ from oioioi.contests.models import (Contest, ProblemInstance, Submission,
 from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.models import Problem, ProblemPackage, ProblemStatement
+from oioioi.problems.package import NoBackend, backend_for_package
 from oioioi.programs.models import (ModelSolution, OutputChecker, Test,
                                     TestReport)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile
@@ -609,3 +612,56 @@ class TestLimits(TestCase):
         self.assertContains(response,
                         "Memory limit mustn&#39;t be greater than %dKiB"
                         % settings.MAX_MEMORY_LIMIT_FOR_TEST)
+
+
+# TODO: When @needs_linux is fixed move tests from here to TestSinolPackage
+# Related change: https://gerrit.sio2project.mimuw.edu.pl/#/c/3161
+class TestSinolPackUnpack(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def _add_problem_with_author(self, filename, author, nothrow=False):
+        try:
+            backend = \
+                    import_string(backend_for_package(filename))()
+        except NoBackend:
+            raise ValueError("Package format not recognized")
+
+        pp = ProblemPackage(problem=None)
+        pp.package_file.save(filename, File(open(filename, 'rb')))
+        env = {'author': author}
+        pp.problem_name = backend.get_short_name(filename)
+        pp.save()
+
+        env['package_id'] = pp.id
+        problem = None
+        with pp.save_operation_status():
+            backend.unpack(env)
+            problem = Problem.objects.get(id=env['problem_id'])
+            pp.problem = problem
+            pp.save()
+
+        if problem is None and not nothrow:
+            raise ValueError("Error during unpacking the given package")
+
+    def test_restrict_html(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        filename = \
+            get_test_filename('test_simple_package_with_malicious_html_statement.zip')
+
+        with self.settings(USE_SINOLPACK_MAKEFILES=False):
+            with self.settings(SINOLPACK_RESTRICT_HTML=True):
+                self._add_problem_with_author(filename, 'test_user', True)
+                self.assertEqual(Problem.objects.count(), 0)
+                package = ProblemPackage.objects.get()
+                self.assertEqual(package.status, "ERR")
+                  # Check if error message is relevant to the issue
+                self.assertIn("problem statement in HTML", package.info)
+
+                self._add_problem_with_author(filename, 'test_admin')
+
+        self._add_problem_with_author(filename, 'test_user')
+
+        with self.settings(SINOLPACK_RESTRICT_HTML=True):
+            self._add_problem_with_author(filename, 'test_user')
+
+        self.assertEqual(Problem.objects.count(), 3)
