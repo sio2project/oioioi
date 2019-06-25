@@ -1880,7 +1880,7 @@ class TestTaskArchive(TestCase):
         self.assertContains(response, 'Drugi Etap')
         self.assertContains(response, 'Finał')
 
-        self.assertNotContains(response, "Hmm... there doesn't seem to be anything here...")
+        self.assertNotContains(response, "alert-warning")
         html = response.content.decode('utf-8')
 
         pos = html.find('problemgroups')
@@ -1974,7 +1974,7 @@ class TestTaskArchive(TestCase):
         self.assertEqual(response.status_code, 200)
 
         self.assertContains(response, 'Olimpiada Informatyczna')
-        self.assertContains(response, "Hmm... there doesn't seem to be anything here...")
+        self.assertContains(response, "alert-warning")
         self.assertNotContains(response, 'problemgroups')
         self.assertNotContains(response, '24_')
         self.assertNotContains(response, '25_')
