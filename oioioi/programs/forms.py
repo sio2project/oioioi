@@ -2,16 +2,14 @@ from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from oioioi.programs.models import ContestCompiler
 
-
-class ContestCompilerInlineForm(forms.ModelForm):
+class CompilerInlineForm(forms.ModelForm):
     COMPILER_CHOICES = [
         ('', 'Choose language first'),
     ]
 
     def __init__(self, *args, **kwargs):
-        super(ContestCompilerInlineForm, self).__init__(*args, **kwargs)
+        super(CompilerInlineForm, self).__init__(*args, **kwargs)
         self.LANGUAGE_CHOICES = [
             ('', 'Choose language'),
         ]
@@ -38,4 +36,3 @@ class ContestCompilerInlineForm(forms.ModelForm):
 
     class Media(object):
         js = ('common/choose_compiler.js',)
-

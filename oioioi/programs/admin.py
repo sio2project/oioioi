@@ -15,10 +15,11 @@ from oioioi.contests.admin import (ProblemInstanceAdmin, SubmissionAdmin,
                                    ContestAdmin)
 from oioioi.contests.models import ProblemInstance
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
-from oioioi.programs.forms import ContestCompilerInlineForm
+from oioioi.programs.forms import CompilerInlineForm
 from oioioi.programs.models import (LibraryProblemData, ModelSolution,
                                     OutputChecker, ReportActionsConfig, Test,
-                                    ProgramsConfig, ContestCompiler)
+                                    ProgramsConfig, ContestCompiler,
+                                    ProblemCompiler)
 
 class ProgramsConfigInline(admin.TabularInline):
     model = ProgramsConfig
@@ -37,7 +38,7 @@ class ProgramsConfigInline(admin.TabularInline):
 class ContestCompilerInline(admin.StackedInline):
     model = ContestCompiler
     extra = 0
-    form = ContestCompilerInlineForm
+    form = CompilerInlineForm
 
 
 class ValidationFormset(BaseInlineFormSet):
@@ -184,6 +185,12 @@ class LibraryProblemDataInline(admin.TabularInline):
         return False
 
 
+class ProblemCompilerInline(admin.StackedInline):
+    model = ProblemCompiler
+    extra = 0
+    form = CompilerInlineForm
+
+
 class ProgramsContestAdminMixin(object):
     """Adds :class:`~oioioi.programs.models.ProgramsConfig`
        and :class:`~oioioi.programs.models.ContestCompiler` to an admin
@@ -210,15 +217,17 @@ class LibraryProblemDataAdminMixin(object):
 
 class ProgrammingProblemAdminMixin(object):
     """Adds :class:`~oioioi.programs.models.ReportActionsConfig`,
-       :class:`~oioioi.programs.models.OutputChecker` and
-       :class:`~oioioi.programs.models.LibraryProblemData` to an admin panel.
+       :class:`~oioioi.programs.models.OutputChecker`,
+       :class:`~oioioi.programs.models.LibraryProblemData` and
+       :class:`~oioioi.programs.models.ProblemCompiler` to an admin panel.
     """
 
     def __init__(self, *args, **kwargs):
         super(ProgrammingProblemAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [ReportActionsConfigInline,
                                        OutputCheckerInline,
-                                       LibraryProblemDataInline]
+                                       LibraryProblemDataInline,
+                                       ProblemCompilerInline]
 
 
 class ProgrammingProblemInstanceAdminMixin(object):

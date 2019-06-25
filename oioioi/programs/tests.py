@@ -25,6 +25,7 @@ from oioioi.contests.scores import IntegerScore
 from oioioi.contests.tests import (PrivateRegistrationController, SubmitMixin,
                                    make_empty_contest_formset)
 from oioioi.filetracker.tests import TestStreamingMixin
+from oioioi.problems.models import Problem
 from oioioi.programs import utils
 from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.handlers import make_report
@@ -1223,8 +1224,9 @@ class TestLimitsLimits(TestCase):
                         % settings.MAX_MEMORY_LIMIT_FOR_TEST)
 
 
-class TestContestCompiler(TestCase):
-    fixtures = ['test_users', 'test_contest']
+class TestCompiler(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+            'test_problem_instance']
 
     @override_settings(AVAILABLE_COMPILERS={
         'C': ['gcc', 'clang'],
@@ -1263,12 +1265,32 @@ class TestContestCompiler(TestCase):
         'C': ['c'],
         'Python': ['py']
     })
-    def test_admin_inline(self):
+    def test_contest_admin_inline(self):
         self.assertTrue(self.client.login(username='test_admin'))
 
         contest = Contest.objects.get()
         url = reverse('oioioiadmin:contests_contest_change',
                 args=(quote(contest.id),)) + '?simple=true'
         response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'C')
+        self.assertContains(response, 'Python')
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'Python': ['py']
+    })
+    def test_problem_admin_inline(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        problem = Problem.objects.get()
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:problems_problem_change',
+                args=(problem.id,))
+
+        response = self.client.get(url, follow=True)
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
