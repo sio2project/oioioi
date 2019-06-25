@@ -924,8 +924,8 @@ class NotificationsMixinForContestController(object):
                                     "Your submission was judged.\n"
                                     "The score is %(score)s.")
         else:
-            message = ugettext_noop("%(task_name): Your submission was judged.\n"
-                                    "The score is %(score).")
+            message = ugettext_noop("%(task_name)s: Your submission was judged.\n"
+                                    "The score is %(score)s.")
         return message
 
 ContestController.mix_in(NotificationsMixinForContestController)
