@@ -251,7 +251,8 @@ def user_dashboard_view(request):
 
         if not contest_dict['public_contest']:
             contest_dict['user_count'] = \
-                User.objects.filter(participant__contest=contest).count()
+                contest.controller.registration_controller().filter_participants(
+                    User.objects.all()).count()
 
         contest_context.append(contest_dict)
     context = {
