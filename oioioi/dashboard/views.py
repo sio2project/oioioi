@@ -14,7 +14,7 @@ from oioioi.contests.models import Submission
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    has_any_submittable_problem,
                                    has_any_visible_problem_instance,
-                                   is_contest_admin)
+                                   is_contest_basicadmin)
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.dashboard.forms import DashboardMessageForm
 from oioioi.dashboard.menu import top_links_registry
@@ -43,7 +43,7 @@ top_links_registry.register('ranking', _("Ranking"),
         order=300)
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def dashboard_message_edit_view(request):
     instance, _created = DashboardMessage.objects.get_or_create(
             contest_id=request.contest.id)
@@ -67,7 +67,7 @@ def dashboard_message_fragment(request):
     except DashboardMessage.DoesNotExist:
         instance = None
 
-    is_admin = is_contest_admin(request)
+    is_admin = is_contest_basicadmin(request)
     content = ''
     if instance and instance.content:
         content = instance.content

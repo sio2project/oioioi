@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
+from oioioi.contests.utils import is_contest_admin
 from oioioi.zeus.models import ZeusProblemData
 
 
@@ -18,7 +19,7 @@ class ZeusProblemDataInline(admin.StackedInline):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return False

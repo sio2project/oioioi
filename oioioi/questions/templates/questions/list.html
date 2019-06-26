@@ -93,7 +93,7 @@
                         <span id="sub-text"></span>
                     </button>
                 {% endif %}
-                {% check_perm 'contests.contest_admin' for contest as is_admin %}
+                {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
                 {% if is_admin %}
                     <a role="button" class="btn btn-sm btn-default"
                         href="{% url 'add_contest_message' contest_id=contest.id %}">

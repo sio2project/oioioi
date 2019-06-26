@@ -22,7 +22,7 @@ from oioioi.contests.controllers import (ContestController,
                                          ContestControllerContext)
 from oioioi.contests.models import Contest, ProblemInstance, \
          UserResultForProblem
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.utils import is_contest_basicadmin, is_contest_observer
 from oioioi.filetracker.utils import make_content_disposition_header
 from oioioi.rankings.models import Ranking, RankingPage
 
@@ -61,7 +61,7 @@ class RankingController(RegisteredSubclassesBase, ObjectWithMixins):
     modules_with_subclasses = ['controllers']
     abstract = True
     PERMISSION_CHECKERS = [
-        lambda request: 'admin' if is_contest_admin(request) else None,
+        lambda request: 'admin' if is_contest_basicadmin(request) else None,
         lambda request: 'observer' if is_contest_observer(request) else None,
         lambda request: 'regular'
     ]
@@ -216,7 +216,8 @@ class DefaultRankingController(RankingController):
                 yield round
 
     def _rounds_for_ranking(self, request, partial_key=CONTEST_RANKING_KEY):
-        can_see_all = is_contest_admin(request) or is_contest_observer(request)
+        can_see_all = is_contest_basicadmin(request) \
+                or is_contest_observer(request)
         return self._iter_rounds(can_see_all, request.timestamp, partial_key,
                 request)
 

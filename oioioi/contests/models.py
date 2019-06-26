@@ -493,6 +493,7 @@ class RoundTimeExtension(models.Model):
 
 contest_permissions = EnumRegistry()
 contest_permissions.register('contests.contest_admin', _("Admin"))
+contest_permissions.register('contests.contest_basicadmin', _("Basic Admin"))
 contest_permissions.register('contests.contest_observer', _("Observer"))
 contest_permissions.register('contests.personal_data', _("Personal Data"))
 

@@ -6,14 +6,14 @@ from django.utils.translation import ungettext
 
 from oioioi.base.utils import make_navbar_badge
 from oioioi.contests.models import ProblemInstance
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_basicadmin
 from oioioi.problems.utils import can_add_to_problemset
 
 
 def dangling_problems_processor(request):
     if not getattr(request, 'contest', None):
         return {}
-    if not is_contest_admin(request):
+    if not is_contest_basicadmin(request):
         return {}
 
     def generator():
@@ -45,7 +45,7 @@ def problemset_link_visible_processor(request):
 def problems_need_rejudge_processor(request):
     if not getattr(request, 'contest', None):
         return {}
-    if not is_contest_admin(request):
+    if not is_contest_basicadmin(request):
         return {}
 
     def generator():

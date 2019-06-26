@@ -21,7 +21,7 @@ from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
 from oioioi.problems.forms import (ProblemSiteForm, ProblemStatementConfigForm,
                                    OriginTagThroughForm, OriginInfoValueForm,
                                    OriginInfoValueThroughForm,
@@ -46,6 +46,15 @@ class StatementConfigInline(admin.TabularInline):
     model = ProblemStatementConfig
     extra = 1
     form = ProblemStatementConfigForm
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
 
 class StatementConfigAdminMixin(object):
@@ -327,7 +336,7 @@ class ProblemAdmin(admin.ModelAdmin):
             combined = request.user.problem_set.all()
         if request.user.has_perm('problems.problems_db_admin'):
             combined |= queryset.filter(contest__isnull=True)
-        if is_contest_admin(request):
+        if is_contest_basicadmin(request):
             combined |= queryset.filter(contest=request.contest)
         return combined
 
@@ -338,6 +347,11 @@ class ProblemAdmin(admin.ModelAdmin):
         if isinstance(response, HttpResponseRedirect):
             return self.redirect_to_list(request, obj)
         return response
+
+    def get_readonly_fields(self, request, obj=None):
+        if not (request.user.is_superuser or is_contest_admin(request)):
+            return ['visibility',] + self.readonly_fields
+        return self.readonly_fields
 
 
 class BaseProblemAdmin(admin.MixinsAdmin):
@@ -458,8 +472,19 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         return inner
 
     def get_list_display(self, request):
-        return super(ProblemPackageAdmin, self).get_list_display(request) \
+        items = super(ProblemPackageAdmin, self).get_list_display(request) \
                 + [self.actions_field(request.contest)]
+        if not is_contest_admin(request):
+            disallowed_items = ['package', 'created_by',]
+            items = [item for item in items if item not in disallowed_items]
+        return items
+
+    def get_list_filter(self, request):
+        items = super(ProblemPackageAdmin, self).get_list_filter(request)
+        if not is_contest_admin(request):
+            disallowed_items = ['created_by',]
+            items = [item for item in items if item not in disallowed_items]
+        return items
 
     def get_custom_list_select_related(self):
         return \
@@ -500,7 +525,7 @@ class ContestProblemPackageAdmin(ProblemPackageAdmin):
     def has_change_permission(self, request, obj=None):
         if obj:
             return False
-        return is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def has_delete_permission(self, request, obj=None):
         return False

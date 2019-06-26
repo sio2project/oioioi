@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.contests.admin import SubmissionAdmin
+from oioioi.contests.utils import is_contest_admin
 from oioioi.scoresreveal.models import ScoreRevealConfig
 from oioioi.scoresreveal.utils import is_revealed
 
@@ -29,6 +30,15 @@ class ScoresRevealConfigInline(admin.TabularInline):
     model = ScoreRevealConfig
     can_delete = True
     extra = 0
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class ScoresRevealProgrammingProblemAdminMixin(object):

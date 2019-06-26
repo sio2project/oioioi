@@ -91,4 +91,4 @@ contest_site.contest_register(Disqualification, DisqualificationAdmin)
 contest_admin_menu_registry.register('disqualification_admin',
     _("Custom disqualification"), lambda request:
     reverse('oioioiadmin:disqualification_disqualification_changelist'),
-    order=100)
+    is_contest_admin, order=100)

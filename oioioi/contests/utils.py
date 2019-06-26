@@ -2,6 +2,7 @@ from collections import defaultdict
 from datetime import timedelta  # pylint: disable=E0611
 
 import six
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
@@ -239,23 +240,34 @@ def administered_contests(request):
     """Returns a list of contests for which the logged
        user has contest_admin permission for.
     """
-    visible = visible_contests(request)
-    admin_perm = 'contests.contest_admin'
-    administered = [contest
-                    for contest in visible
-                    if request.user.has_perm(admin_perm, contest)]
-    return administered
-
-
-def can_admin_contest(user, contest):
-    """Checks if the user can administer the contest."""
-    return user.has_perm('contests.contest_admin', contest)
+    return [contest for contest in visible_contests(request) \
+            if can_admin_contest(request.user, contest)]
 
 
 @make_request_condition
 @request_cached
 def is_contest_admin(request):
-    """Checks if the current user can administer the current contest."""
+    """ Checks if the user is the contest admin of the current contest.
+        This permission level allows full access to all contest functionality.
+    """
+    return request.user.has_perm('contests.contest_admin', request.contest)
+
+
+def can_admin_contest(user, contest):
+    """ Checks if the user should be allowed on the admin pages of the contest.
+        This is the same level of permissions as is_contest_basicadmin.
+    """
+    return user.has_perm('contests.contest_admin', contest) \
+        or user.has_perm('contests.contest_basicadmin', contest)
+
+
+@make_request_condition
+@request_cached
+def is_contest_basicadmin(request):
+    """ Checks if the user is a basic admin of the current contest.
+        This permission level allows edit access to basic contest functionality.
+        It is also implied by having full admin privileges (is_contest_admin).
+    """
     return can_admin_contest(request.user, request.contest)
 
 
@@ -290,7 +302,7 @@ def get_submission_or_error(request, submission_id,
     if pi.contest:
         if not request.contest or request.contest.id != pi.contest.id:
             raise PermissionDenied
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return submission
     elif request.contest:
         raise PermissionDenied

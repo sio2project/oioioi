@@ -13,7 +13,8 @@ from django.shortcuts import get_object_or_404
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.processors import recent_contests
-from oioioi.contests.utils import administered_contests, is_contest_admin
+from oioioi.contests.utils import (administered_contests, can_admin_contest,
+                                   is_contest_basicadmin)
 from oioioi.problems.models import (ProblemStatement, AlgorithmTagProposal, DifficultyProposal,
                                     ProblemStatistics, UserStatistics)
 from oioioi.programs.models import GroupReport, ModelProgramSubmission, TestReport
@@ -22,7 +23,7 @@ from oioioi.programs.models import GroupReport, ModelProgramSubmission, TestRepo
 @request_cached
 def can_add_problems(request):
     return request.user.has_perm('problems.problems_db_admin') \
-           or is_contest_admin(request)
+           or is_contest_basicadmin(request)
 
 
 def can_admin_problem(request, problem):
@@ -33,7 +34,7 @@ def can_admin_problem(request, problem):
     if request.user == problem.author:
         return True
     if problem.contest:
-        return request.user.has_perm('contests.contest_admin', problem.contest)
+        return can_admin_contest(request.user, problem.contest)
     return False
 
 
@@ -51,13 +52,13 @@ def can_admin_instance_of_problem(request, problem):
     """
     if can_admin_problem(request, problem):
         return True
-    return is_contest_admin(request) and ProblemInstance.objects \
+    return is_contest_basicadmin(request) and ProblemInstance.objects \
         .filter(problem=problem, contest=request.contest).exists()
 
 
 def can_admin_problem_instance(request, pi):
     if pi.contest:
-        return request.user.has_perm('contests.contest_admin', pi.contest)
+        return can_admin_contest(request.user, pi.contest)
     else:
         return can_admin_problem(request, pi.problem)
 

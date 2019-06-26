@@ -13,7 +13,7 @@ from oioioi.base.permissions import enforce_condition, make_request_condition
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.models import Submission
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   is_contest_admin)
+                                   is_contest_basicadmin)
 from oioioi.rankings.forms import FilterUsersInRankingForm
 from oioioi.rankings.models import Ranking
 
@@ -26,7 +26,7 @@ def has_any_ranking_visible(request):
             bool(rcontroller.available_rankings(request))
 
 
-@enforce_condition(contest_exists & can_enter_contest & is_contest_admin)
+@enforce_condition(contest_exists & can_enter_contest & is_contest_basicadmin)
 @enforce_condition(has_any_ranking_visible)
 def get_users_in_ranking_view(request):
     queryset = Submission.objects
@@ -59,7 +59,8 @@ def ranking_view(request, key=None):
             user = form.cleaned_data.get('user')
             # Everybody can search for themselves.
             # Contest admins can search for anyone.
-            if user and (is_contest_admin(request) or user == request.user):
+            if user and (is_contest_basicadmin(request) \
+                         or user == request.user):
                 found_pos = rcontroller.find_user_position(request, key, user)
                 if found_pos:
                     users_per_page = getattr(settings, 'PARTICIPANTS_ON_PAGE',
@@ -75,7 +76,7 @@ def ranking_view(request, key=None):
                     # Admin should receive error in form,
                     # whereas user should see it as an error message,
                     # because there is no form then.
-                    if is_contest_admin(request):
+                    if is_contest_basicadmin(request):
                         form._errors['user'] = form.error_class([msg])
                     else:
                         messages.error(request, msg)
@@ -113,7 +114,7 @@ def ranking_view(request, key=None):
     return TemplateResponse(request, 'rankings/ranking_view.html', context)
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def ranking_csv_view(request, key):
     rcontroller = request.contest.controller.ranking_controller()
     choices = rcontroller.available_rankings(request)
@@ -122,7 +123,7 @@ def ranking_csv_view(request, key):
 
     return rcontroller.render_ranking_to_csv(request, key)
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 @require_POST
 def ranking_invalidate_view(request, key):
     rcontroller = request.contest.controller.ranking_controller()

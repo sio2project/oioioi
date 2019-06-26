@@ -14,6 +14,7 @@ from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import (ProblemInstanceAdmin, SubmissionAdmin,
                                    ContestAdmin)
 from oioioi.contests.models import ProblemInstance
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
 from oioioi.programs.forms import CompilerInlineForm
 from oioioi.programs.models import (LibraryProblemData, ModelSolution,
@@ -137,7 +138,7 @@ class ReportActionsConfigInline(admin.StackedInline):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return False
@@ -154,7 +155,7 @@ class OutputCheckerInline(admin.TabularInline):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return True
+        return is_contest_admin(request)
 
     def has_delete_permission(self, request, obj=None):
         return False

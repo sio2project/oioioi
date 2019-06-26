@@ -107,7 +107,7 @@ contest_admin_menu_registry.register('submissions_similarity',
     _("Similar submits"), lambda request:
     reverse(
         'oioioiadmin:similarsubmits_submissionssimilarityentry_changelist'),
-    order=100)
+    is_contest_admin, order=100)
 
 
 class SubmisionsSimilarityEntryInline(admin.TabularInline):

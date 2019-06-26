@@ -3,6 +3,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
+from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.admin import ProblemAdmin
 from oioioi.programs.models import Test
 from oioioi.testspackages.forms import TestsPackageInlineFormSet
@@ -18,6 +19,15 @@ class TestsPackageInline(admin.TabularInline):
     fields = ['name', 'description', 'tests', 'publish_date', 'package_link']
 
     problem = None
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
     def get_formset(self, request, obj=None, **kwargs):
         self.problem = obj

@@ -3,7 +3,7 @@ from django.template import Node, TemplateSyntaxError, Variable
 from django.template.loader import render_to_string
 
 from oioioi.base.utils import get_user_display_name
-from oioioi.contests.utils import can_see_personal_data, is_contest_admin
+from oioioi.contests.utils import can_see_personal_data, is_contest_basicadmin
 
 register = template.Library()
 
@@ -18,7 +18,7 @@ class UserInfoLinkNode(Node):
 
     def render(self, context):
         is_admin = context.get('is_admin', False) or \
-            is_contest_admin(context['request'])
+            is_contest_basicadmin(context['request'])
         personal_data = can_see_personal_data(context['request'])
         url = render_to_string('contests/user_info_link.html', {
                 'ctx': context,

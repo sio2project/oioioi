@@ -16,7 +16,8 @@ from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.controllers import (ContestController,
                                          submission_template_context)
 from oioioi.contests.models import ScoreReport, SubmissionReport
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.utils import (is_contest_admin, is_contest_basicadmin,
+                                   is_contest_observer)
 from oioioi.evalmgr.tasks import (add_before_placeholder,
                                   extend_after_placeholder, recipe_placeholder)
 from oioioi.filetracker.utils import django_to_filetracker_path
@@ -30,7 +31,9 @@ from oioioi.programs.models import (CompilationReport, GroupReport,
 from oioioi.programs.problem_instance_utils import (get_allowed_languages_dict,
                                                     get_allowed_languages_extensions,
                                                     get_language_by_extension)
-from oioioi.programs.utils import has_report_actions_config
+from oioioi.programs.utils import (has_report_actions_config,
+                                   is_model_submission,
+                                   filter_model_submissions)
 
 logger = logging.getLogger(__name__)
 
@@ -596,11 +599,17 @@ class ProgrammingProblemController(ProblemController):
     def can_see_test_comments(self, request, submissionreport):
         return True
 
+    def can_see_test(self, request, test):
+        return can_admin_problem(request, self.problem)
+
+    def can_see_checker_exe(self, request, checker):
+        return can_admin_problem(request, self.problem)
+
     def get_visible_reports_kinds(self, request, submission):
         return ['USER_OUTS', 'INITIAL', 'NORMAL']
 
     def filter_visible_reports(self, request, submission, queryset):
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return queryset
         return queryset.filter(status='ACTIVE',
                 kind__in=self.get_visible_reports_kinds(request, submission))
@@ -689,7 +698,7 @@ class ProgrammingContestController(ContestController):
             .get_submission_size_limit(problem_instance)
 
     def check_repeated_submission(self, request, problem_instance, form):
-        return not is_contest_admin(request) and \
+        return not is_contest_basicadmin(request) and \
             form.kind == 'NORMAL' and \
             getattr(settings, 'WARN_ABOUT_REPEATED_SUBMISSION', False)
 
@@ -715,6 +724,14 @@ class ProgrammingContestController(ContestController):
         """Statuses are taken from initial tests which are always public."""
         return True
 
+    def can_see_test(self, request, test):
+        return can_admin_problem_instance(
+                request, test.problem_instance)
+
+    def can_see_checker_exe(self, request, checker):
+        return can_admin_problem_instance(
+                request, checker.problem_instance)
+
     def get_visible_reports_kinds(self, request, submission):
         if self.results_visible(request, submission):
             return ['USER_OUTS', 'INITIAL', 'NORMAL']
@@ -722,13 +739,13 @@ class ProgrammingContestController(ContestController):
             return ['USER_OUTS', 'INITIAL']
 
     def filter_visible_reports(self, request, submission, queryset):
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return queryset
         return queryset.filter(status='ACTIVE',
                 kind__in=self.get_visible_reports_kinds(request, submission))
 
     def filter_my_visible_submissions(self, request, queryset):
-        if not is_contest_admin(request):
+        if not is_contest_basicadmin(request):
             queryset = queryset.exclude(kind='USER_OUTS')
         return super(ProgrammingContestController, self). \
                 filter_my_visible_submissions(request, queryset)
@@ -744,7 +761,7 @@ class ProgrammingContestController(ContestController):
            except for admins and observers, which get full access.
         """
         submission = submission_report.submission
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return True
         if not has_report_actions_config(submission.problem_instance.problem):
             return False
@@ -769,6 +786,8 @@ class ProgrammingContestController(ContestController):
         """
         if is_contest_admin(request) or is_contest_observer(request):
             return queryset
+        if is_contest_basicadmin(request):
+            return filter_model_submissions(queryset)
         return self.filter_my_visible_submissions(request, queryset)
 
     def can_see_source(self, request, submission):
@@ -779,6 +798,9 @@ class ProgrammingContestController(ContestController):
            queries.
         """
         qs = Submission.objects.filter(id=submission.id)
+        if not (is_contest_admin(request) or is_contest_observer(request)) \
+                and is_model_submission(submission):
+            return False
         return self.filter_visible_sources(request, qs).exists()
 
     def render_submission(self, request, submission):
@@ -787,7 +809,7 @@ class ProgrammingContestController(ContestController):
 
     def _out_generate_status(self, request, testreport):
         try:
-            if is_contest_admin(request) or \
+            if is_contest_basicadmin(request) or \
                     testreport.userout_status.visible_for_user:
                 # making sure, that output really exists or is processing
                 if bool(testreport.output_file) or \
@@ -808,7 +830,7 @@ class ProgrammingContestController(ContestController):
         return ContestController.render_report(self, request, report)
 
     def is_admin(self, request, report):
-        return is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def render_report(self, request, report):
         return report.submission.problem_instance.problem.controller \
@@ -824,7 +846,7 @@ class ProgrammingContestController(ContestController):
                 .exclude(pk=submission.pk) \
                 .order_by('-date') \
                 .select_related()
-        if not is_contest_admin(request):
+        if not is_contest_basicadmin(request):
             cc = request.contest.controller
             queryset = cc.filter_my_visible_submissions(request, queryset)
         show_scores = bool(queryset.filter(score__isnull=False))

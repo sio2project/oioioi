@@ -46,11 +46,20 @@ class TeamsAdmin(admin.ModelAdmin):
 contest_site.contest_register(Team, TeamsAdmin)
 contest_admin_menu_registry.register('teams', _("Teams"),
     lambda request: reverse('oioioiadmin:teams_team_changelist'),
-    condition=teams_enabled, order=30)
+    condition=teams_enabled & is_contest_admin, order=30)
 
 
 class TeamsConfigInline(admin.TabularInline):
     model = TeamsConfig
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class TeamsAdminMixin(object):

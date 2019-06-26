@@ -39,9 +39,10 @@ from oioioi.contests.utils import (administered_contests,
                                    rounds_times)
 from oioioi.dashboard.contest_dashboard import unregister_contest_dashboard_view
 from oioioi.filetracker.tests import TestStreamingMixin
-from oioioi.problems.models import Problem, ProblemAttachment, ProblemStatement
+from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
+                                    ProblemStatement)
 from oioioi.programs.controllers import ProgrammingContestController
-from oioioi.programs.models import Test
+from oioioi.programs.models import Test, ModelSolution, ModelProgramSubmission
 from oioioi.programs.tests import SubmitFileMixin
 from oioioi.simpleui.views import contest_dashboard_redirect as simpleui_contest_dashboard
 from oioioi.teachers.views import contest_dashboard_redirect as teachers_contest_dashboard
@@ -1395,6 +1396,366 @@ class TestPermissions(TestCase):
             kwargs={'contest_id': self.contest.id}), follow=True)
         self.assertContains(response, 'Observer Menu')
 
+
+class TestPermissionsBasicAdmin(TestCase):
+    # The following tests make sure what the contests.contest_basicadmin
+    # permission gives access to, which will be used for the user contests.
+    #
+    # WARNING: If you are here because one of these tests broke on your change,
+    # double check that you have not altered the behaviour in an unsafe way -
+    # for example allowing the basicadmins control over stuff outside the
+    # contest, or leaking data from outside the contest. If you have made
+    # additions to any of the affected admin pages the safest course of action
+    # is to use the is_contest_admin check to deny basicadmins access to them.
+    #
+    # In essence, you should probably only change these tests if you are
+    # absolutely sure of what you are doing.
+
+    fixtures = ['test_users', 'test_permissions', 'test_contest',
+                'test_full_package', 'test_problem_packages',
+                'test_problem_instance', 'test_problem_site',
+                'test_submission', 'test_model_submissions',
+                'test_messages']
+
+    def setUp(self):
+        self.contest = Contest.objects.get()
+        self.contest.controller_name = \
+            'oioioi.programs.controllers.ProgrammingContestController'
+        self.contest.save()
+
+    def test_dashboard(self):
+        unregister_contest_dashboard_view(simpleui_contest_dashboard)
+        unregister_contest_dashboard_view(teachers_contest_dashboard)
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        url = reverse('default_contest_view', kwargs={'contest_id': 'c'})
+        response = self.client.get(url, follow=True)
+        self.assertEquals(response.status_code, 200)
+
+    def test_menu(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        url = reverse('contest_dashboard')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "Contest Administration")
+
+        self.assertContains(response, "Settings")
+        self.assertContains(response, "Problems")
+        self.assertContains(response, "Submissions")
+        self.assertContains(response, "Problem packages")
+
+        html = response.content.decode('utf-8')
+        pos = html.find('menu-accordion')
+        self.assertNotEquals(pos, -1)
+        pos = html.find('Contest Administration', pos)
+        self.assertNotEquals(pos, -1)
+        pos = html.find('list-group', pos)
+        self.assertNotEquals(pos, -1)
+        pos2 = html.find('</div', pos)
+        self.assertNotEquals(pos2, -1)
+
+        self.assertEquals(html[pos:pos2].count('list-group-item'), 4)
+
+    def test_menu_settings(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('oioioiadmin:contests_contest_change', args=('c',))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        self.assertContains(response, 'round_set-group')
+        self.assertContains(response, 'c_attachments-group')
+        self.assertContains(response, 'contestlink_set-group')
+        self.assertContains(response, 'messagenotifierconfig_set-group')
+        self.assertContains(response, 'contesticon_set-group')
+        self.assertContains(response, 'contestlogo-group')
+
+        html = response.content.decode('utf-8')
+        self.assertEquals(html.count('inline-group'), 6)
+
+    def test_menu_problems(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('oioioiadmin:contests_probleminstance_changelist')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        self.assertContains(response, 'column-name_link')
+        self.assertContains(response, 'column-short_name_link')
+        self.assertContains(response, 'column-round')
+        self.assertContains(response, 'column-actions_field')
+        self.assertContains(response, 'column-suspended_on_init_display')
+        self.assertContains(response, 'column-suspended_on_final_display')
+
+        html = response.content.decode('utf-8')
+        self.assertEquals(html.count('column-'), 6)
+
+        pos = html.find('field-actions_field')
+        self.assertNotEquals(pos, -1)
+        pos2 = html.find('</td>', pos)
+        self.assertNotEquals(pos2, -1)
+
+        self.assertIn("Edit problem", html[pos:pos2])
+        self.assertIn("Model solutions", html[pos:pos2])
+        self.assertIn("Problem site", html[pos:pos2])
+        self.assertIn("Reset tests limits", html[pos:pos2])
+        self.assertIn("Attach to another contest", html[pos:pos2])
+        self.assertIn("Reupload package", html[pos:pos2])
+        self.assertIn("Suspend all tests", html[pos:pos2])
+        self.assertIn("Suspend final tests", html[pos:pos2])
+        self.assertEquals(html[pos:pos2].count('|'), 7)
+
+    def test_problem_admin(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        for problem in Problem.objects.all():
+            url = reverse('oioioiadmin:problems_problem_change',
+                          args=(problem.id,))
+            response = self.client.get(url)
+            self.assertEquals(response.status_code, 200)
+
+        html = response.content.decode('utf-8')
+        pos = html.find('problem_form')
+        self.assertNotEquals(pos, -1)
+        pos = html.find('<fieldset', pos)
+        self.assertNotEquals(pos, -1)
+        pos2 = html.find('</fieldset>', pos)
+        self.assertNotEquals(pos2, -1)
+
+        self.assertNotContains(response, 'id_visibility')
+        self.assertIn('field-visibility', html[pos:pos2])
+        self.assertIn('field-author', html[pos:pos2])
+        self.assertIn('field-name', html[pos:pos2])
+        self.assertIn('field-short_name', html[pos:pos2])
+        self.assertIn('field-controller_name', html[pos:pos2])
+        self.assertIn('field-package_backend_name', html[pos:pos2])
+        self.assertIn('field-main_problem_instance', html[pos:pos2])
+        self.assertIn('field-ascii_name', html[pos:pos2])
+        self.assertEquals(html[pos:pos2].count('field-'), 8)
+
+        self.assertContains(response, 'statements-group')
+        self.assertContains(response, 'attachments-group')
+        self.assertContains(response, 'problemsite-group')
+        self.assertContains(response, 'test_run_config-group')
+        self.assertContains(response, 'libraryproblemdata-group')
+        self.assertContains(response, 'inline-group', 5)
+
+    def test_probleminstance_admin(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        for pi in ProblemInstance.objects.all():
+
+            url = reverse('oioioiadmin:contests_probleminstance_change',
+                          kwargs={'contest_id': 'c'}, args=(pi.id,))
+            response = self.client.get(url)
+            self.assertEquals(response.status_code, 200)
+
+    def test_modelsolutions(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('model_solutions', args=(1,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        html = response.content.decode('utf-8')
+
+        pos = html.find('table')
+        self.assertNotEquals(pos, -1)
+        pos2 = html.find('</tr>', pos)
+        self.assertNotEquals(pos2, -1)
+
+        self.assertEquals(html[pos:pos2].count('<th>'), 4)
+
+    def test_modelsubmission_source(self):
+        submission_id = ModelProgramSubmission.objects.first().id
+        url = reverse('show_submission_source', args=(submission_id,))
+
+        self.assertTrue(self.client.login(username='test_contest_admin'))
+        response = self.client.get(url)
+        # Test for 302 redirect instead of downloading a nonexistent file
+        self.assertEquals(response.status_code, 302)
+
+        self.assertTrue(self.client.login(username='test_observer'))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 302)
+
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        response = self.client.get(url, follow=True)
+        self.assertEquals(response.status_code, 403)
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url, follow=True)
+        self.assertEquals(response.status_code, 403)
+
+    def test_menu_submissions(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('oioioiadmin:contests_submission_changelist')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        submission_id = ModelProgramSubmission.objects.first().id
+        url = reverse('show_submission_source', args=(submission_id,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 403)
+
+        url = reverse('source_diff', args=(1, 13))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 403)
+
+        url = reverse('show_submission_source', args=(1,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+    def test_menu_problempackages(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('oioioiadmin:problems_contestproblempackage_changelist')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        self.assertContains(response, 'column-problem_name')
+        self.assertContains(response, 'column-colored_status')
+        self.assertContains(response, 'column-creation_date')
+        self.assertContains(response, 'column-info')
+        self.assertContains(response, 'column-inner')
+        html = response.content.decode('utf-8')
+        self.assertEquals(html.count('column-'), 5)
+
+        self.assertNotContains(response, 'uploader')
+
+        package = ProblemPackage.objects.first()
+        package.traceback = ContentFile(b'foo', name='bar')
+        package.save()
+        url = reverse('download_package_traceback', args=(package.id,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        url = reverse('download_package', args=(package.id,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 403)
+
+
+    def test_usermenu(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('contest_dashboard')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        self.assertContains(response, "User Menu")
+
+        self.assertContains(response, "Dashboard")
+        self.assertContains(response, "Problems")
+        self.assertContains(response, "Files")
+        self.assertContains(response, "Submit")
+        self.assertContains(response, "My submissions")
+        self.assertContains(response, "Ranking")
+        self.assertContains(response, "Questions and news")
+        self.assertContains(response, "Forum")
+
+        html = response.content.decode('utf-8')
+        pos = html.find('menu-accordion')
+        self.assertNotEquals(pos, -1)
+        pos = html.find('User Menu', pos)
+        self.assertNotEquals(pos, -1)
+        pos = html.find('list-group', pos)
+        self.assertNotEquals(pos, -1)
+        pos2 = html.find('</div', pos)
+        self.assertNotEquals(pos2, -1)
+
+        self.assertEquals(html[pos:pos2].count('list-group-item'), 8)
+
+    def test_usermenu_files(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        url = reverse('contest_files')
+
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, 'Add file')
+
+    def test_usermenu_submit(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        url = reverse('submit')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, 'id_user')
+        self.assertContains(response, 'id_kind')
+
+    def test_usermenu_ranking(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        url = reverse('default_ranking')
+
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, 'Export to CSV')
+        self.assertContains(response, 'Regenerate ranking')
+
+        url = reverse('ranking_csv', args=('c',))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        url = reverse('ranking_invalidate', args=('c',))
+        response = self.client.post(url, follow=True)
+        self.assertEquals(response.status_code, 200)
+
+    def test_usermenu_questions_and_news(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+        url = reverse('contest_messages')
+
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, 'Message type')
+        self.assertContains(response, 'Category')
+        self.assertContains(response, 'Author username')
+
+        self.assertContains(response, 'Subscribe')
+        self.assertContains(response, 'Add news')
+        self.assertContains(response, 'Edit reply templates')
+        self.assertContains(response, 'Show all messages')
+        self.assertNotContains(response, 'Ask a question')
+
+        url = reverse('add_contest_message')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        url = reverse('oioioiadmin:questions_replytemplate_changelist')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        url = reverse('contest_all_messages')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+
+        html = response.content.decode('utf-8')
+        pos = html.find('oioioi-message__actions')
+        self.assertNotEquals(pos, -1)
+        pos2 = html.find('</p>', pos)
+        self.assertNotEquals(pos2, -1)
+
+        self.assertEquals(html[pos:pos2].count('oioioi-message__action'), 4)
+
+    def test_show_info_about(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('contest_dashboard')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+        self.assertContains(response, "Show info about...")
+
+        url = reverse('user_info', args=(1001,))
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
 
 class TestSubmissionChangeKind(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',

@@ -7,7 +7,7 @@
 
 {% block main-content %}
     <div class="clearfix">
-        {% check_perm 'contests.contest_admin' for contest as is_admin %}
+        {% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
         {% if is_admin %}
             <div class="pull-right">
                 <a role="button" class="btn btn-sm btn-default"

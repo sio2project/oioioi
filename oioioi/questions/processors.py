@@ -4,7 +4,7 @@ from django.utils.functional import lazy
 from django.utils.translation import ungettext
 
 from oioioi.base.utils import make_navbar_badge
-from oioioi.contests.utils import can_enter_contest, is_contest_admin
+from oioioi.contests.utils import can_enter_contest, is_contest_basicadmin
 from oioioi.questions.utils import unanswered_questions
 from oioioi.questions.views import new_messages, visible_messages
 from oioioi.status.registry import status_registry
@@ -33,7 +33,7 @@ def navbar_messages_generator(request):
     if request.contest is None:
         return {}
 
-    is_admin = is_contest_admin(request)
+    is_admin = is_contest_basicadmin(request)
     messages = visible_messages(request)
     visible_ids = messages.values_list('id', flat=True)
     if is_admin:

@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.contests.admin import ProblemInstanceAdmin
+from oioioi.contests.utils import is_contest_admin
 from oioioi.pa.forms import PARegistrationForm
 from oioioi.pa.models import PAProblemInstanceData, PARegistration
 from oioioi.participants.admin import ParticipantAdmin
@@ -42,6 +43,12 @@ class PAProblemInstanceInline(admin.TabularInline):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def get_readonly_fields(self, request, obj=None):
+        if is_contest_admin(request):
+            return super(PAProblemInstanceInline, self) \
+                    .get_readonly_fields(request, obj)
+        return self.get_fields(request, obj)
 
 
 class PAProblemInstanceAdminMixin(object):

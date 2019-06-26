@@ -29,7 +29,8 @@ from oioioi.contests.utils import (can_admin_contest, can_enter_contest,
                                    can_see_personal_data, contest_exists,
                                    get_submission_or_error,
                                    has_any_submittable_problem,
-                                   is_contest_admin, is_contest_observer,
+                                   is_contest_admin, is_contest_basicadmin,
+                                   is_contest_observer,
                                    visible_contests, visible_problem_instances,
                                    visible_rounds)
 from oioioi.filetracker.utils import stream_file
@@ -64,6 +65,7 @@ def default_contest_view(request):
 @status_registry.register
 def get_contest_permissions(request, response):
     response['is_contest_admin'] = is_contest_admin(request)
+    response['is_contest_basicadmin'] = is_contest_basicadmin(request)
     return response
 
 
@@ -329,7 +331,7 @@ def contest_files_view(request):
     contest_files = ContestAttachment.objects.filter(contest=request.contest) \
         .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request))) \
         .select_related('round')
-    if not is_contest_admin(request):
+    if not is_contest_basicadmin(request):
         contest_files = contest_files.filter(Q(pub_date__isnull=True)
                 | Q(pub_date__lte=request.timestamp))
 
@@ -369,7 +371,7 @@ def contest_attachment_view(request, attachment_id):
 
     if (attachment.round and
             attachment.round not in visible_rounds(request)) or \
-       (not is_contest_admin(request) and
+       (not is_contest_basicadmin(request) and
            attachment.pub_date and attachment.pub_date > request.timestamp):
         raise PermissionDenied
 
@@ -386,7 +388,7 @@ def problem_attachment_view(request, attachment_id):
     return stream_file(attachment.content, attachment.download_name)
 
 
-@enforce_condition(contest_exists & (is_contest_admin | is_contest_observer |
+@enforce_condition(contest_exists & (is_contest_basicadmin | is_contest_observer |
                                      can_see_personal_data))
 def contest_user_hints_view(request):
     rcontroller = request.contest.controller.registration_controller()
@@ -394,7 +396,7 @@ def contest_user_hints_view(request):
     return get_user_hints_view(request, 'substr', queryset)
 
 
-@enforce_condition(contest_exists & (is_contest_admin | can_see_personal_data))
+@enforce_condition(contest_exists & (is_contest_basicadmin | can_see_personal_data))
 def user_info_view(request, user_id):
     controller = request.contest.controller
     rcontroller = controller.registration_controller()
@@ -415,7 +417,7 @@ def user_info_view(request, user_id):
             'info': info})
 
 
-@enforce_condition(contest_exists & (is_contest_admin | can_see_personal_data))
+@enforce_condition(contest_exists & (is_contest_basicadmin | can_see_personal_data))
 @require_POST
 def user_info_redirect_view(request):
     form = GetUserInfoForm(request, request.POST)
@@ -433,7 +435,7 @@ def user_info_redirect_view(request):
                         'user_id': user.id}))
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
     problem_instance = get_object_or_404(ProblemInstance,
                                          id=problem_instance_id)
@@ -455,7 +457,7 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
                             {'count': count})
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
     problem_instance = get_object_or_404(ProblemInstance,
                                          id=problem_instance_id)
@@ -469,7 +471,7 @@ def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
                             {'probleminstance': problem_instance})
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def reattach_problem_contest_list_view(request, problem_instance_id,
                                        full_list=False):
     problem_instance = get_object_or_404(ProblemInstance,
@@ -488,7 +490,7 @@ def reattach_problem_contest_list_view(request, problem_instance_id,
                              'full_list': full_list})
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def reattach_problem_confirm_view(request, problem_instance_id, contest_id):
     contest = get_object_or_404(Contest, id=contest_id)
     if not can_admin_contest(request.user, contest):

@@ -55,7 +55,7 @@ contest_site.contest_register(ProblemBalloonsConfig,
 contest_admin_menu_registry.register('problemballoonsconfig_admin',
         _("Balloon colors"), lambda request:
         reverse('oioioiadmin:balloons_problemballoonsconfig_changelist'),
-        order=60)
+        is_contest_admin, order=60)
 
 
 class BalloonsDisplayAdmin(admin.ModelAdmin):
@@ -106,6 +106,15 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
     model = BalloonsDeliveryAccessData
     fields = ('access_link', 'valid_until', 'regeneration_link')
     readonly_fields = ('access_link', 'valid_until', 'regeneration_link')
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
     def access_link(self, instance):
         if instance.access_key:

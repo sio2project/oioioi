@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import enforce_condition, not_anonymous
+from oioioi.base.permissions import Condition, enforce_condition, not_anonymous
 from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
@@ -28,7 +28,7 @@ from oioioi.forum.utils import (forum_exists_and_visible,
 @contest_admin_menu_registry.register_decorator(_("Forum"), lambda request:
         reverse('oioioiadmin:forum_forum_change',
                 args=(request.contest.forum.id,)),
-    order=50)
+        is_contest_admin, order=50)
 @enforce_condition(contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum)
 def forum_view(request):

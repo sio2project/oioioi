@@ -1,5 +1,5 @@
 {% load i18n check_perm get_user_name %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
 
 <table class="{% block table-classes %}table table-responsive{% endblock %}">
     <thead>

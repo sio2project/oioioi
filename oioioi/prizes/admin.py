@@ -5,9 +5,9 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base import admin
 from oioioi.base.utils import make_html_link
 from oioioi.contests.admin import ContestAdmin, contest_site
+from oioioi.contests.utils import is_contest_admin
 from oioioi.prizes.forms import PrizeGivingForm, PrizeInlineFormSet
 from oioioi.prizes.models import Prize, PrizeForUser, PrizeGiving
-
 
 def is_contest(request):
     return request is not None and request.contest is not None
@@ -18,6 +18,15 @@ class PrizeGivingInline(admin.TabularInline):
     form = PrizeGivingForm
     extra = 0
     readonly_fields = ('state_with_link',)
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
     def state_with_link(self, instance):
         if not instance.report:
@@ -46,6 +55,15 @@ class PrizeInline(admin.TabularInline):
     model = Prize
     formset = PrizeInlineFormSet
     extra = 0
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
     def formfield_for_foreignkey(self, db_field, request=None, **kwargs):
         if db_field.name == 'prize_giving' and is_contest(request):

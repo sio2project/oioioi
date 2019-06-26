@@ -1,10 +1,20 @@
 from oioioi.base import admin
 from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.utils import is_contest_admin
 from oioioi.statistics.models import StatisticsConfig
 
 
 class StatisticsConfigInline(admin.TabularInline):
     model = StatisticsConfig
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
 
 class StatisticsAdminMixin(object):

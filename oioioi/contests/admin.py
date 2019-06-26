@@ -29,7 +29,8 @@ from oioioi.contests.models import (Contest, ContestAttachment, ContestLink,
                                     ContestPermission, ProblemInstance, Round,
                                     RoundTimeExtension, Submission,
                                     SubmissionReport, submission_kinds)
-from oioioi.contests.utils import is_contest_admin, is_contest_observer
+from oioioi.contests.utils import (can_admin_contest, is_contest_admin,
+                                   is_contest_basicadmin, is_contest_observer)
 from oioioi.problems.models import ProblemPackage, ProblemSite
 from oioioi.programs.models import Test, TestReport
 
@@ -160,7 +161,7 @@ class ContestAdmin(admin.ModelAdmin):
     def has_change_permission(self, request, obj=None):
         if not obj:
             return request.user.is_superuser
-        return request.user.has_perm('contests.contest_admin', obj)
+        return can_admin_contest(request.user, obj)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
@@ -273,7 +274,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return False
 
     def has_change_permission(self, request, obj=None):
-        return request.contest is not None and is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def has_delete_permission(self, request, obj=None):
         return self.has_change_permission(request, obj)
@@ -312,6 +313,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def _edit_quiz_href(self, instance):
         return reverse('oioioiadmin:quizzes_quiz_change',
                        args=[instance.problem.pk])
+
+    def get_list_display(self, request):
+        items = super(ProblemInstanceAdmin, self).get_list_display(request)
+        if not is_contest_admin(request):
+            disallowed_items = ['package',]
+            items = [item for item in items if item not in disallowed_items]
+        return items
 
     def inline_actions(self, instance):
         result = []
@@ -552,13 +560,13 @@ class SubmissionAdmin(admin.ModelAdmin):
         # is_contest_observer() is required in here, because otherwise
         # observers get a 403 response. Any actions that modify submissions
         # will be blocked in get_actions()
-        return is_contest_admin(request) or is_contest_observer(request)
+        return is_contest_basicadmin(request) or is_contest_observer(request)
 
     def has_delete_permission(self, request, obj=None):
-        return is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def has_rejudge_permission(self, request):
-        return is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def get_actions(self, request):
         actions = super(SubmissionAdmin, self).get_actions(request)
@@ -767,7 +775,7 @@ contest_site.contest_register(RoundTimeExtension, RoundTimeExtensionAdmin)
 contest_admin_menu_registry.register('roundtimeextension_admin',
         _("Round extensions"), lambda request:
         reverse('oioioiadmin:contests_roundtimeextension_changelist'),
-        order=50)
+        is_contest_admin, order=50)
 
 
 class ContestPermissionAdmin(admin.ModelAdmin):

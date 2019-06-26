@@ -20,7 +20,7 @@ from oioioi.contests.models import (Contest, ProblemStatementConfig, Round,
                                     submission_kinds)
 from oioioi.contests.scores import ScoreValue
 from oioioi.contests.utils import (generic_rounds_times, has_any_active_round,
-                                   is_contest_admin, is_contest_observer,
+                                   is_contest_observer, is_contest_basicadmin,
                                    last_break_between_rounds, rounds_times,
                                    visible_problem_instances)
 from oioioi.problems.controllers import ProblemController
@@ -131,6 +131,9 @@ class RegistrationController(RegisteredSubclassesBase, ObjectWithMixins):
         contests = set()
         for contest in contest_queryset:
             if request.user.has_perm('contests.contest_admin', contest):
+                contests.add(contest.id)
+                continue
+            if request.user.has_perm('contests.contest_basicadmin', contest):
                 contests.add(contest.id)
                 continue
             if request.user.has_perm('contests.contest_observer', contest):
@@ -280,7 +283,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return request_or_context
         return ContestControllerContext(request_or_context.contest,
                 request_or_context.timestamp,
-                is_contest_admin(request_or_context))
+                is_contest_basicadmin(request_or_context))
 
     def default_view(self, request):
         """Determines the default landing page for the user from the passed
@@ -324,7 +327,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                             'extensions': exts,
                             'user': request.user})))
 
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             submissions = Submission.objects.filter(
                     problem_instance__contest=request.contest, user=user) \
                     .order_by('-date').select_related()
@@ -503,7 +506,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             return False
         if not problem_instance.round:
             return False
-        if is_contest_admin(request):
+        if is_contest_basicadmin(request):
             return True
 
         if check_round_times:
@@ -519,12 +522,12 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation returns ``'IGNORED'`` for
            non-contestants.  In other cases it returns ``'NORMAL'``.
         """
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return 'IGNORED'
         return 'NORMAL'
 
     def get_submissions_limit(self, request, problem_instance, kind='NORMAL'):
-        if is_contest_admin(request):
+        if is_contest_basicadmin(request):
             return None
         return problem_instance.problem.controller \
             .get_submissions_limit(request, problem_instance, kind)
@@ -707,7 +710,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if not request.user.is_authenticated:
             return queryset.none()
         qs = queryset.filter(user=request.user)
-        if is_contest_admin(request):
+        if is_contest_basicadmin(request):
             return qs
         else:
             return qs.filter(date__lte=request.timestamp) \
@@ -727,7 +730,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
            ``None``, results are not available. Admins are always shown the
            results.
         """
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return True
         round = submission.problem_instance.round
         rtimes = self.get_round_times(request, round)
@@ -748,7 +751,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
                               select only given submission's reports
            :returns: updated queryset
         """
-        if is_contest_admin(request) or is_contest_observer(request):
+        if is_contest_basicadmin(request) or is_contest_observer(request):
             return queryset
         if self.results_visible(request, submission):
             return queryset.filter(status='ACTIVE', kind='NORMAL')

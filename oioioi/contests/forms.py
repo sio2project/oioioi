@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.utils.inputs import narrow_input_field, narrow_input_fields
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.contests.models import Contest, ProblemInstance, Round
-from oioioi.contests.utils import (is_contest_admin,
+from oioioi.contests.utils import (is_contest_admin, is_contest_basicadmin,
                                    submittable_problem_instances)
 from oioioi.programs.models import Test
 
@@ -159,7 +159,7 @@ class SubmissionForm(forms.Form):
         narrow_input_field(pi_field)
 
         # if contest admin, add kind and 'as other user' field
-        if contest and is_contest_admin(request):
+        if contest and is_contest_basicadmin(request):
             self.fields['user'] = UserSelectionField(
                     label=_("User"),
                     hints_url=reverse('contest_user_hints',

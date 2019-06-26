@@ -1,10 +1,20 @@
 from oioioi.base import admin
 from oioioi.complaints.models import ComplaintsConfig
 from oioioi.contests.admin import ContestAdmin
+from oioioi.contests.utils import is_contest_admin
 
 
 class ComplaintsConfigInline(admin.TabularInline):
     model = ComplaintsConfig
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
 
 
 class ComplaintsAdminMixin(object):

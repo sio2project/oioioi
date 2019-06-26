@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import memoized, uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_basicadmin
 from oioioi.problems.forms import PackageUploadForm, ProblemsetSourceForm
 from oioioi.problems.models import Problem, ProblemPackage
 from oioioi.problems.package import backend_for_package
@@ -215,8 +215,8 @@ class PackageSource(ProblemSource):
                                                   form)
         if request.method == 'POST':
             if self.handle_form(form, request, contest, existing_problem):
-                if request.user.is_superuser or (request.contest and
-                                                 is_contest_admin(request)):
+                if request.user.is_superuser or \
+                        (request.contest and is_contest_basicadmin(request)):
                     messages.success(request,
                                      _("Package queued for processing."))
                     return self._redirect_response(request)

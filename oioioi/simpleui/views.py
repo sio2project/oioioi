@@ -18,7 +18,7 @@ from oioioi.contests.models import (ProblemInstance, Round, Submission,
                                     UserResultForContest, UserResultForProblem)
 from oioioi.contests.permissions import can_create_contest
 from oioioi.contests.utils import (can_admin_contest, contest_exists,
-                                   is_contest_admin, rounds_times,
+                                   is_contest_basicadmin, rounds_times,
                                    visible_contests, has_any_contest)
 from oioioi.dashboard.contest_dashboard import register_contest_dashboard_view
 from oioioi.portals.conditions import main_page_from_default_global_portal
@@ -143,7 +143,7 @@ def get_round_context(request, round_pk):
     }
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def contest_dashboard_view(request, round_pk=None):
     if request.user.is_superuser:
         return redirect('default_contest_view', contest_id=request.contest.id)
@@ -270,7 +270,7 @@ def user_dashboard_view(request):
                             'simpleui/main_dashboard/dashboard.html', context)
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def problem_settings(request, problem_instance_id):
     # Database objects.
     pi = get_object_or_404(ProblemInstance, id=problem_instance_id,
@@ -372,7 +372,7 @@ def problem_settings(request, problem_instance_id):
                             'simpleui/problem_settings/settings.html', context)
 
 @register_contest_dashboard_view(order=100,
-                                 condition=(contest_exists & is_contest_admin &
+                                 condition=(contest_exists & is_contest_basicadmin &
                                                 ~is_superuser))
 def contest_dashboard_redirect(request):
     return redirect(reverse('simpleui_contest_dashboard',

@@ -4,7 +4,7 @@
 {% block title %}{% trans "Ranking" %}{% endblock %}
 
 {% block main-content %}
-{% check_perm 'contests.contest_admin' for contest as is_admin %}
+{% check_perm 'contests.contest_basicadmin' for contest as is_admin %}
 <div class="clearfix">
     <div class="pull-right">
         {% if is_admin and key %}

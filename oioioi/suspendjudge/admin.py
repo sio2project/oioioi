@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 from oioioi.base.permissions import enforce_condition
 from oioioi.contests.admin import ProblemInstanceAdmin
 from oioioi.contests.models import ProblemInstance, Submission
-from oioioi.contests.utils import contest_exists, is_contest_admin
+from oioioi.contests.utils import contest_exists, is_contest_basicadmin
 from oioioi.evalmgr.models import QueuedJob
 from oioioi.suspendjudge.models import SuspendedProblem
 from oioioi.suspendjudge.utils import is_suspended, is_suspended_on_init
@@ -46,27 +46,27 @@ class SuspendJudgeProblemInstanceAdminMixin(object):
             problem_instance=problem_instance,
             suspend_init_tests=suspend_init_tests)
 
-    @method_decorator(enforce_condition(contest_exists & is_contest_admin))
+    @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def resume_and_rejudge_view(self, request, problem_instance_id):
         self._resume(problem_instance_id)
         self._rejudge(problem_instance_id)
         return redirect('oioioiadmin:contests_probleminstance_changelist')
 
-    @method_decorator(enforce_condition(contest_exists & is_contest_admin))
+    @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def resume_and_clear_view(self, request, problem_instance_id):
         self._resume(problem_instance_id)
         self._clear_queue(problem_instance_id)
         return redirect('oioioiadmin:contests_probleminstance_changelist')
 
-    @method_decorator(enforce_condition(contest_exists & is_contest_admin))
+    @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def suspend_all_view(self, request, problem_instance_id):
         self._suspend(problem_instance_id)
         return redirect('oioioiadmin:contests_probleminstance_changelist')
 
-    @method_decorator(enforce_condition(contest_exists & is_contest_admin))
+    @method_decorator(enforce_condition(contest_exists & is_contest_basicadmin))
     @method_decorator(require_POST)
     def suspend_all_but_init_view(self, request, problem_instance_id):
         self._suspend(problem_instance_id, False)

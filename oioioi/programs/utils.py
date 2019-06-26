@@ -9,7 +9,7 @@ from oioioi.contests.models import Submission
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.utils import aggregate_statuses
 from oioioi.programs.models import (LibraryProblemData, ProgramSubmission,
-                                    ReportActionsConfig)
+                                    ReportActionsConfig, ModelProgramSubmission)
 
 
 def sum_score_aggregator(group_results):
@@ -153,3 +153,10 @@ def is_problem_with_library(problem):
         return bool(problem.libraryproblemdata)
     except LibraryProblemData.DoesNotExist:
         return False
+
+def is_model_submission(submission):
+    return ModelProgramSubmission.objects.filter(pk=submission.id).exists()
+
+def filter_model_submissions(queryset):
+    model_ids = ModelProgramSubmission.objects.values_list('id', flat=True)
+    return queryset.exclude(pk__in=model_ids)

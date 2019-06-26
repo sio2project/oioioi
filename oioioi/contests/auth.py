@@ -15,6 +15,9 @@ class ContestPermissionsAuthBackend(object):
             return False
         if obj is None or not isinstance(obj, Contest):
             return False
+        if perm == 'contests.contest_basicadmin' \
+                and self.has_perm(user_obj, 'contests.contest_admin', obj):
+            return True
         if not hasattr(user_obj, '_contest_perms_cache'):
             user_obj._contest_perms_cache = set(ContestPermission.objects
                 .filter(user=user_obj)

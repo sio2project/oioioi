@@ -18,7 +18,7 @@ from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils import jsonify
 from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
-                                   is_contest_admin, visible_rounds)
+                                   is_contest_basicadmin, visible_rounds)
 from oioioi.questions.forms import (AddContestMessageForm, AddReplyForm,
                                     FilterMessageAdminForm, FilterMessageForm)
 from oioioi.questions.mails import new_question_signal
@@ -44,7 +44,7 @@ def visible_messages(request, author=None, category=None, kind=None):
     if kind:
         q_expression = q_expression & Q(kind=kind)
     messages = Message.objects.filter(q_expression).order_by('-date')
-    if not is_contest_admin(request):
+    if not is_contest_basicadmin(request):
         q_expression = Q(kind='PUBLIC')
         if request.user.is_authenticated:
             q_expression = q_expression \
@@ -79,7 +79,7 @@ def messages_template_context(request, messages):
     replied_ids = frozenset(m.top_reference_id for m in messages)
     new_ids = new_messages(request, messages).values_list('id', flat=True)
 
-    if is_contest_admin(request):
+    if is_contest_basicadmin(request):
         unanswered = unanswered_questions(messages)
     else:
         unanswered = []
@@ -99,7 +99,7 @@ def messages_template_context(request, messages):
 
 
 def process_filter_form(request):
-    if is_contest_admin(request):
+    if is_contest_basicadmin(request):
         form = FilterMessageAdminForm(request, request.GET)
     else:
         form = FilterMessageForm(request, request.GET)
@@ -181,7 +181,7 @@ def all_messages_view(request):
         else:
             tree[m.id] = entry
 
-    if is_contest_admin(request):
+    if is_contest_basicadmin(request):
         sort_key = lambda x: (x['needs_reply'], x['has_new_message'],
                               x['timestamp'])
     else:
@@ -237,7 +237,7 @@ def message_view(request, message_id):
         replies.sort(key=Message.get_user_date)
     else:
         replies = []
-    if is_contest_admin(request) and message.kind == 'QUESTION' and \
+    if is_contest_basicadmin(request) and message.kind == 'QUESTION' and \
             message.can_have_replies:
         if request.method == 'POST':
             form = AddReplyForm(request, request.POST)
@@ -270,7 +270,7 @@ def message_view(request, message_id):
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def add_contest_message_view(request):
-    is_admin = is_contest_admin(request)
+    is_admin = is_contest_basicadmin(request)
     if request.method == 'POST':
         form = AddContestMessageForm(request, request.POST)
         if form.is_valid():
@@ -305,14 +305,14 @@ def add_contest_message_view(request):
             {'form': form, 'title': title, 'is_news': is_admin})
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def get_messages_authors_view(request):
     queryset = visible_messages(request)
     return get_user_hints_view(request, 'substr', queryset, 'author')
 
 
 @jsonify
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def get_reply_templates_view(request):
     templates = ReplyTemplate.objects \
             .filter(Q(contest=request.contest.id) | Q(contest__isnull=True)) \
@@ -321,7 +321,7 @@ def get_reply_templates_view(request):
             for t in templates]
 
 
-@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(contest_exists & is_contest_basicadmin)
 def increment_template_usage_view(request, template_id=None):
     try:
         template = ReplyTemplate.objects.filter(id=template_id) \

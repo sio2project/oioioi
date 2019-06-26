@@ -1,0 +1,78 @@
+[
+  {
+    "pk": 10,
+    "model": "contests.submission",
+    "fields": {
+      "problem_instance": 1
+    }
+  },
+  {
+    "pk": 11,
+    "model": "contests.submission",
+    "fields": {
+      "problem_instance": 1
+    }
+  },
+  {
+    "pk": 12,
+    "model": "contests.submission",
+    "fields": {
+      "problem_instance": 1
+    }
+  },
+  {
+    "pk": 13,
+    "model": "contests.submission",
+    "fields": {
+      "problem_instance": 1
+    }
+  },
+  {
+    "pk": 10,
+    "model": "programs.programsubmission",
+    "fields": {}
+  },
+  {
+    "pk": 11,
+    "model": "programs.programsubmission",
+    "fields": {}
+  },
+  {
+    "pk": 12,
+    "model": "programs.programsubmission",
+    "fields": {}
+  },
+  {
+    "pk": 13,
+    "model": "programs.programsubmission",
+    "fields": {}
+  },
+  {
+    "pk": 10,
+    "model": "programs.modelprogramsubmission",
+    "fields": {
+      "model_solution": 1
+    }
+  },
+  {
+    "pk": 11,
+    "model": "programs.modelprogramsubmission",
+    "fields": {
+      "model_solution": 1
+    }
+  },
+  {
+    "pk": 12,
+    "model": "programs.modelprogramsubmission",
+    "fields": {
+      "model_solution": 1
+    }
+  },
+  {
+    "pk": 13,
+    "model": "programs.modelprogramsubmission",
+    "fields": {
+      "model_solution": 1
+    }
+  }
+]

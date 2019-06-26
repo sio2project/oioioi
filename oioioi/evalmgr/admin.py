@@ -186,7 +186,7 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
         return qs.exclude(state='CANCELLED')
 
     def has_delete_permission(self, request, obj=None):
-        return True
+        return is_contest_admin(request)
 
     def get_custom_list_select_related(self):
         return super(SystemJobsQueueAdmin, self) \
@@ -232,5 +232,6 @@ contest_site.contest_register(ContestQueuedJob, ContestJobsQueueAdmin)
 contest_admin_menu_registry.register('queuedjob_admin',
         _("Evaluation queue"), lambda request: reverse(
             'oioioiadmin:evalmgr_contestqueuedjob_changelist'),
-        condition=(lambda request: not request.user.is_superuser),
+        condition=(lambda request: not request.user.is_superuser \
+                                   and is_contest_admin(request)),
         order=60)

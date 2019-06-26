@@ -9,7 +9,7 @@ from oioioi.base import admin
 from oioioi.base.permissions import is_superuser
 from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.models import Contest, ContestPermission
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_basicadmin
 from oioioi.questions.forms import ChangeContestMessageForm
 from oioioi.questions.models import (Message, MessageNotifierConfig,
                                      ReplyTemplate)
@@ -23,7 +23,7 @@ class MessageAdmin(admin.ModelAdmin):
         'problem_instance']
 
     def has_add_permission(self, request):
-        return is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def has_change_permission(self, request, obj=None):
         if obj and not obj.contest:
@@ -88,8 +88,16 @@ contest_site.contest_register(Message, MessageAdmin)
 
 class MessageNotifierConfigInline(admin.TabularInline):
     model = MessageNotifierConfig
-    can_delete = True
     extra = 0
+
+    def has_add_permission(self, request):
+        return is_contest_basicadmin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_basicadmin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_basicadmin(request)
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         contest_admin_perm = ContestPermission.objects \
@@ -100,7 +108,7 @@ class MessageNotifierConfigInline(admin.TabularInline):
 
         if request.user.is_superuser:
             admin_ids += [u.id for u in User.objects.filter(is_superuser=True)]
-        elif is_contest_admin(request):
+        elif is_contest_basicadmin(request):
             added = MessageNotifierConfig.objects \
                     .filter(contest=request.contest)
             admin_ids += [request.user.id] + [conf.user.id for conf in added]
@@ -157,12 +165,12 @@ class ReplyTemplateAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         # Correct object contest ensured by form.
-        return is_contest_admin(request)
+        return is_contest_basicadmin(request)
 
     def has_change_permission(self, request, obj=None):
         if obj:
             return is_superuser(request) or \
-                   (is_contest_admin(request) and
+                   (is_contest_basicadmin(request) and
                     obj.contest == request.contest)
         return self.has_add_permission(request)
 

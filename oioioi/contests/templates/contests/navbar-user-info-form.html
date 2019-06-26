@@ -3,7 +3,7 @@
 
 {% with ctx.user as user %}
 
-{% check_perm 'contests.contest_admin' for ctx.contest as is_admin %}
+{% check_perm 'contests.contest_basicadmin' for ctx.contest as is_admin %}
 {% check_perm 'contests.personal_data' for ctx.contest as can_see_personal_data %}
 
 {% if ctx.contest %}

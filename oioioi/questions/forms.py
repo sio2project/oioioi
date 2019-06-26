@@ -7,7 +7,7 @@ from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.base.utils.user_selection import UserSelectionField
 from oioioi.base.widgets import DateTimePicker
 from oioioi.contests.models import ProblemInstance, Round
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import is_contest_basicadmin
 from oioioi.questions.models import Message, ReplyTemplate, message_kinds
 from oioioi.questions.utils import get_categories, get_category
 
@@ -26,7 +26,7 @@ class AddContestMessageForm(forms.ModelForm):
         self.fields['content'].widget.attrs['class'] = \
                 'input-xxlarge monospace'
 
-        if not is_contest_admin(request):
+        if not is_contest_basicadmin(request):
             del self.fields['pub_date']
         else:
             self.fields['pub_date'].widget = DateTimePicker()
