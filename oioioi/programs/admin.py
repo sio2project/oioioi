@@ -39,6 +39,9 @@ class ContestCompilerInline(admin.StackedInline):
     model = ContestCompiler
     extra = 0
     form = CompilerInlineForm
+    def __init__(self, *args, **kwargs):
+        super(ContestCompilerInline, self).__init__(*args, **kwargs)
+        self.verbose_name_plural = _("Compiler overrides")
 
 
 class ValidationFormset(BaseInlineFormSet):

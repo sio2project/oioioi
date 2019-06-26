@@ -1,7 +1,9 @@
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext
 
+from oioioi.programs.models import ContestCompiler
 
 class CompilerInlineForm(forms.ModelForm):
     COMPILER_CHOICES = [
@@ -13,8 +15,16 @@ class CompilerInlineForm(forms.ModelForm):
         self.LANGUAGE_CHOICES = [
             ('', 'Choose language'),
         ]
-        for language in getattr(settings, "SUBMITTABLE_EXTENSIONS", {}):
-            self.LANGUAGE_CHOICES.append((language, language))
+        default_compilers = getattr(settings, 'DEFAULT_COMPILERS')
+        model = self._meta.model
+        if model == ContestCompiler:
+            for language in getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}):
+                self.LANGUAGE_CHOICES.append((language, language +
+                    ugettext(" (default compiler: ") + default_compilers.get(language) +
+                    ")"))
+        else:
+            for language in getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}):
+                self.LANGUAGE_CHOICES.append((language, language))
 
         FINAL_COMPILER_CHOICES = self.COMPILER_CHOICES
         if kwargs.get('instance'):
