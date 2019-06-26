@@ -25,9 +25,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-25 14:34+0200\n"
-"PO-Revision-Date: 2019-06-25 08:55+0000\n"
-"Last-Translator: Michał Sidor <michcioperz@gmail.com>\n"
+"POT-Creation-Date: 2019-06-26 18:44+0200\n"
+"PO-Revision-Date: 2019-06-26 16:02+0000\n"
+"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -235,6 +235,14 @@ msgstr "Tag istnieje."
 #: problems/static/common/tag_selection.js:65
 msgid "Type tag name."
 msgstr "Wpisz nazwę tagu."
+
+#: programs/static/common/choose_compiler.js:27
+msgid "Compiler"
+msgstr ""
+
+#: programs/static/common/choose_compiler.js:27
+msgid "Failed to fetch available compilers</font>"
+msgstr ""
 
 #: programs/static/common/filedrag.js:85
 msgid "Drop file here"
