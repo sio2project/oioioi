@@ -1,0 +1,46 @@
+{% extends "base-with-menu.html" %}
+{% load i18n simple_filters %}
+
+{% block title %}
+    {% trans "Friends" %}
+{% endblock %}
+
+{% block main-content %}
+    <h1>{% trans "Friends" %}</h1>
+    <p>
+        {% blocktrans %}
+            Your friends can add your tasks to their contests, unless a task is marked as "Private".<br><small>
+            Note that Friendships are one-way. When you befriend somebody, they don't need to accept,
+            but they need to befriend you for you to see their tasks. You can only befriend other teachers.
+            Your friends can find your tasks in the Problemset.
+        </small>
+        {% endblocktrans %}
+    </p>
+    <form method="post" class="form-inline nav-content">{% csrf_token %}
+        {% include "ingredients/form.html" with inline=True %}
+        <button type="submit" class="btn btn-primary a-btn-slide-text" name="befriend">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+            <span><strong>{% trans "Befriend" %}</strong></span>
+        </button>
+    </form>
+    <hr>
+    <div class="row">
+        {% if friends %}
+            {% for friend in friends %}
+                <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+                    <form method="post">{% csrf_token %}
+                        <input type="hidden" name="id" value="{{ friend.id }}">
+                        <button type="submit" class="btn-link" name="unfriend">
+                            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        </button>
+                        {{ friend.get_full_name }} ({{ friend.username }})
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-xs-12 col-sm-8 col-md-6 col-lg-4">
+                <strong>{% trans "You have no friends :(" %}</strong>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
