@@ -25,7 +25,8 @@ from oioioi.problems.utils import can_admin_problem, can_admin_problem_instance
 from oioioi.programs.models import (CompilationReport, GroupReport,
                                     ModelProgramSubmission, OutputChecker,
                                     ProgramSubmission, Submission, TestReport,
-                                    UserOutGenStatus)
+                                    UserOutGenStatus, ProblemCompiler,
+                                    ContestCompiler)
 from oioioi.programs.problem_instance_utils import (get_allowed_languages_dict,
                                                     get_allowed_languages_extensions,
                                                     get_language_by_extension)
@@ -36,6 +37,26 @@ logger = logging.getLogger(__name__)
 
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
+
+    def get_compiler_for_submission(self, submission):
+        problem_instance = submission.problem_instance
+        problem = problem_instance.problem
+        extension = problem_instance.controller \
+            ._get_language(submission.source_file, problem_instance)
+        submittable_extensions = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
+        language = None
+        for lang in submittable_extensions:
+            if extension in submittable_extensions[lang]:
+                language = lang
+                break
+        assert language
+        problem_compiler_qs = ProblemCompiler.objects.filter(
+                problem__exact=problem.id, language__exact=language)
+        if problem_compiler_qs.exists():
+            return problem_compiler_qs.first().compiler
+        else:
+            logger.warning("No default compiler for language %s", language)
+            return 'default-' + extension
 
     def generate_initial_evaluation_environ(self, environ, submission,
                                             **kwargs):
@@ -76,6 +97,17 @@ class ProgrammingProblemController(ProblemController):
         if 'hidden_judge' in environ['extra_args']:
             environ['report_kinds'] = ['HIDDEN']
 
+        environ['compiler'] = self.get_compiler_for_submission(submission)
+        if contest:
+            contest_compiler = contest.controller \
+                .get_compiler_for_submission(submission)
+            if contest_compiler:
+                # contest compiler is more important than problem compiler
+                environ['compiler'] = contest_compiler
+
+        if getattr(settings, 'USE_LOCAL_COMPILERS', False):
+            environ['compiler'] = 'system-' + environ['language']
+
     def generate_base_environ(self, environ, submission, **kwargs):
         contest = submission.problem_instance.contest
         self.generate_initial_evaluation_environ(environ, submission)
@@ -100,9 +132,6 @@ class ProgrammingProblemController(ProblemController):
                     submission.problem_instance.controller.get_safe_exec_mode()
 
         environ['untrusted_checker'] = not settings.USE_UNSAFE_CHECKER
-
-        if getattr(settings, 'USE_LOCAL_COMPILERS', False):
-            environ['compiler'] = 'system-' + environ['language']
 
     def generate_recipe(self, kinds):
         recipe_body = [
@@ -607,6 +636,24 @@ class ProgrammingProblemController(ProblemController):
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
+
+    def get_compiler_for_submission(self, submission):
+        problem_instance = submission.problem_instance
+        contest = problem_instance.contest
+        extension = self._get_language(submission.source_file, problem_instance)
+        submittable_extensions = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})
+        language = None
+        for lang in submittable_extensions:
+            if extension in submittable_extensions[lang]:
+                language = lang
+                break
+        assert language
+        contest_compiler_qs = ContestCompiler.objects.filter(
+                contest__exact=contest, language__exact=language)
+        if contest_compiler_qs.exists():
+            return contest_compiler_qs.first().compiler
+        else:
+            return None
 
     def _map_report_to_submission_status(self, status, problem_instance,
                                          kind='INITIAL'):
