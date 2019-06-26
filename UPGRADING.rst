@@ -623,3 +623,15 @@ $. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compil
          # Scorers below are used for judging submissions without contests,
          # eg. submitting to problems from problemset.
          # DEFAULT_TEST_SCORER = \
+
+#. * Added ``oioioi.usercontests`` module.::
+
+    Add the following (commented out) line to the INSTALLED_APPS variable in
+    settings.py:
+
+    #    'oioioi.usercontests',
+
+    Add the following (commented out) line to the AUTHENTICATION_BACKENDS
+    variable in settings.py:
+
+    #    'oioioi.usercontests.auth.UserContestAuthBackend',

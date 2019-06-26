@@ -14,8 +14,8 @@
             {% for item in menu %}
                 <li class="{% active_url item.url %}">
                     <a href="{{ item.url }}" {{ item.attrs }}>
-                        {% if item.icon %}
-                            <span class="glyphicon glyphicon-{{ item.icon }}"></span>
+                        {% if item.has_icon and menu_icons %}
+                            {{ menu_icons|cyclic_lookup:forloop.counter0 }}
                         {% endif %}
                         {{ item.text }}
                     </a>

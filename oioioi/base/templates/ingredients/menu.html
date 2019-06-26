@@ -22,8 +22,8 @@
                     <div class="list-group">
                     {% for item in menu %}
                         <a href="{{ item.url }}" class="list-group-item {% active_url item.url %}" {{ item.attrs }}>
-                            {% if item.icon %}
-                                <span class="glyphicon glyphicon-{{ item.icon }}"></span>
+                            {% if item.has_icon and menu_icons %}
+                                {{ menu_icons|cyclic_lookup:forloop.counter0 }}
                             {% endif %}
                             {{ item.text }}
                         </a>

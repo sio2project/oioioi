@@ -82,11 +82,11 @@ class TestIndex(TestCase):
     fixtures = ('test_users', 'test_contest')
 
     def test_login(self):
-        with self.assertNumQueriesLessThan(50):
+        with self.assertNumQueriesLessThan(52):
             response = self.client.get('/', follow=True)
         self.assertNotContains(response, 'test_user')
         self.assertTrue(self.client.login(username='test_user'))
-        with self.assertNumQueriesLessThan(67):
+        with self.assertNumQueriesLessThan(70):
             response = self.client.get('/', follow=True)
         self.assertContains(response, 'test_user')
         login_url = reverse('login')
@@ -116,12 +116,12 @@ class TestIndex(TestCase):
         self.assertEqual(302, response.status_code)
 
     def test_index(self):
-        with self.assertNumQueriesLessThan(95):
+        with self.assertNumQueriesLessThan(98):
             self.assertTrue(self.client.login(username='test_user'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
             self.assertNotContains(response, 'System Administration')
-        with self.assertNumQueriesLessThan(82):
+        with self.assertNumQueriesLessThan(83):
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get('/', follow=True)
             self.assertNotContains(response, 'navbar-login')
@@ -267,7 +267,7 @@ class TestMenu(TestCase):
             self.assertNotIn('Admin Menu', response)
 
             response = self._render_menu(user=admin)
-            self.assertNotIn('class="contesticon"', response)
+            self.assertIn('class="contesticon"', response)
             self.assertIn('User Menu', response)
             self.assertIn('Admin Menu', response)
             self.assertLess(response.index('Test Admin Item'),

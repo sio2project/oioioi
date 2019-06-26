@@ -1,0 +1,29 @@
+[
+  {
+    "pk": "uc",
+    "model": "contests.contest",
+    "fields": {
+      "name": "Test UserContest",
+      "controller_name": "oioioi.usercontests.controllers.UserContestController",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.round",
+    "fields": {
+      "name": "Round 1",
+      "contest": "uc",
+      "start_date": "2011-07-31T20:27:58.768Z",
+      "results_date": "2012-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "usercontests.UserContest",
+    "fields": {
+      "user": 1001,
+      "contest": "uc"
+    }
+  }
+]

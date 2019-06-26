@@ -92,11 +92,12 @@ class MenuRegistry(object):
 
         return items
 
-    def __init__(self, text=None, condition=None):
+    def __init__(self, text=None, condition=None, show_icons=False):
         self.text = text
         if condition is None:
             condition = lambda request: True
         self.condition = condition
+        self.show_icons = show_icons
         self._registry = []
         self._generators = {}
 
@@ -185,7 +186,8 @@ class MenuRegistry(object):
                 context_items.append(dict(
                     url=item.url_generator(request),
                     text=item.text,
-                    attrs=attrs_str))
+                    attrs=attrs_str,
+                    has_icon=self.show_icons))
         return context_items
 
     def is_anything_accessible(self, request):
@@ -203,7 +205,7 @@ class MenuRegistry(object):
 
 #: The default menu registry. Modules should use this to register menu items
 #: commonly accessible to users.
-menu_registry = MenuRegistry(_("User Menu"))
+menu_registry = MenuRegistry(_("User Menu"), show_icons=True)
 
 #: The menu registry for the user menu, shown as a drop down when a logged in
 #: user clicks on its login in the navbar.

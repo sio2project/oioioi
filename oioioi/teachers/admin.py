@@ -75,13 +75,15 @@ class ContestAdminMixin(object):
                 pass
 
     def get_fieldsets(self, request, obj=None):
-        if obj or request.user.is_superuser:
+        if obj or request.user.is_superuser or \
+                not request.user.has_perm('teachers.teacher'):
             return super(ContestAdminMixin, self).get_fieldsets(request, obj)
         fields = list(TeacherContestForm().base_fields.keys())
         return [(None, {'fields': fields})]
 
     def get_form(self, request, obj=None, **kwargs):
-        if obj or request.user.is_superuser:
+        if obj or request.user.is_superuser or \
+                not request.user.has_perm('teachers.teacher'):
             return super(ContestAdminMixin, self).get_form(request, obj,
                     **kwargs)
         return modelform_factory(self.model, form=TeacherContestForm,
@@ -89,7 +91,8 @@ class ContestAdminMixin(object):
                     request=request))
 
     def response_add(self, request, obj, post_url_continue=None):
-        if request.user.is_superuser:
+        if request.user.is_superuser or \
+                not request.user.has_perm('teachers.teacher'):
             return super(ContestAdminMixin, self).response_add(request, obj,
                     post_url_continue)
         self.message_user(request, _("Contest added successfully."))

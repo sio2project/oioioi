@@ -126,7 +126,7 @@ class TestUserDashboard(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('simpleui_user_dashboard')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
         user = User.objects.get(username='test_user')
         c = Contest.objects.get(id='c')

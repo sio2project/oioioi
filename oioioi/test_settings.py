@@ -59,6 +59,7 @@ INSTALLED_APPS = (
     'oioioi.livedata',
     'oioioi.usergroups',
     'oioioi.problemsharing',
+    'oioioi.usercontests',
 ) + INSTALLED_APPS
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
@@ -71,6 +72,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 AUTHENTICATION_BACKENDS += (
     'oioioi.base.tests.IgnorePasswordAuthBackend',
     'oioioi.teachers.auth.TeacherAuthBackend',
+    'oioioi.usercontests.auth.UserContestAuthBackend',
 )
 
 MIDDLEWARE += (
