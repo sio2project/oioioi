@@ -14,6 +14,7 @@ Activating this module adds:
 - "shared with me" tab in ProblemSet
 - choice of access level when creating a new task
 
+All of the features work only for teachers by design.
 
 Dependencies
 ============

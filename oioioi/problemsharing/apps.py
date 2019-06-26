@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class ProblemsharingConfig(AppConfig):
-    name = 'problemsharing'
+    name = 'oioioi.problemsharing'

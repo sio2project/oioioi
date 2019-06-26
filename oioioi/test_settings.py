@@ -58,6 +58,7 @@ INSTALLED_APPS = (
     'oioioi.simpleui',
     'oioioi.livedata',
     'oioioi.usergroups',
+    'oioioi.problemsharing',
 ) + INSTALLED_APPS
 
 TEMPLATES[0]['OPTIONS']['context_processors'] += [
