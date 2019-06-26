@@ -31,7 +31,7 @@ from oioioi.programs.controllers import ProgrammingContestController
 from oioioi.programs.handlers import make_report
 from oioioi.programs.models import (ModelSolution, ProgramSubmission,
                                     ReportActionsConfig, Test, TestReport,
-                                    ContestCompiler)
+                                    ContestCompiler, check_compilers_config)
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
 
@@ -1294,3 +1294,59 @@ class TestCompiler(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'Python': ['py']
+    })
+    @override_settings(AVAILABLE_COMPILERS={
+        'C': ['gcc', 'clang'],
+        'Python': ['python']
+    })
+    @override_settings(DEFAULT_COMPILERS={
+        'C': 'gcc',
+        'Python': 'python'
+    })
+    def test_check_compiler_config_valid(self):
+        try:
+            check_compilers_config()
+        except:
+            self.assertFalse(True)
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'Python': ['py']
+    })
+    @override_settings(AVAILABLE_COMPILERS={
+        'C': ['gcc', 'clang'],
+        'Python': ['python']
+    })
+    @override_settings(DEFAULT_COMPILERS={
+        'C': 'gcc',
+        'Python': 'python3'
+    })
+    def test_check_compiler_config_invalid_compiler(self):
+        try:
+            check_compilers_config()
+            self.assertFalse(True)
+        except:
+            pass
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'Python': ['py']
+    })
+    @override_settings(AVAILABLE_COMPILERS={
+        'C': ['gcc', 'clang']
+    })
+    @override_settings(DEFAULT_COMPILERS={
+        'C': 'gcc',
+        'Python': 'python'
+    })
+    def test_check_compiler_config_no_compiler(self):
+        try:
+            check_compilers_config()
+            self.assertFalse(True)
+        except:
+            pass
+
