@@ -24,7 +24,7 @@ $(function() {
                                 compiler_select.append($("<option></option>").attr("value", option).text(option));
                             });
                         }).fail(function(jqxhr, textStatus, error){
-                            $("label[for='" + compiler_select_id + "']").html(gettext("Compiler") + " <font color='red'>" + gettext("Failed to fetch available compilers" + "</font>");
+                            $("label[for='" + compiler_select_id + "']").html(gettext("Compiler") + " <font color='red'>" + gettext("Failed to fetch available compilers" + "</font>"));
                             var err = textStatus + ", " + error;
                     });
                 }
