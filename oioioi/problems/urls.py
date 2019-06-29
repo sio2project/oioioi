@@ -40,6 +40,8 @@ urlpatterns = [
     url(r'^problemset/$', views.problemset_main_view, name='problemset_main'),
     url(r'^problemset/myproblems/$', views.problemset_my_problems_view,
         name='problemset_my_problems'),
+    url(r'^problemset/shared_with_me/$', views.problemset_shared_with_me_view,
+        name='problemset_shared_with_me'),
     url(r'problemset/all_problems/$', views.problemset_all_problems_view,
         name='problemset_all_problems'),
     url(r'^problemset/problem/(?P<site_key>[0-9a-zA-Z-_=]+)/',

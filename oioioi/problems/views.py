@@ -239,6 +239,10 @@ def generate_problemset_tabs(request):
     if request.user.is_authenticated:
         tabs.append({'name': _('My problems'), 'url': reverse('problemset_my_problems')})
 
+        if 'oioioi.problemsharing' in settings.INSTALLED_APPS:
+            if request.user.has_perm('teachers.teacher'):
+                tabs.append({'name': _('Shared with me'), 'url': reverse('problemset_shared_with_me')})
+
         if request.user.is_superuser:
             tabs.append({'name': _('All problems'), 'url': reverse('problemset_all_problems')})
         if can_add_to_problemset(request):
@@ -367,6 +371,15 @@ def problemset_my_problems_view(request):
     page_title = _("My problems")
     problems_pool = problemset_get_problems(request)
     problems = problems_pool.filter(author=request.user, problemsite__isnull=False)
+    return problemset_generate_view(request, page_title, problems, "my")
+
+def problemset_shared_with_me_view(request):
+    from oioioi.problemsharing.models import Friendship
+    page_title = _("Shared with me")
+    problems_pool = problemset_get_problems(request)
+    friends = Friendship.objects.filter(receiver=request.user).values_list('creator', flat=True)
+    problems = problems_pool.filter(visibility=Problem.VISIBILITY_FRIENDS, author__in=friends,
+                                    problemsite__isnull=False)
     return problemset_generate_view(request, page_title, problems, "my")
 
 
@@ -846,3 +859,4 @@ def save_proposals_view(request):
             proposal.save()
 
         return HttpResponse('success\n' + str(tags))
+

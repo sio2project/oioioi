@@ -34,6 +34,7 @@ from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.programs.controllers import ProgrammingContestController
+from oioioi.problemsharing.models import Friendship
 
 
 class TestProblemController(ProblemController):
@@ -725,6 +726,38 @@ class TestProblemsetPage(TestCase):
                 count=Problem.objects.count() * 2)
         self.assertContains(response, 'Add to contest',
                 count=Problem.objects.count())
+
+
+class TestProblemsharing(TestCase):
+    fixtures = ['test_users', 'teachers']
+
+    def test_shared_with_me_view(self):
+        Problem.objects.all().delete()
+        Friendship.objects.all().delete()
+        ProblemSite.objects.all().delete()
+        author_user = User.objects.get(username='test_user')
+        teacher = User.objects.get(username='test_user2')
+        Problem(author=author_user, visibility=Problem.VISIBILITY_FRIENDS, name='problem1', short_name='prob1',
+                controller_name='oioioi.problems.tests.TestProblemController').save()
+        self.assertEqual(Problem.objects.all().count(), 1)
+        ProblemSite(problem=Problem.objects.get(name='problem1'), url_key='przykladowyurl').save()
+        self.assertEqual(ProblemSite.objects.all().count(), 1)
+        Friendship(creator=User.objects.get(username='test_user'),
+                   receiver=User.objects.get(username='test_user2')).save()
+        self.assertEqual(Friendship.objects.all().count(), 1)
+        self.assertTrue(self.client.login(username='test_user2'))
+        url = reverse('problemset_shared_with_me');
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        friends = Friendship.objects.filter(receiver=teacher).values_list('creator', flat=True)
+        self.assertEqual(friends.count(), 1)
+        problems = Problem.objects.filter(visibility=Problem.VISIBILITY_FRIENDS, author__in=friends,
+                                        problemsite__isnull=False)
+        self.assertEqual(problems.count(), 1)
+        for problem in problems:
+            self.assertContains(response, problem.name)
+        # User with no administered contests doesn't see the button
+        self.assertNotContains(response, "Add to contest")
 
 
 def get_test_filename(name):
