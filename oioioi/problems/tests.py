@@ -1,7 +1,6 @@
 # coding: utf-8
 
 import os.path
-import urllib
 from datetime import datetime  # pylint: disable=E0611
 
 from django import forms
@@ -26,12 +25,11 @@ from oioioi.contests.handlers import update_problem_statistics
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
-from oioioi.problems.forms import OriginInfoValueForm
 from oioioi.problems.management.commands import recalculate_statistics
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemStatistics, make_problem_filename,
-                                    ProblemSite, ProblemStatement, OriginTag,
-                                    OriginInfoValue, make_problem_filename)
+                                    ProblemSite, ProblemStatement,
+                                    OriginInfoValue, OriginInfoCategory)
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
 from oioioi.problems.problem_sources import UploadedPackageSource
@@ -2000,6 +1998,12 @@ class TestProblemSearchHintsTags(TestCase):
 @override_settings(LANGUAGE_CODE='pl')
 class TestTaskArchive(TestCase):
     fixtures = ['test_task_archive']
+
+    def test_unicode_names(self):
+        ic = OriginInfoCategory.objects.get(pk=3)
+        self.assertEqual(ic.full_name, u"Dzień")
+        iv = OriginInfoValue.objects.get(pk=4)
+        self.assertEqual(iv.full_name, u"Olimpiada Informatyczna Finał")
 
     def test_task_archive_main(self):
         response = self.client.get(reverse('task_archive'), follow=True)

@@ -576,8 +576,8 @@ class OriginInfoValue(models.Model):
 
     @property
     def full_name(self):
-        return six.text_type('{} {}'.format(self.parent_tag.full_name,
-                                            self.full_value))
+        return six.text_type(u'{} {}'.format(self.parent_tag.full_name,
+                                             self.full_value))
 
     class Meta(object):
         unique_together = ('parent_tag', 'value')
