@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 37
+INSTALLATION_CONFIG_VERSION = 38
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -590,3 +590,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+ARCHIVE_USERCONTESTS = False

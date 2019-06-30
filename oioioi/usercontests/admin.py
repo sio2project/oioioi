@@ -20,8 +20,11 @@ def use_usercontest_admin_form(request):
         functionality, we only want to use it for 'regular' users - that is
         users who otherwise couldn't create their own contests.
         In essence, if the user can already create contests in some other way
-        this function should return False.
+        (or usercontests are disabled) this function should return False.
     """
+    if settings.ARCHIVE_USERCONTESTS:
+        return False
+
     user = request.user
     return not (user.is_superuser or user.has_perm('teachers.teacher'))
 

@@ -457,3 +457,8 @@ RAVEN_CONFIG = {
 # OIOIOI instance.
 #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
 #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
+
+# If set to True, usercontests will become read-only: it will be impossible to
+# change, delete or submit to existing usercontests, as well as add new ones.
+# This operation is fully reversible.
+#ARCHIVE_USERCONTESTS = True

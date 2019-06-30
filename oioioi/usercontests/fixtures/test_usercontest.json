@@ -25,5 +25,90 @@
       "user": 1001,
       "contest": "uc"
     }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problempackage",
+    "fields": {
+      "problem_name": "XYZ",
+      "problem": 1,
+      "contest": "uc",
+      "status": "OK",
+      "package_file": "no_file",
+      "creation_date": "2011-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "XYZ",
+      "contest": "uc",
+      "short_name": "xyz",
+      "controller_name": "oioioi.sinolpack.controllers.SinolProblemController",
+      "author": 1001,
+      "visibility": "FR",
+      "ascii_name": "XYZ"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 1,
+      "short_name": "zad1",
+      "contest": "uc"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "problems.problemsite",
+    "fields": {
+      "problem": 1,
+      "url_key": "123"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "programs.test",
+    "fields": {
+      "time_limit": 10000,
+      "kind": "EXAMPLE",
+      "group": "0",
+      "name": "0",
+      "input_file": "data:problems/1/sum0_7.in:MSAyCg==",
+      "output_file": "data:problems/1/sum0_7.out:Mwo=",
+      "memory_limit": 133000,
+      "problem_instance": 1,
+      "max_score": 0
+    }
+  },
+
+  {
+    "pk": 1,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000034",
+      "user": 1000,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.submission",
+    "fields": {
+      "status": "OK",
+      "problem_instance": 1,
+      "kind": "NORMAL",
+      "comment": "",
+      "score": "int:0000000000000000034",
+      "user": 1001,
+      "date": "2012-06-03T22:07:07.516Z"
+    }
   }
 ]

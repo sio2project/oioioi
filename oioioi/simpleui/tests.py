@@ -141,6 +141,12 @@ class TestUserDashboard(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(ARCHIVE_USERCONTESTS=True)
+    def test_permissions_invisible(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('simpleui_user_dashboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
 
     def test_user_dashboard(self):
         user = User.objects.get(username='test_user')
