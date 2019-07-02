@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(help_text='Short, searchable name consisting only of lowercase letters, numbers, and hyphens.<br>This will be displayed verbatim in the Problemset.', max_length=20, validators=(django.core.validators.RegexValidator(b'^[0-9a-z-]*$', 'Enter a valid name consisting only of lowercase letters, numbers, and hyphens.'),), verbose_name='name')),
-                ('problems', models.ManyToManyField(blank=True, help_text='Selected problems will be tagged with this tag.<br>', to=b'problems.Problem', verbose_name='problems')),
+                ('problems', models.ManyToManyField(blank=True, help_text='Selected problems will be tagged with this tag.<br>', to='problems.Problem', verbose_name='problems')),
             ],
             options={
                 'verbose_name': 'origin tag',
@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='origininfovalue',
             name='problems',
-            field=models.ManyToManyField(blank=True, help_text='Select problems described by this value. They will also be tagged with the parent tag.<br>', to=b'problems.Problem', verbose_name='problems'),
+            field=models.ManyToManyField(blank=True, help_text='Select problems described by this value. They will also be tagged with the parent tag.<br>', to='problems.Problem', verbose_name='problems'),
         ),
         migrations.AddField(
             model_name='origininfocategory',
