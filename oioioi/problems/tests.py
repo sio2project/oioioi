@@ -340,7 +340,8 @@ class TestProblemUpload(TransactionTestCase):
         ProblemInstance.objects.all().delete()
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
-        data = {'package_file': ContentFile('eloziom', name='foo')}
+        data = {'package_file': ContentFile('eloziom', name='foo'),
+                'visibility': Problem.VISIBILITY_FRIENDS}
         url = reverse('add_or_update_problem',
                       kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
@@ -363,7 +364,8 @@ class TestProblemUpload(TransactionTestCase):
         ProblemInstance.objects.all().delete()
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
-        data = {'package_file': ContentFile('eloziom', name='FAIL')}
+        data = {'package_file': ContentFile('eloziom', name='FAIL'),
+                'visibility': Problem.VISIBILITY_FRIENDS}
         url = reverse('add_or_update_problem',
                       kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
@@ -386,7 +388,8 @@ class TestProblemUpload(TransactionTestCase):
     def test_handlers(self):
         contest = Contest.objects.get()
         self.assertTrue(self.client.login(username='test_admin'))
-        data = {'package_file': ContentFile('eloziom', name='foo')}
+        data = {'package_file': ContentFile('eloziom', name='foo'),
+                'visibility': Problem.VISIBILITY_FRIENDS}
         url = reverse('add_or_update_problem',
                       kwargs={'contest_id': contest.id}) + '?' + \
                         six.moves.urllib.parse.urlencode({'key': 'upload'})
@@ -404,6 +407,7 @@ class TestProblemUpload(TransactionTestCase):
 
         self.assertTrue(self.client.login(username='test_admin'))
         data = {'package_file': ContentFile('eloziom', name='foo'),
+                'visibility': Problem.VISIBILITY_FRIENDS,
                 'cc_rulez': True}
         url = reverse('add_or_update_problem',
                       kwargs={'contest_id': contest.id}) + '?' + \
@@ -425,7 +429,8 @@ class TestProblemUpload(TransactionTestCase):
         self.assertEqual(response.status_code, 200)
 
         response = self.client.post(url,
-                {'package_file': package_file}, follow=True)
+                {'package_file': package_file,
+                 'visibility': Problem.VISIBILITY_FRIENDS}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 1)
         self.assertEqual(ProblemInstance.objects.count(), 2)
@@ -729,7 +734,7 @@ class TestProblemsetPage(TestCase):
 
 
 class TestProblemsharing(TestCase):
-    fixtures = ['test_users', 'teachers']
+    fixtures = ['test_users', 'teachers', 'test_contest']
 
     def test_shared_with_me_view(self):
         Problem.objects.all().delete()
@@ -758,6 +763,52 @@ class TestProblemsharing(TestCase):
             self.assertContains(response, problem.name)
         # User with no administered contests doesn't see the button
         self.assertNotContains(response, "Add to contest")
+
+    def test_visibility_field_present(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('problemset_add_or_update')
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Visibility")
+        self.assertContains(response, "Add problem")
+
+    def test_visibility_default_preference(self):
+        Problem.objects.all().delete()
+        ProblemSite.objects.all().delete()
+        ProblemInstance.objects.all().delete()
+
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username='test_admin'))
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id},
+                                   follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].initial['visibility'], Problem.VISIBILITY_FRIENDS)
+
+        filename = get_test_filename('test_simple_package.zip')
+        user = User.objects.filter(username='test_admin').first()
+        url = response.redirect_chain[-1][0]
+        self.assertIn('problems/add-or-update.html',
+                      [getattr(t, 'name', None) for t in response.templates])
+        response = self.client.post(url,
+                                    {'package_file': open(filename, 'rb'),
+                                     'visibility': Problem.VISIBILITY_PRIVATE,
+                                     'user': user
+                                     }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Problem.objects.count(), 1)
+        self.assertEqual(ProblemInstance.objects.count(), 2)
+
+        problem = Problem.objects.filter(contest=contest, author=user).order_by('-id').first()
+        self.assertEqual(problem.visibility, Problem.VISIBILITY_PRIVATE)
+
+        #now the last uploaded problem (for this contest)
+        #has private visibility, so the form.initial['visibility'] should be set to private too
+        url = reverse('oioioiadmin:problems_problem_add')
+        response = self.client.get(url, {'contest_id': contest.id},
+                                   follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].initial['visibility'], Problem.VISIBILITY_PRIVATE)
 
 
 def get_test_filename(name):

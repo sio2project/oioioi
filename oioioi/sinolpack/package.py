@@ -317,7 +317,7 @@ class SinolPackage(object):
             contest=self.package.contest,
             visibility=(Problem.VISIBILITY_PUBLIC
                         if author is None
-                        else Problem.VISIBILITY_FRIENDS),
+                        else self.env.get('visibility', Problem.VISIBILITY_FRIENDS)),
             author=author)
 
     def _extract_and_process_package(self):

@@ -105,6 +105,7 @@ def main():
     params = {
         'contest_id' : 'test',
         'csrfmiddlewaretoken' : s.cookies['csrftoken'],
+	'visibility' : 'FR'
     }
     with open(PROBLEM_PACKAGE, 'rb') as f:
         s.post(ADD_PROBLEM, data = params, files = {'package_file' : f})

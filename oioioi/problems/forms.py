@@ -12,15 +12,18 @@ from oioioi.contests.models import ProblemStatementConfig
 from oioioi.problems.models import (ProblemSite, Tag, TagThrough,
                                     AlgorithmTag, AlgorithmTagThrough,
                                     DifficultyTag, DifficultyTagThrough,
-                                    OriginInfoCategory, OriginInfoValue)
+                                    OriginInfoCategory, OriginInfoValue,
+                                    Problem)
 
 
 class ProblemUploadForm(forms.Form):
     contest_id = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, contest, existing_problem, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super(ProblemUploadForm, self).__init__(*args, **kwargs)
         self.round_id = None
+        self.visibility = None
 
         if contest and not existing_problem:
             choices = [(r.id, r.name) for r in contest.round_set.all()]
@@ -32,10 +35,26 @@ class ProblemUploadForm(forms.Form):
             elif len(choices) == 1:
                 self.round_id = choices[0][0]
 
+        if 'oioioi.problemsharing' in settings.INSTALLED_APPS:
+            if user and user.has_perm('teachers.teacher'):
+                choices = [(Problem.VISIBILITY_FRIENDS, 'Friends'),
+                       (Problem.VISIBILITY_PRIVATE, 'Private')]
+                default_visibility = Problem.VISIBILITY_FRIENDS
+                if contest:
+                    last_problem = Problem.objects.filter(contest=contest, author=user).order_by('-id').first()
+                    if last_problem and last_problem.visibility == Problem.VISIBILITY_PRIVATE:
+                        default_visibility = Problem.VISIBILITY_PRIVATE
+
+                self.initial.update({'visibility' : default_visibility})
+                self.fields.update({'visibility' : forms.ChoiceField(choices,
+                label=_("Visibility"), required=True, initial=default_visibility)})
+
     def clean(self):
         cleaned_data = super(ProblemUploadForm, self).clean()
         if self.round_id:
             cleaned_data['round_id'] = self.round_id
+        if self.visibility:
+            cleaned_data['visibility'] = self.visibility
         return cleaned_data
 
 

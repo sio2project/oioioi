@@ -359,6 +359,7 @@ class TestPADivisions(TestCase):
                 '<option value="NONE" selected="selected">')
 
         data = {'package_file': ContentFile('eloziom', name='foo'),
+                'visibility': Problem.VISIBILITY_FRIENDS,
                 'division': 'A'}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)

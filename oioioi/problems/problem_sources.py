@@ -166,6 +166,7 @@ class PackageSource(ProblemSource):
             env['is_reupload'] = True
         else:
             env['is_reupload'] = False
+        env['visibility'] = form.cleaned_data.get('visibility', Problem.VISIBILITY_FRIENDS)
 
         return env
 
@@ -229,10 +230,10 @@ class PackageSource(ProblemSource):
 class UploadedPackageSource(PackageSource):
     def make_form(self, request, contest, existing_problem=None):
         if request.method == 'POST':
-            return PackageUploadForm(contest, existing_problem,
-                    request.POST, request.FILES)
+            return PackageUploadForm(contest, existing_problem, request.POST, request.FILES,
+                                     user=request.user)
         else:
-            return PackageUploadForm(contest, existing_problem)
+            return PackageUploadForm(contest, existing_problem, user=request.user)
 
     def get_package_file(self, request, contest, form, existing_problem=None):
         package_file = request.FILES['package_file']
