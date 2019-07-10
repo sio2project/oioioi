@@ -162,7 +162,7 @@ def create_error_report(env, submission, exc_info, **kwargs):
 
     failure_report = FailureReport(submission_report=submission_report)
     failure_report.json_environ = json.dumps(env)
-    failure_report.message = traceback.format_exc(exc_info)
+    failure_report.message = u''.join(traceback.format_exception(*exc_info))
     failure_report.save()
 
     return env
@@ -181,7 +181,7 @@ def mail_admins_on_error(env, submission, exc_info, **kwargs):
     try:
         mail_admins("System Error evaluating submission #%s" %
                     env.get('submission_id', '???'),
-                    traceback.format_exc(exc_info))
+                    u''.join(traceback.format_exception(*exc_info)))
     except (socket.error, SMTPException) as e:
         logger.error("An error occurred while sending email: %s",
                      e.message)
