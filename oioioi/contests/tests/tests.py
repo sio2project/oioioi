@@ -2448,7 +2448,7 @@ class TestAPISubmitBase(APITestCase):
     def _assertSubmitted(self, response, i=None):
         self.assertEqual(response.status_code, 200)
         if i is not None:
-            self.assertEqual(str(i), response.content)
+            self.assertEqual(six.text_type(i), response.content.decode('utf-8'))
         Submission.objects.get(id=response.content)
 
 
@@ -2471,8 +2471,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
         with fake_time(datetime(2012, 7, 10, tzinfo=utc)):
             response = self.contest_submit(contest, problem_instance)
-            self.assertEqual(400, response.status_code)
-            self.assertIn('Permission denied', response.content)
+            self.assertContains(response, 'Permission denied', status_code=400)
 
         with fake_time(datetime(2012, 7, 31, tzinfo=utc)):
             response = self.contest_submit(contest, problem_instance)
@@ -2488,8 +2487,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
 
         with fake_time(datetime(2012, 8, 11, tzinfo=utc)):
             response = self.contest_submit(contest, problem_instance)
-            self.assertEqual(400, response.status_code)
-            self.assertIn('Permission denied', response.content)
+            self.assertContains(response, 'Permission denied', status_code=400)
 
     def test_submissions_limitation(self):
         contest = Contest.objects.get()
@@ -2499,15 +2497,14 @@ class TestAPIContestSubmit(TestAPISubmitBase):
         response = self.contest_submit(contest, problem_instance)
         self._assertSubmitted(response, 2)
         response = self.contest_submit(contest, problem_instance)
-        self.assertEqual(400, response.status_code)
-        self.assertIn('Submission limit for the problem', response.content)
+        self.assertContains(response, 'Submission limit for the problem', status_code=400)
 
     def test_huge_submission(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
         response = self.contest_submit(contest, problem_instance,
                                        file_size=102405)
-        self.assertIn('File size limit exceeded.', response.content)
+        self.assertContains(response, 'File size limit exceeded.', status_code=400)
 
     def test_size_limit_accuracy(self):
         contest = Contest.objects.get()
@@ -2520,7 +2517,7 @@ class TestAPIContestSubmit(TestAPISubmitBase):
                                     ext):
         response = self.contest_submit(contest, problem_instance,
                                        file_name='%s.%s' % (name, ext))
-        self.assertIn('Unknown or not supported file extension.', response.content)
+        self.assertContains(response, 'Unknown or not supported file extension.', status_code=400)
 
     def test_limiting_extensions(self):
         contest = Contest.objects.get()
