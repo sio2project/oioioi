@@ -1,4 +1,5 @@
 from datetime import datetime  # pylint: disable=E0611
+import six
 
 from django.core.urlresolvers import reverse
 from django.test import RequestFactory
@@ -30,8 +31,8 @@ def notification_function_submission_judged(arguments):
 
     message_arguments = {'short_name': pi.short_name,
                          'contest_name': pi.contest.name,
-                         'task_name': unicode(pi),
-                         'score': unicode(arguments.submission.score),
+                         'task_name': six.text_type(pi),
+                         'score': six.text_type(arguments.submission.score),
                          'address': url}
     NotificationHandler.send_notification(arguments.user,
         'submission_judged', message, message_arguments)
