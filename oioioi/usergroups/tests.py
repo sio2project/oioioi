@@ -392,14 +392,14 @@ class TestContestRegistrationWithUsergroups(TestCase):
 
         self.assertNotIn(user, rc.filter_participants(User.objects.all()))
         self.assertNotIn(contest, rc.filter_user_contests(request, Contest.objects.all()))
-        self.assertEquals(self.client.get(url).status_code, 403)
+        self.assertEqual(self.client.get(url).status_code, 403)
 
         group.contests.add(contest)
         rc = contest.controller.registration_controller()
 
         self.assertIn(user, rc.filter_participants(User.objects.all()))
         self.assertIn(contest, rc.filter_user_contests(request, Contest.objects.all()))
-        self.assertEquals(self.client.get(url, follow=True).status_code, 200)
+        self.assertEqual(self.client.get(url, follow=True).status_code, 200)
 
     def test_creating_group_from_contest(self):
         contest = Contest.objects.get(pk='c')
@@ -441,7 +441,7 @@ class TestContestRegistrationWithUsergroups(TestCase):
         self._assertGroupAttached(contest, group)
 
         self.client.login(username='teacher2005')
-        self.assertEquals(self.client.post(url, data).status_code, 403)
+        self.assertEqual(self.client.post(url, data).status_code, 403)
         self._assertGroupAttached(contest, group)
 
         self.client.login(username='test_admin')
@@ -449,7 +449,7 @@ class TestContestRegistrationWithUsergroups(TestCase):
         self.assertContains(response, 'Are you sure you want to remove group')
         self._assertGroupAttached(contest, group)
 
-        self.assertEquals(self.client.post(url, data).status_code, 302)
+        self.assertEqual(self.client.post(url, data).status_code, 302)
         self._assertGroupNotAttached(contest, group)
 
     def test_pupils_site(self):

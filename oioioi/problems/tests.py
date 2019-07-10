@@ -606,7 +606,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content.decode('utf-8').count('<tr'), 2)
+        self.assertContains(response, '<tr', count=2)
         url_attachment = reverse('problem_site_external_attachment',
                 kwargs={'site_key': '123', 'attachment_id': 1})
         self.assertContains(response, url_attachment)
@@ -1721,10 +1721,10 @@ class TestVisibilityMigration(TestCaseMigrations):
         self.private_problem_id = Problem.objects.create(is_public=False).id
 
     def test(self):
-        self.assertEquals(
+        self.assertEqual(
             Problem.objects.get(id=self.public_problem_id).visibility,
             Problem.VISIBILITY_PUBLIC)
-        self.assertEquals(
+        self.assertEqual(
             Problem.objects.get(id=self.private_problem_id).visibility,
             Problem.VISIBILITY_FRIENDS)
 
@@ -1741,11 +1741,11 @@ class TestVisibilityMigrationReverse(TestCaseMigrations):
 
     def test(self):
         Problem = self.apps.get_model('problems', 'Problem')
-        self.assertEquals(
+        self.assertEqual(
             Problem.objects.get(id=self.public_problem_id).is_public, True)
-        self.assertEquals(
+        self.assertEqual(
             Problem.objects.get(id=self.friends_problem_id).is_public, False)
-        self.assertEquals(
+        self.assertEqual(
             Problem.objects.get(id=self.private_problem_id).is_public, False)
 
 

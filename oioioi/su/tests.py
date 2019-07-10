@@ -79,8 +79,8 @@ class TestSwitchingUsers(TestCase):
         self.client.login(username='test_admin')
         response = self.client.post(reverse('su'),
                                     {'user': 'test_user_inactive'})
-        self.assertEquals(200, response.status_code)
-        self.assertEquals('test_admin', response.context['user'].username)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('test_admin', response.context['user'].username)
 
         response = self.client.post(reverse('su'),
             data={'user': 'test_user', 'next': 'http://enemy.example.com/'})

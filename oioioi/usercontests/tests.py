@@ -91,12 +91,12 @@ class TestUserContestCreationForm(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'id_controller_name')
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id_controller_name')
 
     def test_contest_creation(self):
@@ -134,10 +134,10 @@ class TestUserContestCreationForm(TestCase):
             "contestlogo-MAX_NUM_FORMS": 1,
         }
         response = self.client.post(url, data, follow=True)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         contest = Contest.objects.get()
-        self.assertEquals(contest.controller_name,
+        self.assertEqual(contest.controller_name,
                 'oioioi.usercontests.controllers.UserContestController')
 
     @override_settings(ARCHIVE_USERCONTESTS=True)
@@ -145,7 +145,7 @@ class TestUserContestCreationForm(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('oioioiadmin:contests_contest_add')
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
 
 class TestUserContestController(TestCase):
@@ -155,7 +155,7 @@ class TestUserContestController(TestCase):
         self.assertTrue(self.client.login(username='test_user2'))
         url = reverse('submit', kwargs={'contest_id': 'uc'})
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, 'Sorry, there are no problems')
 
     @override_settings(ARCHIVE_USERCONTESTS=True)
@@ -163,13 +163,13 @@ class TestUserContestController(TestCase):
         self.assertTrue(self.client.login(username='test_user2'))
         url = reverse('submit', kwargs={'contest_id': 'uc'})
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Sorry, there are no problems')
 
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('submit', kwargs={'contest_id': 'uc'})
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Sorry, there are no problems')
 
 
@@ -190,11 +190,11 @@ class TestUserContestArchived(TestCase):
 
         url = reverse('show_submission_source', args=(1,))
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
         url = reverse('show_submission_source', args=(2,))
         response = self.client.get(url)
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_can_see_modelsolutions(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -203,7 +203,7 @@ class TestUserContestArchived(TestCase):
         submission_id = ModelProgramSubmission.objects.first().id
         url = reverse('show_submission_source', args=(submission_id,))
         response = self.client.get(url, follow=True)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
     def test_can_see_tests(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -212,8 +212,8 @@ class TestUserContestArchived(TestCase):
         test_id = Test.objects.first().id
         url = reverse('download_input_file', args=(test_id,))
         response = self.client.get(url, follow=True)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
         url = reverse('download_output_file', args=(test_id,))
         response = self.client.get(url, follow=True)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
