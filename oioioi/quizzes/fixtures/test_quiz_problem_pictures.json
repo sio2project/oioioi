@@ -1,0 +1,53 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Test quiz with pictures",
+      "contest": "c",
+      "author": 1001,
+      "short_name": "qui",
+      "controller_name": "oioioi.quizzes.controllers.QuizProblemController"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quiz",
+    "fields": {}
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quizquestion",
+    "fields": {
+      "question": "Question with picture",
+      "quiz": 1
+    }
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 1,
+      "answer": "Answer with picture",
+      "is_correct": true
+    }
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quizquestionpicture",
+    "fields": {
+      "question": 1,
+      "caption": "Quiz Question Picture",
+      "file": null
+    }
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quizanswerpicture",
+    "fields": {
+      "answer": 1,
+      "caption": "Quiz Answer Picture",
+      "file": null
+    }
+  }
+]

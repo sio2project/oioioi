@@ -1,11 +1,18 @@
 from django.core.urlresolvers import reverse
+from django.test import RequestFactory
+from django.utils.timezone import utc
 
-from oioioi.base.tests import TestCase
+from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest, ProblemInstance, Submission, \
     SubmissionReport
 from oioioi.contests.tests import SubmitMixin
 from oioioi.problems.models import Problem
-from oioioi.quizzes.models import QuestionReport, QuizSubmission
+from oioioi.quizzes.models import QuestionReport, QuizSubmission, \
+    QuizQuestionPicture, QuizAnswerPicture, Quiz
+from oioioi.quizzes import views
+
+from datetime import datetime
+import os.path
 
 
 class SubmitQuizMixin(SubmitMixin):
@@ -168,3 +175,38 @@ class TestEditQuizQuestions(TestCase):
         url = reverse('oioioiadmin:quizzes_quiz_change', args=[problem.pk])
         response = self.client.get(url, follow=True)
         self.assertContains(response, 'Add another Quiz Question')
+
+
+class TestPictures(TestCase):
+    fixtures = ['test_users', 'test_basic_contest',
+                'test_quiz_problem_pictures', 'test_problem_instance']
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+    def test_embedding(self):
+        response = self.client.get(reverse('submit', kwargs={'contest_id': Contest.objects.get().id}))
+        def test(picture):
+            self.assertContains(response, picture.get_absolute_url())
+        test(QuizQuestionPicture.objects.get())
+        test(QuizAnswerPicture.objects.get())
+
+    def test_invalid_mode(self):
+        response = views.picture_view(RequestFactory().request(), 'z', 1)
+        self.assertEqual(response.status_code, 404)
+
+    def test_access(self):
+        url = QuizQuestionPicture.objects.get().get_absolute_url()
+        with fake_time(datetime(1999, 1, 1, tzinfo=utc)):
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 403)
+
+    def test_download(self):
+        cat_path = os.path.join(os.path.dirname(__file__), 'files', 'cat.jpg')
+        picture = QuizQuestionPicture.objects.get()
+        picture.file.save('cat', open(cat_path, 'rb'))
+        picture.save()
+        response = self.client.get(picture.get_absolute_url(), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.streaming)
+        self.assertEqual(b''.join(response.streaming_content), open(cat_path, 'rb').read())

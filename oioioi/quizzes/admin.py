@@ -7,7 +7,8 @@ import nested_admin
 # that add links to ModelAdmin with nested inlines on another page,
 # see how QuizInline works.
 
-from oioioi.quizzes.models import QuizQuestion, QuizAnswer, Quiz
+from oioioi.quizzes.models import QuizQuestionPicture, QuizAnswerPicture, \
+    QuizQuestion, QuizAnswer, Quiz
 import oioioi.contests.admin
 from oioioi.contests.current_contest import reverse
 
@@ -23,11 +24,33 @@ class QuizAnswerFormset(nested_admin.formsets.NestedInlineFormSet):
             raise ValidationError(_("A question needs at least one answer."))
 
 
+class QuizPictureInline(nested_admin.NestedStackedInline):
+    extra = 0
+
+    def has_add_permission(self, request):
+        return True
+
+    def has_change_permission(self, request, obj=None):
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return True
+
+
+class QuizQuestionPictureInline(QuizPictureInline):
+    model = QuizQuestionPicture
+
+
+class QuizAnswerPictureInline(QuizPictureInline):
+    model = QuizAnswerPicture
+
+
 class QuizAnswerInline(nested_admin.NestedTabularInline):
     model = QuizAnswer
     formset = QuizAnswerFormset
     sortable_field_name = 'order'
     extra = 0
+    inlines = [QuizAnswerPictureInline]
 
     def has_add_permission(self, request):
         return True
@@ -43,7 +66,7 @@ class QuizQuestionInline(nested_admin.NestedStackedInline):
     model = QuizQuestion
     sortable_field_name = 'order'
     extra = 0
-    inlines = [QuizAnswerInline]
+    inlines = [QuizAnswerInline, QuizQuestionPictureInline]
 
     def has_add_permission(self, request):
         return True

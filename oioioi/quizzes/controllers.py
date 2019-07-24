@@ -43,23 +43,29 @@ class QuizProblemController(ProblemController):
 
         return cleaned_data
 
+    def render_question(self, request, question):
+        return render_to_string('quizzes/question.html', request=request, context={'question': question})
+
+    def render_answer(self, request, answer):
+        return render_to_string('quizzes/answer.html', request=request, context={'answer': answer})
+
     def adjust_submission_form(self, request, form, problem_instance):
         questions = problem_instance.problem.quiz.quizquestion_set.all()
 
         for question in questions:
-            answers = question.quizanswer_set.values_list('id', 'answer')
+            answers = [(a.id, self.render_answer(request, a)) for a in question.quizanswer_set.all()]
             field_name = self._form_field_id_for_question(problem_instance,
                                                           question)
             if question.is_multiple_choice:
                 form.fields[field_name] = forms.MultipleChoiceField(
-                    label=question.question,
+                    label=self.render_question(request, question),
                     choices=answers,
                     widget=forms.CheckboxSelectMultiple,
                     required=False
                 )
             else:
                 form.fields[field_name] = forms.ChoiceField(
-                    label=question.question,
+                    label=self.render_question(request, question),
                     choices=answers,
                     widget=forms.RadioSelect,
                     required=False

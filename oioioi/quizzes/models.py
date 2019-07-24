@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse
 
 from oioioi.base.fields import EnumField
 from oioioi.contests.fields import ScoreField
@@ -42,6 +43,53 @@ class QuizAnswer(models.Model):
         ordering = ['order']
         verbose_name = _("Quiz answer")
         verbose_name_plural = _("Quiz answers")
+
+
+class QuizPicture(models.Model):
+    caption = models.TextField(verbose_name=_("Caption"), blank=True)
+    file = models.FileField(verbose_name=_("Image file"))
+    order = models.IntegerField(default=0, verbose_name=_("Order"))
+
+    def get_absolute_url(self):
+        raise NotImplementedError
+
+    @property
+    def quiz(self):
+       raise NotImplementedError
+
+    class Meta(object):
+        abstract = True
+        ordering = ['order']
+
+
+class QuizQuestionPicture(QuizPicture):
+    question = models.ForeignKey(QuizQuestion, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('picture_view', args=['q', self.id])
+
+    @property
+    def quiz(self):
+        return self.question.quiz
+
+    class Meta(QuizPicture.Meta):
+        verbose_name = _("Quiz question picture")
+        verbose_name_plural = _("Quiz question pictures")
+
+
+class QuizAnswerPicture(QuizPicture):
+    answer = models.ForeignKey(QuizAnswer, on_delete=models.CASCADE)
+
+    def get_absolute_url(self):
+        return reverse('picture_view', args=['a', self.id])
+
+    @property
+    def quiz(self):
+        return self.answer.question.quiz
+
+    class Meta(QuizPicture.Meta):
+        verbose_name = _("Quiz answer picture")
+        verbose_name_plural = _("Quiz answer pictures")
 
 
 class QuizSubmission(Submission):
