@@ -742,14 +742,14 @@ def get_tag_hints(query):
 
 
 @uniquefy('name')
-def get_problem_hints(query, view_type):
+def get_problem_hints(query, view_type, user):
     problems = Problem.objects.filter(
             Q(ascii_name__icontains=query) | Q(short_name__icontains=query),
             problemsite__isnull=False)
     if view_type == 'public':
         problems = problems.filter(visibility=Problem.VISIBILITY_PUBLIC)
     elif view_type == 'my':
-        problems = problems.filter(author=request.user)
+        problems = problems.filter(author=user)
     elif view_type != 'all':
         raise Http404
 
@@ -781,7 +781,7 @@ def get_search_hints_view(request, view_type):
         raise PermissionDenied
     query = unidecode(request.GET.get('q', ''))
 
-    return get_problem_hints(query, view_type) \
+    return get_problem_hints(query, view_type, request.user) \
         + get_tag_hints(query) \
         + get_origintag_hints(query) \
         + get_origininfovalue_hints(query)
