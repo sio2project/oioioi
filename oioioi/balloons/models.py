@@ -1,6 +1,7 @@
 import six
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils import generate_key
@@ -11,6 +12,7 @@ from oioioi.contests.models import Contest, ProblemInstance
 check_django_app_dependencies(__name__, ['oioioi.participants', 'oioioi.acm'])
 
 
+@python_2_unicode_compatible
 class ProblemBalloonsConfig(models.Model):
     problem_instance = models.OneToOneField(ProblemInstance,
                                             verbose_name=_("problem"),
@@ -23,10 +25,11 @@ class ProblemBalloonsConfig(models.Model):
         verbose_name = _("balloons colors")
         verbose_name_plural = _("balloons colors")
 
-    def __unicode__(self):
-        return six.text_type(self.problem_instance) + ' (' + self.color + ')'
+    def __str__(self):
+        return six.text_type(self.problem_instance) + u' (' + six.text_type(self.color) + u')'
 
 
+@python_2_unicode_compatible
 class BalloonsDisplay(models.Model):
     """Represents mapping for balloons display."""
     ip_addr = models.GenericIPAddressField(unique=True, unpack_ipv4=True,
@@ -40,10 +43,11 @@ class BalloonsDisplay(models.Model):
         verbose_name = _("balloons display")
         verbose_name_plural = _("balloons displays")
 
-    def __unicode__(self):
-        return self.ip_addr
+    def __str__(self):
+        return six.text_type(self.ip_addr)
 
 
+@python_2_unicode_compatible
 class BalloonDelivery(models.Model):
     user = models.ForeignKey(User,
                              verbose_name=_("user"),
@@ -63,11 +67,11 @@ class BalloonDelivery(models.Model):
         unique_together = ('user', 'problem_instance')
         ordering = ['id']
 
-    def __unicode__(self):
-        return '%(user)s for %(problem)s (%(delivered)s)' % {
-            'user': six.text_type(self.user),
-            'problem': six.text_type(self.problem_instance),
-            'delivered': 'delivered' if self.delivered else 'not delivered'
+    def __str__(self):
+        return u'%(user)s for %(problem)s (%(delivered)s)' % {
+            u'user': self.user,
+            u'problem': self.problem_instance,
+            u'delivered': u'delivered' if self.delivered else u'not delivered'
         }
 
 

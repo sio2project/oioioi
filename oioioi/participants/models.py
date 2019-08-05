@@ -1,7 +1,9 @@
 import six
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -20,6 +22,7 @@ participant_statuses.register('BANNED', _("Banned"))
 participant_statuses.register('DELETED', _("Account deleted"))
 
 
+@python_2_unicode_compatible
 class Participant(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -42,7 +45,7 @@ class Participant(models.Model):
     class Meta(object):
         unique_together = ('contest', 'user')
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.user)
 
     def erase_data(self):
@@ -62,6 +65,7 @@ class Participant(models.Model):
         self.save()
 
 
+@python_2_unicode_compatible
 class Region(models.Model):
     short_name = models.CharField(max_length=10,
         validators=[validate_db_string_id])
@@ -75,8 +79,8 @@ class Region(models.Model):
     class Meta(object):
         unique_together = ('contest', 'short_name')
 
-    def __unicode__(self):
-        return '%s' % (self.short_name,)
+    def __str__(self):
+        return u'%s' % (self.short_name,)
 
 
 class RegistrationModel(models.Model):
@@ -101,6 +105,7 @@ class OpenRegistration(RegistrationModel):
         self.save()
 
 
+@python_2_unicode_compatible
 class OnsiteRegistration(RegistrationModel):
     number = models.IntegerField(verbose_name=_("number"))
     region = models.ForeignKey(Region, null=True, on_delete=models.SET_NULL,
@@ -110,10 +115,12 @@ class OnsiteRegistration(RegistrationModel):
     class Meta(object):
         unique_together = ('region', 'local_number')
 
-    def __unicode__(self):
-        return _("%(number)s/%(region)s/%(local_number)s") % \
-                dict(number=self.number, region=self.region,
-                    local_number=self.local_number)
+    def __str__(self):
+        return _("%(number)s/%(region)s/%(local_number)s") % {
+            'number': self.number,
+            'region': self.region,
+            'local_number': self.local_number
+        }
 
     def erase_data(self):
         self.number = -1
@@ -128,6 +135,7 @@ class TestRegistration(RegistrationModel):
     name = models.CharField(max_length=255)
 
 
+@python_2_unicode_compatible
 class TermsAcceptedPhrase(models.Model):
     """This model stores text asking user to accept contest's terms.
 
@@ -149,6 +157,6 @@ class TermsAcceptedPhrase(models.Model):
     # This is used as a name of the given object displayed in TabularInline.
     # We are using it to display only one object of type TermsAcceptedPhrase so
     # it is not necessary to name it.
-    def __unicode__(self):
-        return ""
+    def __str__(self):
+        return u""
 

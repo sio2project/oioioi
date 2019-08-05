@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
@@ -25,6 +26,7 @@ class IpAuthSyncConfigManager(models.Manager):
 @date_registry.register('end_date',
                         name_generator=(lambda obj:
                                         _("Disable IP authentication sync")))
+@python_2_unicode_compatible
 class IpAuthSyncConfig(models.Model):
     contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
@@ -45,10 +47,10 @@ class IpAuthSyncConfig(models.Model):
         verbose_name = _("IP authentication sync config")
         verbose_name_plural = _("IP authentication sync configs")
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s (%s): %s - %s' % (self.contest,
-                                      'enabled' if self.enabled
-                                              else 'disabled',
+                                      u'enabled' if self.enabled
+                                              else u'disabled',
                                       self.start_date, self.end_date)
 
     def clean(self):

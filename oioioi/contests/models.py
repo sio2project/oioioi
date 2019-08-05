@@ -1,7 +1,7 @@
 import itertools
 import os.path
-
 import six
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
@@ -11,6 +11,7 @@ from django.db.models import Max
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
 from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _
@@ -38,6 +39,7 @@ def make_contest_filename(instance, filename):
             get_valid_filename(os.path.basename(filename)))
 
 
+@python_2_unicode_compatible
 class Contest(models.Model):
     id = models.CharField(max_length=32, primary_key=True,
             verbose_name=_("ID"), validators=[validate_db_string_id])
@@ -94,8 +96,8 @@ class Contest(models.Model):
             ('personal_data', _("Has access to the private data of users"))
         )
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return six.text_type(self.name)
 
 
 @receiver(pre_save, sender=Contest)
@@ -117,6 +119,7 @@ def _call_controller_adjust_contest(sender, instance, raw, **kwargs):
         instance.controller.adjust_contest()
 
 
+@python_2_unicode_compatible
 class ContestAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
        the contest or to the round.
@@ -143,8 +146,8 @@ class ContestAttachment(models.Model):
     def download_name(self):
         return strip_num_or_hash(self.filename)
 
-    def __unicode__(self):
-        return self.filename
+    def __str__(self):
+        return six.text_type(self.filename)
 
     class Meta(object):
         verbose_name = _("attachment")
@@ -182,6 +185,7 @@ def _round_end_date_name_generator(obj):
                                         _("Public results of %s") % obj.name),
                         round_chooser=(lambda obj: obj),
                         order=31)
+@python_2_unicode_compatible
 class Round(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"),
                                 on_delete=models.CASCADE)
@@ -206,8 +210,8 @@ class Round(models.Model):
         unique_together = ('contest', 'name')
         ordering = ('contest', 'start_date')
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return six.text_type(self.name)
 
     def clean(self):
         if self.start_date and self.end_date and \
@@ -248,6 +252,7 @@ class ProblemStatementConfig(models.Model):
         verbose_name_plural = _("problem statement configs")
 
 
+@python_2_unicode_compatible
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"),
                                 null=True, blank=True, on_delete=models.CASCADE)
@@ -280,10 +285,10 @@ class ProblemInstance(models.Model):
         else:
             return self.short_name
 
-    def __unicode__(self):
-        return '%(name)s (%(short_name)s)' % {
-            'short_name': self.get_short_name_display(),
-            'name': self.problem.name,
+    def __str__(self):
+        return u'%(name)s (%(short_name)s)' % {
+            u'short_name': self.get_short_name_display(),
+            u'name': self.problem.name,
         }
 
     @property
@@ -330,6 +335,7 @@ submission_statuses.register('OK', _("OK"))
 submission_statuses.register('ERR', _("Error"))
 
 
+@python_2_unicode_compatible
 class Submission(models.Model):
     problem_instance = models.ForeignKey(ProblemInstance,
             verbose_name=_("problem"), on_delete=models.CASCADE)
@@ -366,8 +372,8 @@ class Submission(models.Model):
             return None
         return self.problem_instance.controller.render_submission_score(self)
 
-    def __unicode__(self):
-        return "Submission(%d, %s, %s, %s, %s, %s)" % (
+    def __str__(self):
+        return u"Submission(%d, %s, %s, %s, %s, %s)" % (
                 self.id,
                 self.problem_instance.problem.name,
                 self.user.username if self.user else None,
@@ -474,6 +480,7 @@ class UserResultForContest(models.Model):
         unique_together = ('user', 'contest')
 
 
+@python_2_unicode_compatible
 class RoundTimeExtension(models.Model):
     """Represents the time the round has been extended by for a certain user.
 
@@ -488,8 +495,8 @@ class RoundTimeExtension(models.Model):
         verbose_name = _("round time extension")
         verbose_name_plural = _("round time extensions")
 
-    def __unicode__(self):
-        return six.text_type(self.round) + ': ' + six.text_type(self.user)
+    def __str__(self):
+        return six.text_type(self.round) + u': ' + six.text_type(self.user)
 
 contest_permissions = EnumRegistry()
 contest_permissions.register('contests.contest_admin', _("Admin"))
@@ -498,6 +505,7 @@ contest_permissions.register('contests.contest_observer', _("Observer"))
 contest_permissions.register('contests.personal_data', _("Personal Data"))
 
 
+@python_2_unicode_compatible
 class ContestPermission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
@@ -509,10 +517,11 @@ class ContestPermission(models.Model):
         verbose_name = _("contest permission")
         verbose_name_plural = _("contest permissions")
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s/%s: %s' % (self.contest, self.permission, self.user)
 
 
+@python_2_unicode_compatible
 class ContestView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
@@ -525,7 +534,7 @@ class ContestView(models.Model):
         get_latest_by = 'timestamp'
         ordering = ('-timestamp', )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s,%s' % (self.user, self.contest)
 
 

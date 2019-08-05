@@ -1,10 +1,10 @@
 import logging
+import six
 import os.path
 from contextlib import contextmanager
 from traceback import format_exception
 from unidecode import unidecode
 
-import six
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core import validators
@@ -14,6 +14,7 @@ from django.db import models, transaction
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.module_loading import import_string
 from django.utils.text import Truncator, get_valid_filename
 from django.utils.translation import get_language, pgettext_lazy
@@ -41,6 +42,7 @@ def make_problem_filename(instance, filename):
             get_valid_filename(os.path.basename(filename)))
 
 
+@python_2_unicode_compatible
 class Problem(models.Model):
     """Represents a problem in the problems database.
 
@@ -132,9 +134,11 @@ class Problem(models.Model):
             ('problem_admin', _("Can administer the problem")),
         )
 
-    def __unicode__(self):
-        return '%(name)s (%(short_name)s)' % \
-                dict(short_name=self.short_name, name=self.name)
+    def __str__(self):
+        return u'%(name)s (%(short_name)s)' % {
+            u'short_name': self.short_name,
+            u'name': self.name
+        }
 
     def save(self, *args, **kwargs):
         self.ascii_name = unidecode(self.name)
@@ -157,6 +161,7 @@ def _check_problem_instance_integrity(sender, instance, **kwargs):
                            "a single problem.")
 
 
+@python_2_unicode_compatible
 class ProblemStatement(models.Model):
     """Represents a file containing problem statement.
 
@@ -187,10 +192,11 @@ class ProblemStatement(models.Model):
         verbose_name = _("problem statement")
         verbose_name_plural = _("problem statements")
 
-    def __unicode__(self):
-        return '%s / %s' % (self.problem.name, self.filename)
+    def __str__(self):
+        return u'%s / %s' % (self.problem.name, self.filename)
 
 
+@python_2_unicode_compatible
 class ProblemAttachment(models.Model):
     """Represents an additional file visible to the contestant, linked to
        a problem.
@@ -217,8 +223,8 @@ class ProblemAttachment(models.Model):
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
 
-    def __unicode__(self):
-        return '%s / %s' % (self.problem.name, self.filename)
+    def __str__(self):
+        return u'%s / %s' % (self.problem.name, self.filename)
 
 
 def _make_package_filename(instance, filename):
@@ -331,6 +337,7 @@ class ProblemPackage(models.Model):
         return manager()
 
 
+@python_2_unicode_compatible
 class ProblemSite(models.Model):
     """Represents a global problem site.
 
@@ -340,7 +347,7 @@ class ProblemSite(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     url_key = models.CharField(max_length=40, unique=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.problem)
 
     class Meta(object):
@@ -427,6 +434,7 @@ def _localized(*localized_fields):
 
 
 @_localized('short_name', 'full_name', 'description')
+@python_2_unicode_compatible
 class OriginTag(models.Model):
     """ OriginTags are used along with OriginInfoCategories and OriginInfoValue
         to give information about the problem's origin. OriginTags themselves
@@ -451,10 +459,11 @@ class OriginTag(models.Model):
         verbose_name = _("origin tag")
         verbose_name_plural = _("origin tags")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.name)
 
 
+@python_2_unicode_compatible
 class OriginTagLocalization(models.Model):
     origin_tag = models.ForeignKey(OriginTag, related_name='localizations',
                                    on_delete=models.CASCADE)
@@ -474,11 +483,12 @@ class OriginTagLocalization(models.Model):
         verbose_name = _("origin tag localization")
         verbose_name_plural = _("origin tag localizations")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type("{} - {}".format(self.origin_tag, self.language))
 
 
 @_localized('full_name')
+@python_2_unicode_compatible
 class OriginInfoCategory(models.Model):
     """ This class represents a category of information, which further specifies
         what its parent_tag is already telling about the origin. It doesn't do
@@ -508,10 +518,11 @@ class OriginInfoCategory(models.Model):
         verbose_name_plural = _("origin tags - information categories")
         unique_together = ('name', 'parent_tag')
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type("{}_{}".format(self.parent_tag, self.name))
 
 
+@python_2_unicode_compatible
 class OriginInfoCategoryLocalization(models.Model):
     origin_info_category = models.ForeignKey(OriginInfoCategory,
                                              related_name='localizations',
@@ -528,12 +539,13 @@ class OriginInfoCategoryLocalization(models.Model):
         verbose_name = _("origin info category localization")
         verbose_name_plural = _("origin info category localizations")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type("{} - {}".format(self.origin_info_category,
                                               self.language))
 
 
 @_localized('full_value')
+@python_2_unicode_compatible
 class OriginInfoValue(models.Model):
     """ This class represents additional information, further specifying
         what its parent_tag is already telling about the origin. Each
@@ -584,10 +596,11 @@ class OriginInfoValue(models.Model):
         verbose_name = _("origin tag - information value")
         verbose_name_plural = _("origin tags - information values")
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return six.text_type(self.name)
 
 
+@python_2_unicode_compatible
 class OriginInfoValueLocalization(models.Model):
     origin_info_value = models.ForeignKey(OriginInfoValue,
                                     related_name='localizations',
@@ -604,11 +617,12 @@ class OriginInfoValueLocalization(models.Model):
         verbose_name = _("origin info value localization")
         verbose_name_plural = _("origin info value localizations")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type("{} - {}".format(self.origin_info_value,
                                               self.language))
 
 
+@python_2_unicode_compatible
 class DifficultyTag(models.Model):
     name = models.CharField(max_length=20, unique=True,
             verbose_name=_("name"), null=False, blank=False,
@@ -623,19 +637,21 @@ class DifficultyTag(models.Model):
         verbose_name = _("difficulty tag")
         verbose_name_plural = _("difficulty tags")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.name)
 
 
+@python_2_unicode_compatible
 class DifficultyTagThrough(models.Model):
     problem = models.OneToOneField(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(DifficultyTag, on_delete=models.CASCADE)
 
     # This string will be visible in admin form
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.tag.name)
 
 
+@python_2_unicode_compatible
 class AlgorithmTag(models.Model):
     name = models.CharField(max_length=20, unique=True,
             verbose_name=_("name"), null=False, blank=False,
@@ -650,22 +666,24 @@ class AlgorithmTag(models.Model):
         verbose_name = _("algorithm tag")
         verbose_name_plural = _("algorithm tags")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.name)
 
 
+@python_2_unicode_compatible
 class AlgorithmTagThrough(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
 
     # This string will be visible in admin form
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.tag.name)
 
     class Meta(object):
         unique_together = ('problem', 'tag')
 
 
+@python_2_unicode_compatible
 class Tag(models.Model):
     """Class used for old tags - deprecated."""
     name = models.CharField(max_length=20, unique=True,
@@ -681,42 +699,45 @@ class Tag(models.Model):
         verbose_name = _("tag")
         verbose_name_plural = _("tags")
 
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.name)
 
 
+@python_2_unicode_compatible
 class TagThrough(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
 
     # This string will be visible in admin form
-    def __unicode__(self):
+    def __str__(self):
         return six.text_type(self.tag.name)
 
     class Meta(object):
         unique_together = ('problem', 'tag')
 
 
+@python_2_unicode_compatible
 class AlgorithmTagProposal(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     tag = models.ForeignKey(AlgorithmTag, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
-    def __unicode__(self):
-        return six.text_type(self.problem.name) + ' -- ' + six.text_type(self.tag.name)
+    def __str__(self):
+        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.tag.name)
 
     class Meta(object):
         verbose_name = _('algorithm tag proposal')
         verbose_name_plural = _('algorithm tag proposals')
 
 
+@python_2_unicode_compatible
 class DifficultyProposal(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     difficulty = models.CharField(max_length=10)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
-    def __unicode__(self):
-        return six.text_type(self.problem.name) + ' -- ' + six.text_type(self.difficulty)
+    def __str__(self):
+        return six.text_type(self.problem.name) + u' -- ' + six.text_type(self.difficulty)
 
     class Meta(object):
         verbose_name = _('difficulty proposal')

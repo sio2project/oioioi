@@ -1,7 +1,10 @@
 from __future__ import unicode_literals
 
+import six
+
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_delete, pre_save
 from django.db.models import ProtectedError
@@ -13,6 +16,7 @@ from oioioi.contests.models import Contest
 check_django_app_dependencies(__name__, ['oioioi.teachers'])
 
 
+@python_2_unicode_compatible
 class UserGroup(models.Model):
     """ Group of user which can be moved around contests by teachers """
     name = models.CharField(max_length=255, verbose_name=_('name'))
@@ -25,8 +29,8 @@ class UserGroup(models.Model):
     sharing_config = models.ForeignKey('ActionConfig', on_delete=models.PROTECT,
                                        related_name='as_sharing_configs')
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return six.text_type(self.name)
 
 
 class ActionConfig(models.Model):

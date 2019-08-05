@@ -1,8 +1,11 @@
+import six
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.db import models
 from django.dispatch import Signal
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _, \
     get_language_from_request, get_language
 from mptt.models import MPTTModel, TreeForeignKey
@@ -18,6 +21,7 @@ if 'oioioi.portals.processors.portal_processor' \
                                "to TEMPLATES[0]['OPTIONS']['context_processors'] in settings.py")
 
 
+@python_2_unicode_compatible
 class Node(MPTTModel):
     short_name = models.CharField(max_length=32, verbose_name=_("short name"),
                                   help_text=_("Shown in the URL."),
@@ -50,8 +54,8 @@ class Node(MPTTModel):
             if old_path != new_path:
                 self._path_changed.send(self, path=new_path)
 
-    def __unicode__(self):
-        return self.get_lang_version().full_name
+    def __str__(self):
+        return six.text_type(self.get_lang_version().full_name)
 
     # Tries to get a default language version for a current context (from
     # a given request, then a current thread and then from the settings). If

@@ -3,6 +3,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.date_registration import date_registry
@@ -41,6 +42,7 @@ class ExclusivenessConfigManager(models.Manager):
 @date_registry.register('end_date',
                         name_generator=(lambda obj:
                                         _("Disable exclusiveness")))
+@python_2_unicode_compatible
 class ExclusivenessConfig(models.Model):
     """Represents an exclusiveness config for a contest.
 
@@ -63,10 +65,10 @@ class ExclusivenessConfig(models.Model):
         verbose_name = _("exclusiveness config")
         verbose_name_plural = _("exclusiveness configs")
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s (%s): %s - %s' % (self.contest,
-                                      'enabled' if self.enabled
-                                              else 'disabled',
+                                      u'enabled' if self.enabled
+                                              else u'disabled',
                                       self.start_date, self.end_date)
 
     def clean(self):

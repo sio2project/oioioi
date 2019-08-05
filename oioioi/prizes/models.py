@@ -13,6 +13,7 @@ from django.db import models, transaction
 from django.forms.models import model_to_dict
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import get_valid_filename
 from django.utils.translation import ugettext_lazy as _
 
@@ -83,6 +84,7 @@ def _make_report_filename(instance, filename):
             get_valid_filename(os.path.basename(filename)))
 
 
+@python_2_unicode_compatible
 class PrizeGiving(models.Model):
     """Represents an event of distributing prizes to users.
 
@@ -262,12 +264,13 @@ class PrizeGiving(models.Model):
             raise ValidationError(
                     _("Invalid value for position in distribution order."))
 
-    def __unicode__(self):
+    def __str__(self):
         suffix = timezone.localtime(self.date).strftime(' (%m-%d %H:%M)') \
                 if self.date else ''
-        return self.name + suffix
+        return six.text_type(self.name) + six.text_type(suffix)
 
 
+@python_2_unicode_compatible
 class Prize(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
     prize_giving = models.ForeignKey(PrizeGiving,
@@ -284,10 +287,11 @@ class Prize(models.Model):
         verbose_name_plural = _("prizes")
         ordering = ['prize_giving', 'order', 'id']
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return six.text_type(self.name)
 
 
+@python_2_unicode_compatible
 class PrizeForUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     prize = models.ForeignKey(Prize, on_delete=models.CASCADE)
@@ -295,5 +299,5 @@ class PrizeForUser(models.Model):
     class Meta(object):
         ordering = ['prize', 'user']
 
-    def __unicode__(self):
-        return six.text_type(self.user) + ' -> ' + six.text_type(self.prize)
+    def __str__(self):
+        return six.text_type(self.user) + u' -> ' + six.text_type(self.prize)

@@ -1,4 +1,5 @@
 import datetime
+import six
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -6,6 +7,7 @@ from django.db import models
 from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.date_registration import date_registry
@@ -16,6 +18,7 @@ from oioioi.contests.models import Contest
                         name_generator=(lambda obj: _("Lock the forum")))
 @date_registry.register('unlock_date',
                         name_generator=(lambda obj: _("Unlock the forum")))
+@python_2_unicode_compatible
 class Forum(models.Model):
     """Forum is connected with contest"""
 
@@ -33,8 +36,10 @@ class Forum(models.Model):
         verbose_name = _("forum")
         verbose_name_plural = _("forums")
 
-    def __unicode__(self):
-        return '%(name)s' % dict(name=self.contest.name)
+    def __str__(self):
+        return u'%(name)s' % {
+            u'name': self.contest.name
+        }
 
     def is_autolocked(self, now=None):
         """Returns true if forum is locked"""
@@ -53,6 +58,7 @@ class Forum(models.Model):
         return bool(self.is_autolocked(now) and not self.is_autounlocked(now))
 
 
+@python_2_unicode_compatible
 class Category(models.Model):
     """Category model """
 
@@ -64,8 +70,10 @@ class Category(models.Model):
         verbose_name = _("category")
         verbose_name_plural = _("categories")
 
-    def __unicode__(self):
-        return '%(name)s' % dict(name=self.name)
+    def __str__(self):
+        return u'%(name)s' % {
+            u'name': self.name
+        }
 
     def count_threads(self):
         return self.thread_set.count()
@@ -89,6 +97,7 @@ class Category(models.Model):
         return reverse('oioioiadmin:forum_category_change', args=(self.id, ))
 
 
+@python_2_unicode_compatible
 class Thread(models.Model):
     """Thread model - topic in a category"""
 
@@ -104,8 +113,10 @@ class Thread(models.Model):
         verbose_name = _("thread")
         verbose_name_plural = _("threads")
 
-    def __unicode__(self):
-        return '%(name)s' % dict(name=self.name)
+    def __str__(self):
+        return u'%(name)s' % {
+            u'name': self.name
+        }
 
     def count_posts(self):
         return self.post_set.count()
@@ -124,6 +135,7 @@ class Thread(models.Model):
         return reverse('oioioiadmin:forum_thread_change', args=(self.id, ))
 
 
+@python_2_unicode_compatible
 class Post(models.Model):
     """Post - the basic part of the forum """
 
@@ -153,9 +165,11 @@ class Post(models.Model):
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 
-    def __unicode__(self):
-        return '%(content)s in %(thread)s' % dict(content=self.content,
-                                                  thread=self.thread)
+    def __str__(self):
+        return u'%(content)s in %(thread)s' % {
+            u'content': self.content,
+            u'thread': self.thread
+        }
 
     def get_admin_url(self):
         return reverse('oioioiadmin:forum_post_change', args=(self.id, ))
@@ -182,6 +196,7 @@ class Post(models.Model):
         return Ban.is_banned(self.thread.category.forum, self.reported_by)
 
 
+@python_2_unicode_compatible
 class Ban(models.Model):
     """ Ban model - represents a ban on a forum. Banned person should not be
     allowed any 'write' interaction with forum. This includes reporting
@@ -201,8 +216,8 @@ class Ban(models.Model):
     def is_banned(forum, user):
         return Ban.objects.filter(forum=forum, user=user).exists()
 
-    def __unicode__(self):
-        return unicode(self.user)
+    def __str__(self):
+        return six.text_type(self.user)
 
 
 @receiver(post_save, sender=Post)

@@ -1,3 +1,4 @@
+import six
 import os.path
 
 from django.conf import settings
@@ -5,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_save, pre_save, post_init
 from django.dispatch import receiver
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.fields import EnumField, EnumRegistry
@@ -55,6 +57,7 @@ def validate_memory_limit(value):
                               % settings.MAX_MEMORY_LIMIT_FOR_TEST))
 
 
+@python_2_unicode_compatible
 class Test(models.Model):
     __test__ = False
     problem_instance = models.ForeignKey(ProblemInstance,
@@ -80,8 +83,8 @@ class Test(models.Model):
     def problem(self):
         return self.problem_instance.problem
 
-    def __unicode__(self):
-        return self.name
+    def __str__(self):
+        return six.text_type(self.name)
 
     class Meta(object):
         ordering = ['order']

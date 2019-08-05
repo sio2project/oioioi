@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.text import Truncator
 from django.utils.translation import ugettext_lazy as _
 
@@ -24,6 +25,7 @@ message_kinds.register('PUBLIC', _("Public message"))
 logger = logging.getLogger('oioioi')
 
 
+@python_2_unicode_compatible
 class Message(models.Model):
     contest = models.ForeignKey(Contest, null=True, blank=True,
                                 on_delete=models.CASCADE)
@@ -74,7 +76,7 @@ class Message(models.Model):
     def _has_category(self):
         return self.round is not None or self.problem_instance is not None
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s - %s' % (message_kinds.get(self.kind, self.kind),
                              self.topic)
 
@@ -96,6 +98,7 @@ class Message(models.Model):
         return self.pub_date if self.pub_date is not None else self.date
 
 
+@python_2_unicode_compatible
 class ReplyTemplate(models.Model):
     contest = models.ForeignKey(Contest, null=True, blank=True,
                                 on_delete=models.CASCADE)
@@ -105,7 +108,7 @@ class ReplyTemplate(models.Model):
     # Incremented every time admin includes this template in a reply.
     usage_count = models.IntegerField(verbose_name=_("usage count"), default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s: %s' % (self.visible_name, self.content)
 
     @property

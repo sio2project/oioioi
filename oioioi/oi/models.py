@@ -6,6 +6,7 @@ import six.moves.urllib.parse
 from django.core.urlresolvers import reverse
 from django.core.validators import RegexValidator
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.deps import check_django_app_dependencies
@@ -56,6 +57,7 @@ CLASS_TYPES = [
 ]
 
 
+@python_2_unicode_compatible
 class School(models.Model):
     name = models.CharField(max_length=255, validators=[validate_whitespaces],
         verbose_name=_("name"))
@@ -80,7 +82,7 @@ class School(models.Model):
         index_together = (('city', 'is_active'), ('province', 'is_active'))
         ordering = ['province', 'city', 'address', 'name']
 
-    def __unicode__(self):
+    def __str__(self):
         return _("%(name)s, %(city)s") % {'name': self.name, 'city': self.city}
 
     def get_participants_url(self):
@@ -94,6 +96,7 @@ class School(models.Model):
         return ratio > 0.75
 
 
+@python_2_unicode_compatible
 class OIRegistration(RegistrationModel):
     address = models.CharField(max_length=255, verbose_name=_("address"))
     postal_code = models.CharField(max_length=6, verbose_name=_("postal code"),
@@ -116,7 +119,7 @@ class OIRegistration(RegistrationModel):
     # the custom registration form (in contests like OI and PA)
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return _("%(class_type)s of %(school)s") % \
                 {'class_type': self.get_class_type_display(),
                  'school': self.school}
