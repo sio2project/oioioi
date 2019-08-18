@@ -6,8 +6,8 @@ from oioioi.quizzes.models import QuestionReport, QuizAnswer, QuizSubmission
 def score_quiz(env, **kwargs):
     is_rejudge = env['is_rejudge']
     submission = QuizSubmission.objects.get(id=env['submission_id'])
-    questions = submission.problem_instance.problem.quiz. \
-        quizquestion_set.all()
+    quiz = submission.problem_instance.problem.quiz
+    questions = quiz.controller.select_questions(submission.user, submission.problem_instance, submission)
     score = 0
     max_score = 0
     if is_rejudge:

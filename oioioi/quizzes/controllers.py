@@ -28,8 +28,7 @@ class QuizProblemController(ProblemController):
 
     def validate_submission_form(self, request, problem_instance, form,
                                  cleaned_data):
-        questions = problem_instance.problem.quiz.quizquestion_set.all()
-        for question in questions:
+        for question in self.select_questions(request.user, problem_instance, None):
             field_name = self._form_field_id_for_question(problem_instance,
                                                           question)
             if field_name in form.errors.as_data():
@@ -49,34 +48,43 @@ class QuizProblemController(ProblemController):
     def render_answer(self, request, answer):
         return render_to_string('quizzes/answer.html', request=request, context={'answer': answer})
 
+    def add_question_to_form(self, request, form, problem_instance, question):
+        answers = [(a.id, self.render_answer(request, a)) for a in question.quizanswer_set.all()]
+        field_name = self._form_field_id_for_question(problem_instance, question)
+        label = self.render_question(request, question)
+
+        if question.is_multiple_choice:
+            form.fields[field_name] = forms.MultipleChoiceField(
+                label=label,
+                choices=answers,
+                widget=forms.CheckboxSelectMultiple,
+                required=False
+            )
+        else:
+            form.fields[field_name] = forms.ChoiceField(
+                label=label,
+                choices=answers,
+                widget=forms.RadioSelect,
+                required=False
+            )
+        form.set_custom_field_attributes(field_name, problem_instance)
+
+    def select_questions(self, user, problem_instance, submission):
+        return problem_instance.problem.quiz.quizquestion_set.all()
+
     def adjust_submission_form(self, request, form, problem_instance):
-        questions = problem_instance.problem.quiz.quizquestion_set.all()
+        questions = self.select_questions(request.user, problem_instance, None)
 
         for question in questions:
-            answers = [(a.id, self.render_answer(request, a)) for a in question.quizanswer_set.all()]
-            field_name = self._form_field_id_for_question(problem_instance,
-                                                          question)
-            if question.is_multiple_choice:
-                form.fields[field_name] = forms.MultipleChoiceField(
-                    label=self.render_question(request, question),
-                    choices=answers,
-                    widget=forms.CheckboxSelectMultiple,
-                    required=False
-                )
-            else:
-                form.fields[field_name] = forms.ChoiceField(
-                    label=self.render_question(request, question),
-                    choices=answers,
-                    widget=forms.RadioSelect,
-                    required=False
-                )
-            form.set_custom_field_attributes(field_name, problem_instance)
+            self.add_question_to_form(request, form, problem_instance, question)
 
     def create_submission(self, request, problem_instance, form_data,
                           **kwargs):
         judge_after_create = kwargs.get('judge_after_create', True)
 
         with transaction.atomic():
+            questions = self.select_questions(form_data.get('user', request.user), problem_instance, None)
+
             submission = QuizSubmission(
                 user=form_data.get('user', request.user),
                 problem_instance=problem_instance,
@@ -90,7 +98,6 @@ class QuizProblemController(ProblemController):
             submission.save()
 
             # add answers to submission
-            questions = problem_instance.problem.quiz.quizquestion_set.all()
             for question in questions:
                 field_id = self._form_field_id_for_question(problem_instance,
                                                             question)

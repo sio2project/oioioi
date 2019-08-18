@@ -15,6 +15,7 @@ from oioioi.problems.models import ProblemSite, Tag, TagThrough
 
 class EmptyQuizSource(ProblemSource):
     key = 'emptyquiz_source'
+    problem_controller_class = 'oioioi.quizzes.controllers.QuizProblemController'
     short_description = _("Add a quiz")
 
     def view(self, request, contest, existing_problem=None):
@@ -30,7 +31,7 @@ class EmptyQuizSource(ProblemSource):
 
         if request.method == "POST" and form.is_valid():
             with transaction.atomic():
-                controller = 'oioioi.quizzes.controllers.QuizProblemController'
+                controller = self.problem_controller_class
                 quiz = Quiz.objects.create(
                     name=form.cleaned_data['name'],
                     short_name=form.cleaned_data['short_name'],
