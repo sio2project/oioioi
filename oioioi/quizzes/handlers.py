@@ -24,6 +24,16 @@ def score_quiz(env, **kwargs):
     return env
 
 
+def _match_text_input(question, user_input, answer):
+    if question.trim_whitespace:
+        user_input = user_input.strip()
+        answer = answer.strip()
+    if question.ignore_case:
+        user_input = user_input.lower()
+        answer = answer.lower()
+    return user_input == answer
+
+
 def _is_answer_correct(submitted_answer):
     return submitted_answer.is_selected == QuizAnswer.objects.get(
         pk=submitted_answer.answer.id).is_correct
@@ -56,11 +66,21 @@ def _score_question(submission, submission_report,
         question_max_score=points,
         score=IntegerScore(0),
     )
-    submitted_answers = submission.quizsubmissionanswer_set\
-        .filter(answer__question=question)
-    are_all_answers_correct = all(_is_answer_correct(answer)
-                                  for answer in submitted_answers)
-    if are_all_answers_correct:
+
+    award_points = False
+    if question.is_text_input:
+        text_answer = submission.quizsubmissiontextanswer_set\
+            .get(question=question).text_answer
+        correct_answers = question.quizanswer_set.filter(is_correct=True)
+        award_points = any(_match_text_input(question, text_answer, answer.answer)
+                           for answer in correct_answers)
+    else:
+        submitted_answers = submission.quizsubmissionanswer_set\
+            .filter(answer__question=question)
+        award_points = all(_is_answer_correct(answer)
+                           for answer in submitted_answers)
+
+    if award_points:
         question_report.score = IntegerScore(points)
         question_report.status = 'OK'
         question_report.save()

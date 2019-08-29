@@ -24,6 +24,9 @@ class QuizQuestion(models.Model):
     quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"),
                              on_delete=models.CASCADE)
     order = models.IntegerField(default=0, verbose_name=_("Order"))
+    is_text_input = models.BooleanField(default=False, verbose_name=_("Hide answers"), help_text=_("Instead of listing answers, expect the contestant to type in their answer."))
+    trim_whitespace = models.BooleanField(default=False, verbose_name=_("Trim leading and trailing whitespace in user input"), help_text=_("Only applies if answers are hidden."))
+    ignore_case = models.BooleanField(default=False, verbose_name=_("Match user input case insensitively"), help_text=_("Only applies if answers are hidden."))
 
     class Meta(object):
         ordering = ['order']
@@ -111,6 +114,20 @@ class QuizSubmissionAnswer(models.Model):
     class Meta(object):
         verbose_name = _("Quiz submission answer")
         verbose_name_plural = _("Quiz submission answers")
+
+
+class QuizSubmissionTextAnswer(models.Model):
+    quiz_submission = models.ForeignKey(QuizSubmission,
+                                        verbose_name=_("Quiz submission"),
+                                        on_delete=models.CASCADE)
+    question = models.ForeignKey(QuizQuestion, verbose_name=_("Question"),
+                                 on_delete=models.SET_NULL, null=True)
+    text_answer = models.TextField(verbose_name=_("Text answer"))
+
+    class Meta(object):
+        unique_together = (('quiz_submission', 'question'),)
+        verbose_name = _("Quiz submission text answer")
+        verbose_name_plural = _("Quiz submission text answers")
 
 
 class QuestionReport(models.Model):

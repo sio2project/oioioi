@@ -41,6 +41,65 @@ class SubmitQuizMixin(SubmitMixin):
         return self.client.post(url, post_data)
 
 
+class TestTextInput(TestCase, SubmitQuizMixin):
+    fixtures = ['test_users', 'test_basic_contest', 'test_problem_instance',
+                'test_quiz_problem_with_text_input']
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+    def test_simple_submission(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        response = self.submit_quiz(contest, problem_instance, {
+            '1': 'Answer - correct',
+            '2': 'A',
+        })
+        self._assertSubmitted(contest, response)
+
+        submission = QuizSubmission.objects.get()
+        controller = submission.problem_instance.controller
+
+        controller.judge(submission)
+        submission_report = SubmissionReport.objects.get(submission=submission, status="ACTIVE")
+        self.assertEqual(submission_report.score_report.score, 50)
+
+    def test_second_possible_answer(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        response = self.submit_quiz(contest, problem_instance, {
+            '1': 'Answer - correct',
+            '2': 'B',
+        })
+        self._assertSubmitted(contest, response)
+
+        submission = QuizSubmission.objects.get()
+        controller = submission.problem_instance.controller
+
+        controller.judge(submission)
+        submission_report = SubmissionReport.objects.get(submission=submission, status="ACTIVE")
+        self.assertEqual(submission_report.score_report.score, 50)
+
+    def test_wrong_answer(self):
+        contest = Contest.objects.get()
+        problem_instance = ProblemInstance.objects.get(pk=1)
+
+        response = self.submit_quiz(contest, problem_instance, {
+            '1': 'Answer - wrong',
+            '2': 'something completely incorrect',
+        })
+        self._assertSubmitted(contest, response)
+
+        submission = QuizSubmission.objects.get()
+        controller = submission.problem_instance.controller
+
+        controller.judge(submission)
+        submission_report = SubmissionReport.objects.get(submission=submission, status="ACTIVE")
+        self.assertEqual(submission_report.score_report.score, 0)
+
+
 class TestSubmission(TestCase, SubmitQuizMixin):
     fixtures = ['test_users', 'test_basic_contest', 'test_quiz_problem',
                 'test_quiz_problem_second', 'test_problem_instance']

@@ -11,7 +11,7 @@ from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem_instance
 from oioioi.quizzes.models import QuizAnswer, QuizSubmission, \
-    QuizSubmissionAnswer, QuestionReport
+    QuizSubmissionTextAnswer, QuizSubmissionAnswer, QuestionReport
 
 
 class QuizProblemController(ProblemController):
@@ -53,7 +53,13 @@ class QuizProblemController(ProblemController):
         field_name = self._form_field_id_for_question(problem_instance, question)
         label = self.render_question(request, question)
 
-        if question.is_multiple_choice:
+        if question.is_text_input:
+            form.fields[field_name] = forms.CharField(
+                label=label,
+                required=False,
+                strip=question.trim_whitespace
+            )
+        elif question.is_multiple_choice:
             form.fields[field_name] = forms.MultipleChoiceField(
                 label=label,
                 choices=answers,
@@ -115,20 +121,30 @@ class QuizProblemController(ProblemController):
     def _submit_answers(self, selected_answers, question,
                         submission):
 
-        answers = {a.id: (a.id in selected_answers)
-                   for a in question.quizanswer_set.all()}
-        for aid, selected in six.iteritems(answers):
-            answer = QuizAnswer.objects.get(id=aid)
-            sub = QuizSubmissionAnswer.objects.create(
+        if question.is_text_input:
+            sub = QuizSubmissionTextAnswer.objects.create(
                 quiz_submission=submission,
-                answer=answer,
-                is_selected=selected
+                question=question,
+                text_answer=selected_answers[0]
             )
             sub.save()
+        else:
+            answers = {a.id: a.id in selected_answers
+                       for a in question.quizanswer_set.all()}
+            for aid, selected in six.iteritems(answers):
+                answer = QuizAnswer.objects.get(id=aid)
+                sub = QuizSubmissionAnswer.objects.create(
+                    quiz_submission=submission,
+                    answer=answer,
+                    is_selected=selected
+                )
+                sub.save()
 
     def _get_selected_answers(self, form_data, field_id, question):
         field_value = form_data.get(field_id)
-        if question.is_multiple_choice:
+        if question.is_text_input:
+            return [field_value]
+        elif question.is_multiple_choice:
             return [int(a) for a in field_value]
         else:
             return [int(field_value)]
