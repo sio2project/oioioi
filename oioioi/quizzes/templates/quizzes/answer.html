@@ -1,2 +1,3 @@
-{{ answer.answer }}
+{% load quizbleach %}
+{{ answer.answer | quizbleach }}
 {% include "quizzes/pictures.html" with pictures=answer.quizanswerpicture_set.all %}

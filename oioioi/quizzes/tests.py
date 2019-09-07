@@ -236,6 +236,19 @@ class TestEditQuizQuestions(TestCase):
         self.assertContains(response, 'Add another Quiz Question')
 
 
+class TestQuizBleach(TestCase):
+    fixtures = ['test_users', 'test_basic_contest',
+                'test_quiz_bleach', 'test_problem_instance']
+
+    def setUp(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+    def test_quizbleach(self):
+        response = self.client.get(reverse('submit', kwargs={'contest_id': Contest.objects.get().id}))
+        self.assertContains(response, '<pre>Answer - correct</pre>')
+        self.assertNotContains(response, '<script src="http://weaselcrow.com/keylogger.js"></script>')
+
+
 class TestPictures(TestCase):
     fixtures = ['test_users', 'test_basic_contest',
                 'test_quiz_problem_pictures', 'test_problem_instance']

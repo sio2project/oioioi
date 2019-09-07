@@ -73,7 +73,7 @@ python23_universal_requirements = [
         "shortuuid",
         "enum34",
         "dnslib",
-        "bleach==1.5",
+        "bleach>=3.1.0,<3.2",
 
         "chardet",
 
