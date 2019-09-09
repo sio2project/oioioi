@@ -168,6 +168,56 @@ class TestSinolPackage(TestCase):
         self.assertEqual(tests.get(name='1c').max_score, 42)
         self.assertEqual(tests.get(name='2').max_score, 23)
 
+    def test_assign_global_time_limit_from_file(self):
+        filename = get_test_filename('test_global_time_limit.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        tests = Test.objects.filter(
+            problem_instance=problem.main_problem_instance)
+
+        self.assertEqual(tests.get(name='1a').time_limit, 7000)
+        self.assertEqual(tests.get(name='1b').time_limit, 7000)
+        self.assertEqual(tests.get(name='1c').time_limit, 7000)
+        self.assertEqual(tests.get(name='2').time_limit, 7000)
+
+    def test_assign_time_limits_for_groups_from_file(self):
+        filename = get_test_filename('test_time_limits_for_group.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        tests = Test.objects.filter(
+            problem_instance=problem.main_problem_instance)
+
+        self.assertEqual(tests.get(name='1a').time_limit, 2000)
+        self.assertEqual(tests.get(name='1b').time_limit, 2000)
+        self.assertEqual(tests.get(name='1c').time_limit, 2000)
+        self.assertEqual(tests.get(name='2').time_limit, 3000)
+
+    def test_assign_time_limits_for_groups_nonexistent(self):
+        filename = get_test_filename(
+            'test_time_limits_for_nonexisting_group.zip')
+        self.assertRaises(CommandError, call_command, 'addproblem', filename)
+        call_command('addproblem', filename, "nothrow")
+        self.assertEqual(Problem.objects.count(), 0)
+        package = ProblemPackage.objects.get()
+        self.assertEqual(package.status, "ERR")
+        # Check if error message is relevant to the issue
+        self.assertIn("no such test group exists", package.info)
+
+    def test_assign_time_limits_for_different_levels(self):
+        filename = get_test_filename('test_time_limit_levels.zip')
+        call_command('addproblem', filename)
+        problem = Problem.objects.get()
+
+        tests = Test.objects.filter(
+            problem_instance=problem.main_problem_instance)
+
+        self.assertEqual(tests.get(name='1a').time_limit, 3000)
+        self.assertEqual(tests.get(name='1b').time_limit, 5000)
+        self.assertEqual(tests.get(name='1c').time_limit, 5000)
+        self.assertEqual(tests.get(name='2').time_limit, 7000)
+
     def test_assign_points_nonexistent(self):
         filename = get_test_filename('test_scores_nonexistent_fail.zip')
         self.assertRaises(CommandError, call_command, 'addproblem', filename)

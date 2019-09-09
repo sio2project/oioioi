@@ -744,11 +744,11 @@ class SinolPackage(object):
             instance.group = group
             scored_groups.add(group)
 
-        if created:
-            instance.time_limit = self.time_limits.get(name,
-                    DEFAULT_TIME_LIMIT)
+        time_limit = self._get_time_limit(created, name, group)
+        if time_limit:
+            instance.time_limit = time_limit
 
-        memory_limit = self._get_memory_limit(created, name)
+        memory_limit = self._get_memory_limit(created, name, group)
         if memory_limit:
             instance.memory_limit = memory_limit
 
@@ -756,23 +756,49 @@ class SinolPackage(object):
         instance.save()
         return instance
 
-    def _get_memory_limit(self, created, name):
+    def _get_memory_limit(self, created, name, group):
         """If we find the memory limit specified anywhere in the package:
            either in the config.yml or in the problem statement, then we
            overwrite potential manual changes. (In the future we should
            disallow editing memory limits if they were taken from the
            package).
+           The memory limit is more important the more specific it is.
+           In particular, the global memory limit is less important
+           than the memory limit for a test group, while the memory limit
+           for particular test is the most imporant.
            :return: Memory limit found in config or statement,
                     None otherwise.
         """
         if name in self.memory_limits:
             return self.memory_limits[name]
+        if group in self.memory_limits:
+            return self.memory_limits[group]
         if 'memory_limit' in self.config:
             return self.config['memory_limit']
         if self.statement_memory_limit is not None:
             return self.statement_memory_limit
         if created:
             return DEFAULT_MEMORY_LIMIT
+
+        return None
+
+    def _get_time_limit(self, created, name, group):
+        """If we find the time limit specified anywhere in in the config.yml,
+           then we overwrite potential manual changes.
+           The time limit is more important the more specific it is.
+           In particular, the global time limit is less important
+           than the time limit for a test group, while the time limit
+           for particular test is the most imporant.
+           :return: Time limit found in config, None otherwise.
+        """
+        if name in self.time_limits:
+            return self.time_limits[name]
+        if group in self.time_limits:
+            return self.time_limits[group]
+        if 'time_limit' in self.config:
+            return self.config['time_limit']
+        if created:
+            return DEFAULT_TIME_LIMIT
 
         return None
 
