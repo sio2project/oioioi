@@ -126,6 +126,7 @@ class SubmissionForm(forms.Form):
         else:
             problem_instances = [problem_instance]
             contest = None
+        self.all_problem_instances = problem_instances
 
         # Default kind is selected based on
         # the first problem_instance assigned to this form.
@@ -189,7 +190,7 @@ class SubmissionForm(forms.Form):
             narrow_input_fields([self.fields['kind'], self.fields['user']])
 
         # adding additional fields, etc
-        for pi in problem_instances:
+        for pi in pis:
             pi.controller.adjust_submission_form(request, self, pi)
 
         self._set_default_fields_attributes()

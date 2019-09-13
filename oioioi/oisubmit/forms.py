@@ -28,6 +28,9 @@ class OISubmitSubmissionForm(SubmissionForm):
 
         return data
 
+    def get_problem_instances(self):
+        return self.all_problem_instances
+
     def clean(self, **kwargs):
         cleaned_data = self.cleaned_data
 
