@@ -19,5 +19,9 @@ def raw_file_view(request, filename):
         'application/octet-stream'
     response = StreamingHttpResponse(FileWrapper(file),
                                      content_type=content_type)
-    response['Content-Length'] = file.size
+    try:
+        response['Content-Length'] = default_storage.size(filename)
+    except NotImplementedError:
+        pass
+
     return response
