@@ -10,6 +10,8 @@ import oioioi
 
 from django.contrib.messages import constants as messages
 
+from django.utils.translation import ugettext_lazy as _
+
 INSTALLATION_CONFIG_VERSION = 44
 
 DEBUG = False
@@ -509,6 +511,11 @@ SZKOPUL_SUPPORT_EMAIL = None
 
 # Google Analytics
 GOOGLE_ANALYTICS_TRACKING_ID = None
+
+# Consent texts
+REGISTRATION_RULES_CONSENT = _("terms accepted")
+REGISTRATION_MARKETING_CONSENT = None
+REGISTRATION_PARTNER_CONSENT = None
 
 PRINTING_FONT_SIZE = 8  # in pt
 PRINTING_MAX_FILE_SIZE = 1024 * 100  # in kB

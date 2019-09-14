@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.forms import OioioiUserChangeForm, OioioiUserCreationForm
 from oioioi.base.menu import MenuRegistry, side_pane_menus_registry
+from oioioi.base.models import Consents
 from oioioi.base.permissions import is_superuser
 from oioioi.base.utils import ClassInitMeta, ObjectWithMixins
 from oioioi.base.utils.redirect import safe_redirect
@@ -399,3 +400,25 @@ class MixinsAdmin(InstanceDependentAdmin):
 
     def _mixins_for_instance(self, request, instance=None):
         raise NotImplementedError
+
+
+class ConsentsInline(StackedInline):
+    model = Consents
+    extra = 0
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        # Protected by parent ModelAdmin
+        return True
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+class UserWithConsentsAdminMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(UserWithConsentsAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines += [ConsentsInline]
+
+OioioiUserAdmin.mix_in(UserWithConsentsAdminMixin)

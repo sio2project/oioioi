@@ -341,11 +341,12 @@ class TestRecalc(TestCase):
         # (like name), so we need to test that ranking is invalidated after
         # this signal is broadcasted
         class MockSender:
-            def __init__(self, instance):
-                self.instance = instance
+            def __init__(self):
+                self.cleaned_data = {'terms_accepted': True}
+
         from oioioi.base.models import PreferencesSaved
         result = UserResultForProblem.objects.first()
-        sender = MockSender(result.user)
+        sender = MockSender()
         contest = Contest.objects.get()
         contest.controller_name = \
             'oioioi.rankings.tests.MockRankingContestController'
@@ -356,7 +357,7 @@ class TestRecalc(TestCase):
         self.assertTrue(ranking.is_up_to_date())
         recalc = choose_for_recalculation()
         self.assertIsNone(recalc)
-        PreferencesSaved.send(sender)
+        PreferencesSaved.send(sender, user=result.user)
         ranking.refresh_from_db()
         self.assertFalse(ranking.is_up_to_date())
         recalc = choose_for_recalculation()

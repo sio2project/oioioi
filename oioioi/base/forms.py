@@ -1,6 +1,8 @@
+# coding: utf-8
 from collections import OrderedDict
 
 from django import forms
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (PasswordResetForm, UserChangeForm,
                                        UserCreationForm)
@@ -9,9 +11,10 @@ from django.core.validators import RegexValidator
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 
-from oioioi.base.models import PreferencesSaved
+from oioioi.base.models import PreferencesSaved, Consents
 from oioioi.base.utils.user import USERNAME_REGEX, UNICODE_CATEGORY_LIST
 from oioioi.base.utils.validators import ValidationError, UnicodeValidator
+from oioioi.base.preferences import PreferencesFactory
 
 
 def adjust_username_field(form):
@@ -38,6 +41,51 @@ def adjust_unicode_field(form, field_name, help_text, invalid_message,
     form.fields[field_name].validators += \
         [UnicodeValidator(unicode_categories=unicode_categories,
             allow_spaces=allow_spaces)]
+
+
+def get_consent(field_name, user):
+    if hasattr(user, 'consents'):
+        return getattr(user.consents, field_name)
+    else:
+        return False
+
+
+def _maybe_add_field(label, *args, **kwargs):
+    if (label):
+        kwargs.setdefault('label', label)
+        PreferencesFactory.add_field(*args, **kwargs)
+
+_maybe_add_field(settings.REGISTRATION_RULES_CONSENT,
+                'terms_accepted', forms.BooleanField, get_consent,
+                required=True)
+
+_maybe_add_field(settings.REGISTRATION_MARKETING_CONSENT,
+                 'marketing_consent', forms.BooleanField, get_consent,
+                 required=False)
+
+_maybe_add_field(settings.REGISTRATION_PARTNER_CONSENT,
+                 'partner_consent', forms.BooleanField, get_consent,
+                 required=False)
+
+
+def save_consents(sender, user, **kwargs):
+        form = sender
+        consents = None
+        if hasattr(user, 'consents'):
+            consents = user.consents
+        else:
+            consents = Consents(user=user)
+
+        if ('terms_accepted' in form.cleaned_data):
+            consents.terms_accepted = form.cleaned_data['terms_accepted']
+        if ('marketing_consent' in form.cleaned_data):
+            consents.marketing_consent = form.cleaned_data['marketing_consent']
+        if ('partner_consent' in form.cleaned_data):
+            consents.partner_consent = form.cleaned_data['partner_consent']
+
+        consents.save()
+
+PreferencesSaved.connect(save_consents)
 
 
 class RegistrationFormWithNames(RegistrationForm):

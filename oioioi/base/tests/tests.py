@@ -668,7 +668,7 @@ class TestRegistration(TestCase):
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
 
-    def _register_user(self):
+    def _register_user(self, terms_accepted=True):
         self.client.post(reverse('registration_register'), {
             'username': 'test_foo',
             'first_name': 'Foo',
@@ -676,6 +676,7 @@ class TestRegistration(TestCase):
             'email': 'foo@bar.com',
             'password1': 'xxx',
             'password2': 'xxx',
+            'terms_accepted': terms_accepted,
         })
 
     def _assert_user_active(self):
@@ -683,6 +684,7 @@ class TestRegistration(TestCase):
         self.assertTrue(user.is_active)
         self.assertEqual(user.first_name, 'Foo')
         self.assertEqual(user.last_name, 'Bar')
+        self.assertTrue(user.consents.terms_accepted)
 
     @override_settings(SEND_USER_ACTIVATION_EMAIL=True)
     def test_registration_with_activation_email(self):
@@ -699,6 +701,11 @@ class TestRegistration(TestCase):
     def test_registration_without_activation_email(self):
         self._register_user()
         self._assert_user_active()
+
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=False)
+    def test_registration_terms_not_accepted(self):
+        self._register_user(terms_accepted=False)
+        self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
 
 
 class TestArchive(TestCase):
@@ -779,7 +786,8 @@ class TestBaseViews(TestCase):
         self.assertEqual(response.context['form'].instance, user)
 
         data = {'username': 'test_user', 'first_name': 'fn',
-                'last_name': 'ln', 'email': 'foo@bar.com'}
+                'last_name': 'ln', 'email': 'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
@@ -788,11 +796,36 @@ class TestBaseViews(TestCase):
         self.assertEqual(user.last_name, 'ln')
         self.assertEqual(user.email, 'foo@bar.com')
 
+    def test_terms_not_accepted(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('edit_profile')
+        data = {'username': 'test_user', 'first_name': 'fn',
+                'last_name': 'ln', 'email': 'foo@bar.com',
+                'terms_accepted': False}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='test_user')
+        # Check that the terms are still accepted
+        self.assertTrue(user.consents.terms_accepted)
+        # and that the user sees an error
+        self.assertContains(response, 'field is required')
+
+        data = {'username': 'test_user', 'first_name': 'fn',
+                'last_name': 'ln', 'email': 'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='test_user')
+        # Check that the terms are still accepted
+        self.assertTrue(user.consents.terms_accepted)
+        # and that the user sees an error
+        self.assertContains(response, 'field is required')
+
     def test_username_change_attempt(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
         data = {'username': 'changed_user', 'first_name': 'fn',
-                'last_name': 'ln', 'email': 'foo@bar.com'}
+                'last_name': 'ln', 'email': 'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(User.objects.filter(username='changed_user')
@@ -803,7 +836,8 @@ class TestBaseViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
         data = {'username': u'test_user', 'first_name': u'good_name',
-                'last_name': u'wrong_unicode_\U0001F923', 'email': u'foo@bar.com'}
+                'last_name': u'wrong_unicode_\U0001F923', 'email': u'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -815,7 +849,8 @@ class TestBaseViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
         data = {'username': u'test_user', 'first_name': u'wrong_unicode_\U0001f600',
-                'last_name': u'good_name', 'email': u'foo@bar.com'}
+                'last_name': u'good_name', 'email': u'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -827,7 +862,8 @@ class TestBaseViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
         data = {'username': u'test_user', 'first_name': u'Jan Maria',
-                'last_name': u'Le Guien', 'email': u'foo@bar.com'}
+                'last_name': u'Le Guien', 'email': u'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -839,7 +875,8 @@ class TestBaseViews(TestCase):
         url = reverse('edit_profile')
 
         data = {'username': u'test_user', 'first_name': u'\u00a0Jan',
-                'last_name': u'correct', 'email': u'foo@bar.com'}
+                'last_name': u'correct', 'email': u'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -847,7 +884,8 @@ class TestBaseViews(TestCase):
         self.assertIn(user.first_name, ['Test', 'Jan'])
 
         data = {'username': u'test_user', 'first_name': u'Jan\u2003',
-                'last_name': u'correct', 'email': u'foo@bar.com'}
+                'last_name': u'correct', 'email': u'foo@bar.com',
+                'terms_accepted': True}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(username='test_user')
@@ -887,7 +925,8 @@ class TestBaseViews(TestCase):
 
             data = {'username': 'test_user', 'first_name': 'fn',
                     'last_name': 'ln', 'email': 'foo@bar.com',
-                    'dog': 'Janusz', 'answer': '42'}
+                    'dog': 'Janusz', 'answer': '42',
+                    'terms_accepted': True}
             self.client.post(url, data, follow=True)
             # callback_func should be called already
         finally:
@@ -1083,7 +1122,8 @@ class TestLoginChange(TestCase):
                                 'maxlength="150" required />' % l,
                                 html=True)
 
-            self.client.post(self.url_edit_profile, {'username': 'valid_user'},
+            self.client.post(self.url_edit_profile,
+                    {'username': 'valid_user', 'terms_accepted': True},
                     follow=True)
             self.assertEqual(self.user.username, l)
 
@@ -1110,7 +1150,8 @@ class TestLoginChange(TestCase):
                                 html=True)
 
             response = self.client.post(self.url_edit_profile,
-                    {'username': 'valid_user'}, follow=True)
+                    {'username': 'valid_user', 'terms_accepted': True},
+                    follow=True)
             self.assertEqual(self.user.username, l)
             self.assertContains(response, 'You cannot change your username.')
 
@@ -1127,7 +1168,8 @@ class TestLoginChange(TestCase):
         self.user.save()
 
         for l in self.invalid_logins:
-            self.client.post(url_edit_profile, {'username': l},
+            self.client.post(url_edit_profile,
+                    {'username': l, 'terms_accepted': True},
                     follow=True)
             self.assertEqual(self.user.username, self.invalid_logins[0])
 

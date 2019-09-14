@@ -1,3 +1,4 @@
+# coding: utf-8
 from importlib import import_module
 
 from django.conf import settings
@@ -21,5 +22,16 @@ for app in settings.INSTALLED_APPS:
         except ImportError:
             pass
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.translation import ugettext_lazy as _
+
 # Sender will be equal to the form that was completed
 PreferencesSaved = django.dispatch.Signal(providing_args=['user'])
+
+class Consents(models.Model):
+    user = models.OneToOneField(User, primary_key=True, verbose_name=_("user"),
+                                on_delete=models.CASCADE)
+    terms_accepted = models.BooleanField(_("terms accepted"), default=False)
+    marketing_consent = models.BooleanField(_("first-party marketing consent"), default=False)
+    partner_consent = models.BooleanField(_("third-party marketing consent"), default=False)

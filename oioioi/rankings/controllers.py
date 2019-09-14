@@ -400,8 +400,7 @@ class DefaultRankingController(RankingController):
                     'PARTICIPANTS_ON_PAGE', 100)}
 
 
-def update_rankings_with_user_callback(sender, **kwargs):
-    user = sender.instance
+def update_rankings_with_user_callback(sender, user, **kwargs):
     contests = Contest.objects.filter(probleminstance__submission__user=user)
     for contest in contests:
         Ranking.invalidate_contest(contest)
