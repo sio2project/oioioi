@@ -22,4 +22,4 @@ for app in settings.INSTALLED_APPS:
             pass
 
 # Sender will be equal to the form that was completed
-PreferencesSaved = django.dispatch.Signal()
+PreferencesSaved = django.dispatch.Signal(providing_args=['user'])

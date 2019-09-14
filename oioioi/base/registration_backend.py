@@ -14,10 +14,15 @@ from registration.models import RegistrationProfile
 
 from oioioi.base.forms import (OioioiPasswordResetForm,
                                RegistrationFormWithNames)
+from oioioi.base.preferences import PreferencesFactory
+from oioioi.base.models import PreferencesSaved
 
 
 class RegistrationView(DefaultRegistrationView):
-    form_class = RegistrationFormWithNames
+    def form_class(self, instance=None, *args, **kwargs):
+        return PreferencesFactory().create_form(
+                RegistrationFormWithNames,
+                instance, *args, **kwargs)
 
     def register(self, form):
         data = form.cleaned_data
@@ -33,6 +38,7 @@ class RegistrationView(DefaultRegistrationView):
         registration_profile = RegistrationProfile.objects.create_profile(user)
         signals.user_registered.send(sender=self.__class__, user=user,
                                      request=request)
+        PreferencesSaved.send(form, user=user)
         if settings.SEND_USER_ACTIVATION_EMAIL:
             registration_profile.send_activation_email(RequestSite(request))
         else:

@@ -16,7 +16,7 @@ class PreferencesFactory(object):
            max_length=20
        )
 
-       form = PreferencesFactory().create_form(user, allow_login_change=False)
+       form = PreferencesFactory().create_form(UserForm, user, allow_login_change=False)
     """
 
     _additional_fields = []
@@ -61,11 +61,10 @@ class PreferencesFactory(object):
             if field['name'] == field_name:
                 PreferencesFactory._additional_fields.remove(field)
 
-    def create_form(self, user, *args, **kwargs):
+    def create_form(self, form_class, user, *args, **kwargs):
         """Returns a form with all the additional fields which can then be
            displayed to the user, additional args and kwargs will be sent to
-           the oioioi.base.forms.UserForm form's __init__ (instance though will
-           be provided for you)
+           the form's __init__ (instance though will be provided for you)
         """
         PreferencesFactory._additional_fields.sort(
             key=lambda o: (o["order"], o["name"])
@@ -87,7 +86,7 @@ class PreferencesFactory(object):
         initial = kwargs.pop('initial', {})
         initial.update(field_values)
 
-        return oioioi.base.forms.UserForm(
+        return form_class(
             *args,
             extra=extra_fields,
             instance=user,

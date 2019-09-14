@@ -22,6 +22,7 @@ from oioioi.base.processors import site_name
 from oioioi.base.utils import generate_key, jsonify
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.base.utils.user import has_valid_username
+import oioioi.base.forms
 
 account_menu_registry.register('change_password', _("Change password"),
         lambda request: reverse('auth_password_change'), order=100)
@@ -93,6 +94,7 @@ def handler403(request, exception):
 def edit_profile_view(request):
     if request.method == 'POST':
         form = PreferencesFactory().create_form(
+            oioioi.base.forms.UserForm,
             request.user,
             request.POST,
             allow_login_change=not has_valid_username(request.user)
@@ -102,6 +104,7 @@ def edit_profile_view(request):
             return redirect('index')
     else:
         form = PreferencesFactory().create_form(
+            oioioi.base.forms.UserForm,
             request.user,
             allow_login_change=not has_valid_username(request.user)
         )

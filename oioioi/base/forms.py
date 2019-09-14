@@ -42,6 +42,7 @@ def adjust_unicode_field(form, field_name, help_text, invalid_message,
 
 class RegistrationFormWithNames(RegistrationForm):
     def __init__(self, *args, **kwargs):
+        extra = kwargs.pop('extra', {})
         super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
         adjust_username_field(self)
         tmp_fields = list(self.fields.items())
@@ -50,6 +51,7 @@ class RegistrationFormWithNames(RegistrationForm):
             ('last_name', forms.CharField(label=_("Last name")))
         ]
         self.fields = OrderedDict(tmp_fields)
+        self.fields.update(extra)
         adjust_name_fields(self)
 
 
@@ -83,7 +85,7 @@ class UserForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         instance = super(UserForm, self).save(*args, **kwargs)
-        PreferencesSaved.send(self)
+        PreferencesSaved.send(self, user=instance)
         return instance
 
 
