@@ -254,9 +254,8 @@ class SubmissionForm(forms.Form):
             del cleaned_data['problem_instance_id']
             return cleaned_data
 
-        pcontroller = pi.problem.controller
         kind = cleaned_data['kind']
-        if check_submission_limit and pcontroller \
+        if check_submission_limit and pi.controller \
                 .is_submissions_limit_exceeded(self.request, pi, kind):
             raise ValidationError(_("Submission limit for the problem '%s' "
                                     "exceeded.") % pi.problem.name)
