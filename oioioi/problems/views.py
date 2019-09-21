@@ -287,13 +287,8 @@ def problemset_get_problems(request):
         else:
             raise Http404
 
-    problems = problems.select_related('problemsite') \
-            .prefetch_related('tag_set', 'algorithmtag_set', 'difficultytag_set',
-                              'origintag_set__localizations',
-                              'origininfovalue_set__localizations',
-                              'origininfovalue_set__parent_tag__localizations')
+    problems = problems.select_related('problemsite')
     return problems
-
 
 def problemset_generate_view(request, page_title, problems, view_type):
     # We want to show "Add to contest" button only
