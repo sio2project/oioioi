@@ -5,11 +5,16 @@ from oioioi.base import admin, views, api
 from oioioi.base.main_page import main_page_view
 
 from rest_framework.documentation import include_docs_urls
+from two_factor.urls import urlpatterns as tf_urls
 
 app_name = 'base'
 
+# in django_two_factor_auth 1.7 urlpatterns become a tuple
+# and presumably break things
+assert type(tf_urls) != tuple
+
 urlpatterns = [
-    url(r'', include('two_factor.urls', namespace='two_factor')),
+    url(r'', include((tf_urls, 'two_factor'))),
     url(r'^force_error/$', views.force_error_view, name='force_error'),
     url(r'^force_permission_denied/$', views.force_permission_denied_view,
         name='force_permission_denied'),
