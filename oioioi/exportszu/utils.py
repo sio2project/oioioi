@@ -133,7 +133,7 @@ def build_submissions_archive(out_file, submission_collector):
                     if obj is None:
                         return 'NULL'
                     else:
-                        return force_text(obj).encode('utf8')
+                        return force_text(obj)
 
                 index_csv.writerow([encode(col) for col in index_entry])
 

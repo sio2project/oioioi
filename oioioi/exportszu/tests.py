@@ -4,7 +4,7 @@ import tarfile
 import tempfile
 
 from django.core.management import call_command
-from six import StringIO
+from six import BytesIO
 
 from oioioi.base.tests import TestCase
 from oioioi.contests.models import Contest, Round
@@ -99,7 +99,7 @@ class TestExportCommand(TestCase):
             call_command('export_submissions', 'c', archive_path)
             archive = tarfile.open(archive_path, 'r:gz')
             index = archive.extractfile('c/INDEX').read()
-            self.assertEqual(index, INDEX_HEADER +
+            self.assertEqual(index.decode(), INDEX_HEADER +
                 "1,1001,test_user,Test,User,NULL,NULL,NULL,zad1,34\r\n")
             files = sorted([member.name for member in archive.getmembers()])
             self.assertEqual(files, ["c", "c/1:test_user:zad1.cpp", "c/INDEX"])
@@ -129,13 +129,13 @@ class TestExportSubmissionsView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Disposition'],
             'attachment; filename="c.tgz"')
-        result_file = StringIO(''.join(response.streaming_content))
+        result_file = BytesIO(b''.join(response.streaming_content))
         with tarfile.open(fileobj=result_file, mode='r:gz') as tar:
             file_list = sorted([member.name for member in tar.getmembers()])
             self.assertEqual(file_list, ['c', 'c/1:test_user:zad1.cpp',
                 'c/INDEX'])
             index = tar.extractfile('c/INDEX').read()
-            self.assertEqual(index, INDEX_HEADER +
+            self.assertEqual(index.decode(), INDEX_HEADER +
                 '1,1001,test_user,Test,User,NULL,NULL,NULL,zad1,34\r\n')
             submission = tar.extractfile('c/1:test_user:zad1.cpp').read()
-            self.assertRegex(submission, '.*int main.*')
+            self.assertRegex(submission, b'.*int main.*')
