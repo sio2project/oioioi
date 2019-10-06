@@ -157,20 +157,20 @@ class TestFileFixtures(TestCase):
     def test_file_fixtures(self):
         instance = FileTestModel.objects.get()
         self.assertEqual(instance.file_field.name, 'tests/test_file_field.txt')
-        self.assertEqual(instance.file_field.read(), 'whatever\x01\xff')
+        self.assertEqual(instance.file_field.read(), b'whatever\x01\xff')
 
 
 class TestFileUtils(TestCase):
     def test_content_disposition(self):
         value = make_content_disposition_header('inline', u'EURO rates.txt')
-        self.assertIn('inline', value)
-        self.assertIn('EURO rates', value)
-        self.assertNotIn('filename*', value)
+        self.assertIn(b'inline', value)
+        self.assertIn(b'EURO rates', value)
+        self.assertNotIn(b'filename*', value)
 
         value = make_content_disposition_header('inline', u'"EURO" rates.txt')
-        self.assertIn(r'filename="\"EURO\" rates.txt"', value)
+        self.assertIn(b'filename="\\"EURO\\" rates.txt"', value)
 
         value = make_content_disposition_header('attachment', u'€ rates.txt')
         self.assertEqual(value.lower(),
-                'attachment; filename="rates.txt"; '
-                'filename*=utf-8\'\'%e2%82%ac%20rates.txt')
+                b'attachment; filename="rates.txt"; '
+                b'filename*=utf-8\'\'%e2%82%ac%20rates.txt')

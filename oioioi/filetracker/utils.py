@@ -67,7 +67,8 @@ def filetracker_to_django_file(filetracker_path, storage=None):
 
 
 def make_content_disposition_header(disposition, filename):
-    """Returns a Content-Disposition header field per RFC 6266.
+    """Returns a Content-Disposition header field per RFC 6266
+       as a bytestring.
 
        The ``disposition`` argument should be either ``inline`` or
        ``attachment`` and the filename should be a unicode object,
@@ -79,13 +80,13 @@ def make_content_disposition_header(disposition, filename):
     # https://tools.ietf.org/html/rfc2616#section-2.2
     ascii_name = filename.encode('ascii', 'ignore').strip()
     quoted_name = ascii_name.replace(b'"', b'\\"')
-    header = '%s; filename="%s"' % (disposition, quoted_name)
+    header = b'%s; filename="%s"' % (disposition.encode('ascii'), quoted_name)
 
     utf8_name = filename.encode('utf-8', 'ignore').strip()
     if utf8_name != ascii_name:
         # https://tools.ietf.org/html/rfc5987#section-3.2
         utf8_quoted_name = six.moves.urllib.parse.quote(utf8_name, '')
-        header += '; filename*=utf-8\'\'' + utf8_quoted_name
+        header += b'; filename*=utf-8\'\'' + utf8_quoted_name.encode('utf-8')
 
     return header
 
