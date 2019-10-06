@@ -154,10 +154,10 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         kwargs = {'test_id': test.id}
         response = self.client.get(reverse('download_input_file',
             kwargs=kwargs))
-        self.assertStreamingEqual(response, '1 2\n')
+        self.assertStreamingEqual(response, b'1 2\n')
         response = self.client.get(reverse('download_output_file',
             kwargs=kwargs))
-        self.assertStreamingEqual(response, '3\n')
+        self.assertStreamingEqual(response, b'3\n')
 
     def test_submissions_permissions(self):
         submission = Submission.objects.get(pk=1)

@@ -123,7 +123,7 @@ class TestFileStorage(TestCase):
 
 class TestStreamingMixin(object):
     def assertStreamingEqual(self, response, content):
-        self.assertEqual(self.streamingContent(response).decode('utf-8'), content)
+        self.assertEqual(self.streamingContent(response), content)
 
     def streamingContent(self, response):
         self.assertTrue(response.streaming)
@@ -146,7 +146,7 @@ class TestFileStorageViews(TestCase, TestStreamingMixin):
             self.assertEqual(response.status_code, 403)
             self.assertTrue(self.client.login(username='test_admin'))
             response = self.client.get(url)
-            self.assertStreamingEqual(response, content.decode('utf-8'))
+            self.assertStreamingEqual(response, content)
         finally:
             default_storage.delete(filename)
 

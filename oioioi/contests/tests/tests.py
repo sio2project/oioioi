@@ -745,21 +745,21 @@ class TestMultilingualStatements(TestCase, TestStreamingMixin):
             'contest_id': pi.contest.id,
             'problem_instance': pi.short_name})
         response = self.client.get(url)
-        self.assertStreamingEqual(response, 'en-txt')
+        self.assertStreamingEqual(response, b'en-txt')
         self.client.cookies['lang'] = 'en'
         response = self.client.get(url)
-        self.assertStreamingEqual(response, 'en-txt')
+        self.assertStreamingEqual(response, b'en-txt')
         self.client.cookies['lang'] = 'pl'
         response = self.client.get(url)
-        self.assertStreamingEqual(response, 'pl-pdf')
+        self.assertStreamingEqual(response, b'pl-pdf')
         ProblemStatement.objects.filter(language='pl').delete()
         response = self.client.get(url)
         self.assertTrue(response.streaming)
         content = self.streamingContent(response)
-        self.assertIn('%PDF', content)
+        self.assertIn(b'%PDF', content)
         ProblemStatement.objects.get(language__isnull=True).delete()
         response = self.client.get(url)
-        self.assertStreamingEqual(response, 'en-txt')
+        self.assertStreamingEqual(response, b'en-txt')
 
 
 class ContestWithoutStatementsController(ProgrammingContestController):
@@ -1148,13 +1148,13 @@ class TestAttachments(TestCase, TestStreamingMixin):
             self.assertContains(response, part)
         response = self.client.get(reverse('contest_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
-        self.assertStreamingEqual(response, 'content-of-conatt')
+        self.assertStreamingEqual(response, b'content-of-conatt')
         response = self.client.get(reverse('problem_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': pa.id}))
-        self.assertStreamingEqual(response, 'content-of-probatt')
+        self.assertStreamingEqual(response, b'content-of-probatt')
         response = self.client.get(reverse('contest_attachment',
             kwargs={'contest_id': contest.id, 'attachment_id': ra.id}))
-        self.assertStreamingEqual(response, 'content-of-roundatt')
+        self.assertStreamingEqual(response, b'content-of-roundatt')
 
         with fake_time(datetime(2011, 7, 10, tzinfo=utc)):
             response = self.client.get(reverse('contest_files',
@@ -1167,7 +1167,7 @@ class TestAttachments(TestCase, TestStreamingMixin):
                 self.assertNotContains(response, part)
             response = self.client.get(reverse('contest_attachment',
                 kwargs={'contest_id': contest.id, 'attachment_id': ca.id}))
-            self.assertStreamingEqual(response, 'content-of-conatt')
+            self.assertStreamingEqual(response, b'content-of-conatt')
             check_not_accessible(self, 'problem_attachment',
                  kwargs={'contest_id': contest.id, 'attachment_id': pa.id})
             check_not_accessible(self, 'contest_attachment',
@@ -1216,14 +1216,14 @@ class TestAttachments(TestCase, TestStreamingMixin):
         with fake_time(datetime(2011, 7, 10, 0, 30, 0, tzinfo=utc)):
             self.assertTrue(self.client.login(username='test_user'))
             check_visibility('conatt-null-date.txt', 'conatt-visible.txt')
-            check_accessibility([(ca.id, 'content-null'),
-                (cb.id, 'content-visible')], [cc.id])
+            check_accessibility([(ca.id, b'content-null'),
+                (cb.id, b'content-visible')], [cc.id])
             self.assertTrue(self.client.login(username='test_admin'))
             check_visibility('conatt-null-date.txt', 'conatt-visible.txt',
                     'conatt-hidden.txt')
-            check_accessibility([(ca.id, 'content-null'),
-                    (cb.id, 'content-visible'),
-                    (cc.id, 'content-hidden')], [])
+            check_accessibility([(ca.id, b'content-null'),
+                    (cb.id, b'content-visible'),
+                    (cc.id, b'content-hidden')], [])
 
 
 class TestRoundExtension(TestCase, SubmitFileMixin):
