@@ -32,7 +32,7 @@ class _FileDescriptor(files.FileDescriptor):
         elif isinstance(file, six.string_types) and file.startswith('data:'):
             name, content = file.split(':', 2)[1:]
             if content.startswith('raw:'):
-                content = str(content[4:])
+                content = str(content[4:]).encode('ascii')
             else:
                 content = base64.b64decode(content)
             try:
