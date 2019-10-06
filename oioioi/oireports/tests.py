@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
 import six
-from six import StringIO
+from six import BytesIO
 if six.PY2:
     import slate
 else:
@@ -51,7 +51,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2015, 8, 5, tzinfo=utc)):
             response = self.client.post(url, post_vars)
-            pages = slate.PDF(StringIO(self.streamingContent(response)))
+            pages = slate.PDF(BytesIO(self.streamingContent(response)))
             self.assertIn("test_user", pages[0])
             self.assertIn("Wynik:34", pages[0])
             self.assertIn("ZAD1", pages[0])

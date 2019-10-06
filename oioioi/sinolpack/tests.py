@@ -13,7 +13,7 @@ from django.test.utils import override_settings
 from django.utils.module_loading import import_string
 import pytest
 import six.moves.urllib.parse
-from six.moves import cStringIO as StringIO
+from six import BytesIO
 
 from oioioi.base.tests import TestCase, needs_linux
 from oioioi.contests.current_contest import ContestMode
@@ -569,7 +569,7 @@ class TestSinolPackageCreator(TestCase, TestStreamingMixin):
                     args=(problem.id,)))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response['Content-Type'], 'application/zip')
-        stream = StringIO(self.streamingContent(response))
+        stream = BytesIO(self.streamingContent(response))
         zip = zipfile.ZipFile(stream, 'r')
         self.assertEqual(sorted(zip.namelist()), [
                 'sum/doc/sumzad.pdf',

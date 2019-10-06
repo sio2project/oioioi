@@ -671,7 +671,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         url_external_attmt = reverse('problem_site_external_attachment',
                 kwargs={'site_key': '123', 'attachment_id': 1})
         response = self.client.get(url_external_attmt)
-        self.assertStreamingEqual(response, 'content-of-probatt')
+        self.assertStreamingEqual(response, b'content-of-probatt')
 
     def test_form_accessibility(self):
         self.assertTrue(self.client.login(username='test_admin'))

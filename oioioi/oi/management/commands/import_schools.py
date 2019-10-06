@@ -41,7 +41,7 @@ class Command(BaseCommand):
         else:
             if not os.path.exists(arg):
                 raise CommandError(_("File not found: ") + arg)
-            stream = open(arg, 'r')
+            stream = open(arg, 'rb')
 
         reader = unicodecsv.DictReader(stream)
         fields = reader.fieldnames

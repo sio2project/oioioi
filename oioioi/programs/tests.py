@@ -41,9 +41,9 @@ from oioioi.sinolpack.tests import get_test_filename
 def extract_code(show_response):
     # Current version of pygments generates two <pre> tags,
     # first for line numeration, second for code.
-    preFirst = show_response.content.find('</pre>') + 6
-    preStart = show_response.content.find('<pre>', preFirst) + 5
-    preEnd = show_response.content.find('</pre>', preFirst)
+    preFirst = show_response.content.find(b'</pre>') + len(b'</pre>')
+    preStart = show_response.content.find(b'<pre>', preFirst) + len(b'<pre>')
+    preEnd = show_response.content.find(b'</pre>', preFirst)
     # Get substring and strip tags.
     show_response.content = strip_tags(
         show_response.content[preStart:preEnd]
@@ -136,11 +136,11 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         extract_code(show_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
         download_response_content = \
-            escape(self.streamingContent(download_response))
+            escape(self.streamingContent(download_response).decode('utf-8'))
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
         self.assertTrue(download_response.streaming)
-        self.assertEqual(show_response.content, download_response_content)
+        self.assertEqual(show_response.content.decode('utf-8'), download_response_content)
         self.assertIn('main()', show_response.content)
         self.assertTrue(show_response.content.strip().endswith('}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
@@ -266,20 +266,20 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
         extract_code(diff_response)
         # Shown code has entities like &gt; - let's escape the plaintext.
         download_response_content = \
-            escape(self.streamingContent(download_response))
+            escape(self.streamingContent(download_response).decode('utf-8'))
         # Now it should work.
         self.assertEqual(download_response.status_code, 200)
         self.assertTrue(download_response.streaming)
-        self.assertEqual(show_response.content, download_response_content)
-        self.assertEqual(show_response.content.find('<script>'), -1)
-        self.assertEqual(diff_response.content.find('<script>'), -1)
-        self.assertEqual(download_response_content.find('<script>'), -1)
-        self.assertIn('main()', show_response.content)
-        self.assertIn('main()', diff_response.content)
-        self.assertTrue(show_response.content.strip().endswith('}'))
-        self.assertTrue(diff_response.content.strip().endswith('}'))
+        self.assertEqual(show_response.content.decode('utf-8'), download_response_content)
+        self.assertNotContains(show_response, u'<script>')
+        self.assertNotContains(diff_response, u'<script>')
+        self.assertNotIn(download_response_content, u'<script>')
+        self.assertContains(show_response, 'main()')
+        self.assertContains(diff_response, 'main()')
+        self.assertTrue(show_response.content.strip().endswith(b'}'))
+        self.assertTrue(diff_response.content.strip().endswith(b'}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
-            'attachment'))
+            b'attachment'))
 
 
 class TestOtherSubmissions(TestCase):
@@ -523,13 +523,13 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def test_code_pasting(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
-        response = self.submit_code(contest, problem_instance, 'some code')
+        response = self.submit_code(contest, problem_instance, b'some code')
         self._assertSubmitted(contest, response)
-        response = self.submit_code(contest, problem_instance, 'some code', '')
+        response = self.submit_code(contest, problem_instance, b'some code', '')
         self.assertContains(response, 'You have to choose programming language.')
-        response = self.submit_code(contest, problem_instance, '')
+        response = self.submit_code(contest, problem_instance, b'')
         self.assertContains(response, 'You have to either choose file or paste code.')
-        response = self.submit_code(contest, problem_instance, 'some code',
+        response = self.submit_code(contest, problem_instance, b'some code',
                 send_file=True)
         self.assertContains(response, 'You have to either choose file or paste code.')
 
@@ -1064,8 +1064,8 @@ class TestRejudge(TestCase, SubmitFileMixin):
         if submission.exists():
             submission.delete()
 
-        good_code = 'int main(void) { return 0; }'
-        bad_code = 'int main(void) { return 1; }'
+        good_code = b'int main(void) { return 0; }'
+        bad_code = b'int main(void) { return 1; }'
 
         ContestWithJudgeInfoController.judged = False
         self.submit_code(contest, pi, good_code)

@@ -102,16 +102,16 @@ class TestTestrunViews(TestCase):
         self.assertContains(response, u'Sumżyce')
         data = {
             'problem_instance_id': ProblemInstance.objects.get().id,
-            'file': ContentFile('a', name='x.cpp'),
-            'input': ContentFile('i', name='x.cpp'),
+            'file': ContentFile(b'a', name='x.cpp'),
+            'input': ContentFile(b'i', name='x.cpp'),
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.filter(kind='TESTRUN').count(), 2)
         submission = TestRunProgramSubmission.objects.latest('pk')
         self.assertEqual(submission.kind, 'TESTRUN')
-        self.assertEqual(submission.input_file.read().strip(), 'i')
-        self.assertEqual(submission.source_file.read().strip(), 'a')
+        self.assertEqual(submission.input_file.read().strip(), b'i')
+        self.assertEqual(submission.source_file.read().strip(), b'a')
 
         self.assertTrue(self.client.login(username='test_admin'))
         response = self.client.get(url)
@@ -128,10 +128,10 @@ class TestTestrunViews(TestCase):
         testruns_before = Submission.objects.filter(kind='TESTRUN').count()
         for bad_archive in ['over_limit.zip', 'two_files.zip', 'evil.zip']:
             filename = os.path.join(base_dir, bad_archive)
-            with open(filename) as input_file:
+            with open(filename, 'rb') as input_file:
                 data = {
                     'problem_instance_id': ProblemInstance.objects.get().id,
-                    'file': ContentFile('a', name='x.cpp'),
+                    'file': ContentFile(b'a', name='x.cpp'),
                     'input': input_file
                 }
                 response = self.client.post(url, data, follow=True)
@@ -140,10 +140,10 @@ class TestTestrunViews(TestCase):
                     Submission.objects.filter(kind='TESTRUN').count(),
                     testruns_before)
 
-        with open(os.path.join(base_dir, "single_file.zip")) as input_file:
+        with open(os.path.join(base_dir, "single_file.zip"), 'rb') as input_file:
             data = {
                 'problem_instance_id': ProblemInstance.objects.get().id,
-                'file': ContentFile('a', name='x.cpp'),
+                'file': ContentFile(b'a', name='x.cpp'),
                 'input': input_file,
             }
             response = self.client.post(url, data, follow=True)
@@ -153,7 +153,7 @@ class TestTestrunViews(TestCase):
                 testruns_before + 1)
             submission = TestRunProgramSubmission.objects.latest('pk')
             self.assertEqual(submission.kind, 'TESTRUN')
-            self.assertEqual(submission.source_file.read().strip(), 'a')
+            self.assertEqual(submission.source_file.read().strip(), b'a')
             archive = Archive(submission.input_file, '.zip')
             self.assertEqual(len(archive.filenames()), 1)
 
@@ -163,17 +163,17 @@ class TestTestrunViews(TestCase):
         url = reverse('testrun_submit', kwargs=kwargs)
         data = {
             'problem_instance_id': ProblemInstance.objects.get().id,
-            'code': 'some code',
+            'code': b'some code',
             'prog_lang': 'C',
-            'input': ContentFile('i', name='x.cpp'),
+            'input': ContentFile(b'i', name='x.cpp'),
         }
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Submission.objects.filter(kind='TESTRUN').count(), 2)
         submission = TestRunProgramSubmission.objects.latest('pk')
         self.assertEqual(submission.kind, 'TESTRUN')
-        self.assertEqual(submission.input_file.read().strip(), 'i')
-        self.assertEqual(submission.source_file.read().strip(), 'some code')
+        self.assertEqual(submission.input_file.read().strip(), b'i')
+        self.assertEqual(submission.source_file.read().strip(), b'some code')
 
     def test_submissions_permissions(self):
         submission = TestRunProgramSubmission.objects.get(pk=1)
@@ -236,7 +236,7 @@ class TestHandlers(TestCase):
         self.assertIn('in_file', environ['tests']['test'])
 
         # Simulate running tests
-        FiletrackerStorage().save('output', ContentFile('o'))
+        FiletrackerStorage().save('output', ContentFile(b'o'))
         try:
             environ['test_results'] = {}
             environ['test_results']['test'] = {
@@ -273,9 +273,9 @@ class TestRunTestCase(object):
                         contest,
                         problem_instance,
                         source_name='submission.cpp',
-                        source_contents='<test run source>',
+                        source_contents=b'<test run source>',
                         input_name='input.txt',
-                        input_contents='<test run input>'):
+                        input_contents=b'<test run input>'):
         url = reverse('testrun_submit', kwargs={'contest_id': contest.id})
 
         source_file = ContentFile(source_contents, name=source_name)

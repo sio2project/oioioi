@@ -64,7 +64,7 @@ class TestPublicSolutions(TestCase):
         return datetime(2016, 1, 1, tzinfo=utc)
 
     def assertUserSubmissionHTMLDataCount(self, html, username, count):
-        actual = len(re.findall(r'username.*"' + username + r'"', html))
+        actual = len(re.findall((r'username.*"' + username + r'"').encode('utf-8'), html))
         self.assertEqual(actual, count, "Expected %d html data, got %d in %s" %
                 (count, actual, html))
 
