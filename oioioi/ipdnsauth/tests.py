@@ -79,7 +79,7 @@ class TestIpDnsManagement(TestCase):
                     ('test_user', '127.0.0.3'),
                     ('test_user2', 'fe80::762f:68ff:fedd:9bd8'),
                     )
-        self.assertItemsEqual(expected, loaded)
+        six.assertCountEqual(self, expected, loaded)
 
         manager.clear('ip', IpToUser.objects)
         loaded = manager.export_data('ip', IpToUser.objects)
@@ -99,7 +99,7 @@ class TestIpDnsManagement(TestCase):
         expected = (('test_user', 'localhost'),
                     ('test_user2', 'some.dotted.domain'),
                     )
-        self.assertItemsEqual(expected, loaded)
+        six.assertCountEqual(self, expected, loaded)
 
         manager.run_from_argv(['manage.py', 'ipdnsauth', 'dns',
                                 '--unload', filename])
