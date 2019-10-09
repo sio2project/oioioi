@@ -8,7 +8,7 @@ from oioioi.default_settings import INSTALLATION_CONFIG_VERSION
 GITHUB_LINK = "https://github.com/sio2project/oioioi/blob/master/UPGRADING.rst#changes-in-the-deployment-directory"
 
 
-def version_check():
+def setup_check():
     deployment_config_version = getattr(settings, 'CONFIG_VERSION', 0)
     if deployment_config_version != INSTALLATION_CONFIG_VERSION:
         raise ImproperlyConfigured(_("The 'CONFIG_VERSION' in your custom "
@@ -21,3 +21,6 @@ def version_check():
                     'version': INSTALLATION_CONFIG_VERSION,
                     'href': GITHUB_LINK,
                 })
+    database_atomic_requests = getattr(settings, 'CONFIG_VERSION', 0)
+    if not database_atomic_requests:
+        raise ImproperlyConfigured("'ATOMIC_REQUESTS' in database settings should always be set to True.")

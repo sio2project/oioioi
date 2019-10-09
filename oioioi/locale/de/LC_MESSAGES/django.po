@@ -401,7 +401,7 @@ msgstr "Benutzer"
 msgid "Your API token"
 msgstr ""
 
-#: base/config_version_check.py:14
+#: base/setup_check.py:14
 #, python-format
 msgid ""
 "The 'CONFIG_VERSION' in your custom deployment directory "
