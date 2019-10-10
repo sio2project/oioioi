@@ -175,11 +175,11 @@ LOGGING['loggers']['oioioi.zeus'] = {
 # By default that means ones defined here:
 # https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
 #AVAILABLE_COMPILERS = {
-#        'C': ['gcc'],
-#        'C++': ['g++'],
-#        'Pascal': ['fpc'],
+#        'C': ['c'],
+#        'C++': ['cpp'],
+#        'Pascal': ['pas'],
 #        'Java': ['java'],
-#        'Python': ['python']
+#        'Python': ['py']
 #}
 
 # This setting sets the default compilers used throughout the platform.

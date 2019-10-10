@@ -306,18 +306,18 @@ RUN_LOCAL_WORKERS = False
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_EXTENSIONS
 AVAILABLE_COMPILERS = {
-        'C': ['gcc'],
-        'C++': ['g++'],
-        'Pascal': ['fpc'],
+        'C': ['c'],
+        'C++': ['cpp'],
+        'Pascal': ['pas'],
         'Java': ['java'],
-        'Python': ['python']
+        'Python': ['py']
 }
 
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_EXTENSIONS
-DEFAULT_COMPILERS = {'C': 'gcc', 'C++': 'g++', 'Pascal': 'fpc', 'Java': 'java',
-                     'Python': 'python'}
+DEFAULT_COMPILERS = {'C': 'c', 'C++': 'cpp', 'Pascal': 'pas', 'Java': 'java',
+                     'Python': 'py'}
 
 
 # WARNING: experimental, see settings template
