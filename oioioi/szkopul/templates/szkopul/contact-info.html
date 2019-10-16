@@ -1,0 +1,27 @@
+{% load i18n %}
+<div class="modal fade" id="szkopul-contact-form" tabindex="-1" role="dialog" aria-labelledby="szkopul-contact-form-title">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="close" data-dismiss="modal" aria-label="{% trans "Close" %}">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 id="szkopul-contact-form-title">{% trans "Send Feedback" %}</h4>
+      </div>
+      <div class="modal-body">
+        <section>
+          {% blocktrans trimmed %}
+            <p>In the event of technical difficulties with Szkopuł, please contact us via email at <a href="mailto:{{ support_email }}">{{ support_email }}</a>.</p>
+            <p>If you are familiar with IRC chat, the support team is also reachable on PIRC network (<code>irc.pirc.pl</code>) in <code>#szkopul</code> channel. If you are not, just use email.</p>
+            <p>Please do not ask us things like "how to solve task XYZ?".</p>
+            <p>Please remember that the support team has to sleep sometimes or go to work in real life.</p>
+          {% endblocktrans %}
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<button class="btn btn-default" id="szkopul-contact-form-open" type="button"
+    data-toggle="modal" data-target="#szkopul-contact-form">
+  {% trans "Send Feedback" %}
+</button>

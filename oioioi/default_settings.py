@@ -448,6 +448,9 @@ SIOWORKERSD_URL = 'http://localhost:7889/'
 # ID of JotForm account for "Send Feedback" link.
 JOTFORM_ID = None
 
+# Email address for "Send Feedback" message.
+SZKOPUL_SUPPORT_EMAIL = None
+
 # Google Analytics
 GOOGLE_ANALYTICS_TRACKING_ID = None
 
