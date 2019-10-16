@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 38
+INSTALLATION_CONFIG_VERSION = 39
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -132,7 +132,6 @@ TEMPLATES = [
                 'oioioi.base.processors.side_menus',
                 'oioioi.base.processors.site_name',
                 'oioioi.base.processors.mathjax_location',
-                'oioioi.jotform.processors.jotform',
                 'oioioi.contests.processors.register_current_contest',
                 'oioioi.contests.processors.register_recent_contests',
                 'oioioi.contestexcl.processors.register_contest_exclusive',
@@ -201,7 +200,6 @@ INSTALLED_APPS = (
     'oioioi.questions',
     'oioioi.rankings',
     'oioioi.sioworkers',
-    'oioioi.jotform',
     'oioioi.analytics',
     'oioioi.celery',
     'oioioi.status',
@@ -444,9 +442,6 @@ EVALMGR_CONCURRENCY = 1
 UNPACKMGR_CONCURRENCY = 1
 
 SIOWORKERSD_URL = 'http://localhost:7889/'
-
-# ID of JotForm account for "Send Feedback" link.
-JOTFORM_ID = None
 
 # Email address for "Send Feedback" message.
 SZKOPUL_SUPPORT_EMAIL = None

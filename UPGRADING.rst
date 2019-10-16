@@ -650,3 +650,7 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# change, delete or submit to existing usercontests, as well as add new ones.
         +# This operation is fully reversible.
         +#ARCHIVE_USERCONTESTS = True
+
+#. * Removed ``oioioi.jotform`` module. ``JOTFORM_ID`` can be removed
+     from ``settings.py``. There is no need to modify other variables,
+     as the module was enabled by default.
