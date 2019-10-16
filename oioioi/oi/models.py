@@ -35,6 +35,7 @@ PROVINCES = [(s, s) for s in (
     u'warmińsko-mazurskie',
     u'wielkopolskie',
     u'zachodniopomorskie',
+    u'zagranica',
 )]
 
 CLASS_TYPES = [
