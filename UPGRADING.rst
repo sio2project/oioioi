@@ -546,8 +546,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Changed middleware classes' style to the new one (Django 1.10).::
 
-	Move all middlewares from MIDDLEWARE_CLASSES to MIDDLEWARE in settings.py.
-	Simply rename MIDDLEWARE_CLASSES settings variable to MIDDLEWARE.
+        Move all middlewares from MIDDLEWARE_CLASSES to MIDDLEWARE in settings.py.
+        Simply rename MIDDLEWARE_CLASSES settings variable to MIDDLEWARE.
 
 #. * Added ``oioioi.problemsharing`` module. *We suggest enabling if oioioi.teachers module is used*.::
 
@@ -564,10 +564,10 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
 #. * Added ``oioioi.usergroups`` module.::
 
-	Add the following line at the end of your INSTALLED_APPS variable
-	in settings.py (if you want to use the new app simply uncomment this line):
+        Add the following line at the end of your INSTALLED_APPS variable
+        in settings.py (if you want to use the new app simply uncomment this line):
 
-	#    'oioioi.usergroups',
+        #    'oioioi.usergroups',
 
 #. * Introduced `DEFAULT_COMPILERS` to settings, which should be set for every language supoorted::
 
@@ -592,7 +592,8 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          # WARNING: experimental, see settings template
          USE_UNSAFE_CHECKER = True
 
-$. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compilers available in sioworkers for every language supported.::
+#. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compilers available in sioworkers for every language supported.::
+
         +# This setting specifies which compilers are available in sioworkers
         +AVAILABLE_COMPILERS = {
         +        'C': ['gcc'],
@@ -604,7 +605,7 @@ $. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compil
         +
 
 #. * Added option to block uploading HTML problem statements in sinol packages
-    by untrusted users.::
+     by untrusted users.::
 
         --- a/oioioi/deployment/settings.py.template
         +++ b/oioioi/deployment/settings.py.template
@@ -626,26 +627,26 @@ $. * Introduced `AVAILABLE_COMPILERS` to settings, which should be set to compil
 
 #. * Added ``oioioi.usercontests`` module.::
 
-    Add the following (commented out) line to the INSTALLED_APPS variable in
-    settings.py:
+        Add the following (commented out) line to the INSTALLED_APPS variable in
+        settings.py:
 
-    #    'oioioi.usercontests',
+        #    'oioioi.usercontests',
 
-    Add the following (commented out) line to the AUTHENTICATION_BACKENDS
-    variable in settings.py:
+        Add the following (commented out) line to the AUTHENTICATION_BACKENDS
+        variable in settings.py:
 
-    #    'oioioi.usercontests.auth.UserContestAuthBackend',
+        #    'oioioi.usercontests.auth.UserContestAuthBackend',
 
 #. * Added the `ARCHIVE_USERCONTESTS` setting.::
 
-   --- a/oioioi/deployment/settings.py.template
-   +++ b/oioioi/deployment/settings.py.template
-   @@ -457,3 +457,6 @@ RAVEN_CONFIG = {
-    # OIOIOI instance.
-    #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
-    #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
-   +
-   +# If set to True, usercontests will become read-only: it will be impossible to
-   +# change, delete or submit to existing usercontests, as well as add new ones.
-   +# This operation is fully reversible.
-   +#ARCHIVE_USERCONTESTS = True
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -457,3 +457,6 @@ RAVEN_CONFIG = {
+         # OIOIOI instance.
+         #OIOIOI_INSTANCE_PRIORITY_BONUS = 0
+         #OIOIOI_INSTANCE_WEIGHT_BONUS = 0
+        +
+        +# If set to True, usercontests will become read-only: it will be impossible to
+        +# change, delete or submit to existing usercontests, as well as add new ones.
+        +# This operation is fully reversible.
+        +#ARCHIVE_USERCONTESTS = True
