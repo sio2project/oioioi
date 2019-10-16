@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-30 14:24+0200\n"
-"PO-Revision-Date: 2019-09-28 06:13+0000\n"
+"POT-Creation-Date: 2019-10-16 23:01+0200\n"
+"PO-Revision-Date: 2019-10-16 19:31+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgstr "ACM Style Ranking"
 msgid "#"
 msgstr "#"
 
-#: acm/controllers.py:233 contests/forms.py:289
+#: acm/controllers.py:233 contests/forms.py:288
 #: contests/templates/contests/basic_user_info.html:20
 #: contests/templates/contests/navbar-user-info-form.html:18
 #: oireports/forms.py:94 rankings/forms.py:9 su/forms.py:29
@@ -1715,14 +1715,14 @@ msgstr ""
 msgid "Public contest"
 msgstr ""
 
-#: contests/controllers.py:938
+#: contests/controllers.py:945
 #, python-format
 msgid ""
 "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
 "The score is %(score)s."
 msgstr ""
 
-#: contests/controllers.py:942
+#: contests/controllers.py:949
 #, python-format
 msgid ""
 "%(task_name)s: Your submission was judged.\n"
@@ -1767,28 +1767,28 @@ msgstr ""
 msgid "Invalid problem"
 msgstr ""
 
-#: contests/forms.py:261
+#: contests/forms.py:260
 #, python-format
 msgid "Submission limit for the problem '%s' exceeded."
 msgstr ""
 
-#: contests/forms.py:268 mailsubmit/forms.py:61
+#: contests/forms.py:267 mailsubmit/forms.py:61
 msgid "Permission denied"
 msgstr ""
 
-#: contests/forms.py:310
+#: contests/forms.py:309
 msgid "Rejudge submissions on all current active tests"
 msgstr ""
 
-#: contests/forms.py:312
+#: contests/forms.py:311
 msgid "Rejudge submissions on active tests which haven't been judged yet"
 msgstr ""
 
-#: contests/forms.py:316
+#: contests/forms.py:315
 msgid "Rejudge submissions on all tests"
 msgstr ""
 
-#: contests/forms.py:322
+#: contests/forms.py:321
 msgid "Rejudge submissions on judged tests only"
 msgstr ""
 
@@ -3335,11 +3335,6 @@ msgid ""
 "    <p>You participate in the on-site competition. Why the heck would you like\n"
 "    to log in this way?</p>\n"
 "    "
-msgstr ""
-
-#: jotform/templates/jotform/jotform-head.html:8
-#: szkopul/templates/ingredients/main-page-bottom.html:8
-msgid "Send Feedback"
 msgstr ""
 
 #: mailsubmit/admin.py:92
@@ -7578,6 +7573,7 @@ msgid "You have no access to those charts"
 msgstr ""
 
 #: status/templates/status/outdated-modal.html:6
+#: szkopul/templates/szkopul/contact-info.html:6
 msgid "Close"
 msgstr ""
 
@@ -7714,6 +7710,12 @@ msgstr ""
 msgid "Contact us"
 msgstr ""
 
+#: szkopul/templates/ingredients/main-page-bottom.html:8
+#: szkopul/templates/szkopul/contact-info.html:9
+#: szkopul/templates/szkopul/contact-info.html:26
+msgid "Send Feedback"
+msgstr ""
+
 #: szkopul/templates/ingredients/main-page-bottom.html:9
 #, python-format
 msgid ""
@@ -7748,6 +7750,18 @@ msgid ""
 "Welcome to Szkopuł - a place for solving algorithmic challenges!<br> In "
 "order to submit solutions and register for contests you need to <a "
 "href=\"register\">make an account</a>."
+msgstr ""
+
+#: szkopul/templates/szkopul/contact-info.html:13
+#, python-format
+msgid ""
+"<p>In the event of technical difficulties with Szkopuł, please contact us "
+"via email at <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p>"
+" <p>If you are familiar with IRC chat, the support team is also reachable on"
+" PIRC network (<code>irc.pirc.pl</code>) in <code>#szkopul</code> channel. "
+"If you are not, just use email.</p> <p>Please do not ask us things like "
+"\"how to solve task XYZ?\".</p> <p>Please remember that the support team has"
+" to sleep sometimes or go to work in real life.</p>"
 msgstr ""
 
 #: teachers/admin.py:43

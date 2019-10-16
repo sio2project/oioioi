@@ -48,9 +48,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-30 14:24+0200\n"
-"PO-Revision-Date: 2019-09-28 06:13+0000\n"
-"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2019-10-16 23:01+0200\n"
+"PO-Revision-Date: 2019-10-16 19:43+0000\n"
+"Last-Translator: Michał Sidor <michcioperz@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -74,7 +74,7 @@ msgstr "Ranking typu ACM"
 msgid "#"
 msgstr "Lp."
 
-#: acm/controllers.py:233 contests/forms.py:289
+#: acm/controllers.py:233 contests/forms.py:288
 #: contests/templates/contests/basic_user_info.html:20
 #: contests/templates/contests/navbar-user-info-form.html:18
 #: oireports/forms.py:94 rankings/forms.py:9 su/forms.py:29
@@ -1760,14 +1760,14 @@ msgstr "Uprawnienia do konkursów"
 msgid "Public contest"
 msgstr "Konkurs publiczny"
 
-#: contests/controllers.py:938
+#: contests/controllers.py:945
 #, python-format
 msgid ""
 "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
 "The score is %(score)s."
 msgstr "%(contest_name)s, %(task_name)s: Twoje zgłoszenie zostało ocenione.\nJego wynik to %(score)s."
 
-#: contests/controllers.py:942
+#: contests/controllers.py:949
 #, python-format
 msgid ""
 "%(task_name)s: Your submission was judged.\n"
@@ -1812,28 +1812,28 @@ msgstr "Rodzaj"
 msgid "Invalid problem"
 msgstr "Nieznane zadanie"
 
-#: contests/forms.py:261
+#: contests/forms.py:260
 #, python-format
 msgid "Submission limit for the problem '%s' exceeded."
 msgstr "Przekroczono limit zgłoszeń do zadania \"%s\"."
 
-#: contests/forms.py:268 mailsubmit/forms.py:61
+#: contests/forms.py:267 mailsubmit/forms.py:61
 msgid "Permission denied"
 msgstr "Brak uprawnień"
 
-#: contests/forms.py:310
+#: contests/forms.py:309
 msgid "Rejudge submissions on all current active tests"
 msgstr "Oceń ponownie zgłoszenia na wszystkich aktualnych testach"
 
-#: contests/forms.py:312
+#: contests/forms.py:311
 msgid "Rejudge submissions on active tests which haven't been judged yet"
 msgstr "Oceń ponownie zgłoszenia na tych testach, na których jeszcze nie zostały ocenione"
 
-#: contests/forms.py:316
+#: contests/forms.py:315
 msgid "Rejudge submissions on all tests"
 msgstr "Oceń ponownie zgłoszenia na wszystkich testach"
 
-#: contests/forms.py:322
+#: contests/forms.py:321
 msgid "Rejudge submissions on judged tests only"
 msgstr "Oceń ponownie zgłoszenia na tych testach, na których zostały uprzednio ocenione"
 
@@ -3401,11 +3401,6 @@ msgid ""
 "    to log in this way?</p>\n"
 "    "
 msgstr "\n    <p>Hej! Konkurs, w którym bierzesz udział odbywa się w warunkach kontrolowanej samodzielności. Po co chciałbyś logować się w ten sposób?</p>\n    "
-
-#: jotform/templates/jotform/jotform-head.html:8
-#: szkopul/templates/ingredients/main-page-bottom.html:8
-msgid "Send Feedback"
-msgstr "Kontakt"
 
 #: mailsubmit/admin.py:92
 msgid "Related submission"
@@ -6694,26 +6689,26 @@ msgstr "Kolejność"
 #: quizzes/models.py:27
 #| msgid "Quiz answers"
 msgid "Hide answers"
-msgstr ""
+msgstr "Ukryj odpowiedzi"
 
 #: quizzes/models.py:27
 msgid ""
 "Instead of listing answers, expect the contestant to type in their answer."
-msgstr ""
+msgstr "Zamiast podać możliwe odpowiedzi, oczekuj od uczestnika wpisania odpowiedzi."
 
 #: quizzes/models.py:28
 msgid "Trim leading and trailing whitespace in user input"
-msgstr ""
+msgstr "Usuń białe znaki na początku i końcu odpowiedzi uczestnika"
 
 #: quizzes/models.py:28 quizzes/models.py:29
 #| msgid "One post has been hidden."
 #| msgid_plural "%(counter)d posts have been hidden."
 msgid "Only applies if answers are hidden."
-msgstr ""
+msgstr "Dotyczy tylko pytań z ukrytymi odpowiedziami."
 
 #: quizzes/models.py:29
 msgid "Match user input case insensitively"
-msgstr ""
+msgstr "Ignoruj wielkość znaków w odpowiedzi uczestnika"
 
 #: quizzes/models.py:33
 msgid "Quiz question"
@@ -6792,17 +6787,17 @@ msgstr "Zgłoszenie odpowiedzi"
 #: quizzes/models.py:125
 #| msgid "Quiz answer"
 msgid "Text answer"
-msgstr ""
+msgstr "Odpowiedź wpisana"
 
 #: quizzes/models.py:129
 #| msgid "Quiz submission answer"
 msgid "Quiz submission text answer"
-msgstr ""
+msgstr "Zgłoszenie odpowiedzi wpisanej"
 
 #: quizzes/models.py:130
 #| msgid "Quiz submission answers"
 msgid "Quiz submission text answers"
-msgstr ""
+msgstr "Zgłoszenia odpowiedzi wpisanej"
 
 #: quizzes/models.py:135
 msgid "Submission report"
@@ -7689,6 +7684,7 @@ msgid "You have no access to those charts"
 msgstr "Nie masz dostępu do tych wykresów"
 
 #: status/templates/status/outdated-modal.html:6
+#: szkopul/templates/szkopul/contact-info.html:6
 msgid "Close"
 msgstr "Zamknij"
 
@@ -7825,6 +7821,12 @@ msgstr "Aktualności"
 msgid "Contact us"
 msgstr "Kontakt"
 
+#: szkopul/templates/ingredients/main-page-bottom.html:8
+#: szkopul/templates/szkopul/contact-info.html:9
+#: szkopul/templates/szkopul/contact-info.html:26
+msgid "Send Feedback"
+msgstr "Kontakt"
+
 #: szkopul/templates/ingredients/main-page-bottom.html:9
 #, python-format
 msgid ""
@@ -7860,6 +7862,18 @@ msgid ""
 "order to submit solutions and register for contests you need to <a "
 "href=\"register\">make an account</a>."
 msgstr "Witaj na Szkopule - portalu do rozwiązywania wyzwań algorytmicznych!<br> Zanim będziesz mógł wysyłać swoje rozwiązania, musisz <a href=\"register\">założyć konto</a>."
+
+#: szkopul/templates/szkopul/contact-info.html:13
+#, python-format
+msgid ""
+"<p>In the event of technical difficulties with Szkopuł, please contact us "
+"via email at <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p>"
+" <p>If you are familiar with IRC chat, the support team is also reachable on"
+" PIRC network (<code>irc.pirc.pl</code>) in <code>#szkopul</code> channel. "
+"If you are not, just use email.</p> <p>Please do not ask us things like "
+"\"how to solve task XYZ?\".</p> <p>Please remember that the support team has"
+" to sleep sometimes or go to work in real life.</p>"
+msgstr "<p>W razie problemów technicznych ze Szkopułem, prosimy o kontakt mailowy pod adresem <a href=\"mailto:%(support_email)s\">%(support_email)s</a>.</p> <p>Jeżeli czat IRC nie jest Ci obcy, zespół techniczny jest również dostępny na sieci PIRC (<code>irc.pirc.pl</code>) na kanale <code>#szkopul</code>. Jeżeli nie jesteś, użyj po prostu maila.</p> <p>Prosimy nie zadawać pytań typu \"Jak rozwiązać zadanie Wielomian?\".</p> <p>Pragniemy podkreślić, że zespół techniczny również potrzebuje snu, pracuje, studiuje.</p>"
 
 #: teachers/admin.py:43
 #: teachers/templates/teachers/simpleui/teacher_contest_dashboard.html:8
