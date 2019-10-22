@@ -1138,6 +1138,19 @@ class TestNavigationBarItems(TestCase):
         self.assertContains(response, 'Problemset')
         self.assertContains(response, 'Task archive')
 
+    #Regression test for SIO-2278
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_navigation_bar_items_translation(self):
+        response = self.client.get(reverse('problemset_main'), follow=True, HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+        response = self.client.get(reverse('problemset_main'), follow=True, HTTP_ACCEPT_LANGUAGE='pl')
+
+        self.assertContains(response, 'Baza zadań')
+        self.assertContains(response, 'Archiwum zadań')
+
     def test_navigation_bar_items_admin(self):
         url_main = reverse('problemset_main')
         url_my = reverse('problemset_my_problems')

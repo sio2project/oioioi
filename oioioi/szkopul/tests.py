@@ -1,3 +1,4 @@
+# coding: utf8
 from __future__ import print_function
 
 from django.test.utils import override_settings
@@ -25,6 +26,19 @@ class TestMainPageView(TestCase):
 
         self.assertContains(response, 'href="/contest/"')
         self.assertContains(response, 'href="/problemset/"')
+
+    #Regression test for SIO-2278
+    @override_settings(CONTEST_MODE=ContestMode.neutral)
+    def test_navbar_links_translation(self):
+        response = self.client.get(reverse('problemset_main'), follow=True, HTTP_ACCEPT_LANGUAGE='en')
+
+        self.assertContains(response, 'Problemset')
+        self.assertContains(response, 'Task archive')
+
+        response = self.client.get(reverse('problemset_main'), follow=True, HTTP_ACCEPT_LANGUAGE='pl')
+
+        self.assertContains(response, 'Baza zadań')
+        self.assertContains(response, 'Archiwum zadań')
 
 
     @override_settings(CONTEST_MODE=ContestMode.neutral)

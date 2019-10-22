@@ -16,7 +16,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language, ugettext as _
+from django.utils.translation import get_language, ugettext_lazy as _
 import six.moves.urllib.parse
 
 from oioioi.base.utils import jsonify, tabbed_view
@@ -781,10 +781,16 @@ def get_search_hints_view(request, view_type):
         raise PermissionDenied
     query = unidecode(request.GET.get('q', ''))
 
-    return get_problem_hints(query, view_type, request.user) \
+    result =  get_problem_hints(query, view_type, request.user) \
         + get_tag_hints(query) \
         + get_origintag_hints(query) \
         + get_origininfovalue_hints(query)
+
+    # Convert category names in results from lazy translation to strings
+    # Since jsonify throws error if given lazy translation objects
+    for tag in result:
+        tag['category'] = tag['category'].encode('utf-8')
+    return result
 
 
 @jsonify
