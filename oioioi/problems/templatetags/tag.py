@@ -14,6 +14,7 @@ def prefetch_tags(problems):
                               'origintag_set__localizations',
                               'origininfovalue_set__localizations',
                               'origininfovalue_set__parent_tag__localizations')
+    return u''
 
 
 @register.simple_tag
