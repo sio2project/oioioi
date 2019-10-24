@@ -7,8 +7,8 @@ from oioioi.contests.scores import ScoreValue
 
 
 def format_time(seconds):
-    minutes = seconds / 60
-    return '%d:%02d' % (minutes / 60, minutes % 60)
+    minutes = seconds // 60
+    return '%d:%02d' % (minutes // 60, minutes % 60)
 
 
 @total_ordering

@@ -119,7 +119,7 @@ def source_diff_view(request, submission1_id, submission2_id):
         line = diffstrip(diffline)
         line = line.expandtabs(4)
         maxlen = getattr(settings, 'CHARACTERS_IN_LINE', 80)
-        parts = (len(line) + maxlen) / maxlen
+        parts = (len(line) + maxlen) // maxlen
         line = line.ljust(parts * maxlen)
         for i in range(parts):
             f, t = i * maxlen, ((i + 1) * maxlen)

@@ -569,7 +569,7 @@ class SinolPackage(object):
                     value = int(r.group(1))
                     # In SIO1's tradition 66000 was used instead of 65536 etc.
                     # We're trying to cope with this legacy here.
-                    return (value + (value + 31) / 32) * 1000
+                    return (value + (value + 31) // 32) * 1000
                 except ValueError:
                     pass
         return None
@@ -870,7 +870,7 @@ class SinolPackage(object):
 
         scores = {}
         num_groups = len(scored_groups)
-        group_score = total_score / num_groups
+        group_score = total_score // num_groups
         extra_score_groups = sorted(scored_groups, key=naturalsort_key)[
                 num_groups - (total_score - num_groups * group_score):]
         for group in scored_groups:

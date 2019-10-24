@@ -38,7 +38,7 @@ def histogram(values, num_buckets=10, max_result=None):
         if max_result < num_buckets:
             num_buckets = max_result  # divide by zero protection
 
-        bucket = max_result / num_buckets  # bucket cannot be 0
+        bucket = max_result // num_buckets  # bucket cannot be 0
         if (max_result % num_buckets) != 0:
             num_buckets += 1
 
@@ -47,7 +47,7 @@ def histogram(values, num_buckets=10, max_result=None):
         bucket = 1
         counts = [0]
 
-    for key, group in groupby(values, key=(lambda x: x / bucket)):
+    for key, group in groupby(values, key=(lambda x: x // bucket)):
         counts[key] += len(list(group))
 
     return [list(tup) for tup in

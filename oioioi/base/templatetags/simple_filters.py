@@ -135,7 +135,7 @@ def partition(thelist, n):
         thelist = list(thelist)
     except (ValueError, TypeError):
         return [thelist]
-    p = len(thelist) / n
+    p = len(thelist) // n
     num_longer = len(thelist) - p * n
 
     return [thelist[((p + 1) * i):((p + 1) * (i + 1))]
