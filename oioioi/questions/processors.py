@@ -34,12 +34,11 @@ def navbar_messages_generator(request):
         return {}
 
     is_admin = is_contest_basicadmin(request)
-    messages = visible_messages(request)
-    visible_ids = messages.values_list('id', flat=True)
+    vis_messages = visible_messages(request)
     if is_admin:
-        messages = unanswered_questions(messages)
+        messages = unanswered_questions(vis_messages)
     else:
-        messages = new_messages(request, messages)
+        messages = new_messages(request, vis_messages)
     count = messages.count()
     if count:
         text = ungettext('%(count)d NEW MESSAGE', '%(count)d NEW MESSAGES',
@@ -50,7 +49,8 @@ def navbar_messages_generator(request):
             link = reverse('message', kwargs={
                 'contest_id': request.contest.id,
                 'message_id': m.top_reference_id
-                if m.top_reference_id in visible_ids else m.id
+                if vis_messages.filter(id=m.top_reference_id).exists()
+                else m.id
             })
         else:
             link = reverse('contest_messages', kwargs={'contest_id':
