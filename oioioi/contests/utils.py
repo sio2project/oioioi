@@ -93,6 +93,13 @@ def generic_rounds_times(request=None, contest=None):
         return {}
     contest = contest or request.contest
 
+    cache_attribute = '_generic_rounds_times_cache'
+    if request is not None:
+        if not hasattr(request, cache_attribute):
+            setattr(request, cache_attribute, {})
+        elif contest.id in getattr(request, cache_attribute):
+            return getattr(request, cache_attribute)[contest.id]
+
     rounds = [r for r in Round.objects.filter(contest=contest)
               .select_related('contest')]
     rids = [r.id for r in rounds]
@@ -103,9 +110,12 @@ def generic_rounds_times(request=None, contest=None):
         rtexts = dict((x['round_id'], x) for x in RoundTimeExtension.objects
                       .filter(user=request.user, round__id__in=rids).values())
 
-    return dict((r, RoundTimes(r.start_date, r.end_date, r.contest,
+    result = dict((r, RoundTimes(r.start_date, r.end_date, r.contest,
         r.results_date, r.public_results_date,
         rtexts[r.id]['extra_time'] if r.id in rtexts else 0)) for r in rounds)
+    if request is not None:
+        getattr(request, cache_attribute)[contest.id] = result
+    return result
 
 
 def rounds_times(request, contest):
