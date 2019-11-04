@@ -66,10 +66,9 @@ def main_page_view(request):
         #
         # request.contest = current_contest
 
-        submissions = [submission_template_context(request, s) for s in queryset]
-
         to_show = getattr(settings, 'NUM_PANEL_SUBMISSIONS', 7)
-        submissions = submissions[:to_show]
+        submissions = [submission_template_context(request, s) for s in queryset[:to_show]]
+
         show_scores = any(s['can_see_score'] for s in submissions)
 
     context = {
