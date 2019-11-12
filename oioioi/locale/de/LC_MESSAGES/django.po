@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-16 23:01+0200\n"
+"POT-Creation-Date: 2019-11-12 07:33+0100\n"
 "PO-Revision-Date: 2019-10-16 19:31+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -401,15 +401,6 @@ msgstr "Benutzer"
 msgid "Your API token"
 msgstr ""
 
-#: base/setup_check.py:14
-#, python-format
-msgid ""
-"The 'CONFIG_VERSION' in your custom deployment directory "
-"(%(deployment_version)s) does not match the 'INSTALLATION_CONFIG_VERSION' "
-"(%(version)s) in 'default_settings.py'. Please consult %(href)s for the list"
-" of changes in the deployment directory."
-msgstr ""
-
 #: base/fields.py:31
 msgid "Dotted name of some Python object"
 msgstr ""
@@ -433,7 +424,7 @@ msgstr ""
 msgid "Enumeration"
 msgstr ""
 
-#: base/fields.py:251 oi/models.py:73 oi/models.py:108
+#: base/fields.py:251 oi/models.py:74 oi/models.py:109
 msgid "Invalid phone number"
 msgstr ""
 
@@ -441,7 +432,7 @@ msgstr ""
 msgid "Including the area code."
 msgstr ""
 
-#: base/fields.py:270 oi/models.py:67 oi/models.py:104
+#: base/fields.py:270 oi/models.py:68 oi/models.py:105
 msgid "Enter a postal code in the format XX-XXX"
 msgstr ""
 
@@ -505,6 +496,15 @@ msgstr "Persönliches Menu"
 msgid ""
 "Your login - %(login)s - contains forbidden characters. Please click <a "
 "href='%(link)s'>here</a> to change it. It will take only a while."
+msgstr ""
+
+#: base/setup_check.py:14
+#, python-format
+msgid ""
+"The 'CONFIG_VERSION' in your custom deployment directory "
+"(%(deployment_version)s) does not match the 'INSTALLATION_CONFIG_VERSION' "
+"(%(version)s) in 'default_settings.py'. Please consult %(href)s for the list"
+" of changes in the deployment directory."
 msgstr ""
 
 #: base/templates/403.html:9
@@ -1941,7 +1941,7 @@ msgstr ""
 msgid "Public results of %s"
 msgstr ""
 
-#: contests/models.py:192 oi/models.py:63 prizes/models.py:125
+#: contests/models.py:192 oi/models.py:64 prizes/models.py:125
 #: prizes/models.py:279 problems/models.py:450 problems/models.py:505
 #: problems/models.py:628 problems/models.py:657 problems/models.py:690
 #: programs/models.py:65 programs/models.py:151 sinolpack/models.py:30
@@ -3007,7 +3007,7 @@ msgstr ""
 msgid "reported"
 msgstr ""
 
-#: forum/models.py:152 oi/models.py:78
+#: forum/models.py:152 oi/models.py:79
 msgid "approved"
 msgstr ""
 
@@ -3639,7 +3639,7 @@ msgstr ""
 msgid "-- Choose province --"
 msgstr ""
 
-#: oi/forms.py:87 oi/models.py:120 pa/models.py:43 participants/models.py:98
+#: oi/forms.py:87 oi/models.py:121 pa/models.py:43 participants/models.py:98
 msgid "terms accepted"
 msgstr ""
 
@@ -3718,60 +3718,60 @@ msgstr ""
 msgid "Export data for oi-timepres final presentation."
 msgstr ""
 
-#: oi/models.py:64 oi/models.py:101 pa/models.py:29
+#: oi/models.py:65 oi/models.py:102 pa/models.py:29
 msgid "address"
 msgstr ""
 
-#: oi/models.py:65 oi/models.py:102 pa/models.py:30
+#: oi/models.py:66 oi/models.py:103 pa/models.py:30
 msgid "postal code"
 msgstr ""
 
-#: oi/models.py:69 oi/models.py:106 pa/models.py:31
+#: oi/models.py:70 oi/models.py:107 pa/models.py:31
 msgid "city"
 msgstr ""
 
-#: oi/models.py:71
+#: oi/models.py:72
 msgid "province"
 msgstr ""
 
-#: oi/models.py:74 oi/models.py:109
+#: oi/models.py:75 oi/models.py:110
 msgid "phone number"
 msgstr ""
 
-#: oi/models.py:75
+#: oi/models.py:76
 msgid "email"
 msgstr ""
 
-#: oi/models.py:77 teachers/models.py:26
+#: oi/models.py:78 teachers/models.py:26
 msgid "active"
 msgstr ""
 
-#: oi/models.py:86
+#: oi/models.py:87
 #, python-format
 msgid "%(name)s, %(city)s"
 msgstr ""
 
-#: oi/models.py:110
+#: oi/models.py:111
 msgid "birth date"
 msgstr ""
 
-#: oi/models.py:111
+#: oi/models.py:112
 msgid "birthplace"
 msgstr ""
 
-#: oi/models.py:113 pa/models.py:37
+#: oi/models.py:114 pa/models.py:37
 msgid "t-shirt size"
 msgstr ""
 
-#: oi/models.py:114 teachers/models.py:27
+#: oi/models.py:115 teachers/models.py:27
 msgid "school"
 msgstr ""
 
-#: oi/models.py:117
+#: oi/models.py:118
 msgid "class"
 msgstr ""
 
-#: oi/models.py:123
+#: oi/models.py:124
 #, python-format
 msgid "%(class_type)s of %(school)s"
 msgstr ""
@@ -6358,7 +6358,7 @@ msgstr ""
 msgid "New public message."
 msgstr ""
 
-#: questions/processors.py:45
+#: questions/processors.py:44
 #, python-format
 msgid "%(count)d NEW MESSAGE"
 msgid_plural "%(count)d NEW MESSAGES"

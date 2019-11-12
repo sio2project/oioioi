@@ -48,7 +48,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-16 23:01+0200\n"
+"POT-Creation-Date: 2019-11-12 07:33+0100\n"
 "PO-Revision-Date: 2019-10-16 19:43+0000\n"
 "Last-Translator: Michał Sidor <michcioperz@gmail.com>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -440,15 +440,6 @@ msgstr "Uczestnicy"
 msgid "Your API token"
 msgstr "Twój token API"
 
-#: base/setup_check.py:14
-#, python-format
-msgid ""
-"The 'CONFIG_VERSION' in your custom deployment directory "
-"(%(deployment_version)s) does not match the 'INSTALLATION_CONFIG_VERSION' "
-"(%(version)s) in 'default_settings.py'. Please consult %(href)s for the list"
-" of changes in the deployment directory."
-msgstr "„CONFIG_VERSION” w twoim własnym katalogu deployment (%(deployment_version)s) nie pasuje do „INSTALLATION_CONFIG_VERSION” (%(version)s) w „default_settings.py”. Zobacz listę zmian w katalogu deployment pod %(href)s."
-
 #: base/fields.py:31
 msgid "Dotted name of some Python object"
 msgstr "Nazwa obiektu pythonowego "
@@ -472,7 +463,7 @@ msgstr "%s to klasa abstrakcyjna i nie może zostać tu użyta"
 msgid "Enumeration"
 msgstr "Wyliczenie"
 
-#: base/fields.py:251 oi/models.py:73 oi/models.py:108
+#: base/fields.py:251 oi/models.py:74 oi/models.py:109
 msgid "Invalid phone number"
 msgstr "Niepoprawny numer telefonu"
 
@@ -480,7 +471,7 @@ msgstr "Niepoprawny numer telefonu"
 msgid "Including the area code."
 msgstr "(wraz z numerem kierunkowym)"
 
-#: base/fields.py:270 oi/models.py:67 oi/models.py:104
+#: base/fields.py:270 oi/models.py:68 oi/models.py:105
 msgid "Enter a postal code in the format XX-XXX"
 msgstr "Wprowadź kod pocztowy w formacie XX-XXX"
 
@@ -545,6 +536,15 @@ msgid ""
 "Your login - %(login)s - contains forbidden characters. Please click <a "
 "href='%(link)s'>here</a> to change it. It will take only a while."
 msgstr "Twój login – %(login)s – zawiera niedozwolone znaki. Przejdź <a href='%(link)s'>tutaj</a>, aby go zmienić. To potrwa tylko chwilę."
+
+#: base/setup_check.py:14
+#, python-format
+msgid ""
+"The 'CONFIG_VERSION' in your custom deployment directory "
+"(%(deployment_version)s) does not match the 'INSTALLATION_CONFIG_VERSION' "
+"(%(version)s) in 'default_settings.py'. Please consult %(href)s for the list"
+" of changes in the deployment directory."
+msgstr "„CONFIG_VERSION” w twoim własnym katalogu deployment (%(deployment_version)s) nie pasuje do „INSTALLATION_CONFIG_VERSION” (%(version)s) w „default_settings.py”. Zobacz listę zmian w katalogu deployment pod %(href)s."
 
 #: base/templates/403.html:9
 #| msgid " &mdash; Sorry, but you're not allowed to see anything here. "
@@ -1988,7 +1988,7 @@ msgstr "%s – wyniki"
 msgid "Public results of %s"
 msgstr "%s – ogłoszenie wyników"
 
-#: contests/models.py:192 oi/models.py:63 prizes/models.py:125
+#: contests/models.py:192 oi/models.py:64 prizes/models.py:125
 #: prizes/models.py:279 problems/models.py:450 problems/models.py:505
 #: problems/models.py:628 problems/models.py:657 problems/models.py:690
 #: programs/models.py:65 programs/models.py:151 sinolpack/models.py:30
@@ -3072,7 +3072,7 @@ msgstr "autor"
 msgid "reported"
 msgstr "zgłoszony"
 
-#: forum/models.py:152 oi/models.py:78
+#: forum/models.py:152 oi/models.py:79
 msgid "approved"
 msgstr "zatwierdzona"
 
@@ -3704,7 +3704,7 @@ msgstr "— Wybierz szkołę —"
 msgid "-- Choose province --"
 msgstr "— Wybierz województwo —"
 
-#: oi/forms.py:87 oi/models.py:120 pa/models.py:43 participants/models.py:98
+#: oi/forms.py:87 oi/models.py:121 pa/models.py:43 participants/models.py:98
 msgid "terms accepted"
 msgstr "Znam i akceptuję regulamin"
 
@@ -3783,60 +3783,60 @@ msgstr "Konflikt nazw DNS: %s"
 msgid "Export data for oi-timepres final presentation."
 msgstr "Eksportuj dane ostatecznego przebiegu OI"
 
-#: oi/models.py:64 oi/models.py:101 pa/models.py:29
+#: oi/models.py:65 oi/models.py:102 pa/models.py:29
 msgid "address"
 msgstr "adres"
 
-#: oi/models.py:65 oi/models.py:102 pa/models.py:30
+#: oi/models.py:66 oi/models.py:103 pa/models.py:30
 msgid "postal code"
 msgstr "kod pocztowy"
 
-#: oi/models.py:69 oi/models.py:106 pa/models.py:31
+#: oi/models.py:70 oi/models.py:107 pa/models.py:31
 msgid "city"
 msgstr "miasto"
 
-#: oi/models.py:71
+#: oi/models.py:72
 msgid "province"
 msgstr "województwo"
 
-#: oi/models.py:74 oi/models.py:109
+#: oi/models.py:75 oi/models.py:110
 msgid "phone number"
 msgstr "numer telefonu"
 
-#: oi/models.py:75
+#: oi/models.py:76
 msgid "email"
 msgstr "e-mail"
 
-#: oi/models.py:77 teachers/models.py:26
+#: oi/models.py:78 teachers/models.py:26
 msgid "active"
 msgstr "aktywny"
 
-#: oi/models.py:86
+#: oi/models.py:87
 #, python-format
 msgid "%(name)s, %(city)s"
 msgstr "%(name)s, %(city)s"
 
-#: oi/models.py:110
+#: oi/models.py:111
 msgid "birth date"
 msgstr "data urodzenia"
 
-#: oi/models.py:111
+#: oi/models.py:112
 msgid "birthplace"
 msgstr "miejsce urodzenia"
 
-#: oi/models.py:113 pa/models.py:37
+#: oi/models.py:114 pa/models.py:37
 msgid "t-shirt size"
 msgstr "rozmiar koszulki"
 
-#: oi/models.py:114 teachers/models.py:27
+#: oi/models.py:115 teachers/models.py:27
 msgid "school"
 msgstr "szkoła"
 
-#: oi/models.py:117
+#: oi/models.py:118
 msgid "class"
 msgstr "klasa"
 
-#: oi/models.py:123
+#: oi/models.py:124
 #, python-format
 msgid "%(class_type)s of %(school)s"
 msgstr "%(class_type)s, %(school)s"
@@ -6437,7 +6437,7 @@ msgstr "Odpowiedź na Twoje pytanie jest dostępna."
 msgid "New public message."
 msgstr "Nowe ogłoszenie."
 
-#: questions/processors.py:45
+#: questions/processors.py:44
 #, python-format
 msgid "%(count)d NEW MESSAGE"
 msgid_plural "%(count)d NEW MESSAGES"
