@@ -130,8 +130,7 @@ def fake_timezone_now(timestamp):
             yield
 
 
-def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
-    data = kwargs.pop('data', {})
+def get_url(url_or_viewname, qs, *args, **kwargs):
     if url_or_viewname.startswith('/'):
         url = url_or_viewname
         assert not args
@@ -140,20 +139,30 @@ def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
         url = reverse(url_or_viewname, *args, **kwargs)
     if qs:
         url += '?' + six.moves.urllib.parse.urlencode(qs)
+    return url
+
+
+def check_not_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
+    data = kwargs.pop('data', {})
+    url = get_url(url_or_viewname, qs, *args, **kwargs)
     response = testcase.client.get(url, data=data, follow=True)
     testcase.assertIn(response.status_code, (403, 404, 200))
     if response.status_code == 200:
         testcase.assertIn('/login/', repr(response.redirect_chain))
 
 
+def check_is_accessible(testcase, url_or_viewname, qs=None, *args, **kwargs):
+    data = kwargs.pop('data', {})
+    url = get_url(url_or_viewname, qs, *args, **kwargs)
+    response = testcase.client.get(url, data=data, follow=True)
+    testcase.assertNotIn(response.status_code, (403, 404))
+    if response.status_code == 200:
+        testcase.assertNotIn('/login/', repr(response.redirect_chain))
+
+
 def check_ajax_not_accessible(testcase, url_or_viewname, *args, **kwargs):
     data = kwargs.pop('data', {})
-    if url_or_viewname.startswith('/'):
-        url = url_or_viewname
-        assert not args
-        assert not kwargs
-    else:
-        url = reverse(url_or_viewname, *args, **kwargs)
+    url = get_url(url_or_viewname, None, *args, **kwargs)
     response = testcase.client.get(url, data=data,
             HTTP_X_REQUESTED_WITH='XMLHttpRequest')
     testcase.assertIn(response.status_code, (403, 404))

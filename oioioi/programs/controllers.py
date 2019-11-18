@@ -594,7 +594,8 @@ class ProgrammingProblemController(ProblemController):
 
     def can_see_source(self, request, submission):
         qs = Submission.objects.filter(id=submission.id)
-        return self.filter_my_visible_submissions(request, qs).exists()
+        return (request.user.is_superuser
+                or self.filter_my_visible_submissions(request, qs).exists())
 
     def can_see_test_comments(self, request, submissionreport):
         return True

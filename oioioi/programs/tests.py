@@ -18,7 +18,7 @@ from six import unichr
 from six.moves import map, range, zip
 
 from oioioi.base.notification import NotificationHandler
-from oioioi.base.tests import TestCase, check_not_accessible, fake_time
+from oioioi.base.tests import TestCase, check_not_accessible, fake_time, check_is_accessible
 from oioioi.base.utils import memoized_property
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
@@ -118,7 +118,7 @@ class TestProgrammingContestController(TestCase):
 
 class TestProgramsViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions', 'test_submission']
+                'test_problem_instance', 'test_permissions', 'test_submission']
 
     def test_submission_views(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -208,6 +208,27 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.assertNotContains(response, 'submission-- ')
 
         self.assertEqual(no_whitespaces_content.count('>10.00s<'), 5)
+
+
+class TestSourceWithoutContest(TestCase):
+    fixtures = ['test_users', 'test_problem_instance_without_contest',
+                'test_submission_source', 'test_full_package']
+
+    # Regressive test for SIO-2211.
+    def test_source_permissions(self):
+        submission = Submission.objects.get(pk=1)
+
+        self.assertTrue(self.client.login(username='test_user'))
+        check_is_accessible(self, 'show_submission_source',
+                            kwargs={'submission_id': submission.id})
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        check_is_accessible(self, 'show_submission_source',
+                            kwargs={'submission_id': submission.id})
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        check_not_accessible(self, 'show_submission_source',
+                            kwargs={'submission_id': submission.id})
 
 
 class TestHeaderLinks(TestCase):
