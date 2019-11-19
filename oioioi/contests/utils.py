@@ -1,5 +1,6 @@
 from collections import defaultdict
-from datetime import timedelta  # pylint: disable=E0611
+from datetime import timedelta, datetime  # pylint: disable=E0611
+from pytz import UTC
 
 import six
 from django.conf import settings
@@ -86,6 +87,10 @@ class RoundTimes(object):
             return self.end + timedelta(minutes=self.extra_time)
         else:
             return self.end
+
+    def get_key_for_comparison(self):
+        return self.get_start() or UTC.localize(datetime.min), \
+               self.get_end() or UTC.localize(datetime.max)
 
 
 def generic_rounds_times(request=None, contest=None):

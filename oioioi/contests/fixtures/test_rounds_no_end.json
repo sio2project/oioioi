@@ -1,0 +1,59 @@
+[
+  {
+    "pk": 2,
+    "model": "contests.round",
+    "fields": {
+      "name": "Future round",
+      "contest": "c",
+      "start_date": "2010-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 2,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 2,
+      "short_name": "zad2",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.round",
+    "fields": {
+      "name": "No results yet round",
+      "contest": "c",
+      "start_date": "2010-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 3,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 3,
+      "short_name": "zad3",
+      "contest": "c"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.round",
+    "fields": {
+      "name": "Past round",
+      "contest": "c",
+      "start_date": "2010-07-31T20:27:58.768Z"
+    }
+  },
+  {
+    "pk": 4,
+    "model": "contests.probleminstance",
+    "fields": {
+      "problem": 1,
+      "round": 4,
+      "short_name": "zad4",
+      "contest": "c"
+    }
+  }
+]

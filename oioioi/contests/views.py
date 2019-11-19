@@ -103,7 +103,7 @@ def problems_list_view(request):
             pi.controller.get_submissions_limit(request, pi)
         )
         for pi in problem_instances
-    ], key=lambda p: (p[2].get_start(), p[2].get_end(), p[0].round.name,
+    ], key=lambda p: (p[2].get_key_for_comparison(), p[0].round.name,
                       p[0].short_name))
 
     show_submissions_limit = any([p[5] for p in problems_statements])

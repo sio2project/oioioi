@@ -2544,3 +2544,23 @@ class TestAPIProblemsetSubmit(TestAPISubmitBase):
         response = self.problemset_submit(site_key='123')
         self.assertEqual(response.status_code, 200)
         self._assertSubmitted(response, 2)
+
+
+class TestManyRoundsNoEnd(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission',
+                'test_rounds_no_end']
+
+    def test_not_sorting(self):
+        contest = Contest.objects.get(pk='c')
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(reverse('problems_list',
+                                           kwargs={'contest_id': contest.id}))
+        prev = 0
+        response_body = str(response)
+
+        for task in ['zad2', 'zad3', 'zad4', 'zad1']:
+            self.assertContains(response, task)
+            current = response_body.index(task)
+            self.assertLess(prev, current)
+            prev = current
