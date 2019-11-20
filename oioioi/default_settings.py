@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 39
+INSTALLATION_CONFIG_VERSION = 40
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -267,7 +267,6 @@ QUESTIONS_ON_PAGE = 30
 SUBMISSIONS_ON_PAGE = 100
 PARTICIPANTS_ON_PAGE = 100
 TESTS_ON_PAGE = 100
-PRIZES_ON_PAGE = 100
 
 NUM_PANEL_SUBMISSIONS = 7
 

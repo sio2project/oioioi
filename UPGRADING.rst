@@ -654,3 +654,51 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 #. * Removed ``oioioi.jotform`` module. ``JOTFORM_ID`` can be removed
      from ``settings.py``. There is no need to modify other variables,
      as the module was enabled by default.
+
+#. * Removed ``oioioi.prizes`` module. If you like you may remove ``prizes_*`` tables
+     from database but it's not strictly necessary.
+     Apart from ``settings.py`` the ``supervisord.conf`` should be updated::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -325,7 +325,6 @@ INSTALLED_APPS = (
+         #    'oioioi.testspackages',
+         #    'oioioi.pa',
+         #    'oioioi.notifications',
+        -#    'oioioi.prizes',
+         #    'oioioi.mailsubmit',
+         #    'oioioi.portals',
+         #    'oioioi.globalmessage',
+        @@ -335,13 +334,6 @@ INSTALLED_APPS = (
+         #    'oioioi.usercontests',
+         ) + INSTALLED_APPS
+
+        -# Additional Celery configuration necessary for 'prizes' app.
+        -if 'oioioi.prizes' in INSTALLED_APPS:
+        -    CELERY_IMPORTS.append('oioioi.prizes.models')
+        -    CELERY_ROUTES.update({
+        -        'oioioi.prizes.models.prizesmgr_job': dict(queue='prizesmgr'),
+        -    })
+        -
+         # Set to True to show the link to the problemset with contests on navbar.
+         PROBLEMSET_LINK_VISIBLE = True
+
+        --- a/oioioi/deployment/supervisord.conf.template
+        +++ b/oioioi/deployment/supervisord.conf.template
+        @@ -65,15 +65,6 @@ stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-zeus-err.log
+         {% if not settings.ZEUS_INSTANCES %}exclude=true{% endif %}
+
+        -[program:prizesmgr]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q prizesmgr -c 1
+        -startretries=0
+        -stopwaitsecs=15
+        -redirect_stderr=false
+        -stdout_logfile={{ PROJECT_DIR }}/logs/prizesmgr.log
+        -stderr_logfile={{ PROJECT_DIR }}/logs/prizesmgr-err.log
+        -{% if 'oioioi.prizes' not in settings.INSTALLED_APPS %}exclude=true{% endif %}
+        -
+         [program:filetracker-server]
+         command=filetracker-server -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
+         redirect_stderr=false
+

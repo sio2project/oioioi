@@ -325,7 +325,6 @@ INSTALLED_APPS = (
 #    'oioioi.testspackages',
 #    'oioioi.pa',
 #    'oioioi.notifications',
-#    'oioioi.prizes',
 #    'oioioi.mailsubmit',
 #    'oioioi.portals',
 #    'oioioi.globalmessage',
@@ -334,13 +333,6 @@ INSTALLED_APPS = (
 #    'oioioi.usergroups',
 #    'oioioi.usercontests',
 ) + INSTALLED_APPS
-
-# Additional Celery configuration necessary for 'prizes' app.
-if 'oioioi.prizes' in INSTALLED_APPS:
-    CELERY_IMPORTS.append('oioioi.prizes.models')
-    CELERY_ROUTES.update({
-        'oioioi.prizes.models.prizesmgr_job': dict(queue='prizesmgr'),
-    })
 
 # Set to True to show the link to the problemset with contests on navbar.
 PROBLEMSET_LINK_VISIBLE = True

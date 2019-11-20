@@ -1,6 +1,0 @@
-{% load i18n %}{% blocktrans %}Hi,
-
-no fair prizes assignment could be found.
-See the attachment to check where the conflict appeared.
-To resolve it, change the prizes configuration for this prize-giving.
-Then redo the prize-giving (tick the 'redo' checkbox in admin and save).{% endblocktrans %}

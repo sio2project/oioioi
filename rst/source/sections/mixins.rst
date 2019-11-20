@@ -58,8 +58,6 @@ Admin panel mixins
 
 .. autoclass:: oioioi.participants.admin.ParticipantsRoundTimeExtensionMixin
 
-.. autoclass:: oioioi.prizes.admin.PrizesAdminMixin
-
 .. autoclass:: oioioi.problems.admin.StatementConfigAdminMixin
 
 .. autoclass:: oioioi.programs.admin.LibraryProblemDataAdminMixin
@@ -141,8 +139,6 @@ Miscellaneous
 .. autoclass:: oioioi.participants.middleware.ExclusiveContestsWithParticipantsMiddlewareMixin
 
 .. autoclass:: oioioi.printing.controllers.PrintingContestControllerMixin
-
-.. autoclass:: oioioi.prizes.controllers.PrizesControllerMixin
 
 .. autoclass:: oioioi.publicsolutions.controllers.PublicSolutionsContestControllerMixin
 

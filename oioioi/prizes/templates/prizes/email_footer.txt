@@ -1,7 +1,0 @@
-{% load i18n %}{% autoescape off %}
------
-
-{% trans "Contest" %}: {{ prize_giving.contest }}
-{% trans "Distribution date" %}: {{ prize_giving.date }}
-{% trans "Name" %}: {{ prize_giving.name }}
-{% trans "Awarding rules" %}: {{ key_name }}{% endautoescape %}
