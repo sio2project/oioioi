@@ -144,6 +144,8 @@ Miscellaneous
 
 .. autoclass:: oioioi.questions.controllers.QuestionsContestControllerMixin
 
+.. autoclass:: oioioi.quiz.controllers.QuizContestControllerMixin
+
 .. autoclass:: oioioi.rankings.controllers.RankingMixinForContestController
 
 .. autoclass:: oioioi.scoresreveal.controllers.ScoresRevealProblemControllerMixin

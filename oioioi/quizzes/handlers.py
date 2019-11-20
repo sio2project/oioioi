@@ -17,17 +17,17 @@ def score_quiz(env, **kwargs):
 
     for question in questions:
         score += _score_question(submission, submission_report,
-                                      question)
+                                      question, submission.problem_instance)
         max_score += question.points
 
     _create_score_report(max_score, score, submission_report)
     return env
 
 
-def _match_text_input(question, user_input, answer):
+def _match_text_input(question, user_input, answer, problem_instance):
     user_input = user_input.strip()
     answer = answer.strip()
-    if question.ignore_case:
+    if problem_instance.controller.is_quiz_question_answer_case_ignored(question):
         user_input = user_input.lower()
         answer = answer.lower()
     return user_input == answer
@@ -57,7 +57,7 @@ def _create_submission_report(submission):
 
 
 def _score_question(submission, submission_report,
-                    question):
+                    question, problem_instance):
     points = question.points
     question_report = QuestionReport(
         submission_report=submission_report,
@@ -71,7 +71,7 @@ def _score_question(submission, submission_report,
         text_answer = submission.quizsubmissiontextanswer_set\
             .get(question=question).text_answer
         correct_answers = question.quizanswer_set.filter(is_correct=True)
-        award_points = any(_match_text_input(question, text_answer, answer.answer)
+        award_points = any(_match_text_input(question, text_answer, answer.answer, problem_instance)
                            for answer in correct_answers)
     else:
         submitted_answers = submission.quizsubmissionanswer_set\

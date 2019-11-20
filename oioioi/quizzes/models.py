@@ -18,14 +18,13 @@ class Quiz(Problem):
 
 class QuizQuestion(models.Model):
     question = models.TextField(verbose_name=_("Question"))
+    points = models.IntegerField(default=1, verbose_name=_("Points"))
     is_multiple_choice = models.BooleanField(default=False, verbose_name=_(
         "Is multiple choice"))
-    points = models.IntegerField(default=1, verbose_name=_("Points"))
     quiz = models.ForeignKey(Quiz, verbose_name=_("Quiz"),
                              on_delete=models.CASCADE)
     order = models.IntegerField(default=0, verbose_name=_("Order"))
     is_text_input = models.BooleanField(default=False, verbose_name=_("Hide answers"), help_text=_("Instead of listing answers, expect the contestant to type in their answer."))
-    ignore_case = models.BooleanField(default=True, verbose_name=_("Match user input case insensitively"), help_text=_("Only applies if answers are hidden."))
 
     class Meta(object):
         ordering = ['order']

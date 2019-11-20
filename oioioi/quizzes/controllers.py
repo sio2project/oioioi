@@ -10,9 +10,21 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import SubmissionReport, ScoreReport
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem_instance
+from oioioi.programs.controllers import ContestController
 from oioioi.quizzes.models import QuizAnswer, QuizSubmission, \
     QuizSubmissionTextAnswer, QuizSubmissionAnswer, QuestionReport
 
+
+class QuizContestControllerMixin(object):
+    """ContestController mixin that sets up quiz config for the contest."""
+
+    def is_quiz_question_answer_case_ignored(self, question):
+        """Determines if checking a quiz questions' answer
+           should be case insensitive.
+        """
+        return True
+
+ContestController.mix_in(QuizContestControllerMixin)
 
 class QuizProblemController(ProblemController):
     """Defines rules for quizzes."""
@@ -148,6 +160,9 @@ class QuizProblemController(ProblemController):
             return [int(a) for a in field_value]
         else:
             return [int(field_value)]
+
+    def is_quiz_question_answer_case_ignored(self, question):
+        return True
 
     def mixins_for_admin(self):
         from oioioi.quizzes.admin import QuizAdminMixin
