@@ -57,7 +57,7 @@ class QuizProblemController(ProblemController):
             form.fields[field_name] = forms.CharField(
                 label=label,
                 required=False,
-                strip=question.trim_whitespace
+                strip=True
             )
         elif question.is_multiple_choice:
             form.fields[field_name] = forms.MultipleChoiceField(

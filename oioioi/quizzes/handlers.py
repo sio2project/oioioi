@@ -25,9 +25,8 @@ def score_quiz(env, **kwargs):
 
 
 def _match_text_input(question, user_input, answer):
-    if question.trim_whitespace:
-        user_input = user_input.strip()
-        answer = answer.strip()
+    user_input = user_input.strip()
+    answer = answer.strip()
     if question.ignore_case:
         user_input = user_input.lower()
         answer = answer.lower()
