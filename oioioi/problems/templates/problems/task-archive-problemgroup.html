@@ -1,16 +1,21 @@
 {% with id=problems.div_id %}
-
 {% if value or id == "problemgroups" %}
 <div class="problemgroup-heading">
     {% if parent_id %}
     <a class="collapse-toggle{% if collapse %} collapsed{% endif %}"
-       data-toggle="collapse"
-       data-parent="#{{parent_id}}"
-       href="#{{id}}">
+        data-toggle="collapse"
+        data-parent="#{{parent_id}}"
+        href="#{{id}}">
         {{ value.full_value }}
     </a>
     {% endif %}
+        {% if parent_id == "problemgroups" and problems.attempted %}
+        <span class="percentage-info" >
+            {{ "[" }}{{ problems.progress_percentage_rounded }}{{ "%]" }}
+        </span>
+        {% endif %}
 </div>
+
 <div class="problemgroup-body collapse{% if not collapse %} in{% endif %}" id="{{id}}">
 {% endif %}
 
@@ -25,15 +30,26 @@
         {% endif %}
     {% endfor %}
 {% else %}
-    {% for problem in problems.problem_list %}
-        <p><a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}">
-            {{ problem }}
-        </a></p>
+    {% for problem, result in problems.problem_info %}
+    <p>
+    <a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}">
+        {{ problem }}
+    </a>
+    {% if result.exists %}
+        {% if result.score == result.max_score %}
+            <a class="label label-success" href="{{ result.submission_url }}"> {{ result.score }}</a>
+        {% elif result.score > 0 %}
+            <a class="label label-warning" href="{{ result.submission_url }}"> {{ result.score }}</a>
+        {% else %}
+            <a class="label label-danger" href="{{ result.submission_url }}"> {{ result.score }}</a>
+        {% endif %}
+    {% endif %}
+
+    </p>
     {% endfor %}
 {% endif %}
 
 {% if value or id == "problemgroups" %}
 </div>
 {% endif %}
-
 {% endwith %}

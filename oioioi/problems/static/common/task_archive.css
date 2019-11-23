@@ -27,6 +27,10 @@
     padding-left: 1em;
 }
 
+.percentage-info {
+    font-weight: normal;
+}
+
 .checkbox-menu li label {
     display: block;
     padding: 3px 10px;

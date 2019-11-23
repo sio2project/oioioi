@@ -2094,7 +2094,8 @@ class TestProblemSearchHintsTags(TestCase):
 
 @override_settings(LANGUAGE_CODE='pl')
 class TestTaskArchive(TestCase):
-    fixtures = ['test_task_archive']
+    fixtures = ['test_task_archive', 'test_users', 'admin_admin',
+        'test_task_archive_progress_labels']
 
     def test_unicode_names(self):
         ic = OriginInfoCategory.objects.get(pk=3)
@@ -2227,3 +2228,41 @@ class TestTaskArchive(TestCase):
         url = reverse('task_archive_tag', args=('oi',)) + '?invalid=filter'
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
+
+    def test_task_archive_progress_labels(self):
+        url = reverse('task_archive_tag', args=('oi',))
+
+        self.assertTrue(self.client.login(username='test_user'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, "alert-warning")
+        self.assertContains(response, "[16.7%]")
+        self.assertContains(response, "%", count=1)
+
+        html = response.content.decode('utf-8')
+
+        pos = html.find('label-danger')
+        self.assertTrue(pos == -1)
+        pos = html.find('label-warning')
+        self.assertTrue(pos == -1)
+        pos = html.find('<a class="label label-success" href="/s/2/"> 100</a>')
+        self.assertTrue(pos != -1)
+
+        self.assertTrue(self.client.login(username='test_user2'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertNotContains(response, "alert-warning")
+        self.assertContains(response, "[0.0%]")
+        self.assertContains(response, "[12.5%]")
+        self.assertContains(response, "%", count=2)
+
+        html = response.content.decode('utf-8')
+
+        pos = html.find('<a class="label label-danger" href="/s/3/"> 0</a>')
+        self.assertTrue(pos != -1)
+        pos = html.find('<a class="label label-warning" href="/s/6/"> 50</a>')
+        self.assertTrue(pos != -1)
+        pos = html.find('label-success')
+        self.assertTrue(pos == -1)

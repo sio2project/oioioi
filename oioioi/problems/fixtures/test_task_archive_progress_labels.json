@@ -1,0 +1,485 @@
+[
+   {
+      "model" : "contests.probleminstance",
+      "pk" : 1,
+      "fields" : {
+         "submissions_limit" : 10,
+         "contest" : null,
+         "problem" : 9,
+         "short_name" : "hel_main",
+         "round" : null,
+         "needs_rejudge" : false
+      }
+   },
+   {
+      "model" : "contests.probleminstance",
+      "pk" : 3,
+      "fields" : {
+         "needs_rejudge" : false,
+         "round" : null,
+         "short_name" : "sum_main",
+         "problem" : 11,
+         "submissions_limit" : 10,
+         "contest" : null
+      }
+   },
+   {
+      "model" : "contests.probleminstance",
+      "pk" : 4,
+      "fields" : {
+         "submissions_limit" : 10,
+         "contest" : null,
+         "problem" : 12,
+         "short_name" : "sim_main",
+         "round" : null,
+         "needs_rejudge" : false
+      }
+   },
+   {
+      "fields" : {
+         "date" : "2020-01-17T18:45:37.610Z",
+         "problem_instance" : 1,
+         "kind" : "NORMAL",
+         "score" : "int:0000000000000000100",
+         "user" : 1001,
+         "comment" : "",
+         "status" : "INI_OK"
+      },
+      "pk" : 2,
+      "model" : "contests.submission"
+   },
+   {
+      "model" : "contests.submission",
+      "pk" : 3,
+      "fields" : {
+         "comment" : "",
+         "status" : "INI_ERR",
+         "user" : 1002,
+         "score" : "int:0000000000000000000",
+         "kind" : "NORMAL",
+         "problem_instance" : 1,
+         "date" : "2020-01-17T18:46:17.507Z"
+      }
+   },
+   {
+      "fields" : {
+         "date" : "2020-01-17T19:10:12.818Z",
+         "problem_instance" : 3,
+         "kind" : "NORMAL",
+         "score" : null,
+         "comment" : "",
+         "user" : 1001,
+         "status" : "CE"
+      },
+      "pk" : 5,
+      "model" : "contests.submission"
+   },
+   {
+      "model" : "contests.submission",
+      "fields" : {
+         "score" : "int:0000000000000000050",
+         "kind" : "NORMAL",
+         "status" : "INI_ERR",
+         "comment" : "",
+         "user" : 1002,
+         "date" : "2020-01-17T19:11:10.995Z",
+         "problem_instance" : 3
+      },
+      "pk" : 6
+   },
+   {
+      "pk" : 3,
+      "fields" : {
+         "creation_date" : "2020-01-17T18:45:41.794Z",
+         "kind" : "INITIAL",
+         "status" : "ACTIVE",
+         "submission" : 2
+      },
+      "model" : "contests.submissionreport"
+   },
+   {
+      "fields" : {
+         "kind" : "NORMAL",
+         "submission" : 2,
+         "status" : "ACTIVE",
+         "creation_date" : "2020-01-17T18:45:44.340Z"
+      },
+      "pk" : 4,
+      "model" : "contests.submissionreport"
+   },
+   {
+      "pk" : 5,
+      "fields" : {
+         "kind" : "INITIAL",
+         "submission" : 3,
+         "status" : "ACTIVE",
+         "creation_date" : "2020-01-17T18:46:22.372Z"
+      },
+      "model" : "contests.submissionreport"
+   },
+   {
+      "fields" : {
+         "kind" : "NORMAL",
+         "status" : "ACTIVE",
+         "submission" : 3,
+         "creation_date" : "2020-01-17T18:46:23.575Z"
+      },
+      "pk" : 6,
+      "model" : "contests.submissionreport"
+   },
+   {
+      "fields" : {
+         "creation_date" : "2020-01-17T19:10:17.370Z",
+         "kind" : "INITIAL",
+         "status" : "ACTIVE",
+         "submission" : 5
+      },
+      "pk" : 9,
+      "model" : "contests.submissionreport"
+   },
+   {
+      "model" : "contests.submissionreport",
+      "fields" : {
+         "kind" : "NORMAL",
+         "status" : "ACTIVE",
+         "submission" : 5,
+         "creation_date" : "2020-01-17T19:10:17.427Z"
+      },
+      "pk" : 10
+   },
+   {
+      "fields" : {
+         "creation_date" : "2020-01-17T19:11:17.718Z",
+         "kind" : "INITIAL",
+         "submission" : 6,
+         "status" : "ACTIVE"
+      },
+      "pk" : 11,
+      "model" : "contests.submissionreport"
+   },
+   {
+      "model" : "contests.submissionreport",
+      "fields" : {
+         "submission" : 6,
+         "status" : "ACTIVE",
+         "kind" : "NORMAL",
+         "creation_date" : "2020-01-17T19:11:18.916Z"
+      },
+      "pk" : 12
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "status" : "OK",
+         "comment" : null,
+         "max_score" : "int:0000000000000000000",
+         "submission_report" : 3
+      },
+      "pk" : 3,
+      "model" : "contests.scorereport"
+   },
+   {
+      "model" : "contests.scorereport",
+      "pk" : 4,
+      "fields" : {
+         "comment" : null,
+         "status" : "OK",
+         "score" : "int:0000000000000000100",
+         "submission_report" : 4,
+         "max_score" : "int:0000000000000000100"
+      }
+   },
+   {
+      "model" : "contests.scorereport",
+      "pk" : 5,
+      "fields" : {
+         "submission_report" : 5,
+         "max_score" : "int:0000000000000000000",
+         "comment" : null,
+         "status" : "WA",
+         "score" : "int:0000000000000000000"
+      }
+   },
+   {
+      "model" : "contests.scorereport",
+      "pk" : 6,
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "status" : "WA",
+         "comment" : null,
+         "max_score" : "int:0000000000000000100",
+         "submission_report" : 6
+      }
+   },
+   {
+      "fields" : {
+         "status" : "CE",
+         "comment" : null,
+         "score" : null,
+         "submission_report" : 9,
+         "max_score" : null
+      },
+      "pk" : 9,
+      "model" : "contests.scorereport"
+   },
+   {
+      "pk" : 10,
+      "fields" : {
+         "score" : null,
+         "status" : "CE",
+         "comment" : null,
+         "max_score" : null,
+         "submission_report" : 10
+      },
+      "model" : "contests.scorereport"
+   },
+   {
+      "model" : "contests.scorereport",
+      "fields" : {
+         "comment" : null,
+         "status" : "WA",
+         "score" : "int:0000000000000000000",
+         "submission_report" : 11,
+         "max_score" : "int:0000000000000000000"
+      },
+      "pk" : 11
+   },
+   {
+      "pk" : 12,
+      "fields" : {
+         "score" : "int:0000000000000000050",
+         "status" : "WA",
+         "comment" : null,
+         "max_score" : "int:0000000000000000100",
+         "submission_report" : 12
+      },
+      "model" : "contests.scorereport"
+   },
+   {
+      "fields" : {
+         "score" : "int:0000000000000000100",
+         "user" : 1001,
+         "status" : "INI_OK",
+         "submission_report" : 4,
+         "problem_instance" : 1
+      },
+      "pk" : 1,
+      "model" : "contests.userresultforproblem"
+   },
+   {
+      "model" : "contests.userresultforproblem",
+      "fields" : {
+         "score" : "int:0000000000000000000",
+         "status" : "INI_ERR",
+         "user" : 1002,
+         "problem_instance" : 1,
+         "submission_report" : 6
+      },
+      "pk" : 2
+   },
+   {
+      "pk" : 3,
+      "fields" : {
+         "score" : null,
+         "user" : 1001,
+         "status" : null,
+         "submission_report" : null,
+         "problem_instance" : 3
+      },
+      "model" : "contests.userresultforproblem"
+   },
+   {
+      "fields" : {
+         "status" : "INI_ERR",
+         "user" : 1002,
+         "score" : "int:0000000000000000050",
+         "problem_instance" : 3,
+         "submission_report" : 12
+      },
+      "pk" : 4,
+      "model" : "contests.userresultforproblem"
+   },
+   {
+      "model" : "problems.problem",
+      "pk" : 9,
+      "fields" : {
+         "short_name" : "hel",
+         "contest" : null,
+         "controller_name" : "oioioi.sinolpack.controllers.SinolProblemController",
+         "author" : 1,
+         "main_problem_instance" : 1,
+         "ascii_name" : "hel",
+         "name" : "hel",
+         "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
+         "visibility" : "PU"
+      }
+   },
+   {
+      "pk" : 11,
+      "fields" : {
+         "author" : 1,
+         "main_problem_instance" : 3,
+         "ascii_name" : "sum",
+         "name" : "sum",
+         "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
+         "visibility" : "PU",
+         "short_name" : "sum",
+         "contest" : null,
+         "controller_name" : "oioioi.sinolpack.controllers.SinolProblemController"
+      },
+      "model" : "problems.problem"
+   },
+   {
+      "fields" : {
+         "main_problem_instance" : 4,
+         "author" : 1,
+         "package_backend_name" : "oioioi.sinolpack.package.SinolPackageBackend",
+         "visibility" : "PU",
+         "ascii_name" : "sim",
+         "name" : "sim",
+         "short_name" : "sim",
+         "controller_name" : "oioioi.sinolpack.controllers.SinolProblemController",
+         "contest" : null
+      },
+      "pk" : 12,
+      "model" : "problems.problem"
+   },
+   {
+      "model" : "problems.problemsite",
+      "fields" : {
+         "problem" : 9,
+         "url_key" : "3q5MwEtslHCf5LaYR0sQLzKs"
+      },
+      "pk" : 9
+   },
+   {
+      "model" : "problems.problemsite",
+      "fields" : {
+         "url_key" : "F9193FcGrfCTjT46ObPH2Twq",
+         "problem" : 11
+      },
+      "pk" : 11
+   },
+   {
+      "model" : "problems.problemsite",
+      "pk" : 12,
+      "fields" : {
+         "url_key" : "y1u74GHYt4YlCUOwWusC9gU5",
+         "problem" : 12
+      }
+   },
+   {
+      "fields" : {
+         "name" : "oi",
+         "problems" : [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            11,
+            12
+         ]
+      },
+      "pk" : 1,
+      "model" : "problems.origintag"
+   },
+   {
+      "model" : "problems.origininfovalue",
+      "fields" : {
+         "parent_tag" : 1,
+         "order" : 25,
+         "problems" : [
+            5,
+            6,
+            7,
+            11
+         ],
+         "category" : 1,
+         "value" : "xxv"
+      },
+      "pk" : 1
+   },
+   {
+      "model" : "problems.origininfovalue",
+      "fields" : {
+         "value" : "xxiv",
+         "category" : 1,
+         "problems" : [
+            1,
+            2,
+            3,
+            4,
+            9,
+            12
+         ],
+         "order" : 24,
+         "parent_tag" : 1
+      },
+      "pk" : 2
+   },
+   {
+      "pk" : 3,
+      "fields" : {
+         "problems" : [
+            1,
+            2,
+            9,
+            12
+         ],
+         "value" : "s2",
+         "category" : 2,
+         "parent_tag" : 1,
+         "order" : 2
+      },
+      "model" : "problems.origininfovalue"
+   },
+   {
+      "pk" : 4,
+      "fields" : {
+         "order" : 3,
+         "parent_tag" : 1,
+         "problems" : [
+            3,
+            4,
+            5,
+            6
+         ],
+         "category" : 2,
+         "value" : "s3"
+      },
+      "model" : "problems.origininfovalue"
+   },
+   {
+      "model" : "problems.origininfovalue",
+      "pk" : 5,
+      "fields" : {
+         "problems" : [
+            3
+         ],
+         "category" : 3,
+         "value" : "d1",
+         "parent_tag" : 1,
+         "order" : 1
+      }
+   },
+   {
+      "pk" : 6,
+      "fields" : {
+         "problems" : [
+            4,
+            6,
+            11
+         ],
+         "value" : "d2",
+         "category" : 3,
+         "parent_tag" : 1,
+         "order" : 2
+      },
+      "model" : "problems.origininfovalue"
+   }
+]

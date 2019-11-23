@@ -24,7 +24,7 @@ from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (ProblemInstance, Submission,
-                                    SubmissionReport)
+                                    SubmissionReport, UserResultForProblem)
 from oioioi.contests.utils import administered_contests, is_contest_basicadmin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
@@ -47,7 +47,7 @@ from oioioi.problems.utils import (can_add_to_problemset,
                                    generate_model_solutions_context,
                                    query_statement, get_prefetched_value, show_proposal_form)
 from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
-                                    ModelSolution, TestReport)
+                                    ModelSolution, Test, TestReport)
 from unidecode import unidecode
 
 
@@ -500,24 +500,56 @@ def task_archive_view(request):
     })
 
 
-def _recursive_group_problems(problems, categories, div_id):
+def _recursive_group_problems(problems, result_info, categories, div_id):
     if not categories:
-        return {
-                'div_id': 'problems-' + div_id,
-                'subnodes': {},
-                'problem_list': list(problems)
-            }
+        results = [result_info[problem] for problem in problems]
+        percentages = [
+            100.0 * result['score'] / result['max_score'] if result['exists'] else 0.0
+            for result in results
+        ]
 
-    node = {'div_id': div_id, 'subnodes': {}, 'problem_list': []}
+        if len(problems) > 0:
+            total_percent_solved = sum(percentages) / len(problems)
+        else:
+            total_percent_solved = 0.0
+
+        return {
+            'div_id': 'problems-' + div_id,
+            'subnodes': {},
+            'problem_info': zip(problems, results),
+            'progress_percentage': total_percent_solved,
+            'progress_percentage_rounded': round(total_percent_solved, 1),
+            'attempted': any(result['exists'] for result in results)
+        }
+
+    node = {'div_id': div_id, 'subnodes': {}, 'problem_info': [],
+        'progress_percentage': 0.0, 'progress_percentage_rounded': 0.0, 'attempted': False}
+
     category = categories[0]
     iter = groupby(problems,
                    key=lambda problem: \
                            get_prefetched_value(problem, category))
 
+    total_percentage = 0
+
     for value, group in iter:
         child_id = div_id + '-' + str(value.value)
-        node['subnodes'][value] = \
-                _recursive_group_problems(list(group), categories[1:], child_id)
+        child_problems = list(group)
+        child = _recursive_group_problems(child_problems, result_info,
+                                           categories[1:], child_id)
+        node['subnodes'][value] = child
+        if child['attempted'] == True:
+            node['attempted'] = True
+        total_percentage += child['progress_percentage'] * len(child_problems)
+
+    if len(problems) > 0:
+        total_percentage /= len(problems)
+    else:
+        total_percentage = 0.0
+
+    node['progress_percentage'] = total_percentage
+    node['progress_percentage_rounded'] = round(total_percentage, 1)
+
     return node
 
 
@@ -544,6 +576,48 @@ def _filter_problems_prefetched(problems, filter_multivaluedict):
 
     return result
 
+def _get_results_info(request, problems):
+    if request.user.is_authenticated == False:
+        return {problem: {'exists': False} for problem in problems}
+
+    main_instances = [problem.main_problem_instance for problem in problems]
+
+    user_results = UserResultForProblem.objects.filter(
+            user=request.user,
+            problem_instance__in=main_instances,
+            submission_report__isnull=False
+    ).select_related(
+        'problem_instance',
+        'submission_report__submission'
+    ).prefetch_related(
+        'submission_report__scorereport_set'
+    )
+
+    user_result_for_instance = {}
+
+    for result in user_results:
+        user_result_for_instance[result.problem_instance] = result
+
+    results_info = {}
+
+    for problem in problems:
+        result = user_result_for_instance.get(problem.main_problem_instance)
+        if result is None:
+            results_info[problem] = {'exists': False}
+        else:
+            results_info[problem] = {
+                'exists': True,
+                'score': result.score.to_int(),
+                'max_score': result.submission_report.score_report.max_score.to_int(),
+                'submission_url':
+                    reverse('submission',
+                        kwargs={'submission_id':
+                                result.submission_report.submission.id}
+                    )
+                }
+
+    return results_info
+
 
 def task_archive_tag_view(request, origin_tag):
     origin_tag = OriginTag.objects.filter(name=origin_tag) \
@@ -561,7 +635,7 @@ def task_archive_tag_view(request, origin_tag):
             raise Http404
 
     problems = origin_tag.problems.all() \
-            .select_related('problemsite') \
+            .select_related('problemsite', 'main_problem_instance') \
             .prefetch_related('origininfovalue_set__localizations',
                               'origininfovalue_set__category')
     problems = _filter_problems_prefetched(problems, request.GET)
@@ -579,8 +653,12 @@ def task_archive_tag_view(request, origin_tag):
                             get_prefetched_value(problem, cat).order)
 
     # 3. Now we can recursively group the problem list by each category.
+
+    user_results = _get_results_info(request, problems)
+
     problems_root_node = \
-            _recursive_group_problems(problems, categories, 'problemgroups')
+            _recursive_group_problems(problems, user_results,
+                                        categories, 'problemgroups')
 
     navbar_links = navbar_links_registry.template_context(request)
     return TemplateResponse(request, 'problems/task-archive-tag.html',
@@ -666,7 +744,7 @@ def get_origintag_category_hints(origintag):
     origintag = OriginTag.objects.get(name=origintag)
     return [{
             'trigger': 'category-menu',
-            'name': u'{} - {}'.format(origintag.full_name, category.full_name),
+            'name': '{} - {}'.format(origintag.full_name, category.full_name),
             'category': _('Origin Tags'),
             'search_name': origintag.full_name,  # Avoids breaking the typeahead
             'value': category.name
@@ -807,7 +885,7 @@ def get_origininfocategory_hints_view(request):
 
     return [{
             'trigger': 'origininfo',
-            'name': u'{} {}'.format(category.parent_tag.full_name, val.full_value),
+            'name': '{} {}'.format(category.parent_tag.full_name, val.full_value),
             'prefix': 'origin',
             'value': val.name,
         } for val in category.values.all()
@@ -859,4 +937,3 @@ def save_proposals_view(request):
             proposal.save()
 
         return HttpResponse('success\n' + str(tags))
-
