@@ -181,6 +181,7 @@ class TestOIRegistration(TestCase):
         self.assertContains(response, 'School')
         self.assertContains(response, 'add it')
         self.assertContains(response, 'Test terms accepted')
+        self.assertContains(response, '1977')
 
         user.first_name = 'Sir Lancelot'
         user.last_name = 'du Lac'

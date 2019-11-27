@@ -77,7 +77,7 @@ class OIRegistrationForm(forms.ModelForm):
         super(OIRegistrationForm, self).__init__(*args, **kwargs)
 
         this_year = datetime.date.today().year
-        years = reversed(list(range(this_year - 100, this_year + 1)))
+        years = list(reversed(range(this_year - 100, this_year + 1)))
         self.fields['birthday'].widget = SelectDateWidget(years=years)
         self.fields['school'].widget = SchoolSelect()
         self.fields['class_type'].widget.attrs['class'] = 'input-xlarge'
