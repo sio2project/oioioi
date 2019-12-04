@@ -15,7 +15,8 @@ from django.utils.translation import ugettext_noop
 
 from oioioi.base.utils import (ObjectWithMixins, RegisteredSubclassesBase,
                                get_user_display_name)
-from oioioi.contests.models import (Contest, ProblemStatementConfig, Round,
+from oioioi.contests.models import (Contest, ProblemStatementConfig,
+                                    RankingVisibilityConfig, Round,
                                     RoundTimeExtension, Submission, ScoreReport,
                                     SubmissionReport, UserResultForContest,
                                     UserResultForProblem, UserResultForRound,
@@ -460,11 +461,30 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         rtimes = self.get_round_times(request_or_context, round)
         return not rtimes.is_future(context.timestamp)
 
-    def can_see_ranking(self, request):
+    def can_see_ranking(self, request_or_context):
         """Determines if the current user is allowed to see the ranking.
 
-           The default implementation allows it to everyone.
-         """
+            The default implementation checks if there exists a ranking
+            visibility config for current contest and checks if ranking
+            visibility is enabled. If there is no ranking visibility config for
+            current contest or option 'AUTO' is chosen, returns default value
+            (calls :meth:`default_can_see_ranking`)
+        """
+        context = self.make_context(request_or_context)
+        if context.is_admin:
+            return True
+
+        try:
+            rvc = RankingVisibilityConfig.objects.get(contest=context.contest)
+        except RankingVisibilityConfig.DoesNotExist:
+            rvc = None
+
+        if rvc and rvc.visible != 'AUTO':
+            return rvc.visible == 'YES'
+        else:
+            return self.default_can_see_ranking(request_or_context)
+
+    def default_can_see_ranking(self, request_or_context):
         return True
 
     def can_see_problem(self, request_or_context, problem_instance):

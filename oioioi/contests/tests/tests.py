@@ -27,7 +27,8 @@ from oioioi.contests.date_registration import date_registry
 from oioioi.contests.models import (Contest, ContestAttachment, ContestLink,
                                     ContestPermission, ContestView,
                                     ProblemInstance, ProblemStatementConfig,
-                                    Round, RoundTimeExtension, Submission,
+                                    RankingVisibilityConfig, Round,
+                                    RoundTimeExtension, Submission,
                                     UserResultForContest, UserResultForProblem)
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.tests import make_empty_contest_formset
@@ -2564,3 +2565,67 @@ class TestManyRoundsNoEnd(TestCase):
             current = response_body.index(task)
             self.assertLess(prev, current)
             prev = current
+
+
+# checks ranking visibility without RankingVisibilityConfig,
+# with it set to default and with it set to 'YES'
+def check_ranking_visibility(self, contest, url, rvc):
+
+    # test without RankingVisibilityConfig
+    response = self.client.get(url)
+    self.assertContains(response, 'Test User')
+
+    rvc.save()
+
+    # test with default RankingVisibilityConfig
+    response = self.client.get(url)
+    self.assertContains(response, 'Test User')
+
+    rvc.visible = 'YES'
+    rvc.save()
+
+    # test with RankingVisibilityConfig set to 'YES'
+    response = self.client.get(url)
+    self.assertContains(response, 'Test User')
+
+
+class TestRankingVisibility(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_submission']
+
+    def test_user(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username='test_user'))
+
+        rvc = RankingVisibilityConfig(contest=contest)
+
+        url = reverse('default_ranking',
+                      kwargs={'contest_id': contest.id})
+
+        check_ranking_visibility(self, contest, url, rvc)
+
+        rvc.visible = 'NO'
+        rvc.save()
+
+        # test with RankingVisibilityConfig set to 'NO'
+        response = self.client.get(url)
+        with self.assertRaises(AssertionError):
+            self.assertContains(response, 'Test User')
+
+    def test_admin(self):
+        contest = Contest.objects.get()
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        rvc = RankingVisibilityConfig(contest=contest)
+
+        url = reverse('default_ranking',
+                      kwargs={'contest_id': contest.id})
+
+        check_ranking_visibility(self, contest, url, rvc)
+
+        rvc.visible = 'NO'
+        rvc.save()
+
+        # test with RankingVisibilityConfig set to 'NO'
+        response = self.client.get(url)
+        self.assertContains(response, 'Test User')

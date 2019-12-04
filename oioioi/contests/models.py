@@ -252,6 +252,27 @@ class ProblemStatementConfig(models.Model):
         verbose_name_plural = _("problem statement configs")
 
 
+ranking_visibility_options = EnumRegistry()
+ranking_visibility_options.register('YES', _("Visible"))
+ranking_visibility_options.register('NO', _("Not visible"))
+ranking_visibility_options.register('AUTO', _("Auto"))
+
+
+class RankingVisibilityConfig(models.Model):
+    contest = models.OneToOneField('contests.Contest', on_delete=models.CASCADE)
+    visible = EnumField(ranking_visibility_options, default='AUTO',
+                        verbose_name=_("ranking visibility"),
+                        help_text=_("If set to Auto, the visibility is determined "
+                                    "according to the type of the contest.\n"
+                                    "Ranking is inaccessible to all non-admin "
+                                    "users unless result date is set to a date "
+                                    "in the past"))
+
+    class Meta(object):
+        verbose_name = _("ranking visibility config")
+        verbose_name_plural = _("ranking visibility configs")
+
+
 @python_2_unicode_compatible
 class ProblemInstance(models.Model):
     contest = models.ForeignKey(Contest, verbose_name=_("contest"),

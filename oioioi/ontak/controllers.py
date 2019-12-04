@@ -12,9 +12,6 @@ class OntakContestController(OIContestController):
     def registration_controller(self):
         return ParticipantsController(self.contest)
 
-    def can_see_ranking(self, request):
-        return True
-
     def should_confirm_submission_receipt(self, request, submission):
         return False
 

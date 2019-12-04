@@ -244,7 +244,7 @@ class PAFinalsContestController(ACMContestController):
     def is_onsite(self):
         return True
 
-    def can_see_ranking(self, request):
+    def default_can_see_ranking(self, request):
         return is_contest_admin(request) or is_contest_observer(request)
 
     def get_round_freeze_time(self, round):

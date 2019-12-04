@@ -163,7 +163,7 @@ class OIContestController(ProgrammingContestController):
             result.status = None
             result.submission_report = None
 
-    def can_see_ranking(self, request):
+    def default_can_see_ranking(self, request):
         return is_contest_admin(request) or is_contest_observer(request)
 
     def default_contestlogo_url(self):
@@ -270,9 +270,6 @@ class BOIOnsiteContestController(OIOnsiteContestController):
     def can_print_files(self, request):
         return True
 
-    def can_see_ranking(self, request):
-        return True
-
     def default_contestlogo_url(self):
         return None
 
@@ -295,6 +292,3 @@ class BOIOnlineContestController(BOIOnsiteContestController):
 
     def is_onsite(self):
         return False
-
-    def can_see_ranking(self, request):
-        return True

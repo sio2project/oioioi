@@ -20,9 +20,11 @@ from oioioi.base.permissions import is_superuser, make_request_condition
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.admin import ContestAdmin, contest_site
 from oioioi.contests.menu import contest_admin_menu_registry
-from oioioi.contests.models import ProblemInstance, ProblemStatementConfig
+from oioioi.contests.models import (ProblemInstance, ProblemStatementConfig,
+                                    RankingVisibilityConfig)
 from oioioi.contests.utils import is_contest_admin, is_contest_basicadmin
 from oioioi.problems.forms import (ProblemSiteForm, ProblemStatementConfigForm,
+                                   RankingVisibilityConfigForm,
                                    OriginTagThroughForm, OriginInfoValueForm,
                                    OriginInfoValueThroughForm,
                                    TagThroughForm, DifficultyTagThroughForm,
@@ -66,6 +68,32 @@ class StatementConfigAdminMixin(object):
         super(StatementConfigAdminMixin, self).__init__(*args, **kwargs)
         self.inlines = self.inlines + [StatementConfigInline]
 ContestAdmin.mix_in(StatementConfigAdminMixin)
+
+
+class RankingVisibilityConfigInline(admin.TabularInline):
+    model = RankingVisibilityConfig
+    extra = 1
+    form = RankingVisibilityConfigForm
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+
+class RankingVisibilityConfigAdminMixin(object):
+    """Adds :class:`~oioioi.contests.models.RankingVisibilityConfig` to an admin
+       panel.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(RankingVisibilityConfigAdminMixin, self).__init__(*args, **kwargs)
+        self.inlines = self.inlines + [RankingVisibilityConfigInline]
+ContestAdmin.mix_in(RankingVisibilityConfigAdminMixin)
 
 
 class StatementInline(admin.TabularInline):

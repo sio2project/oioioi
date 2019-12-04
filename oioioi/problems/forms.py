@@ -8,7 +8,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
-from oioioi.contests.models import ProblemStatementConfig
+from oioioi.contests.models import (ProblemStatementConfig,
+                                    RankingVisibilityConfig)
 from oioioi.problems.models import (ProblemSite, Tag, TagThrough,
                                     AlgorithmTag, AlgorithmTagThrough,
                                     DifficultyTag, DifficultyTagThrough,
@@ -66,6 +67,15 @@ class ProblemStatementConfigForm(forms.ModelForm):
     class Meta(object):
         fields = '__all__'
         model = ProblemStatementConfig
+        widgets = {
+            'visible': forms.RadioSelect()
+        }
+
+
+class RankingVisibilityConfigForm(forms.ModelForm):
+    class Meta(object):
+        fields = '__all__'
+        model = RankingVisibilityConfig
         widgets = {
             'visible': forms.RadioSelect()
         }
