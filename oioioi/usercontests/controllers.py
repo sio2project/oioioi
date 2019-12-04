@@ -30,7 +30,7 @@ class UserContestController(ProgrammingContestController):
             queryset = filter_model_submissions(queryset)
 
         return super(UserContestController, self) \
-                .filter_visible_sources(self, request, queryset)
+                .filter_visible_sources(request, queryset)
 
     def can_see_source(self, request, submission):
         # With ARCHIVE_USERCONTESTS=True observers can be regular users who were
