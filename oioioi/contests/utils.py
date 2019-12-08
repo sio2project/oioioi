@@ -6,6 +6,7 @@ from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django.utils.module_loading import import_string
 from pytz import UTC
+import elasticapm
 
 from oioioi.base.permissions import make_request_condition
 from oioioi.base.utils import request_cached
@@ -237,6 +238,7 @@ def visible_problem_instances(request):
 
 
 @request_cached
+@elasticapm.capture_span()
 def visible_rounds(request):
     controller = request.contest.controller
     queryset = Round.objects.filter(contest=request.contest)
@@ -261,6 +263,7 @@ def used_controllers():
 
 
 @request_cached
+@elasticapm.capture_span()
 def visible_contests(request):
     """Returns materialized set of contests visible to the logged in user."""
     if request.GET.get('living', 'safely') == 'dangerously':

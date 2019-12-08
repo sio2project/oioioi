@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.utils.functional import lazy
+import elasticapm
 
 from oioioi.base.utils import request_cached
 from oioioi.contests.models import Contest, ContestView
@@ -23,6 +24,7 @@ def register_current_contest(request):
 
 
 @request_cached
+@elasticapm.capture_span()
 def recent_contests(request):
     if request.real_user.is_anonymous:
         ids = request.session.get('recent_contests', [])
