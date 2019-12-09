@@ -37,7 +37,6 @@ from oioioi.programs.utils import (has_report_actions_config,
 
 logger = logging.getLogger(__name__)
 
-
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
 
@@ -519,7 +518,7 @@ class ProgrammingProblemController(ProblemController):
                     form.fields['prog_lang'].initial = \
                             get_language_by_extension(problem_instance, ext)
 
-        form.media.add_js(['common/language_picker.js', ])
+        form.media.add_js(['common/submit_view.js', ])
 
     def render_submission(self, request, submission):
         problem_instance = submission.problem_instance
