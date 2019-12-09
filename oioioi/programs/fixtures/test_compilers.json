@@ -1,0 +1,20 @@
+[
+  {
+    "model": "programs.contestcompiler",
+    "pk": 40,
+    "fields": {
+      "contest": "c",
+      "language": "C",
+      "compiler": "gcc"
+    }
+  },
+  {
+    "model": "programs.contestcompiler",
+    "pk": 41,
+    "fields": {
+      "contest": "c",
+      "language": "C++",
+      "compiler": "clang"
+    }
+  }
+]

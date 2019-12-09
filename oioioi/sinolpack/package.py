@@ -188,12 +188,9 @@ class SinolPackage(object):
     def _compile_matching_extension(self, command, out_name, suffix):
         renv = None
         name = self.short_name + suffix
-        choices = list((getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})).
-            values())
-        lang_exts = []
-        for ch in choices:
-            lang_exts.extend(ch)
-        for ext in lang_exts:
+        lang_exts_list = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values()
+        exts = [ext for lang_exts in lang_exts_list for ext in lang_exts]
+        for ext in exts:
             src = os.path.join(self.rootdir, 'prog', '%s.%s' % (name, ext))
             if os.path.isfile(src):
                 renv = self._compile(src, name, ext, out_name)
@@ -965,8 +962,7 @@ class SinolPackage(object):
         """:return: Sources as tuples (kind_of_solution, filename,
                                        full path to file).
         """
-        lang_exts_list = \
-            list(getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values())
+        lang_exts_list = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}).values()
         extensions = [ext for lang_exts in lang_exts_list for ext in lang_exts]
         regex = r'^%s[0-9]*([bs]?)[0-9]*\.(' + \
                 '|'.join(extensions) + ')'

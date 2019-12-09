@@ -373,4 +373,4 @@ def generate_user_output_view(request, testreport_id=None,
 def get_compiler_hints_view(request):
     language = request.GET.get('language', '')
     available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
-    return available_compilers.get(language, [])
+    return available_compilers.get(language, {}).keys()

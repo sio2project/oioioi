@@ -313,6 +313,7 @@ class ProblemCompiler(models.Model):
     problem = models.ForeignKey(Problem, verbose_name=_('problem'), on_delete=models.CASCADE)
     language = models.CharField(max_length=20, verbose_name=_('language'))
     compiler = models.CharField(max_length=50, verbose_name=_('compiler'))
+    auto_created = models.BooleanField(default=False, editable=False)
 
     class Meta(object):
         verbose_name = _('problem compiler')
@@ -326,11 +327,12 @@ def _autocreate_problem_compilers_for_problem(sender, instance, created, raw, us
     # we want to do this only if object is newly created
     if created:
         # create problem compilers for every language and populate with defaults
-        for language in getattr(settings, "SUBMITTABLE_EXTENSIONS", {}):
+        for language in getattr(settings, "SUBMITTABLE_LANGUAGES", {}):
             problem_compiler = ProblemCompiler(
                 problem=instance,
                 language=language,
                 compiler=settings.DEFAULT_COMPILERS[language],
+                auto_created=True
             )
             problem_compiler.save()
 
@@ -351,12 +353,22 @@ class ContestCompiler(models.Model):
 
 
 def check_compilers_config():
+    SUBMITTABLE_LANGUAGES = getattr(settings, "SUBMITTABLE_LANGUAGES", {})
     SUBMITTABLE_EXTENSIONS = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})
     AVAILABLE_COMPILERS = getattr(settings, "AVAILABLE_COMPILERS", {})
     DEFAULT_COMPILERS = getattr(settings, "DEFAULT_COMPILERS", {})
-    for language in SUBMITTABLE_EXTENSIONS:
-        if not AVAILABLE_COMPILERS.get(language):
+    for language, language_info in SUBMITTABLE_LANGUAGES.items():
+        if not language_info.get('display_name'):
             raise ImproperlyConfigured
+        if not SUBMITTABLE_EXTENSIONS.get(language):
+            raise ImproperlyConfigured
+        compilers_for_lang = AVAILABLE_COMPILERS.get(language)
+        if not compilers_for_lang:
+            raise ImproperlyConfigured
+        else:
+            for compiler, compiler_info in compilers_for_lang.items():
+                if 'display_name' not in compiler_info:
+                    raise ImproperlyConfigured
         if not DEFAULT_COMPILERS.get(language):
             raise ImproperlyConfigured
         if DEFAULT_COMPILERS[language] not in AVAILABLE_COMPILERS[language]:

@@ -1247,11 +1247,37 @@ class TestLimitsLimits(TestCase):
 
 class TestCompiler(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_permissions']
+            'test_problem_instance', 'test_permissions', 'test_compilers']
+
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'C++': {'display_name': 'C++'}
+    })
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'C++': ['cpp', 'cc']
+    })
+    @override_settings(AVAILABLE_COMPILERS={
+        'C': {'gcc': {'display_name': 'GNU C Compiler'}},
+        'C++': {
+            'gcc': {'display_name': 'GNU C Compiler'},
+            'clang': {'display_name': 'Clang - LLVM compiler front end'}
+        }
+    })
+    def test_submit_view(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        contest = Contest.objects.get()
+        url = reverse('submit', kwargs={'contest_id': contest.id})
+        response = self.client.get(url)
+        self.assertContains(response, '<option value="C">C (GNU C Compiler)</option>', html=True)
+        self.assertContains(response,
+                '<option value="C++">C++ (Clang - LLVM compiler front end)</option>', html=True)
+        self.assertNotContains(response, 'gcc')
+        self.assertNotContains(response, 'clang')
 
     @override_settings(AVAILABLE_COMPILERS={
-        'C': ['gcc', 'clang'],
-        'Python': ['python']
+        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
+        'Python': {'python': {'display_name': 'python'}}
     })
     def test_compiler_hints_view(self):
         self.assertTrue(self.client.login(username='test_admin'))
@@ -1282,6 +1308,10 @@ class TestCompiler(TestCase):
         self.assertNotContains(response, 'python')
         self.assertNotContains(response, 'clang')
 
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'Python': {'display_name': 'Python'}
+    })
     @override_settings(SUBMITTABLE_EXTENSIONS={
         'C': ['c'],
         'Python': ['py']
@@ -1297,6 +1327,10 @@ class TestCompiler(TestCase):
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
 
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'Python': {'display_name': 'Python'}
+    })
     @override_settings(SUBMITTABLE_EXTENSIONS={
         'C': ['c'],
         'Python': ['py']
@@ -1312,6 +1346,10 @@ class TestCompiler(TestCase):
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
 
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'Python': {'display_name': 'Python'}
+    })
     @override_settings(SUBMITTABLE_EXTENSIONS={
         'C': ['c'],
         'Python': ['py']
@@ -1331,13 +1369,17 @@ class TestCompiler(TestCase):
         self.assertContains(response, 'C')
         self.assertContains(response, 'Python')
 
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'Python': {'display_name': 'Python'}
+    })
     @override_settings(SUBMITTABLE_EXTENSIONS={
         'C': ['c'],
         'Python': ['py']
     })
     @override_settings(AVAILABLE_COMPILERS={
-        'C': ['gcc', 'clang'],
-        'Python': ['python']
+        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
+        'Python': {'python': {'display_name': 'python'}}
     })
     @override_settings(DEFAULT_COMPILERS={
         'C': 'gcc',
@@ -1349,13 +1391,17 @@ class TestCompiler(TestCase):
         except:
             self.assertFalse(True)
 
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'Python': {'display_name': 'Python'}
+    })
     @override_settings(SUBMITTABLE_EXTENSIONS={
         'C': ['c'],
         'Python': ['py']
     })
     @override_settings(AVAILABLE_COMPILERS={
-        'C': ['gcc', 'clang'],
-        'Python': ['python']
+        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}},
+        'Python': {'python': {'display_name': 'python'}}
     })
     @override_settings(DEFAULT_COMPILERS={
         'C': 'gcc',
@@ -1368,12 +1414,16 @@ class TestCompiler(TestCase):
         except:
             pass
 
+    @override_settings(SUBMITTABLE_LANGUAGES={
+        'C': {'display_name': 'C'},
+        'Python': {'display_name': 'Python'}
+    })
     @override_settings(SUBMITTABLE_EXTENSIONS={
         'C': ['c'],
         'Python': ['py']
     })
     @override_settings(AVAILABLE_COMPILERS={
-        'C': ['gcc', 'clang']
+        'C': {'gcc': {'display_name': 'gcc'}, 'clang': {'display_name': 'clang'}}
     })
     @override_settings(DEFAULT_COMPILERS={
         'C': 'gcc',

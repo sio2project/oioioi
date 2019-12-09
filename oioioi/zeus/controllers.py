@@ -119,6 +119,3 @@ class ZeusProblemController(ProgrammingProblemController):
             'oioioi.programs.utils.min_group_scorer')
         environ.setdefault('score_aggregator',
             'oioioi.programs.utils.sum_score_aggregator')
-
-    def get_allowed_languages(self):
-        return ['C', 'C++']

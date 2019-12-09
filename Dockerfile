@@ -78,7 +78,6 @@ RUN sed -i -e \
         s/'PASSWORD': ''/'PASSWORD': ''/g;\
         s/#BROKER_URL/BROKER_URL/g;\
         s/USE_UNSAFE_EXEC/#USE_UNSAFE_EXEC/g;\
-        s/USE_LOCAL_COMPILERS/#USE_LOCAL_COMPILERS/g;\
         s/#FILETRACKER_SERVER_ENABLED/FILETRACKER_SERVER_ENABLED/g;\
         s/#FILETRACKER_LISTEN_ADDR/FILETRACKER_LISTEN_ADDR/g;\
         s/#FILETRACKER_LISTEN_PORT/FILETRACKER_LISTEN_PORT/g;\
@@ -88,7 +87,8 @@ RUN sed -i -e \
         s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
         s/#RUN_SIOWORKERSD.*$/RUN_SIOWORKERSD = True/g;\
         s/#USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = True/g;\
-        s/#USE_LOCAL_COMPILERS = True/USE_LOCAL_COMPILERS = False/g;\
+        s/AVAILABLE_COMPILERS = SYSTEM_COMPILERS/#AVAILABLE_COMPILERS = SYSTEM_COMPILERS/g;\
+        s/DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/#DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/g;\
         s/#USE_UNSAFE_CHECKER = True/USE_UNSAFE_CHECKER = False/g;\
         s/.*RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g;\
         s/ALLOWED_HOSTS = \\[.*\\]/ALLOWED_HOSTS = \\['oioioi', '127.0.0.1', 'localhost', 'web'\\]/g"\
@@ -109,6 +109,8 @@ RUN ./manage.py supervisor > /dev/null --daemonize && \
 
 RUN sed -i -e "s|FILETRACKER_URL = '.*'|FILETRACKER_URL = 'http://web:9999'|g" settings.py && \
     cp settings.py test_settings.py && \
-    sed -i -e "s/from oioioi.default_settings/from oioioi.test_settings/g" test_settings.py && \
-    cp settings.py selenium_settings.py && \
-    sed -i -e "s/from oioioi.default_settings/from oioioi.selenium_settings/g" selenium_settings.py
+    sed -i -e "s/from oioioi.default_settings import \*/from oioioi.test_settings import \*\n\
+from oioioi import default_settings\nAVAILABLE_COMPILERS = default_settings.AVAILABLE_COMPILERS\n\
+DEFAULT_COMPILERS = default_settings.DEFAULT_COMPILERS\n/g" test_settings.py && \
+    cp test_settings.py selenium_settings.py && \
+    sed -i -e "s/from oioioi.test_settings/from oioioi.selenium_settings/g" selenium_settings.py

@@ -16,7 +16,7 @@ from oioioi.contests.admin import (ProblemInstanceAdmin, SubmissionAdmin,
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.admin import MainProblemInstanceAdmin, ProblemPackageAdmin
-from oioioi.programs.forms import CompilerInlineForm
+from oioioi.programs.forms import CompilerInlineForm, ProblemCompilerInlineForm
 from oioioi.programs.models import (LibraryProblemData, ModelSolution,
                                     OutputChecker, ReportActionsConfig, Test,
                                     ProgramsConfig, ContestCompiler,
@@ -183,7 +183,7 @@ class LibraryProblemDataInline(admin.TabularInline):
 class ProblemCompilerInline(admin.StackedInline):
     model = ProblemCompiler
     extra = 0
-    form = CompilerInlineForm
+    form = ProblemCompilerInlineForm
 
 
 class ContestCompilerInline(admin.StackedInline):
@@ -362,8 +362,8 @@ class LanguageListFilter(SimpleListFilter):
     parameter_name = 'lang'
 
     def lookups(self, request, model_admin):
-        exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-        return [(x, x) for x in exts]
+        langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+        return [(lang, lang_info['display_name']) for lang, lang_info in langs.items()]
 
     def queryset(self, request, queryset):
         exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})

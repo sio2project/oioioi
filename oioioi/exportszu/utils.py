@@ -76,7 +76,7 @@ class SubmissionsWithUserDataCollector(object):
             data.last_name = s.user.last_name
             data.problem_short_name = s.problem_instance.short_name
             data.score = s.score
-            data.solution_language = ccontroller._get_language(s.source_file,
+            data.solution_language = ccontroller.get_extension(s.source_file,
                 s.problem_instance)
             data.source_file = s.source_file
 

@@ -702,3 +702,90 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          command=filetracker-server -d {{ settings.MEDIA_ROOT }} -l {{ settings.FILETRACKER_LISTEN_ADDR }} -p {{ settings.FILETRACKER_LISTEN_PORT }} -D
          redirect_stderr=false
 
+#. * Changed default compilers. Added the display_name property to each compiler.
+     This property is responsible for the compiler name, that users see in the
+     submit view of a programming problem.
+     Deleted the USE_LOCAL_COMPILERS setting, configure the AVAILABLE_COMPILERS
+     setting instead to use system compilers, if that's your preference.::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -171,22 +171,6 @@ LOGGING['loggers']['oioioi.zeus'] = {
+         # because you use instance started by another instance of OIOIOI)
+         #RUN_SIOWORKERSD = True
+
+        -# This setting specifies which compilers are available in sioworkers.
+        -# By default that means ones defined here:
+        -# https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
+        -#AVAILABLE_COMPILERS = {
+        -#        'C': ['c'],
+        -#        'C++': ['cpp'],
+        -#        'Pascal': ['pas'],
+        -#        'Java': ['java'],
+        -#        'Python': ['py']
+        -#}
+        -
+        -# This setting sets the default compilers used throughout the platform.
+        -# By uncommenting the below dict you can change all or any one of them.
+        -#DEFAULT_COMPILERS = {'C': 'c', 'C++': 'cpp', 'Pascal': 'pas', 'Java': 'java',
+        -#                     'Python': 'py'}
+        -
+         # Contest mode - automatic activation of contests.
+         #
+         # Available choices are:
+        @@ -227,7 +211,58 @@ RUN_LOCAL_WORKERS = True
+         # Before this only system compilers can be used and the safe execution
+         # supervisor is not available.
+         USE_UNSAFE_EXEC = True
+        -USE_LOCAL_COMPILERS = True
+        +SYSTEM_COMPILERS = {
+        +    'C': {
+        +        'system-gcc': {'display_name': 'system gcc'}
+        +    },
+        +    'C++': {
+        +        'system-g++': {'display_name': 'system g++'}
+        +    },
+        +    'Pascal': {
+        +        'system-fpc': {'display_name': 'system fpc'}
+        +    },
+        +    'Java': {
+        +        'system-java': {'display_name': 'system java'}
+        +    },
+        +    'Python': {
+        +        'system-python': {'display_name': 'system python'}
+        +    }
+        +}
+        +AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+        +SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
+        +                     'Pascal': 'system-fpc', 'Java': 'system-java',
+        +                     'Python': 'system-python'}
+        +DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
+        +
+        +# This setting specifies which compilers are available in sioworkers.
+        +# By default that means the ones defined here:
+        +# https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
+        +# By uncommenting the below dict you can change all or any one of them.
+        +# Each compiler must contain a display_name entry.
+        +#AVAILABLE_COMPILERS = {
+        +#    'C': {
+        +#        'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
+        +#    },
+        +#    'C++': {
+        +#        'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'}
+        +#    },
+        +#    'Pascal': {
+        +#        'fpc2_6_2': {'display_name': 'fpc:2.6.2'}
+        +#    },
+        +#    'Java': {
+        +#        'java1_8': {'display_name': 'java:1.8'}
+        +#    },
+        +#    'Python': {
+        +#        'python': {'display_name': 'python'}
+        +#    }
+        +#}
+        +
+        +# This setting sets the default compilers used throughout the platform.
+        +# By uncommenting the below dict you can change all or any one of them.
+        +#DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
+        +#                     'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
+        +#                     'Python': 'python'}

@@ -43,23 +43,32 @@ class ProgrammingProblemController(ProblemController):
 
     def get_compiler_for_submission(self, submission):
         problem_instance = submission.problem_instance
-        problem = problem_instance.problem
         extension = problem_instance.controller \
-            ._get_language(submission.source_file, problem_instance)
-        submittable_extensions = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-        language = None
-        for lang in submittable_extensions:
-            if extension in submittable_extensions[lang]:
-                language = lang
-                break
+            .get_extension(submission.source_file, problem_instance)
+        language = get_language_by_extension(problem_instance, extension)
         assert language
+
+        compiler = problem_instance.controller \
+            .get_compiler_for_language(problem_instance, language)
+        if compiler is not None:
+            return compiler
+        else:
+            logger.warning("No default compiler for language %s", language)
+            return 'default-' + extension
+
+    def get_compiler_for_language(self, problem_instance, language):
+        problem = problem_instance.problem
         problem_compiler_qs = ProblemCompiler.objects.filter(
                 problem__exact=problem.id, language__exact=language)
         if problem_compiler_qs.exists():
             return problem_compiler_qs.first().compiler
         else:
-            logger.warning("No default compiler for language %s", language)
-            return 'default-' + extension
+            default_compilers = getattr(settings, 'DEFAULT_COMPILERS')
+            compiler = default_compilers.get(language)
+            if compiler is not None:
+                return compiler
+            else:
+                return None
 
     def generate_initial_evaluation_environ(self, environ, submission,
                                             **kwargs):
@@ -73,7 +82,7 @@ class ProgrammingProblemController(ProblemController):
         environ['source_file'] = \
             django_to_filetracker_path(submission.source_file)
         environ['language'] = problem_instance.controller \
-            ._get_language(submission.source_file, problem_instance)
+            .get_extension(submission.source_file, problem_instance)
         environ['compilation_result_size_limit'] = \
             problem_instance.controller \
                 .get_compilation_result_size_limit(submission)
@@ -100,16 +109,7 @@ class ProgrammingProblemController(ProblemController):
         if 'hidden_judge' in environ['extra_args']:
             environ['report_kinds'] = ['HIDDEN']
 
-        environ['compiler'] = self.get_compiler_for_submission(submission)
-        if contest:
-            contest_compiler = contest.controller \
-                .get_compiler_for_submission(submission)
-            if contest_compiler:
-                # contest compiler is more important than problem compiler
-                environ['compiler'] = contest_compiler
-
-        if getattr(settings, 'USE_LOCAL_COMPILERS', False):
-            environ['compiler'] = 'system-' + environ['language']
+        environ['compiler'] = problem_instance.controller.get_compiler_for_submission(submission)
 
     def generate_base_environ(self, environ, submission, **kwargs):
         contest = submission.problem_instance.contest
@@ -256,7 +256,7 @@ class ProgrammingProblemController(ProblemController):
     def get_compilation_result_size_limit(self, submission):
         return 10 * 1024 * 1024
 
-    def _get_language(self, source_file, problem_instance):
+    def get_extension(self, source_file, problem_instance):
         return os.path.splitext(source_file.name)[1][1:]
 
     def fill_evaluation_environ(self, environ, submission, **kwargs):
@@ -366,7 +366,7 @@ class ProgrammingProblemController(ProblemController):
                 raise ValidationError(_("Unrecognized file extension."))
 
         langs = get_allowed_languages_dict(problem_instance)
-        if cleaned_data['prog_lang'] not in list(langs.keys()):
+        if cleaned_data['prog_lang'] not in langs.keys():
             raise ValidationError(_("This language is not allowed for selected"
                                     " problem."))
 
@@ -439,7 +439,7 @@ class ProgrammingProblemController(ProblemController):
                 raise ValidationError(_("Code length limit exceeded."))
 
         def validate_language(file):
-            ext = controller._get_language(file, problem_instance)
+            ext = controller.get_extension(file, problem_instance)
             if ext not in get_allowed_languages_extensions(problem_instance):
                 raise ValidationError(_(
                     "Unknown or not supported file extension."))
@@ -477,8 +477,23 @@ class ProgrammingProblemController(ProblemController):
         )
 
         choices = [('', '')]
-        choices += [(lang, lang) for lang
-                    in problem_instance.controller.get_allowed_languages()]
+        for lang in controller.get_allowed_languages():
+            compiler_name = None
+            compiler = controller.get_compiler_for_language(problem_instance, lang)
+            if compiler is not None:
+                available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
+                compilers_for_language = available_compilers.get(lang)
+                if compilers_for_language is not None:
+                    compiler_info = compilers_for_language.get(compiler)
+                    if compiler_info is not None:
+                        compiler_name = compiler_info.get('display_name')
+            langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+            lang_display = langs[lang]['display_name']
+            if compiler_name is not None:
+                choices.append((lang, "%s (%s)" % (lang_display, compiler_name)))
+            else:
+                choices.append((lang, lang_display))
+
         form.fields['prog_lang'] = forms.ChoiceField(required=False,
                 label=_("Programming language"),
                 choices=choices,
@@ -642,28 +657,26 @@ class ProgrammingProblemController(ProblemController):
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions.
         """
-        return ['C', 'C++', 'Pascal', 'Python']
+        return getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).keys()
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
 
     def get_compiler_for_submission(self, submission):
         problem_instance = submission.problem_instance
+        return problem_instance.problem.controller \
+            .get_compiler_for_submission(submission)
+
+    def get_compiler_for_language(self, problem_instance, language):
         contest = problem_instance.contest
-        extension = self._get_language(submission.source_file, problem_instance)
-        submittable_extensions = getattr(settings, "SUBMITTABLE_EXTENSIONS", {})
-        language = None
-        for lang in submittable_extensions:
-            if extension in submittable_extensions[lang]:
-                language = lang
-                break
-        assert language
+        problem = problem_instance.problem
         contest_compiler_qs = ContestCompiler.objects.filter(
                 contest__exact=contest, language__exact=language)
         if contest_compiler_qs.exists():
             return contest_compiler_qs.first().compiler
         else:
-            return None
+            return problem.controller \
+                .get_compiler_for_language(problem_instance, language)
 
     def _map_report_to_submission_status(self, status, problem_instance,
                                          kind='INITIAL'):
@@ -674,9 +687,9 @@ class ProgrammingContestController(ContestController):
         return submission.problem_instance.problem.controller \
             .get_compilation_result_size_limit(submission)
 
-    def _get_language(self, source_file, problem_instance):
+    def get_extension(self, source_file, problem_instance):
         return problem_instance.problem.controller \
-            ._get_language(source_file, problem_instance)
+            .get_extension(source_file, problem_instance)
 
     def fill_evaluation_environ(self, environ, submission):
         problem = submission.problem_instance.problem
@@ -898,4 +911,4 @@ class ProgrammingContestController(ContestController):
     def get_allowed_languages(self):
         """Determines which languages are allowed for submissions.
         """
-        return ['C', 'C++', 'Pascal', 'Python']
+        return getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).keys()

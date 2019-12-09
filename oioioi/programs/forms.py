@@ -18,13 +18,13 @@ class CompilerInlineForm(forms.ModelForm):
         default_compilers = getattr(settings, 'DEFAULT_COMPILERS')
         model = self._meta.model
         if model == ContestCompiler:
-            for language in getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}):
-                self.LANGUAGE_CHOICES.append((language, language +
-                    ugettext(" (default compiler: ") + default_compilers.get(language) +
+            for lang, lang_info in getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items():
+                self.LANGUAGE_CHOICES.append((lang, lang_info['display_name'] +
+                    ugettext(" (default compiler: ") + default_compilers.get(lang) +
                     ")"))
         else:
-            for language in getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}):
-                self.LANGUAGE_CHOICES.append((language, language))
+            for lang, lang_info in getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).items():
+                self.LANGUAGE_CHOICES.append((lang, lang_info['display_name']))
 
         FINAL_COMPILER_CHOICES = self.COMPILER_CHOICES
         if kwargs.get('instance'):
@@ -46,3 +46,12 @@ class CompilerInlineForm(forms.ModelForm):
 
     class Media(object):
         js = ('common/choose_compiler.js',)
+
+
+class ProblemCompilerInlineForm(CompilerInlineForm):
+    def save(self, commit=True):
+        instance = super(CompilerInlineForm, self).save(commit=False)
+        instance.auto_created = False
+        if commit:
+            instance.save()
+        return instance

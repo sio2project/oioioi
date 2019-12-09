@@ -12,10 +12,9 @@ def set_default_compilers(apps, schema_editor):
     db_alias = schema_editor.connection.alias
 
     for problem in Problem.objects.all():
-        for language in getattr(settings, 'SUBMITTABLE_EXTENSIONS', {}):
-            compiler = settings.DEFAULT_COMPILERS[language]
+        for language in getattr(settings, 'SUBMITTABLE_LANGUAGES', {}):
             ProblemCompiler.objects.using(db_alias).create(problem=problem, language=language,
-                                                           compiler=compiler)
+                                                           compiler="auto_default_from_migration_programs_0009")
 
 
 class Migration(migrations.Migration):

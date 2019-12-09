@@ -114,7 +114,6 @@ Vagrant.configure("2") do |config|
                s/'PASSWORD': ''/'PASSWORD': 'development'/g;\
                s/#BROKER_URL/BROKER_URL/g;\
                s/USE_UNSAFE_EXEC/#USE_UNSAFE_EXEC/g;\
-               s/USE_LOCAL_COMPILERS/#USE_LOCAL_COMPILERS/g;\
                s/#FILETRACKER_SERVER_ENABLED/FILETRACKER_SERVER_ENABLED/g;\
                s/#FILETRACKER_LISTEN_ADDR/FILETRACKER_LISTEN_ADDR/g;\
                s/#FILETRACKER_LISTEN_PORT/FILETRACKER_LISTEN_PORT/g;\
@@ -123,7 +122,8 @@ Vagrant.configure("2") do |config|
                s/#SIOWORKERS_LISTEN_PORT/SIOWORKERS_LISTEN_PORT/g;\
                s/#RUN_SIOWORKERSD.*$/RUN_SIOWORKERSD = True/g;\
                s/#USE_UNSAFE_EXEC = True/USE_UNSAFE_EXEC = False/g;\
-               s/#USE_LOCAL_COMPILERS = True/USE_LOCAL_COMPILERS = False/g;\
+               s/AVAILABLE_COMPILERS = SYSTEM_COMPILERS/#AVAILABLE_COMPILERS = SYSTEM_COMPILERS/g;\
+               s/DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/#DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS/g;\
                s/#USE_UNSAFE_CHECKER = True/USE_UNSAFE_CHECKER = False/g;\
                s/.*RUN_LOCAL_WORKERS = True/RUN_LOCAL_WORKERS = False/g"\
             settings.py

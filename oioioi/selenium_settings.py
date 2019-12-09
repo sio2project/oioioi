@@ -79,8 +79,29 @@ MOCK_RANKINGSD = True
 SECRET_KEY = 'no_secret'
 OISUBMIT_MAGICKEY = 'abcdef'
 USE_UNSAFE_EXEC = True
-USE_LOCAL_COMPILERS = True
 USE_UNSAFE_CHECKER = True
+
+AVAILABLE_COMPILERS = {
+    'C': {
+        'system-gcc': {'display_name': 'system gcc'}
+    },
+    'C++': {
+        'system-g++': {'display_name': 'system g++'}
+    },
+    'Pascal': {
+        'system-fpc': {'display_name': 'system fpc'}
+    },
+    'Java': {
+        'system-java': {'display_name': 'system java'}
+    },
+    'Python': {
+        'system-python': {'display_name': 'system python'}
+    }
+}
+
+DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
+                     'Pascal': 'system-fpc', 'Java': 'system-java',
+                     'Python': 'system-python'}
 
 USE_SINOLPACK_MAKEFILES = True
 

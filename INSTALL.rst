@@ -108,7 +108,8 @@ Production configuration
      ./manage.py download_sandboxes
 
 #. Disable system compilers and unsafe code execution by commenting out
-   *USE_UNSAFE_EXEC = True* and *USE_LOCAL_COMPILERS = True* in *settings.py*.
+   *USE_UNSAFE_EXEC = True* and *AVAILABLE_COMPILERS = SYSTEM_COMPILERS* and
+   *DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS* in *settings.py*.
 
 #. (optionally) Disable starting the judging process on the server, especially
    if you want to configure judging machines (see below) for judging, what is

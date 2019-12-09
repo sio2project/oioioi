@@ -15,7 +15,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 40
+INSTALLATION_CONFIG_VERSION = 41
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -289,13 +289,34 @@ PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',
 )
 
-# This setting is used for associating allowed programming languages with file
-# extensions. Allowed languages are determined by contest and problem
-# controllers.
+# This setting specifies which languages are available on the platform.
+# Each language must contain a diplay_name entry. Such an entry may be useful
+# if it is to contain characters, that probably shouldn't be allowed in the
+# language identifier, such as '#'.
+SUBMITTABLE_LANGUAGES = {
+    'C': {
+        'display_name': 'C'
+    },
+    'C++': {
+        'display_name': 'C++'
+    },
+    'Pascal': {
+        'display_name': 'Pascal'
+    },
+    'Java': {
+        'display_name': 'Java'
+    },
+    'Python': {
+        'display_name': 'Python'
+    }
+}
+
+# This setting is used for associating programming languages with file extensions.
+# There should be an entry for every language supported with key being the same
+# as in SUBMITTABLE_LANGUAGES.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
                           'Java': ['java'], 'Python': ['py']}
 USE_UNSAFE_EXEC = False
-USE_LOCAL_COMPILERS = False
 DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
 RUN_LOCAL_WORKERS = False
 
@@ -303,20 +324,32 @@ RUN_LOCAL_WORKERS = False
 # By default that means ones defined here:
 # https://github.com/sio2project/sioworkers/blob/master/setup.py#L71
 # There should be an entry for every language supported with key being the same
-# as in SUBMITTABLE_EXTENSIONS
+# as in SUBMITTABLE_LANGUAGES. Additionally each compiler must contain a
+# display_name entry.
 AVAILABLE_COMPILERS = {
-        'C': ['c'],
-        'C++': ['cpp'],
-        'Pascal': ['pas'],
-        'Java': ['java'],
-        'Python': ['py']
+    'C': {
+        'gcc4_8_2_c99': {'display_name': 'gcc:4.8.2 std=gnu99'}
+    },
+    'C++': {
+        'g++4_8_2_cpp11': {'display_name': 'g++:4.8.2 std=c++11'}
+    },
+    'Pascal': {
+        'fpc2_6_2': {'display_name': 'fpc:2.6.2'}
+    },
+    'Java': {
+        'java1_8': {'display_name': 'java:1.8'}
+    },
+    'Python': {
+        'python': {'display_name': 'python'}
+    }
 }
 
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same
-# as in SUBMITTABLE_EXTENSIONS
-DEFAULT_COMPILERS = {'C': 'c', 'C++': 'cpp', 'Pascal': 'pas', 'Java': 'java',
-                     'Python': 'py'}
+# as in SUBMITTABLE_LANGUAGES and value contained in AVAILABLE_COMPILERS.
+DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
+                     'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
+                     'Python': 'python'}
 
 
 # WARNING: experimental, see settings template
