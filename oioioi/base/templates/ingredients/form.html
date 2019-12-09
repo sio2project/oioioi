@@ -24,20 +24,20 @@
             </label>
     {% elif field|is_checkbox_select_multiple %}
         <div class="checkbox {% if field.errors %}has-error{% endif %}">
-            <label for="{{ field.auto_id }}" class="control-label">
+            <label for="{{ field.id_for_label }}" class="control-label">
                 {{ field.label }}
             </label>
             {{ field }}
     {% elif field|is_radioselect %}
         <div class="radio {% if field.errors %}has-error{% endif %}">
-            <label for="{{ field.auto_id }}" class="control-label">
+            <label for="{{ field.id_for_label }}" class="control-label">
                 {{ field.label }}
             </label>
             {{ field }}
     {% else %}
         <div class="form-group {% if field.errors %}has-error{% endif %}">
             {% if display_labels != False %}
-                <label for="{{ field.auto_id }}" class="control-label">
+                <label for="{{ field.id_for_label }}" class="control-label">
                     {{ field.label }}
                 </label>
             {% endif %}

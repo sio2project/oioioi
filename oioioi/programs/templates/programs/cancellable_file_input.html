@@ -1,0 +1,10 @@
+<div style="
+    display: flex;
+    height: auto;
+    justify-content: space-between;
+    align-items: center;
+"
+     class="{% for class in widget.css_classes %}{{ class }} {% endfor %}">
+<input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+<span class="file_cancel_button glyphicon glyphicon-remove"></span>
+</div>

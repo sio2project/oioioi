@@ -36,6 +36,7 @@ from oioioi.programs.utils import (has_report_actions_config,
                                    filter_model_submissions,
                                    form_field_id_for_langs,
                                    get_problem_link_or_name)
+from oioioi.programs.widgets import CancellableFileInput
 
 def get_report_display_type(request, test_report):
     if (test_report.status == 'INI_OK' or test_report.status == 'OK'):
@@ -521,6 +522,7 @@ class ProgrammingProblemController(ProblemController):
             return problem_id
 
         form.fields['file'] = forms.FileField(required=False,
+                widget=CancellableFileInput,
                 allow_empty_file=False,
                 validators=[validate_file_size, validate_language],
                 label=_("File"),
