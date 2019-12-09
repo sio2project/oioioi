@@ -1247,7 +1247,7 @@ class TestLimitsLimits(TestCase):
 
 class TestCompiler(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance']
+            'test_problem_instance', 'test_permissions']
 
     @override_settings(AVAILABLE_COMPILERS={
         'C': ['gcc', 'clang'],
@@ -1288,6 +1288,21 @@ class TestCompiler(TestCase):
     })
     def test_contest_admin_inline(self):
         self.assertTrue(self.client.login(username='test_admin'))
+
+        contest = Contest.objects.get()
+        url = reverse('oioioiadmin:contests_contest_change',
+                args=(quote(contest.id),)) + '?simple=true'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'C')
+        self.assertContains(response, 'Python')
+
+    @override_settings(SUBMITTABLE_EXTENSIONS={
+        'C': ['c'],
+        'Python': ['py']
+    })
+    def test_contest_contest_admin_inline(self):
+        self.assertTrue(self.client.login(username='test_contest_admin'))
 
         contest = Contest.objects.get()
         url = reverse('oioioiadmin:contests_contest_change',

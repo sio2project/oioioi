@@ -36,15 +36,6 @@ class ProgramsConfigInline(admin.TabularInline):
         return False
 
 
-class ContestCompilerInline(admin.StackedInline):
-    model = ContestCompiler
-    extra = 0
-    form = CompilerInlineForm
-    def __init__(self, *args, **kwargs):
-        super(ContestCompilerInline, self).__init__(*args, **kwargs)
-        self.verbose_name_plural = _("Compiler overrides")
-
-
 class ValidationFormset(BaseInlineFormSet):
     def get_time_limit_sum(self):
         time_limit_sum = 0
@@ -193,6 +184,24 @@ class ProblemCompilerInline(admin.StackedInline):
     model = ProblemCompiler
     extra = 0
     form = CompilerInlineForm
+
+
+class ContestCompilerInline(admin.StackedInline):
+    model = ContestCompiler
+    extra = 0
+    form = CompilerInlineForm
+    def __init__(self, *args, **kwargs):
+        super(ContestCompilerInline, self).__init__(*args, **kwargs)
+        self.verbose_name_plural = _("Compiler overrides")
+
+    def has_add_permission(self, request):
+        return is_contest_admin(request)
+
+    def has_change_permission(self, request, obj=None):
+        return is_contest_admin(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return self.has_change_permission(request, obj)
 
 
 class ProgramsContestAdminMixin(object):
