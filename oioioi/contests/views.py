@@ -40,6 +40,7 @@ from oioioi.problems.utils import (can_admin_problem_instance,
                                    query_zip, update_tests_from_main_pi)
 from oioioi.status.registry import status_registry
 from oioioi.szkopul.menu import navbar_links_registry
+from oioioi.contests.attachment_registration import attachment_registry
 
 
 @register_main_page_view(order=900)
@@ -324,10 +325,11 @@ def change_submission_kind_view(request, submission_id, kind):
     return redirect('submission', submission_id=submission_id)
 
 
-@menu_registry.register_decorator(_("Files"), lambda request:
+@menu_registry.register_decorator(_("Downloads"), lambda request:
         reverse('contest_files'), order=200)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_files_view(request):
+    additional_files = attachment_registry.to_list(request)
     contest_files = ContestAttachment.objects.filter(contest=request.contest) \
         .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request))) \
         .select_related('round')
@@ -358,6 +360,13 @@ def contest_files_view(request):
             kwargs={'contest_id': request.contest.id, 'attachment_id': pf.id}),
         'pub_date': None
         } for pf in problem_files]
+    rows += [{
+        'category': af.get('category'),
+        'name': af.get('name'),
+        'description': af.get('description'),
+        'link': af.get('link'),
+        'pub_date': af.get('pub_date')
+    } for af in additional_files]
     rows.sort(key=itemgetter('name'))
     return TemplateResponse(request, 'contests/files.html', {'files': rows,
         'files_on_page': getattr(settings, 'FILES_ON_PAGE', 100),

@@ -15,6 +15,7 @@ from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    is_contest_admin, visible_problem_instances)
 from oioioi.filetracker.utils import stream_file
 from oioioi.testspackages.models import TestsPackage
+from oioioi.contests.attachment_registration import attachment_registry
 
 
 @request_cached
@@ -25,27 +26,18 @@ def visible_tests_packages(request):
             if tp.is_visible(request.timestamp) and tp.package is not None]
 
 
-@make_request_condition
-def is_any_tests_package_visible(request):
-    return bool(visible_tests_packages(request))
-
-
-@menu_registry.register_decorator(_("Tests"), lambda request:
-        reverse('tests', kwargs={'contest_id': request.contest.id}),
-        order=350)
-@enforce_condition(not_anonymous & contest_exists & can_enter_contest)
-@enforce_condition(is_any_tests_package_visible)
-def tests_view(request):
+@attachment_registry.register
+def get_tests(request):
     tests = []
     for tp in visible_tests_packages(request):
-        t = {'name': os.path.basename(tp.name) + '.zip',
+        t = {'category': tp.problem,
+             'name': os.path.basename(tp.name) + '.zip',
+             'description': tp.description,
              'link': reverse('test', kwargs={'contest_id': request.contest.id,
                                              'package_id': tp.id}),
-             'description': tp.description}
+             'pub_date': tp.publish_date}
         tests.append(t)
-    return TemplateResponse(request, 'testspackages/tests.html',
-            {'tests': tests,
-             'tests_on_page': getattr(settings, 'SUBMISSIONS_ON_PAGE', 100)})
+    return tests
 
 
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)

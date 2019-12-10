@@ -92,24 +92,21 @@ class TestTestsPackages(TestCase):
         tp2.tests.add(test2)
 
         self.assertTrue(self.client.login(username='test_user'))
-        url = reverse('tests', kwargs={'contest_id': contest.id})
+        url = reverse('contest_files', kwargs={'contest_id': contest.id})
 
         with fake_time(datetime(2012, 8, 5, 0, 10, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertNotContains(response, '>Tests<', status_code=403)
-            self.assertNotContains(response, 'some_name.zip', status_code=403)
-            self.assertNotContains(response, 'some_name2.zip', status_code=403)
+            self.assertNotContains(response, 'some_name.zip')
+            self.assertNotContains(response, 'some_name2.zip')
 
         with fake_time(datetime(2012, 8, 5, 0, 12, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertContains(response, '>Tests<')
             self.assertContains(response, 'some_name.zip')
             self.assertNotContains(response, 'some_name2.zip')
             self.assertEqual(200, response.status_code)
 
         with fake_time(datetime(2012, 8, 5, 1, 12, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertContains(response, '>Tests<')
             self.assertContains(response, 'some_name.zip')
             self.assertContains(response, 'some_name2.zip')
             self.assertEqual(200, response.status_code)
