@@ -40,6 +40,9 @@ python23_universal_requirements = [
         "PyYAML",
         "python-dateutil",
         "django-two-factor-auth<1.7",  # latest version for Django 1.10
+        "django-formtools<2.2",  # latest version for Django 1.10 and
+                                 # django-two-factor-auth 1.6.*; can be
+                                 # removed after migration to Django 1.11
 
         "django-registration-redux>=1.6,<2.0",  # latest for Django 1.10
 
