@@ -472,7 +472,7 @@ def get_report_HTML_view(request, submission_id):
 
     if not reports:
         reports = _(u"Reports are not available now (ಥ ﹏ ಥ)")
-        reports = mark_safe('<center>' + reports + '</center>')
+        reports = mark_safe(u'<center>' + reports + u'</center>')
     return HttpResponse(reports)
 
 
