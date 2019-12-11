@@ -1650,7 +1650,7 @@ class TestPermissionsBasicAdmin(TestCase):
 
         self.assertContains(response, "Dashboard")
         self.assertContains(response, "Problems")
-        self.assertContains(response, "Files")
+        self.assertContains(response, "Downloads")
         self.assertContains(response, "Submit")
         self.assertContains(response, "My submissions")
         self.assertContains(response, "Ranking")
