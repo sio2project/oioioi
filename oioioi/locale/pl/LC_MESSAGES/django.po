@@ -36,7 +36,7 @@
 # Rafał Stefański <ravst94@gmail.com>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2013
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
-# sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014,2016,2018
+# sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014,2016,2018-2019
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # teqwve <mrtaddewicz@gmail.com>, 2016
@@ -48,9 +48,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-11-12 07:33+0100\n"
-"PO-Revision-Date: 2019-10-16 19:43+0000\n"
-"Last-Translator: Michał Sidor <michcioperz@gmail.com>\n"
+"POT-Creation-Date: 2019-12-11 16:09+0100\n"
+"PO-Revision-Date: 2019-12-11 15:45+0000\n"
+"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -127,8 +127,8 @@ msgstr "Ranking jest zamrożony."
 
 #: acm/templates/acm/acm_ranking.html:12
 #: complaints/templates/complaints/jury-email.txt:6 contests/forms.py:165
-#: evalmgr/admin.py:166 oireports/forms.py:93 prizes/reports.py:15
-#: prizes/reports.py:36 rankings/templates/rankings/default_ranking.html:11
+#: evalmgr/admin.py:166 oireports/forms.py:93
+#: rankings/templates/rankings/default_ranking.html:11
 #: teams/templates/teams/confirm-join-team.html:14
 #: teams/templates/teams/team.html:14 teams/templates/teams/teams.html:14
 msgid "User"
@@ -142,7 +142,7 @@ msgstr "Użytkownik"
 #: programs/templates/programs/report-body.html:14
 #: programs/templates/programs/submission_header.html:116
 #: publicsolutions/templates/publicsolutions/solutions-table.html:9
-#: quizzes/models.py:139 quizzes/templates/quizzes/report-body.html:12
+#: quizzes/models.py:137 quizzes/templates/quizzes/report-body.html:12
 #: scoresreveal/templates/scoresreveal/submission-footer.html:14
 #: simpleui/templates/simpleui/contest/ingredients/submissions.html:11
 #: zeus/templates/zeus/program-report.html:18
@@ -957,7 +957,7 @@ msgstr "Wypełnij poniższy formularz aby założyć konto."
 #: base/templates/registration/registration_form.html:27
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
-#: contests/templates/contests/submit.html:14 contests/views.py:177
+#: contests/templates/contests/submit.html:14 contests/views.py:178
 #: dashboard/views.py:33 forum/templates/forum/edit_post.html:29
 #: forum/templates/forum/thread.html:39
 #: forum/templates/forum/thread_add.html:22
@@ -1359,7 +1359,7 @@ msgid ""
 msgstr "Cześć,\n\notrzymaliśmy następującą reklamację:"
 
 #: complaints/templates/complaints/jury-email.txt:5 contests/admin.py:619
-#: evalmgr/admin.py:160 prizes/templates/prizes/email_footer.txt:4
+#: evalmgr/admin.py:160
 #: questions/templates/admin/questions/change_message.html:32
 #: rankings/controllers.py:230 statistics/controllers.py:21
 msgid "Contest"
@@ -1678,7 +1678,7 @@ msgid "Package file"
 msgstr "Paczka"
 
 #: contests/admin.py:407 contests/templates/contests/problems_list.html:5
-#: contests/templates/contests/problems_list.html:8 contests/views.py:72
+#: contests/templates/contests/problems_list.html:8 contests/views.py:73
 #: dashboard/views.py:27 problems/views.py:760
 msgid "Problems"
 msgstr "Zadania"
@@ -1722,7 +1722,7 @@ msgstr "Nazwa użytkownika"
 #: participants/templates/participants/participant_info.html:19
 #: problems/admin.py:437
 #: programs/templates/programs/submission_header.html:112
-#: quizzes/models.py:143
+#: quizzes/models.py:141
 #: simpleui/templates/simpleui/contest/ingredients/submissions.html:10
 #: testrun/templates/testrun/submission-header.html:13
 msgid "Status"
@@ -1988,11 +1988,10 @@ msgstr "%s – wyniki"
 msgid "Public results of %s"
 msgstr "%s – ogłoszenie wyników"
 
-#: contests/models.py:192 oi/models.py:64 prizes/models.py:125
-#: prizes/models.py:279 problems/models.py:450 problems/models.py:505
-#: problems/models.py:628 problems/models.py:657 problems/models.py:690
-#: programs/models.py:65 programs/models.py:151 sinolpack/models.py:30
-#: usergroups/models.py:22
+#: contests/models.py:192 oi/models.py:64 problems/models.py:450
+#: problems/models.py:505 problems/models.py:628 problems/models.py:657
+#: problems/models.py:690 programs/models.py:65 programs/models.py:151
+#: sinolpack/models.py:30 usergroups/models.py:22
 msgid "name"
 msgstr "nazwa"
 
@@ -2295,10 +2294,10 @@ msgid ""
 msgstr "Końcowy zbiór danych (<code>recipe</code> oraz\n<code>error_handlers</code> pominięte dla czytelności):"
 
 #: contests/templates/contests/files.html:6
-#: contests/templates/contests/files.html:20 contests/views.py:327
-#: problems/problem_site.py:80
-msgid "Files"
-msgstr "Pliki"
+#: contests/templates/contests/files.html:20 contests/views.py:328
+#| msgid "Download"
+msgid "Downloads"
+msgstr "Pliki i testy"
 
 #: contests/templates/contests/files.html:16
 msgid "Add file"
@@ -2337,7 +2336,7 @@ msgstr "\n            <p>Brak dostępnych konursów.</p>\n        "
 
 #: contests/templates/contests/my_submissions.html:5
 #: contests/templates/contests/my_submissions.html:17
-#: contests/templates/contests/tests_choice.html:5 contests/views.py:200
+#: contests/templates/contests/tests_choice.html:5 contests/views.py:201
 msgid "My submissions"
 msgstr "Moje zgłoszenia"
 
@@ -2382,7 +2381,6 @@ msgstr "Niestety nie ma tu żadnych zadań, do których możesz przysłać rozwi
 #: contests/templates/contests/select_contest.html:16
 #: oi/templates/oi/sensitive_participant_info.html:17
 #: portals/templates/portals/portals_main_page.html:70
-#: prizes/templates/prizes/email_footer.txt:6
 #: problems/templates/problems/problemset/problem-list.html:20
 #: problems/templates/problems/problemset/select-contest.html:15
 #: simpleui/templates/simpleui/problem_settings/ingredients/tags.html:6
@@ -2501,24 +2499,24 @@ msgstr "Informacje o użytkowniku"
 msgid "User's submissions"
 msgstr "Zgłoszenia użytkownika"
 
-#: contests/views.py:305
+#: contests/views.py:306
 msgid "Rejudge request received."
 msgstr "Zapisano zlecenie ponownej oceny."
 
-#: contests/views.py:319
+#: contests/views.py:320
 msgid "Submission kind has been changed."
 msgstr "Rodzaj zgłoszenia został zmieniony."
 
-#: contests/views.py:322
+#: contests/views.py:323
 #, python-format
 msgid "%(kind)s is not valid kind for submission %(submission_id)d."
 msgstr "%(kind)s nie jest poprawnym rodzajem, jaki może przyjąć zgłoszenie %(submission_id)d."
 
-#: contests/views.py:429
+#: contests/views.py:438
 msgid "See user info page"
 msgstr "Zobacz informacje o użytkowniku"
 
-#: contests/views.py:448
+#: contests/views.py:457
 #, python-format
 msgid "%(count)d rejudge request received."
 msgid_plural "%(count)d rejudge requests reveived."
@@ -2527,11 +2525,11 @@ msgstr[1] "Zapisano %(count)d zleceń ponownej oceny."
 msgstr[2] "Zapisano %(count)d zleceń ponownej oceny."
 msgstr[3] "Zapisano %(count)d zleceń ponownej oceny."
 
-#: contests/views.py:466
+#: contests/views.py:475
 msgid "Tests limits resetted successfully"
 msgstr "Zresetowanie limitów powiodło się"
 
-#: contests/views.py:503
+#: contests/views.py:512
 msgid "Problem {} added successfully."
 msgstr "Dodano zadanie {}."
 
@@ -4656,7 +4654,6 @@ msgstr "Plik jest zbyt duży."
 #: printing/forms.py:22 problems/templates/problems/files.html:14
 #: programs/controllers.py:462
 #: simpleui/templates/simpleui/problem_settings/ingredients/attachments.html:6
-#: testspackages/templates/testspackages/tests.html:17
 msgid "File"
 msgstr "Plik"
 
@@ -4699,117 +4696,6 @@ msgstr "Drukowanie"
 #: printing/views.py:40
 msgid "File has been printed."
 msgstr "Plik został wydrukowany."
-
-#: prizes/admin.py:41
-msgid "state"
-msgstr "stan"
-
-#: prizes/controllers.py:37
-msgid "total score"
-msgstr "wynik końcowy"
-
-#: prizes/forms.py:14
-msgid "redo"
-msgstr "ponów"
-
-#: prizes/models.py:76
-msgid "NOT SCHEDULED"
-msgstr "NIEZAPLANOWANE"
-
-#: prizes/models.py:77
-msgid "SCHEDULED"
-msgstr "ZAPLANOWANE"
-
-#: prizes/models.py:78
-msgid "FAILURE"
-msgstr "BŁĄD"
-
-#: prizes/models.py:79
-msgid "SUCCESS"
-msgstr "SUKCES"
-
-#: prizes/models.py:122 prizes/templates/prizes/email_footer.txt:5
-msgid "Distribution date"
-msgstr "Data rozdania"
-
-#: prizes/models.py:123
-msgid "Leave blank for 'later'."
-msgstr "Pozostaw to pole puste, jeśli chcesz je uzupełnić później"
-
-#: prizes/models.py:126
-msgid "Prize-givings with the same name are listed together."
-msgstr "Rozdania nagród o tej samej nazwie są wyświetlone razem"
-
-#: prizes/models.py:129
-msgid "awarding rules"
-msgstr "zasady nagradzania"
-
-#: prizes/models.py:142 prizes/models.py:277
-msgid "prize-giving"
-msgstr "rozdanie nagród"
-
-#: prizes/models.py:143
-msgid "prize-givings"
-msgstr "rozdania nagród"
-
-#: prizes/models.py:265
-msgid "Invalid value for position in distribution order."
-msgstr "Niepoprawna pozycja w kolejności rozdawania."
-
-#: prizes/models.py:280
-msgid "quantity"
-msgstr "liczba"
-
-#: prizes/models.py:282
-msgid "position in non-strict distribution order"
-msgstr "pozycja w nieliniowym porządku rozdań"
-
-#: prizes/models.py:286
-msgid "prize"
-msgstr "nagroda"
-
-#: prizes/models.py:287
-msgid "prizes"
-msgstr "nagrody"
-
-#: prizes/reports.py:15 prizes/reports.py:36
-msgid "Prize"
-msgstr "Nagroda"
-
-#: prizes/reports.py:29
-msgid "Nothing"
-msgstr "Nic"
-
-#: prizes/reports.py:36
-msgid "Place"
-msgstr "Miejsce"
-
-#: prizes/templates/prizes/email_footer.txt:7
-msgid "Awarding rules"
-msgstr "Zasady nagradzania"
-
-#: prizes/templates/prizes/email_subject.txt:1
-msgid "Prize-giving failure"
-msgstr "Błąd podczas wręczania nagrody"
-
-#: prizes/templates/prizes/nofair_body.txt:1
-msgid ""
-"Hi,\n"
-"\n"
-"no fair prizes assignment could be found.\n"
-"See the attachment to check where the conflict appeared.\n"
-"To resolve it, change the prizes configuration for this prize-giving.\n"
-"Then redo the prize-giving (tick the 'redo' checkbox in admin and save)."
-msgstr "Hej,\n\nnie udało się sprawiedliwie dopasować nagród.\nZobacz załącznik, by sprawdzić gdzie pojawiły się konflikty.\nAby je rozwiązać, zmień konfigurację nagród dla tego rozdania nagród.\nPotem ponów rozdanie nagród (zaznacz pole „ponów” w panelu administratora i zapisz)."
-
-#: prizes/templates/prizes/prizes.html:4 prizes/templates/prizes/prizes.html:7
-#: prizes/views.py:31
-msgid "Prizes"
-msgstr "Nagrody"
-
-#: prizes/utils.py:21
-msgid "prizes_conflict.csv"
-msgstr "konflikt_nagród.csv"
 
 #: problems/admin.py:194 problems/models.py:459
 msgid "origin tag"
@@ -5306,6 +5192,10 @@ msgstr "propozycja poziomu trudności"
 msgid "difficulty proposals"
 msgstr "propozycje poziomu trudności"
 
+#: problems/problem_site.py:80
+msgid "Files"
+msgstr "Pliki"
+
 #: problems/problem_site.py:137 problems/templates/problems/secret-key.html:12
 msgid "Secret key"
 msgstr "Tajny klucz"
@@ -5416,7 +5306,6 @@ msgstr "Możesz też otworzyć treść zadania klikając <a href=\"%(statement_u
 
 #: problems/templates/problems/files.html:15
 #: simpleui/templates/simpleui/problem_settings/ingredients/attachments.html:7
-#: testspackages/templates/testspackages/tests.html:18
 msgid "Description"
 msgstr "Opis"
 
@@ -5861,7 +5750,7 @@ msgstr "Kod"
 msgid "Programming language"
 msgstr "Język programowania"
 
-#: programs/controllers.py:647
+#: programs/controllers.py:648
 msgid "Simple programming contest"
 msgstr "Prosty konkurs programistyczny"
 
@@ -6391,8 +6280,8 @@ msgid ""
 "        "
 msgstr "\nOkresowo skanuje całą bazę danych, szukając wiadomości, dla których powiadomienie nie zostało wysłane. \nNie możemy zrobić tego łatwo, nie korzystając z daemona, ponieważ musimy wspierać opóźnione publikowanie ogłoszeń."
 
-#: questions/models.py:21 quizzes/models.py:20 quizzes/models.py:38
-#: quizzes/models.py:123 quizzes/models.py:141
+#: questions/models.py:21 quizzes/models.py:20 quizzes/models.py:36
+#: quizzes/models.py:121 quizzes/models.py:139
 #: quizzes/templates/quizzes/report-body.html:10
 msgid "Question"
 msgstr "Pytanie"
@@ -6648,11 +6537,11 @@ msgstr "Zadaj pytanie"
 msgid "A question needs at least one answer."
 msgstr "A question needs at least one answer."
 
-#: quizzes/controllers.py:38
+#: quizzes/controllers.py:50
 msgid "Answer is required here."
 msgstr "Odpowiedź jest wymagana"
 
-#: quizzes/controllers.py:162
+#: quizzes/controllers.py:177
 msgid "Edit questions"
 msgstr "Edit questions"
 
@@ -6672,17 +6561,17 @@ msgstr "Quiz"
 msgid "Quizzes"
 msgstr "Quizy"
 
-#: quizzes/models.py:22
-msgid "Is multiple choice"
-msgstr "Czy jest wielokrotnego wyboru"
-
-#: quizzes/models.py:23
+#: quizzes/models.py:21
 #: simpleui/templates/simpleui/problem_settings/ingredients/tests.html:10
 #: statistics/plotfunctions.py:175
 msgid "Points"
 msgstr "Punkty"
 
-#: quizzes/models.py:26 quizzes/models.py:43 quizzes/models.py:54
+#: quizzes/models.py:23
+msgid "Is multiple choice"
+msgstr "Czy jest wielokrotnego wyboru"
+
+#: quizzes/models.py:26 quizzes/models.py:41 quizzes/models.py:52
 msgid "Order"
 msgstr "Kolejność"
 
@@ -6696,126 +6585,112 @@ msgid ""
 "Instead of listing answers, expect the contestant to type in their answer."
 msgstr "Zamiast podać możliwe odpowiedzi, oczekuj od uczestnika wpisania odpowiedzi."
 
-#: quizzes/models.py:28
-msgid "Trim leading and trailing whitespace in user input"
-msgstr "Usuń białe znaki na początku i końcu odpowiedzi uczestnika"
-
-#: quizzes/models.py:28 quizzes/models.py:29
-#| msgid "One post has been hidden."
-#| msgid_plural "%(counter)d posts have been hidden."
-msgid "Only applies if answers are hidden."
-msgstr "Dotyczy tylko pytań z ukrytymi odpowiedziami."
-
-#: quizzes/models.py:29
-msgid "Match user input case insensitively"
-msgstr "Ignoruj wielkość znaków w odpowiedzi uczestnika"
-
-#: quizzes/models.py:33
+#: quizzes/models.py:31
 msgid "Quiz question"
 msgstr "Pytanie"
 
-#: quizzes/models.py:34
+#: quizzes/models.py:32
 msgid "Quiz questions"
 msgstr "Pytania"
 
-#: quizzes/models.py:40 quizzes/models.py:109
+#: quizzes/models.py:38 quizzes/models.py:107
 msgid "Answer"
 msgstr "Odpowiedź"
 
-#: quizzes/models.py:42
+#: quizzes/models.py:40
 msgid "Is answer correct"
 msgstr "Czy odpowiedź jest poprawna"
 
-#: quizzes/models.py:47
+#: quizzes/models.py:45
 msgid "Quiz answer"
 msgstr "Odpowiedź"
 
-#: quizzes/models.py:48
+#: quizzes/models.py:46
 msgid "Quiz answers"
 msgstr "Odpowiedzi"
 
-#: quizzes/models.py:52
+#: quizzes/models.py:50
 #| msgid "Options"
 msgid "Caption"
 msgstr "Podpis"
 
-#: quizzes/models.py:53
+#: quizzes/models.py:51
 #| msgid "Package file"
 msgid "Image file"
 msgstr "Plik z obrazem"
 
-#: quizzes/models.py:79
+#: quizzes/models.py:77
 #| msgid "Quiz question"
 msgid "Quiz question picture"
 msgstr "Ilustracja do pytania"
 
-#: quizzes/models.py:80
+#: quizzes/models.py:78
 #| msgid "Quiz questions"
 msgid "Quiz question pictures"
 msgstr "Ilustracje do pytania"
 
-#: quizzes/models.py:94
+#: quizzes/models.py:92
 #| msgid "Quiz answer"
 msgid "Quiz answer picture"
 msgstr "Ilustracja do odpowiedzi"
 
-#: quizzes/models.py:95
+#: quizzes/models.py:93
 #| msgid "Quiz answers"
 msgid "Quiz answer pictures"
 msgstr "Ilustracje do odpowiedzi"
 
-#: quizzes/models.py:101 quizzes/models.py:107 quizzes/models.py:121
+#: quizzes/models.py:99 quizzes/models.py:105 quizzes/models.py:119
 msgid "Quiz submission"
 msgstr "Zgłoszenie"
 
-#: quizzes/models.py:102
+#: quizzes/models.py:100
 msgid "Quiz submissions"
 msgstr "Zgłoszenia"
 
-#: quizzes/models.py:112
+#: quizzes/models.py:110
 msgid "Is answer selected"
 msgstr "Czy odpowiedź jest zaznaczona"
 
-#: quizzes/models.py:115
+#: quizzes/models.py:113
 msgid "Quiz submission answer"
 msgstr "Zgłoszenie odpowiedzi"
 
-#: quizzes/models.py:116
+#: quizzes/models.py:114
 msgid "Quiz submission answers"
 msgstr "Zgłoszenie odpowiedzi"
 
-#: quizzes/models.py:125
+#: quizzes/models.py:123
 #| msgid "Quiz answer"
 msgid "Text answer"
 msgstr "Odpowiedź wpisana"
 
-#: quizzes/models.py:129
+#: quizzes/models.py:127
 #| msgid "Quiz submission answer"
 msgid "Quiz submission text answer"
 msgstr "Zgłoszenie odpowiedzi wpisanej"
 
-#: quizzes/models.py:130
+#: quizzes/models.py:128
 #| msgid "Quiz submission answers"
 msgid "Quiz submission text answers"
 msgstr "Zgłoszenia odpowiedzi wpisanej"
 
-#: quizzes/models.py:135
+#: quizzes/models.py:133
 msgid "Submission report"
 msgstr "Sprawozdanie zgłoszenia"
 
-#: quizzes/models.py:138 testrun/templates/testrun/report.html:62
+#: quizzes/models.py:136 testrun/templates/testrun/report.html:62
 msgid "Comment"
 msgstr "Komentarz"
 
-#: quizzes/models.py:142
+#: quizzes/models.py:140
 msgid "Question max score"
 msgstr "Maksymalny wynik"
 
-#: quizzes/models.py:146
+#: quizzes/models.py:144
 msgid "Question report"
 msgstr "Sprawozdanie do pytania"
 
-#: quizzes/models.py:147
+#: quizzes/models.py:145
 msgid "Question reports"
 msgstr "Sprawozdania do pytań"
 
@@ -7502,9 +7377,6 @@ msgid "Attachments"
 msgstr "Załączniki"
 
 #: simpleui/templates/simpleui/problem_settings/settings.html:54
-#: testspackages/templates/testspackages/tests.html:6
-#: testspackages/templates/testspackages/tests.html:9
-#: testspackages/views.py:33
 msgid "Tests"
 msgstr "Testy"
 
@@ -8544,10 +8416,6 @@ msgstr "paczka z testami"
 #: testspackages/models.py:70
 msgid "tests packages"
 msgstr "paczki z testami"
-
-#: testspackages/templates/testspackages/tests.html:34
-msgid "No tests are available."
-msgstr "Brak dostępnych testów."
 
 #: timeline/templates/timeline/timeline_view.html:27
 #: timeline/templates/timeline/timeline_view.html:30 timeline/views.py:48
