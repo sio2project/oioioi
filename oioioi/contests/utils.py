@@ -238,7 +238,7 @@ def visible_contests(request):
         controller = controller_class(None)
         visible_query |= (Q(controller_name=controller_name) & controller
                           .registration_controller().visible_contests_query(request))
-    return set(Contest.objects.filter(visible_query))
+    return set(Contest.objects.filter(visible_query).distinct())
 
 
 @request_cached
