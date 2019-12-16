@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.template.loader import render_to_string
+from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.controllers import submission_template_context
@@ -13,6 +14,7 @@ from oioioi.problems.utils import can_admin_problem_instance
 from oioioi.programs.controllers import ContestController
 from oioioi.quizzes.models import QuizAnswer, QuizSubmission, \
     QuizSubmissionTextAnswer, QuizSubmissionAnswer, QuestionReport
+from oioioi.quizzes.utils import quizbleach
 
 
 class QuizContestControllerMixin(object):
@@ -54,11 +56,30 @@ class QuizProblemController(ProblemController):
 
         return cleaned_data
 
+    def render_pictures(self, pictures):
+        return format_html(u'''<div class="quiz_pictures_container">
+            <table>
+                <tr>{}</tr>
+            </table>
+        </div>''', format_html_join(u'\n',
+            u'''<td class="text-center">
+                <img src="{}" class="quiz_picture" /><br>
+                <span class="quiz_caption"> {}</span>
+            </td>''', ((p.get_absolute_url(), p.caption) for p in pictures)))
+
     def render_question(self, request, question):
-        return render_to_string('quizzes/question.html', request=request, context={'question': question})
+        pictures = question.quizquestionpicture_set.all()
+        return format_html(u'''
+            <strong>{}</strong>
+            {}
+        ''', quizbleach(question.question), self.render_pictures(pictures))
 
     def render_answer(self, request, answer):
-        return render_to_string('quizzes/answer.html', request=request, context={'answer': answer})
+        pictures = answer.quizanswerpicture_set.all()
+        return format_html(u'''
+            {}
+            {}
+        ''', quizbleach(answer.answer), self.render_pictures(pictures))
 
     def add_question_to_form(self, request, form, problem_instance, question):
         answers = [(a.id, self.render_answer(request, a)) for a in question.quizanswer_set.all()]
