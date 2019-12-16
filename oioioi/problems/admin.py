@@ -396,7 +396,7 @@ def pending_contest_packages(request):
 class ProblemPackageAdmin(admin.ModelAdmin):
     list_display = ['contest', 'problem_name', 'colored_status', 'package',
             'created_by', 'creation_date', 'celery_task_id', 'info']
-    list_filter = ['status', 'problem_name', 'contest', 'created_by']
+    list_filter = ['status', 'problem_name', 'contest']
     actions = ['delete_selected']  # This allows us to override the action
 
     def __init__(self, *args, **kwargs):
