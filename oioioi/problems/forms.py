@@ -39,7 +39,8 @@ class ProblemUploadForm(forms.Form):
         if 'oioioi.problemsharing' in settings.INSTALLED_APPS:
             if user and user.has_perm('teachers.teacher'):
                 choices = [(Problem.VISIBILITY_FRIENDS, 'Friends'),
-                       (Problem.VISIBILITY_PRIVATE, 'Private')]
+                       (Problem.VISIBILITY_PRIVATE, 'Private'),
+                       (Problem.VISIBILITY_PUBLIC, 'Public')]
                 default_visibility = Problem.VISIBILITY_FRIENDS
                 if contest:
                     last_problem = Problem.objects.filter(contest=contest, author=user).order_by('-id').first()
