@@ -25,9 +25,7 @@
 | {% trans "Added" %}: {{ post.add_date }}
 
 {% if post.edited %}
-    | {% blocktrans trimmed %}
-        Last edit: {{ post.last_edit_date_url }}
-    {% endblocktrans %}
+    | {% trans "Last edit" %}: {{ post.last_edit_date }}
 {% endif %}
 
 {% if can_interact_with_users and post.author == user or is_admin %}

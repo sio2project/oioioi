@@ -3156,8 +3156,8 @@ msgstr "Added"
 
 #: forum/templates/forum/thread-element-footer.html:14
 #, python-format
-msgid "Last edit: %(post.last_edit_date_url)s"
-msgstr ""
+msgid "Last edit"
+msgstr "Last edit"
 
 #: forum/templates/forum/thread-element-footer.html:20
 msgid "edit"
@@ -8011,9 +8011,6 @@ msgstr "# of nodes"
 #: zeus/templates/zeus/program-report.html:21
 msgid "Zeus id"
 msgstr "Zeus id"
-
-#~ msgid "Last edit"
-#~ msgstr "Last edit"
 
 #~ msgid "unknown"
 #~ msgstr "unknown"

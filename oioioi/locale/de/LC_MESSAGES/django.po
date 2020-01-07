@@ -3142,7 +3142,7 @@ msgstr ""
 
 #: forum/templates/forum/thread-element-footer.html:28
 #, python-format
-msgid "Last edit: %(post.last_edit_date_url)s"
+msgid "Last edit"
 msgstr ""
 
 #: forum/templates/forum/thread-element-footer.html:35
