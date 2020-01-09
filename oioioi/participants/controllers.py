@@ -54,6 +54,8 @@ class ParticipantsController(RegistrationController):
         )
 
     def user_contests_query(self, request):
+        if not request.user.is_authenticated:
+            return Q(pk__isnull=True) # (False)
         return Q(participant__user__id=request.user.id, participant__status='ACTIVE')
 
     def filter_users_with_accessible_personal_data(self, queryset):
