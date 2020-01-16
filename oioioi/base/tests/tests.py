@@ -797,6 +797,16 @@ class TestBaseViews(TestCase):
                 .count(), 0)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
 
+    def test_unicode_wrong_name_change_attempt(self):
+        url = reverse('edit_profile')
+        data = {'username': u'correct_username', 'first_name': u'wrong_unicode_\U0001f600',
+                'last_name': u'wrong_unicode_\U0001F923', 'email': u'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(User.objects.filter(username='correct_username')
+                         .count(), 0)
+        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+
     def test_profile_dynamic_fields(self):
         from oioioi.base.preferences import PreferencesFactory
         from oioioi.base.models import PreferencesSaved

@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils.user import has_valid_username
+from oioioi.base.utils.user import has_valid_username, has_valid_name
 from oioioi.base.utils.middleware import was_response_generated_by_exception
 from oioioi.su.utils import is_under_su
 
@@ -106,7 +106,7 @@ class UserInfoInErrorMessage(object):
 
             # This is because is_authenticated is a CallableBool not bool until Django 2.0,
             # so its str is not True/False as expected.
-            request.META['IS_AUTHENTICATED'] =\
+            request.META['IS_AUTHENTICATED'] = \
                 str(bool(request.user.is_authenticated))
             request.META['IS_UNDER_SU'] = str(is_under_su(request))
 
@@ -128,25 +128,42 @@ class CheckLoginMiddleware(object):
 
     def __call__(self, request):
         self._process_request(request)
-
         return self.get_response(request)
 
     def _process_request(self, request):
-        if has_valid_username(request.user):
+        valid_username = has_valid_username(request.user)
+        valid_name = has_valid_name(request.user)
+        if valid_name and valid_username:
             return
+
         storage = messages.get_messages(request)
         check_login_message = \
-                _("Your login - %(login)s - contains forbidden characters. "
-                  "Please click <a href='%(link)s'>here</a> to change it. "
-                  "It will take only a while.") \
-                          % {'login': request.user.username,
-                             'link': reverse('edit_profile')}
+            _("Your login - %(login)s - contains forbidden characters. ") \
+            % {'login': request.user.username}
+
+        check_name_message = \
+            _("Your name - %(name)s %(surname)s - "
+              "contains forbidden characters. ") \
+            % {'name': request.user.first_name,
+               'surname': request.user.last_name}
+
+        message_appendix = \
+            _("Please click <a href='%(link)s'>here</a> to change it. "
+              "It will take only a while.") \
+            % {'link': reverse('edit_profile')}
+
+        final_message = ""
+        if not valid_username:
+            final_message += check_login_message
+        if not valid_name:
+            final_message += check_name_message
+        final_message += message_appendix
 
         # https://docs.djangoproject.com/en/dev/ref/contrib/messages/#expiration-of-messages
         all_messages = [s.message for s in storage]
         storage.used = False
 
-        if check_login_message in all_messages:
+        if final_message in all_messages:
             return
         messages.add_message(request, messages.INFO,
-                mark_safe(check_login_message))
+                             mark_safe(final_message))

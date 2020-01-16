@@ -10,30 +10,47 @@ from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
 
 from oioioi.base.models import PreferencesSaved
-from oioioi.base.utils.user import USERNAME_REGEX
-from oioioi.base.utils.validators import ValidationError
+from oioioi.base.utils.user import USERNAME_REGEX, UNICODE_CATEGORY_LIST
+from oioioi.base.utils.validators import ValidationError, UnicodeValidator
 
 
 def adjust_username_field(form):
     help_text = \
-            _("This value may contain only letters, numbers and underscore.")
+        _("This value may contain only letters, numbers and underscore.")
     form.fields['username'].error_messages['invalid'] = _("Invalid username")
     form.fields['username'].help_text = help_text
     form.fields['username'].validators += \
-            [RegexValidator(regex=USERNAME_REGEX)]
+        [RegexValidator(regex=USERNAME_REGEX)]
+
+
+def adjust_name_fields(form):
+    help_text = _("This value may contain only letters, numbers and punctuation marks.")
+    adjust_unicode_field(form, 'first_name', help_text, _("Invalid first name"))
+    adjust_unicode_field(form, 'last_name', help_text, _("Invalid last name"))
+
+
+def adjust_unicode_field(form, field_name, help_text, invalid_message,
+                         unicode_categories=UNICODE_CATEGORY_LIST,
+                         inverse_match=False):
+    form.fields[field_name].error_messages['invalid'] = invalid_message
+    form.fields[field_name].help_text = help_text
+
+    form.fields[field_name].validators += \
+        [UnicodeValidator(unicode_categories=unicode_categories,
+                          inverse_match=inverse_match)]
 
 
 class RegistrationFormWithNames(RegistrationForm):
     def __init__(self, *args, **kwargs):
         super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
         adjust_username_field(self)
-
         tmp_fields = list(self.fields.items())
         tmp_fields[1:1] = [
             ('first_name', forms.CharField(label=_("First name"))),
             ('last_name', forms.CharField(label=_("Last name")))
         ]
         self.fields = OrderedDict(tmp_fields)
+        adjust_name_fields(self)
 
 
 class UserForm(forms.ModelForm):
@@ -48,6 +65,8 @@ class UserForm(forms.ModelForm):
         super(UserForm, self).__init__(*args, **kwargs)
 
         adjust_username_field(self)
+        adjust_name_fields(self)
+
         if not self.allow_login_change:
             self.fields['username'].widget.attrs.update(readonly=True)
 
@@ -72,12 +91,14 @@ class OioioiUserCreationForm(UserCreationForm):
     def __init__(self, *args, **kwargs):
         super(OioioiUserCreationForm, self).__init__(*args, **kwargs)
         adjust_username_field(self)
+        adjust_name_fields(self)
 
 
 class OioioiUserChangeForm(UserChangeForm):
     def __init__(self, *args, **kwargs):
         super(OioioiUserChangeForm, self).__init__(*args, **kwargs)
         adjust_username_field(self)
+        adjust_name_fields(self)
 
 
 class OioioiPasswordResetForm(PasswordResetForm):
