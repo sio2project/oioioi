@@ -567,11 +567,9 @@ class TestProblemSite(TestCase, TestStreamingMixin):
     def _get_site_urls(self):
         url = reverse('problem_site', kwargs={'site_key': '123'})
         url_statement = url + "?key=statement"
-        url_files = url + "?key=files"
         url_submissions = url + "?key=submissions"
         return {'site': url,
                 'statement': url_statement,
-                'files': url_files,
                 'submissions': url_submissions}
 
     def _create_PA(self):
@@ -595,21 +593,6 @@ class TestProblemSite(TestCase, TestStreamingMixin):
         response = self.client.get(self._get_site_urls()['statement'])
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, url_external_stmt)
-
-    def test_files_tab(self):
-        url = self._get_site_urls()['files']
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, '<tr')
-
-        self._create_PA()
-
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '<tr', count=2)
-        url_attachment = reverse('problem_site_external_attachment',
-                kwargs={'site_key': '123', 'attachment_id': 1})
-        self.assertContains(response, url_attachment)
 
     def test_submissions_tab(self):
         for problem in Problem.objects.all():

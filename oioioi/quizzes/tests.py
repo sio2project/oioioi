@@ -282,3 +282,32 @@ class TestPictures(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.streaming)
         self.assertEqual(b''.join(response.streaming_content), open(cat_path, 'rb').read())
+
+
+class TestQuizProblemView(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_problem_site',
+                'test_quiz_problem_second', 'test_problem_site_second']
+
+    disabled_quiz_tabs = ['Problem statement']
+    allowed_quiz_tabs = ['Secret key', 'Settings']
+
+    def test_quiz_tab_visibility(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        quiz = Quiz.objects.get(pk=101)
+        url = reverse('problem_site', kwargs={'site_key': quiz.problemsite.url_key})
+        response = self.client.get(url, follow=True)
+
+        for (allowed_tab, disabled_tab) in \
+                zip(self.allowed_quiz_tabs, self.disabled_quiz_tabs):
+            self.assertContains(response, allowed_tab)
+            self.assertNotContains(response, disabled_tab)
+
+    def test_normal_problem_tab_visibility(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+        problem = Problem.objects.get(pk=1)
+        url = reverse('problem_site', kwargs={'site_key': problem.problemsite.url_key})
+        response = self.client.get(url, follow=True)
+
+        for tab_name in self.allowed_quiz_tabs + self.disabled_quiz_tabs:
+            self.assertContains(response, tab_name)

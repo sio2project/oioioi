@@ -14,7 +14,8 @@ from oioioi.base.menu import OrderedRegistry
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import Submission
-from oioioi.problems.models import Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal
+from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal,
+                                    ProblemStatement)
 from oioioi.problems.utils import (query_statement, query_zip, generate_add_to_contest_metadata,
                                    generate_model_solutions_context, can_admin_problem)
 from oioioi.contests.attachment_registration import attachment_registry_problemset
@@ -34,14 +35,14 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
        :param title: the tab's title, will be shown on the site
        :param key: will be used as a GET parameter to indicate the active tab
        :param order: value determining the order of tabs
-       :param condition: a function receiving a request and returning
+       :param condition: a function receiving a request and problem that returns
            if the tab should be accessible for this request
     """
 
     Tab = namedtuple('Tab', ['view', 'title', 'key', 'condition'])
 
     if condition is None:
-        condition = lambda request: True
+        condition = lambda request, problem: True
 
     def decorator(func):
         problem_site_tab_registry.register(
@@ -56,8 +57,13 @@ def problem_site_statement_zip_view(request, site_key, path):
     return query_zip(statement, path)
 
 
-@problem_site_tab(_("Problem statement"),
-        key='statement', order=100)
+def check_for_statement(request, problem):
+    """Function checking if given problem has a ProblemStatement."""
+    return bool(ProblemStatement.objects.filter(problem=problem))
+
+
+@problem_site_tab(_("Problem statement"), key='statement', order=100,
+                  condition=check_for_statement)
 def problem_site_statement(request, problem):
     statement = query_statement(problem.id)
     if not statement:
@@ -78,7 +84,14 @@ def problem_site_statement(request, problem):
     return statement_html
 
 
-@problem_site_tab(_("Downloads"), key='files', order=200)
+def check_for_downloads(request, problem):
+    """Function checking if given problem has any downloadables."""
+    return bool(ProblemAttachment.objects.filter(problem=problem)) or \
+           bool(attachment_registry_problemset.to_list(request=request, problem=problem))
+
+
+@problem_site_tab(_("Downloads"), key='files', order=200,
+                  condition=check_for_downloads)
 def problem_site_files(request, problem):
     additional_files = attachment_registry_problemset.to_list(request=request, problem=problem)
     files_qs = ProblemAttachment.objects.filter(problem=problem.id)
@@ -97,7 +110,7 @@ def problem_site_files(request, problem):
 
 
 @problem_site_tab(_("Submissions"), key='submissions', order=300,
-        condition=lambda request: not request.contest)
+        condition=lambda request, problem: not request.contest)
 def problem_site_submissions(request, problem):
     controller = problem.main_problem_instance.controller
     if request.user.is_authenticated:
@@ -119,7 +132,7 @@ def problem_site_submissions(request, problem):
 
 
 @problem_site_tab(_("Submit"), key='submit', order=400,
-        condition=lambda request: not request.contest)
+        condition=lambda request, problem: not request.contest)
 def problem_site_submit(request, problem):
     if request.method == 'POST':
         form = SubmissionFormForProblemInstance(request,

@@ -417,14 +417,15 @@ def tabbed_view(request, template, context, tabs, tab_kwargs, link_builder):
                 and the appropriate 'key' parameter.
     """
     tabs = [t for t in tabs if not hasattr(t, 'condition')
-                                or t.condition(request)]
+                            or not 'problem' in context
+                            or t.condition(request, context['problem'])]
     if 'key' not in request.GET:
         if not tabs:
             raise Http404
         qs = request.GET.dict()
         qs['key'] = next(iter(tabs)).key
         return HttpResponseRedirect(request.path + '?' +
-                six.moves.urllib.parse.urlencode(qs))
+                                    six.moves.urllib.parse.urlencode(qs))
     key = request.GET['key']
     for tab in tabs:
         if tab.key == key:
