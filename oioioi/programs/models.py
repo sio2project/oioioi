@@ -265,6 +265,7 @@ class TestReport(models.Model):
     status = EnumField(submission_statuses)
     comment = models.CharField(max_length=255, blank=True)
     score = ScoreField(null=True, blank=True)
+    max_score = ScoreField(null=True, blank=True)
     time_used = models.IntegerField(blank=True)
     output_file = FileField(upload_to=make_output_filename, null=True,
                             blank=True)
@@ -274,7 +275,6 @@ class TestReport(models.Model):
     test_name = models.CharField(max_length=30)
     test_group = models.CharField(max_length=30)
     test_time_limit = models.IntegerField(null=True, blank=True)
-    test_max_score = models.IntegerField(null=True, blank=True)
 
 
 class GroupReport(models.Model):

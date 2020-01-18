@@ -308,7 +308,7 @@ def grade_tests(env, **kwargs):
                 submission_report__status='ACTIVE',
                 test_name=test_name)
             score = report.score
-            max_score = IntegerScore(report.test_max_score)
+            max_score = report.max_score
             status = report.status
             time_used = report.time_used
             test_result['score'] = score and score.serialize()
@@ -493,10 +493,11 @@ def make_report(env, kind='NORMAL', save_scores=True, **kwargs):
         test_report.test_name = test_name
         test_report.test_group = test['group']
         test_report.test_time_limit = test.get('exec_time_limit')
-        test_report.test_max_score = test['max_score']
+        test_report.max_score = result['max_score']
         test_report.score = result['score'] if save_scores else None
         test_report.status = result['status']
         test_report.time_used = result['time_used']
+
         comment = result.get('result_string', '')
         if comment.lower() in ['ok', 'time limit exceeded']:  # Annoying
             comment = ''

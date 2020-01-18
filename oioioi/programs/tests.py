@@ -20,6 +20,7 @@ from six.moves import map, range, zip
 from oioioi.base.notification import NotificationHandler
 from oioioi.base.tests import TestCase, check_not_accessible, fake_time, check_is_accessible
 from oioioi.base.utils import memoized_property
+from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
 from oioioi.contests.scores import IntegerScore
 from oioioi.contests.tests import (PrivateRegistrationController, SubmitMixin,
@@ -1435,4 +1436,54 @@ class TestCompiler(TestCase):
             self.assertFalse(True)
         except:
             pass
+
+class TestMaxScoreMigration(TestCaseMigrations):
+    migrate_from = '0012_testreport_max_score'
+    migrate_to = '0014_remove_testreport_test_max_score'
+
+    def make_report(self, problem_id, contest, apps, max_score):
+        ProblemInstance = apps.get_model('contests', 'ProblemInstance')
+        Submission = apps.get_model('contests', 'Submission')
+        SubmissionReport = apps.get_model('contests', 'SubmissionReport')
+        TestReport = apps.get_model('programs', 'TestReport')
+
+        problem_instance = ProblemInstance.objects.create(
+            contest=contest,
+            short_name=str(problem_id),
+            contest_id=contest.id,
+            problem_id=problem_id)
+
+        submission = Submission.objects.create(problem_instance=problem_instance)
+        submission_report = SubmissionReport.objects.create(submission=submission)
+
+        test_report = TestReport.objects.create(
+            submission_report=submission_report,
+            test_max_score=max_score,
+            time_used=1)
+
+        return test_report
+
+    def setUpBeforeMigration(self, apps):
+        Contest = apps.get_model('contests', 'Contest')
+
+        default_contest = Contest.objects.create(id=1, controller_name='oioioi.contests.controllers.ContestController')
+        pa_contest = Contest.objects.create(id=2, controller_name='oioioi.pa.controllers.PAContestController')
+        acm_contest = Contest.objects.create(id=3, controller_name='oioioi.acm.controllers.ACMContestController')
+
+        self.default_report_id = self.make_report(1, default_contest, apps, 100).id
+
+        self.pa_report_id = self.make_report(2, pa_contest, apps, 100).id
+        self.pa_report_zero_id = self.make_report(22, pa_contest, apps, 0).id
+
+        self.acm_report_id = self.make_report(3, acm_contest, apps, 100).id
+
+    def test(self):
+        TestReport = self.apps.get_model('programs', 'TestReport')
+
+        self.assertEqual(TestReport.objects.get(pk=self.default_report_id).max_score.to_int(), 100)
+
+        self.assertEqual(TestReport.objects.get(pk=self.pa_report_id).max_score.to_int(), 1)
+        self.assertEqual(TestReport.objects.get(pk=self.pa_report_zero_id).max_score.to_int(), 0)
+
+        self.assertTrue(TestReport.objects.get(pk=self.acm_report_id).max_score is None)
 

@@ -601,7 +601,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         if not test_report:
             return False
         if isinstance(test_report.score, IntegerScore):
-            return test_report.score.value != test_report.test_max_score
+            return test_report.score.value != test_report.max_score.value
         return False
 
     def filter_my_visible_submissions(self, request, queryset):
