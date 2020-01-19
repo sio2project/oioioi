@@ -3,7 +3,8 @@
 
 <ul class="list-unstyled">
     {% for group in groups %}
-        {% for test in group.tests %}
+        {% for record in group.tests %}
+        {% with test=record.test %}
             {% if test.comment and allow_test_comments or test.get_status_display != 'OK' and allow_download_out and test.test %}
             <li class="small text-muted">
                 <span>{{ test.test_name }}</span>
@@ -27,6 +28,7 @@
                 {% endif %}
             </li>
             {% endif %}
+        {% endwith %}
         {% endfor %}
     {% endfor %}
 </ul>

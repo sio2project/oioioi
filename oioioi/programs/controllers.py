@@ -35,7 +35,38 @@ from oioioi.programs.utils import (has_report_actions_config,
                                    is_model_submission,
                                    filter_model_submissions)
 
-logger = logging.getLogger(__name__)
+def get_report_display_type(request, test_report):
+    if (test_report.status == 'INI_OK' or test_report.status == 'OK'):
+        try:
+            if (test_report.score is None or test_report.max_score is None):
+                display_type = test_report.status
+
+            elif (test_report.max_score.to_int() == 0):
+                display_type = test_report.status
+
+            else:
+                score_percentage = float(test_report.score.to_int()) / test_report.max_score.to_int()
+
+                if score_percentage < 0.25:
+                    display_type = 'OK0'
+                elif score_percentage < 0.5:
+                    display_type = 'OK25'
+                elif score_percentage < 0.75:
+                    display_type = 'OK50'
+                elif score_percentage < 1.0:
+                    display_type = 'OK75'
+                else:
+                    display_type = 'OK100'
+
+        # If by any means there is no 'score' or 'max_score' field then
+        # we just treat the test report as without them
+        except AttributeError:
+            display_type = test_report.status
+
+    else:
+        display_type = test_report.status
+
+    return display_type
 
 class ProgrammingProblemController(ProblemController):
     description = _("Simple programming problem")
@@ -577,13 +608,19 @@ class ProgrammingProblemController(ProblemController):
         for group_name, tests in itertools.groupby(test_reports,
                 attrgetter('test_group')):
             tests_list = list(tests)
-            groups.append({'tests': tests_list,
-                'report': group_reports[group_name]})
 
             for test in tests_list:
                 test.generate_status = picontroller \
                     ._out_generate_status(request, test)
                 all_outs_generated &= (test.generate_status == 'OK')
+
+            tests_records = [ {
+                 'display_type': get_report_display_type(request, test),
+                 'test': test
+                } for test in tests_list ]
+
+            groups.append({'tests': tests_records,
+                'report': group_reports[group_name]})
 
         return render_to_string('programs/report.html',
                 request=request,

@@ -1437,6 +1437,7 @@ class TestCompiler(TestCase):
         except:
             pass
 
+
 class TestMaxScoreMigration(TestCaseMigrations):
     migrate_from = '0012_testreport_max_score'
     migrate_to = '0014_remove_testreport_test_max_score'
@@ -1486,4 +1487,67 @@ class TestMaxScoreMigration(TestCaseMigrations):
         self.assertEqual(TestReport.objects.get(pk=self.pa_report_zero_id).max_score.to_int(), 0)
 
         self.assertTrue(TestReport.objects.get(pk=self.acm_report_id).max_score is None)
+
+
+class TestReportDisplayTypes(TestCase):
+    fixtures = ['admin_admin', 'test_users', 'test_report_display_test']
+
+    def test_oi_display(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('submission', kwargs={'contest_id': 'oi',
+                                            'submission_id': 7})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'submission--TLE', count=2)
+        self.assertContains(response, 'submission--RE', count=2)
+        self.assertContains(response, 'submission--WA', count=2)
+
+        self.assertContains(response, 'submission--OK', count=13)
+        self.assertContains(response, 'submission--OK"', count=2)
+
+        self.assertContains(response, 'submission--OK100', count=2)
+        self.assertContains(response, 'submission--OK75', count=2)
+        self.assertContains(response, 'submission--OK50', count=2)
+        self.assertContains(response, 'submission--OK25', count=2)
+        self.assertContains(response, 'submission--OK0', count=3)
+
+    def test_acm_display(self):
+        self.assertTrue(self.client.login(username='admin'))
+        url = reverse('submission', kwargs={'contest_id': 'acm',
+                                            'submission_id': 9})
+        response = self.client.get(url, follow=True)
+
+        self.assertContains(response, 'submission--TLE', count=2)
+        self.assertContains(response, 'submission--RE', count=3)
+        self.assertContains(response, 'submission--WA', count=2)
+
+        self.assertContains(response, 'submission--OK', count=12)
+        self.assertContains(response, 'submission--OK"', count=12)
+
+        self.assertNotContains(response, 'submission--OK100')
+        self.assertNotContains(response, 'submission--OK75')
+        self.assertNotContains(response, 'submission--OK50')
+        self.assertNotContains(response, 'submission--OK25')
+        self.assertNotContains(response, 'submission--OK0')
+
+    def test_pa_display(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('submission', kwargs={'contest_id': 'pa',
+                                            'submission_id': 11})
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'submission--TLE', count=2)
+        self.assertContains(response, 'submission--RE', count=2)
+        self.assertContains(response, 'submission--WA', count=2)
+
+        self.assertContains(response, 'submission--OK', count=13)
+        self.assertContains(response, 'submission--OK"', count=2)
+
+        self.assertContains(response, 'submission--OK100', count=10)
+        self.assertNotContains(response, 'submission--OK75')
+        self.assertNotContains(response, 'submission--OK50')
+        self.assertContains(response, 'submission--OK25', count=1)
+        self.assertNotContains(response, 'submission--OK0')
 

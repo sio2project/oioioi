@@ -17,9 +17,10 @@
         </thead>
         <tbody>
             {% for group in groups %}
-                {% for test in group.tests %}
+                {% for record in group.tests %}
+                {% with test=record.test %}
                     <tr class="test-row-{{ group.report.id }}">
-                        <td class="submission__margin submission--{{ test.status }}"></td>
+                        <td class="submission__margin submission--{{ record.display_type }}"></td>
                         <td class="test-actions-toggler {% if is_admin %}fix-pull-right{% endif %}">
                             {{ test.test_name }}
                             <span class="test-actions pull-right">
@@ -45,7 +46,7 @@
                                 {% endif %}
                             </span>
                         </td>
-                        <td class="submission--{{ test.status }}">
+                        <td class="submission--{{ record.display_type }}">
                             {{ test.get_status_display }}
                         </td>
                         <td>
@@ -62,6 +63,7 @@
                             </td>
                         {% endif %}
                     </tr>
+                {% endwith %}
                 {% endfor %}
             {% endfor %}
         </tbody>
