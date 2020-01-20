@@ -293,6 +293,8 @@ class TestRunTestCase(object):
 
 
 class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
+    __test__ = True
+
     fixtures = ['test_users',
                 'test_contest',
                 'test_full_package',

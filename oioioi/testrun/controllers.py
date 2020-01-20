@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_noop, ugettext_lazy as _
 
 from oioioi.base.utils.archive import Archive
 from oioioi.contests.controllers import submission_template_context
@@ -322,5 +322,27 @@ class TestRunContestControllerMixin(object):
     def get_test_run_memory_limit(self, problem_instance):
         return problem_instance.problem.controller. \
                get_test_run_memory_limit(problem_instance.problem)
+
+    def get_notification_message_submission_judged(self, submission):
+        """Returns a message to show in a notification when a test run
+           submission has been judged. It doesn't validate any permissions.
+        """
+
+        if submission.kind != 'TESTRUN':
+            return super(TestRunContestControllerMixin, self). \
+                get_notification_message_submission_judged(submission)
+
+        if submission.problem_instance.contest:
+            message = ugettext_noop("%(contest_name)s, %(task_name)s: "
+                                    "Your submission was judged.\n")
+        else:
+            message = ugettext_noop("%(task_name)s: Your submission was judged.\n")
+
+        if submission.status == 'TESTRUN_OK':
+            message += ugettext_noop("The test run was successful.")
+        else:
+            message += ugettext_noop("The test run has failed.")
+
+        return message
 
 ProgrammingContestController.mix_in(TestRunContestControllerMixin)
