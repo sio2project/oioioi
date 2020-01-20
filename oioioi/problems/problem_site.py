@@ -17,6 +17,7 @@ from oioioi.contests.models import Submission
 from oioioi.problems.models import Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal
 from oioioi.problems.utils import (query_statement, query_zip, generate_add_to_contest_metadata,
                                    generate_model_solutions_context, can_admin_problem)
+from oioioi.contests.attachment_registration import attachment_registry_problemset
 
 problem_site_tab_registry = OrderedRegistry()
 
@@ -77,8 +78,9 @@ def problem_site_statement(request, problem):
     return statement_html
 
 
-@problem_site_tab(_("Files"), key='files', order=200)
+@problem_site_tab(_("Downloads"), key='files', order=200)
 def problem_site_files(request, problem):
+    additional_files = attachment_registry_problemset.to_list(request=request, problem=problem)
     files_qs = ProblemAttachment.objects.filter(problem=problem.id)
     files = sorted([{'name': f.filename,
                      'description': f.description,
@@ -86,6 +88,7 @@ def problem_site_files(request, problem):
                          kwargs={'site_key': problem.problemsite.url_key,
                                  'attachment_id': f.id})}
                     for f in files_qs], key=itemgetter('name'))
+    files.extend(additional_files)
 
     return TemplateResponse(request, 'problems/files.html',
         {'files': files,

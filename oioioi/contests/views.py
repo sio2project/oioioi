@@ -329,7 +329,7 @@ def change_submission_kind_view(request, submission_id, kind):
         reverse('contest_files'), order=200)
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 def contest_files_view(request):
-    additional_files = attachment_registry.to_list(request)
+    additional_files = attachment_registry.to_list(request=request)
     contest_files = ContestAttachment.objects.filter(contest=request.contest) \
         .filter(Q(round__isnull=True) | Q(round__in=visible_rounds(request))) \
         .select_related('round')
