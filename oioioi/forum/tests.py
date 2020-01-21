@@ -302,6 +302,8 @@ class TestPost(TestCase):
                               'post_id': self.p.id})
         response = self.client.post(url, follow=True)
         self.assertContains(response, 'revoke approval')
+        self.assertContains(response,
+                            'This post was approved.')
 
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_thread', kwargs={'contest_id': self.contest.id,
@@ -309,8 +311,6 @@ class TestPost(TestCase):
                                               'thread_id': self.thr.id})
         response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'report')
-        self.assertContains(response,
-                            'This post was approved.')
         self.assertNotContains(response, 'revoke approval')
 
         self.p.refresh_from_db()
@@ -339,8 +339,6 @@ class TestPost(TestCase):
                                               'thread_id': self.thr.id})
         response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'report')
-        self.assertContains(response,
-                            'This post was approved.')
 
         self.p.refresh_from_db()
         self.assertTrue(self.p.approved)
@@ -368,8 +366,6 @@ class TestPost(TestCase):
                                               'thread_id': self.thr.id})
         response = self.client.get(url, follow=True)
         self.assertNotContains(response, 'report')
-        self.assertContains(response,
-                            'This post was approved.')
 
     def test_revoking_approval_after_edit(self):
         self.p.approved = True

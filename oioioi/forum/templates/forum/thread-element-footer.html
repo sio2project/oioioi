@@ -50,10 +50,10 @@
         {% endif %}
     {% endif %}
     {% if post.approved %}
-        <span class="text-success">
-            | {% trans "This post was approved." %}
-        </span>
         {% if is_admin %}
+            <span class="text-success">
+                | {% trans "This post was approved." %}
+            </span>
             | <a href="#" data-post-url="{{ forum_post_revoke_approval_url }}">
                 {% trans "revoke approval" %}
              </a>
