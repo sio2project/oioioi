@@ -34,10 +34,23 @@ def testrun_submit_view(request):
     else:
         form = SubmissionForm(request, kind='TESTRUN',
                               problem_filter=filter_testrun_problem_instances)
+
+    problem_instances = filter_testrun_problem_instances(form.get_problem_instances())
+
     submissions_left = {pi.id: pi.controller.get_submissions_left(request, pi, 'TESTRUN')
-                        for pi in form.get_problem_instances()}
+                        for pi in problem_instances}
+
+    # Testrun time limits in seconds.
+    time_limits = {pi.id: float(pi.controller.get_test_run_time_limit(pi)) / 1000
+                   for pi in problem_instances}
+
+    # Testrun memory limits in MB.
+    memory_limits = {pi.id: pi.controller.get_test_run_memory_limit(pi) / 1024
+                     for pi in problem_instances}
+
     return TemplateResponse(request, 'testrun/submit.html',
-                            {'form': form, 'submissions_left': submissions_left})
+                            {'form': form, 'submissions_left': submissions_left,
+                             'time_limits': time_limits, 'memory_limits': memory_limits})
 
 
 def get_preview_size_limit():

@@ -6,6 +6,7 @@
 {% block main-content %}
 <h1>{% trans "Test run" %}</h1>
 <h4 id="submissions-left"></h4>
+<h5 id="time-memory-limits"></h5>
 <form enctype="multipart/form-data" method="post">
     {% csrf_token %}
     {% include "ingredients/form.html" %}
@@ -19,8 +20,9 @@
 
 {% block scripts %}
 {{ block.super }}
-<script src="{{ STATIC_URL }}testrun/display-testruns-left.js"></script>
+<script src="{{ STATIC_URL }}testrun/display-testruns-info.js"></script>
 <script>
     displayTestRunsLeft({{ submissions_left | json_parse }});
+    displayTestRunLimits({{ time_limits | json_parse }}, {{ memory_limits | json_parse }});
 </script>
 {% endblock %}

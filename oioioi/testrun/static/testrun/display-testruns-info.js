@@ -25,3 +25,30 @@ function displayTestRunsLeft(submissionsLeft) {
 
     $select.change(); // triggers event to set correct start message
 }
+
+/**
+ * Sets up displaying time and memory limits based on current value of select.
+ * @param {Object.<string,number>} submissionsLeft maps problem id to its limit
+ */
+function displayTestRunLimits(timeLimits, memoryLimits) {
+    const $message = $('#time-memory-limits');
+    const $select = $('select#id_problem_instance_id');
+
+    $select.change(function(e) {
+        let timeLimit = timeLimits[this.value];
+        let memoryLimit = memoryLimits[this.value];
+
+        if (timeLimit && memoryLimit) {
+            $message.html(
+            gettext('Time limit: <b>%(timeLimit)s</b> s<br>Memory limit: <b>%(memoryLimit)s</b> MB')
+                .fmt({timeLimit: timeLimit, memoryLimit: memoryLimit})
+            );
+            $message.removeClass('hidden');
+        }
+        else
+            $message.addClass('hidden');
+
+    });
+
+    $select.change(); // triggers event to set correct start message
+}

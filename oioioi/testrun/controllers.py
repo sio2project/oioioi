@@ -78,6 +78,22 @@ class TestRunProblemControllerMixin(object):
         return super(TestRunProblemControllerMixin, self) \
                 .mixins_for_admin() + (TestRunProgrammingProblemAdminMixin,)
 
+    def get_test_run_time_limit(self, problem):
+        if hasattr(problem, 'test_run_config'):
+            time_limit = problem.test_run_config.time_limit
+        else:
+            time_limit = None
+
+        return time_limit
+
+    def get_test_run_memory_limit(self, problem):
+        if hasattr(problem, 'test_run_config'):
+            memory_limit = problem.test_run_config.memory_limit
+        else:
+            memory_limit = None
+
+        return memory_limit
+
 
 ProgrammingProblemController.mix_in(TestRunProblemControllerMixin)
 
@@ -298,5 +314,13 @@ class TestRunContestControllerMixin(object):
 
         assert submission.kind == 'TESTRUN'
         return ['TESTRUN']
+
+    def get_test_run_time_limit(self, problem_instance):
+        return problem_instance.problem.controller. \
+               get_test_run_time_limit(problem_instance.problem)
+
+    def get_test_run_memory_limit(self, problem_instance):
+        return problem_instance.problem.controller. \
+               get_test_run_memory_limit(problem_instance.problem)
 
 ProgrammingContestController.mix_in(TestRunContestControllerMixin)
