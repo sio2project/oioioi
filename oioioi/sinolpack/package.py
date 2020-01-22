@@ -295,6 +295,10 @@ class SinolPackage(object):
             env['collected_files_path'] = _make_filename_in_job_dir(self.env, 'in')
 
             renv = run_sioworkers_job(env)
+
+            if renv['return_code'] != 0:
+               raise ProblemPackageError(_("Ingen failed: %r") % renv)
+
             get_client().delete_file(env['compiled_file'])
             return renv['collected_files']
 
