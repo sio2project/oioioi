@@ -1,8 +1,10 @@
 from oioioi.contests.models import ScoreReport, SubmissionReport
 from oioioi.contests.scores import IntegerScore
 from oioioi.quizzes.models import QuestionReport, QuizAnswer, QuizSubmission
+from django.db import transaction
 
 
+@transaction.atomic
 def score_quiz(env, **kwargs):
     is_rejudge = env['is_rejudge']
     submission = QuizSubmission.objects.get(id=env['submission_id'])

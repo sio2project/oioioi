@@ -197,8 +197,15 @@ class QuizProblemController(ProblemController):
                              args=[problem.quiz.pk])
         return parent_extras + [(change_url, _("Edit questions"))]
 
+    def render_report_failure(self, request, report):
+        return ProblemController.render_report(self, request, report)
+
     def render_report(self, request, report):
         problem_instance = report.submission.problem_instance
+        if report.kind == 'FAILURE':
+            return problem_instance.controller \
+                    .render_report_failure(request, report)
+
         score_report = ScoreReport.objects.get(submission_report=report)
         picontroller = problem_instance.controller
         question_reports = QuestionReport.objects.filter(
@@ -240,6 +247,11 @@ class QuizProblemController(ProblemController):
             submission.status = score_report.status
             submission.score = score_report.score
         except SubmissionReport.DoesNotExist:
+            if SubmissionReport.objects.filter(submission=submission,
+                    status='ACTIVE', kind='FAILURE'):
+                submission.status = 'SE'
+            else:
+                submission.status = '?'
             submission.score = None
 
         submission.save()
