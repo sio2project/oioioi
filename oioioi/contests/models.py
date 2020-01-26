@@ -264,9 +264,8 @@ class RankingVisibilityConfig(models.Model):
                         verbose_name=_("ranking visibility"),
                         help_text=_("If set to Auto, the visibility is determined "
                                     "according to the type of the contest.\n"
-                                    "Ranking is inaccessible to all non-admin "
-                                    "users unless result date is set to a date "
-                                    "in the past"))
+                                    "Until the date of publication of the results, "
+                                    "the ranking is visible only to administrators."))
 
     class Meta(object):
         verbose_name = _("ranking visibility config")
