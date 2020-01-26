@@ -50,12 +50,12 @@ class UserRoundInlineFormset(RoundInline.formset):
                 continue
             if form.cleaned_data['end_date'] is None:
                 raise forms.ValidationError(
-                        _('Please provide round end date.'),
+                        _("Please provide round end date."),
                         code='invalid')
             if form.cleaned_data['end_date'] > settings.USER_CONTEST_TIMEOUT:
                 raise forms.ValidationError(
-                        _('Round \'%(round_name)s\' \
-                         has to end before %(end_contests)s.'),
+                        _("Round \'%(round_name)s\' \
+                         has to end before %(end_contests)s."),
                          params={"round_name" : form.cleaned_data['name'],
                              "end_contests" : settings.USER_CONTEST_TIMEOUT \
                              .strftime('%Y-%m-%d %H:%M:%S %Z')},

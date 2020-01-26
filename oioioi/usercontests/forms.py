@@ -14,11 +14,11 @@ class UserContestForm(SimpleContestForm):
 
         if 'end_date' in self.cleaned_data.keys():
             if self.cleaned_data['end_date'] is None:
-                raise forms.ValidationError(_('Please provide round end date.'),
+                raise forms.ValidationError(_("Please provide round end date."),
                     code='invalid')
             if self.cleaned_data['end_date'] > settings.USER_CONTEST_TIMEOUT:
                 raise forms.ValidationError(
-                    _('The contest has to end before %(contests_end)s.'),
+                    _("The contest has to end before %(contests_end)s."),
                     params={ "contests_end" : settings.USER_CONTEST_TIMEOUT \
                     .strftime("%Y-%m-%d %H:%M:%S %Z")}, code='invalid')
 

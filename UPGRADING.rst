@@ -789,3 +789,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +#DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
         +#                     'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
         +#                     'Python': 'python'}
+
+#. * Added the 'USER_CONTEST_TIMEOUT' setting for limiting user contest duration.::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -405,6 +405,12 @@ AUTHENTICATION_BACKENDS += (
+         #    'oioioi.ipdnsauth.backends.IpDnsBackend',
+         )
+
+        +# Limits the duration of user contests.
+        +# Comment out if you don't want to limit the user contests duration.
+        +#import pytz
+        +#from datetime import datetime
+        +#USER_CONTEST_TIMEOUT = datetime(2020, 2, 7, 23, 0, 0, tzinfo=pytz.utc)
+        +
+         # Number of concurrently evaluated submissions (default is 1).
+         #EVALMGR_CONCURRENCY = 30
