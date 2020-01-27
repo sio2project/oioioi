@@ -2,13 +2,15 @@ import six
 from django import forms
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.exceptions import SuspiciousOperation
 from django.db import transaction
 from django.template.loader import render_to_string
 from django.utils.html import format_html, format_html_join
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.contests.controllers import submission_template_context
-from oioioi.contests.models import SubmissionReport, ScoreReport
+from oioioi.contests.models import Submission, SubmissionReport, ScoreReport
+from oioioi.contests.utils import (is_contest_basicadmin)
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.utils import can_admin_problem_instance
 from oioioi.programs.controllers import ContestController
@@ -237,6 +239,41 @@ class QuizProblemController(ProblemController):
         return render_to_string('quizzes/submission_header.html',
                                 request=request,
                                 context=context)
+
+    def render_submission_footer(self, request, submission):
+        super_footer = super(QuizProblemController, self). \
+                render_submission_footer(request, submission)
+        queryset = Submission.objects \
+                .filter(problem_instance__contest=request.contest) \
+                .filter(user=submission.user) \
+                .filter(problem_instance=submission.problem_instance) \
+                .exclude(pk=submission.pk) \
+                .order_by('-date') \
+                .select_related()
+        if not submission.problem_instance.contest == request.contest:
+            raise SuspiciousOperation
+        if not is_contest_basicadmin(request):
+            cc = request.contest.controller
+            queryset = cc.filter_my_visible_submissions(request, queryset)
+        show_scores = bool(queryset.filter(score__isnull=False))
+
+        can_admin = \
+            can_admin_problem_instance(request, submission.problem_instance)
+
+        if not queryset.exists():
+            return super_footer
+        return super_footer + render_to_string(
+                'quizzes/other_submissions.html',
+                request=request,
+                context={
+                    'submissions': [submission_template_context(request, s)
+                             for s in queryset],
+                    'show_scores': show_scores,
+                    'can_admin': can_admin,
+                    'main_submission_id': submission.id,
+                    'submissions_on_page':
+                        getattr(settings, 'SUBMISSIONS_ON_PAGE', 15)
+                })
 
     def update_submission_score(self, submission):
         try:

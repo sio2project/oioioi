@@ -160,7 +160,7 @@ class TestScore(TestCase):
                 'test_quiz_submission']
 
     def test_multiple_choice_no_correct_answer_score(self):
-        submission = QuizSubmission.objects.get()
+        submission = QuizSubmission.objects.get(pk=1)
         controller = submission.problem_instance.controller
 
         controller.judge(submission)
@@ -171,7 +171,7 @@ class TestScore(TestCase):
         self.assertEqual(question_report.score, 27)
 
     def test_all_answers_correct_score(self):
-        submission = QuizSubmission.objects.get()
+        submission = QuizSubmission.objects.get(pk=1)
         controller = submission.problem_instance.controller
 
         controller.judge(submission)
@@ -182,7 +182,7 @@ class TestScore(TestCase):
         self.assertEqual(question_report.score, 27)
 
     def test_one_answer_incorrect_score(self):
-        submission = QuizSubmission.objects.get()
+        submission = QuizSubmission.objects.get(pk=1)
         controller = submission.problem_instance.controller
 
         controller.judge(submission)
@@ -220,6 +220,13 @@ class TestSubmissionView(TestCase):
                             '<td>{}</td>'
                             .format(expected_score),
                             html=True)
+
+    def test_diff_submission_unavailable(self):
+        submission = Submission.objects.get(pk=1)
+        kwargs = {'contest_id': submission.problem_instance.contest.id,
+                  'submission_id': submission.id}
+        response = self.client.get(reverse('submission', kwargs=kwargs))
+        self.assertNotContains(response, "Diff submissions")
 
 
 class TestEditQuizQuestions(TestCase):

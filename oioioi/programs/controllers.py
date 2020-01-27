@@ -6,7 +6,7 @@ from operator import attrgetter  # pylint: disable=E0611
 
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import (ValidationError, SuspiciousOperation)
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
@@ -695,6 +695,41 @@ class ProgrammingProblemController(ProblemController):
         """
         return getattr(settings, 'SUBMITTABLE_LANGUAGES', {}).keys()
 
+    def render_submission_footer(self, request, submission):
+        super_footer = super(ProgrammingProblemController, self). \
+                render_submission_footer(request, submission)
+        queryset = Submission.objects \
+                .filter(problem_instance__contest=request.contest) \
+                .filter(user=submission.user) \
+                .filter(problem_instance=submission.problem_instance) \
+                .exclude(pk=submission.pk) \
+                .order_by('-date') \
+                .select_related()
+        if not submission.problem_instance.contest == request.contest:
+            raise SuspiciousOperation
+        if not is_contest_basicadmin(request):
+            cc = request.contest.controller
+            queryset = cc.filter_my_visible_submissions(request, queryset)
+        show_scores = bool(queryset.filter(score__isnull=False))
+
+        can_admin = \
+            can_admin_problem_instance(request, submission.problem_instance)
+
+        if not queryset.exists():
+            return super_footer
+        return super_footer + render_to_string(
+                'programs/other_submissions.html',
+                request=request,
+                context={
+                    'submissions': [submission_template_context(request, s)
+                             for s in queryset],
+                    'show_scores': show_scores,
+                    'can_admin': can_admin,
+                    'main_submission_id': submission.id,
+                    'submissions_on_page':
+                        getattr(settings, 'SUBMISSIONS_ON_PAGE', 15)
+                })
+
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
 
@@ -887,37 +922,8 @@ class ProgrammingContestController(ContestController):
             .render_report(request, report)
 
     def render_submission_footer(self, request, submission):
-        super_footer = super(ProgrammingContestController, self). \
+        return super(ProgrammingContestController, self). \
                 render_submission_footer(request, submission)
-        queryset = Submission.objects \
-                .filter(problem_instance__contest=request.contest) \
-                .filter(user=submission.user) \
-                .filter(problem_instance=submission.problem_instance) \
-                .exclude(pk=submission.pk) \
-                .order_by('-date') \
-                .select_related()
-        if not is_contest_basicadmin(request):
-            cc = request.contest.controller
-            queryset = cc.filter_my_visible_submissions(request, queryset)
-        show_scores = bool(queryset.filter(score__isnull=False))
-
-        can_admin = \
-            can_admin_problem_instance(request, submission.problem_instance)
-
-        if not queryset.exists():
-            return super_footer
-        return super_footer + render_to_string(
-                'programs/other_submissions.html',
-                request=request,
-                context={
-                    'submissions': [submission_template_context(request, s)
-                             for s in queryset],
-                    'show_scores': show_scores,
-                    'can_admin': can_admin,
-                    'main_submission_id': submission.id,
-                    'submissions_on_page':
-                        getattr(settings, 'SUBMISSIONS_ON_PAGE', 15)
-                })
 
     def valid_kinds_for_submission(self, submission):
         if ModelProgramSubmission.objects.filter(id=submission.id).exists():
