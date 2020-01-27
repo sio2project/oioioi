@@ -45,10 +45,13 @@ class UnicodeValidator(object):
         unicode_categories if inverse_match is False, otherwise
         raises ValidationError.
         """
-        text = force_text(value)
-        for letter in text:
-            if u_cat(letter) in self.unicode_categories == self.inverse_match:
-                raise ValidationError(self.message, code=self.code)
+        for letter in value:
+            if self.inverse_match:
+                if u_cat(letter) in self.unicode_categories:
+                    raise ValidationError(self.message, code=self.code)
+            else:
+                if u_cat(letter) not in self.unicode_categories:
+                    raise ValidationError(self.message, code=self.code)
 
     def __eq__(self, other):
         return isinstance(other, UnicodeValidator) and \
