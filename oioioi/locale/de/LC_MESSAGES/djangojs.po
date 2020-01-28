@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-22 17:40+0100\n"
-"PO-Revision-Date: 2019-09-27 19:47+0000\n"
-"Last-Translator: Michal Boron <beredentod@gmail.com>\n"
+"POT-Creation-Date: 2020-01-28 14:06+0100\n"
+"PO-Revision-Date: 2020-01-28 12:22+0000\n"
+"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -263,11 +263,17 @@ msgstr "Entfernen"
 msgid "Reason: User assoctiated with this session has changed."
 msgstr "Grund: der mit dieser Runde verbundene User wurde verändert."
 
-#: testrun/static/testrun/display-testruns-left.js:17
+#: testrun/static/testrun/display-testruns-info.js:17
 msgid "You have %(sub_num)s test run left."
 msgid_plural "You have %(sub_num)s test runs left."
 msgstr[0] "Sie haben noch %(sub_num)s Probelauf übrig"
 msgstr[1] "Sie haben noch %(sub_num)s Probeläufe übrig. "
+
+#: testrun/static/testrun/display-testruns-info.js:43
+msgid ""
+"Time limit: <b>%(timeLimit)s</b> s<br>Memory limit: <b>%(memoryLimit)s</b> "
+"MB"
+msgstr ""
 
 #: timeline/static/timeline/timeline.js:37
 #| msgid ""
