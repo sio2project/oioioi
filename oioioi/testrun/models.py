@@ -26,10 +26,8 @@ class TestRunConfig(models.Model):
                                    related_name='test_run_config',
                                    on_delete=models.CASCADE)
 
-    time_limit = models.IntegerField(verbose_name=_("time limit (ms)"),
-            null=True, blank=True)
-    memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"),
-            null=True, blank=True)
+    time_limit = models.IntegerField(verbose_name=_("time limit (ms)"))
+    memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"))
 
     class Meta(object):
         verbose_name = _("test run config")

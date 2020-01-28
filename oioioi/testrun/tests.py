@@ -308,7 +308,8 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         self.assertTrue(self.client.login(username=self.user.username))
 
         # Enable test runs for problem
-        TestRunConfig(problem=self.problem_instance.problem).save()
+        TestRunConfig(problem=self.problem_instance.problem,
+                      time_limit=10000, memory_limit=128*1024).save()
 
         self.instance_test_run_config = TestRunConfigForInstance(
             problem_instance=self.problem_instance)
