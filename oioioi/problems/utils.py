@@ -14,7 +14,7 @@ from oioioi.base.utils import request_cached
 from oioioi.contests.models import ProblemInstance
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import (administered_contests, can_admin_contest,
-                                   is_contest_basicadmin)
+                                   is_contest_basicadmin, is_contest_admin)
 from oioioi.problems.models import (ProblemStatement, AlgorithmTagProposal, DifficultyProposal,
                                     ProblemStatistics, UserStatistics)
 from oioioi.programs.models import GroupReport, ModelProgramSubmission, TestReport
@@ -25,6 +25,12 @@ def can_add_problems(request):
     return request.user.has_perm('problems.problems_db_admin') \
            or is_contest_basicadmin(request)
 
+def can_upload_problems(request):
+    if not request.user.is_authenticated:
+        return False
+    if is_contest_admin(request):
+        return True
+    return can_add_to_problemset(request)
 
 def can_admin_problem(request, problem):
     if request.user.has_perm('problems.problems_db_admin'):

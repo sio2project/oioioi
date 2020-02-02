@@ -22,7 +22,8 @@ from oioioi.problems.models import Problem, ProblemPackage
 from oioioi.problems.package import backend_for_package
 from oioioi.problems.unpackmgr import unpackmgr_job
 from oioioi.problems.utils import (get_new_problem_instance,
-                                   update_tests_from_main_pi)
+                                   update_tests_from_main_pi,
+                                   can_upload_problems)
 
 logger = logging.getLogger(__name__)
 
@@ -238,6 +239,11 @@ class UploadedPackageSource(PackageSource):
     def get_package_file(self, request, contest, form, existing_problem=None):
         package_file = request.FILES['package_file']
         return package_file.name, uploaded_file_name(package_file)
+
+    def is_available(self, request):
+        # Removes the "Upload Package" form if the user
+        # doesn't have the permission to use it.
+        return can_upload_problems(request)
 
 
 class ProblemsetSource(ProblemSource):
