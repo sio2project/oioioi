@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-28 14:06+0100\n"
+"POT-Creation-Date: 2020-02-03 21:36+0100\n"
 "PO-Revision-Date: 2020-01-28 12:48+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -2087,7 +2087,7 @@ msgstr ""
 msgid "needs rejudge"
 msgstr ""
 
-#: contests/models.py:296 programs/models.py:291 testrun/models.py:67
+#: contests/models.py:296 programs/models.py:291 testrun/models.py:65
 msgid "problem instance"
 msgstr ""
 
@@ -5185,37 +5185,37 @@ msgstr ""
 msgid "Add to contest"
 msgstr ""
 
-#: problems/problem_sources.py:81
+#: problems/problem_sources.py:82
 msgid "Upload package"
 msgstr ""
 
-#: problems/problem_sources.py:222
+#: problems/problem_sources.py:223
 msgid "Package queued for processing."
 msgstr ""
 
-#: problems/problem_sources.py:225
+#: problems/problem_sources.py:226
 msgid ""
 "Package queued for processing. It will appear in problem list when ready. "
 "Please be patient."
 msgstr ""
 
-#: problems/problem_sources.py:245
+#: problems/problem_sources.py:251
 msgid "Add from Problemset"
 msgstr ""
 
-#: problems/problem_sources.py:249
+#: problems/problem_sources.py:255
 msgid "Option not available"
 msgstr ""
 
-#: problems/problem_sources.py:271
+#: problems/problem_sources.py:277
 msgid "Given url key is invalid"
 msgstr ""
 
-#: problems/problem_sources.py:286
+#: problems/problem_sources.py:292
 msgid "Problem successfully updated"
 msgstr ""
 
-#: problems/problem_sources.py:289
+#: problems/problem_sources.py:295
 msgid "Problem successfully uploaded"
 msgstr ""
 
@@ -5723,7 +5723,7 @@ msgstr ""
 msgid "Programming language"
 msgstr ""
 
-#: programs/controllers.py:699
+#: programs/controllers.py:737
 msgid "Simple programming contest"
 msgstr ""
 
@@ -5806,7 +5806,7 @@ msgstr ""
 msgid "time limit (ms)"
 msgstr ""
 
-#: programs/models.py:74 testrun/models.py:31
+#: programs/models.py:74 testrun/models.py:30
 msgid "memory limit (KiB)"
 msgstr ""
 
@@ -5981,6 +5981,7 @@ msgid ""
 msgstr ""
 
 #: programs/templates/programs/other_submissions.html:3
+#: quizzes/templates/quizzes/other_submissions.html:3
 msgid "Other submissions for this problem"
 msgstr ""
 
@@ -6508,11 +6509,11 @@ msgstr ""
 msgid "A question needs at least one answer."
 msgstr ""
 
-#: quizzes/controllers.py:52
+#: quizzes/controllers.py:54
 msgid "Answer is required here."
 msgstr ""
 
-#: quizzes/controllers.py:198
+#: quizzes/controllers.py:200
 msgid "Edit questions"
 msgstr ""
 
@@ -8274,23 +8275,23 @@ msgstr ""
 msgid "Test run report"
 msgstr ""
 
-#: testrun/models.py:35
+#: testrun/models.py:33
 msgid "test run config"
 msgstr ""
 
-#: testrun/models.py:36
+#: testrun/models.py:34
 msgid "test run configs"
 msgstr ""
 
-#: testrun/models.py:73
+#: testrun/models.py:71
 msgid "test runs limit"
 msgstr ""
 
-#: testrun/models.py:76
+#: testrun/models.py:74
 msgid "test run configuration for instance"
 msgstr ""
 
-#: testrun/models.py:77
+#: testrun/models.py:75
 msgid "test run configuration for instances"
 msgstr ""
 

@@ -50,7 +50,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-28 14:06+0100\n"
+"POT-Creation-Date: 2020-02-03 21:36+0100\n"
 "PO-Revision-Date: 2020-01-28 13:03+0000\n"
 "Last-Translator: Franciszek Hnatów <fh406161@students.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
@@ -2136,7 +2136,7 @@ msgstr "Limit zgłoszeń"
 msgid "needs rejudge"
 msgstr "wymaga ponownej oceny"
 
-#: contests/models.py:296 programs/models.py:291 testrun/models.py:67
+#: contests/models.py:296 programs/models.py:291 testrun/models.py:65
 msgid "problem instance"
 msgstr "zadanie"
 
@@ -5262,37 +5262,37 @@ msgstr "Tajny klucz"
 msgid "Add to contest"
 msgstr "Dodaj do konkursu"
 
-#: problems/problem_sources.py:81
+#: problems/problem_sources.py:82
 msgid "Upload package"
 msgstr "Wgrywanie paczki"
 
-#: problems/problem_sources.py:222
+#: problems/problem_sources.py:223
 msgid "Package queued for processing."
 msgstr "Paczka została zakolejkowana do przetworzenia."
 
-#: problems/problem_sources.py:225
+#: problems/problem_sources.py:226
 msgid ""
 "Package queued for processing. It will appear in problem list when ready. "
 "Please be patient."
 msgstr "Pakiet dodany do kolejki przetwarzania. Bądź cierpliwy – pojawi się on na liście zadań, kiedy będzie gotowy."
 
-#: problems/problem_sources.py:245
+#: problems/problem_sources.py:251
 msgid "Add from Problemset"
 msgstr "Dodaj ze zbioru wszystkich zadań"
 
-#: problems/problem_sources.py:249
+#: problems/problem_sources.py:255
 msgid "Option not available"
 msgstr "Opcja niedostępna"
 
-#: problems/problem_sources.py:271
+#: problems/problem_sources.py:277
 msgid "Given url key is invalid"
 msgstr "Podany klucz URL jest niepoprawny"
 
-#: problems/problem_sources.py:286
+#: problems/problem_sources.py:292
 msgid "Problem successfully updated"
 msgstr "Pomyślnie zaktualizowano zadanie"
 
-#: problems/problem_sources.py:289
+#: problems/problem_sources.py:295
 msgid "Problem successfully uploaded"
 msgstr "Pomyślnie wysłano zadanie"
 
@@ -5804,7 +5804,7 @@ msgstr "Kod"
 msgid "Programming language"
 msgstr "Język programowania"
 
-#: programs/controllers.py:699
+#: programs/controllers.py:737
 msgid "Simple programming contest"
 msgstr "Prosty konkurs programistyczny"
 
@@ -5887,7 +5887,7 @@ msgstr "grupa"
 msgid "time limit (ms)"
 msgstr "limit czasu (ms)"
 
-#: programs/models.py:74 testrun/models.py:31
+#: programs/models.py:74 testrun/models.py:30
 msgid "memory limit (KiB)"
 msgstr "limit pamięci (KiB)"
 
@@ -6062,6 +6062,7 @@ msgid ""
 msgstr "\nNiestety, nie byliśmy w stanie w pełni poprawnie wyświetlić tego pliku, ponieważ nie jest zakodowany w UTF-8.\nMożesz <a href=\"%(download_url)s\">pobrać ten plik</a> i spróbować otworzyć go samodzielnie."
 
 #: programs/templates/programs/other_submissions.html:3
+#: quizzes/templates/quizzes/other_submissions.html:3
 msgid "Other submissions for this problem"
 msgstr "Inne zgłoszenia do tego zadania"
 
@@ -6591,11 +6592,11 @@ msgstr "Zadaj pytanie"
 msgid "A question needs at least one answer."
 msgstr "A question needs at least one answer."
 
-#: quizzes/controllers.py:52
+#: quizzes/controllers.py:54
 msgid "Answer is required here."
 msgstr "Odpowiedź jest wymagana"
 
-#: quizzes/controllers.py:198
+#: quizzes/controllers.py:200
 msgid "Edit questions"
 msgstr "Edit questions"
 
@@ -8387,23 +8388,23 @@ msgstr "Brak błędu"
 msgid "Test run report"
 msgstr "Sprawozdanie z próby"
 
-#: testrun/models.py:35
+#: testrun/models.py:33
 msgid "test run config"
 msgstr "konfiguracja uruchomienia próbnego"
 
-#: testrun/models.py:36
+#: testrun/models.py:34
 msgid "test run configs"
 msgstr "konfiguracje uruchomienia próbnego"
 
-#: testrun/models.py:73
+#: testrun/models.py:71
 msgid "test runs limit"
 msgstr "limit wykonań testów"
 
-#: testrun/models.py:76
+#: testrun/models.py:74
 msgid "test run configuration for instance"
 msgstr "konfiguracja wykonań testów dla instancji"
 
-#: testrun/models.py:77
+#: testrun/models.py:75
 msgid "test run configuration for instances"
 msgstr "konfiguracja wykonań testów dla instancji"
 
