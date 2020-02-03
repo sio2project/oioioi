@@ -252,9 +252,12 @@ class QuizProblemController(ProblemController):
                 .select_related()
         if not submission.problem_instance.contest == request.contest:
             raise SuspiciousOperation
-        if not is_contest_basicadmin(request):
+        if not is_contest_basicadmin(request) and request.contest:
             cc = request.contest.controller
             queryset = cc.filter_my_visible_submissions(request, queryset)
+        elif not request.contest and not is_contest_basicadmin(request):
+            queryset = queryset.filter(user=request.user, date__lte=request.timestamp) \
+             .exclude(kind='IGNORED_HIDDEN')
         show_scores = bool(queryset.filter(score__isnull=False))
 
         can_admin = \
