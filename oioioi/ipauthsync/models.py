@@ -26,7 +26,6 @@ class IpAuthSyncConfigManager(models.Manager):
 @date_registry.register(
     'end_date', name_generator=(lambda obj: _("Disable IP authentication sync"))
 )
-
 class IpAuthSyncConfig(models.Model):
     contest = models.OneToOneField(Contest, on_delete=models.CASCADE)
     enabled = models.BooleanField(default=True, verbose_name=_("enabled"))
@@ -34,16 +33,6 @@ class IpAuthSyncConfig(models.Model):
         default=timezone.now, verbose_name=_("start date")
     )
     end_date = models.DateTimeField(verbose_name=_("end date"))
-
-    region_server_mysql_user = models.CharField(
-        max_length=255, verbose_name=_("MySQL username"), default='oi'
-    )
-    region_server_mysql_pass = models.CharField(
-        max_length=255, verbose_name=_("MySQL password"), blank=True
-    )
-    region_server_mysql_db = models.CharField(
-        max_length=255, verbose_name=_("MySQL database name"), default='oi'
-    )
 
     objects = IpAuthSyncConfigManager()
 
