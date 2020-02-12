@@ -7,7 +7,7 @@ from django.contrib.admin import AllValuesFieldListFilter, SimpleListFilter
 from django.contrib.admin.sites import NotRegistered
 from django.contrib.admin.utils import quote, unquote
 from django.core.urlresolvers import reverse
-from django.db.models import Value
+from django.db.models import Value, Q
 from django.db.models.functions import Coalesce
 from django.forms.models import modelform_factory
 from django.http import HttpResponseRedirect
@@ -482,6 +482,23 @@ class ContestListFilter(SimpleListFilter):
             return queryset
 
 
+class SystemErrorListFilter(SimpleListFilter):
+    title = _("has active system error")
+    parameter_name = 'has_active_system_error'
+
+    def lookups(self, request, model_admin):
+        return [('no', _('No')), ('yes', _('Yes'))]
+
+    def queryset(self, request, queryset):
+        q = Q(submissionreport__status='ACTIVE', submissionreport__failurereport__isnull=False) | Q(submissionreport__status='ACTIVE', submissionreport__testreport__status='SE')
+        if self.value() == 'yes':
+            return queryset.filter(q).distinct()
+        elif self.value() == 'no':
+            return queryset.exclude(q).distinct()
+        else:
+            return queryset
+
+
 class SubmissionAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     actions = ['rejudge_action']
@@ -504,7 +521,8 @@ class SubmissionAdmin(admin.ModelAdmin):
     def get_list_filter(self, request):
         list_filter = [ProblemNameListFilter, ContestListFilter,
                        SubmissionKindListFilter, 'status',
-                       SubmissionRoundListFilter]
+                       SubmissionRoundListFilter,
+                       SystemErrorListFilter]
         if request.contest:
             list_filter.remove(ContestListFilter)
         else:
