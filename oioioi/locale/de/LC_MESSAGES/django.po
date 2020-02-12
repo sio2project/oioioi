@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-03 21:36+0100\n"
-"PO-Revision-Date: 2020-01-28 12:48+0000\n"
+"POT-Creation-Date: 2020-02-12 18:49+0100\n"
+"PO-Revision-Date: 2020-02-12 17:49+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -95,7 +95,7 @@ msgstr "Das Ranking ist eingefroren."
 msgid "User"
 msgstr "Benutzer"
 
-#: acm/templates/acm/acm_ranking.html:13 contests/admin.py:614
+#: acm/templates/acm/acm_ranking.html:13 contests/admin.py:632
 #: contests/fields.py:13
 #: contests/templates/contests/my_submissions_table.html:35
 #: contests/templates/contests/problems_list.html:27
@@ -722,8 +722,8 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: base/templates/ingredients/navbar-user.html:17 contests/admin.py:584
-#: contests/admin.py:749 mailsubmit/admin.py:74 participants/admin.py:53
+#: base/templates/ingredients/navbar-user.html:17 contests/admin.py:602
+#: contests/admin.py:767 mailsubmit/admin.py:74 participants/admin.py:53
 #: rankings/controllers.py:271
 msgid "Login"
 msgstr ""
@@ -1349,7 +1349,7 @@ msgid ""
 "the following complaint was received:"
 msgstr ""
 
-#: complaints/templates/complaints/jury-email.txt:5 contests/admin.py:619
+#: complaints/templates/complaints/jury-email.txt:5 contests/admin.py:637
 #: evalmgr/admin.py:160
 #: questions/templates/admin/questions/change_message.html:32
 #: rankings/controllers.py:230 statistics/controllers.py:21
@@ -1360,8 +1360,8 @@ msgstr ""
 msgid "Participant status"
 msgstr ""
 
-#: complaints/templates/complaints/jury-email.txt:8 contests/admin.py:696
-#: contests/admin.py:700
+#: complaints/templates/complaints/jury-email.txt:8 contests/admin.py:714
+#: contests/admin.py:718
 #: dashboard/templates/dashboard/dashboard-submissions.html:3
 #: problems/problem_site.py:112
 #: simpleui/templates/simpleui/contest/contest.html:57
@@ -1643,7 +1643,7 @@ msgstr ""
 msgid "Actions"
 msgstr ""
 
-#: contests/admin.py:366 contests/admin.py:600 contests/forms.py:109
+#: contests/admin.py:366 contests/admin.py:618 contests/forms.py:109
 #: contests/templates/contests/my_submissions_table.html:30
 #: evalmgr/admin.py:152 mailsubmit/forms.py:14
 #: programs/templates/programs/submission_header.html:110
@@ -1677,25 +1677,46 @@ msgstr ""
 msgid "kind"
 msgstr ""
 
-#: contests/admin.py:453 contests/admin.py:711 contests/models.py:137
+#: contests/admin.py:453 contests/admin.py:729 contests/models.py:137
 #: contests/models.py:208 contests/models.py:279
 msgid "round"
 msgstr ""
 
-#: contests/admin.py:543
+#: contests/admin.py:486
+#| msgid "System error"
+msgid "has active system error"
+msgstr ""
+
+#: contests/admin.py:490 disqualification/admin.py:75
+#: disqualification/controllers.py:278
+#: oisubmit/templates/oisubmit/submission-footer.html:20
+#: oisubmit/templates/received-suspected.html:9 scoresreveal/admin.py:18
+#: scoresreveal/templates/scoresreveal/submission-footer.html:45
+msgid "No"
+msgstr ""
+
+#: contests/admin.py:490 disqualification/admin.py:75
+#: disqualification/controllers.py:278
+#: oisubmit/templates/oisubmit/submission-footer.html:18
+#: oisubmit/templates/received-suspected.html:6 scoresreveal/admin.py:17
+#: scoresreveal/templates/scoresreveal/submission-footer.html:46
+msgid "Yes"
+msgstr ""
+
+#: contests/admin.py:561
 #, python-format
 msgid "Queued one submission for rejudge."
 msgid_plural "Queued %(counter)d submissions for rejudge."
 msgstr[0] ""
 msgstr[1] ""
 
-#: contests/admin.py:549
+#: contests/admin.py:567
 msgid ""
 "Cannot rejudge submissions due to lack of active reports for one or more "
 "submissions"
 msgstr ""
 
-#: contests/admin.py:591 contests/admin.py:756 contests/admin.py:790
+#: contests/admin.py:609 contests/admin.py:774 contests/admin.py:808
 #: disqualification/admin.py:71 mailsubmit/admin.py:81
 #: participants/admin.py:64
 #: programs/templates/programs/submission_header.html:108
@@ -1703,7 +1724,7 @@ msgstr ""
 msgid "User name"
 msgstr ""
 
-#: contests/admin.py:609
+#: contests/admin.py:627
 #: contests/templates/contests/my_submissions_table.html:33
 #: contests/templates/contests/submission.html:50 evalmgr/admin.py:173
 #: participants/templates/participants/participant_info.html:19
@@ -1715,27 +1736,27 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
-#: contests/admin.py:632
+#: contests/admin.py:650
 #, python-format
 msgid ""
 "You have selected %(sub_count)d submission(s) from %(pis_count)d problem(s)"
 msgstr ""
 
-#: contests/admin.py:656
+#: contests/admin.py:674
 msgid "Rejudge selected submissions"
 msgstr ""
 
-#: contests/admin.py:705
+#: contests/admin.py:723
 #: contests/templates/contests/my_submissions_all.html:14
 #: contests/templates/contests/my_submissions_all.html:19
 msgid "All submissions"
 msgstr ""
 
-#: contests/admin.py:776
+#: contests/admin.py:794
 msgid "Round extensions"
 msgstr ""
 
-#: contests/admin.py:811
+#: contests/admin.py:829
 msgid "Contest rights"
 msgstr ""
 
@@ -2635,20 +2656,6 @@ msgstr ""
 #: quizzes/templates/quizzes/submission_header.html:58
 #: similarsubmits/admin.py:71
 msgid "Submission"
-msgstr ""
-
-#: disqualification/admin.py:75 disqualification/controllers.py:278
-#: oisubmit/templates/oisubmit/submission-footer.html:18
-#: oisubmit/templates/received-suspected.html:6 scoresreveal/admin.py:17
-#: scoresreveal/templates/scoresreveal/submission-footer.html:46
-msgid "Yes"
-msgstr ""
-
-#: disqualification/admin.py:75 disqualification/controllers.py:278
-#: oisubmit/templates/oisubmit/submission-footer.html:20
-#: oisubmit/templates/received-suspected.html:9 scoresreveal/admin.py:18
-#: scoresreveal/templates/scoresreveal/submission-footer.html:45
-msgid "No"
 msgstr ""
 
 #: disqualification/admin.py:76
