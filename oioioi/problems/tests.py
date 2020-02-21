@@ -22,7 +22,9 @@ from oioioi.base.tests import TestCase, check_not_accessible, \
 from oioioi.base.utils.test_migrations import TestCaseMigrations
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.handlers import update_problem_statistics
-from oioioi.contests.models import Contest, ProblemInstance, Round, Submission
+from oioioi.contests.models import Contest, ProblemInstance, Round, ScoreReport, \
+        Submission, SubmissionReport, UserResultForProblem
+from oioioi.contests.scores import IntegerScore
 from oioioi.filetracker.tests import TestStreamingMixin
 from oioioi.problems.controllers import ProblemController
 from oioioi.problems.management.commands import recalculate_statistics
@@ -2216,6 +2218,7 @@ class TestTaskArchive(TestCase):
         url = reverse('task_archive_tag', args=('oi',))
 
         self.assertTrue(self.client.login(username='test_user'))
+
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -2249,3 +2252,30 @@ class TestTaskArchive(TestCase):
         self.assertTrue(pos != -1)
         pos = html.find('label-success')
         self.assertTrue(pos == -1)
+
+        def test_can_access_with_result(score, max_score):
+            user = User.objects.get(username='test_user2')
+            problem_instance = ProblemInstance.objects.get(pk=4)
+            submission = Submission.objects.create(problem_instance=problem_instance, \
+                score=score, user=user)
+            submission_report = SubmissionReport.objects.create(kind='NORMAL', \
+                submission=submission)
+            score_report = ScoreReport.objects.create(score=score, status="OK", \
+                max_score=max_score, submission_report=submission_report)
+            user_result = UserResultForProblem.objects.create(score=score, status='OK', \
+                user=user, submission_report=submission_report, problem_instance=problem_instance)
+
+            response = self.client.get(url, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+            user_result.delete()
+            score_report.delete()
+            submission_report.delete()
+            submission.delete()
+
+        # we assume that if a max_score exists it never equals zero
+        # test_can_access_with_result(IntegerScore(0), IntegerScore(0))
+        test_can_access_with_result(None, None)
+        test_can_access_with_result(IntegerScore(50), IntegerScore(100))
+        test_can_access_with_result(None, IntegerScore(100))
+        test_can_access_with_result(IntegerScore(50), None)

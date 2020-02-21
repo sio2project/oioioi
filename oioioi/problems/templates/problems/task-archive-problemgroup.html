@@ -30,23 +30,30 @@
         {% endif %}
     {% endfor %}
 {% else %}
-    {% for problem, result in problems.problem_info %}
-    <p>
-    <a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}">
-        {{ problem }}
-    </a>
-    {% if result.exists %}
-        {% if result.score == result.max_score %}
-            <a class="label label-success" href="{{ result.submission_url }}"> {{ result.score }}</a>
-        {% elif result.score > 0 %}
-            <a class="label label-warning" href="{{ result.submission_url }}"> {{ result.score }}</a>
-        {% else %}
-            <a class="label label-danger" href="{{ result.submission_url }}"> {{ result.score }}</a>
-        {% endif %}
-    {% endif %}
-
-    </p>
-    {% endfor %}
+    <table class="table table-condensed table--auto-width table--borderless">
+    <tbody>
+        {% for problem, result in problems.problem_info %}
+        <tr>
+            <td>
+                <a href="{% url 'problem_site' site_key=problem.problemsite.url_key %}">
+                    {{ problem }}
+                </a>
+            </td>
+            <td>
+                {% if result.exists %}
+                    {% if result.score == result.max_score %}
+                        <a class="label label-success" href="{{ result.submission_url }}"> {{ result.score }}</a>
+                    {% elif result.score > 0 %}
+                        <a class="label label-warning" href="{{ result.submission_url }}"> {{ result.score }}</a>
+                    {% else %}
+                        <a class="label label-danger" href="{{ result.submission_url }}"> {{ result.score }}</a>
+                    {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
 {% endif %}
 
 {% if value or id == "problemgroups" %}

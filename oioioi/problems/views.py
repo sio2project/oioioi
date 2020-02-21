@@ -552,30 +552,6 @@ def _recursive_group_problems(problems, result_info, categories, div_id):
 
     return node
 
-
-def _filter_problems_prefetched(problems, filter_multivaluedict):
-    result = []
-
-    for problem in problems:
-        remaining_filters = set(filter_multivaluedict.keys())
-
-        for infovalue in problem.origininfovalue_set.all():
-            category = infovalue.category
-            value = infovalue.value
-
-            # Check if this info-value combo violates any filters
-            if category.name in remaining_filters:
-                remaining_filters.remove(category.name)
-                allowed_values = filter_multivaluedict.getlist(category.name)
-                if value not in allowed_values:
-                    break
-        else:
-            # If filtering info=value don't include problems with no value
-            if not remaining_filters:
-                result.append(problem)
-
-    return result
-
 def _get_results_info(request, problems):
     if request.user.is_authenticated == False:
         return {problem: {'exists': False} for problem in problems}
@@ -605,19 +581,60 @@ def _get_results_info(request, problems):
         if result is None:
             results_info[problem] = {'exists': False}
         else:
-            results_info[problem] = {
-                'exists': True,
-                'score': result.score.to_int(),
-                'max_score': result.submission_report.score_report.max_score.to_int(),
-                'submission_url':
-                    reverse('submission',
-                        kwargs={'submission_id':
-                                result.submission_report.submission.id}
-                    )
-                }
+            try:
+                score = result.score
+                max_score = result.submission_report.score_report.max_score
+
+                def result_info(_int_score, _int_max_score):
+                    return {'exists': True,
+                            'score': _int_score,
+                            'max_score': _int_max_score,
+                            'submission_url':
+                                reverse('submission',
+                                    kwargs={'submission_id':
+                                            result.submission_report.submission.id}
+                                )
+                            }
+
+                if score is None and max_score is None:
+                    if result.status is None or result.status == '?' \
+                    or result.status == 'INI_OK' or result.status == 'INI_ERR':
+                        results_info[problem] = {'exists': False}
+                    elif result.status == 'OK':
+                        results_info[problem] = result_info(1, 1)
+                    else:
+                        results_info[problem] = result_info(0, 1)
+                else:
+                    results_info[problem] = result_info(score.to_int(), max_score.to_int())
+
+            except AttributeError:
+                results_info[problem] = {'exists': False}
 
     return results_info
 
+
+def _filter_problems_prefetched(problems, filter_multivaluedict):
+    result = []
+
+    for problem in problems:
+        remaining_filters = set(filter_multivaluedict.keys())
+
+        for infovalue in problem.origininfovalue_set.all():
+            category = infovalue.category
+            value = infovalue.value
+
+            # Check if this info-value combo violates any filters
+            if category.name in remaining_filters:
+                remaining_filters.remove(category.name)
+                allowed_values = filter_multivaluedict.getlist(category.name)
+                if value not in allowed_values:
+                    break
+        else:
+            # If filtering info=value don't include problems with no value
+            if not remaining_filters:
+                result.append(problem)
+
+    return result
 
 def task_archive_tag_view(request, origin_tag):
     origin_tag = OriginTag.objects.filter(name=origin_tag) \
