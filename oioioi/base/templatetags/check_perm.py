@@ -19,7 +19,11 @@ class CheckPermNode(Node):
             context[self.var] = False
         else:
             user = context['user']
-            context[self.var] = user.has_perm(perm, obj)
+            if perm == 'contests.contest_basicadmin':
+                context[self.var] = (user.has_perm(perm, obj) or \
+                        user.has_perm('contests.contest_admin', obj))
+            else:
+                context[self.var] = user.has_perm(perm, obj)
         return ''
 
 
