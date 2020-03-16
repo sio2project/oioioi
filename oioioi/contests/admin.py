@@ -425,7 +425,7 @@ class ProblemNameListFilter(SimpleListFilter):
                     .filter(contest=request.contest)
                     .values_list('problem__name', flat=True)))
 
-        return [(x, x) for x in p_names]
+        return sorted([(x, x) for x in p_names], key=lambda (s, _): s.lower())
 
     def queryset(self, request, queryset):
         if self.value():
@@ -502,7 +502,14 @@ class SystemErrorListFilter(SimpleListFilter):
 class SubmissionAdmin(admin.ModelAdmin):
     date_hierarchy = 'date'
     actions = ['rejudge_action']
-    search_fields = ['user__username', 'user__last_name']
+    search_fields = ['user__username', 'user__last_name',
+                     'problem_instance__problem__name', 'problem_instance__short_name']
+
+    class Media:
+        js = (
+            'admin/js/jquery.init.js',
+            'js/admin-filter-collapse.js'
+        )
 
     # We're using functions instead of lists because we want to
     # have different columns and filters depending on whether
