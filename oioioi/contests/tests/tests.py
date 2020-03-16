@@ -1610,7 +1610,7 @@ class TestPermissionsBasicAdmin(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def test_menu_problempackages(self):
+    def test_menu_problempackages_basicadmin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
         self.client.get('/c/c/')
 
@@ -1621,7 +1621,7 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, 'column-problem_name')
         self.assertContains(response, 'column-colored_status')
         self.assertContains(response, 'column-creation_date')
-        self.assertContains(response, 'column-info')
+        self.assertContains(response, 'column-package_info')
         self.assertContains(response, 'column-inner')
         self.assertContains(response, 'column-', count=5)
 
@@ -1629,6 +1629,7 @@ class TestPermissionsBasicAdmin(TestCase):
 
         package = ProblemPackage.objects.first()
         package.traceback = ContentFile(b'foo', name='bar')
+        package.package_file = ContentFile(b'foo2', name='bar2')
         package.save()
         url = reverse('download_package_traceback', args=(package.id,))
         response = self.client.get(url)
@@ -1636,8 +1637,35 @@ class TestPermissionsBasicAdmin(TestCase):
 
         url = reverse('download_package', args=(package.id,))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 200)
 
+    def test_menu_problempackages_admin(self):
+        self.assertTrue(self.client.login(username='test_contest_admin'))
+        self.client.get('/c/c/')
+
+        url = reverse('oioioiadmin:problems_contestproblempackage_changelist')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'column-problem_name')
+        self.assertContains(response, 'column-created_by')
+        self.assertContains(response, 'column-colored_status')
+        self.assertContains(response, 'column-creation_date')
+        self.assertContains(response, 'column-package_info')
+        self.assertContains(response, 'column-inner')
+        self.assertContains(response, 'column-', count=6)
+
+        package = ProblemPackage.objects.first()
+        package.traceback = ContentFile(b'foo', name='bar')
+        package.package_file = ContentFile(b'foo2', name='bar2')
+        package.save()
+        url = reverse('download_package_traceback', args=(package.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        url = reverse('download_package', args=(package.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
     def test_usermenu(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))

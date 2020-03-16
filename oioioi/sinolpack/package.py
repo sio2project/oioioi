@@ -1,8 +1,10 @@
+import functools
 import glob
 import logging
 import os
 import re
 import shutil
+import sys
 import tempfile
 import zipfile
 
@@ -331,6 +333,25 @@ class SinolPackage(object):
             if self.prog_archive:
                 get_client().delete_file(self.prog_archive)
 
+    def _describe_processing_error(func):
+        class PackageProcessingError(ProblemPackageError):
+            def __init__(self, func_name, func_doc):
+                self.original_exception_info = sys.exc_info()
+                self.raiser = func_name
+                self.raiser_desc = ' '.join(func_doc.split())
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except PackageProcessingError:
+                # The error has already been documented in a more specific context.
+                raise
+            except Exception:
+                raise PackageProcessingError(func.__name__,
+                                            func.__doc__.split("\n\n")[0])
+        return wrapper
+
     def _process_package(self):
         self._process_config_yml()
         self._detect_full_name()
@@ -347,9 +368,11 @@ class SinolPackage(object):
         self._process_attachments()
         self._save_original_package()
 
+    @_describe_processing_error
     def _process_config_yml(self):
-        """Parses config file from problem dir, saves its content to
-           the current instance.
+        """Parses the ``config.yml`` file from the package.
+
+           Extracted information is then saved for later use.
         """
         config_file = os.path.join(self.rootdir, 'config.yml')
         instance, created = \
@@ -361,9 +384,11 @@ class SinolPackage(object):
         instance.save()
         self.config = instance.parsed_config
 
+    @_describe_processing_error
     def _detect_full_name(self):
         """Sets the problem's full name from the ``config.yml`` (key ``title``)
-           or from the ``title`` tag in the LateX source file.
+           or from the ``title`` tag in the LaTeX source file.
+           The LaTeX source takes precedence over ``config.yml``.
 
            Example of how the ``title`` tag may look like:
            \title{A problem}
@@ -381,8 +406,9 @@ class SinolPackage(object):
                 self.problem.name = _decode(r.group(1), text)
                 self.problem.save()
 
+    @_describe_processing_error
     def _detect_library(self):
-        """Finds if the problem has a library.
+        """Finds if the problem has a library defined in ``config.yml``.
 
            Tries to read a library name (filename library should be given
            during compilation) from the ``config.yml`` (key ``library``).
@@ -399,7 +425,10 @@ class SinolPackage(object):
         else:
             LibraryProblemData.objects.filter(problem=self.problem).delete()
 
+    @_describe_processing_error
     def _process_extra_files(self):
+        """Looks for extra compilation files specified in ``config.yml``.
+        """
         ExtraFile.objects.filter(problem=self.problem).delete()
         files = list(self.config.get('extra_compilation_files', ()))
         not_found = self._find_and_save_files(files)
@@ -410,6 +439,7 @@ class SinolPackage(object):
 
     def _find_and_save_files(self, files):
         """Saves files in the database.
+
            :param files: List of expected files.
            :return: List of files that were not found.
         """
@@ -435,8 +465,9 @@ class SinolPackage(object):
                 f.write('ID=%s\n' % (self.short_name,))
                 f.write('SIG=xxxx000\n')
 
+    @_describe_processing_error
     def _save_prog_dir(self):
-        """Creates archive with programs directory.
+        """Creates an archive to store compiled programs.
         """
         prog_dir = os.path.join(self.rootdir, 'prog')
         if not os.path.isdir(prog_dir):
@@ -448,8 +479,12 @@ class SinolPackage(object):
         self.prog_archive = get_client().put_file(
                 _make_filename_in_job_dir(self.env, archive), archive)
 
+    @_describe_processing_error
     def _process_statements(self):
-        """Creates problem statement from html or pdf source.
+        """Creates a problem statement from html or pdf source.
+
+           If `USE_SINOLPACK_MAKEFILES` is set to True in the OIOIOI settings,
+           the pdf file will be compiled from a LaTeX source.
         """
         docdir = os.path.join(self.rootdir, 'doc')
         if not os.path.isdir(docdir):
@@ -536,7 +571,41 @@ class SinolPackage(object):
             logger.warning("%s: failed to compile statement", self.filename,
                     exc_info=True)
 
+    @_describe_processing_error
     def _generate_tests(self, total_score_if_auto=100):
+        """Generates tests for the problem.
+
+           First, time and memory limits are obtained from ``config.yml``.
+           Then, the judge system attempts to obtain a generic memory limit
+           from the problem statement.
+
+           Next, test instances are created, using input files (``*.in``)
+           provided with the package and `ingen` (the input file generator)
+           where applicable (``ingen``-generated tests may replace ``*.in`` files
+           contained in the package if their respective names coincide).
+
+           If `USE_SINOLPACK_MAKEFILES` is set to True in the OIOIOI settings,
+           output files (``*.out``) will also be generated at this point,
+           based on the model solution's output (on condition that its source
+           code is included within the package).
+
+           The next step is veryfing whether the sum of time limits over
+           all tests does not exceed the maximum defined by the OIOIOI
+           installation's owner.
+
+           If an input verifier is provided, it will then assert that all
+           ``*.in`` files generated are valid, and abort the upload in case of failure.
+
+           Here the ``*.out`` files will be generated if `USE_SINOLPACK_MAKEFILES`
+           is set to False, based on the model solution's output (on condition
+           that its source code is included within the package).
+
+           In the end, it is asserted that all tests have been correctly
+           constructed, non-created tests are removed from the database
+           and test scores are assigned to tests and testgroups based on
+           the configuration from ``config.yml`` or set to default value
+           if not specified.
+        """
         self.time_limits = _stringify_keys(self.config.get('time_limits', {}))
         self.memory_limits = _stringify_keys(
                 self.config.get('memory_limits', {}))
@@ -604,9 +673,14 @@ class SinolPackage(object):
 
         return created_tests, outs_to_make, scored_groups
 
+    @_describe_processing_error
     def _verify_time_limits(self, tests):
-        """:raises: :class:`~oioioi.problems.package.ProblemPackageError`
-           if sum of tests time limits exceeds
+        """Checks whether the sum of test time limits does not exceed
+           the allowed maximum.
+
+           :raises: :class:`~oioioi.problems.package.ProblemPackageError`
+           if sum of tests time limits exceeds the maximum defined in the
+           `settings.py` file.
         """
         time_limit_sum = 0
         for test in tests:
@@ -620,8 +694,10 @@ class SinolPackage(object):
                 "but it shouldn't exceed %(limit)ds."
             ) % {'sum': time_limit_sum_rounded, 'limit': limit_seconds})
 
+    @_describe_processing_error
     def _verify_inputs(self, tests):
-        """Check if correct solution exits with code 0 on all tests.
+        """Checks if ``inwer`` exits with code 0 on all tests.
+
            :raises: :class:`~oioioi.problems.package.ProblemPackageError`
            otherwise.
         """
@@ -661,9 +737,11 @@ class SinolPackage(object):
                     self._save_to_field(instance.output_file,
                                         generated_out['out_file'])
 
+    @_describe_processing_error
     def _validate_tests(self, created_tests):
-        """Check if all tests have output files and that
-           test instances are correct.
+        """Checks if all tests have output files and that
+           all tests have been successfully created.
+
            :raises: :class:`~oioioi.problems.package.ProblemPackageError`
         """
         for instance in created_tests:
@@ -682,10 +760,12 @@ class SinolPackage(object):
             logger.info("%s: deleting test %s", self.filename, test.name)
             test.delete()
 
+    @_describe_processing_error
     def _process_test(self, test, order, names_re, indir, outdir,
             collected_ins, scored_groups, outs_to_make):
         """Responsible for saving test in and out files,
-           setting test limits, assigning test kind and group.
+           setting test limits, assigning test kinds and groups.
+
            :param test: Test name.
            :param order: Test number.
            :param names_re: Compiled regex to match test details from name.
@@ -753,12 +833,15 @@ class SinolPackage(object):
         instance.save()
         return instance
 
+    @_describe_processing_error
     def _get_memory_limit(self, created, name, group):
         """If we find the memory limit specified anywhere in the package:
-           either in the config.yml or in the problem statement, then we
-           overwrite potential manual changes. (In the future we should
-           disallow editing memory limits if they were taken from the
-           package).
+           either in the ``config.yml`` or in the problem statement
+           then we overwrite potential manual changes.
+
+           (In the future we should disallow editing memory limits
+           if they were taken from the package).
+
            The memory limit is more important the more specific it is.
            In particular, the global memory limit is less important
            than the memory limit for a test group, while the memory limit
@@ -779,9 +862,11 @@ class SinolPackage(object):
 
         return None
 
+    @_describe_processing_error
     def _get_time_limit(self, created, name, group):
-        """If we find the time limit specified anywhere in in the config.yml,
+        """If we find the time limit specified anywhere in in the ``config.yml``
            then we overwrite potential manual changes.
+
            The time limit is more important the more specific it is.
            In particular, the global time limit is less important
            than the time limit for a test group, while the time limit
@@ -799,8 +884,11 @@ class SinolPackage(object):
 
         return None
 
+    @_describe_processing_error
     def _make_outs(self, outs_to_make):
-        """Run jobs to generate test outputs.
+        """Compiles the model solution and executes it in order to generate
+           test outputs.
+
            :return: Result from workers.
         """
         env = self._find_and_compile('', command='outgen')
@@ -824,8 +912,10 @@ class SinolPackage(object):
         get_client().delete_file(env['compiled_file'])
         return jobs
 
+    @_describe_processing_error
     def _check_scores_from_config(self, scored_groups, config_scores):
-        """Makes sure that all scored tests are present in config
+        """Called if ``config.yml`` specifies scores for any tests.
+           Makes sure that all scored tests are present in ``config.yml``
            and that nothing else is there.
         """
 
@@ -857,10 +947,11 @@ class SinolPackage(object):
                             "config_groups": config_scores}
                 raise ProblemPackageError(errormsg)
 
+    @_describe_processing_error
     def _compute_scores_automatically(self, scored_groups, total_score):
-        """All groups get equal score, except few last groups
-           that are given +1 to compensate rounding error and
-           match total sum of ``total_score``.
+        """If there are no testscores specified ``config.yml``, all groups
+           get equal score, except few last groups that are given +1
+           to compensate rounding error and match the total sum of ``total_score``.
         """
         if not scored_groups:
             return {}
@@ -879,6 +970,7 @@ class SinolPackage(object):
 
         return scores
 
+    @_describe_processing_error
     def _assign_scores(self, scored_groups, total_score_if_auto):
         """Checks if there's a ``scores`` entry in config
            and sets scores according to that
@@ -900,8 +992,9 @@ class SinolPackage(object):
             Test.objects.filter(problem_instance=self.main_problem_instance,
                                 group=group).update(max_score=score)
 
+    @_describe_processing_error
     def _process_checkers(self):
-        """Compiles output checker and saves its binary.
+        """Compiles an output checker and saves its binary.
         """
         checker_name = '%schk.e' % (self.short_name)
         out_name = _make_filename_in_job_dir(self.env, checker_name)
@@ -931,7 +1024,7 @@ class SinolPackage(object):
         return None
 
     def _process_model_solutions(self):
-        """Save model solutions to database.
+        """Saves model solutions to the database.
         """
         ModelSolution.objects.filter(problem=self.problem).delete()
 
@@ -975,8 +1068,8 @@ class SinolPackage(object):
         return progs
 
     def _process_attachments(self):
-        """Remove previously added attachments for the problem,
-           and saves new ones from attachment directory.
+        """Removes previously added attachments for the problem,
+           and saves new ones from the attachment directory.
         """
         problem_attachments = ProblemAttachment.objects.filter(
             problem=self.problem)

@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.encoding import force_text
-from django.utils.html import format_html
+from django.utils.html import escape, format_html
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
@@ -422,8 +422,8 @@ def pending_contest_packages(request):
 
 
 class ProblemPackageAdmin(admin.ModelAdmin):
-    list_display = ['contest', 'problem_name', 'colored_status', 'package',
-            'created_by', 'creation_date', 'celery_task_id', 'info']
+    list_display = ['contest', 'problem_name', 'colored_status',
+            'created_by', 'creation_date', 'package_info']
     list_filter = ['status', 'problem_name', 'contest']
     actions = ['delete_selected']  # This allows us to override the action
 
@@ -465,19 +465,24 @@ class ProblemPackageAdmin(admin.ModelAdmin):
     colored_status.short_description = _("Status")
     colored_status.admin_order_field = 'status'
 
-    def package(self, instance):
-        if instance.package_file:
-            href = reverse('download_package',
-                           kwargs={'package_id': str(instance.id)})
-            return make_html_link(href, instance.package_file)
-        return None
-    package.short_description = _("Package file")
+    def package_info(self, instance):
+        if instance.info:
+            return format_html(escape(instance.info).replace("\n", "<br>"))
+        else:
+            return "-"
+    package_info.short_description = _("Package information")
+    package_info.admin_order_field = 'package_info'
 
     def came_from(self):
         return reverse('oioioiadmin:problems_problempackage_changelist')
 
+
     def inline_actions(self, instance, contest):
         actions = []
+        if instance.package_file:
+            package_download = reverse('download_package',
+                           kwargs={'package_id': str(instance.id)})
+            actions.append((package_download, _("Package download")))
         if instance.status == 'OK' and instance.problem:
             problem = instance.problem
             if (not problem.contest) or (problem.contest == contest):
@@ -503,7 +508,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         items = super(ProblemPackageAdmin, self).get_list_display(request) \
                 + [self.actions_field(request.contest)]
         if not is_contest_admin(request):
-            disallowed_items = ['package', 'created_by',]
+            disallowed_items = ['created_by', 'actions_field',]
             items = [item for item in items if item not in disallowed_items]
         return items
 

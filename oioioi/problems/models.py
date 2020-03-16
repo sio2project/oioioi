@@ -294,15 +294,31 @@ class ProblemPackage(models.Model):
             package = ProblemPackage.objects.get(id=self.package_id)
             if type:
                 package.status = 'ERR'
+
+                try:
+                    # This will work if a PackageProcessingError was thrown
+                    info = _("Failed operation: %(name)s\n"
+                             "Operation description: %(desc)s\n \n"
+                             "Error description: %(error)s\n" %
+                             dict(error=value.original_exception_info[1],
+                                  name=value.raiser, desc=value.raiser_desc))
+
+                    old_exception_info = value.original_exception_info
+                    type, value, traceback = old_exception_info
+                except AttributeError:
+                    info = _("Failed operation unknown.\n"
+                             "Error description: %(error)s\n \n" %  dict(error=value))
+
                 # Truncate error so it doesn't take up whole page in list
                 # view. Full info is available anyway in package.traceback.
-                package.info = Truncator(value).chars(400)
+                package.info = Truncator(info).chars(400)
+
                 package.traceback = ContentFile(
-                        ''.join(format_exception(type, value, traceback,
-                            TRACEBACK_STACK_LIMIT)),
-                        'traceback.txt')
+                    info + ''.join(format_exception(type, value, traceback,
+                        TRACEBACK_STACK_LIMIT)),
+                    'traceback.txt')
                 logger.exception("Error processing package %s",
-                        package.package_file.name, extra={'omit_sentry': True})
+                    package.package_file.name, extra={'omit_sentry': True})
             else:
                 package.status = 'OK'
 
