@@ -152,7 +152,6 @@ class SubmissionForm(forms.Form):
 
         # prepare problem instance selector
         pi_field = self.fields['problem_instance_id']
-        pi_field.widget.attrs['class'] = 'input-xlarge'
         self._set_field_show_always('problem_instance_id')
 
         if len(pi_choices) > 1:

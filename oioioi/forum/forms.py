@@ -11,8 +11,7 @@ class PostForm(forms.ModelForm):
 
     def __init__(self, request, *args, **kwargs):
         super(PostForm, self).__init__(*args, **kwargs)
-        self.fields['content'].widget.attrs['class'] = \
-                'input-xxlarge monospace'
+        self.fields['content'].widget.attrs['class'] = 'monospace'
 
 
 class NewThreadForm(forms.ModelForm):
@@ -25,9 +24,8 @@ class NewThreadForm(forms.ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(NewThreadForm, self).__init__(*args, **kwargs)
         self.fields['name'].label = _("Topic")
-        self.fields['name'].widget.attrs['class'] = 'input-xxlarge monospace'
-        self.fields['content'].widget.attrs['class'] = \
-                'input-xxlarge monospace'
+        self.fields['name'].widget.attrs['class'] = 'monospace'
+        self.fields['content'].widget.attrs['class'] = 'monospace'
 
 
 class BanForm(forms.ModelForm):
@@ -42,4 +40,4 @@ class BanForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(BanForm, self).__init__(*args, **kwargs)
         self.fields['reason'].label = _("Reason")
-        self.fields['reason'].widget.attrs['class'] = 'input-xxlarge monospace'
+        self.fields['reason'].widget.attrs['class'] = 'monospace'

@@ -80,7 +80,6 @@ class OIRegistrationForm(forms.ModelForm):
         years = list(reversed(range(this_year - 100, this_year + 1)))
         self.fields['birthday'].widget = SelectDateWidget(years=years)
         self.fields['school'].widget = SchoolSelect()
-        self.fields['class_type'].widget.attrs['class'] = 'input-xlarge'
 
     def set_terms_accepted_text(self, terms_accepted_phrase):
         if terms_accepted_phrase is None:

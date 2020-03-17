@@ -16,7 +16,7 @@ similarity_pair_re = re.compile(
 class BulkAddSubmissionsSimilarityForm(forms.Form):
     similar_groups = forms.CharField(
         label=_("Similar groups"),
-        widget=forms.Textarea(attrs={'class': 'input-xxlarge monospace'}),
+        widget=forms.Textarea(attrs={'class': 'monospace'}),
         help_text=_(
             "Each line represents a group, submissions should be"
             " listed in format \"submission_id:username:task.lang\""

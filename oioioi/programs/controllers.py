@@ -536,7 +536,7 @@ class ProgrammingProblemController(ProblemController):
                 label=_("Code"),
                 validators=[validate_code_length],
                 widget=forms.widgets.Textarea(attrs={'rows': 10,
-                    'class': 'monospace input-xxxlarge'})
+                    'class': 'monospace'})
         )
 
         self._add_langs_to_form(request, form, problem_instance)

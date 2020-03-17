@@ -30,7 +30,7 @@ class DashboardMessageForm(forms.ModelForm):
     def __init__(self, request, *args, **kwargs):
         super(DashboardMessageForm, self).__init__(*args, **kwargs)
         self.fields['content'].widget \
-                .attrs['class'] = 'input-xxlarge monospace'
+                .attrs['class'] = 'monospace'
         self.contest = request.contest
         self.fields['content'].help_text = \
                 _("You can use the following tags and attributes: {}.") \

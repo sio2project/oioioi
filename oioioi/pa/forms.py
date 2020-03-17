@@ -11,11 +11,6 @@ class PARegistrationForm(forms.ModelForm):
         model = PARegistration
         exclude = ['participant']
 
-    def __init__(self, *args, **kwargs):
-        super(PARegistrationForm, self).__init__(*args, **kwargs)
-
-        self.fields['job'].widget.attrs['class'] = 'input-xlarge'
-
     def set_terms_accepted_text(self, terms_accepted_phrase):
         if terms_accepted_phrase is None:
             self.fields['terms_accepted'].label = \

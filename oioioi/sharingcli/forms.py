@@ -13,7 +13,6 @@ from oioioi.problems.forms import ProblemUploadForm
 class RemoteProblemForm(ProblemUploadForm):
     url = forms.CharField(
         label=_("Task URL"),
-        widget=forms.TextInput(attrs={'class': 'input-xxlarge'}),
         validators=[URLValidator])
 
     def __init__(self, clients, *args, **kwargs):

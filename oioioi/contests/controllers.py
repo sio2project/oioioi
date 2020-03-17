@@ -892,6 +892,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return test_report.submission_report.submission.problem \
                 .controller._is_partial_score(test_report)
 
+    def show_default_fields(self, problem_instance):
+        return problem_instance.problem.controller.show_default_fields(problem_instance)
+
 
 class PastRoundsHiddenContestControllerMixin(object):
     """ContestController mixin that hides past rounds

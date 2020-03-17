@@ -85,8 +85,7 @@ class TermsAcceptedPhraseForm(forms.ModelForm):
         super(TermsAcceptedPhraseForm, self).__init__(*args, **kwargs)
 
         if 'text' in self.fields:
-            self.fields['text'].widget \
-                    .attrs['class'] = 'input-xxlarge monospace'
+            self.fields['text'].widget.attrs['class'] = 'monospace'
             self.fields['text'].help_text = \
                     _("You can use the following tags and attributes: {}.") \
                     .format(', '.join(self.tag_as_str(tag)
