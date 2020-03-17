@@ -1,11 +1,14 @@
 Dockerfile*
 docker*
-.idea
+.dockerignore
+.git
 .github
+.idea
 *.swp
 venv
 logs
 deployment
+extra
 /test*
 *.rst
 /rst

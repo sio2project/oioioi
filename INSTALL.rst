@@ -68,15 +68,11 @@ with the normal user privileges. **This is not a safe configuration and the
 judging will run quite slowly.** It is to easily make OIOIOI up and running for
 testing purposes.
 
-Run the Django web server in one terminal::
-
-  ./manage.py runserver 0.0.0.0:8000
-
-and in the other the evaluation daemons::
+Run the Django web server and the evaluation daemons::
 
   ./manage.py supervisor
 
-The *supervisor* process monitors all processes needed by OIOIOI, except the
+The *supervisor* process monitors all processes needed by OIOIOI, including the
 web server. It has `many nice features`_.
 
 You can create an administrator account by running::
@@ -126,6 +122,9 @@ Production configuration
 
    * uwsgi (*pip install uwsgi*)
 
+#. Turn on UWSGI by setting *SERVER* to *uwsgi* in *settings.py* and restart
+   the supervisor.
+
 #. Install and configure web server. We recommend using nginx with uwsgi plugin
    (included in *nginx-full* Ubuntu package). An example configuration is
    automatically created as *nginx-site.conf*. Have a look there. What you
@@ -134,8 +133,6 @@ Production configuration
      cp nginx-site.conf /etc/nginx/sites-available/oioioi
      ln -s ../sites-available/oioioi /etc/nginx/sites-enabled/
      service nginx reload
-
-   Once this is done, you no more need to run *manage.py runserver*.
 
    If you prefer deploying with Apache, an example configuration is created
    as *apache-site.conf*. You would need to install *apache2* and

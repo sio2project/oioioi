@@ -1,46 +1,49 @@
-version: '3'
+version: '2.4'
+# https://github.com/docker/cli/issues/1293
 services:
   db:
-    image: library/postgres
-    restart: always
+    image: library/postgres:12.2
     environment:
       POSTGRES_USER: "oioioi"
-      POSTGRES_PASSWORD: ""
+      POSTGRES_PASSWORD: "password"
       POSTGRES_DB: "oioioi"
-    networks:
-      - oioioi_net
+    volumes:
+      - postgress-data-dev:/var/lib/postgresql/data
+    stop_grace_period: 1m
   web:
-    command: /sio2/oioioi/oioioi_init.sh
-    image: oioioi-dev
+    image: sio2project/oioioi-dev
+    command: ["/sio2/oioioi/oioioi_init.sh"]
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - "oioioi_uid=${OIOIOI_UID}"
+      extra_hosts:
+        - "web:127.0.0.1"
     ports:
       - "8000:8000"
-    depends_on:
-      - db
-    networks:
-      - oioioi_net
     volumes:
       - $PWD:/sio2/oioioi
-      - $PWD/logs:/sio2/logs
       - $PWD/deployment:/sio2/deployment
+    stop_grace_period: 3m
+    depends_on:
+      - db
+      - broker
   worker:
+    image: sio2project/oioioi-dev
+    command: ["/sio2/oioioi/worker_init.sh"]
+    volumes:
+      - $PWD:/sio2/oioioi
+    stop_grace_period: 1m
     cap_add:
       - ALL
-    command: /sio2/oioioi/worker_init.sh
-    volumes:
-      - $PWD:/sio2/oioioi
-    image: oioioi-dev
     depends_on:
       - db
-      - web
-    deploy:
-      replicas: 1
-    networks:
-      - oioioi_net
-
-networks:
-  oioioi_net:
+  broker:
+    image: library/rabbitmq:3.8
+    environment:
+      RABBITMQ_DEFAULT_USER: oioioi
+      RABBITMQ_DEFAULT_PASS: oioioi
+    stop_grace_period: 1m
+volumes:
+  postgress-data-dev:

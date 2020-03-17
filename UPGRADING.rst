@@ -866,3 +866,21 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
          [program:ipauthsyncd]
          command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauthsyncd
          startretries=0
+
+#. * Changed the 'UWSGI_ENABLED' setting to a more general 'SERVER' setting.
+     To make sure that your typical production setup (UWSGI + reverse proxy)
+     keeps working, set this to 'uwsgi'.::
+
+        @@ -28,12 +27,20 @@ SITE_NAME = 'OIOIOI'
+         # including but not limited to the mail notifications.
+         PUBLIC_ROOT_URL = 'http://localhost'
+
+        -# Run uwsgi daemon. Shall be True, False or 'auto'.
+        -# 'auto' means daemon will be run iff DEBUG is disabled.
+        -UWSGI_ENABLED = 'auto'
+        +# The server to be run. Options are:
+        +# django - django's http server
+        +# uwsgi - uwsgi daemon
+        +# uwsgi-http - uwsgi deamon with builtin http server
+        +# None - nothing will be run
+        +SERVER = None

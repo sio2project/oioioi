@@ -7,11 +7,10 @@ import os
 import tempfile
 
 import oioioi
-from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 43
+INSTALLATION_CONFIG_VERSION = 44
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -24,11 +23,19 @@ SITE_NAME = 'OIOIOI'
 # including but not limited to the mail notifications.
 PUBLIC_ROOT_URL = 'http://localhost'
 
-# Run uwsgi daemon. Shall be True, False or 'auto'.
-# 'auto' means daemon will be run iff DEBUG is disabled.
-UWSGI_ENABLED = 'auto'
+# The server to be run. Options are:
+# django - django's http server
+# uwsgi - uwsgi daemon
+# uwsgi-http - uwsgi deamon with builtin http server
+# None - nothing will be run
+SERVER = None
 
 UWSGI_USE_GEVENT = False
+
+# Python dotted path to the WSGI application used by Django's runserver.
+WSGI_APPLICATION = 'wsgi.application'
+
+SEND_USER_ACTIVATION_EMAIL = True
 
 LANGUAGES = (
     ('en', 'English'),
@@ -175,9 +182,6 @@ LOGIN_URL = 'two_factor:login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'wsgi.application'
-
 COMPRESS_ENABLED = True
 COMPRESS_PARSER = 'compressor.parser.BeautifulSoupParser'
 COMPRESS_PRECOMPILERS = (
@@ -247,7 +251,6 @@ AUTHENTICATION_BACKENDS = (
 
 ACCOUNT_ACTIVATION_DAYS = 7
 
-SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'
 FILETRACKER_CLIENT_FACTORY = 'oioioi.filetracker.client.remote_storage_factory'
 DEFAULT_FILE_STORAGE = 'oioioi.filetracker.storage.FiletrackerStorage'
 
@@ -284,6 +287,21 @@ PROBLEM_PACKAGE_BACKENDS = (
     'oioioi.sinolpack.package.SinolPackageBackend',
 )
 
+SIOWORKERSD_URL = 'http://localhost:7889/'
+SIOWORKERS_BACKEND = 'oioioi.sioworkers.backends.SioworkersdBackend'
+RUN_SIOWORKERSD = True
+
+# On which interface should the sioworkers receiver listen
+SIOWORKERS_LISTEN_ADDR = '127.0.0.1'
+SIOWORKERS_LISTEN_PORT = 7890
+
+# URL to which sioworkersd should respond, when it has finished its job
+# When set to None the default url will be created using the pattern
+# http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
+SIOWORKERS_LISTEN_URL = None
+
+RUN_LOCAL_WORKERS = False
+
 # This setting specifies which languages are available on the platform.
 # Each language must contain a diplay_name entry. Such an entry may be useful
 # if it is to contain characters, that probably shouldn't be allowed in the
@@ -311,9 +329,6 @@ SUBMITTABLE_LANGUAGES = {
 # as in SUBMITTABLE_LANGUAGES.
 SUBMITTABLE_EXTENSIONS = {'C': ['c'], 'C++': ['cpp', 'cc'], 'Pascal': ['pas'],
                           'Java': ['java'], 'Python': ['py']}
-USE_UNSAFE_EXEC = False
-DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
-RUN_LOCAL_WORKERS = False
 
 # This setting specifies which compilers are available in sioworkers.
 # By default that means ones defined here:
@@ -339,6 +354,24 @@ AVAILABLE_COMPILERS = {
     }
 }
 
+SYSTEM_COMPILERS = {
+    'C': {
+        'system-gcc': {'display_name': 'system gcc'}
+    },
+    'C++': {
+        'system-g++': {'display_name': 'system g++'}
+    },
+    'Pascal': {
+        'system-fpc': {'display_name': 'system fpc'}
+    },
+    'Java': {
+        'system-java': {'display_name': 'system java'}
+    },
+    'Python': {
+        'system-python': {'display_name': 'system python'}
+    }
+}
+
 # This setting sets the default compilers used throughout the platform.
 # There should be an entry for every language supported with key being the same
 # as in SUBMITTABLE_LANGUAGES and value contained in AVAILABLE_COMPILERS.
@@ -346,6 +379,12 @@ DEFAULT_COMPILERS = {'C': 'gcc4_8_2_c99', 'C++': 'g++4_8_2_cpp11',
                      'Pascal': 'fpc2_6_2', 'Java': 'java1_8',
                      'Python': 'python'}
 
+SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
+                     'Pascal': 'system-fpc', 'Java': 'system-java',
+                     'Python': 'system-python'}
+
+USE_UNSAFE_EXEC = False
+DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
 
 # WARNING: experimental, see settings template
 USE_UNSAFE_CHECKER = True
@@ -385,14 +424,11 @@ FILETRACKER_LISTEN_PORT = 9999
 
 FILETRACKER_URL = 'http://127.0.0.1:9999'
 
-RUN_SIOWORKERSD = True
-
 DEFAULT_CONTEST = None
 ONLY_DEFAULT_CONTEST = False
 
+from oioioi.contests.current_contest import ContestMode
 CONTEST_MODE = ContestMode.contest_if_possible
-
-SEND_USER_ACTIVATION_EMAIL = True
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -467,8 +503,6 @@ EVALMGR_CONCURRENCY = 1
 
 # Number of concurrently processed problem packages
 UNPACKMGR_CONCURRENCY = 1
-
-SIOWORKERSD_URL = 'http://localhost:7889/'
 
 # Email address for "Send Feedback" message.
 SZKOPUL_SUPPORT_EMAIL = None
@@ -554,15 +588,6 @@ LIVEDATA_CACHE_TIMEOUT = 30
 
 # Submissions by (snail) mail
 MAILSUBMIT_CONFIRMATION_HASH_LENGTH = 5
-
-# On which interface should the sioworkers receiver listen
-SIOWORKERS_LISTEN_ADDR = '127.0.0.1'
-SIOWORKERS_LISTEN_PORT = 7890
-
-# URL to which should respond sioworkersd, when it has finished its job
-# When set to None the default url will be created using the pattern
-# http://$SIOWORKERS_LISTEN_ADDR:$SIOWORKERS_LISTEN_PORT
-SIOWORKERS_LISTEN_URL = None
 
 # Maintenance mode settings
 CONTEST_PREFIX_RE = '^(/c/[a-z0-9_-]+)?'

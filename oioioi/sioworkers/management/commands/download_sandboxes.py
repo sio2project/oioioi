@@ -14,7 +14,7 @@ from oioioi.base.utils.execute import ExecuteError, execute
 from oioioi.filetracker.client import get_client
 
 DEFAULT_SANDBOXES_MANIFEST = getattr(settings, 'SANDBOXES_MANIFEST',
-    'http://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest')
+    'https://downloads.sio2project.mimuw.edu.pl/sandboxes/Manifest')
 
 
 class Command(BaseCommand):

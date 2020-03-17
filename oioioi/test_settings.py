@@ -92,27 +92,8 @@ FILETRACKER_URL = None
 USE_UNSAFE_EXEC = True
 USE_UNSAFE_CHECKER = True
 
-AVAILABLE_COMPILERS = {
-    'C': {
-        'system-gcc': {'display_name': 'system gcc'}
-    },
-    'C++': {
-        'system-g++': {'display_name': 'system g++'}
-    },
-    'Pascal': {
-        'system-fpc': {'display_name': 'system fpc'}
-    },
-    'Java': {
-        'system-java': {'display_name': 'system java'}
-    },
-    'Python': {
-        'system-python': {'display_name': 'system python'}
-    }
-}
-
-DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
-                     'Pascal': 'system-fpc', 'Java': 'system-java',
-                     'Python': 'system-python'}
+AVAILABLE_COMPILERS = SYSTEM_COMPILERS
+DEFAULT_COMPILERS = SYSTEM_DEFAULT_COMPILERS
 
 USE_SINOLPACK_MAKEFILES = True
 SINOLPACK_RESTRICT_HTML = False
@@ -122,8 +103,6 @@ COMPLAINTS_EMAIL = 'dummy@example.com'
 COMPLAINTS_SUBJECT_PREFIX = '[oioioi-complaints] '
 
 WARN_ABOUT_REPEATED_SUBMISSION = False
-
-BALLOON_ACCESS_COOKIE_EXPIRES_DAYS = 7
 
 PROBLEM_SOURCES += (
     'oioioi.zeus.problem_sources.ZeusProblemSource',

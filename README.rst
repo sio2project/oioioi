@@ -8,35 +8,6 @@ main component — the web interface.
 Installation
 ------------
 
-Vagrant (for development)
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can easily start development and run oioioi out of the box with `vagrant`_.
-Just enter the directory where Vagrantfile and this README are placed, and type::
-
-  vagrant up
-
-It will create an instance of virtual machine with web server and judges running.
-
-You can specify configuration in `vagrant.yml` (if you don't have such file,
-create it in the same directory as Vagrantfile).
-Supported configuration options (with example)::
-
-  port: 8001  # run oioioi on port 8001 instead of the default 8000
-  runserver_cmd: runserver_plus  # use manage.py runserver_plus instead of manage.py runserver
-
-.. _vagrant: https://www.vagrantup.com/docs/
-
-Don't forget to create the superuser. In order to do so,
-you should login into virtual machine created by Vagrant (default password is "vagrant")::
-
-  ssh 127.0.0.1 -p 2222 -l vagrant
-
-and run::
-
-  cd deployment
-  python manage.py createsuperuser
-
 Docker (for deployment)
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -44,7 +15,7 @@ Additionally, there are available docker files to create images containing our s
 
 To run the infrastructure simply::
 
-  docker-compose up
+  "OIOIOI_CONFIGDIR=<config directory>" "OIOIOI_VERSION=<oioioi_version>" docker-compose up
 
 Make sure to change default superuser password. To do that:
    1. Login to the superuser with default credentials (username:admin, password:admin)
@@ -54,42 +25,11 @@ Make sure to change default superuser password. To do that:
 
 To start additional number of workers::
 
-  docker-compose scale worker=<number>
+  "OIOIOI_CONFIGDIR=<config directory>" "OIOIOI_VERSION=<oioioi_version>" docker-compose up --scale worker=<number>
 
 as described `in Docker docs`_.
 
-.. _in Docker docs: https://docs.docker.com/compose/reference/scale/
-
-Docker (for development)
-~~~~~~~~~~~~~~~~~~~~~~~
-
-It is possible to develop using docker images, but this we do not recommend it.
-Better use Vagrant or install OIOIOI manually, as described in the next section.
-
-Working directory should be the repository root.
-
-First prepare the image with::
-
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml build
-
-Create config files and logs folder on host::
-
-    id=$(docker create oioioi-dev)  #Create oioioi container
-    docker cp $id:/sio2/logs logs  #Copy initial logs folder from oioioi container
-    docker cp $id:/sio2/deployment deployment  #Copy initial deployment config from oioioi contanier
-    docker rm -v $id  #Remove unneeded container
-
-Then you can start oioioi with::
-
-    OIOIOI_UID=$(id -u) docker-compose -f docker-compose-dev.yml up
-
-to start the infrastructure in development mode. Current dirrectory with source
-code will be binded to /sio2/oioioi/ inside running container, and logs from
-services will be availible outside of the container in ./logs/.
-
-In both cases, oioioi web interface will be availible at localhost:8000, and the user
-admin with password admin will be created. If you are using docker installation
-in production encvironment remember to change the password.
+.. _in Docker docs: https://docs.docker.com/compose/reference/up/
 
 Manual installation
 ~~~~~~~~~~~~~~~~~~~

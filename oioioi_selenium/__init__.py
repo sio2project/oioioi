@@ -16,12 +16,12 @@ class WebDriver(webdriver.WebDriver):
         # the the buttons in tests
         firefox_profile.set_preference('permissions.default.stylesheet', 2)
         super(WebDriver, self).__init__(
-                command_executor='http://127.0.0.1:4444/wd/hub',
+                command_executor='http://localhost:4444/wd/hub',
                 browser_profile=firefox_profile,
                 desired_capabilities=DesiredCapabilities.FIREFOX)
         self.set_page_load_timeout(60)
         self.implicitly_wait(60)
-        self.base_url = "http://oioioi:8000"
+        self.base_url = "http://web:8000"
         self.delete_all_cookies()
 
     def get(self, url):
