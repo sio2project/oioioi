@@ -13,6 +13,6 @@
     "globals":
     {
         "gettext": false, "ngettext": false, "interpolate": false,
-        "oioioi_base_url": true
+        "oioioi_base_url": true, "django": true
     }
 }
