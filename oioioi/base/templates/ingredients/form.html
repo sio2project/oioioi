@@ -65,3 +65,12 @@
         })
     </script>
 {% endif %}
+
+{% if form.additional_scripts %}
+    {% for script in form.additional_scripts %}
+        <script>
+            {{ script }}
+        </script>
+    {% endfor %}
+{% endif %}
+

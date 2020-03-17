@@ -119,6 +119,8 @@ class QuizProblemController(ProblemController):
         for question in questions:
             self.add_question_to_form(request, form, problem_instance, question)
 
+        form.hide_default_fields(problem_instance)
+
     def create_submission(self, request, problem_instance, form_data,
                           **kwargs):
         judge_after_create = kwargs.get('judge_after_create', True)

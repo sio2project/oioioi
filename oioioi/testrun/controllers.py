@@ -20,6 +20,7 @@ from oioioi.programs.controllers import (ProgrammingContestController,
 from oioioi.programs.models import CompilationReport
 from oioioi.programs.problem_instance_utils import \
     get_allowed_languages_extensions
+from oioioi.programs.utils import form_field_id_for_langs
 from oioioi.testrun.models import TestRunProgramSubmission, TestRunReport
 
 
@@ -176,6 +177,7 @@ class TestRunContestControllerMixin(object):
                 }
             )
         )
+        form.move_field_to_end('input')
 
         form.fields['file'].help_text = _("Language is determined by the file"
                 " extension. The following are recognized: %s, but allowed"
@@ -195,7 +197,8 @@ class TestRunContestControllerMixin(object):
         submit_file = form_data['file']
         if submit_file is None:
             lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-            extension = lang_exts[form_data['prog_lang']][0]
+            langs_field_name = form_field_id_for_langs(problem_instance)
+            extension = lang_exts[form_data[langs_field_name]][0]
             submit_file = ContentFile(form_data['code'],
                     '__pasted_code.' + extension)
         # pylint: disable=maybe-no-member

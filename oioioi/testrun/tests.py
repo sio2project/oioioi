@@ -19,6 +19,7 @@ from oioioi.programs.tests import SubmitFileMixin
 from oioioi.testrun import handlers
 from oioioi.testrun.models import (TestRunConfig, TestRunConfigForInstance,
                                    TestRunProgramSubmission, TestRunReport)
+from oioioi.programs.utils import form_field_id_for_langs
 
 
 class TestTestrunViews(TestCase):
@@ -161,10 +162,12 @@ class TestTestrunViews(TestCase):
         self.assertTrue(self.client.login(username='test_user'))
         kwargs = {'contest_id': Contest.objects.get().id}
         url = reverse('testrun_submit', kwargs=kwargs)
+        pi = ProblemInstance.objects.get()
+        langs_field_name = form_field_id_for_langs(pi)
         data = {
-            'problem_instance_id': ProblemInstance.objects.get().id,
+            'problem_instance_id': pi.id,
             'code': b'some code',
-            'prog_lang': 'C',
+            langs_field_name: 'C',
             'input': ContentFile(b'i', name='x.cpp'),
         }
         response = self.client.post(url, data, follow=True)

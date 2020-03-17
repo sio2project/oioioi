@@ -54,9 +54,9 @@ class TestSimpleContest(OIOIOISeleniumTestCase):
         driver.find_element_by_id("id_code").click()
         driver.find_element_by_id("id_code").clear()
         driver.find_element_by_id("id_code").send_keys("int main() {}")
-        driver.find_element_by_id("id_prog_lang").click()
-        Select(driver.find_element_by_id("id_prog_lang")).select_by_visible_text("C")
-        driver.find_element_by_id("id_prog_lang").click()
+        driver.find_element_by_id("id_prog_lang_1").click()
+        Select(driver.find_element_by_id("id_prog_lang_1")).select_by_visible_text("C")
+        driver.find_element_by_id("id_prog_lang_1").click()
         Select(driver.find_element_by_id("id_kind")).select_by_visible_text("Normal")
         driver.find_element_by_id("id_kind").click()
         submit_solution_button = driver.find_element_by_xpath(

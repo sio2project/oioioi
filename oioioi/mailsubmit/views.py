@@ -21,6 +21,7 @@ from oioioi.mailsubmit.utils import (accept_mail_submission,
                                      has_any_mailsubmittable_problem,
                                      is_mailsubmit_allowed,
                                      mail_submission_hashes)
+from oioioi.programs.utils import form_field_id_for_langs
 
 
 @menu_registry.register_decorator(_("Postal submission"), lambda request:
@@ -32,15 +33,17 @@ def mailsubmit_view(request):
     if request.method == 'POST':
         form = MailSubmissionForm(request, request.POST, request.FILES)
         if form.is_valid():
+            pi = form.cleaned_data['problem_instance']
             mailsubmission = MailSubmission(
                 user=form.cleaned_data.get('user', request.user),
-                problem_instance=form.cleaned_data['problem_instance'],
+                problem_instance=pi,
                 date=request.timestamp
             )
             source_file = form.cleaned_data['file']
             if source_file is None:
                 lang_exts = getattr(settings, 'SUBMITTABLE_EXTENSIONS', {})
-                extension = lang_exts[form.cleaned_data['prog_lang']][0]
+                langs_field_name = form_field_id_for_langs(pi)
+                extension = lang_exts[form.cleaned_data[langs_field_name]][0]
                 source_file = ContentFile(form.cleaned_data['code'],
                                    '__pasted_code.' + extension)
 

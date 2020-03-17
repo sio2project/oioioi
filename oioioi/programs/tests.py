@@ -33,6 +33,7 @@ from oioioi.programs.handlers import make_report
 from oioioi.programs.models import (ModelSolution, ProgramSubmission,
                                     ReportActionsConfig, Test, TestReport,
                                     ContestCompiler, check_compilers_config)
+from oioioi.programs.utils import form_field_id_for_langs
 from oioioi.programs.views import _testreports_to_generate_outs
 from oioioi.sinolpack.tests import get_test_filename
 
@@ -80,11 +81,12 @@ class SubmitFileMixin(SubmitMixin):
         file = None
         if send_file:
             file = ContentFile('a' * 1024, name='a.c')
+        langs_field_name = form_field_id_for_langs(problem_instance)
         post_data = {
                 'problem_instance_id': problem_instance.id,
                 'file': file,
                 'code': code,
-                'prog_lang': prog_lang,
+                langs_field_name: prog_lang,
         }
         if user:
             post_data.update({

@@ -160,3 +160,6 @@ def is_model_submission(submission):
 def filter_model_submissions(queryset):
     model_ids = ModelProgramSubmission.objects.values_list('id', flat=True)
     return queryset.exclude(pk__in=model_ids)
+
+def form_field_id_for_langs(problem_instance):
+    return 'prog_lang_' + str(problem_instance.id)

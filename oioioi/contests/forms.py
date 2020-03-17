@@ -1,4 +1,5 @@
 import six
+import json
 from django import forms
 from django.contrib.admin import widgets
 from django.contrib.auth.models import User
@@ -103,8 +104,10 @@ class SubmissionForm(forms.Form):
        Recognized optional ``**kwargs`` fields:
          * ``problem_filter`` Function filtering submittable tasks.
          * ``kind`` Kind of submission accessible with ``kind`` property.
-         * ``problem_instance`` - when SubmissionForm is used only for one
+         * ``problem_instance`` When SubmissionForm is used only for one
              problem_instance. Otherwise ``problem_instance`` is None.
+         * ``add_kind_and_user_fields`` Option deciding whether form should
+             add kind and user fields to itself.
     """
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
@@ -113,6 +116,7 @@ class SubmissionForm(forms.Form):
         js = ('common/submit.js',)
 
     def __init__(self, request, *args, **kwargs):
+        add_kind_and_user_fields = kwargs.pop('add_kind_and_user_fields', True)
         problem_instance = kwargs.pop('problem_instance', None)
         if problem_instance is None:
             # if problem_instance does not exist any from the current
@@ -131,7 +135,7 @@ class SubmissionForm(forms.Form):
         # Default kind is selected based on
         # the first problem_instance assigned to this form.
         # This is an arbitrary choice.
-        self.kind = kwargs.pop('kind',
+        self.kind = getattr(self, 'kind', None) or kwargs.pop('kind',
                                problem_instance.controller.get_default_submission_kind(request,
                                        problem_instance=problem_instance))
         problem_filter = kwargs.pop('problem_filter', None)
@@ -143,9 +147,8 @@ class SubmissionForm(forms.Form):
             pis = problem_filter(pis)
         pi_choices = [(pi.id, six.text_type(pi)) for pi in pis]
 
-        # pylint: disable=non-parent-init-called
         # init form with previously sent data
-        forms.Form.__init__(self, *args, **kwargs)
+        super(SubmissionForm, self).__init__(*args, **kwargs)
 
         # prepare problem instance selector
         pi_field = self.fields['problem_instance_id']
@@ -160,7 +163,7 @@ class SubmissionForm(forms.Form):
         narrow_input_field(pi_field)
 
         # if contest admin, add kind and 'as other user' field
-        if contest and is_contest_basicadmin(request):
+        if add_kind_and_user_fields and contest and is_contest_basicadmin(request):
             self.fields['user'] = UserSelectionField(
                     label=_("User"),
                     hints_url=reverse('contest_user_hints',
@@ -189,17 +192,22 @@ class SubmissionForm(forms.Form):
             self._set_field_show_always('kind')
             narrow_input_fields([self.fields['kind'], self.fields['user']])
 
+        self.hide_default_fields_pi_ids = []
+
         # adding additional fields, etc
         for pi in pis:
             pi.controller.adjust_submission_form(request, self, pi)
 
         self._set_default_fields_attributes()
 
-        # fix field order (put kind and user at the end)
-        self._move_field_to_end('user')
-        self._move_field_to_end('kind')
+        hide_default_fields_script = "startShowingFields(" + json.dumps(self.hide_default_fields_pi_ids) + ")"
+        self.additional_scripts = [hide_default_fields_script]
 
-    def _move_field_to_end(self, field_name):
+        # fix field order (put kind and user at the end)
+        self.move_field_to_end('user')
+        self.move_field_to_end('kind')
+
+    def move_field_to_end(self, field_name):
         if field_name in self.fields:
             # delete field from fields and readdd it to put it at the end
             tmp = self.fields[field_name]
@@ -216,6 +224,14 @@ class SubmissionForm(forms.Form):
         """
         self.fields[field_name].widget.attrs['data-submit'] = \
             str(problem_instance.id)
+
+    def hide_default_fields(self, problem_instance):
+        """
+        Hide default form fields for a given problem instance.
+        :param problem_instance: Problem instance which will have fields hidden
+        """
+        self.hide_default_fields_pi_ids.append(problem_instance.id)
+
 
     def _set_field_show_always(self, field_name):
         self.fields[field_name].widget.attrs['data-submit'] = 'always'
@@ -236,7 +252,7 @@ class SubmissionForm(forms.Form):
         return forms.Form.is_valid(self)
 
     def clean(self, check_submission_limit=True, check_round_times=True):
-        cleaned_data = forms.Form.clean(self)
+        cleaned_data = super(SubmissionForm, self).clean()
 
         if 'kind' not in cleaned_data:
             cleaned_data['kind'] = self.kind

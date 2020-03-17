@@ -12,7 +12,7 @@ function displaySubmissionsLeft(submissionsLeft) {
 
     $select.change(function(e) {
         let left = submissionsLeft[this.value];
-        if(left === 0 || left) {
+        if (left === 0 || left) {
             $message.text(
                 ngettext('You have %(sub_num)s submission left.',
                          'You have %(sub_num)s submissions left.', left)

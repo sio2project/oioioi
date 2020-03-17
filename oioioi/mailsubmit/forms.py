@@ -9,67 +9,27 @@ from oioioi.default_settings import MAILSUBMIT_CONFIRMATION_HASH_LENGTH
 from oioioi.mailsubmit.models import MailSubmission
 from oioioi.mailsubmit.utils import (is_mailsubmit_allowed,
                                      mail_submission_hashes)
+from oioioi.contests.forms import SubmissionForm
 
-class MailSubmissionForm(forms.Form):
+class MailSubmissionForm(SubmissionForm):
     problem_instance_id = forms.ChoiceField(label=_("Problem"))
 
     def __init__(self, request, *args, **kwargs):
         self.kind = 'MAILSUBMIT'
-        problem_filter = kwargs.pop('problem_filter', None)
-
-        super(MailSubmissionForm, self).__init__(*args, **kwargs)
-
-        self.request = request
-
-        pis = visible_problem_instances(request)
-        if problem_filter:
-            pis = problem_filter(pis)
-
-        pi_choices = [(pi.id, six.text_type(pi)) for pi in pis]
-        pi_field = self.fields['problem_instance_id']
-        pi_field.choices = pi_choices
-        pi_field.widget.attrs['class'] = 'input-xlarge'
-
-        # add fields etc.
-        contest = request.contest
-        assert contest is not None
-        problem_instances = ProblemInstance.objects.filter(contest=contest)
-        for pi in problem_instances:
-            pi.controller.adjust_submission_form(request, self, pi)
+        super(MailSubmissionForm, self).__init__(request, *args, add_kind_and_user_fields=False, **kwargs)
 
     def clean(self):
-        cleaned_data = super(MailSubmissionForm, self).clean()
-        ccontroller = self.request.contest.controller
+        cleaned_data = super(MailSubmissionForm, self).clean(
+            check_submission_limit=False, check_round_times=False)
 
-        if 'problem_instance_id' not in cleaned_data:
-            return cleaned_data
-
-        try:
-            pi = ProblemInstance.objects.filter(contest=self.request.contest) \
-                    .get(id=cleaned_data['problem_instance_id'])
-            cleaned_data['problem_instance'] = pi
-        except ProblemInstance.DoesNotExist:
-            self._errors['problem_instance_id'] = \
-                    self.error_class([_("Invalid problem")])
-            del cleaned_data['problem_instance_id']
-            return cleaned_data
-
-        decision = is_mailsubmit_allowed(self.request) and \
-            ccontroller.can_submit(self.request, pi, check_round_times=False)
+        decision = is_mailsubmit_allowed(self.request)
         if not decision:
             raise ValidationError(getattr(decision, 'exc',
                                               _("Permission denied")))
+        return cleaned_data
 
-        if cleaned_data['prog_lang'] and \
-                cleaned_data['prog_lang'] not in \
-                pi.controller.get_allowed_languages():
-            self._errors['prog_lang'] = \
-                    self.error_class([_("Disallowed language")])
-            del cleaned_data['prog_lang']
-            return cleaned_data
-
-        return ccontroller.validate_submission_form(self.request, pi, self,
-                                                    cleaned_data)
+    def get_problem_instances(self):
+        return visible_problem_instances(self.request)
 
 
 class AcceptMailSubmissionForm(forms.Form):

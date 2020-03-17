@@ -192,10 +192,12 @@ def submit_view(request, problem_instance_id=None):
         if problem_instance_id is not None:
             initial = {'problem_instance_id': int(problem_instance_id)}
         form = SubmissionForm(request, initial=initial)
+
+    pis = form.get_problem_instances()
     submissions_left = {pi.id: pi.controller.get_submissions_left(request, pi)
-         for pi in form.get_problem_instances()}
+            for pi in pis}
     return TemplateResponse(request, 'contests/submit.html',
-                            {'form': form, 'submissions_left': submissions_left})
+            {'form': form, 'submissions_left': submissions_left})
 
 
 @menu_registry.register_decorator(_("My submissions"), lambda request:

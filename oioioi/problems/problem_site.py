@@ -134,18 +134,18 @@ def problem_site_submissions(request, problem):
 @problem_site_tab(_("Submit"), key='submit', order=400,
         condition=lambda request, problem: not request.contest)
 def problem_site_submit(request, problem):
+    pi = problem.main_problem_instance
     if request.method == 'POST':
         form = SubmissionFormForProblemInstance(request,
-                problem.main_problem_instance, request.POST, request.FILES)
+                pi, request.POST, request.FILES)
         if form.is_valid():
-            problem.main_problem_instance.controller.create_submission(request,
-                       problem.main_problem_instance, form.cleaned_data)
+            pi.controller.create_submission(request, pi, form.cleaned_data)
             url = reverse('problem_site',
                     kwargs={'site_key': problem.problemsite.url_key})
             return redirect(url + '?key=submissions')
     else:
-        form = SubmissionFormForProblemInstance(request,
-                problem.main_problem_instance)
+        form = SubmissionFormForProblemInstance(request, pi)
+
     return TemplateResponse(request, 'problems/submit.html',
             {'problem': problem, 'form': form})
 

@@ -33,7 +33,8 @@ from oioioi.programs.problem_instance_utils import (get_allowed_languages_dict,
                                                     get_language_by_extension)
 from oioioi.programs.utils import (has_report_actions_config,
                                    is_model_submission,
-                                   filter_model_submissions)
+                                   filter_model_submissions,
+                                   form_field_id_for_langs)
 
 def get_report_display_type(request, test_report):
     if (test_report.status == 'INI_OK' or test_report.status == 'OK'):
@@ -380,15 +381,16 @@ class ProgrammingProblemController(ProblemController):
             raise ValidationError(_("You have to either choose file or paste "
                 "code."))
 
-        if 'prog_lang' not in cleaned_data:
-            cleaned_data['prog_lang'] = None
+        langs_field_name = form_field_id_for_langs(problem_instance)
+        if langs_field_name not in cleaned_data:
+            cleaned_data[langs_field_name] = None
 
-        if not cleaned_data['prog_lang'] and is_file_chosen:
+        if not cleaned_data[langs_field_name] and is_file_chosen:
             ext = os.path.splitext(cleaned_data['file'].name)[1].strip('.')
-            cleaned_data['prog_lang'] = \
+            cleaned_data[langs_field_name] = \
                 get_language_by_extension(problem_instance, ext)
 
-        if not cleaned_data['prog_lang']:
+        if not cleaned_data[langs_field_name]:
             if is_code_pasted:
                 raise ValidationError(
                     _("You have to choose programming language."))
@@ -396,7 +398,7 @@ class ProgrammingProblemController(ProblemController):
                 raise ValidationError(_("Unrecognized file extension."))
 
         langs = get_allowed_languages_dict(problem_instance)
-        if cleaned_data['prog_lang'] not in langs.keys():
+        if cleaned_data[langs_field_name] not in langs.keys():
             raise ValidationError(_("This language is not allowed for selected"
                                     " problem."))
 
@@ -447,7 +449,8 @@ class ProgrammingProblemController(ProblemController):
         file = form_data['file']
         if file is None:
             lang_exts = get_allowed_languages_dict(problem_instance)
-            extension = lang_exts[form_data['prog_lang']][0]
+            langs_field_name = form_field_id_for_langs(problem_instance)
+            extension = lang_exts[form_data[langs_field_name]][0]
             file = ContentFile(form_data['code'], '__pasted_code.' + extension)
 
         submission.source_file.save(file.name, file)
@@ -455,6 +458,36 @@ class ProgrammingProblemController(ProblemController):
         if judge_after_create:
             problem_instance.controller.judge(submission)
         return submission
+
+    def _add_langs_to_form(self, request, form, problem_instance):
+        controller = problem_instance.controller
+
+        choices = [('', '')]
+        for lang in controller.get_allowed_languages():
+            compiler_name = None
+            compiler = controller.get_compiler_for_language(problem_instance, lang)
+            if compiler is not None:
+                available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
+                compilers_for_language = available_compilers.get(lang)
+                if compilers_for_language is not None:
+                    compiler_info = compilers_for_language.get(compiler)
+                    if compiler_info is not None:
+                        compiler_name = compiler_info.get('display_name')
+            langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+            lang_display = langs[lang]['display_name']
+            if compiler_name is not None:
+                choices.append((lang, "%s (%s)" % (lang_display, compiler_name)))
+            else:
+                choices.append((lang, lang_display))
+
+        field_name = form_field_id_for_langs(problem_instance)
+        form.fields[field_name] = forms.ChoiceField(required=False,
+                label=_("Programming language"),
+                choices=choices,
+                widget=forms.Select(attrs={'disabled': 'disabled'})
+        )
+        narrow_input_field(form.fields[field_name])
+        form.set_custom_field_attributes(field_name, problem_instance)
 
     def adjust_submission_form(self, request, form, problem_instance):
         controller = problem_instance.controller
@@ -506,30 +539,7 @@ class ProgrammingProblemController(ProblemController):
                     'class': 'monospace input-xxxlarge'})
         )
 
-        choices = [('', '')]
-        for lang in controller.get_allowed_languages():
-            compiler_name = None
-            compiler = controller.get_compiler_for_language(problem_instance, lang)
-            if compiler is not None:
-                available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
-                compilers_for_language = available_compilers.get(lang)
-                if compilers_for_language is not None:
-                    compiler_info = compilers_for_language.get(compiler)
-                    if compiler_info is not None:
-                        compiler_name = compiler_info.get('display_name')
-            langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
-            lang_display = langs[lang]['display_name']
-            if compiler_name is not None:
-                choices.append((lang, "%s (%s)" % (lang_display, compiler_name)))
-            else:
-                choices.append((lang, lang_display))
-
-        form.fields['prog_lang'] = forms.ChoiceField(required=False,
-                label=_("Programming language"),
-                choices=choices,
-                widget=forms.Select(attrs={'disabled': 'disabled'})
-        )
-        narrow_input_field(form.fields['prog_lang'])
+        self._add_langs_to_form(request, form, problem_instance)
 
         if 'dropped_solution' in request.POST:
             form.fields['code'].initial = request.POST['dropped_solution']
@@ -539,14 +549,15 @@ class ProgrammingProblemController(ProblemController):
             # do not validate blank fields this time
             form.is_bound = False
 
+            langs_field_name = form_field_id_for_langs(problem_instance)
             fname = request.POST['dropped_solution_name']
             if fname.count('.') == 1:
                 [problem, ext] = fname.split('.', 1)
                 if 'problem_instance_id' not in request.POST:
                     form.fields['problem_instance_id'].initial = \
                             parse_problem(problem)
-                if 'prog_lang' not in request.POST:
-                    form.fields['prog_lang'].initial = \
+                if langs_field_name not in request.POST:
+                    form.fields[langs_field_name].initial = \
                             get_language_by_extension(problem_instance, ext)
 
         form.media.add_js(['common/submit_view.js', ])
@@ -732,6 +743,7 @@ class ProgrammingProblemController(ProblemController):
                     'submissions_on_page':
                         getattr(settings, 'SUBMISSIONS_ON_PAGE', 15)
                 })
+
 
 class ProgrammingContestController(ContestController):
     description = _("Simple programming contest")
