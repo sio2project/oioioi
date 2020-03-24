@@ -34,7 +34,9 @@ def school_options(province, city):
 
 
 class SchoolSelect(forms.Select):
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
+        if renderer is not None:
+            raise AssertionError
         school_id = -1
         province = ''
         city = ''

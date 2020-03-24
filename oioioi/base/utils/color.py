@@ -1,4 +1,5 @@
 import re
+import django
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -20,8 +21,13 @@ class ColorWidget(forms.TextInput):
     class Media(object):
         js = ('js/jquery.colorPicker.js',)
 
-    def render(self, name, value, attrs=None):
-        rendered = super(ColorWidget, self).render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        # in Django <1.11 there is no attribute 'renderer'
+        if django.VERSION < (1, 11):
+            html = super(ColorWidget, self).render(name, value, attrs)
+        else:
+            html = super(ColorWidget, self).render(name, value, attrs, renderer)
+
         return rendered + mark_safe(u'''<script type="text/javascript">
             $('#id_%s').colorPicker();
             </script>''' % name)

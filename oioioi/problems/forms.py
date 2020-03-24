@@ -131,7 +131,9 @@ class TagSelectionWidget(forms.Widget):
         self.hints_url = hints_url
         super(TagSelectionWidget, self).__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
+        if renderer is not None:
+            raise AssertionError
         # Value can either be an integer (Tag's id) or a string (Tag's name)
         if value is None:
             value = ''

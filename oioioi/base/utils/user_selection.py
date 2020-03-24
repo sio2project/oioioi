@@ -1,4 +1,6 @@
 import six
+import django
+
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -128,8 +130,13 @@ class UserSelectionWidget(forms.TextInput):
         attrs.setdefault('autocomplete', 'off')
         super(UserSelectionWidget, self).__init__(attrs)
 
-    def render(self, name, value, attrs=None):
-        html = super(UserSelectionWidget, self).render(name, value, attrs)
+    def render(self, name, value, attrs=None, renderer=None):
+        # in Django <1.11 there is no attribute 'renderer'
+        if django.VERSION < (1, 11):
+            html = super(UserSelectionWidget, self).render(name, value, attrs)
+        else:
+            html = super(UserSelectionWidget, self).render(name, value, attrs, renderer)
+
         html += mark_safe(self.html_template % {
                 'id': attrs['id'],
                 'num_hints': getattr(settings, 'NUM_HINTS', 10),

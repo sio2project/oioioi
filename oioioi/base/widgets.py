@@ -16,7 +16,9 @@ class DateTimePicker(forms.widgets.DateTimeInput):
     def __init__(self, *args, **kwargs):
         super(DateTimePicker, self).__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
+        if renderer is not None:
+            raise AssertionError
         if value is None:
             value = ''
         return render_to_string('widgets/datetimepicker.html',
