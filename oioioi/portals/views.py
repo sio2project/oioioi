@@ -384,7 +384,7 @@ def portals_main_page_view(request, view_type='public'):
         form = None
         views = None
     return render(request, 'portals/portals_main_page.html',
-                  {'portals': portals_to_display,
+                  {'portals': portals_to_display.order_by('id'),
                    'page_title': page_title,
                    'form': form,
                    'views': views,

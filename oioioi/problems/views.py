@@ -287,6 +287,8 @@ def problemset_get_problems(request):
                           + 'statistics_' + field)
         else:
             raise Http404
+    else:
+        problems = problems.order_by('ascii_name')
 
     problems = problems.select_related('problemsite')
     return problems

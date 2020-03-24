@@ -25,7 +25,7 @@ class GroupsListView(ListView):
     template_name = 'usergroups/teacher_usergroups_list.html'
 
     def get_queryset(self):
-        queryset = UserGroup.objects.filter(owners__in=[self.request.user])
+        queryset = UserGroup.objects.filter(owners__in=[self.request.user]).order_by('id')
 
         return queryset
 
