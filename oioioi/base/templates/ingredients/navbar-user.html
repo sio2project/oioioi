@@ -1,8 +1,21 @@
 {% load i18n menu get_su get_user_info_form get_maintenance_state %}
 
 {% if user.is_anonymous %}
+
+<script>
+function setFocusToLoginInput(){
+    // setTimeout used to run the focus command when the element is visible.
+    // Now the dropdown didn't open yet, but after the event queue is emptied
+    // and setTimeout is ran, it will be.
+    window.setTimeout(function ()
+    {
+        document.getElementById('navbar-login-input').focus();
+    }, 0);
+}
+</script>
+
     <div class="dropdown">
-        <a href="#" id="navbar-username" class="dropdown-toggle" data-toggle="dropdown" role="button"
+        <a href="#" id="navbar-username" class="dropdown-toggle" data-toggle="dropdown" role="button" onclick="setFocusToLoginInput()"
            aria-expanded="false">
             <span class="glyphicon glyphicon-user"></span>
             <span class="username"> {% trans "Log in" %}</span>
@@ -14,13 +27,13 @@
                     {% csrf_token %}
                     <input name="login_view-current_step" type="hidden" value="auth">
                     <div class="form-group">
-                        <input type="text" name="auth-username" class="form-control" placeholder="{% trans "Login" %}">
+                        <input id="navbar-login-input" type="text" name="auth-username" class="form-control" placeholder="{% trans "Login" %}" tabindex="-1">
                     </div>
                     <div class="form-group">
                         <input type="password" name="auth-password" class="form-control" placeholder="{% trans "Password" %}">
                     </div>
-                    <a role="button" class="btn btn-default" href="{% url 'registration_register' %}">{% trans "Register" %}</a>
                     <button type="submit" class="btn btn-primary">{% trans "Log in" %}</button>
+                    <a role="button" class="btn btn-default" href="{% url 'registration_register' %}">{% trans "Register" %}</a>
                 </form>
             </li>
         </ul>
