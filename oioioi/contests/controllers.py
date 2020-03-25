@@ -736,7 +736,7 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
             self.update_user_result_for_contest(result)
             result.save()
 
-    def filter_my_visible_submissions(self, request, queryset):
+    def filter_my_visible_submissions(self, request, queryset, filter_user=True):
         """Returns the submissions which the user should see in the
            "My submissions" view.
 
@@ -748,7 +748,8 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         """
         if not request.user.is_authenticated:
             return queryset.none()
-        qs = queryset.filter(user=request.user)
+        if filter_user:
+            qs = queryset.filter(user=request.user)
         if is_contest_basicadmin(request):
             return qs
         else:

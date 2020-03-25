@@ -832,11 +832,11 @@ class ProgrammingContestController(ContestController):
         return queryset.filter(status='ACTIVE',
                 kind__in=self.get_visible_reports_kinds(request, submission))
 
-    def filter_my_visible_submissions(self, request, queryset):
+    def filter_my_visible_submissions(self, request, queryset, filter_user=True):
         if not is_contest_basicadmin(request):
             queryset = queryset.exclude(kind='USER_OUTS')
         return super(ProgrammingContestController, self). \
-                filter_my_visible_submissions(request, queryset)
+                filter_my_visible_submissions(request, queryset, filter_user)
 
     def can_generate_user_out(self, request, submission_report):
         """Determines if the current user is allowed to generate outs from

@@ -604,7 +604,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
             return test_report.score.value != test_report.max_score.value
         return False
 
-    def filter_my_visible_submissions(self, request, queryset):
+    def filter_my_visible_submissions(self, request, queryset, filter_user=True):
         """Returns the submissions which the user should see in the
            problemset in "My submissions" view.
 
@@ -619,9 +619,13 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
         qs = queryset \
             .filter(problem_instance=self.problem.main_problem_instance)
         if can_admin_problem(request, self.problem):
-            return qs.filter(Q(user=request.user) | Q(user__isnull=True))
+            if filter_user:
+                qs = qs.filter(Q(user=request.user) | Q(user__isnull=True))
+            return qs
         else:
-            return qs.filter(user=request.user, date__lte=request.timestamp) \
+            if filter_user:
+                qs = qs.filter(user=request.user)
+            return qs.filter(date__lte=request.timestamp) \
             .exclude(kind='IGNORED_HIDDEN')
 
     def get_extra_problem_site_actions(self, problem):

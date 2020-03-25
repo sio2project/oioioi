@@ -42,23 +42,23 @@ class TeamsMixinForContestController(object):
     def max_size_of_team(self):
         return self.contest.teamsconfig.max_team_size
 
-    def filter_my_visible_submissions(self, request, queryset):
+    def filter_my_visible_submissions(self, request, queryset, filter_user=True):
         if not request.user.is_authenticated:
             return queryset.none()
+        if not filter_user:
+            raise NotImplementedError
 
         try:
             tm = TeamMembership.objects.get(user=request.user,
                                         team__contest=request.contest)
             qs = queryset.filter(user=tm.team.user,
                     problem_instance__in=visible_problem_instances(request))
+            filter_user = False
         except TeamMembership.DoesNotExist:
-            qs = queryset.filter(user=request.user,
-                    problem_instance__in=visible_problem_instances(request))
+            qs = queryset
 
-        if is_contest_admin(request):
-            return qs
-        else:
-            return qs.filter(date__lte=request.timestamp)
+        return super(TeamsMixinForContestController, self). \
+                filter_my_visible_submissions(request, qs, filter_user)
 
     def adjust_submission_form(self, request, form, problem_instance):
         super(TeamsMixinForContestController, self) \
