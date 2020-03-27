@@ -266,7 +266,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     form = ProblemInstanceForm
     fields = ('contest', 'round', 'problem', 'short_name', 'submissions_limit')
     list_display = ('name_link', 'short_name_link', 'round', 'package',
-            'actions_field')
+                    'actions_field')
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
 
@@ -284,9 +284,6 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('oioioiadmin:problems_problem_change',
                 args=(instance.problem_id,)) + '?' + \
                         six.moves.urllib.parse.urlencode({'came_from': came_from})
-
-    def probleminstance_change_link_name(self):
-        return _("Edit problem")
 
     def _rejudge_all_submissions_for_problem_href(self, instance):
         return reverse('rejudge_all_submissions_for_problem',
@@ -314,6 +311,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('oioioiadmin:quizzes_quiz_change',
                        args=[instance.problem.pk])
 
+    def _move_href(self, instance):
+        return reverse('oioioiadmin:contests_probleminstance_change',
+               args=(instance.id,))
+
     def get_list_display(self, request):
         items = super(ProblemInstanceAdmin, self).get_list_display(request)
         if not is_contest_admin(request):
@@ -323,24 +324,19 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def inline_actions(self, instance):
         result = []
+        assert ProblemSite.objects.filter(problem=instance.problem).exists()
+        move_href = self._move_href(instance)
+        result.append((move_href, _("Edit")))
         if hasattr(instance.problem, 'quiz') and instance.problem.quiz:
             edit_quiz_href = self._edit_quiz_href(instance)
-            result.append((edit_quiz_href, _("Edit quiz questions")))
-
-        move_href = reverse('oioioiadmin:contests_probleminstance_change',
-                            args=(instance.id,))
-        result.append((move_href, self.probleminstance_change_link_name()))
-
+            result.append((edit_quiz_href, _("Quiz questions")))
         models_href = self._model_solutions_href(instance)
-        assert ProblemSite.objects.filter(problem=instance.problem).exists()
-        site_href = self._problem_site_href(instance)
         limits_href = self._reset_limits_href(instance)
         reattach_href = self._reattach_problem_href(instance)
         result.extend([
             (models_href, _("Model solutions")),
-            (site_href, _("Problem site")),
             (limits_href, _("Reset tests limits")),
-            (reattach_href, _("Attach to another contest"))
+            (reattach_href, _("Attach to another contest")),
         ])
         problem_count = len(ProblemInstance.objects.filter(
             problem=instance.problem_id))
@@ -354,6 +350,8 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
                 ._rejudge_all_submissions_for_problem_href(instance)
             result.append((rejudge_all_href,
                            _("Rejudge all submissions for problem")))
+        problem_change_href = self._problem_change_href(instance)
+        result.append((problem_change_href, _("Advanced settings")))
         return result
 
     def actions_field(self, instance):
@@ -361,13 +359,13 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     actions_field.short_description = _("Actions")
 
     def name_link(self, instance):
-        href = self._problem_change_href(instance)
+        href = self._problem_site_href(instance)
         return make_html_link(href, instance.problem.name)
     name_link.short_description = _("Problem")
     name_link.admin_order_field = 'problem__name'
 
     def short_name_link(self, instance):
-        href = self._problem_change_href(instance)
+        href = self._problem_site_href(instance)
         return make_html_link(href, instance.short_name)
     short_name_link.short_description = _("Symbol")
     short_name_link.admin_order_field = 'short_name'
