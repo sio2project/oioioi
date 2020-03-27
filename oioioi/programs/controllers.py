@@ -711,8 +711,8 @@ class ProgrammingProblemController(ProblemController):
             cc = request.contest.controller
             queryset = cc.filter_my_visible_submissions(request, queryset)
         elif not request.contest and not is_contest_basicadmin(request):
-            queryset = queryset.filter(user=request.user, date__lte=request.timestamp) \
-             .exclude(kind='IGNORED_HIDDEN')
+            pc = submission.problem_instance.controller
+            queryset = pc.filter_my_visible_submissions(request, queryset)
         show_scores = bool(queryset.filter(score__isnull=False))
 
         can_admin = \
