@@ -37,7 +37,8 @@ from oioioi.filetracker.utils import stream_file
 from oioioi.problems.models import ProblemAttachment, ProblemStatement
 from oioioi.problems.utils import (can_admin_problem_instance,
                                    get_new_problem_instance, query_statement,
-                                   query_zip, update_tests_from_main_pi)
+                                   query_zip, update_tests_from_main_pi,
+                                   filter_my_all_visible_submissions)
 from oioioi.status.registry import status_registry
 from oioioi.szkopul.menu import navbar_links_registry
 from oioioi.contests.attachment_registration import attachment_registry
@@ -236,7 +237,9 @@ def all_submissions_view(request):
                                 'problem_instance__round',
                                 'problem_instance__problem')
 
-        for s in queryset:
+        submissions_list = filter_my_all_visible_submissions(request, queryset)
+
+        for s in submissions_list:
             request.contest = s.problem_instance.contest
             submissions.append(submission_template_context(request, s))
         request.contest = None

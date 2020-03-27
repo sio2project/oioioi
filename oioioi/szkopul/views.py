@@ -8,6 +8,7 @@ from oioioi.contests.utils import visible_contests
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
 from oioioi.contests.processors import recent_contests
+from oioioi.problems.utils import filter_my_all_visible_submissions
 
 navbar_links_registry.register(
     name='contests_list',
@@ -52,11 +53,7 @@ def main_page_view(request):
     if request.user.is_authenticated:
         queryset = Submission.objects \
             .filter(user=request.user) \
-            .order_by('-date') \
-            .select_related('user', 'problem_instance',
-                            'problem_instance__contest',
-                            'problem_instance__round',
-                            'problem_instance__problem')
+            .order_by('-date')
 
         # current_contest = request.contest
         #
@@ -67,7 +64,20 @@ def main_page_view(request):
         # request.contest = current_contest
 
         to_show = getattr(settings, 'NUM_PANEL_SUBMISSIONS', 7)
-        submissions = [submission_template_context(request, s) for s in queryset[:to_show]]
+
+        # limit queryset size, because filtering all submissions is slow
+        queryset = queryset[:to_show]
+        limit_queryset_ids = [submission.id for submission in queryset]
+        queryset = Submission.objects \
+            .filter(id__in=limit_queryset_ids) \
+            .order_by('-date') \
+            .select_related('user', 'problem_instance',
+                            'problem_instance__contest',
+                            'problem_instance__round',
+                            'problem_instance__problem')
+
+        submissions_list = filter_my_all_visible_submissions(request, queryset)
+        submissions = [submission_template_context(request, s) for s in submissions_list]
 
         show_scores = any(s['can_see_score'] for s in submissions)
 

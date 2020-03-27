@@ -1,6 +1,7 @@
 import mimetypes
 import sys
 import zipfile
+import django
 
 from collections import defaultdict
 
@@ -11,7 +12,7 @@ from django.utils import translation
 from django.shortcuts import get_object_or_404
 
 from oioioi.base.utils import request_cached
-from oioioi.contests.models import ProblemInstance
+from oioioi.contests.models import ProblemInstance, Submission
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import (administered_contests, can_admin_contest,
                                    is_contest_basicadmin, is_contest_admin)
@@ -330,3 +331,41 @@ def show_proposal_form(problem, user):
         return False
 
     return True
+
+def filter_my_all_visible_submissions(request, queryset):
+    django_11 = django.VERSION >= (1, 11)
+    if django_11:
+        result = Submission.objects.none()
+    else:
+        result = []
+    resolved = set()
+
+    for submission in queryset:
+        pi = submission.problem_instance
+
+        if pi.contest and pi.contest in resolved:
+            continue
+        if not pi.contest and pi in resolved:
+            continue
+
+        if pi.contest:
+            controller = pi.contest.controller
+            current_queryset = queryset.filter(problem_instance__contest=pi.contest)
+            resolved.add(pi.contest)
+        else:
+            controller = pi.controller
+            current_queryset = queryset.filter(problem_instance=pi)
+            resolved.add(pi)
+
+        request.contest = pi.contest
+        current_queryset = controller.filter_my_visible_submissions(request, current_queryset)
+        if django_11:
+            result = result.union(current_queryset)
+        else:
+            result.extend(current_queryset)
+
+    if django_11:
+        result = result.order_by('-date')
+    else:
+        result.sort(reverse=True, key=lambda(s): s.date)
+    return result
