@@ -154,8 +154,9 @@ def add_or_update_problem(request, contest, template):
         return request.path + '?' + six.moves.urllib.parse.urlencode(
                 tab_link_params)
 
-    return tabbed_view(request, template, context,
-            problem_sources(request), tab_kwargs, build_link)
+    return tabbed_view(request, template, context, problem_sources(request,
+                       existing_problem=existing_problem is not None),
+                       tab_kwargs, build_link)
 
 
 @transaction.non_atomic_requests

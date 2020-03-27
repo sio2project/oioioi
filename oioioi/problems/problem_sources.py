@@ -14,7 +14,7 @@ from django.utils.http import urlencode
 from django.utils.module_loading import import_string
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.base.utils import memoized, uploaded_file_name
+from oioioi.base.utils import uploaded_file_name
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.utils import is_contest_basicadmin
 from oioioi.problems.forms import PackageUploadForm, ProblemsetSourceForm
@@ -28,8 +28,7 @@ from oioioi.problems.utils import (get_new_problem_instance,
 logger = logging.getLogger(__name__)
 
 
-@memoized
-def problem_sources(request):
+def problem_sources(request, existing_problem=False):
     sources = []
     for name in settings.PROBLEM_SOURCES:
         obj = import_string(name)()
@@ -39,7 +38,11 @@ def problem_sources(request):
             for item in obj:
                 sources.append(item)
     sources = [s for s in sources if s.is_available(request)]
-    return sources
+
+    def is_source(source):
+        return not existing_problem or isinstance(source, UploadedPackageSource)
+
+    return list(filter(is_source, sources))
 
 
 class ProblemSource(object):

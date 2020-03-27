@@ -36,7 +36,7 @@ class ProblemUploadForm(forms.Form):
             elif len(choices) == 1:
                 self.round_id = choices[0][0]
 
-        if 'oioioi.problemsharing' in settings.INSTALLED_APPS:
+        if 'oioioi.problemsharing' in settings.INSTALLED_APPS and not existing_problem:
             if user and user.has_perm('teachers.teacher'):
                 choices = [(Problem.VISIBILITY_FRIENDS, 'Friends'),
                        (Problem.VISIBILITY_PRIVATE, 'Private'),
