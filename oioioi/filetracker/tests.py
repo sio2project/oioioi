@@ -8,6 +8,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 from django.db.models.fields.files import FieldFile, FileField
+from django import VERSION as DJANGO_VERSION
 
 from filetracker.client import Client as FiletrackerClient
 from filetracker.client.dummy import DummyClient
@@ -48,11 +49,12 @@ class TestFileField(TestCase):
             self.assertEqual(storage.save(path, ContentFile(data)), path)
 
             model = FileTestModel()
-            # File field is ignoring preferred name, as we can't copy file
-            # in filetracker to another location
-            with self.assertRaises(NotImplementedError):
-                model.file_field.save('xx',
-                        filetracker_to_django_file(abspath, storage))
+            if DJANGO_VERSION < (1, 11):
+                # File field is ignoring preferred name, as we can't copy file
+                # in filetracker to another location
+                with self.assertRaises(NotImplementedError):
+                    model.file_field.save('xx',
+                                          filetracker_to_django_file(abspath, storage))
 
             model.file_field = filetracker_to_django_file(abspath, storage)
             model.save()

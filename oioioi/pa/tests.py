@@ -9,6 +9,8 @@ from django.core.urlresolvers import reverse
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.utils.timezone import utc
+from django import VERSION as DJANGO_VERSION
+
 import six
 import six.moves.urllib.parse
 from six.moves import map, range, zip
@@ -355,8 +357,13 @@ class TestPADivisions(TestCase):
 
         response = self.client.get(url)
         # "NONE" is the default division
-        self.assertContains(response,
-                '<option value="NONE" selected="selected">')
+        if DJANGO_VERSION < (1, 11):
+            # 1.11
+            self.assertContains(response,
+                                '<option value="NONE" selected="selected">')
+        else:
+            self.assertContains(response,
+                                '<option value="NONE" selected>None</option>')
 
         data = {'package_file': ContentFile('eloziom', name='foo'),
                 'visibility': Problem.VISIBILITY_FRIENDS,
@@ -373,8 +380,13 @@ class TestPADivisions(TestCase):
                         six.moves.urllib.parse.urlencode({'problem': problem.id,
                                 'key': 'upload'})
         response = self.client.get(url)
-        self.assertContains(response,
-                '<option value="A" selected="selected">')
+        if DJANGO_VERSION < (1, 11):
+            # 1.11
+            self.assertContains(response,
+                                '<option value="A" selected="selected">')
+        else:
+            self.assertContains(response,
+                                '<option value="A" selected>A</option>')
 
 
 class TestPAContestInfo(TestCase):

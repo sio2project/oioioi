@@ -3,6 +3,8 @@ from datetime import datetime  # pylint: disable=E0611
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils.timezone import utc
+from django import VERSION as DJANGO_VERSION
+
 import six
 from six import BytesIO
 if six.PY2:
@@ -112,4 +114,7 @@ class TestReportViews(TestCase, TestStreamingMixin):
         self.assertTrue(self.client.login(username='test_admin'))
         with fake_time(datetime(2016, 11, 6, tzinfo=utc)):
             response = self.client.get(url)
-            self.assertContains(response, 'selected="selected">Past round')
+            if DJANGO_VERSION < (1, 11):
+                self.assertContains(response, 'selected="selected">Past round')
+            else:
+                self.assertContains(response, 'selected>Past round')
