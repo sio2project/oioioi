@@ -690,8 +690,10 @@ class ProgrammingProblemController(ProblemController):
 
         score_report = ScoreReport.objects.get(submission_report=report)
         compilation_report = CompilationReport.objects.get(submission_report=report)
-        test_reports = TestReport.objects.filter(submission_report=report).order_by(
-            'test__order', 'test_group', 'test_name'
+        test_reports = (
+            TestReport.objects.filter(submission_report=report)
+            .select_related('userout_status')
+            .order_by('test__order', 'test_group', 'test_name')
         )
         group_reports = GroupReport.objects.filter(submission_report=report)
         show_scores = any(gr.score is not None for gr in group_reports)
