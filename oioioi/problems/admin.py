@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils.encoding import force_text
-from django.utils.html import escape, format_html
+from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
@@ -467,7 +467,7 @@ class ProblemPackageAdmin(admin.ModelAdmin):
 
     def package_info(self, instance):
         if instance.info:
-            return format_html(escape(instance.info).replace("\n", "<br>"))
+            return mark_safe(escape(instance.info).replace("\n", "<br>"))
         else:
             return "-"
     package_info.short_description = _("Package information")

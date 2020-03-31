@@ -488,6 +488,18 @@ class TestProblemPackageAdminView(TestCase):
         # Not visible, because the problem instances's contest is 'c', not 'c1'
         self.assertNotContains(response, 'Model solutions')
 
+    def test_problem_info_brace(self):
+        self.assertTrue(self.client.login(username='test_admin'))
+
+        self.client.get('/c/c/')  # 'c' becomes the current contest
+        url = reverse('oioioiadmin:problems_problempackage_changelist')
+
+        bad_package = ProblemPackage(status="ERR", info="foo } bar")
+        bad_package.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestProblemPackageViews(TestCase, TestStreamingMixin):
     fixtures = ['test_users', 'test_contest', 'test_problem_packages',
