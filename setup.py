@@ -100,6 +100,10 @@ python23_universal_requirements = [
         # SIO2 dependencies:
         "filetracker>=2.1,<3.0",
 
+        # Python 2 has class AppConf(metaclass=AppConfMetaClass):
+        # SyntaxError: invalid syntax
+        # when using newer version
+        "django-appconf<1.0.4",
         # Dependencies from external sources live in requirements.txt
 ]
 
