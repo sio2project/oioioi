@@ -25,7 +25,7 @@ from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.current_contest import ContestMode
 from oioioi.contests.models import (ProblemInstance, Submission,
                                     SubmissionReport, UserResultForProblem)
-from oioioi.contests.utils import administered_contests, can_admin_contest, is_contest_basicadmin
+from oioioi.contests.utils import administered_contests, is_contest_basicadmin
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.forms import ProblemsetSourceForm
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
@@ -95,13 +95,15 @@ def show_problem_attachment_view(request, attachment_id):
     return stream_file(attachment.content, attachment.download_name)
 
 
-def _get_package(request, package_id):
+def _get_package(request, package_id, contest_perm=None):
     package = get_object_or_404(ProblemPackage, id=package_id)
     has_perm = False
     if package.contest:
-        has_perm = can_admin_contest(request.user, package.contest)
+        has_perm = request.user.has_perm(contest_perm, package.contest) or \
+                   (contest_perm == 'contests.contest_basicadmin' and \
+                   request.user.has_perm('contests.contest_admin', package.contest))
     elif package.problem:
-        has_perm = can_admin_problem(request.user, package.problem)
+        has_perm = can_admin_problem(request, package.problem)
     else:
         has_perm = request.user.is_superuser
     if not has_perm:
@@ -110,11 +112,12 @@ def _get_package(request, package_id):
 
 
 def download_problem_package_view(request, package_id):
-    package = _get_package(request, package_id)
+    package = _get_package(request, package_id, 'contests.contest_admin')
     return stream_file(package.package_file, package.download_name)
 
+
 def download_package_traceback_view(request, package_id):
-    package = _get_package(request, package_id)
+    package = _get_package(request, package_id, 'contests.contest_basicadmin')
     if not package.traceback:
         raise Http404
     return stream_file(package.traceback, 'package_%s_%d_traceback.txt' % (

@@ -1637,7 +1637,7 @@ class TestPermissionsBasicAdmin(TestCase):
 
         url = reverse('download_package', args=(package.id,))
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 403)
 
     def test_menu_problempackages_admin(self):
         self.assertTrue(self.client.login(username='test_contest_admin'))
