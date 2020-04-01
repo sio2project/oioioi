@@ -51,9 +51,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-03-31 18:09+0200\n"
-"PO-Revision-Date: 2020-03-31 15:37+0000\n"
-"Last-Translator: Franciszek Hnatów <fh406161@students.mimuw.edu.pl>\n"
+"POT-Creation-Date: 2020-04-01 13:42+0200\n"
+"PO-Revision-Date: 2020-03-31 18:36+0000\n"
+"Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -77,7 +77,7 @@ msgstr "Ranking typu ACM"
 msgid "#"
 msgstr "Lp."
 
-#: acm/controllers.py:233 contests/forms.py:288
+#: acm/controllers.py:233 contests/forms.py:303
 #: contests/templates/contests/basic_user_info.html:20
 #: contests/templates/contests/navbar-user-info-form.html:18
 #: oireports/forms.py:94 rankings/forms.py:9 su/forms.py:29
@@ -112,7 +112,7 @@ msgstr "Twoje zgłoszenie do zadania %(short_name)s zostało zaakceptowane. Grat
 msgid "Your submission for task %(short_name)s is not accepted."
 msgstr "Twoje zgłoszenie do zadania %(short_name)s zostało odrzucone."
 
-#: acm/models.py:9 contests/forms.py:187 contests/models.py:346
+#: acm/models.py:9 contests/forms.py:189 contests/models.py:346
 msgid "Ignored"
 msgstr "Zignorowane"
 
@@ -129,7 +129,7 @@ msgid "The ranking is frozen."
 msgstr "Ranking jest zamrożony."
 
 #: acm/templates/acm/acm_ranking.html:12
-#: complaints/templates/complaints/jury-email.txt:6 contests/forms.py:165
+#: complaints/templates/complaints/jury-email.txt:6 contests/forms.py:167
 #: evalmgr/admin.py:166 oireports/forms.py:93
 #: rankings/templates/rankings/default_ranking.html:11
 #: teams/templates/teams/confirm-join-team.html:14
@@ -1692,9 +1692,9 @@ msgstr "Zaawansowane ustawienia"
 msgid "Actions"
 msgstr "Czynności"
 
-#: contests/admin.py:364 contests/admin.py:623 contests/forms.py:109
+#: contests/admin.py:364 contests/admin.py:623 contests/forms.py:112
 #: contests/templates/contests/my_submissions_table.html:30
-#: evalmgr/admin.py:152 mailsubmit/forms.py:14
+#: evalmgr/admin.py:152 mailsubmit/forms.py:15
 #: programs/templates/programs/submission_header.html:110
 #: publicsolutions/forms.py:9
 #: publicsolutions/templates/publicsolutions/publish-table.html:7
@@ -1818,48 +1818,48 @@ msgstr "Uprawnienia do konkursów"
 msgid "Public contest"
 msgstr "Konkurs publiczny"
 
-#: contests/controllers.py:966 testrun/controllers.py:336
+#: contests/controllers.py:969 testrun/controllers.py:339
 #, python-format
 #| msgid "Your submission was judged."
 msgid "%(contest_name)s, %(task_name)s: Your submission was judged.\n"
 msgstr "%(contest_name)s, %(task_name)s: Twoje zgłoszenie zostało ocenione.\n"
 
-#: contests/controllers.py:969 testrun/controllers.py:339
+#: contests/controllers.py:972 testrun/controllers.py:342
 #, python-format
 #| msgid "Your submission was judged."
 msgid "%(task_name)s: Your submission was judged.\n"
 msgstr "%(task_name)s: Twoje zgłoszenie zostało ocenione.\n"
 
-#: contests/controllers.py:972
+#: contests/controllers.py:975
 #, python-format
 msgid "The score is %(score)s."
 msgstr "Wynik to%(score)s."
 
-#: contests/forms.py:28
+#: contests/forms.py:29
 msgid "Start date"
 msgstr "Data rozpoczęcia"
 
-#: contests/forms.py:30
+#: contests/forms.py:31
 msgid "End date"
 msgstr "Data zakończenia"
 
-#: contests/forms.py:33
+#: contests/forms.py:34
 msgid "Results date"
 msgstr "Data ogłoszenia wyników"
 
-#: contests/forms.py:81
+#: contests/forms.py:82
 msgid "Round 1"
 msgstr "Runda 1"
 
-#: contests/forms.py:183
+#: contests/forms.py:185
 msgid "User does not exist or you do not have enough privileges"
 msgstr "Użytkownik nie istnieje lub nie masz odpowiednich uprawnień"
 
-#: contests/forms.py:187 contests/models.py:344
+#: contests/forms.py:189 contests/models.py:344
 msgid "Normal"
 msgstr "Normalne"
 
-#: contests/forms.py:188
+#: contests/forms.py:190
 #: contests/templates/contests/my_submissions_table.html:32
 #: contests/templates/contests/submission.html:49
 #: programs/templates/programs/submission_header.html:114
@@ -1869,32 +1869,32 @@ msgstr "Normalne"
 msgid "Kind"
 msgstr "Rodzaj"
 
-#: contests/forms.py:253 mailsubmit/forms.py:53
+#: contests/forms.py:268
 msgid "Invalid problem"
 msgstr "Nieznane zadanie"
 
-#: contests/forms.py:260
+#: contests/forms.py:275
 #, python-format
 msgid "Submission limit for the problem '%s' exceeded."
 msgstr "Przekroczono limit zgłoszeń do zadania \"%s\"."
 
-#: contests/forms.py:267 mailsubmit/forms.py:61
+#: contests/forms.py:282 mailsubmit/forms.py:28
 msgid "Permission denied"
 msgstr "Brak uprawnień"
 
-#: contests/forms.py:309
+#: contests/forms.py:324
 msgid "Rejudge submissions on all current active tests"
 msgstr "Oceń ponownie zgłoszenia na wszystkich aktualnych testach"
 
-#: contests/forms.py:311
+#: contests/forms.py:326
 msgid "Rejudge submissions on active tests which haven't been judged yet"
 msgstr "Oceń ponownie zgłoszenia na tych testach, na których jeszcze nie zostały ocenione"
 
-#: contests/forms.py:315
+#: contests/forms.py:330
 msgid "Rejudge submissions on all tests"
 msgstr "Oceń ponownie zgłoszenia na wszystkich testach"
 
-#: contests/forms.py:321
+#: contests/forms.py:336
 msgid "Rejudge submissions on judged tests only"
 msgstr "Oceń ponownie zgłoszenia na tych testach, na których zostały uprzednio ocenione"
 
@@ -1917,7 +1917,7 @@ msgid "Personal Data Menu"
 msgstr "Menu danych osobowych"
 
 #: contests/models.py:45 contests/templates/contests/select_contest.html:15
-#: contests/templates/contests/submission.html:47 mailsubmit/forms.py:76
+#: contests/templates/contests/submission.html:47 mailsubmit/forms.py:36
 #: problems/templates/problems/problemset/problem-list.html:14
 #: problems/templates/problems/problemset/select-contest.html:14
 #: similarsubmits/templates/similarsubmits/programming_similar_submissions_admin.html:25
@@ -2376,7 +2376,7 @@ msgid ""
 msgstr "Końcowy zbiór danych (<code>recipe</code> oraz\n<code>error_handlers</code> pominięte dla czytelności):"
 
 #: contests/templates/contests/files.html:6
-#: contests/templates/contests/files.html:20 contests/views.py:328
+#: contests/templates/contests/files.html:20 contests/views.py:330
 #: problems/problem_site.py:93
 #| msgid "Download"
 msgid "Downloads"
@@ -2419,7 +2419,7 @@ msgstr "\n            <p>Brak dostępnych konursów.</p>\n        "
 
 #: contests/templates/contests/my_submissions.html:5
 #: contests/templates/contests/my_submissions.html:17
-#: contests/templates/contests/tests_choice.html:5 contests/views.py:201
+#: contests/templates/contests/tests_choice.html:5 contests/views.py:203
 msgid "My submissions"
 msgstr "Moje zgłoszenia"
 
@@ -2582,24 +2582,24 @@ msgstr "Informacje o użytkowniku"
 msgid "User's submissions"
 msgstr "Zgłoszenia użytkownika"
 
-#: contests/views.py:306
+#: contests/views.py:308
 msgid "Rejudge request received."
 msgstr "Zapisano zlecenie ponownej oceny."
 
-#: contests/views.py:320
+#: contests/views.py:322
 msgid "Submission kind has been changed."
 msgstr "Rodzaj zgłoszenia został zmieniony."
 
-#: contests/views.py:323
+#: contests/views.py:325
 #, python-format
 msgid "%(kind)s is not valid kind for submission %(submission_id)d."
 msgstr "%(kind)s nie jest poprawnym rodzajem, jaki może przyjąć zgłoszenie %(submission_id)d."
 
-#: contests/views.py:438
+#: contests/views.py:440
 msgid "See user info page"
 msgstr "Zobacz informacje o użytkowniku"
 
-#: contests/views.py:457
+#: contests/views.py:459
 #, python-format
 msgid "%(count)d rejudge request received."
 msgid_plural "%(count)d rejudge requests reveived."
@@ -2608,15 +2608,15 @@ msgstr[1] "Zapisano %(count)d zleceń ponownej oceny."
 msgstr[2] "Zapisano %(count)d zleceń ponownej oceny."
 msgstr[3] "Zapisano %(count)d zleceń ponownej oceny."
 
-#: contests/views.py:475
+#: contests/views.py:477
 msgid "Tests limits resetted successfully"
 msgstr "Zresetowanie limitów powiodło się"
 
-#: contests/views.py:512
+#: contests/views.py:514
 msgid "Problem {} added successfully."
 msgstr "Dodano zadanie {}."
 
-#: dashboard/forms.py:36 participants/forms.py:91
+#: dashboard/forms.py:36 participants/forms.py:90
 msgid "You can use the following tags and attributes: {}."
 msgstr "Możesz używać następujących tagów i atrybutów: {}."
 
@@ -3039,16 +3039,16 @@ msgstr[3] "Cofnięto zatwierdzenie %(counter)d wiadomości."
 msgid "Revoke approval of selected posts"
 msgstr "Cofnij zatwierdzenie zaznaczonych wiadomości"
 
-#: forum/forms.py:27 questions/templates/questions/list_table.html:15
+#: forum/forms.py:26 questions/templates/questions/list_table.html:15
 #: simpleui/templates/simpleui/contest/ingredients/questions.html:12
 msgid "Topic"
 msgstr "Temat"
 
-#: forum/forms.py:39
+#: forum/forms.py:37
 msgid "Remove user reports"
 msgstr "Usuń zgłoszenia użytkownika"
 
-#: forum/forms.py:44 oisubmit/templates/oisubmit/submission-footer.html:8
+#: forum/forms.py:42 oisubmit/templates/oisubmit/submission-footer.html:8
 msgid "Reason"
 msgstr "Powód"
 
@@ -3182,7 +3182,7 @@ msgstr "\nZbanowany użytkownik ma zablokowane wszystkie interakcje z forum m.in
 #: forum/templates/forum/category.html:19 forum/templates/forum/forum.html:38
 #: forum/templates/forum/thread_add.html:5
 #: problems/templates/problems/files.html:12 questions/forms.py:21
-#: questions/forms.py:116 questions/templates/questions/list_table.html:14
+#: questions/forms.py:114 questions/templates/questions/list_table.html:14
 #: simpleui/templates/simpleui/contest/ingredients/questions.html:11
 msgid "Category"
 msgstr "Kategoria"
@@ -3474,29 +3474,25 @@ msgstr "Zaakceptuj zaznaczone zgłoszenia"
 msgid "Postal submissions"
 msgstr "Zgłoszenia pocztowe"
 
-#: mailsubmit/forms.py:67
-msgid "Disallowed language"
-msgstr "Niedozwolony język"
-
-#: mailsubmit/forms.py:78
+#: mailsubmit/forms.py:38
 msgid "Confirmation code"
 msgstr "Kod potwierdzenia"
 
-#: mailsubmit/forms.py:82
+#: mailsubmit/forms.py:42
 msgid "Value must consist of numbers or letters from A to F"
 msgstr "Wartość musi składać się z cyfr lub liter od A do F"
 
-#: mailsubmit/forms.py:101
+#: mailsubmit/forms.py:61
 #, python-format
 msgid "Postal submission number %s does not exist"
 msgstr "Numer zgłoszenia pocztowego %s nie istnieje"
 
-#: mailsubmit/forms.py:105
+#: mailsubmit/forms.py:65
 #, python-format
 msgid "Postal submission number %s is for a different contest"
 msgstr "Zgłoszenie pocztowe nr %s jest do innego konkursu"
 
-#: mailsubmit/forms.py:111
+#: mailsubmit/forms.py:71
 msgid "Invalid confirmation code"
 msgstr "Niepoprawny kod potwierdzenia"
 
@@ -3548,7 +3544,7 @@ msgstr "Wprowadź kod potwierdzenia zgłoszenia pocztowego, by je zaakceptować"
 msgid "Upload solution for postal submission"
 msgstr "Wyślij rozwiązanie do zgłoszenia pocztowego"
 
-#: mailsubmit/templates/mailsubmit/submit.html:7 mailsubmit/views.py:26
+#: mailsubmit/templates/mailsubmit/submit.html:7 mailsubmit/views.py:27
 msgid "Postal submission"
 msgstr "Zgłoszenie pocztowe"
 
@@ -3569,15 +3565,15 @@ msgid ""
 "    "
 msgstr "\n    <p>Nie lubisz bawić się pamięciami USB, czy CD-ROMam w poczcie, co?\n    My też.</p>\n    <p>Dlatego możesz wykorzystać tę uproszczoną procedurę: wyślij swoje zgłoszenie za pomocą\n    poniższego formularza. Otrzymasz dokument PDF, który wyślesz do nas zwykłym\n    listem pocztowym. Zeskanowanie osadzonego w dokumencie kodu zajmie i ocenienie\n    twojego zgłoszenia nam sekundę.</p>\n    <p>Możesz wygenerować więcej takich dokumentów, ale nie wysyłaj ich więcej niż jedno na zadanie.\n    Jeśli otrzymamy od Ciebie wiele dokumentów do pojedynczego zadania, wybierzemy jeden z nich\n    losowo.</p>\n    <p>Jeśli z jakiegoś powodu chciał(a)byś użyć standardowej procedury, z użyciem CD-ROMów\n    lub pamięci USB, nadal możesz to zrobić.</p>\n    "
 
-#: mailsubmit/views.py:63
+#: mailsubmit/views.py:66
 msgid "Postal submission was already accepted"
 msgstr "Zgłoszenie pocztowe zostało już zaakceptowane"
 
-#: mailsubmit/views.py:67
+#: mailsubmit/views.py:70
 msgid "Postal submission accepted"
 msgstr "Zaakceptowano zgłoszenie pocztowe"
 
-#: mailsubmit/views.py:102
+#: mailsubmit/views.py:105
 msgid "confirmation"
 msgstr "potwierdzenie"
 
@@ -3618,7 +3614,7 @@ msgstr "Język"
 msgid "Title"
 msgstr "Tytuł"
 
-#: newsfeed/forms.py:27
+#: newsfeed/forms.py:26
 msgid "Content"
 msgstr "Treść"
 
@@ -3764,15 +3760,15 @@ msgstr "— Wybierz szkołę —"
 msgid "-- Choose province --"
 msgstr "— Wybierz województwo —"
 
-#: oi/forms.py:87 oi/models.py:121 pa/models.py:43 participants/models.py:98
+#: oi/forms.py:86 oi/models.py:121 pa/models.py:43 participants/models.py:98
 msgid "terms accepted"
 msgstr "Znam i akceptuję regulamin"
 
-#: oi/forms.py:95
+#: oi/forms.py:94
 msgid "This school is no longer active."
 msgstr "Szkoła nie jest już aktywna."
 
-#: oi/forms.py:100 pa/forms.py:31 participants/forms.py:49
+#: oi/forms.py:99 pa/forms.py:26 participants/forms.py:49
 msgid "Terms not accepted"
 msgstr "Nie zaakceptowano regulaminu"
 
@@ -4023,7 +4019,7 @@ msgid "Is approved"
 msgstr "Jest zatwierdzony"
 
 #: oireports/forms.py:22 oireports/forms.py:43 publicsolutions/forms.py:17
-#: questions/forms.py:121
+#: questions/forms.py:119
 msgid "All"
 msgstr "Wszystkie"
 
@@ -4197,7 +4193,7 @@ msgstr "Liga B"
 msgid "Algorithmic Engagements finals"
 msgstr "Finały Potyczek Algorytmicznych"
 
-#: pa/forms.py:22 participants/models.py:99
+#: pa/forms.py:17 participants/models.py:99
 msgid ""
 "I declare that I have read the contest rules and the technical arrangements."
 " I fully understand them and accept them unconditionally."
@@ -4714,7 +4710,7 @@ msgid "The file size limit exceeded."
 msgstr "Plik jest zbyt duży."
 
 #: printing/forms.py:22 problems/templates/problems/files.html:14
-#: programs/controllers.py:492
+#: programs/controllers.py:525
 #: simpleui/templates/simpleui/problem_settings/ingredients/attachments.html:6
 msgid "File"
 msgstr "Plik"
@@ -5781,45 +5777,49 @@ msgstr "Wybierz dokładnie dwa zgłoszenia do porównania"
 msgid "Diff submissions"
 msgstr "Porównaj zgłoszenia"
 
-#: programs/controllers.py:72
+#: programs/controllers.py:73
 msgid "Simple programming problem"
 msgstr "Proste zadanie programistyczne"
 
-#: programs/controllers.py:380
+#: programs/controllers.py:381
 msgid "You have to either choose file or paste code."
 msgstr "Wyślij plik albo wklej kod źródłowy."
 
-#: programs/controllers.py:394
+#: programs/controllers.py:396
 msgid "You have to choose programming language."
 msgstr "Wybierz język programowania."
 
-#: programs/controllers.py:396
+#: programs/controllers.py:398
 msgid "Unrecognized file extension."
 msgstr "Nierozpoznane rozszerzenie pliku."
 
-#: programs/controllers.py:400
+#: programs/controllers.py:402
 msgid "This language is not allowed for selected problem."
 msgstr "Ten język nie jest dostępny dla tego zadania."
 
-#: programs/controllers.py:422
+#: programs/controllers.py:424
 msgid ""
 "You have submitted the same file for this problem again. Please resubmit if "
 "you really want to submit the same file"
 msgstr "Wysłano ponownie ten sam plik dla tego zadania. Wyślij go jeszcze raz, jeśli na pewno chcesz to zrobić."
 
-#: programs/controllers.py:465
+#: programs/controllers.py:485
+msgid "Programming language"
+msgstr "Język programowania"
+
+#: programs/controllers.py:498
 msgid "File size limit exceeded."
 msgstr "Plik ma za duży rozmiar."
 
-#: programs/controllers.py:469
+#: programs/controllers.py:502
 msgid "Code length limit exceeded."
 msgstr "Przekroczono maksymalną długość kodu."
 
-#: programs/controllers.py:475
+#: programs/controllers.py:508
 msgid "Unknown or not supported file extension."
 msgstr "Plik ma nieznane lub nieobsługiwane rozszerzenie."
 
-#: programs/controllers.py:494
+#: programs/controllers.py:527
 #, python-format
 msgid ""
 "Language is determined by the file extension. It has to be one of: %s. You "
@@ -5827,15 +5827,11 @@ msgid ""
 " too!</strong>"
 msgstr "Język jest rozpoznawany na podstawie rozszerzenia; dopuszczalne to: %s. Możesz również wkleić kod poniżej lub po prostu <strong>przeciągnąć plik</strong>."
 
-#: programs/controllers.py:503
+#: programs/controllers.py:536
 msgid "Code"
 msgstr "Kod"
 
-#: programs/controllers.py:528
-msgid "Programming language"
-msgstr "Język programowania"
-
-#: programs/controllers.py:737
+#: programs/controllers.py:749
 msgid "Simple programming contest"
 msgstr "Prosty konkurs programistyczny"
 
@@ -6332,27 +6328,27 @@ msgstr "Nie zmieniono żadnych pól."
 msgid "Leave empty for immediate publication"
 msgstr "Pozostaw puste, aby opublikować od razu"
 
-#: questions/forms.py:62
+#: questions/forms.py:60
 msgid "Unknown category type."
 msgstr "Nieznana kategoria."
 
-#: questions/forms.py:74 questions/templates/questions/message.html:96
+#: questions/forms.py:72 questions/templates/questions/message.html:96
 msgid "Save as template"
 msgstr "Zapisz jako szablon"
 
-#: questions/forms.py:113
+#: questions/forms.py:111
 msgid "All messages"
 msgstr "Wszystkie wiadomości"
 
-#: questions/forms.py:114
+#: questions/forms.py:112
 msgid "Public announcements"
 msgstr "Publiczne ogłoszenia"
 
-#: questions/forms.py:115
+#: questions/forms.py:113
 msgid "Message type"
 msgstr "Typ wiadomości"
 
-#: questions/forms.py:131
+#: questions/forms.py:129
 msgid "Author username"
 msgstr "Login autora"
 
@@ -6631,7 +6627,7 @@ msgstr "Edytuj pytania"
 msgid "Answer is required here."
 msgstr "Odpowiedź jest wymagana"
 
-#: quizzes/controllers.py:200
+#: quizzes/controllers.py:202
 msgid "Edit questions"
 msgstr "Edit questions"
 
@@ -7000,20 +6996,20 @@ msgstr "Wynik zgłoszenia został ujawniony."
 msgid "Task URL"
 msgstr "Odnośnik do zadania"
 
-#: sharingcli/forms.py:33
+#: sharingcli/forms.py:32
 msgid "Only sites from the list below are acceptable"
 msgstr "Dopuszczalne są tylko strony wymienione poniżej"
 
-#: sharingcli/forms.py:46
+#: sharingcli/forms.py:45
 msgid "Not a task URL"
 msgstr "Niepoprawny adres zadania"
 
-#: sharingcli/forms.py:48
+#: sharingcli/forms.py:47
 #, python-format
 msgid "Cannot connect to external site: %s"
 msgstr "Nie można połączyć się ze stroną: %s"
 
-#: sharingcli/forms.py:51
+#: sharingcli/forms.py:50
 #, python-format
 msgid "Invalid server response: %s"
 msgstr "Niepoprawna odpowiedź serwera: %s"
@@ -7861,11 +7857,11 @@ msgid ""
 "organization of schools, <br>enter the name of this organization."
 msgstr "Wpisz pełną nazwę szkoły. Jeśli szkoła należy do zespołu, <br>wpisz nazwę zespołu szkół."
 
-#: teachers/forms.py:27
+#: teachers/forms.py:26
 msgid "Message"
 msgstr "Wiadomość"
 
-#: teachers/forms.py:28
+#: teachers/forms.py:27
 msgid "Optional. If provided, this message will be sent to the managers."
 msgstr "Opcjonalnie. Jeśli tu coś wpiszesz, informacja zostanie przesłana do administratorów."
 
@@ -8353,32 +8349,32 @@ msgstr "Opuść drużynę"
 msgid "My Team"
 msgstr "Moja drużyna"
 
-#: testrun/controllers.py:131
+#: testrun/controllers.py:132
 msgid "Zipped input file size limit exceeded."
 msgstr "Przekroczono limit rozmiaru pliku skompresowanego."
 
-#: testrun/controllers.py:133
+#: testrun/controllers.py:134
 msgid "Input file size limit exceeded."
 msgstr "Plik wejściowy jest zbyt duży."
 
-#: testrun/controllers.py:140
+#: testrun/controllers.py:141
 msgid "Archive should have only 1 file inside."
 msgstr "W archiwum powinien być tylko jeden plik."
 
-#: testrun/controllers.py:145
+#: testrun/controllers.py:146
 msgid "Uncompressed archive is too big to be considered safe."
 msgstr "Nieskompresowane archiwum jest zbyt duże, by można było je uznać za bezpieczne."
 
-#: testrun/controllers.py:158
+#: testrun/controllers.py:159
 msgid "Archive seems to be corrupted."
 msgstr "Archwium wydaje się być uszkodzone."
 
-#: testrun/controllers.py:165 testrun/templates/testrun/report.html:18
+#: testrun/controllers.py:166 testrun/templates/testrun/report.html:18
 #: testrun/templates/testrun/submission-header.html:17 testrun/views.py:83
 msgid "Input"
 msgstr "Wejście"
 
-#: testrun/controllers.py:168
+#: testrun/controllers.py:169
 #, python-format
 msgid ""
 "Maximum input size is <strong>%(input_size)d KiB</strong> or "
@@ -8386,7 +8382,7 @@ msgid ""
 "does not provide any validation of your input or output."
 msgstr "Maksymalna wielkość wejścia to <strong>%(input_size)d KiB</strong> albo <strong>%(zipped_size)d KiB</strong> zzipowane. Pamiętaj, że uruchomienie próbne nie sprawdza poprawności wejścia ani wyjścia programu."
 
-#: testrun/controllers.py:180
+#: testrun/controllers.py:182
 #, python-format
 msgid ""
 "Language is determined by the file extension. The following are recognized: "
@@ -8394,7 +8390,7 @@ msgid ""
 "choosing file."
 msgstr "Język jest określany na podstawie rozszerzenia, rozpoznawane to: %s. Dostępność języków może zależeć od zadania. Możesz również wkleić kod poniżej."
 
-#: testrun/controllers.py:187 testrun/models.py:14
+#: testrun/controllers.py:189 testrun/models.py:14
 #: testrun/templates/testrun/no-testrun-problems.html:4
 #: testrun/templates/testrun/no-testrun-problems.html:7
 #: testrun/templates/testrun/submit.html:4
@@ -8402,12 +8398,12 @@ msgstr "Język jest określany na podstawie rozszerzenia, rozpoznawane to: %s. D
 msgid "Test run"
 msgstr "Uruchomienie próbne"
 
-#: testrun/controllers.py:342
+#: testrun/controllers.py:345
 #| msgid "Contest added successfully."
 msgid "The test run was successful."
 msgstr "Uruchomienie próbne zakończyło się powodzeniem."
 
-#: testrun/controllers.py:344
+#: testrun/controllers.py:347
 msgid "The test run has failed."
 msgstr "Uruchomienie próbne zakończyło się niepowodzeniem."
 
