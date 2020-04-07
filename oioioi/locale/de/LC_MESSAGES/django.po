@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-01 13:51+0200\n"
+"POT-Creation-Date: 2020-04-07 15:12+0200\n"
 "PO-Revision-Date: 2020-03-31 18:36+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
@@ -691,7 +691,7 @@ msgstr ""
 #: problems/templates/problems/problemset/problem-site.html:5
 #: problems/views.py:71
 #: simpleui/templates/simpleui/main_dashboard/dashboard.html:37
-#: szkopul/views.py:21
+#: szkopul/views.py:22
 msgid "Problemset"
 msgstr ""
 
@@ -946,7 +946,7 @@ msgstr ""
 #: base/templates/registration/registration_form.html:27
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
-#: contests/templates/contests/submit.html:14 contests/views.py:178
+#: contests/templates/contests/submit.html:14 contests/views.py:179
 #: dashboard/views.py:33 forum/templates/forum/edit_post.html:29
 #: forum/templates/forum/thread.html:39
 #: forum/templates/forum/thread_add.html:22
@@ -1214,7 +1214,7 @@ msgstr ""
 msgid "Too large value for progress bar"
 msgstr ""
 
-#: base/utils/user_selection.py:170
+#: base/utils/user_selection.py:177
 #, python-format
 msgid "User not found or you do not have access to this user account: %s"
 msgstr ""
@@ -1669,7 +1669,7 @@ msgid "Package file"
 msgstr ""
 
 #: contests/admin.py:405 contests/templates/contests/problems_list.html:5
-#: contests/templates/contests/problems_list.html:8 contests/views.py:73
+#: contests/templates/contests/problems_list.html:8 contests/views.py:74
 #: dashboard/views.py:27 problems/views.py:860
 msgid "Problems"
 msgstr ""
@@ -2326,7 +2326,7 @@ msgid ""
 msgstr ""
 
 #: contests/templates/contests/files.html:6
-#: contests/templates/contests/files.html:20 contests/views.py:330
+#: contests/templates/contests/files.html:20 contests/views.py:333
 #: problems/problem_site.py:93
 #| msgid "Download"
 msgid "Downloads"
@@ -2369,7 +2369,7 @@ msgstr ""
 
 #: contests/templates/contests/my_submissions.html:5
 #: contests/templates/contests/my_submissions.html:17
-#: contests/templates/contests/tests_choice.html:5 contests/views.py:203
+#: contests/templates/contests/tests_choice.html:5 contests/views.py:204
 msgid "My submissions"
 msgstr ""
 
@@ -2532,35 +2532,35 @@ msgstr ""
 msgid "User's submissions"
 msgstr ""
 
-#: contests/views.py:308
+#: contests/views.py:311
 msgid "Rejudge request received."
 msgstr ""
 
-#: contests/views.py:322
+#: contests/views.py:325
 msgid "Submission kind has been changed."
 msgstr ""
 
-#: contests/views.py:325
+#: contests/views.py:328
 #, python-format
 msgid "%(kind)s is not valid kind for submission %(submission_id)d."
 msgstr ""
 
-#: contests/views.py:440
+#: contests/views.py:443
 msgid "See user info page"
 msgstr ""
 
-#: contests/views.py:459
+#: contests/views.py:462
 #, python-format
 msgid "%(count)d rejudge request received."
 msgid_plural "%(count)d rejudge requests reveived."
 msgstr[0] ""
 msgstr[1] ""
 
-#: contests/views.py:477
+#: contests/views.py:480
 msgid "Tests limits resetted successfully"
 msgstr ""
 
-#: contests/views.py:514
+#: contests/views.py:517
 msgid "Problem {} added successfully."
 msgstr ""
 
@@ -3688,19 +3688,19 @@ msgstr ""
 msgid "-- Choose school --"
 msgstr ""
 
-#: oi/forms.py:50
+#: oi/forms.py:52
 msgid "-- Choose province --"
 msgstr ""
 
-#: oi/forms.py:86 oi/models.py:121 pa/models.py:43 participants/models.py:98
+#: oi/forms.py:88 oi/models.py:121 pa/models.py:43 participants/models.py:98
 msgid "terms accepted"
 msgstr ""
 
-#: oi/forms.py:94
+#: oi/forms.py:96
 msgid "This school is no longer active."
 msgstr ""
 
-#: oi/forms.py:99 pa/forms.py:26 participants/forms.py:49
+#: oi/forms.py:101 pa/forms.py:26 participants/forms.py:49
 msgid "Terms not accepted"
 msgstr ""
 
@@ -4781,22 +4781,22 @@ msgstr ""
 msgid "Enter problem's secret key"
 msgstr ""
 
-#: problems/forms.py:200
+#: problems/forms.py:202
 msgid "Origin Tag"
 msgstr ""
 
-#: problems/forms.py:201
+#: problems/forms.py:203
 msgid ""
 "Origin tags inform about the problem's general origin - e.g. a specific "
 "competition, olympiad, or programming camp."
 msgstr ""
 
-#: problems/forms.py:207
+#: problems/forms.py:209
 #| msgid "Package information"
 msgid "Origin Information"
 msgstr ""
 
-#: problems/forms.py:208
+#: problems/forms.py:210
 msgid ""
 "Origin information values inform about the problem's specific origin - a "
 "year, round, day, etc."
@@ -5559,12 +5559,12 @@ msgid ""
 "hyphens."
 msgstr ""
 
-#: problems/views.py:64 szkopul/views.py:14 teachers/admin.py:112
+#: problems/views.py:64 szkopul/views.py:15 teachers/admin.py:112
 #: usercontests/admin.py:37
 msgid "Contests"
 msgstr ""
 
-#: problems/views.py:78 szkopul/views.py:28
+#: problems/views.py:78 szkopul/views.py:29
 msgid "Task archive"
 msgstr ""
 
