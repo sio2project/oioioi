@@ -367,5 +367,5 @@ def filter_my_all_visible_submissions(request, queryset):
     if django_11:
         result = result.order_by('-date')
     else:
-        result.sort(reverse=True, key=lambda(s): s.date)
+        result.sort(reverse=True, key=lambda s: s.date)
     return result
