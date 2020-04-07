@@ -423,7 +423,7 @@ class ProblemNameListFilter(SimpleListFilter):
                     .filter(contest=request.contest)
                     .values_list('problem__name', flat=True)))
 
-        return sorted([(x, x) for x in p_names], key=lambda (s, _): s.lower())
+        return sorted([(x, x) for x in p_names], key=lambda s: s[0].lower())
 
     def queryset(self, request, queryset):
         if self.value():
