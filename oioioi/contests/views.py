@@ -1,5 +1,6 @@
 from operator import itemgetter  # pylint: disable=E0611
 
+import django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -231,13 +232,17 @@ def all_submissions_view(request):
     if request.user.is_authenticated:
         queryset = Submission.objects \
                 .filter(user=request.user) \
-                .order_by('-date') \
                 .select_related('user', 'problem_instance',
                                 'problem_instance__contest',
                                 'problem_instance__round',
                                 'problem_instance__problem')
 
         submissions_list = filter_my_all_visible_submissions(request, queryset)
+
+        if django.VERSION >= (1, 11):
+            submissions_list.order_by('-date')
+        else:
+            submissions_list.sort(reverse=True, key=lambda(s): s.date)
 
         for s in submissions_list:
             request.contest = s.problem_instance.contest

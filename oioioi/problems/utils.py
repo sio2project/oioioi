@@ -333,6 +333,14 @@ def show_proposal_form(problem, user):
     return True
 
 def filter_my_all_visible_submissions(request, queryset):
+    """ Filters all solusion visible for the currently logged in user
+        from the given queryset. Returns the result as a list (Django
+        versions below 1.11) or queryset (Django 1.11 and higher).
+
+        The filtering is not stable: the order of entries in the returned list
+        (in Django versions below 1.11) or queryset (in Django 1.11 and higher)
+        may differ from the original.
+    """
     django_11 = django.VERSION >= (1, 11)
     if django_11:
         result = Submission.objects.none()
@@ -364,8 +372,4 @@ def filter_my_all_visible_submissions(request, queryset):
         else:
             result.extend(current_queryset)
 
-    if django_11:
-        result = result.order_by('-date')
-    else:
-        result.sort(reverse=True, key=lambda s: s.date)
     return result

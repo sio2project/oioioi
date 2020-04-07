@@ -1,3 +1,5 @@
+import django
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -70,13 +72,18 @@ def main_page_view(request):
         limit_queryset_ids = [submission.id for submission in queryset]
         queryset = Submission.objects \
             .filter(id__in=limit_queryset_ids) \
-            .order_by('-date') \
             .select_related('user', 'problem_instance',
                             'problem_instance__contest',
                             'problem_instance__round',
                             'problem_instance__problem')
 
         submissions_list = filter_my_all_visible_submissions(request, queryset)
+
+        if django.VERSION >= (1, 11):
+            submissions_list.order_by('-date')
+        else:
+            submissions_list.sort(reverse=True, key=lambda(s): s.date)
+
         submissions = [submission_template_context(request, s) for s in submissions_list]
 
         show_scores = any(s['can_see_score'] for s in submissions)
