@@ -14,7 +14,7 @@ from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import can_admin_problem
 
 from oioioi.contests.models import Contest
-from oioioi.contests.utils import is_contest_admin
+from oioioi.contests.utils import can_admin_contest
 
 
 class BasePackageUploadView(APIView):
@@ -29,7 +29,7 @@ class BasePackageUploadView(APIView):
     @staticmethod
     def check_permissions(request, contest=None, existing_problem=None):
         if not request.user.has_perm('problems.problems_db_admin'):
-            if contest and (not is_contest_admin(request)):
+            if contest and (not can_admin_contest(request.user, contest)):
                 return False
         if (existing_problem):
             if not can_admin_problem(request, existing_problem):
