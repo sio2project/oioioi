@@ -22,7 +22,7 @@
             {{ LANGUAGE_CODE|language_name_translated }}
         </div>
         <div class="second-column">
-            <label for="translation-select">{% trans "Tranlation language" %}:</label>
+            <label for="translation-select">{% trans "Translation language" %}:</label>
             <select id="translation-select" class="form-control">
                 <option value="">------</option>
                 {% for lang_short, lang_name in LANGUAGES %}
