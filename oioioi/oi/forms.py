@@ -35,7 +35,9 @@ def school_options(province, city):
 
 class SchoolSelect(forms.Select):
     def render(self, name, value, attrs=None, renderer=None):
-        if renderer is not None:
+        # check if this is the default renderer
+        if renderer is not None and \
+            type(renderer) != forms.renderers.DjangoTemplates:
             raise AssertionError
         school_id = -1
         province = ''

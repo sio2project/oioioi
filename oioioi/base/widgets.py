@@ -17,7 +17,9 @@ class DateTimePicker(forms.widgets.DateTimeInput):
         super(DateTimePicker, self).__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None, renderer=None):
-        if renderer is not None:
+        # check if this is the default renderer
+        if renderer is not None and \
+            type(renderer) != forms.renderers.DjangoTemplates:
             raise AssertionError
         if value is None:
             value = ''
