@@ -26,39 +26,40 @@ class UnicodeValidator(object):
     unicode_categories = []
     message = _('Enter a valid value.')
     code = 'invalid'
-    inverse_match = False
+    allow_spaces = False
 
     def __init__(self, unicode_categories=None, message=None, code=None,
-                 inverse_match=None):
+                 allow_spaces=None):
         if unicode_categories is not None:
             self.unicode_categories = unicode_categories
         if message is not None:
             self.message = message
         if code is not None:
             self.code = code
-        if inverse_match is not None:
-            self.inverse_match = inverse_match
+        if allow_spaces is not None:
+            self.allow_spaces = allow_spaces
 
     def __call__(self, value):
         """
         Validates that the input matches the category restrictions of
-        unicode_categories if inverse_match is False, otherwise
-        raises ValidationError.
+        unicode_categories. Additionally, if allow_spaces is True,
+        then allows spaces, but not at the beginning/end.
         """
-        for letter in value:
-            if self.inverse_match:
-                if u_cat(letter) in self.unicode_categories:
-                    raise ValidationError(self.message, code=self.code)
-            else:
-                if u_cat(letter) not in self.unicode_categories:
-                    raise ValidationError(self.message, code=self.code)
+        value = force_text(value)
+        n = len(value)
+        for i, letter in enumerate(value):
+            c = u_cat(letter)
+            if c not in self.unicode_categories \
+                    and (i == 0 or i == n - 1 or c != 'Zs'
+                            or not self.allow_spaces):
+                raise ValidationError(self.message, code=self.code)
 
     def __eq__(self, other):
         return isinstance(other, UnicodeValidator) and \
             self.unicode_categories == other.unicode_categories and \
             self.message == other.message and \
             self.code == other.code and \
-            self.inverse_match == other.inverse_match
+            self.allow_spaces == other.allow_spaces
 
     def __ne__(self, other):
         return not (self == other)

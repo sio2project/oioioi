@@ -789,6 +789,7 @@ class TestBaseViews(TestCase):
         self.assertEqual(user.email, 'foo@bar.com')
 
     def test_username_change_attempt(self):
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
         data = {'username': 'changed_user', 'first_name': 'fn',
                 'last_name': 'ln', 'email': 'foo@bar.com'}
@@ -798,15 +799,60 @@ class TestBaseViews(TestCase):
                 .count(), 0)
         self.assertEqual(User.objects.filter(username='test_user').count(), 1)
 
-    def test_unicode_wrong_name_change_attempt(self):
+    def test_unicode_wrong_first_name(self):
+        self.assertTrue(self.client.login(username='test_user'))
         url = reverse('edit_profile')
-        data = {'username': u'correct_username', 'first_name': u'wrong_unicode_\U0001f600',
+        data = {'username': u'test_user', 'first_name': u'good_name',
                 'last_name': u'wrong_unicode_\U0001F923', 'email': u'foo@bar.com'}
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(User.objects.filter(username='correct_username')
-                         .count(), 0)
-        self.assertEqual(User.objects.filter(username='test_user').count(), 1)
+        user = User.objects.get(username='test_user')
+        # Check that the name is not changed
+        self.assertEqual(user.first_name, 'Test')
+        self.assertEqual(user.last_name, 'User')
+
+    def test_unicode_wrong_last_name(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('edit_profile')
+        data = {'username': u'test_user', 'first_name': u'wrong_unicode_\U0001f600',
+                'last_name': u'good_name', 'email': u'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='test_user')
+        # Check that the name is not changed
+        self.assertEqual(user.first_name, 'Test')
+        self.assertEqual(user.last_name, 'User')
+
+    def test_names_with_valid_spaces(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('edit_profile')
+        data = {'username': u'test_user', 'first_name': u'Jan Maria',
+                'last_name': u'Le Guien', 'email': u'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='test_user')
+        self.assertEqual(user.first_name, u'Jan Maria')
+        self.assertEqual(user.last_name, u'Le Guien')
+
+    def test_names_with_invalid_spaces(self):
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('edit_profile')
+
+        data = {'username': u'test_user', 'first_name': u'\u00a0Jan',
+                'last_name': u'correct', 'email': u'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='test_user')
+        # Check that the name is euther not changed or truncated
+        self.assertIn(user.first_name, ['Test', 'Jan'])
+
+        data = {'username': u'test_user', 'first_name': u'Jan\u2003',
+                'last_name': u'correct', 'email': u'foo@bar.com'}
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        user = User.objects.get(username='test_user')
+        # Check that the name is euther not changed or truncated
+        self.assertIn(user.first_name, ['Test', 'Jan'])
 
     def test_profile_dynamic_fields(self):
         from oioioi.base.preferences import PreferencesFactory

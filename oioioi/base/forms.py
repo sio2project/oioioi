@@ -31,13 +31,13 @@ def adjust_name_fields(form):
 
 def adjust_unicode_field(form, field_name, help_text, invalid_message,
                          unicode_categories=UNICODE_CATEGORY_LIST,
-                         inverse_match=False):
+                         allow_spaces=True):
     form.fields[field_name].error_messages['invalid'] = invalid_message
     form.fields[field_name].help_text = help_text
 
     form.fields[field_name].validators += \
         [UnicodeValidator(unicode_categories=unicode_categories,
-                          inverse_match=inverse_match)]
+            allow_spaces=allow_spaces)]
 
 
 class RegistrationFormWithNames(RegistrationForm):
