@@ -4,7 +4,14 @@ python:
 - '2.7'
 addons:
   apt:
-    packages: libdb-dev
+    packages:
+    - build-essential
+    - fp-compiler
+    - texlive-latex-base
+    - texlive-lang-polish
+    - texlive-latex-extra
+    - texlive-fonts-recommended
+    - libdb-dev
 install: pip install codecov tox-travis
 script: tox
 after_success:
