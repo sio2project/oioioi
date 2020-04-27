@@ -18,6 +18,7 @@ addons:
       - texlive-pstricks
       - lmodern
       - libdb-dev
+      - ghostscript
 install: pip install codecov tox-travis
 script:
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then tox; fi'
