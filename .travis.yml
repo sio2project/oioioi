@@ -12,6 +12,7 @@ addons:
       - texlive-latex-extra
       - texlive-fonts-recommended
       - tex-gyre
+      - texlive-pstricks
       - libdb-dev
 install: pip install codecov tox-travis
 script:
