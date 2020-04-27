@@ -19,7 +19,7 @@ addons:
 install: pip install codecov tox-travis
 script:
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then tox; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then tox -- --migrations --runslow; fi'
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then tox -- --runslow; fi'
 after_success:
   - codecov
 notifications:
