@@ -11,6 +11,7 @@ addons:
       - texlive-lang-polish
       - texlive-lang-czechslovak
       - texlive-lang-european
+      - texlive-lang-german
       - texlive-latex-extra
       - texlive-fonts-recommended
       - tex-gyre

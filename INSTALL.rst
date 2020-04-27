@@ -8,7 +8,8 @@ First, ensure that all dependencies are installed:
 * fpc (Ubuntu package: *fp-compiler*)
 * latex with languages used in sample tasks (Ubuntu packages:
   *texlive-latex-base*, *texlive-lang-polish*,
-  *texlive-lang-czechslovak*, *texlive-lang-european*)
+  *texlive-lang-czechslovak*, *texlive-lang-european*,
+  *texlive-lang-german*)
 * latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*, *tex-gyre*,
   *texlive-pstricks*, *lmodern*),
 * Berkeley DB library (Ubuntu package: *libdb-dev*)
