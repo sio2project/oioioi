@@ -6,8 +6,9 @@ First, ensure that all dependencies are installed:
 
 * gcc/g++ (Ubuntu package: *build-essential*)
 * fpc (Ubuntu package: *fp-compiler*)
-* latex with support for Polish (Ubuntu packages: *texlive-latex-base*,
-  *texlive-lang-polish*, *texlive-lang-czechslovak*)
+* latex with languages used in sample tasks (Ubuntu packages:
+  *texlive-latex-base*, *texlive-lang-polish*,
+  *texlive-lang-czechslovak*, *texlive-lang-european*)
 * latex packages (*texlive-latex-extra*, *texlive-fonts-recommended*, *tex-gyre*,
   *texlive-pstricks*, *lmodern*),
 * Berkeley DB library (Ubuntu package: *libdb-dev*)

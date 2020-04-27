@@ -10,6 +10,7 @@ addons:
       - texlive-latex-base
       - texlive-lang-polish
       - texlive-lang-czechslovak
+      - texlive-lang-european
       - texlive-latex-extra
       - texlive-fonts-recommended
       - tex-gyre
