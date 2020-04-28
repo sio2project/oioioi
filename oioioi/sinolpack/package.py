@@ -26,7 +26,8 @@ from oioioi.filetracker.utils import (django_to_filetracker_path,
                                       filetracker_to_django_file, stream_file)
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemSite, ProblemStatement)
-from oioioi.problems.package import ProblemPackageBackend, ProblemPackageError
+from oioioi.problems.package import (ProblemPackageBackend, ProblemPackageError,
+                                     PackageProcessingError)
 from oioioi.programs.models import (LibraryProblemData, ModelSolution,
                                     OutputChecker, Test)
 from oioioi.sinolpack.models import ExtraConfig, ExtraFile, OriginalPackage
@@ -334,22 +335,32 @@ class SinolPackage(object):
                 get_client().delete_file(self.prog_archive)
 
     def _describe_processing_error(func):
-        class PackageProcessingError(ProblemPackageError):
-            def __init__(self, func_name, func_doc):
-                self.original_exception_info = sys.exc_info()
-                self.raiser = func_name
-                self.raiser_desc = ' '.join(func_doc.split())
-
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except PackageProcessingError:
-                # The error has already been documented in a more specific context.
-                raise
+
+            except PackageProcessingError as error:
+                # Reraising this way allows us to retrieve the full stack trace
+                # that would otherwise be screened by the try...except clause.
+
+                if six.PY2:
+                    raise PackageProcessingError, error, sys.exc_info()[2]
+                else:
+                    raise error.with_traceback(sys.exc_info()[2])
+
             except Exception:
-                raise PackageProcessingError(func.__name__,
-                                            func.__doc__.split("\n\n")[0])
+                # Reraising as a custom exception allows us to attach extra
+                # information about the raising operation to the exception
+
+                error = PackageProcessingError(func.__name__,
+                                               func.__doc__.split("\n\n")[0])
+
+                if six.PY2:
+                    raise PackageProcessingError, error, sys.exc_info()[2]
+                else:
+                    raise error.with_traceback(sys.exc_info()[2])
+
         return wrapper
 
     def _process_package(self):

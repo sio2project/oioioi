@@ -299,12 +299,11 @@ class ProblemPackage(models.Model):
                     # This will work if a PackageProcessingError was thrown
                     info = _("Failed operation: %(name)s\n"
                              "Operation description: %(desc)s\n \n"
-                             "Error description: %(error)s\n" %
-                             dict(error=value.original_exception_info[1],
-                                  name=value.raiser, desc=value.raiser_desc))
+                             "Error description: %(error)s\n \n" %
+                             dict(name=value.raiser, desc=value.raiser_desc,
+                                  error=value.original_exception_info[1]))
 
-                    old_exception_info = value.original_exception_info
-                    type, value, traceback = old_exception_info
+                    type, value, _old_traceback = value.original_exception_info
                 except AttributeError:
                     info = _("Failed operation unknown.\n"
                              "Error description: %(error)s\n \n" %  dict(error=value))

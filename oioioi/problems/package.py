@@ -6,6 +6,7 @@
 """
 
 import logging
+import sys
 
 from django.conf import settings
 from django.core.files import File
@@ -20,6 +21,13 @@ logger = logging.getLogger(__name__)
 class ProblemPackageError(Exception):
     """A generic exception to be used by or subclassed by backends."""
     pass
+
+
+class PackageProcessingError(ProblemPackageError):
+     def __init__(self, func_name, func_doc):
+        self.original_exception_info = sys.exc_info()
+        self.raiser = func_name
+        self.raiser_desc = ' '.join(func_doc.split())
 
 
 class ProblemPackageBackend(RegisteredSubclassesBase, ObjectWithMixins):

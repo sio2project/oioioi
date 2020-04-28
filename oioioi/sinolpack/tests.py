@@ -219,7 +219,6 @@ class TestSinolPackage(TestCase):
         self.assertEqual(tests.get(name='1c').time_limit, 5000)
         self.assertEqual(tests.get(name='2').time_limit, 7000)
 
-    @pytest.mark.xfail(strict=True)
     def test_assign_points_nonexistent(self):
         filename = get_test_filename('test_scores_nonexistent_fail.zip')
         self.assertRaises(CommandError, call_command, 'addproblem', filename)
@@ -230,7 +229,6 @@ class TestSinolPackage(TestCase):
         # Check if error message is relevant to the issue
         self.assertIn("no such test group exists", package.info)
 
-    @pytest.mark.xfail(strict=True)
     def test_assign_points_not_exhaustive(self):
         filename = get_test_filename('test_scores_notexhaustive_fail.zip')
         self.assertRaises(CommandError, call_command, 'addproblem', filename)
@@ -585,7 +583,6 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         self.assertStreamingEqual(response, open(filename, 'rb').read())
 
     @both_configurations
-    @pytest.mark.xfail(strict=True)
     def test_inwer_failure_package(self):
         ProblemInstance.objects.all().delete()
 
@@ -705,7 +702,6 @@ class TestLimits(TestCase):
                 {'package_file': open(filename, 'rb'),
                  'visibility': Problem.VISIBILITY_PRIVATE}, follow=True)
 
-    @pytest.mark.xfail(strict=True)
     @override_settings(MAX_TEST_TIME_LIMIT_PER_PROBLEM=2000)
     def test_time_limit(self):
         response = self.upload_package()
@@ -713,7 +709,6 @@ class TestLimits(TestCase):
                         "Sum of time limits for all tests is too big. It&#39;s "
                         "50s, but it shouldn&#39;t exceed 2s.")
 
-    @pytest.mark.xfail(strict=True)
     @override_settings(MAX_MEMORY_LIMIT_FOR_TEST=10)
     def test_memory_limit(self):
         response = self.upload_package()
