@@ -240,7 +240,7 @@ def all_submissions_view(request):
         submissions_list = filter_my_all_visible_submissions(request, queryset)
 
         if django.VERSION >= (1, 11):
-            submissions_list.order_by('-date')
+            submissions_list = submissions_list.order_by('-date')
         else:
             submissions_list.sort(reverse=True, key=lambda(s): s.date)
 
