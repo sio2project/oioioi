@@ -7,6 +7,7 @@ import nested_admin
 # that add links to ModelAdmin with nested inlines on another page,
 # see how QuizInline works.
 
+from oioioi.base.admin import NO_CATEGORY
 from oioioi.quizzes.models import QuizQuestionPicture, QuizAnswerPicture, \
     QuizQuestion, QuizAnswer, Quiz
 import oioioi.contests.admin
@@ -112,6 +113,7 @@ class QuizInline(admin.StackedInline):
     model = Quiz
     fields = []  # < this doesn't exclude the fields
     readonly_fields = ['edit']
+    category = NO_CATEGORY
 
     def has_delete_permission(self, request, obj=None):
         return False

@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.base.forms import AlwaysChangedModelForm
 from oioioi.contests.admin import ProblemInstanceAdmin
@@ -9,6 +11,7 @@ class TestRunConfigInline(admin.TabularInline):
     can_delete = True
     extra = 0
     form = AlwaysChangedModelForm
+    category = _("Advanced")
 
 
 class TestRunConfigForInstanceInline(admin.TabularInline):

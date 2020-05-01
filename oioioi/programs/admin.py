@@ -124,6 +124,7 @@ class ReportActionsConfigInline(admin.StackedInline):
     extra = 0
     inline_classes = ('collapse open',)
     fields = ['can_user_generate_outs']
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False
@@ -141,6 +142,7 @@ class OutputCheckerInline(admin.TabularInline):
     fields = ['checker_link']
     readonly_fields = ['checker_link']
     can_delete = False
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False
@@ -169,6 +171,7 @@ class LibraryProblemDataInline(admin.TabularInline):
     fields = ['libname']
     readonly_fields = ['libname']
     can_delete = False
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False
@@ -184,6 +187,7 @@ class ProblemCompilerInline(admin.StackedInline):
     model = ProblemCompiler
     extra = 0
     form = ProblemCompilerInlineForm
+    category = _("Advanced")
 
 
 class ContestCompilerInline(admin.StackedInline):

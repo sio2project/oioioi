@@ -1,7 +1,10 @@
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.db import models
+from django.forms import Textarea
 
 from oioioi.base import admin
+from oioioi.base.admin import NO_CATEGORY
 from oioioi.base.utils import make_html_link
 from oioioi.contests.utils import is_contest_admin
 from oioioi.problems.admin import ProblemAdmin
@@ -17,8 +20,11 @@ class TestsPackageInline(admin.TabularInline):
     extra = 0
     readonly_fields = ['package_link']
     fields = ['name', 'description', 'tests', 'publish_date', 'package_link']
-
     problem = None
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 10, 'cols': 30})},
+    }
+    category = NO_CATEGORY
 
     def has_add_permission(self, request):
         return is_contest_admin(request)

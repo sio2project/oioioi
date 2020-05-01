@@ -2,6 +2,7 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
+from oioioi.base.admin import NO_CATEGORY
 from oioioi.contests.admin import SubmissionAdmin
 from oioioi.contests.utils import is_contest_admin
 from oioioi.scoresreveal.models import ScoreRevealConfig
@@ -30,6 +31,7 @@ class ScoresRevealConfigInline(admin.TabularInline):
     model = ScoreRevealConfig
     can_delete = True
     extra = 0
+    category = NO_CATEGORY
 
     def has_add_permission(self, request):
         return False

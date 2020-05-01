@@ -15,6 +15,7 @@ class SinolpackConfigInline(admin.StackedInline):
     readonly_fields = ['config']
     fields = readonly_fields
     inline_classes = ('collapse',)
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False
@@ -33,6 +34,7 @@ class SinolpackExtraFilesInline(admin.StackedInline):
     readonly_fields = ['file_link']
     fields = readonly_fields
     inline_classes = ('collapse',)
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False

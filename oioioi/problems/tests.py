@@ -2299,3 +2299,43 @@ class TestTaskArchive(TestCase):
         test_can_access_with_result(IntegerScore(50), IntegerScore(100))
         test_can_access_with_result(None, IntegerScore(100))
         test_can_access_with_result(IntegerScore(50), None)
+
+
+@override_settings(LANGUAGE_CODE="en")
+class TestProblemChangeForm(TestCase):
+    fixtures = ['test_users', 'test_contest', 'test_full_package',
+                'test_problem_instance', 'test_quiz_problem_second']
+
+    def test_programming_problem_change_form(self):
+        url = reverse('admin:problems_problem_change', args=(1,))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Advanced </button>')
+        self.assertNotContains(response, 'Tags </button>')
+        self.assertNotContains(response, "Score reveal configs")
+        self.assertNotContains(response, "Problem Compilers")
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Advanced </button>')
+        self.assertContains(response, 'Tags </button>')
+        self.assertContains(response, "Score reveal configs")
+        self.assertContains(response, "Problem compilers")
+        self.assertNotContains(response, 'None </button>')
+
+    def test_quiz_problem_change_form(self):
+        url = reverse('admin:problems_problem_change', args=(101,))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Advanced </button>')
+        self.assertNotContains(response, 'Tags </button>')
+        self.assertNotContains(response, "Quizzes")
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Advanced </button>')
+        self.assertContains(response, 'Tags </button>')
+        self.assertContains(response, "Quizzes")
+        self.assertNotContains(response, 'None </button>')

@@ -24,6 +24,9 @@ from oioioi.base.utils import ClassInitMeta, ObjectWithMixins
 from oioioi.base.utils.redirect import safe_redirect
 
 
+NO_CATEGORY = '__no_category__'
+
+
 class TabularInline(admin.TabularInline):
     # by default we assume that if item is added to specific
     # admin menu mixin it should be visible and editable

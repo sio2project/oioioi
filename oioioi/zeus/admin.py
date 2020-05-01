@@ -14,6 +14,7 @@ class ZeusProblemDataInline(admin.StackedInline):
     readonly_fields = ['zeus_instance', 'zeus_problem_id']
     fields = readonly_fields
     inline_classes = ('collapse',)
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False

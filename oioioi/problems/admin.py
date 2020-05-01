@@ -15,7 +15,7 @@ from django.utils.html import escape, format_html, mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
-from oioioi.base.admin import system_admin_menu_registry
+from oioioi.base.admin import system_admin_menu_registry, NO_CATEGORY
 from oioioi.base.permissions import is_superuser, make_request_condition
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.admin import ContestAdmin, contest_site
@@ -101,6 +101,7 @@ class StatementInline(admin.TabularInline):
     can_delete = False
     readonly_fields = ['language', 'content_link']
     fields = readonly_fields
+    category = NO_CATEGORY
 
     def has_add_permission(self, request):
         return False
@@ -124,6 +125,7 @@ class AttachmentInline(admin.TabularInline):
     model = ProblemAttachment
     extra = 0
     readonly_fields = ['content_link']
+    category = NO_CATEGORY
 
     def content_link(self, instance):
         if instance.id is not None:
@@ -139,6 +141,7 @@ class ProblemInstanceInline(admin.StackedInline):
     can_delete = False
     fields = []
     inline_classes = ('collapse open',)
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False
@@ -153,6 +156,7 @@ class ProblemInstanceInline(admin.StackedInline):
 class ProblemSiteInline(admin.StackedInline):
     model = ProblemSite
     form = ProblemSiteForm
+    category = NO_CATEGORY
 
     def has_add_permission(self, request):
         return True
@@ -221,6 +225,7 @@ class OriginTagInline(admin.StackedInline):
     extra = 0
     verbose_name = _("origin tag")
     verbose_name_plural = _("origin tags")
+    category = _("Tags")
 
     # Prevent the problem owner from changing the problem's origin tags
     def has_add_permission(self, request, obj=None):
@@ -239,6 +244,7 @@ class OriginInfoValueInline(admin.StackedInline):
     extra = 0
     verbose_name = _("origin information")
     verbose_name_plural = _("additional origin information")
+    category = _("Tags")
 
     # Prevent the problem owner from changing the problem's origin meta
     def has_add_permission(self, request, obj=None):
@@ -257,6 +263,7 @@ class DifficultyTagInline(admin.StackedInline):
     extra = 0
     verbose_name = _("Difficulty Tag")
     verbose_name_plural = _("Difficulty Tags")
+    category = _("Tags")
 
     def has_add_permission(self, request):
         return request.user.is_superuser
@@ -274,6 +281,7 @@ class AlgorithmTagInline(admin.StackedInline):
     extra = 0
     verbose_name = _("Algorithm Tag")
     verbose_name_plural = _("Algorithm Tags")
+    category = _("Tags")
 
     def has_add_permission(self, request):
         return request.user.is_superuser
@@ -291,6 +299,7 @@ class TagInline(admin.StackedInline):
     extra = 0
     verbose_name = _("Tag (deprecated)")
     verbose_name_plural = _("Tags (deprecated)")
+    category = _("Tags")
 
     def has_add_permission(self, request):
         return request.user.is_superuser
@@ -380,6 +389,15 @@ class ProblemAdmin(admin.ModelAdmin):
         if not (request.user.is_superuser or is_contest_admin(request)):
             return ['visibility',] + self.readonly_fields
         return self.readonly_fields
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['categories'] = sorted(set([getattr(inline, 'category', None)
+                                                  for inline in self.inlines]))
+        extra_context['no_category'] = NO_CATEGORY
+        return super(ProblemAdmin, self).change_view(
+            request, object_id, form_url, extra_context=extra_context,
+        )
 
 
 class BaseProblemAdmin(admin.MixinsAdmin):
