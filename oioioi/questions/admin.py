@@ -89,6 +89,7 @@ contest_site.contest_register(Message, MessageAdmin)
 class MessageNotifierConfigInline(admin.TabularInline):
     model = MessageNotifierConfig
     extra = 0
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_basicadmin(request)

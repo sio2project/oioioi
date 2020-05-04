@@ -1,3 +1,5 @@
+from django.utils.translation import ugettext_lazy as _
+
 from oioioi.base import admin
 from oioioi.complaints.models import ComplaintsConfig
 from oioioi.contests.admin import ContestAdmin
@@ -6,6 +8,7 @@ from oioioi.contests.utils import is_contest_admin
 
 class ComplaintsConfigInline(admin.TabularInline):
     model = ComplaintsConfig
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_admin(request)

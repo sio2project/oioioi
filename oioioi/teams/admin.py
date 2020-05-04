@@ -51,6 +51,7 @@ contest_admin_menu_registry.register('teams', _("Teams"),
 
 class TeamsConfigInline(admin.TabularInline):
     model = TeamsConfig
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_admin(request)

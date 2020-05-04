@@ -25,6 +25,7 @@ from oioioi.programs.models import (LibraryProblemData, ModelSolution,
 class ProgramsConfigInline(admin.TabularInline):
     model = ProgramsConfig
     can_delete = False
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False
@@ -194,6 +195,8 @@ class ContestCompilerInline(admin.StackedInline):
     model = ContestCompiler
     extra = 0
     form = CompilerInlineForm
+    category = _("Advanced")
+
     def __init__(self, *args, **kwargs):
         super(ContestCompilerInline, self).__init__(*args, **kwargs)
         self.verbose_name_plural = _("Compiler overrides")

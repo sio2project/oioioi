@@ -18,7 +18,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 
 from oioioi.base import admin
-from oioioi.base.admin import delete_selected
+from oioioi.base.admin import delete_selected, NO_CATEGORY
 from oioioi.base.utils import make_html_link, make_html_links
 from oioioi.contests.current_contest import set_cc_id
 from oioioi.contests.forms import (ProblemInstanceForm, SimpleContestForm,
@@ -88,6 +88,7 @@ class RoundInline(admin.StackedInline):
     model = Round
     extra = 0
     inline_classes = ('collapse open',)
+    category = NO_CATEGORY
 
     def has_add_permission(self, request):
         return True
@@ -116,6 +117,7 @@ class AttachmentInline(admin.StackedInline):
     model = ContestAttachment
     extra = 0
     readonly_fields = ['content_link']
+    category = NO_CATEGORY
 
     def has_add_permission(self, request):
         return True
@@ -145,6 +147,7 @@ class AttachmentInline(admin.StackedInline):
 class ContestLinkInline(admin.TabularInline):
     model = ContestLink
     extra = 0
+    category = _("Advanced")
 
 
 class ContestAdmin(admin.ModelAdmin):
@@ -222,7 +225,19 @@ class ContestAdmin(admin.ModelAdmin):
         set_cc_id(None)
         return super(ContestAdmin, self).response_delete(request)
 
+    def _get_extra_context(self, extra_context):
+        extra_context = extra_context or {}
+        extra_context['categories'] = sorted(set([getattr(inline, 'category', None)
+                                                  for inline in self.inlines]))
+        extra_context['no_category'] = NO_CATEGORY
+        return extra_context
+
+    def add_view(self, request, form_url='', extra_context=None):
+        extra_context = self._get_extra_context(extra_context)
+        return super(ContestAdmin, self).add_view(request, form_url, extra_context)
+
     def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = self._get_extra_context(extra_context)
         # The contest's edit view uses request.contest, so editing a contest
         # when a different contest is active would produce weird results.
         contest_id = unquote(object_id)

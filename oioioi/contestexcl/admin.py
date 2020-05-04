@@ -13,6 +13,7 @@ class ExclusivenessConfigInline(admin.TabularInline):
     extra = 0
     form = ExclusivenessConfigForm
     fields = ('enabled', 'start_date', 'end_date', 'disable')
+    category = _("Advanced")
 
     def get_fields(self, request, obj=None):
         fields = super(ExclusivenessConfigInline, self).get_fields(request, obj)

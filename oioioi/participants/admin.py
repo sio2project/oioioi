@@ -379,6 +379,7 @@ class TermsAcceptedPhraseInline(admin.StackedInline):
     can_delete = False
     form = TermsAcceptedPhraseForm
     max_num = 0
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return False

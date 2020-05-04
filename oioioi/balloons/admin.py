@@ -106,6 +106,7 @@ class BalloonsDeliveryAccessDataInline(admin.TabularInline):
     model = BalloonsDeliveryAccessData
     fields = ('access_link', 'valid_until', 'regeneration_link')
     readonly_fields = ('access_link', 'valid_until', 'regeneration_link')
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_admin(request)

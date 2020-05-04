@@ -13,6 +13,7 @@ from oioioi.mailsubmit.utils import accept_mail_submission, is_mailsubmit_used
 
 class MailSubmissionConfigInline(admin.TabularInline):
     model = MailSubmissionConfig
+    category = _("Advanced")
 
     # We require superuser privileges, because it is unsafe to allow anyone
     # to edit printout_text. One can execute arbitrary shell command from

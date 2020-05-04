@@ -48,6 +48,7 @@ class StatementConfigInline(admin.TabularInline):
     model = ProblemStatementConfig
     extra = 1
     form = ProblemStatementConfigForm
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_admin(request)
@@ -74,6 +75,7 @@ class RankingVisibilityConfigInline(admin.TabularInline):
     model = RankingVisibilityConfig
     extra = 1
     form = RankingVisibilityConfigForm
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_admin(request)

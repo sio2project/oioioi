@@ -3,9 +3,12 @@ from oioioi.contests.admin import ContestAdmin
 from oioioi.contests.utils import is_contest_admin
 from oioioi.statistics.models import StatisticsConfig
 
+from django.utils.translation import ugettext_lazy as _
+
 
 class StatisticsConfigInline(admin.TabularInline):
     model = StatisticsConfig
+    category = _("Advanced")
 
     def has_add_permission(self, request):
         return is_contest_admin(request)

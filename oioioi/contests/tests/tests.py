@@ -2657,3 +2657,22 @@ class TestRankingVisibility(TestCase):
         # test with RankingVisibilityConfig set to 'NO'
         response = self.client.get(url)
         self.assertContains(response, 'Test User')
+
+
+@override_settings(LANGUAGE_CODE="en")
+class TestContestChangeForm(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def test_contest_change_form(self):
+        url = reverse('admin:contests_contest_change', args=('c',))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Advanced </button>')
+        self.assertNotContains(response, '<h2>Rounds</h2>')
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Advanced </button>')
+        self.assertContains(response, '<h2>Rounds</h2>')
+        self.assertNotContains(response, 'None </button>')

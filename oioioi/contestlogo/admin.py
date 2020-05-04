@@ -11,6 +11,7 @@ class ContestLogoInline(admin.TabularInline):
     model = ContestLogo
     readonly_fields = ['logo_link']
     exclude = ['updated_at']
+    category = _("Advanced")
 
     def logo_link(self, instance):
         if instance.id is not None:
@@ -36,6 +37,7 @@ class ContestIconInline(admin.TabularInline):
     extra = 0
     readonly_fields = ['icon_link']
     exclude = ['updated_at']
+    category = _("Advanced")
 
     def icon_link(self, instance):
         if instance.id is not None:
