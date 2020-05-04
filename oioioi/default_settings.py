@@ -6,10 +6,6 @@ if sys.version_info < (2, 6):
 import os
 import tempfile
 
-os.environ.setdefault('CELERY_LOADER', 'oioioi.celery.loaders.OioioiLoader')
-import djcelery
-djcelery.setup_loader()
-
 import oioioi
 from oioioi.contests.current_contest import ContestMode
 
@@ -212,7 +208,6 @@ INSTALLED_APPS = (
     'oioioi.workers',
     'oioioi.quizzes',
 
-    'djcelery',
     'kombu.transport.django',
     'djsupervisor',
     'registration',

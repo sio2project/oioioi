@@ -112,7 +112,6 @@ the evaluation process:
 .. _celery: http://www.pythondoc.com/celery-3.1.11/
 .. _broker: http://www.pythondoc.com/celery-3.1.11/getting-started/brokers/
 .. _rabbitmq: http://www.rabbitmq.com/
-.. _django_celery: https://pypi.python.org/pypi/django-celery
 .. _`filetracker github project`: https://github.com/sio2project/filetracker
 
 

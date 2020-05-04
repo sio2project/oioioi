@@ -3,10 +3,8 @@ import functools
 from django.contrib.admin import SimpleListFilter
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.utils.encoding import force_text
 from django.utils.html import format_html
 from django.utils.translation import ugettext_lazy as _
-from djcelery.models import TaskState
 
 from oioioi.base import admin
 from oioioi.base.admin import system_admin_menu_registry
@@ -104,7 +102,7 @@ def _require_contest(function):
 class SystemJobsQueueAdmin(admin.ModelAdmin):
     list_display = ['submit_id', 'colored_state', 'contest',
                     'problem_instance', 'user', 'creation_date',
-                    'celery_task_id_link']
+                    'celery_task_id']
     list_filter = ['state', ProblemNameListFilter]
     actions = ['remove_from_queue', 'delete_selected']
 
@@ -121,17 +119,6 @@ class SystemJobsQueueAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
-
-    def celery_task_id_link(self, instance):
-        task_id = instance.celery_task_id
-        try:
-            task_object_id = TaskState.objects.get(task_id=task_id).id
-            return self._get_link(task_id, 'admin:djcelery_taskstate_change',
-                                  task_object_id)
-        except TaskState.DoesNotExist:
-            return task_id
-    celery_task_id_link.admin_order_field = 'celery_task_id'
-    celery_task_id_link.short_description = _("Celery task id")
 
     @_require_contest
     def submit_id(self, instance):

@@ -18,7 +18,6 @@ Architecture Overview
 .. _Filetracker: https://github.com/sio2project/filetracker
 .. _Sioworkers: https://github.com/sio2project/sioworkers
 .. _Celery: http://docs.celeryproject.org/en/latest/index.html
-.. _djcelery: http://docs.celeryproject.org/en/latest/django/index.html
 .. _django-pagination: https://code.google.com/p/django-pagination/
 .. _django-nose: https://github.com/jbalogh/django-nose
 .. _selenium: http://www.seleniumhq.org/
@@ -39,7 +38,7 @@ components used:
 * Distributed judging
 
   * an :doc:`evaluation manager </sections/evaluation>` running on
-    `Celery`_ (Django bindings with `djcelery`_)
+    `Celery`_
   * evaluation code running on judging machines is external to OIOIOI (see
     `Sioworkers`_)
 
