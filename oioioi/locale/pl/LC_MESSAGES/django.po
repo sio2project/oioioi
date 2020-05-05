@@ -39,7 +39,7 @@
 # Rafał Stefański <ravst94@gmail.com>, 2014
 # Michał Adamczyk <mr.adamczyk+oioioi@gmail.com>, 2013
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
-# sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014,2016,2018-2019
+# sio2project <sio2@sio2project.mimuw.edu.pl>, 2013-2014,2016,2018-2020
 # sio2project <sio2@sio2project.mimuw.edu.pl>, 2012
 # teqwve <mrtaddewicz@gmail.com>, 2016
 # teqwve <mrtaddewicz@gmail.com>, 2016
@@ -51,8 +51,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-07 15:12+0200\n"
-"PO-Revision-Date: 2020-03-31 18:36+0000\n"
+"POT-Creation-Date: 2020-05-05 17:31+0200\n"
+"PO-Revision-Date: 2020-05-05 15:32+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: Polish (http://www.transifex.com/sio2project/sio2project/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -733,7 +733,7 @@ msgstr "Utwórz nowy konkurs"
 #: problems/templates/problems/problemset/problem-site.html:5
 #: problems/views.py:71
 #: simpleui/templates/simpleui/main_dashboard/dashboard.html:37
-#: szkopul/views.py:22
+#: szkopul/views.py:24
 msgid "Problemset"
 msgstr "Baza zadań"
 
@@ -790,8 +790,8 @@ msgstr "Obecny język"
 
 #: base/templates/ingredients/translation-formset.html:25
 #| msgid "Programming language"
-msgid "Tranlation language"
-msgstr "Język tłumaczenia"
+msgid "Translation language"
+msgstr "Język"
 
 #: base/templates/registration/activate.html:4
 msgid "Account activation"
@@ -988,7 +988,7 @@ msgstr "Wypełnij poniższy formularz aby założyć konto."
 #: base/templates/registration/registration_form.html:27
 #: base/templates/simple-centered-form.html:12
 #: contests/templates/contests/my_submissions.html:14
-#: contests/templates/contests/submit.html:14 contests/views.py:179
+#: contests/templates/contests/submit.html:14 contests/views.py:180
 #: dashboard/views.py:33 forum/templates/forum/edit_post.html:29
 #: forum/templates/forum/thread.html:39
 #: forum/templates/forum/thread_add.html:22
@@ -1715,7 +1715,7 @@ msgid "Package file"
 msgstr "Paczka"
 
 #: contests/admin.py:405 contests/templates/contests/problems_list.html:5
-#: contests/templates/contests/problems_list.html:8 contests/views.py:74
+#: contests/templates/contests/problems_list.html:8 contests/views.py:75
 #: dashboard/views.py:27 problems/views.py:860
 msgid "Problems"
 msgstr "Zadania"
@@ -1925,7 +1925,7 @@ msgid "ID"
 msgstr "ID"
 
 #: contests/models.py:46 portals/models.py:126 problems/models.py:59
-#: problems/models.py:489
+#: problems/models.py:488
 msgid "full name"
 msgstr "pełna nazwa"
 
@@ -1998,7 +1998,7 @@ msgid "Has access to the private data of users"
 msgstr "Ma dostęp do prywatnych danych użytkowników"
 
 #: contests/models.py:133 contests/models.py:565 problems/models.py:210
-#: problems/models.py:494
+#: problems/models.py:493
 msgid "description"
 msgstr "opis"
 
@@ -2049,9 +2049,9 @@ msgstr "%s – wyniki"
 msgid "Public results of %s"
 msgstr "%s – ogłoszenie wyników"
 
-#: contests/models.py:192 oi/models.py:64 problems/models.py:466
-#: problems/models.py:521 problems/models.py:644 problems/models.py:673
-#: problems/models.py:706 programs/models.py:65 programs/models.py:151
+#: contests/models.py:192 oi/models.py:64 problems/models.py:465
+#: problems/models.py:520 problems/models.py:643 problems/models.py:672
+#: problems/models.py:705 programs/models.py:65 programs/models.py:151
 #: sinolpack/models.py:30 usergroups/models.py:22
 msgid "name"
 msgstr "nazwa"
@@ -2376,7 +2376,7 @@ msgid ""
 msgstr "Końcowy zbiór danych (<code>recipe</code> oraz\n<code>error_handlers</code> pominięte dla czytelności):"
 
 #: contests/templates/contests/files.html:6
-#: contests/templates/contests/files.html:20 contests/views.py:333
+#: contests/templates/contests/files.html:20 contests/views.py:338
 #: problems/problem_site.py:93
 #| msgid "Download"
 msgid "Downloads"
@@ -2419,7 +2419,7 @@ msgstr "\n            <p>Brak dostępnych konursów.</p>\n        "
 
 #: contests/templates/contests/my_submissions.html:5
 #: contests/templates/contests/my_submissions.html:17
-#: contests/templates/contests/tests_choice.html:5 contests/views.py:204
+#: contests/templates/contests/tests_choice.html:5 contests/views.py:205
 msgid "My submissions"
 msgstr "Moje zgłoszenia"
 
@@ -2582,24 +2582,24 @@ msgstr "Informacje o użytkowniku"
 msgid "User's submissions"
 msgstr "Zgłoszenia użytkownika"
 
-#: contests/views.py:311
+#: contests/views.py:316
 msgid "Rejudge request received."
 msgstr "Zapisano zlecenie ponownej oceny."
 
-#: contests/views.py:325
+#: contests/views.py:330
 msgid "Submission kind has been changed."
 msgstr "Rodzaj zgłoszenia został zmieniony."
 
-#: contests/views.py:328
+#: contests/views.py:333
 #, python-format
 msgid "%(kind)s is not valid kind for submission %(submission_id)d."
 msgstr "%(kind)s nie jest poprawnym rodzajem, jaki może przyjąć zgłoszenie %(submission_id)d."
 
-#: contests/views.py:443
+#: contests/views.py:448
 msgid "See user info page"
 msgstr "Zobacz informacje o użytkowniku"
 
-#: contests/views.py:462
+#: contests/views.py:467
 #, python-format
 msgid "%(count)d rejudge request received."
 msgid_plural "%(count)d rejudge requests reveived."
@@ -2608,11 +2608,11 @@ msgstr[1] "Zapisano %(count)d zleceń ponownej oceny."
 msgstr[2] "Zapisano %(count)d zleceń ponownej oceny."
 msgstr[3] "Zapisano %(count)d zleceń ponownej oceny."
 
-#: contests/views.py:480
+#: contests/views.py:485
 msgid "Tests limits resetted successfully"
 msgstr "Zresetowanie limitów powiodło się"
 
-#: contests/views.py:517
+#: contests/views.py:522
 msgid "Problem {} added successfully."
 msgstr "Dodano zadanie {}."
 
@@ -3081,7 +3081,7 @@ msgid "forums"
 msgstr "fora"
 
 #: forum/models.py:67 forum/models.py:70 forum/models.py:104
-#: problems/models.py:585
+#: problems/models.py:584
 msgid "category"
 msgstr "kategoria"
 
@@ -3756,19 +3756,19 @@ msgstr "— Wybierz miasto —"
 msgid "-- Choose school --"
 msgstr "— Wybierz szkołę —"
 
-#: oi/forms.py:52
+#: oi/forms.py:54
 msgid "-- Choose province --"
 msgstr "— Wybierz województwo —"
 
-#: oi/forms.py:88 oi/models.py:121 pa/models.py:43 participants/models.py:98
+#: oi/forms.py:90 oi/models.py:121 pa/models.py:43 participants/models.py:98
 msgid "terms accepted"
 msgstr "Znam i akceptuję regulamin"
 
-#: oi/forms.py:96
+#: oi/forms.py:98
 msgid "This school is no longer active."
 msgstr "Szkoła nie jest już aktywna."
 
-#: oi/forms.py:101 pa/forms.py:26 participants/forms.py:49
+#: oi/forms.py:103 pa/forms.py:26 participants/forms.py:49
 msgid "Terms not accepted"
 msgstr "Nie zaakceptowano regulaminu"
 
@@ -4755,11 +4755,11 @@ msgstr "Drukowanie"
 msgid "File has been printed."
 msgstr "Plik został wydrukowany."
 
-#: problems/admin.py:222 problems/models.py:475
+#: problems/admin.py:222 problems/models.py:474
 msgid "origin tag"
 msgstr "tag pochodzenia"
 
-#: problems/admin.py:223 problems/models.py:476
+#: problems/admin.py:223 problems/models.py:475
 #| msgid "Edit tags"
 msgid "origin tags"
 msgstr "tagi pochodzenia"
@@ -4853,22 +4853,22 @@ msgstr "Widoczność"
 msgid "Enter problem's secret key"
 msgstr "Wprowadź tajny klucz zadania"
 
-#: problems/forms.py:202
+#: problems/forms.py:204
 msgid "Origin Tag"
 msgstr "Tag Pochodzenia"
 
-#: problems/forms.py:203
+#: problems/forms.py:205
 msgid ""
 "Origin tags inform about the problem's general origin - e.g. a specific "
 "competition, olympiad, or programming camp."
 msgstr "Tagi pochodzenia informują o ogólnym źródle zadania, na przykład konkursie, olimpiadzie, lub obozie informatycznym."
 
-#: problems/forms.py:209
+#: problems/forms.py:211
 #| msgid "Package information"
 msgid "Origin Information"
 msgstr "Informacje o pochodzeniu"
 
-#: problems/forms.py:210
+#: problems/forms.py:212
 msgid ""
 "Origin information values inform about the problem's specific origin - a "
 "year, round, day, etc."
@@ -4955,7 +4955,7 @@ msgstr "rodzaj paczki"
 msgid "main problem instance"
 msgstr "egzemplarz zdania głównego"
 
-#: problems/models.py:131 problems/models.py:471 problems/models.py:597
+#: problems/models.py:131 problems/models.py:470 problems/models.py:596
 msgid "problems"
 msgstr "zadania"
 
@@ -5015,9 +5015,10 @@ msgid ""
 "Operation description: %(desc)s\n"
 " \n"
 "Error description: %(error)s\n"
-msgstr "Operacja zakończona niepowodzeniem: %(name)s\nOpis operacji:%(desc)s\n\nOpis błędu:%(error)s\n"
+" \n"
+msgstr "Operacja zakończona niepowodzeniem: %(name)s\nOpis operacji:%(desc)s\n\nOpis błędu:%(error)s\n\n"
 
-#: problems/models.py:309
+#: problems/models.py:308
 #, python-format
 msgid ""
 "Failed operation unknown.\n"
@@ -5025,42 +5026,42 @@ msgid ""
 " \n"
 msgstr "Nieznana operacja zakończona niepowodzeniem.\nOpis błędu: %(error)s\n\n"
 
-#: problems/models.py:370
+#: problems/models.py:369
 msgid "problem site"
 msgstr "strona zadania"
 
-#: problems/models.py:371
+#: problems/models.py:370
 msgid "problem sites"
 msgstr "strony zadań"
 
-#: problems/models.py:385
+#: problems/models.py:384
 #| msgid "Shared solutions"
 msgid "attempted solutions"
 msgstr "próby rozwiązania"
 
-#: problems/models.py:387
+#: problems/models.py:386
 #| msgid "Incorrect solution"
 msgid "correct solutions"
 msgstr "poprawne rozwiązania"
 
-#: problems/models.py:389
+#: problems/models.py:388
 msgid "average result"
 msgstr "średni wynik"
 
-#: problems/models.py:399
+#: problems/models.py:398
 msgid "user submitted"
 msgstr "użytkownik zgłosił"
 
-#: problems/models.py:401
+#: problems/models.py:400
 msgid "user solved"
 msgstr "użytkownik rozwiązał"
 
-#: problems/models.py:403
+#: problems/models.py:402
 #| msgid "Test scores"
 msgid "user's best score"
 msgstr "najlepszy wynik użytkownika"
 
-#: problems/models.py:467
+#: problems/models.py:466
 msgid ""
 "Short, searchable name consisting only of lowercase letters, numbers, and "
 "hyphens.<br>This should refer to general origin, i.e. a particular contest, "
@@ -5068,67 +5069,67 @@ msgid ""
 "the Problemset."
 msgstr "Krótka, wyszukiwalna nazwa zawierająca jedynie małe litery alfabetu łacińskiego, cyfry, oraz myślniki.<br>Powinna odnosić się do ogólnego źródła zadania, na przykład konkursu, zawodów, obozu informatycznego, itp.<br>Będze widoczna w tej postaci w Bazie Zadań."
 
-#: problems/models.py:472
+#: problems/models.py:471
 msgid "Selected problems will be tagged with this tag.<br>"
 msgstr "Zaznaczone zadania zostaną otagowane."
 
-#: problems/models.py:487 problems/models.py:547 problems/models.py:625
+#: problems/models.py:486 problems/models.py:546 problems/models.py:624
 #: programs/admin.py:361 programs/models.py:314 programs/models.py:345
 msgid "language"
 msgstr "język"
 
-#: problems/models.py:490
+#: problems/models.py:489
 msgid ""
 "Full, official name of the contest, competition, programming camp, etc. "
 "which this tag represents."
 msgstr "Pełna, oficjalna nazwa konkursu, zawodów, obozu informatycznego, itp., który jest opisany przez ten tag."
 
-#: problems/models.py:492
+#: problems/models.py:491
 #| msgid "Rule violation"
 msgid "abbreviation"
 msgstr "skrót"
 
-#: problems/models.py:493
+#: problems/models.py:492
 msgid "(optional) Official abbreviation of the full name."
 msgstr "(opcjonalne) Oficjalny skrót pełnej nazwy."
 
-#: problems/models.py:495
+#: problems/models.py:494
 msgid ""
 "(optional) Longer description which Will be displayed in the Task Archive "
 "next to the name."
 msgstr "(opcjonalne) Dłuższy opis, który będzie wyświetlony w Archiwum Zadań obok nazwy tagu."
 
-#: problems/models.py:499
+#: problems/models.py:498
 msgid "origin tag localization"
 msgstr "tłumaczenie tagu pochodzenia"
 
-#: problems/models.py:500
+#: problems/models.py:499
 msgid "origin tag localizations"
 msgstr "tłumaczenia tagów pochodzenia"
 
-#: problems/models.py:518 problems/models.py:575
+#: problems/models.py:517 problems/models.py:574
 #| msgid "parent"
 msgid "parent tag"
 msgstr "nadrzędny tag"
 
-#: problems/models.py:519
+#: problems/models.py:518
 msgid ""
 "This category will be a possible category of information for problems tagged"
 " with the selected tag."
 msgstr "Ta kategoria będzie jedną z możliwych kategorii informacji dla zadań otagowanych wybranym tagiem."
 
-#: problems/models.py:522
+#: problems/models.py:521
 msgid ""
 "Type of information within this category. Short, searchable name consisting "
 "of only lowercase letters, numbers, and hyphens.<br>Examples: 'year', "
 "'edition', 'stage', 'day'."
 msgstr "Rodzaj informacji w tej kategorii. Krótka, wyszukiwalna nazwa zawierająca jedynie małe litery alfabetu łacińskiego, cyfry, i myślniki.<br>Przykładowo: 'year', 'edition, 'stage', 'day'."
 
-#: problems/models.py:525
+#: problems/models.py:524
 msgid "grouping order"
 msgstr "kolejność grupowania"
 
-#: problems/models.py:526
+#: problems/models.py:525
 msgid ""
 "Sometimes the parent_tag relationship by itself is not enough to convey full"
 " information about the information hierarchy.<br>Some categories are "
@@ -5141,32 +5142,32 @@ msgid ""
 "'groups' of single Problems)."
 msgstr "Czasami związek z tagiem nadrzędnym sam w sobie nie jest wystarczający, by przekazać pełną hierarchię informacji.<br>Niektóre kategorie są szersze, a inne szczegółowe Przy wyświetlaniu, szczegółowe tagi raczej powinnny być grupowane wizualnie po/pod tagami szerszymi.<br>Im szersza kategoria, tym niższą kolejność grupowania powinna mieć, na przykład kategoria 'year' powinna mieć niższy order niż 'round'.<br>Pusta wartość oznacza \"nieskończoność\", co zwykle oznacza, że kategoria nie będzie grupowana - niektóre kategorie mogą być na to zbyt szczegółowe (na przykład gdy z grupowania wynikłyby \"grupy\" pojedynczych zadań)."
 
-#: problems/models.py:533
+#: problems/models.py:532
 msgid "origin tag - information category"
 msgstr "tag pochodzenia - kategoria informacji"
 
-#: problems/models.py:534
+#: problems/models.py:533
 msgid "origin tags - information categories"
 msgstr "tagi pochodzenia - kategorie informacji"
 
-#: problems/models.py:550
+#: problems/models.py:549
 #| msgid "Enumeration"
 msgid "name translation"
 msgstr "tłumaczenie nazwy"
 
-#: problems/models.py:551
+#: problems/models.py:550
 msgid "Human-readable name."
 msgstr "Nazwa czytelna dla człowieka."
 
-#: problems/models.py:555
+#: problems/models.py:554
 msgid "origin info category localization"
 msgstr "tłumaczenie kategorii informacji pochodzenia"
 
-#: problems/models.py:556
+#: problems/models.py:555
 msgid "origin info category localizations"
 msgstr "tłumaczenia kategorii informacji pochodzenia"
 
-#: problems/models.py:576
+#: problems/models.py:575
 msgid ""
 "If an OriginTag T is a parent of OriginInfoValue V, the presence of V on a "
 "Problem implies the presence of T.<br>OriginInfoValues with the same values "
@@ -5176,15 +5177,15 @@ msgid ""
 " this unique OriginInfoValue.name would be 'pa_2011'"
 msgstr "Jeśli tag pochodzenia T jest nadrzędny dla wartości pochodzenia V, z obecności V na zadaniu wynika obecność T.<br>Wartości pochodzenia z tymi samymi wartościami są rozróżnialne, jeśli mają różne tagi nadrzędne.<br>Można myśleć o tym rozróżnieniu, jak o dopisaniu jako prefiks nazwy tagu przed wartością.<br>Na przykład dla tagu 'pa' i wartości '2011', ta unikatowa \"nazwa wartości\" byłaby równa 'pa_2011'."
 
-#: problems/models.py:586
+#: problems/models.py:585
 msgid "This information should be categorized under the selected category."
 msgstr "Ta informacja należy do wybranej kategorii."
 
-#: problems/models.py:589
+#: problems/models.py:588
 msgid "value"
 msgstr "wartość"
 
-#: problems/models.py:590
+#: problems/models.py:589
 msgid ""
 "Short, searchable value consisting of only lowercase letters and "
 "numbers.<br>This will be displayed verbatim in the Problemset - it must be "
@@ -5192,88 +5193,88 @@ msgid ""
 "'r1' (just '1' for round would be ambiguous)."
 msgstr "Krótka, wyszukiwalna wartość zawierająca jedynie małe litery alfabetu łacińskiego, cyfry, i myślniki.<br>Będzie ona wyświetlona w tej postaci z Bazie Zadań - musi zatem być unikatowa w obrębie swojego tagu nadrzędnego.<br>Przykłady: dla roku: '2011', ale dla rundy: 'r1' (samo '1' dla rundy byłoby zbyt niejednoznaczne)."
 
-#: problems/models.py:594
+#: problems/models.py:593
 #| msgid "Display user"
 msgid "display order"
 msgstr "kolejność wyświetlania"
 
-#: problems/models.py:595
+#: problems/models.py:594
 msgid "Order in which this value will be sorted within its category."
 msgstr "Kolejność wyświetlania tej wartości w obrębie swojej kategorii."
 
-#: problems/models.py:598
+#: problems/models.py:597
 msgid ""
 "Select problems described by this value. They will also be tagged with the "
 "parent tag.<br>"
 msgstr "Wybierz zadania opisywane przez tę wartość. Zostaną one także otagowane tagiem nadrzędnym.<br>"
 
-#: problems/models.py:612
+#: problems/models.py:611
 #| msgid "Not enough information given"
 msgid "origin tag - information value"
 msgstr "tag pochodzenia - wartość informacji"
 
-#: problems/models.py:613
+#: problems/models.py:612
 #| msgid "Not enough information given"
 msgid "origin tags - information values"
 msgstr "tagi pochodzenia - wartości informacji"
 
-#: problems/models.py:628
+#: problems/models.py:627
 msgid "translated value"
 msgstr "przetłumaczona wartość"
 
-#: problems/models.py:629
+#: problems/models.py:628
 msgid "Human-readable value."
 msgstr "Wartość czytelna dla człowieka."
 
-#: problems/models.py:633
+#: problems/models.py:632
 msgid "origin info value localization"
 msgstr "tłumaczenie wartości informacji o pochodzeniu"
 
-#: problems/models.py:634
+#: problems/models.py:633
 msgid "origin info value localizations"
 msgstr "tłumaczenia wartości informacji o pochodzeniu"
 
-#: problems/models.py:653
+#: problems/models.py:652
 #| msgid "Edit tags"
 msgid "difficulty tag"
 msgstr "tag trudności"
 
-#: problems/models.py:654
+#: problems/models.py:653
 #| msgid "Edit tags"
 msgid "difficulty tags"
 msgstr "tagi trudności"
 
-#: problems/models.py:682
+#: problems/models.py:681
 #| msgid "Algorithmic Engagements"
 msgid "algorithm tag"
 msgstr "tag algorytmiczny"
 
-#: problems/models.py:683
+#: problems/models.py:682
 #| msgid "Algorithmic Engagements"
 msgid "algorithm tags"
 msgstr "tagi algorytmiczne"
 
-#: problems/models.py:715
+#: problems/models.py:714
 msgid "tag"
 msgstr "znacznik"
 
-#: problems/models.py:716
+#: problems/models.py:715
 msgid "tags"
 msgstr "znaczniki"
 
-#: problems/models.py:745
+#: problems/models.py:744
 msgid "algorithm tag proposal"
 msgstr "propozycja taga algorytmicznego"
 
-#: problems/models.py:746
+#: problems/models.py:745
 msgid "algorithm tag proposals"
 msgstr "propozycje tagów algorytmicznych"
 
-#: problems/models.py:759
+#: problems/models.py:758
 msgid "difficulty proposal"
 msgstr "propozycja poziomu trudności"
 
-#: problems/models.py:760
+#: problems/models.py:759
 msgid "difficulty proposals"
 msgstr "propozycje poziomu trudności"
 
@@ -5641,12 +5642,12 @@ msgid ""
 "hyphens."
 msgstr "Wprowadź prawidłową nazwę zawierającą jedynie małe litery alfabetu łacińskiego, cyfry, i myślniki."
 
-#: problems/views.py:64 szkopul/views.py:15 teachers/admin.py:112
+#: problems/views.py:64 szkopul/views.py:17 teachers/admin.py:112
 #: usercontests/admin.py:37
 msgid "Contests"
 msgstr "Konkursy"
 
-#: problems/views.py:78 szkopul/views.py:29
+#: problems/views.py:78 szkopul/views.py:31
 msgid "Task archive"
 msgstr "Archiwum zadań konkursowych"
 
@@ -5741,7 +5742,7 @@ msgstr "Dodano do znajomych"
 msgid "Invalid request (this user is not your friend)"
 msgstr "Niepoprawne zapytanie (ten użytkownik nie jest twoim znajomym)"
 
-#: programs/admin.py:65 sinolpack/package.py:693
+#: programs/admin.py:65 sinolpack/package.py:704
 #, python-format
 msgid ""
 "Sum of time limits for all tests is too big. It's %(sum)ds, but it shouldn't"
@@ -7498,49 +7499,49 @@ msgstr "oryginalna paczka z zadaniem"
 msgid "original problem packages"
 msgstr "oryginalne paczki z zadaniami"
 
-#: sinolpack/package.py:251
+#: sinolpack/package.py:252
 #, python-format
 msgid "Compilation of file %(filename)s failed. Compiler output: %(output)s"
 msgstr "Kompilacja pliku %(filename)s zakończyła się porażką. Wyjście kompilatora: %(output)s"
 
-#: sinolpack/package.py:299
+#: sinolpack/package.py:300
 #, python-format
 msgid ""
 "Tried to replace problem '%(oldname)s' with '%(newname)s'. For safety, "
 "changing problem short name is not possible."
 msgstr "Próba zastąpienia zadania „%(oldname)s” zadaniem '%(newname)s'. Ze względów bezpieczeństwa zmiana skrótu zadania jest niemożliwa."
 
-#: sinolpack/package.py:437
+#: sinolpack/package.py:448
 #, python-format
 msgid "Expected extra files %r not found in prog/"
 msgstr "Nie znaleziono dodatkowych plików %r w prog/"
 
-#: sinolpack/package.py:506
+#: sinolpack/package.py:517
 msgid ""
 "You cannot upload package with problem statement in HTML. Try again using "
 "PDF format."
 msgstr "Nie możesz wgrać paczki z treścią w formacie HTML. Spróbuj ponownie używając formatu PDF."
 
-#: sinolpack/package.py:545
+#: sinolpack/package.py:556
 msgid "index.html has to be utf8 or iso8859-2 encoded"
 msgstr "index.html musi być kodowany za pomocą utf-8 lub iso-8859-2"
 
-#: sinolpack/package.py:722
+#: sinolpack/package.py:733
 #, python-format
 msgid "Inwer failed on test %(test)s. Inwer output %(output)s"
 msgstr "Weryfikacja wejścia testu %(test)s zakończyła się porażką. Wyjście programu weryfikującego: %(output)s"
 
-#: sinolpack/package.py:749
+#: sinolpack/package.py:760
 #, python-format
 msgid "Missing out file for test %s"
 msgstr "Brak pliku wyjściowego do testu %s"
 
-#: sinolpack/package.py:786
+#: sinolpack/package.py:797
 #, python-format
 msgid "Unrecognized test: %s"
 msgstr "Nieznany test: %s"
 
-#: sinolpack/package.py:924
+#: sinolpack/package.py:935
 #, python-format
 msgid ""
 "Score for group '%(group_name)s' not found. You must either provide scores "
@@ -7549,7 +7550,7 @@ msgid ""
 "%(config_groups)s)"
 msgstr "Nie znaleziono wyniku grupy '%(group_name)s' . Musisz albo podać wyniki dla wszystkich grup, albo nie podawać ich w ogóle (aby były przydzielone automatycznie). (Grupy z wynikiem: %(scored_groups)s, grupy z configu: %(config_groups)s)"
 
-#: sinolpack/package.py:937
+#: sinolpack/package.py:948
 #, python-format
 msgid ""
 "Score for group '%(group_name)s' found in config, but no such test group "
@@ -7558,7 +7559,7 @@ msgid ""
 "groups: %(scored_groups)s, groups from config: %(config_groups)s)"
 msgstr "Znaleziono punktację dla grupy '%(group_name)s' w konfiguracji, ale taka grupa testów nie należy do punktowanych grup. Musisz albo podać punktacje dla wszystkich grup, albo nie podawać ich w ogóle (aby były przydzielone automatycznie). (Grupy z punktacją: %(scored_groups)s, grupy z configu: %(config_groups)s)"
 
-#: sinolpack/package.py:1207
+#: sinolpack/package.py:1218
 msgid "Sinol Package"
 msgstr "Paczka Sinola"
 
