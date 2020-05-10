@@ -248,7 +248,7 @@ def generate_problemset_tabs(request):
         if request.user.is_superuser:
             tabs.append({'name': _('All problems'), 'url': reverse('problemset_all_problems')})
         if can_add_to_problemset(request):
-            tabs.append({'name': _('Add problem'), 'url': reverse('problemset_add_or_update')})
+            tabs.append({'name': _('Add problem'), 'url': reverse('problemset_add_or_update'), 'color': "-green"})
 
     return tabs
 

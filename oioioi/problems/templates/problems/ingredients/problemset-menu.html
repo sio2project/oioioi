@@ -2,7 +2,7 @@
 
 <ul class="nav nav-pills nav-justified nav-margin">
     {% for tab in problemset_tabs %}
-        <li role="presentation" class="menu-item {% active_url tab.url 'menu-item-active' %}">
+        <li role="presentation" class="menu-item{{ tab.color }} {% active_url tab.url 'menu-item-active' %}{{ tab.color }}">
             <a href="{{ tab.url }}
             {% if select_problem_src %}?select_problem_src={{ select_problem_src }}{% endif %}">
                 {{ tab.name }}
