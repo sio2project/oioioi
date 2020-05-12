@@ -11,7 +11,7 @@ from oioioi.contests.current_contest import ContestMode
 
 from django.contrib.messages import constants as messages
 
-INSTALLATION_CONFIG_VERSION = 42
+INSTALLATION_CONFIG_VERSION = 43
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)

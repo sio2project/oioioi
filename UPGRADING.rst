@@ -806,3 +806,63 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +
          # Number of concurrently evaluated submissions (default is 1).
          #EVALMGR_CONCURRENCY = 30
+
+#. * Removed 'celerycam' and 'cleanupd' from the list of supervisor programs.
+     Updated celery worker startup commands.::
+
+        --- a/oioioi/deployment/supervisord.conf.template
+        +++ b/oioioi/deployment/supervisord.conf.template
+        @@ -19,13 +19,6 @@ stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
+         {% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
+
+        -[program:celerycam]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celerycam --pidfile={{ PROJECT_DIR }}/pidfiles/celerycam.pid
+        -startretries=0
+        -redirect_stderr=false
+        -stdout_logfile={{ PROJECT_DIR }}/logs/celerycam.log
+        -stderr_logfile={{ PROJECT_DIR }}/logs/celerycam-err.log
+        -
+         [program:rankingsd]
+         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
+         startretries=0
+        @@ -41,7 +34,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/mailnotifyd.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/mailnotifyd-err.log
+
+         [program:unpackmgr]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+        +command=celery -A oioioi.celery worker -E -l info -Q unpackmgr -c {{ settings.UNPACKMGR_CONCURRENCY }}
+         startretries=0
+         stopwaitsecs=15
+         redirect_stderr=false
+        @@ -49,7 +42,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/unpackmgr.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/unpackmgr-err.log
+
+         [program:evalmgr]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
+        +command=celery -A oioioi.celery worker -E -l info -Q evalmgr -c {{ settings.EVALMGR_CONCURRENCY }}
+         startretries=0
+         stopwaitsecs=15
+         redirect_stderr=false
+        @@ -57,7 +50,7 @@ stdout_logfile={{ PROJECT_DIR }}/logs/evalmgr.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/evalmgr-err.log
+
+         [program:evalmgr-zeus]
+        -command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py celeryd -E -l info -Q evalmgr-zeus -c 1
+        +command=celery -A oioioi.celery worker -E -l info -Q evalmgr-zeus -c 1
+         startretries=0
+         stopwaitsecs=15
+         redirect_stderr=false
+        @@ -102,12 +95,6 @@ stdout_logfile={{ PROJECT_DIR }}/logs/sioworkersd.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/sioworkersd-err.log
+         {% if settings.SIOWORKERS_BACKEND != 'oioioi.sioworkers.backends.SioworkersdBackend' or not settings.RUN_SIOWORKERSD %}exclude=true{% endif %}
+
+        -[program:cleanupd]
+        -command={{ PROJECT_DIR }}/manage.py cleanupd
+        -redirect_stderr=false
+        -stdout_logfile={{ PROJECT_DIR }}/logs/cleanupd.log
+        -stderr_logfile={{ PROJECT_DIR }}/logs/cleanupd-err.log
+        -
+         [program:ipauthsyncd]
+         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py ipauthsyncd
+         startretries=0
