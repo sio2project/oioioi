@@ -11,6 +11,7 @@
                 {% if is_admin %}
                 <th>{% trans "Publication date" %}</th>
                 {% endif %}
+                <th>{% trans "Round" %}</th>
                 <th>{% trans "Category" %}</th>
                 <th>{% trans "Topic" %}</th>
                 {% if is_admin %}
@@ -38,6 +39,7 @@
                 {% else %}
                     <td><a href="{{ link }}">{{ msg.get_user_date }}</a></td>
                 {% endif %}
+                <td>{{ msg.round }}</td>
                 <td>{{ msg.problem_instance|default_if_none:_("General") }}</td>
                 <td>
                     {% if not record.read and not is_admin %}
