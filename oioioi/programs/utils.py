@@ -4,7 +4,9 @@ from operator import itemgetter  # pylint: disable=E0611
 import six
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
+from oioioi.base.utils import make_html_link
 from oioioi.contests.models import Submission
 from oioioi.contests.scores import IntegerScore, ScoreValue
 from oioioi.contests.utils import aggregate_statuses
@@ -163,3 +165,17 @@ def filter_model_submissions(queryset):
 
 def form_field_id_for_langs(problem_instance):
     return 'prog_lang_' + str(problem_instance.id)
+
+def get_problem_link_or_name(request, submission):
+    pi = submission.problem_instance
+    if pi.contest is None:
+        href = reverse('problem_site',
+                       kwargs={'site_key': pi.problem.problemsite.url_key})
+        return make_html_link(href, pi)
+    elif pi.contest.controller.can_see_statement(request, pi):
+        href = reverse('problem_statement',
+                       kwargs={'contest_id': pi.contest.id,
+                               'problem_instance': pi.short_name})
+        return make_html_link(href, pi)
+    else:
+        return pi

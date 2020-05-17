@@ -34,7 +34,8 @@ from oioioi.programs.problem_instance_utils import (get_allowed_languages_dict,
 from oioioi.programs.utils import (has_report_actions_config,
                                    is_model_submission,
                                    filter_model_submissions,
-                                   form_field_id_for_langs)
+                                   form_field_id_for_langs,
+                                   get_problem_link_or_name)
 
 def get_report_display_type(request, test_report):
     if (test_report.status == 'INI_OK' or test_report.status == 'OK'):
@@ -579,6 +580,7 @@ class ProgrammingProblemController(ProblemController):
                 context={
                     'submission': submission_template_context(request,
                         submission.programsubmission),
+                    'problem': get_problem_link_or_name(request, submission),
                     'saved_diff_id': request.session.get('saved_diff_id'),
                     'supported_extra_args':
                         problem_instance.controller.get_supported_extra_args(

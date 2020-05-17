@@ -134,7 +134,7 @@
                         </a>
                     </td>
                 {% else %}
-                    <td>{{ submission.submission.problem_instance }}</td>
+                    <td>{{ problem }} </td>
                 {% endif %}
                 <td>{{ submission.submission.get_date_display }}</td>
                 {% if submission.can_see_status %}
