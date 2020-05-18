@@ -871,16 +871,43 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
      To make sure that your typical production setup (UWSGI + reverse proxy)
      keeps working, set this to 'uwsgi'.::
 
-        @@ -28,12 +27,20 @@ SITE_NAME = 'OIOIOI'
-         # including but not limited to the mail notifications.
-         PUBLIC_ROOT_URL = 'http://localhost'
-
-        -# Run uwsgi daemon. Shall be True, False or 'auto'.
-        -# 'auto' means daemon will be run iff DEBUG is disabled.
-        -UWSGI_ENABLED = 'auto'
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -34,0 +38,6 @@
         +# The server to be run. Options are:
-        +# django - django's http server
-        +# uwsgi - uwsgi daemon
-        +# uwsgi-http - uwsgi deamon with builtin http server
+        +# 'django' - django's http server
+        +# 'uwsgi' - uwsgi daemon
+        +# 'uwsgi-http' - uwsgi deamon with built-in http server
         +# None - nothing will be run
-        +SERVER = None
+        +SERVER = 'django'
+
+   * Appropriate changes were also made to the supervisor configuration.::
+
+        --- a/oioioi/deployment/supervisord.conf.template
+        +++ b/oioioi/deployment/supervisord.conf.template
+        @@ -7,17 +7,19 @@ directory={{ PROJECT_DIR }}
+         identifier=oioioi-supervisor
+
+         [program:uwsgi]
+        -{% if settings.UWSGI_USE_GEVENT %}
+        -command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --loop=gevent --async=50 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+        -{% else %}
+        -command=uwsgi -s {{ PROJECT_DIR }}/uwsgi.sock --umask=000 --processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+        -{% endif %}
+        +command=uwsgi {% if settings.SERVER == 'uwsgi-http' %}--http :8000 --static-map {{ settings.STATIC_URL }}={{ settings.STATIC_ROOT }} {% else %}-s {{ PROJECT_DIR }}/uwsgi.sock {% endif %}--umask=000 {% if settings.UWSGI_USE_GEVENT %}--loop=gevent --async=50 {% endif %}--processes=10 -M --max-requests=5000 --disable-logging --need-app --enable-threads --socket-timeout=30 --wsgi-file={{ PROJECT_DIR }}/wsgi.py
+         stopsignal=INT
+         startretries=0
+         redirect_stderr=false
+         stdout_logfile={{ PROJECT_DIR }}/logs/uwsgi.log
+         stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
+        -{% if settings.UWSGI_ENABLED == False %}exclude=true{% elif settings.UWSGI_ENABLED == 'auto' and settings.DEBUG %}exclude=true{% endif %}
+        +{% if settings.SERVER|slice:":5" != 'uwsgi' %}exclude=true{% endif %}
+        +
+        +[program:django-http]
+        +command={{ PYTHON }} {{ PROJECT_DIR }}//manage.py runserver 0.0.0.0:8000
+        +stdout_logfile={{ PROJECT_DIR }}/logs/runserver/out.log
+        +stderr_logfile={{ PROJECT_DIR }}/logs/runserver/err.log
+        +{% if settings.SERVER != 'django' %}exclude=true{% endif %}
+
+         [program:rankingsd]
+         command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd

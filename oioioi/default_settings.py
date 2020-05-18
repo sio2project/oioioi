@@ -24,9 +24,9 @@ SITE_NAME = 'OIOIOI'
 PUBLIC_ROOT_URL = 'http://localhost'
 
 # The server to be run. Options are:
-# django - django's http server
-# uwsgi - uwsgi daemon
-# uwsgi-http - uwsgi deamon with builtin http server
+# 'django' - django's http server
+# 'uwsgi' - uwsgi daemon
+# 'uwsgi-http' - uwsgi deamon with built-in http server
 # None - nothing will be run
 SERVER = None
 

@@ -9,7 +9,7 @@ services:
       POSTGRES_DB: "oioioi"
     stop_grace_period: 1m
   web:
-    image: sio2project/oioioi
+    image: sio2project/oioioi-selenium
     command: ["/sio2/oioioi/selenium_init.sh"]
     build:
       context: .
@@ -25,7 +25,7 @@ services:
       - db
       - broker
   worker:
-    image: sio2project/oioioi
+    image: sio2project/oioioi-selenium
     command: ["/sio2/oioioi/worker_init.sh"]
     cap_add:
       - ALL
