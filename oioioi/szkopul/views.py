@@ -82,7 +82,7 @@ def main_page_view(request):
         if django.VERSION >= (1, 11):
             submissions_list = submissions_list.order_by('-date')
         else:
-            submissions_list.sort(reverse=True, key=lambda(s): s.date)
+            submissions_list.sort(reverse=True, key=lambda s: s.date)
 
         submissions = [submission_template_context(request, s) for s in submissions_list]
 

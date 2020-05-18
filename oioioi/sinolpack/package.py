@@ -344,10 +344,7 @@ class SinolPackage(object):
                 # Reraising this way allows us to retrieve the full stack trace
                 # that would otherwise be screened by the try...except clause.
 
-                if six.PY2:
-                    raise PackageProcessingError, error, sys.exc_info()[2]
-                else:
-                    raise error.with_traceback(sys.exc_info()[2])
+                six.reraise(PackageProcessingError, error, sys.exc_info()[2])
 
             except Exception:
                 # Reraising as a custom exception allows us to attach extra
@@ -356,10 +353,7 @@ class SinolPackage(object):
                 error = PackageProcessingError(func.__name__,
                                                func.__doc__.split("\n\n")[0])
 
-                if six.PY2:
-                    raise PackageProcessingError, error, sys.exc_info()[2]
-                else:
-                    raise error.with_traceback(sys.exc_info()[2])
+                six.reraise(PackageProcessingError, error, sys.exc_info()[2])
 
         return wrapper
 
