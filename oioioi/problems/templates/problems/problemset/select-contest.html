@@ -6,39 +6,7 @@
 
 <h3>{% blocktrans %}Select contest to add the <code>{{ problem_name }}</code> problem to {% endblocktrans %}</h3>
 
-{% if administered_contests %}
-    <div class="table-responsive">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>{% trans "ID" %}</th>
-                    <th>{% trans "Name" %}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for contest in administered_contests %}
-                <tr>
-                    <td>{{ contest.id }}</td>
-                    <td>
-                        <div class="add-to-contest-group">
-                            <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
-                               class="long-job" data-urlkey="{{ site_key }}">{{ contest.name }}</a>
-                            <span class="loading-spinner hidden">
-                                <span class="glyphicon glyphicon-refresh glyphicon-spin"></span>
-                            </span>
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-{% else %}
-    <div class="alert alert-info">
-        <p>{% trans "No contests yet :(" %}</p>
-    </div>
-{% endif %}
+{% include "problems/problemset/contest-list.html" with contests=administered_contests %}
 
 <form id="add_to_contest" method="post" class="hidden">
     {% csrf_token %}

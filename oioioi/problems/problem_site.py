@@ -14,6 +14,7 @@ from oioioi.base.menu import OrderedRegistry
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import Submission
+from oioioi.contests.utils import administered_contests
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal,
                                     ProblemStatement)
 from oioioi.problems.utils import (query_statement, query_zip, generate_add_to_contest_metadata,
@@ -173,8 +174,11 @@ def problem_site_settings(request, problem):
                              'extra_actions': extra_actions})
 
 
-@problem_site_tab(_('Add to contest'), key='add_to_contest', order=700)
+@problem_site_tab(_("Add to contest"), key='add_to_contest', order=700)
 def problem_site_add_to_contest(request, problem):
-    return TemplateResponse(request, 'problems/add-to-contest-redirect.html',
+    administered = administered_contests(request)
+    administered = sorted(administered,
+        key=lambda x: x.creation_date, reverse=True)
+    return TemplateResponse(request, 'problems/add-to-contest.html',
                             {'site_key': problem.problemsite.url_key,
-                             'problem': problem})
+                             'contests': administered})

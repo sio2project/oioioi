@@ -1,0 +1,5 @@
+{% load i18n %}
+
+{% url 'problemset_add_to_contest' site_key=site_key as contest_url %}
+
+{% include "problems/problemset/contest-list.html" with contests=contests %}
