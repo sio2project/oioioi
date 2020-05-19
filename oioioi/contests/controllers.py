@@ -749,11 +749,11 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         if not request.user.is_authenticated:
             return queryset.none()
         if filter_user:
-            qs = queryset.filter(user=request.user)
+            queryset = queryset.filter(user=request.user)
         if is_contest_basicadmin(request):
-            return qs
+            return queryset
         else:
-            return qs.filter(date__lte=request.timestamp) \
+            return queryset.filter(date__lte=request.timestamp) \
             .filter(problem_instance__in=visible_problem_instances(request)) \
             .exclude(kind='IGNORED_HIDDEN')
 
