@@ -2138,18 +2138,26 @@ class TestTaskArchive(TestCase):
         pos = html.find('problemgroups-xxiv-s2', pos)
         self.assertTrue(pos != -1)
 
-        pos = html.find('24_s2 1', pos)
-        self.assertTrue(pos != -1)
-        pos = html.find('24_s2 2', pos)
-        self.assertTrue(pos != -1)
+        pos1 = html.find('24_s2 1', pos)
+        self.assertTrue(pos1 != -1)
+        pos2 = html.find('24_s2 2', pos)
+        self.assertTrue(pos2 != -1)
+
+        # Test sorting by short names: "24_s2 1" < "24_s2 2"
+        self.assertTrue(pos1 < pos2)
 
         pos = html.find('problemgroups-xxiv-s3', pos)
         self.assertTrue(pos != -1)
 
-        pos = html.find('24_s3_d1', pos)
-        self.assertTrue(pos != -1)
-        pos = html.find('24_s3_d2', pos)
-        self.assertTrue(pos != -1)
+        pos1 = html.find('24_s3_d1', pos)
+        self.assertTrue(pos1 != -1)
+        pos2 = html.find('24_s3_d2', pos)
+        self.assertTrue(pos2 != -1)
+
+        # Test sorting by short names: "primary" < "secondary"
+        # The short names are such that their alphabetical order does not agree
+        # with the names and IDs so that the test is slightly more effective.
+        self.assertTrue(pos2 < pos1)
 
         pos = html.find('problemgroups-xxv', pos)
         self.assertTrue(pos != -1)

@@ -4,6 +4,7 @@
     "model": "problems.problem",
     "fields": {
       "name": "24_s2 1",
+      "short_name": "24_s2 1",
       "visibility": "PU"
     }
   },
@@ -12,6 +13,7 @@
     "model": "problems.problem",
     "fields": {
       "name": "24_s2 2",
+      "short_name": "24_s2 2",
       "visibility": "PU"
     }
   },
@@ -20,6 +22,7 @@
     "model": "problems.problem",
     "fields": {
       "name": "24_s3_d1",
+      "short_name": "problem_2",
       "visibility": "PU"
     }
   },
@@ -28,6 +31,7 @@
     "model": "problems.problem",
     "fields": {
       "name": "24_s3_d2",
+      "short_name": "problem_1",
       "visibility": "PU"
     }
   },

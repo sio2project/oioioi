@@ -48,6 +48,7 @@ from oioioi.problems.utils import (can_add_to_problemset,
                                    query_statement, get_prefetched_value, show_proposal_form)
 from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
                                     ModelSolution, Test, TestReport)
+from operator import attrgetter
 from unidecode import unidecode
 
 
@@ -507,6 +508,7 @@ def task_archive_view(request):
 
 def _recursive_group_problems(problems, result_info, categories, div_id):
     if not categories:
+        problems.sort(key=attrgetter('short_name'))
         results = [result_info[problem] for problem in problems]
         percentages = [
             100.0 * result['score'] / result['max_score'] if result['exists'] else 0.0
