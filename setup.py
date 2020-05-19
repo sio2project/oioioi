@@ -32,7 +32,7 @@ python3_specific_requirements = [
 ]
 
 python23_universal_requirements = [
-        "Django>=1.10,<1.11",  # when upgrading, upgrade also django-two-factor-auth!
+        "Django>=1.11,<1.12",  # when upgrading, upgrade also django-two-factor-auth!
         "pytz>=2013b",
         "sqlalchemy",
         "django-otp>=0.4.3,<0.5",  # latest version for Django 1.10 and django-two-factor-auth 1.6.*
