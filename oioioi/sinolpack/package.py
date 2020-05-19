@@ -48,7 +48,7 @@ def _stringify_keys(dictionary):
 
 
 def _determine_encoding(title, file):
-    r = re.search(r'\\documentclass\[(.+)\]{sinol}', file)
+    r = re.search(br'\\documentclass\[(.+)\]{sinol}', file)
     encoding = 'latin2'
 
     if r is not None and 'utf8' in r.group(1):
@@ -405,8 +405,8 @@ class SinolPackage(object):
 
         source = os.path.join(self.rootdir, 'doc', self.short_name + 'zad.tex')
         if os.path.isfile(source):
-            text = open(source, 'r').read()
-            r = re.search(r'^[^%]*\\title{(.+)}', text, re.MULTILINE)
+            text = open(source, 'rb').read()
+            r = re.search(br'^[^%]*\\title{(.+)}', text, re.MULTILINE)
             if r is not None:
                 self.problem.name = _decode(r.group(1), text)
                 self.problem.save()
