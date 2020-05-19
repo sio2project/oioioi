@@ -57,8 +57,8 @@ class TestQuestions(TestCase):
 
     def test_pub_date(self):
         contest = Contest.objects.get()
-        all_messages = ['question-visible', 'question-hidden1',
-                'question-hidden2', 'response-hidden',
+        all_messages = ['question-visible-title', 'question-hidden1-title',
+                'question-hidden2-title', 'response-hidden-title',
                 'visible-response-to-hidden']
         url = reverse('contest_messages', kwargs={'contest_id': contest.id})
         timestamp = datetime(2013, 9, 7, 13, 40, 0, tzinfo=timezone.utc)
@@ -73,9 +73,9 @@ class TestQuestions(TestCase):
                     self.assertNotContains(response, m)
 
         self.assertTrue(self.client.login(username='test_user'))
-        check_visibility('question-visible')
+        check_visibility('question-visible-title')
         self.assertTrue(self.client.login(username='test_admin'))
-        check_visibility('response-hidden', 'question-hidden1',
+        check_visibility('response-hidden-title', 'question-hidden1-title',
                 'visible-response-to-hidden')
 
     def test_user_date(self):
