@@ -59,7 +59,7 @@ Documentation for developers:
 * `Developer's Guide`_
 * `Developer's Reference`_
 
-.. _Developer's Guide: https://sio2project.mimuw.edu.pl/display/DOC/SIO2+Developer%27s+Guide
+.. _Developer's Guide: CONTRIBUTING.rst
 .. _Developer's Reference: http://oioioi.readthedocs.io/en/latest/
 
 Testing
@@ -93,9 +93,11 @@ To run a contest, you obviously need some tasks. To add a task to a contest in
 OIOIOI, you need to create an archive, called task package. Here are some
 pointers, how it should look like:
 
+* `tutorial`_,
 * `example task packages`_ used by our tests,
 * `a rudimentary task package format specification`_.
 
+.. _tutorial: https://github.com/sio2project/oioioi/wiki
 .. _example task packages: https://github.com/sio2project/oioioi/tree/master/oioioi/sinolpack/files
 .. _a rudimentary task package format specification: http://sio2project.mimuw.edu.pl/display/DOC/Preparing+Task+Packages
 
