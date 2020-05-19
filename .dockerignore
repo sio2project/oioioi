@@ -35,5 +35,6 @@
 /.github
 /extra/
 /test*
+!/test_report.css
 /*.rst
 /rst/

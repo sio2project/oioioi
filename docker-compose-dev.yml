@@ -12,7 +12,7 @@ services:
     stop_grace_period: 1m
   web:
     image: sio2project/oioioi-dev
-    command: ["/sio2/oioioi/oioioi_init.sh"]
+    command: ["/sio2/oioioi/selenium_init.sh"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,8 +23,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - $PWD:/sio2/oioioi
-      - $PWD/deployment:/sio2/deployment
+      - .:/sio2/oioioi
+#      - ./deployment:/sio2/deployment
     stop_grace_period: 3m
     depends_on:
       - db
@@ -33,7 +33,7 @@ services:
     image: sio2project/oioioi-dev
     command: ["/sio2/oioioi/worker_init.sh"]
     volumes:
-      - $PWD:/sio2/oioioi
+      - .:/sio2/oioioi
     stop_grace_period: 1m
     cap_add:
       - ALL

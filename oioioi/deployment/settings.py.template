@@ -136,12 +136,8 @@ SEND_USER_ACTIVATION_EMAIL = False
 #
 # Some features may depend on this setting, e.g. the "portals" app requires
 # that either the "neutral" or the "contest_if_possible" option is picked.
-#
-# The default setting is "contest_if_possible".
-# To access the contest mode setting you also have to uncomment
-# the following import line.
-#from oioioi.contests.current_contest import ContestMode
-#CONTEST_MODE =
+from oioioi.contests.current_contest import ContestMode
+CONTEST_MODE = ContestMode.neutral
 
 # RabbitMQ server URL for distributed workers.
 #

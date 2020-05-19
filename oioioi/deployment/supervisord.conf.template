@@ -17,6 +17,7 @@ stderr_logfile={{ PROJECT_DIR }}/logs/uwsgi-err.log
 
 [program:django-http]
 command={{ PYTHON }} {{ PROJECT_DIR }}//manage.py runserver 0.0.0.0:8000
+stopasgroup=true
 stdout_logfile={{ PROJECT_DIR }}/logs/runserver.log
 stderr_logfile={{ PROJECT_DIR }}/logs/runserver-err.log
 {% if settings.SERVER != 'django' %}exclude=true{% endif %}
