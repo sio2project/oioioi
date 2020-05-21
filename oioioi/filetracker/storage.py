@@ -2,6 +2,7 @@ import datetime
 import os
 import os.path
 import tempfile
+import six
 
 from django.core.files import File
 from django.core.files.storage import Storage
@@ -72,6 +73,8 @@ class FiletrackerStorage(Storage):
         else:
             f = tempfile.NamedTemporaryFile()
             for chunk in content.chunks():
+                if six.PY3 and isinstance(chunk, str):
+                    chunk = chunk.encode('utf-8')
                 f.write(chunk)
             f.flush()
             filename = f.name

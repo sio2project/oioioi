@@ -63,14 +63,14 @@ class Base64String(object):
 def _json_base64_encode(o):
     def _string_base64(s):
         if isinstance(s, Base64String):
-            return base64.b64encode(str(s))
+            return base64.b64encode(str(s).encode('utf-8')).decode('utf-8')
         raise TypeError
     return json.dumps(o, default=_string_base64, sort_keys=True)
 
 
 def _json_base64_decode(o, wrap=False):
     def _dict_b64_decode(d):
-        return {k: (Base64String(base64.b64decode(v)) if wrap
+        return {k: (Base64String(base64.b64decode(v).decode('utf-8')) if wrap
                 else base64.b64decode(v)) if isinstance(v, six.string_types)
                 else v for (k, v) in six.iteritems(d)}
     return json.loads(o, object_hook=_dict_b64_decode)

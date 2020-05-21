@@ -2586,7 +2586,7 @@ class TestManyRoundsNoEnd(TestCase):
         response = self.client.get(reverse('problems_list',
                                            kwargs={'contest_id': contest.id}))
         prev = 0
-        response_body = str(response)
+        response_body = bytes(response).decode('utf-8')
 
         for task in ['zad2', 'zad3', 'zad4', 'zad1']:
             self.assertContains(response, task)

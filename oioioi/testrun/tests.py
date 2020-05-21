@@ -166,7 +166,7 @@ class TestTestrunViews(TestCase):
         langs_field_name = form_field_id_for_langs(pi)
         data = {
             'problem_instance_id': pi.id,
-            'code': b'some code',
+            'code': 'some code',
             langs_field_name: 'C',
             'input': ContentFile(b'i', name='x.cpp'),
         }
@@ -333,9 +333,9 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         first_test_run_response = self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
 
-        self.assertNotRegex(first_test_run_response.content,
+        self.assertNotRegex(first_test_run_response.content.decode('utf-8'),
                                     'limit.*exceeded')
-        self.assertRegex(second_test_run_response.content,
+        self.assertRegex(second_test_run_response.content.decode('utf-8'),
                                  'limit.*exceeded')
 
     def test_test_run_limit_should_be_independent_from_submission_limit(self):
@@ -351,9 +351,9 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         self.submit_solution(is_testrun=False)
         second_normal_response = self.submit_solution(is_testrun=False)
 
-        self.assertRegex(second_test_run_response.content,
+        self.assertRegex(second_test_run_response.content.decode('utf-8'),
                                  'limit.*exceeded')
-        self.assertNotRegex(second_normal_response.content,
+        self.assertNotRegex(second_normal_response.content.decode('utf-8'),
                                     'limit.*exceeded')
 
     def test_zero_test_run_limit_should_mean_unlimited_test_runs(self):
@@ -363,7 +363,7 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         first_test_run_response = self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
 
-        self.assertNotRegex(first_test_run_response.content,
+        self.assertNotRegex(first_test_run_response.content.decode('utf-8'),
                                     'limit.*exceeded')
-        self.assertNotRegex(second_test_run_response.content,
+        self.assertNotRegex(second_test_run_response.content.decode('utf-8'),
                                     'limit.*exceeded')

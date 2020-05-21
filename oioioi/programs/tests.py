@@ -85,7 +85,7 @@ class SubmitFileMixin(SubmitMixin):
         post_data = {
                 'problem_instance_id': problem_instance.id,
                 'file': file,
-                'code': code,
+                'code': code.encode('utf-8'),
                 langs_field_name: prog_lang,
         }
         if user:
@@ -144,8 +144,8 @@ class TestProgramsViews(TestCase, TestStreamingMixin):
         self.assertEqual(download_response.status_code, 200)
         self.assertTrue(download_response.streaming)
         self.assertEqual(show_response.content.decode('utf-8'), download_response_content)
-        self.assertIn('main()', show_response.content)
-        self.assertTrue(show_response.content.strip().endswith('}'))
+        self.assertIn('main()', show_response.content.decode('utf-8'))
+        self.assertTrue(show_response.content.strip().endswith(b'}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
             'attachment'))
 
@@ -303,7 +303,7 @@ class TestProgramsXssViews(TestCase, TestStreamingMixin):
         self.assertTrue(show_response.content.strip().endswith(b'}'))
         self.assertTrue(diff_response.content.strip().endswith(b'}'))
         self.assertTrue(download_response['Content-Disposition'].startswith(
-            b'attachment'))
+            'attachment'))
 
 
 class TestOtherSubmissions(TestCase):
@@ -547,13 +547,13 @@ class TestSubmission(TestCase, SubmitFileMixin):
     def test_code_pasting(self):
         contest = Contest.objects.get()
         problem_instance = ProblemInstance.objects.get(pk=1)
-        response = self.submit_code(contest, problem_instance, b'some code')
+        response = self.submit_code(contest, problem_instance, 'some code')
         self._assertSubmitted(contest, response)
-        response = self.submit_code(contest, problem_instance, b'some code', '')
+        response = self.submit_code(contest, problem_instance, 'some code', '')
         self.assertContains(response, 'You have to choose programming language.')
-        response = self.submit_code(contest, problem_instance, b'')
+        response = self.submit_code(contest, problem_instance, '')
         self.assertContains(response, 'You have to either choose file or paste code.')
-        response = self.submit_code(contest, problem_instance, b'some code',
+        response = self.submit_code(contest, problem_instance, 'some code',
                 send_file=True)
         self.assertContains(response, 'You have to either choose file or paste code.')
 
@@ -1088,8 +1088,8 @@ class TestRejudge(TestCase, SubmitFileMixin):
         if submission.exists():
             submission.delete()
 
-        good_code = b'int main(void) { return 0; }'
-        bad_code = b'int main(void) { return 1; }'
+        good_code = 'int main(void) { return 0; }'
+        bad_code = 'int main(void) { return 1; }'
 
         ContestWithJudgeInfoController.judged = False
         self.submit_code(contest, pi, good_code)

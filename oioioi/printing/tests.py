@@ -55,7 +55,7 @@ class TestPrintingView(TestCase):
                            kwargs={'contest_id': self.contest.id})
 
     def print_file(self, content):
-        file = ContentFile(content, name='sample_code.cpp')
+        file = ContentFile(content.encode('utf-8'), name='sample_code.cpp')
         post_data = {
             'file': file
         }

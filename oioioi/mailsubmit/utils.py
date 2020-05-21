@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import six
 
 from django.conf import settings
 
@@ -74,9 +75,14 @@ def mail_submission_hashes(mailsubmission):
 
     pi = mailsubmission.problem_instance
 
+    msg = '%d-%s-%d-%s' % (mailsubmission.id, pi.contest.id, pi.id, source_hash)
+    msg = msg.encode('utf-8')
+
     submission_hash = hmac.new(
-        settings.SECRET_KEY,
-        '%d-%s-%d-%s' % (mailsubmission.id, pi.contest.id, pi.id, source_hash)
+        settings.SECRET_KEY.encode('utf-8'),
+        msg,
+        'sha256' if six.PY3 else None  # Name of the hashing algorithm is required from Python3.8.
+        # Default hashing algorithm for Python2 is md5.
     ).hexdigest()[:MAILSUBMIT_CONFIRMATION_HASH_LENGTH]
 
     return source_hash, submission_hash

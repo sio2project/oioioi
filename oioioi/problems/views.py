@@ -667,8 +667,8 @@ def task_archive_tag_view(request, origin_tag):
     # We want to achieve something like Django's regroup, but with dynamic keys:
 
     # 1. Don't use categories with Null order for grouping
-    categories = [cat for cat in sorted(categories, key=lambda cat: cat.order) \
-                        if cat.order]
+    categories = sorted([cat for cat in categories if cat.order],
+                        key=lambda cat: cat.order)
 
     # 2. Stable sort the problem list by each category in reverse order.
     #    This gives the correct order for the final grouping.
@@ -883,10 +883,10 @@ def get_search_hints_view(request, view_type):
         raise PermissionDenied
     query = unidecode(request.GET.get('q', ''))
 
-    result =  get_problem_hints(query, view_type, request.user) \
+    result = list(get_problem_hints(query, view_type, request.user)) \
         + get_tag_hints(query) \
-        + get_origintag_hints(query) \
-        + get_origininfovalue_hints(query)
+        + list(get_origintag_hints(query)) \
+        + list(get_origininfovalue_hints(query))
 
     # Convert category names in results from lazy translation to strings
     # Since jsonify throws error if given lazy translation objects
