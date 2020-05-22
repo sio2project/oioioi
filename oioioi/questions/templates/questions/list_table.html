@@ -67,7 +67,7 @@
                 {% if is_admin %}
                     <td>
                         <span class="label {% if record.needs_reply %}label-danger{% else %}label-default{% endif %}">
-                            {{ msg.kind }}
+                            {{ msg.get_kind_label }}
                         </span>
                     </td>
                 {% endif %}

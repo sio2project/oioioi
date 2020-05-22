@@ -22,6 +22,11 @@ message_kinds.register('QUESTION', _("Question"))
 message_kinds.register('PRIVATE', _("Private message"))
 message_kinds.register('PUBLIC', _("Public message"))
 
+message_kind_labels = EnumRegistry()
+message_kind_labels.register('QUESTION', _("QUESTION"))
+message_kind_labels.register('PRIVATE', _("PRIVATE"))
+message_kind_labels.register('PUBLIC', _("PUBLIC"))
+
 logger = logging.getLogger('oioioi')
 
 
@@ -96,6 +101,9 @@ class Message(models.Model):
     def get_user_date(self):
         """ returns date visible by a user """
         return self.pub_date if self.pub_date is not None else self.date
+
+    def get_kind_label(self):
+        return message_kind_labels[self.kind]
 
 
 @python_2_unicode_compatible
