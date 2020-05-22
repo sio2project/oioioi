@@ -1077,16 +1077,11 @@ class TestLoginChange(TestCase):
 
             response = self.client.get(self.url_edit_profile)
             # The html strings underneath may change with any django upgrade.
-            if DJANGO_VERSION < (1, 11):
-                self.assertContains(response,
-                                    '<input class="form-control" id="id_username" '
-                                    'maxlength="150" name="username" type="text" '
-                                    'value="%s" required />' % l)
-            else:
-                self.assertContains(response,
-                                    '<input type="text" name="username" value="%s" '
-                                    'id="id_username" required class="form-control" '
-                                    'maxlength="150" />' % l)
+            self.assertContains(response,
+                                '<input type="text" id="id_username" name="username" '
+                                'value="%s" class="form-control" '
+                                'maxlength="150" required />' % l,
+                                html=True)
 
             self.client.post(self.url_edit_profile, {'username': 'valid_user'},
                     follow=True)
@@ -1096,16 +1091,11 @@ class TestLoginChange(TestCase):
             self.assertNotContains(response, 'contains not allowed characters')
 
             response = self.client.get(self.url_edit_profile)
-            if DJANGO_VERSION < (1, 11):
-                self.assertContains(response,
-                                    '<input class="form-control" id="id_username" '
-                                    'maxlength="150" name="username" type="text" '
-                                    'value="valid_user" readonly required />')
-            else:
-                self.assertContains(response,
-                                    '<input type="text" name="username" value="valid_user" '
-                                    'id="id_username" readonly required class="form-control" '
-                                    'maxlength="150" />')
+            self.assertContains(response,
+                                '<input type="text" id="id_username" name="username" '
+                                'value="valid_user" class="form-control" '
+                                'maxlength="150" readonly required />',
+                                html=True)
 
     def test_login_cannot_change_from_valid(self):
         for l in self.valid_logins:
@@ -1113,16 +1103,11 @@ class TestLoginChange(TestCase):
             self.user.save()
 
             response = self.client.get(self.url_edit_profile)
-            if DJANGO_VERSION < (1, 11):
-                self.assertContains(response,
-                                    '<input class="form-control" id="id_username" '
-                                    'maxlength="150" name="username" type="text" '
-                                    'value="%s" readonly required />' % l)
-            else:
-                self.assertContains(response,
-                                    '<input type="text" name="username" value="%s" '
-                                    'id="id_username" readonly required class="form-control" '
-                                    'maxlength="150" />' % l)
+            self.assertContains(response,
+                                '<input type="text" id="id_username" name="username" '
+                                'value="%s" class="form-control" '
+                                'maxlength="150" readonly required />' % l,
+                                html=True)
 
             response = self.client.post(self.url_edit_profile,
                     {'username': 'valid_user'}, follow=True)
