@@ -1,8 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from oioioi.contests.models import Submission
-from oioioi.problems.models import Problem
+from oioioi.contests.models import ProblemInstance, Submission
 
 
 class ScoreReveal(models.Model):
@@ -16,8 +15,8 @@ class ScoreReveal(models.Model):
 
 
 class ScoreRevealConfig(models.Model):
-    problem = models.OneToOneField(Problem,
-                                   verbose_name=_("problem"),
+    problem_instance = models.OneToOneField(ProblemInstance,
+                                   verbose_name=_("problem instance"),
                                    related_name='scores_reveal_config',
                                    on_delete=models.CASCADE)
     reveal_limit = models.IntegerField(verbose_name=_("reveal limit"))

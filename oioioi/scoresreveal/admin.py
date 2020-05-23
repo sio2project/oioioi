@@ -3,7 +3,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base import admin
 from oioioi.base.admin import NO_CATEGORY
-from oioioi.contests.admin import SubmissionAdmin
+from oioioi.base.forms import AlwaysChangedModelForm
+from oioioi.contests.admin import ProblemInstanceAdmin, SubmissionAdmin
 from oioioi.contests.utils import is_contest_admin
 from oioioi.scoresreveal.models import ScoreRevealConfig
 from oioioi.scoresreveal.utils import is_revealed
@@ -31,27 +32,19 @@ class ScoresRevealConfigInline(admin.TabularInline):
     model = ScoreRevealConfig
     can_delete = True
     extra = 0
-    category = NO_CATEGORY
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_change_permission(self, request, obj=None):
-        return is_contest_admin(request)
-
-    def has_delete_permission(self, request, obj=None):
-        return False
+    form = AlwaysChangedModelForm
 
 
-class ScoresRevealProgrammingProblemAdminMixin(object):
-    """Adds :class:`~oioioi.scoresreveal.models.ScoreRevealConfig` to an admin
-       panel.
+class ScoresRevealProblemInstanceAdminMixin(object):
+    """Adds `ScoreRevealConfigForInstance` to an admin panel.
     """
-
     def __init__(self, *args, **kwargs):
-        super(ScoresRevealProgrammingProblemAdminMixin, self) \
+        super(ScoresRevealProblemInstanceAdminMixin, self) \
             .__init__(*args, **kwargs)
         self.inlines = self.inlines + [ScoresRevealConfigInline]
+
+
+ProblemInstanceAdmin.mix_in(ScoresRevealProblemInstanceAdminMixin)
 
 
 class ScoresRevealSubmissionAdminMixin(object):

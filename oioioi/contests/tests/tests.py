@@ -1551,6 +1551,7 @@ class TestPermissionsBasicAdmin(TestCase):
                           kwargs={'contest_id': 'c'}, args=(pi.id,))
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'scores_reveal_config-group')
 
     def test_modelsolutions(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))

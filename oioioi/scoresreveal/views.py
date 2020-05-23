@@ -15,7 +15,7 @@ from oioioi.scoresreveal.utils import has_scores_reveal
 def score_reveal_view(request, submission_id):
     submission = get_submission_or_error(request, submission_id)
     controller = request.contest.controller
-    if not has_scores_reveal(submission.problem):
+    if not has_scores_reveal(submission.problem_instance):
         raise Http404
     decision, reason = controller.can_reveal(request, submission)
     if not decision:

@@ -7,26 +7,9 @@ from django.utils.translation import ungettext_lazy
 
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.models import Submission
-from oioioi.programs.controllers import (ProgrammingContestController,
-                                         ProgrammingProblemController)
+from oioioi.programs.controllers import (ProgrammingContestController)
 from oioioi.scoresreveal.models import ScoreReveal
 from oioioi.scoresreveal.utils import has_scores_reveal, is_revealed
-
-
-class ScoresRevealProblemControllerMixin(object):
-    """ProblemController mixin that adds
-       :class:`~oioioi.scoresreveal.models.ScoreRevealConfig` to the contest's
-       admin panel.
-    """
-
-    def mixins_for_admin(self):
-        from oioioi.scoresreveal.admin import \
-            ScoresRevealProgrammingProblemAdminMixin
-        return super(ScoresRevealProblemControllerMixin, self) \
-            .mixins_for_admin() + (ScoresRevealProgrammingProblemAdminMixin,)
-
-ProgrammingProblemController.mix_in(ScoresRevealProblemControllerMixin)
-
 
 class ScoresRevealContestControllerMixin(object):
     """ContestController mixin that sets up scoresreveal app.
@@ -38,7 +21,7 @@ class ScoresRevealContestControllerMixin(object):
             is_revealed(submission)
 
     def reveal_score(self, request, submission):
-        assert has_scores_reveal(submission.problem)
+        assert has_scores_reveal(submission.problem_instance)
         assert self.can_reveal(request, submission)[0]
 
         ScoreReveal.objects.get_or_create(submission=submission)
@@ -49,10 +32,10 @@ class ScoresRevealContestControllerMixin(object):
              revealed__isnull=False)
 
     def get_scores_reveals_disable_time(self, problem_instance):
-        return problem_instance.problem.scores_reveal_config.disable_time
+        return problem_instance.scores_reveal_config.disable_time
 
     def get_scores_reveals_limit(self, problem_instance):
-        return problem_instance.problem.scores_reveal_config.reveal_limit
+        return problem_instance.scores_reveal_config.reveal_limit
 
     def is_scores_reveals_limit_reached(self, user, problem_instance):
         return self.get_revealed_submissions(user, problem_instance).count() \
@@ -115,7 +98,7 @@ class ScoresRevealContestControllerMixin(object):
         super_footer = super(ScoresRevealContestControllerMixin, self). \
                 render_submission_footer(request, submission)
 
-        if not has_scores_reveal(submission.problem) or \
+        if not has_scores_reveal(submission.problem_instance) or \
                 submission.kind != 'NORMAL' or submission.user is None:
             return super_footer
 

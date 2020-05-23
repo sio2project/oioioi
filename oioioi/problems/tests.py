@@ -2328,7 +2328,7 @@ class TestProblemChangeForm(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Advanced </button>')
         self.assertContains(response, 'Tags </button>')
-        self.assertContains(response, "Score reveal configs")
+        self.assertNotContains(response, "Score reveal configs")
         self.assertContains(response, "Problem compilers")
         self.assertNotContains(response, 'None </button>')
 

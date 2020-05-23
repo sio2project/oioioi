@@ -7,8 +7,7 @@ from django.utils.timezone import utc
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import (Contest, Round, RoundTimeExtension,
-                                    Submission)
-from oioioi.problems.models import Problem
+                                    Submission, ProblemInstance)
 from oioioi.scoresreveal.models import ScoreRevealConfig
 
 
@@ -48,9 +47,9 @@ class TestScoresReveal(TestCase):
         round.end_date = datetime(2012, 8, 10, tzinfo=utc)
         round.results_date = datetime(2012, 8, 12, tzinfo=utc)
         round.save()
-        problem = Problem.objects.get()
+        problem_instance = ProblemInstance.objects.get()
         config = ScoreRevealConfig()
-        config.problem = problem
+        config.problem_instance = problem_instance
         config.reveal_limit = 2
         config.disable_time = 60
         config.save()
