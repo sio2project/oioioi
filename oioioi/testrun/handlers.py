@@ -26,7 +26,7 @@ def make_test(env, submission, **kwargs):
           * ``tests``: a dictionary mapping test names to test envs
     """
     assert submission.kind == 'TESTRUN'
-    config = TestRunConfig.objects.get(problem__id=env['problem_id'])
+    config = TestRunConfig.objects.get(problem_instance__problem__id=env['problem_id'])
 
     test_env = {}
     test_env['name'] = 'test'

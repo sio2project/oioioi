@@ -66,30 +66,24 @@ class TestRunProblemControllerMixin(object):
         if can_admin_problem(request, problem_instance.problem):
             return None
 
-        if (hasattr(problem_instance.problem, 'test_run_config')
-                and hasattr(problem_instance, 'test_run_config')):
+        if (hasattr(problem_instance, 'test_run_config')):
             test_runs_limit = problem_instance.test_run_config.test_runs_limit
         else:
             test_runs_limit = settings.DEFAULT_TEST_RUNS_LIMIT
 
         return test_runs_limit
 
-    def mixins_for_admin(self):
-        from oioioi.testrun.admin import TestRunProgrammingProblemAdminMixin
-        return super(TestRunProblemControllerMixin, self) \
-                .mixins_for_admin() + (TestRunProgrammingProblemAdminMixin,)
-
-    def get_test_run_time_limit(self, problem):
-        if hasattr(problem, 'test_run_config'):
-            time_limit = problem.test_run_config.time_limit
+    def get_test_run_time_limit(self, problem_instance):
+        if hasattr(problem_instance, 'test_run_config'):
+            time_limit = problem_instance.test_run_config.time_limit
         else:
             time_limit = None
 
         return time_limit
 
-    def get_test_run_memory_limit(self, problem):
-        if hasattr(problem, 'test_run_config'):
-            memory_limit = problem.test_run_config.memory_limit
+    def get_test_run_memory_limit(self, problem_instance):
+        if hasattr(problem_instance, 'test_run_config'):
+            memory_limit = problem_instance.test_run_config.memory_limit
         else:
             memory_limit = None
 
@@ -320,11 +314,11 @@ class TestRunContestControllerMixin(object):
 
     def get_test_run_time_limit(self, problem_instance):
         return problem_instance.problem.controller. \
-               get_test_run_time_limit(problem_instance.problem)
+               get_test_run_time_limit(problem_instance)
 
     def get_test_run_memory_limit(self, problem_instance):
         return problem_instance.problem.controller. \
-               get_test_run_memory_limit(problem_instance.problem)
+               get_test_run_memory_limit(problem_instance)
 
     def get_notification_message_submission_judged(self, submission):
         """Returns a message to show in a notification when a test run

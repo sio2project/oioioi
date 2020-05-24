@@ -15,25 +15,6 @@ submission_kinds.register('TESTRUN', _("Test run"))
 submission_report_kinds.register('TESTRUN', _("Test run report"))
 
 
-class TestRunConfig(models.Model):
-    """Represents a test run config for problem.
-
-       Test run for program is enabled iff this model exits.
-    """
-    __test__ = False
-    problem = models.OneToOneField(Problem,
-                                   verbose_name=_("problem"),
-                                   related_name='test_run_config',
-                                   on_delete=models.CASCADE)
-
-    time_limit = models.IntegerField(verbose_name=_("time limit (ms)"))
-    memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"))
-
-    class Meta(object):
-        verbose_name = _("test run config")
-        verbose_name_plural = _("test run configs")
-
-
 def make_custom_input_filename(instance, filename):
     if not instance.id:
         instance.save()
@@ -54,10 +35,10 @@ def make_custom_output_filename(instance, filename):
             submission.id, instance.submission_report.id)
 
 
-class TestRunConfigForInstance(models.Model):
-    """Represents additional test run config specific for problem instance.
+class TestRunConfig(models.Model):
+    """Represents a test run config for problem instance.
 
-    Right now, the only configurable property is the limit of test runs.
+       Test run for program is enabled iff this model exits.
     """
     __test__ = False
     problem_instance = models.OneToOneField(
@@ -70,9 +51,12 @@ class TestRunConfigForInstance(models.Model):
         default=settings.DEFAULT_TEST_RUNS_LIMIT,
         verbose_name=_("test runs limit"))
 
+    time_limit = models.IntegerField(verbose_name=_("time limit (ms)"))
+    memory_limit = models.IntegerField(verbose_name=_("memory limit (KiB)"))
+
     class Meta(object):
-        verbose_name = _("test run configuration for instance")
-        verbose_name_plural = _("test run configuration for instances")
+        verbose_name = _("test run config")
+        verbose_name_plural = _("test run configs")
 
 
 class TestRunReport(models.Model):

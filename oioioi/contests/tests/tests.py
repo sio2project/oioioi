@@ -1538,9 +1538,9 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertContains(response, 'statements-group')
         self.assertContains(response, 'attachments-group')
         self.assertContains(response, 'problemsite-group')
-        self.assertContains(response, 'test_run_config-group')
+        self.assertNotContains(response, 'test_run_config-group')
         self.assertContains(response, 'libraryproblemdata-group')
-        self.assertContains(response, 'inline-group', 5)
+        self.assertContains(response, 'inline-group', 4)
 
     def test_probleminstance_admin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))
@@ -1551,7 +1551,9 @@ class TestPermissionsBasicAdmin(TestCase):
                           kwargs={'contest_id': 'c'}, args=(pi.id,))
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
+
             self.assertContains(response, 'scores_reveal_config-group')
+            self.assertContains(response, 'test_run_config-group')
 
     def test_modelsolutions(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))

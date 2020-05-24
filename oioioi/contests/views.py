@@ -23,7 +23,7 @@ from oioioi.base.utils.user_selection import get_user_hints_view
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import GetUserInfoForm, SubmissionForm
 from oioioi.contests.models import (Contest, ContestAttachment,
-                                    ProblemInstance, Submission, ScoreReport,
+                                    ProblemInstance, Submission,
                                     SubmissionReport, UserResultForProblem)
 from oioioi.contests.processors import recent_contests
 from oioioi.contests.utils import (can_admin_contest, can_enter_contest,

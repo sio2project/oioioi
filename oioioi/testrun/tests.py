@@ -17,7 +17,7 @@ from oioioi.filetracker.client import get_client
 from oioioi.filetracker.storage import FiletrackerStorage
 from oioioi.programs.tests import SubmitFileMixin
 from oioioi.testrun import handlers
-from oioioi.testrun.models import (TestRunConfig, TestRunConfigForInstance,
+from oioioi.testrun.models import (TestRunConfig,
                                    TestRunProgramSubmission, TestRunReport)
 from oioioi.programs.utils import form_field_id_for_langs
 
@@ -311,12 +311,10 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         self.assertTrue(self.client.login(username=self.user.username))
 
         # Enable test runs for problem
-        TestRunConfig(problem=self.problem_instance.problem,
-                      time_limit=10000, memory_limit=128*1024).save()
-
-        self.instance_test_run_config = TestRunConfigForInstance(
-            problem_instance=self.problem_instance)
-        self.instance_test_run_config.save()
+        self.test_run_config = \
+            TestRunConfig(problem_instance=self.problem_instance,
+                          time_limit=10000, memory_limit=128*1024)
+        self.test_run_config.save()
 
     def submit_solution(self, is_testrun):
         if is_testrun:
@@ -327,8 +325,8 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
                 self.contest, self.problem_instance, user=self.user)
 
     def test_test_run_limit_should_be_respected(self):
-        self.instance_test_run_config.test_runs_limit = 1
-        self.instance_test_run_config.save()
+        self.test_run_config.test_runs_limit = 1
+        self.test_run_config.save()
 
         first_test_run_response = self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
@@ -342,8 +340,8 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
         self.problem_instance.submissions_limit = 1000
         self.problem_instance.save()
 
-        self.instance_test_run_config.test_runs_limit = 1
-        self.instance_test_run_config.save()
+        self.test_run_config.test_runs_limit = 1
+        self.test_run_config.save()
 
         self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
@@ -357,8 +355,8 @@ class TestTestRunsLimit(TestCase, TestRunTestCase, SubmitFileMixin):
                                     'limit.*exceeded')
 
     def test_zero_test_run_limit_should_mean_unlimited_test_runs(self):
-        self.instance_test_run_config.test_runs_limit = 0
-        self.instance_test_run_config.save()
+        self.test_run_config.test_runs_limit = 0
+        self.test_run_config.save()
 
         first_test_run_response = self.submit_solution(is_testrun=True)
         second_test_run_response = self.submit_solution(is_testrun=True)
