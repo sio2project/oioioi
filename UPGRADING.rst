@@ -911,3 +911,20 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
 
          [program:rankingsd]
          command={{ PYTHON }} {{ PROJECT_DIR }}/manage.py rankingsd
+
+#. * Removed OITimeTool and changed 'DEFAULT_SAFE_EXECUTION_MODE' from 'vcpu' to 'sio2jail'.
+     'vcpu' is no longer a viable safe execution option. Following changes have to be made
+     to settings.py: ::
+
+        --- a/oioioi/deployment/settings.py.template
+        +++ b/oioioi/deployment/settings.py.template
+        @@ -258,8 +258,7 @@ USE_UNSAFE_EXEC = True
+
+         # Default safe execution tool
+         # You can change the safe execution tool. Current options are:
+        -# - "vcpu" - (default) OITimeTool
+        -# - "sio2jail" - SIO2Jail
+        +# - "sio2jail" - (default) SIO2Jail
+         # - "cpu" - ptrace (measures real time)
+         #DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
+

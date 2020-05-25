@@ -258,8 +258,7 @@ USE_UNSAFE_EXEC = True
 
 # Default safe execution tool
 # You can change the safe execution tool. Current options are:
-# - "vcpu" - (default) OITimeTool
-# - "sio2jail" - SIO2Jail
+# - "sio2jail" - (default) SIO2Jail
 # - "cpu" - ptrace (measures real time)
 #DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 

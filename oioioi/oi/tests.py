@@ -47,7 +47,7 @@ class TestOIAdmin(TestCase):
 
     def test_safe_exec_mode(self):
         contest = Contest.objects.get()
-        self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'sio2jail')
 
     def test_terms_accepted_phrase_inline_admin_permissions(self):
         OIRegistration.objects.all().delete()

@@ -12,7 +12,7 @@ from django.contrib.messages import constants as messages
 
 from django.utils.translation import ugettext_lazy as _
 
-INSTALLATION_CONFIG_VERSION = 44
+INSTALLATION_CONFIG_VERSION = 45
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -386,7 +386,7 @@ SYSTEM_DEFAULT_COMPILERS = {'C': 'system-gcc', 'C++': 'system-g++',
                      'Python': 'system-python'}
 
 USE_UNSAFE_EXEC = False
-DEFAULT_SAFE_EXECUTION_MODE = "vcpu"
+DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
 
 # WARNING: experimental, see settings template
 USE_UNSAFE_CHECKER = True

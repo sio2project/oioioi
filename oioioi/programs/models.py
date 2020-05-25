@@ -22,7 +22,6 @@ from oioioi.programs.problem_instance_utils import get_language_by_extension
 execuction_mode_options = EnumRegistry()
 execuction_mode_options.register('AUTO', _("Auto"))
 execuction_mode_options.register('cpu', _("Real CPU"))
-execuction_mode_options.register('vcpu', _("OITimeTool"))
 execuction_mode_options.register('sio2jail', _("SIO2Jail"))
 
 

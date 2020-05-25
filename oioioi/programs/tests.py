@@ -102,7 +102,7 @@ class TestProgrammingProblemController(TestCase):
 
     def test_safe_exec_mode(self):
         problem_instance = ProblemInstance.objects.get(pk=1)
-        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), 'vcpu')
+        self.assertEqual(problem_instance.controller.get_safe_exec_mode(), 'sio2jail')
 
 
 class TestProgrammingContestController(TestCase):
@@ -110,13 +110,13 @@ class TestProgrammingContestController(TestCase):
             'test_problem_instance']
 
     def test_safe_exec_mode(self):
-        # CAUTION: 'vcpu' is default value with an important reason.
+        # CAUTION: 'sio2jail' is default value with an important reason.
         #          CHANGE ONLY IF YOU KNOW WHAT YOU ARE DOING.
         #          If you do so, don't forget to update another controllers
-        #          which are using default value and have to use 'vcpu' mode
+        #          which are using default value and have to use 'sio2jail' mode
         #          like OIContestController and TeacherContestController.
         contest = Contest.objects.get()
-        self.assertEqual(contest.controller.get_safe_exec_mode(), 'vcpu')
+        self.assertEqual(contest.controller.get_safe_exec_mode(), 'sio2jail')
 
 
 class TestProgramsViews(TestCase, TestStreamingMixin):

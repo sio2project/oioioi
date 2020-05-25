@@ -206,8 +206,8 @@ On every judging machine do the following:
    by supervisor on the same host as OIOIOI (SIO2). Filetracker server is also
    run there, by default on port 9999. You should consider changing
    WORKER_CONCURRENCY to smaller value if you are judging problems without
-   oitimetool (depends on rules of concrete contest and USE_UNSAFE_EXEC
-   in *deployment/settings.py* on OIOIOI host).
+   sio2jail, so that each process has enough memory (depends on rules of concrete
+   contest and USE_UNSAFE_EXEC in *deployment/settings.py* on OIOIOI host).
 
 #. Start the supervisor::
 

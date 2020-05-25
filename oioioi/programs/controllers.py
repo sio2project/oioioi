@@ -698,8 +698,7 @@ class ProgrammingProblemController(ProblemController):
     def get_safe_exec_mode(self):
         """Determines execution mode when `USE_UNSAFE_EXEC` is False.
 
-           Return 'vcpu' if you want to use OITimeTool,
-           'sio2jail' if you want to use SIO2Jail. Otherwise return 'cpu'.
+           Return 'sio2jail' if you want to use SIO2Jail. Otherwise return 'cpu'.
         """
         return settings.DEFAULT_SAFE_EXECUTION_MODE
 
@@ -955,8 +954,7 @@ class ProgrammingContestController(ContestController):
     def get_safe_exec_mode(self):
         """Determines execution mode when `USE_UNSAFE_EXEC` is False.
 
-           Return 'vcpu' if you want to use OITimeTool,
-           'sio2jail' if you want to use SIO2Jail. Otherwise return 'cpu'.
+           Return 'sio2jail' if you want to use SIO2Jail. Otherwise return 'cpu'.
         """
         if (hasattr(self.contest, 'programs_config') and
                 self.contest.programs_config.execuction_mode != 'AUTO'):
