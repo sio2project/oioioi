@@ -15,6 +15,7 @@ from django.db.models import Case, F, When, Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 from django.utils.translation import get_language, ugettext_lazy as _
 import six.moves.urllib.parse
@@ -478,7 +479,7 @@ def get_report_HTML_view(request, submission_id):
 
     if not reports:
         reports = _(u"Reports are not available now (ಥ ﹏ ಥ)")
-        reports = mark_safe(u'<center>' + reports + u'</center>')
+        reports = mark_safe(u'<center>' + force_text(reports) + u'</center>')
     return HttpResponse(reports)
 
 
