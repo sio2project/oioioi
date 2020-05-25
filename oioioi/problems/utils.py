@@ -311,8 +311,12 @@ def get_prefetched_value(problem, category):
         value = None
         order = float('inf')
         cat = category
+
         def __eq__(self, other):
             return self.cat == other.cat
+
+        def __hash__(self):
+            return hash(self.cat)
 
     return FakeOriginInfoValue()
 

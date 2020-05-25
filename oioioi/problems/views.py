@@ -820,6 +820,8 @@ def get_origintag_hints(query):
                 .filter(full_name__icontains=query)
     ])
 
+    res = list(res)
+
     if len(res) == 1:
         res[0]['trigger'] = 'origintag'
         res += get_origintag_category_hints(res[0]['value'])
@@ -892,7 +894,10 @@ def get_search_hints_view(request, view_type):
     # Convert category names in results from lazy translation to strings
     # Since jsonify throws error if given lazy translation objects
     for tag in result:
-        tag['category'] = tag['category'].encode('utf-8')
+        if six.PY2:
+            tag['category'] = tag['category'].encode('utf-8')
+        else:
+            tag['category'] = str(tag['category'])
     return result
 
 

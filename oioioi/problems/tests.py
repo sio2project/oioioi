@@ -650,7 +650,7 @@ class TestProblemSite(TestCase, TestStreamingMixin):
 
         @problem_site_tab(tab_title, key='testtab')
         def problem_site_test(request, problem):
-            return HttpResponse(tab_contents)
+            return tab_contents
 
         url = self._get_site_urls()['site'] + '?key=testtab'
         response = self.client.get(url)

@@ -22,6 +22,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='problem',
             name='visibility',
-            field=models.CharField(choices=[(b'PU', b'Public'), (b'FR', b'Friends'), (b'PR', b'Private')], default=b'FR', max_length=2, verbose_name='visibility'),
+            field=models.CharField(choices=[('PU', 'Public'), ('FR', 'Friends'), ('PR', 'Private')], default='FR', max_length=2, verbose_name='visibility'),
         ),
     ]
