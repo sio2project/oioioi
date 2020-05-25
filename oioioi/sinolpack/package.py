@@ -132,10 +132,6 @@ class SinolPackage(object):
         """Looks for the directory which contains at least the in/ and out/
            subdirectories. Only one such directory should be found.
            Otherwise None is returned.
-
-           Note that depending on the archive type, there may be or
-           may not be entries for the dirs themselves in
-           self.archive.filenames()
         """
 
         files = list(map(os.path.normcase, self.archive.filenames()))

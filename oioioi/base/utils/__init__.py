@@ -461,7 +461,8 @@ def uploaded_file_name(uploaded_file):
     if hasattr(uploaded_file, 'temporary_file_path'):
         yield uploaded_file.temporary_file_path()
     else:
-        f = tempfile.NamedTemporaryFile(suffix=uploaded_file.name)
+        f = tempfile.NamedTemporaryFile(
+            suffix=os.path.basename(uploaded_file.name))
         shutil.copyfileobj(uploaded_file, f)
         f.flush()
         yield f.name

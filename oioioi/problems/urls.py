@@ -25,6 +25,8 @@ urlpatterns = [
 
     url(r'^problem_package/(?P<package_id>\d+)/$',
         views.download_problem_package_view, name='download_package'),
+    url(r'^problem_package/(?P<package_id>\d+)/download_file/(?P<file_name>[0-9a-zA-Z-_=\.\/]+)/$',
+        views.download_problem_package_file_view, name='download_package_file'),
     url(r'^package_traceback/(?P<package_id>\d+)/$',
         views.download_package_traceback_view,
         name='download_package_traceback'),

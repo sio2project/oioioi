@@ -8,6 +8,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from oioioi.base.utils.input_with_generate import TextInputWithGenerate
+from oioioi.base.utils.inputs import narrow_input_field
 from oioioi.contests.models import (ProblemStatementConfig,
                                     RankingVisibilityConfig)
 from oioioi.problems.models import (ProblemSite, Tag, TagThrough,
@@ -99,6 +100,26 @@ class ProblemsetSourceForm(forms.Form):
         super(ProblemsetSourceForm, self).__init__(*args, **kwargs)
         if url_key:
             self.initial = {'url_key': url_key}
+
+
+class PackageFileReuploadForm(forms.Form):
+    file_name = forms.ChoiceField(label=_("File name"))
+    file_replacement = forms.FileField(label=_("Replacement file"),
+                                       required=False)
+
+    def __init__(self, file_names, contest, *args, **kwargs):
+        super(PackageFileReuploadForm, self).__init__(*args, **kwargs)
+        upload_file_field = self.fields['file_replacement']
+        file_name_field = self.fields['file_name']
+        file_name_field.choices = [('', '')] + \
+                                  [(name, name) for name in file_names]
+        self._set_field_show_always('file_name')
+        narrow_input_field(file_name_field)
+        narrow_input_field(upload_file_field)
+        self.initial.update({'file_name': ''})
+
+    def _set_field_show_always(self, field_name):
+        self.fields[field_name].widget.attrs['data-submit'] = 'always'
 
 
 class LocalizationFormset(forms.models.BaseInlineFormSet):

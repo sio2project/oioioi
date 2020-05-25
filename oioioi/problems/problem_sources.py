@@ -130,13 +130,13 @@ class PackageSource(ProblemSource):
         """
         return backend_for_package(path, original_filename)
 
-    def create_package_instance(self, request, contest, path,
+    def create_package_instance(self, user, contest, path,
             existing_problem=None, original_filename=None):
         """Creates a :class:`~oioioi.problems.models.ProblemPackage` instance
            from a given package file.
         """
         package = ProblemPackage.objects.create(contest=contest,
-                created_by=request.user)
+                created_by=user)
         package_name = original_filename or path
         package.package_file.save(package_name, File(open(path, 'rb')))
         if existing_problem:
@@ -144,8 +144,9 @@ class PackageSource(ProblemSource):
         package.save()
         return package
 
-    def create_env(self, request, contest, form, path, package,
-            existing_problem=None, original_filename=None):
+    def create_env(self, user, contest, path, package, form, round_id=None,
+           visibility=Problem.VISIBILITY_FRIENDS, existing_problem=None,
+           original_filename=None):
         """Creates an environment which will be later passed to
            :func:`~oioioi.problems.unpackmgr.unpackmgr_job`.
         """
@@ -162,15 +163,15 @@ class PackageSource(ProblemSource):
                 ['oioioi.problems.handlers.update_problem_instance']
         env['backend_name'] = backend_name
         env['package_id'] = package.id
-        env['round_id'] = form.cleaned_data.get('round_id', None)
+        env['round_id'] = round_id
         if contest:
             env['contest_id'] = contest.id
-        env['author'] = request.user.username
+        env['author'] = user.username
         if existing_problem:
             env['is_reupload'] = True
         else:
             env['is_reupload'] = False
-        env['visibility'] = form.cleaned_data.get('visibility', Problem.VISIBILITY_FRIENDS)
+        env['visibility'] = visibility
 
         return env
 
@@ -181,28 +182,16 @@ class PackageSource(ProblemSource):
     def handle_form(self, form, request, contest, existing_problem=None):
         if form.is_valid():
             try:
-                # We need to make sure that the package is saved in the
-                # database before the Celery task starts.
-                with transaction.atomic():
-                    original_filename, file_manager = \
-                        self.get_package_file(request, contest, form,
-                                              existing_problem)
-                    with file_manager as path:
-                        package = self.create_package_instance(request,
-                                                               contest, path, existing_problem,
-                                                               original_filename)
-                        env = self.create_env(request, contest, form, path,
-                                              package, existing_problem,
-                                              original_filename)
-                        if contest:
-                            contest.controller.fill_upload_environ(request,
-                                                                   form, env)
-                        package.save()
-                    async_task = unpackmgr_job.s(env)
-                    async_result = async_task.freeze()
-                    ProblemPackage.objects.filter(id=package.id).update(
-                        celery_task_id=async_result.task_id)
-                async_task.delay()
+                original_filename, file_manager = \
+                    self.get_package_file(request, contest, form,
+                                          existing_problem)
+                round_id = form.cleaned_data.get('round_id', None)
+                visibility = form.cleaned_data.get('visibility',
+                                                   Problem.VISIBILITY_FRIENDS)
+                self.process_package(request, file_manager, request.user,
+                                     contest, original_filename,
+                                     existing_problem, round_id,
+                                     visibility, form)
                 return True
 
             # pylint: disable=broad-except
@@ -212,6 +201,28 @@ class PackageSource(ProblemSource):
                 form._errors['__all__'] = form.error_class([smart_str(e)])
 
         return False
+
+    def process_package(self, request, file_manager, user, contest,
+                        original_filename=None, existing_problem=None,
+                        round_id=None, visibility=Problem.VISIBILITY_FRIENDS,
+                        form=None):
+        # We need to make sure that the package is saved in the
+        # database before the Celery task starts.
+        with transaction.atomic():
+            with file_manager as path:
+                package = self.create_package_instance(user, contest, path,
+                            existing_problem, original_filename)
+                env = self.create_env(user, contest, path, package, form,
+                                      round_id, visibility, existing_problem,
+                                      original_filename)
+                if contest:
+                    contest.controller.fill_upload_environ(request, form, env)
+                package.save()
+            async_task = unpackmgr_job.s(env)
+            async_result = async_task.freeze()
+            ProblemPackage.objects.filter(id=package.id).update(
+                celery_task_id=async_result.task_id)
+        async_task.delay()
 
     def view(self, request, contest, existing_problem=None):
         form = self.make_form(request, contest, existing_problem)

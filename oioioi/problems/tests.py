@@ -875,6 +875,7 @@ class TestProblemsetUploading(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Edit problem')
         self.assertContains(response, 'Reupload problem')
+        self.assertContains(response, 'Edit package')
         self.assertContains(response, 'Model solutions')
         # we can see model solutions of main_problem_instance
         self.check_models_for_simple_package(problem.main_problem_instance)

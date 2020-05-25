@@ -1,14 +1,15 @@
 # coding: utf-8
-import urllib
-from collections import defaultdict
+import shutil
+import tempfile
 from functools import wraps
 from itertools import groupby
-import re
+import os
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
+from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.db.models import Case, CharField, F, When, Q, OuterRef, Subquery, Value
@@ -22,6 +23,7 @@ from django.utils.translation import get_language, ugettext_lazy as _
 import six.moves.urllib.parse
 
 from oioioi.base.utils import jsonify, tabbed_view
+from oioioi.base.utils.archive import Archive
 from oioioi.base.utils.redirect import safe_redirect
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.current_contest import ContestMode
@@ -1032,3 +1034,17 @@ def save_proposals_view(request):
             proposal.save()
 
         return HttpResponse('success\n' + str(tags))
+
+
+def download_problem_package_file_view(request, package_id, file_name):
+    package = _get_package(request, package_id, 'contests.contest_admin')
+    archive = Archive(package.package_file)
+    dir_path = tempfile.mkdtemp(dir=tempfile.gettempdir())
+    try:
+        archive.extract(to_path=dir_path)
+        filepath = os.path.join(dir_path, file_name)
+        if os.path.isfile(filepath):
+            return stream_file(File(open(filepath)), os.path.basename(
+                                os.path.normpath(file_name)))
+    finally:
+        shutil.rmtree(dir_path)

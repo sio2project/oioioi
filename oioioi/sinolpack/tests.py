@@ -600,13 +600,7 @@ class TestSinolPackageInContest(TransactionTestCase, TestStreamingMixin):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Problem.objects.count(), 0)
         self.assertEqual(ProblemInstance.objects.count(), 0)
-        problem_package = ProblemPackage.objects.get()
-        self.assertEqual(problem_package.status, 'ERR')
-        if settings.USE_SINOLPACK_MAKEFILES:
-            self.assertIn("Failed to execute command: make inwer",
-                    problem_package.info)
-        else:
-            self.assertIn("Inwer failed", problem_package.info)
+        self.assertEqual(ProblemPackage.objects.count(), 0)
 
 
 class TestSinolPackageCreator(TestCase, TestStreamingMixin):

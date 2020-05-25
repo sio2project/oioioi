@@ -1,6 +1,10 @@
+import shutil
 import sys
+import os
 from collections import namedtuple
 from operator import itemgetter  # pylint: disable=E0611
+import tempfile
+import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -8,21 +12,30 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
+from django.utils import six
+from django.utils.encoding import smart_str
+from oioioi.base.utils import uploaded_file_name
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
+from django.core.files import File
 from oioioi.base.menu import OrderedRegistry
+from oioioi.base.utils.archive import Archive
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
 from oioioi.contests.models import (ProblemInstance, Submission)
 from oioioi.contests.utils import administered_contests
+from oioioi.problems.forms import PackageFileReuploadForm
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal,
                                     ProblemStatement)
+from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.problems.utils import (query_statement, query_zip, generate_add_to_contest_metadata,
                                    generate_model_solutions_context, can_admin_problem, can_admin_problem_instance)
 from oioioi.contests.attachment_registration import attachment_registry_problemset
+from oioioi.sinolpack.models import OriginalPackage
 
 problem_site_tab_registry = OrderedRegistry()
+logger = logging.getLogger(__name__)
 
 
 def problem_site_tab(title, key, order=sys.maxsize, condition=None):
@@ -186,3 +199,84 @@ def problem_site_add_to_contest(request, problem):
     return TemplateResponse(request, 'problems/add-to-contest.html',
                             {'site_key': problem.problemsite.url_key,
                              'contests': administered})
+
+
+def _prepare_changed_package(request, form, archive, package_name):
+    file_path = request.POST.get("file_name", None)
+    if len(request.FILES) != 1:
+        form.add_error('file_replacement', _('File replacement not provided'))
+        return None, None
+    uploaded_file = six.next(six.itervalues(request.FILES))
+    if uploaded_file.name != os.path.basename(file_path):
+        form.add_error(None,  _('Original and replacement files must have the '
+                                'same name'))
+        return None, None
+
+    extraction_dir = tempfile.mkdtemp()
+    archive.extract(to_path=extraction_dir)
+    file_path = os.path.join(extraction_dir, file_path)
+    with open(file_path, "w+") as original_file:
+        original_file.truncate(0)
+        original_file.writelines(uploaded_file.read())
+    package_dir = tempfile.mkdtemp()
+    package_archive_name = os.path.join(package_dir, package_name)
+    shutil.make_archive(base_name=package_archive_name, format='zip',
+                        root_dir=extraction_dir)
+    package_archive_name += '.zip'
+    shutil.rmtree(extraction_dir)
+    return package_archive_name, package_dir
+
+
+def _problem_can_be_reuploaded(request, problem):
+    return len(ProblemInstance.objects.filter(problem=problem)) <= 2
+
+
+@problem_site_tab(_('Manage package files'), key='manage_files_problem_package',
+                  order=800, condition=can_admin_problem)
+def problem_site_package_download_file(request, problem):
+    original_package = OriginalPackage.objects.get(problem=problem)
+    problem = original_package.problem
+    package = original_package.problem_package
+    contest = problem.contest
+    archive = Archive(package.package_file)
+    file_names = archive.filenames()
+    if request.method == 'POST':
+        form = PackageFileReuploadForm(file_names, contest, request.POST)
+        if form.is_valid():
+            if 'upload_button' in request.POST:
+                package_name = file_names[0].split(os.path.sep, 1)[0]
+                package_archive, tmpdir = \
+                    _prepare_changed_package(request, form, archive, package_name)
+                if package_archive is not None:
+                    package_file = File(open(package_archive, 'rb'),
+                                        os.path.basename(package_archive))
+                    original_filename = package_file.name
+                    file_manager = uploaded_file_name(package_file)
+                    source = UploadedPackageSource()
+                    try:
+                        source.process_package(request, file_manager, request.user,
+                                           contest, existing_problem=problem,
+                                           original_filename=original_filename,
+                                           visibility=problem.visibility)
+                    except Exception as e:
+                        logger.error("Error processing package", exc_info=True,
+                                     extra={'omit_sentry': True})
+                        form._errors['__all__'] = form.error_class([smart_str(e)])
+                    finally:
+                        shutil.rmtree(tmpdir)
+                    return source._redirect_response(request)
+            elif 'download_button' in request.POST:
+                file_name = request.POST.get('file_name', None)
+                if file_name is None:
+                    form.add_error('file_name', _('No file selected'))
+                else:
+                    return redirect('download_package_file',
+                                    package_id=package.id,
+                                    file_name=file_name)
+    else:
+        form = PackageFileReuploadForm(file_names, contest)
+    return TemplateResponse(request,
+                            'problems/manage-problem-package-files.html',
+                            {'form': form,
+                             'can_reupload':
+                                 _problem_can_be_reuploaded(request, problem)})

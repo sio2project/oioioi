@@ -1,6 +1,7 @@
 import six
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from oioioi.problems.models import Problem
 
 from oioioi.problems.problem_sources import UploadedPackageSource
 from oioioi.zeus.forms import ZeusProblemForm
@@ -21,10 +22,12 @@ class ZeusProblemSource(UploadedPackageSource):
     def choose_backend(self, path, original_filename=None):
         return 'oioioi.zeus.package.ZeusPackageBackend'
 
-    def create_env(self, request, contest, form, path, package,
-            existing_problem=None, original_filename=None):
-        env = super(ZeusProblemSource, self).create_env(request, contest, form,
-                path, package, existing_problem, original_filename)
+    def create_env(self, user, contest, path, package, form, round_id=None,
+                   visibility=Problem.VISIBILITY_FRIENDS, existing_problem=None,
+                   original_filename=None):
+        env = super(ZeusProblemSource, self).create_env(user, contest, path,
+                    package, form, round_id, visibility, existing_problem,
+                    original_filename)
         env['zeus_id'] = form.cleaned_data['zeus_id']
         env['zeus_problem_id'] = form.cleaned_data['zeus_problem_id']
         # env['post_upload_handlers'].insert(0,

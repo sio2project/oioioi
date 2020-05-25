@@ -1505,7 +1505,8 @@ class TestPermissionsBasicAdmin(TestCase):
         self.assertIn("Advanced settings", html[pos:pos2])
         self.assertIn("Suspend all tests", html[pos:pos2])
         self.assertIn("Suspend final tests", html[pos:pos2])
-        self.assertEqual(html[pos:pos2].count('|'), 7)
+        self.assertIn("Edit package", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count('|'), 8)
 
     def test_problem_admin(self):
         self.assertTrue(self.client.login(username='test_contest_basicadmin'))

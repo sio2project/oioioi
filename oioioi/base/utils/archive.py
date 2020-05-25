@@ -22,10 +22,13 @@
 # THE SOFTWARE.
 
 import os
+import sys
 import tarfile
+import tempfile
 import zipfile
 
 import six
+from oioioi.filetracker.utils import stream_file
 
 
 class ArchiveException(RuntimeError):
@@ -64,8 +67,23 @@ class Archive(object):
           guess that is normally performed using the file extension of the
           given 'file'.  Should start with a dot, e.g. '.tar.gz'.
         """
-        self.filename = file
-        self._archive = self._archive_cls(file, ext=ext)(file)
+        self.filename, self.stored_temporarily = self._resolve_streamed_files(file, ext=ext)
+        self._archive = self._archive_cls(self.filename, ext=ext)(self.filename)
+
+    def __del__(self):
+        if self.stored_temporarily:
+            os.remove(self.filename)
+
+    @staticmethod
+    def _resolve_streamed_files(file, ext):
+        if isinstance(file, six.string_types) or hasattr(file, 'seek') or hasattr(file, 'tell'):
+            return file, False
+        lookup_filename = file.name + ext
+        base, tail_ext = os.path.splitext(lookup_filename.lower())
+        f = tempfile.NamedTemporaryFile(suffix=tail_ext, delete=False)
+        f.writelines(stream_file(file, file.name).streaming_content)
+        f.close()
+        return f.name, True
 
     @staticmethod
     def _archive_cls(file, ext=''):
@@ -107,6 +125,7 @@ class BaseArchive(object):
     """
     Base Archive class.  Implementations should inherit this class.
     """
+
     def __del__(self):
         if hasattr(self, "_archive"):
             self._archive.close()
@@ -167,7 +186,8 @@ class TarArchive(BaseArchive):
             self._archive = tarfile.open(fileobj=file)
 
     def filenames(self):
-        return self._archive.getnames()
+        return [tarinfo.name for tarinfo in self._archive.getmembers()
+                if tarinfo.isfile()]
 
     def extracted_size(self):
         total = 0
@@ -197,7 +217,13 @@ class ZipArchive(BaseArchive):
         return total
 
     def filenames(self):
-        return [name.rstrip('/') for name in self._archive.namelist()]
+        if six.PY3:
+            return [zipinfo.filename for zipinfo in self._archive.infolist()
+                    if not zipinfo.is_dir()]
+        elif six.PY2:
+            return [name for name in self._archive.namelist()
+                    if not name.endswith('/')]
+
 
 extension_map = {
     '.tar': TarArchive,

@@ -330,6 +330,11 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         return reverse('problemset_add_or_update') + '?' + \
             six.moves.urllib.parse.urlencode({'problem': instance.problem_id, 'key': 'upload'})
 
+    def _package_manage_href(self, instance):
+        return reverse('problem_site',
+                       args=(instance.problem.problemsite.url_key,)) + '?' + \
+            six.moves.urllib.parse.urlencode({'key': 'manage_files_problem_package'})
+
     def _edit_quiz_href(self, instance):
         return reverse('oioioiadmin:quizzes_quiz_change',
                        args=[instance.problem.pk])
@@ -374,9 +379,11 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((rejudge_all_href,
                            _("Rejudge all submissions for problem")))
         problem_change_href = self._problem_change_href(instance)
-        request = self._request_local.request;
+        package_manage_href = self._package_manage_href(instance)
+        request = self._request_local.request
         if can_admin_problem(request, instance.problem):
             result.append((problem_change_href, _("Advanced settings")))
+            result.append((package_manage_href, _("Edit package")))
         return result
 
     def actions_field(self, instance):
