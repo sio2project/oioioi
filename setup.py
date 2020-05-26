@@ -113,7 +113,7 @@ else:
 
 setup(
     name='oioioi',
-    version='0.1.1.dev',
+    version='0.1.3-beta',
     description='The web frontend of the SIO2 Project contesting system',
     author='The SIO2 Team',
     author_email='sio2@sio2project.mimuw.edu.pl',
