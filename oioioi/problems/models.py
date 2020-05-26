@@ -267,7 +267,8 @@ class ProblemPackage(models.Model):
     traceback = FileField(upload_to=_make_package_filename,
             verbose_name=_("traceback"), null=True, blank=True)
     status = EnumField(package_statuses, default='?', verbose_name=_("status"))
-    creation_date = models.DateTimeField(default=timezone.now)
+    creation_date = models.DateTimeField(default=timezone.now,
+                                         verbose_name=_("creation date"))
 
     @property
     def download_name(self):
