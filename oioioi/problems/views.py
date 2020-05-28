@@ -11,7 +11,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.db import transaction
-from django.db.models import Case, F, When, Q
+from django.db.models import Case, CharField, F, When, Q, OuterRef, Subquery, Value
+from django.db.models.functions import Coalesce
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
@@ -34,8 +35,9 @@ from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     OriginTagLocalization, OriginInfoValue,
                                     OriginInfoValueLocalization,
                                     OriginInfoCategory,
-                                    DifficultyTag, AlgorithmTag, AlgorithmTagProposal,
-                                    DifficultyProposal)
+                                    DifficultyTag, AlgorithmTag,
+                                    AlgorithmTagProposal,
+                                    DifficultyProposal, UserStatistics)
 
 from oioioi.problems.menu import navbar_links_registry
 from oioioi.problems.problem_site import problem_site_tab_registry
@@ -43,12 +45,10 @@ from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.utils import (can_add_to_problemset,
                                    can_admin_instance_of_problem,
                                    can_admin_problem,
-                                   can_admin_problem_instance,
                                    generate_add_to_contest_metadata,
                                    generate_model_solutions_context,
                                    query_statement, get_prefetched_value, show_proposal_form)
-from oioioi.programs.models import (GroupReport, ModelProgramSubmission,
-                                    ModelSolution, Test, TestReport)
+from oioioi.programs.models import ModelSolution
 from operator import attrgetter
 from unidecode import unidecode
 
@@ -260,41 +260,89 @@ def problemset_get_problems(request):
     problems = search_problems_in_problemset(request.GET)
 
     if settings.PROBLEM_STATISTICS_AVAILABLE:
-        # We need to annotate all of the statistics, because NULLs are difficult
-        # to sort by before Django 1.11, this can be changed if we upgrade...
+        # We annotate all of the statistics to assure that the display
+        # will be correct from the logic's point of view.
         problems = problems.select_related('statistics').annotate(
             statistics_submitted=Case(
                 When(statistics__isnull=True, then=0),
-                default=F('statistics__submitted')
+                default=F('statistics__submitted'),
             ),
             statistics_solved_pc=Case(
-                When(statistics__isnull=True, then=0),
-                When(statistics__submitted=0, then=0),
-                default=100*F('statistics__solved')/F('statistics__submitted')
+                When(statistics__submitted=0, then=None),
+                default=100*F('statistics__solved')/F('statistics__submitted'),
             ),
             statistics_avg_best_score=Case(
-                When(statistics__isnull=True, then=0),
-                default=F('statistics__avg_best_score')
+                When(statistics__isnull=True, then=None),
+                When(statistics__submitted=0, then=None),
+                default=F('statistics__avg_best_score'),
             )
         )
 
+        if request.user.is_authenticated:
+            user_statistics = UserStatistics.objects \
+                        .filter(problem_statistics=OuterRef('statistics__pk'), user=request.user)
+
+            problems = problems.annotate(
+                # If there are no official submissions (i.e. all of the user's
+                # submissions to this problem are ignored), treat the result
+                # as if it didn't exist at all.
+                user_statistics_user_score=Subquery(user_statistics.annotate(
+                    visible_score=(Case(
+                        When(has_submitted=False, then=None),
+                        default=F('best_score')
+                    )
+                )).values('visible_score')[:1]),
+
+                user_statistics_has_submitted=Coalesce(
+                    Subquery(user_statistics.values('has_submitted')[:1]), False),
+                user_statistics_has_solved=Coalesce(
+                    Subquery(user_statistics.values('has_solved')[:1]), False),
+            ).annotate(
+                score_display_type=Case(
+                    When(user_statistics_has_solved=True, then=Value("OK")),         # solved
+                    When(user_statistics_user_score__gt=0, then=Value("TRIED")),     # score is positive
+                    When(user_statistics_user_score__isnull=False, then=Value("FAILED")),    # score: 0
+                    output_field=CharField(),
+                )
+            )
+
+            filter_types = {'solved': Q(user_statistics_has_solved=True),
+                            'attempted': Q(user_statistics_has_solved=False)
+                                         & Q(user_statistics_has_submitted=True),
+                            'not_attempted': Q(user_statistics_has_submitted=False),
+                    }
+            if 'filter' in request.GET:
+                type = request.GET['filter']
+
+                if type == 'all':
+                    pass
+                elif type in filter_types:
+                    problems = problems.filter(filter_types[type])
+                else:
+                    raise Http404
+
+
     order_fields = ('name', 'short_name')
-    order_statistics = ('submitted', 'solved_pc', 'avg_best_score')
+    order_statistics = ('submitted', 'solved_pc', 'avg_best_score', 'user_score')
     if 'order_by' in request.GET:
         field = request.GET['order_by']
+
         if field in order_fields:
-            problems = problems \
-                .order_by(('-' if 'desc' in request.GET else '') + field)
+            lookup = F(field)
         elif field in order_statistics:
-            problems = problems \
-                .order_by(('-' if 'desc' in request.GET else '')
-                          + 'statistics_' + field)
+            lookup = F('statistics_' + field)
         else:
             raise Http404
+
+        if 'desc' in request.GET:
+            problems = problems.order_by(lookup.desc(nulls_last=True))
+        else:
+            problems = problems.order_by(lookup.asc(nulls_first=True))
     else:
         problems = problems.order_by('ascii_name')
 
     problems = problems.select_related('problemsite')
+
     return problems
 
 def problemset_generate_view(request, page_title, problems, view_type):
@@ -304,14 +352,17 @@ def problemset_generate_view(request, page_title, problems, view_type):
         generate_add_to_contest_metadata(request)
     show_tags = settings.PROBLEM_TAGS_VISIBLE
     show_statistics = settings.PROBLEM_STATISTICS_AVAILABLE
+    show_user_statistics = show_statistics and request.user.is_authenticated
+    show_filters = settings.PROBLEM_STATISTICS_AVAILABLE and request.user.is_authenticated
     col_proportions = {
-        'id': 2,
+        'id': 1,
         'name': 2,
-        'tags': 4,
+        'tags': 5,
         'statistics1': 1,
         'statistics2': 1,
         'statistics3': 1,
-        'add_button': 1
+        'user_score': 1,
+        'add_button': 1,
     }
     if not show_add_button:
         col_proportions['tags'] += col_proportions.pop('add_button')
@@ -319,9 +370,11 @@ def problemset_generate_view(request, page_title, problems, view_type):
         col_proportions['id'] += col_proportions.pop('statistics1')
         col_proportions['name'] += col_proportions.pop('statistics2')
         col_proportions['tags'] += col_proportions.pop('statistics3')
+    if not show_user_statistics:
+        col_proportions['tags'] += col_proportions.pop('user_score')
     if not show_tags:
         col_proportions['name'] += col_proportions.pop('tags')
-    assert sum(col_proportions.values()) == 12
+    assert sum(col_proportions.values()) == 13
     form = ProblemsetSourceForm("")
 
     navbar_links = navbar_links_registry.template_context(request)
@@ -352,6 +405,8 @@ def problemset_generate_view(request, page_title, problems, view_type):
        'difficultytags': request.GET.getlist('difficulty'),
        'show_tags': show_tags,
        'show_statistics': show_statistics,
+       'show_user_statistics': show_user_statistics,
+       'show_filters': show_filters,
        'show_search_bar': True,
        'show_add_button': show_add_button,
        'administered_recent_contests': administered_recent_contests,

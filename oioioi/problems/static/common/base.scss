@@ -1,11 +1,20 @@
 @import "scss/utility";
 
+.button-flat button {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
 .search-row {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
 }
 
 .search-bar {
+  margin: 5rem 0 4rem 0;
+}
+
+.filter-bar {
   margin: 5rem 0 4rem 0;
 }
 

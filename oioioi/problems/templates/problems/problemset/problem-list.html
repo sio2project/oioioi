@@ -6,7 +6,7 @@
 {% if problems %}
     {% autopaginate problems 20 %}
     <div class="table-responsive">
-        <table class="table">
+        <table class="table button-flat">
             <thead>
                 <tr>
                     <th class="col-xs-{{ col_proportions.id }}">
@@ -50,15 +50,25 @@
                             </a>
                         </th>
                         <script type="text/javascript">
-                            $(document).ready(function(){
-                                $('[data-toggle="tooltip"]').tooltip();
-                            });
-                        </script>
+-                            $(document).ready(function(){
+-                                $('[data-toggle="tooltip"]').tooltip();
+-                            });
+-                        </script>
+                    {% endif %}
+
+                    {% if show_user_statistics %}
+                        <th class="col-xs-{{ col_proportions.user_score }} text-center">
+                            <a href="{% ordered_col request.GET "user_score" True %}"
+                               data-toggle="tooltip"
+                               title="{% trans "Your score for this problem" %}">
+                                {% trans "Your score" %}
+                            </a>
+                        </th>
                     {% endif %}
 
                     {% if show_add_button %}
                         <th class="col-xs-{{ col_proportions.add_button }} text-center">
-                            {% trans "Select problem" %}
+                            {% trans "Actions" %}
                         </th>
                     {% endif %}
                 </tr>
@@ -100,24 +110,44 @@
                     {% if show_statistics %}
                         {% comment %}
                             Use annotations instead of related when displaying
-                            statistics in case problem.statistics is null
+                            statistics for better implementation of logic.
                         {% endcomment %}
+
                         <td class="text-center">{{ problem.statistics_submitted }}</td>
-                        <td class="text-center">{{ problem.statistics_solved_pc }}%</td>
-                        <td class="text-center">{{ problem.statistics_avg_best_score }}</td>
+
+                        {% if problem.statistics_solved_pc is not None %}
+                            <td class="text-center">{{ problem.statistics_solved_pc }}%</td>
+                        {% else %}
+                            <td/>
+                        {% endif %}
+
+                        {% if problem.statistics_avg_best_score is not None %}
+                            <td class="text-center">{{ problem.statistics_avg_best_score }}</td>
+                        {% else %}
+                            <td/>
+                        {% endif %}
                     {% endif %}
 
-                    {% if administered_recent_contests %}
+                    {% if show_user_statistics %}
+                        {% if problem.user_statistics_user_score is not None %}
+                            <td class="text-center result--{{ problem.score_display_type }} result__margin">
+                                {{ problem.user_statistics_user_score }}
+                            </td>
+                        {% else %}
+                            <td/>
+                        {% endif %}
+                    {% endif %}
+
                         <td class="text-center">
                             <div class="btn-group">
                                 <button class="btn btn-default dropdown-toggle add-to-contest-button" type="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    {% trans "Add to contest" %}
-                                    <span class="add-contest-caret caret"></span>
+                                    <span class="caret add-contest-caret"></span>
                                     <span class="hidden loading-spinner job-active"><span class="glyphicon glyphicon-refresh glyphicon-spin"></span></span>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-right">
-                                    <li class="dropdown-header">{% trans "Choose contest" %}</li>
+                                {% if administered_recent_contests %}
+                                    <li class="dropdown-header">{% trans "Add to contest" %}</li>
                                     {% for contest in administered_recent_contests %}
                                         <li>
                                             <a href="#" data-addorupdate="{% url 'add_or_update_problem' contest_id=contest.id %}"
@@ -127,20 +157,19 @@
                                     <li role="separator" class="divider"></li>
                                     <li>
                                         <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
-                                            {% trans "More..." %}
+                                            {% trans "More contests..." %}
                                         </a>
                                     </li>
+                                {% elif show_add_button %}
+                                    <li>
+                                        <a href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
+                                            {% trans "Add to contest" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
                                 </ul>
                             </div>
                         </td>
-                    {% elif show_add_button %}
-                        <td class="text-center">
-                            <a type="button" class="btn btn-default"
-                               href="{% url 'problemset_add_to_contest' site_key=problem.problemsite.url_key %}?problem_name={{ problem.short_name }}">
-                                {% trans "Add to contest" %}
-                            </a>
-                        </td>
-                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>

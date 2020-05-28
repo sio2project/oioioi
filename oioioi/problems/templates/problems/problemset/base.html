@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n simple_tags %}
+{% load i18n statistics_tags %}
 
 {% block left-navbar %}
     {% include 'navbar-left.html' %}
@@ -15,6 +16,30 @@
     {% include 'problems/ingredients/problemset-menu.html' %}
 
     <div class="row search-row">
+        {% if show_filters %}
+            <ul class="nav nav-pills filter-bar">
+                <li role="presentation" {% if not request.GET.filter or request.GET.filter == "all" %}class="active"{% endif %}>
+                    <a href="{% prob_filter request.GET "all" %}">
+                        {% trans "All" %}
+                    </a>
+                </li>
+                <li role="presentation" {% if request.GET.filter == "solved" %}class="active"{% endif %}>
+                    <a href="{% prob_filter request.GET "solved" %}">
+                        {% trans "Solved" %}
+                    </a>
+                </li>
+                <li role="presentation" {% if request.GET.filter == "attempted" %}class="active"{% endif %}>
+                    <a href="{% prob_filter request.GET "attempted" %}">
+                        {% trans "Attempted" %}
+                    </a>
+                </li>
+                <li role="presentation" {% if request.GET.filter == "not_attempted" %}class="active"{% endif %}>
+                    <a href="{% prob_filter request.GET "not_attempted" %}">
+                        {% trans "Not attempted" %}
+                    </a>
+                </li>
+            </ul>
+        {% endif %}
         {% if show_search_bar %}
         <form id="problemsite_search-form" class="col-md-6 col-sm-8 col-xs-12 search-bar">
             <div class="input-group">
@@ -37,7 +62,6 @@
                     <span class="glyphicon glyphicon-search"></span>
                 </button>
                 </span>
-
             </div>
             <div id="tag-row">
             {% with delete_me="this.parentNode.parentNode.remove()" %}
@@ -63,9 +87,9 @@
 
             {% endwith %}
             </div>
-
         </form>
         {% endif %}
+
     </div>
 </div>
 

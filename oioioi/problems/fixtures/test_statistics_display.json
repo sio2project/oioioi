@@ -114,5 +114,37 @@
       "_best_score_sum": 480,
       "avg_best_score": 80
     }
+  },
+  {
+    "pk": 2,
+    "model": "problems.UserStatistics",
+    "fields": {
+      "problem_statistics_id": 2,
+      "user_id": 1001,
+      "best_score": 0,
+      "has_submitted": true
+    }
+  },
+  {
+    "pk": 3,
+    "model": "problems.UserStatistics",
+    "fields": {
+      "problem_statistics_id": 3,
+      "user_id": 1001,
+      "best_score": 50,
+      "has_solved": false,
+      "has_submitted": true
+    }
+  },
+  {
+    "pk": 4,
+    "model": "problems.UserStatistics",
+    "fields": {
+      "problem_statistics_id": 4,
+      "user_id": 1001,
+      "best_score": 100,
+      "has_solved": true,
+      "has_submitted": true
+    }
   }
 ]

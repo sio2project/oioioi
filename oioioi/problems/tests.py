@@ -725,7 +725,7 @@ class TestProblemsetPage(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'All problems')
         # One link for problem site, another
-        # for "More..." link in "Add to contest"
+        # for "More contests..." link in "Actions"
         self.assertContains(response, '/problemset/problem/',
                 count=Problem.objects.count() * 2)
         self.assertContains(response, 'Add to contest',
@@ -1253,7 +1253,7 @@ class TestAddToContestFromProblemset(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'All problems')
         # One link for problem site, another
-        # for "More..." link in "Add to contest"
+        # for "More contests..." link in "Actions"
         self.assertContains(response, '/problemset/problem/',
                             count=Problem.objects.count() * 2)
         self.assertContains(response, 'Add to contest',
@@ -1611,10 +1611,10 @@ class TestProblemStatisticsDisplay(TestCase):
 
     problem_columns = ['short_name', 'name', 'submitted', 'solved_pc',
                        'avg_best_score']
-    problem_data = [['aaa', 'Aaaa', '7', '14%', '50'],
-                    ['bbb', 'Bbbb', '8', '25%', '45'],
-                    ['ccc', 'Cccc', '5', '60%', '90'],
-                    ['ddd', 'Dddd', '6', '66%', '80']]
+    problem_data = [[u'aaa', u'Aaaa', u'7', u'14%', u'50', None],
+                    [u'bbb', u'Bbbb', u'8', u'25%', u'45', u'0'],
+                    [u'ccc', u'Cccc', u'5', u'60%', u'90', u'50'],
+                    [u'ddd', u'Dddd', u'6', u'66%', u'80', u'100']]
 
     def _get_table_contents(self, html):
         col_n = html.count('<th') - html.count('<thead>')
@@ -1630,16 +1630,27 @@ class TestProblemStatisticsDisplay(TestCase):
             for _ in range(col_n):
                 pos = html.find('<td', pos)
                 self.assertNotEqual(pos, -1)
-                pos2 = html.find('</td>', pos)
-                self.assertNotEqual(pos2, -1)
-                rows[-1].append(strip_tags(html[pos:pos2]).strip())
-                pos = pos2 + len('</td>')
+                none_pos = html.find('<td/>', pos)
+
+                if none_pos == pos:
+                    rows[-1].append(None)
+                    pos += len('<td/>')
+                else:
+                    pos2 = html.find('</td>', pos)
+                    self.assertNotEqual(pos2, -1)
+                    rows[-1].append(strip_tags(html[pos:pos2]).strip())
+                    pos = pos2 + len('</td>')
         return rows
 
     def _assert_rows_sorted(self, rows, order_by=0, desc=False):
-        self.assertEqual(rows, sorted(self.problem_data,
-                                      key=lambda x: x[order_by],
-                                      reverse=desc))
+        # Nones should be treated as if they were less than zeroes
+        # (i.e. listed last when desc=True and listed first otherwise).
+        denullified_rows = \
+            [map(lambda x: -1 if x is None else x, row) for row in rows]
+
+        self.assertEqual(denullified_rows, sorted(denullified_rows,
+                                                  key=lambda x: x[order_by],
+                                                  reverse=desc))
 
     def test_statistics_problem_list(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -1650,6 +1661,11 @@ class TestProblemStatisticsDisplay(TestCase):
 
         rows = self._get_table_contents(response.content.decode('utf-8'))
         self.assertEqual(rows, self.problem_data)
+
+        # There are exactly four problems, one for each score class.
+        self.assertContains(response, 'result--OK', count=1)
+        self.assertContains(response, 'result--TRIED', count=1)
+        self.assertContains(response, 'result--FAILED', count=1)
 
     def test_statistics_sorting(self):
         self.assertTrue(self.client.login(username='test_user'))
@@ -1680,14 +1696,34 @@ class TestProblemStatisticsDisplay(TestCase):
             self.assertEqual(response.status_code, 200)
 
             rows = self._get_table_contents(response.content.decode('utf-8'))
-            self.assertEqual(rows[0], ['ccc', 'Cccc', '0', '0%', '0'])
+            self.assertEqual(rows[0], [u'ccc', u'Cccc', '0', None, None, None])
 
             response = self.client.get(url_main,
                                        {'order_by': column, 'desc': None})
             self.assertEqual(response.status_code, 200)
 
             rows = self._get_table_contents(response.content.decode('utf-8'))
-            self.assertEqual(rows[-1], ['ccc', 'Cccc', '0', '0%', '0'])
+            self.assertEqual(rows[-1], [u'ccc', u'Cccc', '0', None, None, None])
+
+    def test_statistics_sort_nulls(self):
+        ProblemStatistics.objects.get(problem__short_name='ccc').delete()
+
+        self.assertTrue(self.client.login(username='test_user'))
+
+        for i, column in enumerate(self.problem_columns):
+            url_main = reverse('problemset_main')
+            response = self.client.get(url_main, {'order_by': column})
+            self.assertEqual(response.status_code, 200)
+
+            rows = self._get_table_contents(response.content.decode('utf-8'))
+            self._assert_rows_sorted(rows, order_by=i)
+
+            response = self.client.get(url_main,
+                                       {'order_by': column, 'desc': None})
+            self.assertEqual(response.status_code, 200)
+
+            rows = self._get_table_contents(response.content.decode('utf-8'))
+            self._assert_rows_sorted(rows, order_by=i, desc=True)
 
     # Check that the query and the ordering are correctly preserved in links
     def test_statistics_sorting_with_query(self):
@@ -1727,6 +1763,33 @@ class TestProblemStatisticsDisplay(TestCase):
         self.assertIn('foo=bar', th)
         # Any other column links should be to (default) descending ordering
         self.assertIn('desc', th)
+
+@override_settings(PROBLEM_STATISTICS_AVAILABLE=True)
+class TestProblemsetFilters(TestCase):
+    fixtures = ['test_users', 'test_statistics_display']
+
+    problems = [u'aaa', u'bbb', u'ccc', u'ddd']
+    filtered_problems = {
+        'all': [u'aaa', u'bbb', u'ccc', u'ddd'],
+        'solved': [u'ddd'],
+        'attempted': [u'bbb', u'ccc'],
+        'not_attempted': [u'aaa']
+    }
+
+    def test_filters(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+        for filter, filtered in self.filtered_problems.items():
+            url_main = reverse('problemset_main')
+            response = self.client.get(url_main, {'filter': filter})
+            self.assertEqual(response.status_code, 200)
+
+            for problem in self.problems:
+                if problem in filtered:
+                    self.assertContains(response, problem)
+                else:
+                    self.assertNotContains(response, problem)
+
 
 
 class TestVisibilityMigration(TestCaseMigrations):
