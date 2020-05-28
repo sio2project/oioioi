@@ -769,7 +769,7 @@ def get_origintag_category_hints(origintag):
     origintag = OriginTag.objects.get(name=origintag)
     return [{
             'trigger': 'category-menu',
-            'name': '{} - {}'.format(origintag.full_name, category.full_name),
+            'name': u'{} - {}'.format(origintag.full_name, category.full_name),
             'category': _('Origin Tags'),
             'search_name': origintag.full_name,  # Avoids breaking the typeahead
             'value': category.name
@@ -915,7 +915,7 @@ def get_origininfocategory_hints_view(request):
 
     return [{
             'trigger': 'origininfo',
-            'name': '{} {}'.format(category.parent_tag.full_name, val.full_value),
+            'name': u'{} {}'.format(category.parent_tag.full_name, val.full_value),
             'prefix': 'origin',
             'value': val.name,
         } for val in category.values.all()
