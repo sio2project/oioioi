@@ -310,7 +310,8 @@ class ProblemPackage(models.Model):
                              "Error description: %(error)s\n \n" %  dict(error=value))
 
                 # Truncate error so it doesn't take up whole page in list
-                # view. Full info is available anyway in package.traceback.
+                # view (or much space in the database).
+                # Full info is available in package.traceback anyway.
                 package.info = Truncator(info).chars(400)
 
                 package.traceback = ContentFile(
@@ -321,9 +322,6 @@ class ProblemPackage(models.Model):
                     package.package_file.name, extra={'omit_sentry': True})
             else:
                 package.status = 'OK'
-
-            # Truncate message to fit in db.
-            package.info = Truncator(package.info).chars(1000)
 
             package.celery_task_id = None
             package.save()
