@@ -491,7 +491,6 @@ class ProblemPackageAdmin(admin.ModelAdmin):
         else:
             return "-"
     package_info.short_description = _("Package information")
-    package_info.admin_order_field = 'package_info'
 
     def came_from(self):
         return reverse('oioioiadmin:problems_problempackage_changelist')
