@@ -1,5 +1,6 @@
 import urllib
 from functools import partial
+import threading
 
 import six.moves.urllib.parse
 from django.conf.urls import url
@@ -32,6 +33,7 @@ from oioioi.contests.models import (Contest, ContestAttachment, ContestLink,
 from oioioi.contests.utils import (can_admin_contest, is_contest_admin,
                                    is_contest_basicadmin, is_contest_observer)
 from oioioi.problems.models import ProblemPackage, ProblemSite
+from oioioi.problems.utils import can_admin_problem
 from oioioi.programs.models import Test, TestReport
 
 
@@ -285,6 +287,12 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     readonly_fields = ('contest', 'problem')
     ordering = ('-round__start_date', 'short_name')
 
+    def __init__(self, *args, **kwargs):
+        # creating a thread local variable to store the request
+        self._request_local = threading.local()
+        self._request_local.request = None
+        super(ProblemInstanceAdmin, self).__init__(*args, **kwargs)
+
     def has_add_permission(self, request):
         return False
 
@@ -366,7 +374,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             result.append((rejudge_all_href,
                            _("Rejudge all submissions for problem")))
         problem_change_href = self._problem_change_href(instance)
-        result.append((problem_change_href, _("Advanced settings")))
+        request = self._request_local.request;
+        if can_admin_problem(request, instance.problem):
+            result.append((problem_change_href, _("Advanced settings")))
         return result
 
     def actions_field(self, instance):
@@ -388,7 +398,9 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     def package(self, instance):
         problem_package = ProblemPackage.objects \
                 .filter(problem=instance.problem).first()
-        if problem_package and problem_package.package_file:
+        request = self._request_local.request
+        if problem_package and problem_package.package_file \
+            and can_admin_problem(request, instance.problem):
             href = reverse('download_package',
                            kwargs={'package_id': str(problem_package.id)})
             return make_html_link(href, problem_package.package_file)
@@ -396,6 +408,7 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
     package.short_description = _("Package file")
 
     def get_actions(self, request):
+        self._request_local.request = request
         # Disable delete_selected.
         actions = super(ProblemInstanceAdmin, self).get_actions(request)
         if 'delete_selected' in actions:
