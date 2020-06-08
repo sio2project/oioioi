@@ -167,7 +167,6 @@ def _serialize_report(user, problem_instances, test_groups):
                 codefile=source_file.file.name,
             )
         )
-        source_file.close()
         if total_score is None:
             total_score = problem_score
         elif problem_score is not None:
