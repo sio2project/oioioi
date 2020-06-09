@@ -93,7 +93,8 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = None
+# Secret key can't be empty, it is overridden later.
+SECRET_KEY = 'eca76a75-2b9f-4e09-8f88-86671acbed8b'
 
 # List of callables that know how to import templates from various sources.
 UNCACHED_TEMPLATE_LOADERS = (
