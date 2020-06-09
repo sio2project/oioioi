@@ -20,18 +20,14 @@
 
     <ul class="nav nav-tabs">
         {% for tab in tabs %}
-            {% if tab.obj.key != "secret_key" or problem.visibility != problem.VISIBILITY_PUBLIC %}
-                {% if tab.obj.key != 'settings' or can_admin_problem %}
-                    {% if tab.obj.key != 'add_to_contest' %}
-                        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-                            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
-                        </li>
-                    {% elif show_add_button and not can_admin_problem %}
-                        <li {% if tab.obj == current_tab %}class="active"{% endif %}>
-                            <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
-                        </li>
-                    {% endif %}
-                {% endif %}
+            {% if tab.obj.key != 'add_to_contest' %}
+                <li {% if tab.obj == current_tab %}class="active"{% endif %}>
+                    <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+                </li>
+            {% elif show_add_button and not can_admin_problem %}
+                <li {% if tab.obj == current_tab %}class="active"{% endif %}>
+                    <a href="{{ tab.link }}">{{ tab.obj.title }}</a>
+                </li>
             {% endif %}
         {% endfor %}
     </ul>
@@ -46,5 +42,6 @@
 
     <script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/add-to-contest.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}problems/problemset/tag-form.js"></script>
+    <script type="text/javascript">var problemsiteKey = "{{ problemsite_key }}"; </script>
 
 {% endblock %}

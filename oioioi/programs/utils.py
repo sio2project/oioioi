@@ -5,6 +5,7 @@ import six
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+import os.path
 
 from oioioi.base.utils import make_html_link
 from oioioi.contests.models import Submission
@@ -156,15 +157,19 @@ def is_problem_with_library(problem):
     except LibraryProblemData.DoesNotExist:
         return False
 
+
 def is_model_submission(submission):
     return ModelProgramSubmission.objects.filter(pk=submission.id).exists()
+
 
 def filter_model_submissions(queryset):
     model_ids = ModelProgramSubmission.objects.values_list('id', flat=True)
     return queryset.exclude(pk__in=model_ids)
 
+
 def form_field_id_for_langs(problem_instance):
     return 'prog_lang_' + str(problem_instance.id)
+
 
 def get_problem_link_or_name(request, submission):
     pi = submission.problem_instance
@@ -179,3 +184,7 @@ def get_problem_link_or_name(request, submission):
         return make_html_link(href, pi)
     else:
         return pi
+
+
+def get_extension(file_name):
+    return os.path.splitext(file_name)[1][1:]

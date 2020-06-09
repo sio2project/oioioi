@@ -25,13 +25,14 @@ from oioioi.base.permissions import enforce_condition
 from oioioi.base.utils import jsonify, strip_num_or_hash
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    get_submission_or_error, is_contest_admin,
-                                   is_contest_basicadmin)
+                                   is_contest_basicadmin, submittable_problem_instances)
 from oioioi.filetracker.utils import stream_file
 from oioioi.problems.utils import can_admin_instance_of_problem
 from oioioi.programs.models import (OutputChecker, ProgramSubmission,
                                     SubmissionReport, Test, TestReport,
-                                    UserOutGenStatus)
-from oioioi.programs.utils import (decode_str,
+                                    UserOutGenStatus, ProblemInstance)
+from oioioi.programs.problem_instance_utils import get_language_by_extension
+from oioioi.programs.utils import (decode_str, get_extension,
                                    get_submission_source_file_or_error)
 
 # Workaround for race condition in fnmatchcase which is used by pygments
@@ -374,3 +375,29 @@ def get_compiler_hints_view(request):
     language = request.GET.get('language', '')
     available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
     return available_compilers.get(language, {}).keys()
+
+
+@jsonify
+@enforce_condition(~contest_exists | can_enter_contest)
+def get_language_hints_view(request):
+    pi_ids = request.GET.getlist(u'pi_ids[]')
+    filename = request.GET.get(u'filename', u'')
+    pis = ProblemInstance.objects.filter(id__in=pi_ids)
+
+    extension = get_extension(filename)
+    lang_dict = {pi: get_language_by_extension(pi, extension) for pi in pis}
+
+    if contest_exists(request):
+        submittable_pis = submittable_problem_instances(request)
+        lang_dict = {pi: lang for (pi, lang) in lang_dict.items()
+                     if pi in submittable_pis}
+    else:
+        problemsite_key = request.GET.get(u'problemsite_key', u'')
+        lang_dict = {pi: lang for (pi, lang) in lang_dict.items()
+                     if pi.problem.problemsite.url_key == problemsite_key}
+
+    langs = getattr(settings, 'SUBMITTABLE_LANGUAGES', {})
+    lang_display_dict = {pi.id: langs.get(lang, {'display_name': ''})['display_name']
+                         for (pi, lang) in lang_dict.items()}
+
+    return lang_display_dict

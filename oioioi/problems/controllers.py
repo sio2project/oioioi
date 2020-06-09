@@ -37,7 +37,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
 
        Please note that a global problem instance exists for each problem.
        That problem instance has no contest (``contest`` is ``None``),
-       so methods can't be overridden by contest controller what means they
+       so methods can't be overridden by a contest controller which means they
        behave in a default way.
     """
 

@@ -12,6 +12,7 @@ from oioioi.filetracker.client import get_client
 from oioioi.filetracker.utils import django_to_filetracker_path
 from oioioi.participants.models import Participant
 from oioioi.programs.models import ProgramSubmission
+from oioioi.programs.utils import get_extension
 
 
 class SubmissionData(object):
@@ -76,8 +77,7 @@ class SubmissionsWithUserDataCollector(object):
             data.last_name = s.user.last_name
             data.problem_short_name = s.problem_instance.short_name
             data.score = s.score
-            data.solution_language = ccontroller.get_extension(s.source_file,
-                s.problem_instance)
+            data.solution_language = get_extension(s.source_file.name)
             data.source_file = s.source_file
 
             # here we try to get some optional data, it just may not be there

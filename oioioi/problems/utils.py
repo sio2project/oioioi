@@ -26,12 +26,14 @@ def can_add_problems(request):
     return request.user.has_perm('problems.problems_db_admin') \
            or is_contest_basicadmin(request)
 
+
 def can_upload_problems(request):
     if not request.user.is_authenticated:
         return False
     if is_contest_admin(request):
         return True
     return can_add_to_problemset(request)
+
 
 def can_admin_problem(request, problem):
     if request.user.has_perm('problems.problems_db_admin'):
@@ -189,15 +191,10 @@ def generate_add_to_contest_metadata(request):
     return show_add_button, administered_recent_contests
 
 
-def generate_model_solutions_context(request, problem_instance_id):
+def generate_model_solutions_context(request, problem_instance):
     """ Generates context dictionary for model solutions view
-        for "problem_instance_id"'s package.
+        for "problem_instance"'s package.
     """
-
-    problem_instance = \
-        get_object_or_404(ProblemInstance, id=problem_instance_id)
-    if not can_admin_problem_instance(request, problem_instance):
-        raise PermissionDenied
 
     filter_kwargs = {
         'test__isnull': False,
@@ -292,6 +289,7 @@ def generate_model_solutions_context(request, problem_instance_id):
         'total_row': total_row
     }
 
+
 def get_prefetched_value(problem, category):
     """Returns OriginInfoValue for the given Problem and OriginInfoCategory.
 
@@ -337,6 +335,7 @@ def show_proposal_form(problem, user):
         return False
 
     return True
+
 
 def filter_my_all_visible_submissions(request, queryset):
     """ Filters all solusion visible for the currently logged in user

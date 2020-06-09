@@ -3,6 +3,7 @@ from collections import namedtuple
 from operator import itemgetter  # pylint: disable=E0611
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
@@ -13,12 +14,12 @@ from django.utils.translation import ugettext_lazy as _
 from oioioi.base.menu import OrderedRegistry
 from oioioi.contests.controllers import submission_template_context
 from oioioi.contests.forms import SubmissionFormForProblemInstance
-from oioioi.contests.models import Submission
+from oioioi.contests.models import (ProblemInstance, Submission)
 from oioioi.contests.utils import administered_contests
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage, AlgorithmTagProposal,
                                     ProblemStatement)
 from oioioi.problems.utils import (query_statement, query_zip, generate_add_to_contest_metadata,
-                                   generate_model_solutions_context, can_admin_problem)
+                                   generate_model_solutions_context, can_admin_problem, can_admin_problem_instance)
 from oioioi.contests.attachment_registration import attachment_registry_problemset
 
 problem_site_tab_registry = OrderedRegistry()
@@ -151,17 +152,20 @@ def problem_site_submit(request, problem):
             {'problem': problem, 'form': form})
 
 
-@problem_site_tab(_("Secret key"), key='secret_key', order=500)
+@problem_site_tab(_("Secret key"), key='secret_key', order=500,
+        condition=lambda request, problem: problem.visibility != problem.VISIBILITY_PUBLIC)
 def problem_site_secret_key(request, problem):
     return TemplateResponse(request, 'problems/secret-key.html',
         {'site_key': problem.problemsite.url_key})
 
 
-@problem_site_tab(_("Settings"), key='settings', order=600)
+@problem_site_tab(_("Settings"), key='settings', order=600,
+        condition=can_admin_problem)
 def problem_site_settings(request, problem):
     show_add_button, administered_recent_contests = generate_add_to_contest_metadata(request)
     package = ProblemPackage.objects.filter(problem=problem).first()
-    model_solutions = generate_model_solutions_context(request, problem.main_problem_instance_id)
+    problem_instance = get_object_or_404(ProblemInstance, id=problem.main_problem_instance_id)
+    model_solutions = generate_model_solutions_context(request, problem_instance)
     extra_actions = problem.controller.get_extra_problem_site_actions(problem)
     algorithm_tag_proposals = AlgorithmTagProposal.objects.all().filter(problem=problem).order_by('-pk')[:25]
     return TemplateResponse(request, 'problems/settings.html',

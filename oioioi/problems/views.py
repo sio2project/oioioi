@@ -45,6 +45,7 @@ from oioioi.problems.problem_sources import problem_sources
 from oioioi.problems.utils import (can_add_to_problemset,
                                    can_admin_instance_of_problem,
                                    can_admin_problem,
+                                   can_admin_problem_instance,
                                    generate_add_to_contest_metadata,
                                    generate_model_solutions_context,
                                    query_statement, get_prefetched_value, show_proposal_form)
@@ -432,6 +433,7 @@ def problemset_my_problems_view(request):
     problems = problems_pool.filter(author=request.user, problemsite__isnull=False)
     return problemset_generate_view(request, page_title, problems, "my")
 
+
 def problemset_shared_with_me_view(request):
     from oioioi.problemsharing.models import Friendship
     page_title = _("Shared with me")
@@ -461,6 +463,7 @@ def problem_site_view(request, site_key):
     problemset_tabs = generate_problemset_tabs(request)
     problemset_tabs.append({'name': _('Problem view'), 'url': reverse('problem_site', kwargs={'site_key': site_key})})
     context = {'problem': problem,
+               'problemsite_key': site_key,
                'package': package if package and package.package_file
                         else None,
                'extra_actions': extra_actions,
@@ -751,7 +754,11 @@ def task_archive_tag_view(request, origin_tag):
 
 
 def model_solutions_view(request, problem_instance_id):
-    context = generate_model_solutions_context(request, problem_instance_id)
+    problem_instance = \
+        get_object_or_404(ProblemInstance, id=problem_instance_id)
+    if not can_admin_problem_instance(request, problem_instance):
+        raise PermissionDenied
+    context = generate_model_solutions_context(request, problem_instance)
 
     return TemplateResponse(request, 'programs/admin/model_solutions.html',
             context)

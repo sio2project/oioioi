@@ -36,4 +36,6 @@ urlpatterns = [
         views.source_diff_view, name='source_diff'),
     url(r'^get_compiler_hints/$', views.get_compiler_hints_view,
         name='get_compiler_hints'),
+    url(r'^get_language_hints/$', views.get_language_hints_view,
+        name='get_language_hints'),
 ]

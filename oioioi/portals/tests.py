@@ -440,7 +440,7 @@ class TestMarkdown(TestCase):
             def __init__(self):
                 self.user = AnonymousUser()
 
-        # mocking up a request below becouse I am NOT testing whole view
+        # mocking up a request below because I am NOT testing the whole view
         self.request = MockRequest()
 
         for i in range(1, 5):

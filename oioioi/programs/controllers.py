@@ -1,7 +1,6 @@
 import hashlib
 import itertools
 import logging
-import os.path
 from operator import attrgetter  # pylint: disable=E0611
 
 from django import forms
@@ -9,6 +8,7 @@ from django.conf import settings
 from django.core.exceptions import (ValidationError, SuspiciousOperation)
 from django.core.files.base import ContentFile
 from django.template.loader import render_to_string
+from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
@@ -35,7 +35,8 @@ from oioioi.programs.utils import (has_report_actions_config,
                                    is_model_submission,
                                    filter_model_submissions,
                                    form_field_id_for_langs,
-                                   get_problem_link_or_name)
+                                   get_problem_link_or_name,
+                                   get_extension)
 from oioioi.programs.widgets import CancellableFileInput
 
 def get_report_display_type(request, test_report):
@@ -76,8 +77,7 @@ class ProgrammingProblemController(ProblemController):
 
     def get_compiler_for_submission(self, submission):
         problem_instance = submission.problem_instance
-        extension = problem_instance.controller \
-            .get_extension(submission.source_file, problem_instance)
+        extension = get_extension(submission.source_file.name)
         language = get_language_by_extension(problem_instance, extension)
         assert language
 
@@ -114,8 +114,7 @@ class ProgrammingProblemController(ProblemController):
         submission = submission.programsubmission
         environ['source_file'] = \
             django_to_filetracker_path(submission.source_file)
-        environ['language'] = problem_instance.controller \
-            .get_extension(submission.source_file, problem_instance)
+        environ['language'] = get_extension(submission.source_file.name)
         environ['compilation_result_size_limit'] = \
             problem_instance.controller \
                 .get_compilation_result_size_limit(submission)
@@ -289,9 +288,6 @@ class ProgrammingProblemController(ProblemController):
     def get_compilation_result_size_limit(self, submission):
         return 10 * 1024 * 1024
 
-    def get_extension(self, source_file, problem_instance):
-        return os.path.splitext(source_file.name)[1][1:]
-
     def fill_evaluation_environ(self, environ, submission, **kwargs):
         self.generate_base_environ(environ, submission, **kwargs)
 
@@ -388,7 +384,7 @@ class ProgrammingProblemController(ProblemController):
             cleaned_data[langs_field_name] = None
 
         if not cleaned_data[langs_field_name] and is_file_chosen:
-            ext = os.path.splitext(cleaned_data['file'].name)[1].strip('.')
+            ext = get_extension(cleaned_data['file'].name)
             cleaned_data[langs_field_name] = \
                 get_language_by_extension(problem_instance, ext)
 
@@ -504,7 +500,7 @@ class ProgrammingProblemController(ProblemController):
                 raise ValidationError(_("Code length limit exceeded."))
 
         def validate_language(file):
-            ext = controller.get_extension(file, problem_instance)
+            ext = get_extension(file.name)
             if ext not in get_allowed_languages_extensions(problem_instance):
                 raise ValidationError(_(
                     "Unknown or not supported file extension."))
@@ -535,6 +531,8 @@ class ProgrammingProblemController(ProblemController):
                 ) % (', '.join(get_allowed_languages_extensions(
                     problem_instance))))
         )
+        form.fields['file'].widget.attrs.update(
+                {'data-languagehintsurl': reverse('get_language_hints')})
         form.fields['code'] = forms.CharField(required=False,
                 label=_("Code"),
                 validators=[validate_code_length],
@@ -775,10 +773,6 @@ class ProgrammingContestController(ContestController):
     def get_compilation_result_size_limit(self, submission):
         return submission.problem_instance.problem.controller \
             .get_compilation_result_size_limit(submission)
-
-    def get_extension(self, source_file, problem_instance):
-        return problem_instance.problem.controller \
-            .get_extension(source_file, problem_instance)
 
     def fill_evaluation_environ(self, environ, submission):
         problem = submission.problem_instance.problem
