@@ -104,6 +104,8 @@ python23_universal_requirements = [
         # when using newer version
         "django-appconf<1.0.4",
         # Dependencies from external sources live in requirements.txt
+
+        "django-simple-captcha",
 ]
 
 if PYTHON_VERSION == 2:

@@ -16,6 +16,8 @@ from oioioi.base.utils.user import USERNAME_REGEX, UNICODE_CATEGORY_LIST
 from oioioi.base.utils.validators import ValidationError, UnicodeValidator
 from oioioi.base.preferences import PreferencesFactory
 
+from captcha.fields import CaptchaField
+
 
 def adjust_username_field(form):
     help_text = \
@@ -100,6 +102,7 @@ class RegistrationFormWithNames(RegistrationForm):
         ]
         self.fields = OrderedDict(tmp_fields)
         self.fields.update(extra)
+        self.fields.update({'captcha' : CaptchaField(label='')})
         adjust_name_fields(self)
 
 

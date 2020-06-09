@@ -927,4 +927,3 @@ List of changes since the *CONFIG_VERSION* numbering was introduced:
         +# - "sio2jail" - (default) SIO2Jail
          # - "cpu" - ptrace (measures real time)
          #DEFAULT_SAFE_EXECUTION_MODE = "sio2jail"
-

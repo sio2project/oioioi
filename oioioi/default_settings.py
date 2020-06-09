@@ -244,7 +244,11 @@ INSTALLED_APPS = (
     'coreapi',
     'rest_framework',
     'rest_framework.authtoken',
+
+    'captcha',
 )
+
+CAPTCHA_FONT_SIZE = 64
 
 AUTHENTICATION_BACKENDS = (
     # 'oioioi.teachers.auth.TeacherAuthBackend',

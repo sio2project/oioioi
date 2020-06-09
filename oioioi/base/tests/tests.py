@@ -52,6 +52,8 @@ from oioioi.szkopul.views import main_page_view as szkopul_main_page
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from captcha.models import CaptchaStore
+
 
 if not getattr(settings, 'TESTS', False):
     print('The tests are not using the required test '
@@ -663,12 +665,22 @@ class TestMisc(TestCase):
 
 class TestRegistration(TestCase):
     def test_registration_form_fields(self):
+        captcha_count = CaptchaStore.objects.count()
+        self.assertEqual(captcha_count, 0)
         response = self.client.get(reverse('registration_register'))
+        captcha_count = CaptchaStore.objects.count()
+        self.assertEqual(captcha_count, 1)
         form = response.context['form']
         self.assertIn('first_name', form.fields)
         self.assertIn('last_name', form.fields)
 
-    def _register_user(self, terms_accepted=True):
+    def _register_user(self, terms_accepted=True, pass_captcha=True):
+        response = self.client.get(reverse('registration_register'))
+        captcha_count = CaptchaStore.objects.count()
+        self.assertEqual(captcha_count, 1)
+        captcha = CaptchaStore.objects.all()[0];
+        if not pass_captcha:
+            captcha.response += "z"
         self.client.post(reverse('registration_register'), {
             'username': 'test_foo',
             'first_name': 'Foo',
@@ -677,6 +689,8 @@ class TestRegistration(TestCase):
             'password1': 'xxx',
             'password2': 'xxx',
             'terms_accepted': terms_accepted,
+            'captcha_0':  captcha.hashkey,
+            'captcha_1':  captcha.response,
         })
 
     def _assert_user_active(self):
@@ -705,6 +719,11 @@ class TestRegistration(TestCase):
     @override_settings(SEND_USER_ACTIVATION_EMAIL=False)
     def test_registration_terms_not_accepted(self):
         self._register_user(terms_accepted=False)
+        self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
+
+    @override_settings(SEND_USER_ACTIVATION_EMAIL=False)
+    def test_registration_captcha_not_passed(self):
+        self._register_user(pass_captcha=False)
         self.assertEqual(User.objects.filter(username='test_foo').count(), 0)
 
 
