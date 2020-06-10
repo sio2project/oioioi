@@ -10,6 +10,9 @@ GITHUB_LINK = "https://github.com/sio2project/oioioi/blob/master/UPGRADING.rst#c
 
 def setup_check():
     deployment_config_version = getattr(settings, 'CONFIG_VERSION', 0)
+    if deployment_config_version == 0:
+        return
+
     if deployment_config_version != INSTALLATION_CONFIG_VERSION:
         raise ImproperlyConfigured(_("The 'CONFIG_VERSION' in your custom "
                 "deployment directory (%(deployment_version)s) does not match "
