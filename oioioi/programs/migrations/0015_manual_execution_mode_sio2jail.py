@@ -19,5 +19,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(change_execution_mode),
+        migrations.RunPython(change_execution_mode, reverse_code=migrations.RunPython.noop),
     ]
