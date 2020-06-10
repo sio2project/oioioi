@@ -21,6 +21,6 @@ def setup_check():
                     'version': INSTALLATION_CONFIG_VERSION,
                     'href': GITHUB_LINK,
                 })
-    database_atomic_requests = getattr(settings, 'CONFIG_VERSION', 0)
-    if not database_atomic_requests:
+    databases = getattr(settings, 'DATABASES', {})
+    if not all(database.get('ATOMIC_REQUESTS') for database in databases.values()):
         raise ImproperlyConfigured("'ATOMIC_REQUESTS' in database settings should always be set to True.")
