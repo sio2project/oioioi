@@ -142,7 +142,7 @@
     "fields": {
       "problem_statistics_id": 4,
       "user_id": 1001,
-      "best_score": 100,
+      "best_score": 90,
       "has_solved": true,
       "has_submitted": true
     }

@@ -323,7 +323,8 @@ def problemset_get_problems(request):
 
 
     order_fields = ('name', 'short_name')
-    order_statistics = ('submitted', 'solved_pc', 'avg_best_score', 'user_score')
+    order_statistics = ('submitted', 'solved_pc', 'avg_best_score')
+    order_user_statistics = ('user_score')
     if 'order_by' in request.GET:
         field = request.GET['order_by']
 
@@ -331,6 +332,8 @@ def problemset_get_problems(request):
             lookup = F(field)
         elif field in order_statistics:
             lookup = F('statistics_' + field)
+        elif field in order_user_statistics:
+            lookup = F('user_statistics_' + field)
         else:
             raise Http404
 

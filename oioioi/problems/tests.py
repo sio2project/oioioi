@@ -32,7 +32,8 @@ from oioioi.problems.management.commands import recalculate_statistics
 from oioioi.problems.models import (Problem, ProblemAttachment, ProblemPackage,
                                     ProblemStatistics, make_problem_filename,
                                     ProblemSite, ProblemStatement,
-                                    OriginInfoValue, OriginInfoCategory)
+                                    OriginInfoValue, OriginInfoCategory,
+                                    UserStatistics)
 from oioioi.problems.package import ProblemPackageBackend
 from oioioi.problems.problem_site import problem_site_tab
 from oioioi.problems.problem_sources import UploadedPackageSource
@@ -1610,11 +1611,11 @@ class TestProblemStatisticsDisplay(TestCase):
     fixtures = ['test_users', 'test_statistics_display']
 
     problem_columns = ['short_name', 'name', 'submitted', 'solved_pc',
-                       'avg_best_score']
+                       'avg_best_score', 'user_score']
     problem_data = [[u'aaa', u'Aaaa', u'7', u'14%', u'50', None],
                     [u'bbb', u'Bbbb', u'8', u'25%', u'45', u'0'],
                     [u'ccc', u'Cccc', u'5', u'60%', u'90', u'50'],
-                    [u'ddd', u'Dddd', u'6', u'66%', u'80', u'100']]
+                    [u'ddd', u'Dddd', u'6', u'66%', u'80', u'90']]
 
     def _get_table_contents(self, html):
         col_n = html.count('<th') - html.count('<thead>')
@@ -1686,7 +1687,17 @@ class TestProblemStatisticsDisplay(TestCase):
             self._assert_rows_sorted(rows, order_by=i, desc=True)
 
     def test_statistics_nulls(self):
+        # Make ccc have null stats
         ProblemStatistics.objects.get(problem__short_name='ccc').delete()
+
+        # Supply user_score for a
+        aaa_statistics = UserStatistics(
+            problem_statistics=ProblemStatistics.objects.get(problem__short_name='aaa'),
+            user=User.objects.get(username='test_user')
+        )
+        aaa_statistics.best_score = 0
+        aaa_statistics.has_submitted = True
+        aaa_statistics.save()
 
         self.assertTrue(self.client.login(username='test_user'))
 
