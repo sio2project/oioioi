@@ -33,7 +33,8 @@ def recent_contests(request):
         c_views = ContestView.objects.filter(user=request.real_user) \
                 .select_related('contest')
         c_views = c_views[:getattr(settings, 'NUM_RECENT_CONTESTS', 5)]
-        return [cv.contest for cv in c_views]
+        return [cv.contest for cv in c_views
+                if cv.contest in visible_contests(request)]
 
 
 def register_recent_contests(request):
