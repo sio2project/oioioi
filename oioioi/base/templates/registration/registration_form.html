@@ -9,6 +9,11 @@
     {% endif %}
 {% endblock %}
 
+{% block scripts %}
+    {{ block.super }}
+    {{ form.media.js }}
+{% endblock %}
+
 {% block content %}
     {% if not user.is_authenticated %}
         <h1>{% trans "Registration" %}</h1>

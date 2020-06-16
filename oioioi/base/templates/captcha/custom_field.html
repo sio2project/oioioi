@@ -1,0 +1,25 @@
+{% load i18n %}
+{% spaceless %}
+<div class="form-group">
+    <label class="control-label">{{ label }}</label>
+    <div class="form-group">
+        {% if audio %}
+        <button type="button" class="btn btn-small js-captcha-play-audio" title="Play audio">
+            <span class="glyphicon glyphicon-play-circle"></span>
+        </button>
+        {% endif %}
+        <button type="button" class="btn btn-small js-captcha-refresh" title="Refresh Captcha">
+            <span class="glyphicon glyphicon-refresh"></span>
+        </button>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                {% if audio %}
+                <audio id="audio" src="{{ audio }}"></audio>
+                {% endif %}
+                <img src="{{ image }}" alt="captcha" class="captcha img-thumbnail"/>
+            </div>
+            {% include "django/forms/widgets/multiwidget.html" %}
+        </div>
+    </div>
+</div>
+{% endspaceless %}

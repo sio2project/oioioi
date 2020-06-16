@@ -1,5 +1,8 @@
 # pylint: disable=wildcard-import
 import sys
+
+from oioioi.base.utils.finders import find_executable_path
+
 if sys.version_info < (2, 6):
     raise RuntimeError("OIOIOI needs at least Python 2.6")
 
@@ -12,7 +15,7 @@ from django.contrib.messages import constants as messages
 
 from django.utils.translation import ugettext_lazy as _
 
-INSTALLATION_CONFIG_VERSION = 45
+INSTALLATION_CONFIG_VERSION = 46
 
 DEBUG = False
 INTERNAL_IPS = ('127.0.0.1',)
@@ -234,6 +237,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.forms',
 
     'django_otp',
     'django_otp.plugins.otp_static',
@@ -248,7 +252,12 @@ INSTALLED_APPS = (
     'captcha',
 )
 
+CAPTCHA_FLITE_PATH = find_executable_path('flite')
+CAPTCHA_SOX_PATH = find_executable_path('sox')
+CAPTCHA_BACKGROUND_COLOR = '#daedf4'
+CAPTCHA_IMAGE_SIZE = (250, 100)
 CAPTCHA_FONT_SIZE = 64
+CAPTCHA_LETTER_ROTATION = (-70, 70)
 
 AUTHENTICATION_BACKENDS = (
     # 'oioioi.teachers.auth.TeacherAuthBackend',

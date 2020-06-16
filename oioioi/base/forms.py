@@ -16,7 +16,7 @@ from oioioi.base.utils.user import USERNAME_REGEX, UNICODE_CATEGORY_LIST
 from oioioi.base.utils.validators import ValidationError, UnicodeValidator
 from oioioi.base.preferences import PreferencesFactory
 
-from captcha.fields import CaptchaField
+from captcha.fields import CaptchaField, CaptchaTextInput
 
 
 def adjust_username_field(form):
@@ -90,7 +90,14 @@ def save_consents(sender, user, **kwargs):
 PreferencesSaved.connect(save_consents)
 
 
+class CustomCaptchaTextInput(CaptchaTextInput):
+    template_name = 'captcha/custom_field.html'
+
+
 class RegistrationFormWithNames(RegistrationForm):
+    class Media(object):
+        js = ('js/refresh-simple-captcha.js',)
+
     def __init__(self, *args, **kwargs):
         extra = kwargs.pop('extra', {})
         super(RegistrationFormWithNames, self).__init__(*args, **kwargs)
@@ -102,7 +109,8 @@ class RegistrationFormWithNames(RegistrationForm):
         ]
         self.fields = OrderedDict(tmp_fields)
         self.fields.update(extra)
-        self.fields.update({'captcha' : CaptchaField(label='')})
+        self.fields.update({'captcha': CaptchaField(label='',
+                            widget=CustomCaptchaTextInput)})
         adjust_name_fields(self)
 
 
