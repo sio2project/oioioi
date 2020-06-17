@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SIO2 Project\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-16 15:11+0000\n"
-"PO-Revision-Date: 2020-06-16 15:11+0000\n"
+"POT-Creation-Date: 2020-06-16 20:38+0000\n"
+"PO-Revision-Date: 2020-06-16 20:38+0000\n"
 "Last-Translator: sio2project <sio2@sio2project.mimuw.edu.pl>\n"
 "Language-Team: German (http://www.transifex.com/sio2project/sio2project/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -1695,7 +1695,7 @@ msgstr ""
 
 #: contests/admin.py:433 contests/templates/contests/problems_list.html:5
 #: contests/templates/contests/problems_list.html:8 contests/views.py:75
-#: dashboard/views.py:27 problems/views.py:920
+#: dashboard/views.py:27 problems/views.py:923
 msgid "Problems"
 msgstr ""
 
@@ -4658,7 +4658,7 @@ msgid "The file size limit exceeded."
 msgstr ""
 
 #: printing/forms.py:22 problems/templates/problems/files.html:14
-#: programs/controllers.py:526
+#: programs/controllers.py:528
 #: simpleui/templates/simpleui/problem_settings/ingredients/attachments.html:6
 msgid "File"
 msgstr ""
@@ -4715,7 +4715,7 @@ msgstr ""
 #: problems/admin.py:230 problems/admin.py:249 problems/admin.py:268
 #: problems/admin.py:286 problems/admin.py:304
 #: problems/templates/problems/problemset/problem-list.html:26
-#: problems/views.py:889
+#: problems/views.py:892
 #: simpleui/templates/simpleui/problem_settings/settings.html:48
 msgid "Tags"
 msgstr ""
@@ -4734,7 +4734,7 @@ msgstr ""
 msgid "Difficulty Tag"
 msgstr ""
 
-#: problems/admin.py:267 problems/views.py:899
+#: problems/admin.py:267 problems/views.py:902
 msgid "Difficulty Tags"
 msgstr ""
 
@@ -4743,7 +4743,7 @@ msgstr ""
 msgid "Algorithm Tag"
 msgstr ""
 
-#: problems/admin.py:285 problems/views.py:894
+#: problems/admin.py:285 problems/views.py:897
 #| msgid "Algorithmic Engagements"
 msgid "Algorithm Tags"
 msgstr ""
@@ -5236,7 +5236,7 @@ msgstr ""
 #: problems/templates/problems/ingredients/add-to-contest-panel.html:5
 #: problems/templates/problems/problemset/problem-list.html:151
 #: problems/templates/problems/problemset/problem-list.html:167
-#: problems/views.py:512
+#: problems/views.py:515
 msgid "Add to contest"
 msgstr ""
 
@@ -5597,37 +5597,37 @@ msgstr ""
 msgid "Public problems"
 msgstr ""
 
-#: problems/views.py:244 problems/views.py:427
+#: problems/views.py:244 problems/views.py:430
 msgid "My problems"
 msgstr ""
 
-#: problems/views.py:248 problems/views.py:434
+#: problems/views.py:248 problems/views.py:437
 msgid "Shared with me"
 msgstr ""
 
-#: problems/views.py:251 problems/views.py:445
+#: problems/views.py:251 problems/views.py:448
 msgid "All problems"
 msgstr ""
 
-#: problems/views.py:420
+#: problems/views.py:423
 msgid "Welcome to problemset, the place where all the problems are."
 msgstr ""
 
-#: problems/views.py:459
+#: problems/views.py:462
 #| msgid "Problem site"
 msgid "Problem view"
 msgstr ""
 
-#: problems/views.py:536
+#: problems/views.py:539
 msgid "Reports are not available now (ಥ ﹏ ಥ)"
 msgstr ""
 
-#: problems/views.py:764
+#: problems/views.py:767
 msgid "Model solutions sent for evaluation."
 msgstr ""
 
-#: problems/views.py:828 problems/views.py:842 problems/views.py:850
-#: problems/views.py:858 problems/views.py:871
+#: problems/views.py:831 problems/views.py:845 problems/views.py:853
+#: problems/views.py:861 problems/views.py:874
 msgid "Origin Tags"
 msgstr ""
 
@@ -5720,49 +5720,49 @@ msgstr ""
 msgid "Diff submissions"
 msgstr ""
 
-#: programs/controllers.py:74
+#: programs/controllers.py:75
 msgid "Simple programming problem"
 msgstr ""
 
-#: programs/controllers.py:382
+#: programs/controllers.py:383
 msgid "You have to either choose file or paste code."
 msgstr ""
 
-#: programs/controllers.py:397
+#: programs/controllers.py:398
 msgid "You have to choose programming language."
 msgstr ""
 
-#: programs/controllers.py:399
+#: programs/controllers.py:400
 msgid "Unrecognized file extension."
 msgstr ""
 
-#: programs/controllers.py:403
+#: programs/controllers.py:404
 msgid "This language is not allowed for selected problem."
 msgstr ""
 
-#: programs/controllers.py:425
+#: programs/controllers.py:426
 msgid ""
 "You have submitted the same file for this problem again. Please resubmit if "
 "you really want to submit the same file"
 msgstr ""
 
-#: programs/controllers.py:486
+#: programs/controllers.py:487
 msgid "Programming language"
 msgstr ""
 
-#: programs/controllers.py:499
+#: programs/controllers.py:500
 msgid "File size limit exceeded."
 msgstr ""
 
-#: programs/controllers.py:503
+#: programs/controllers.py:504
 msgid "Code length limit exceeded."
 msgstr ""
 
-#: programs/controllers.py:509
+#: programs/controllers.py:510
 msgid "Unknown or not supported file extension."
 msgstr ""
 
-#: programs/controllers.py:528
+#: programs/controllers.py:530
 #, python-format
 msgid ""
 "Language is determined by the file extension. It has to be one of: %s. You "
@@ -5770,11 +5770,11 @@ msgid ""
 " too!</strong>"
 msgstr ""
 
-#: programs/controllers.py:537
+#: programs/controllers.py:539
 msgid "Code"
 msgstr ""
 
-#: programs/controllers.py:750
+#: programs/controllers.py:752
 msgid "Simple programming contest"
 msgstr ""
 
@@ -8446,12 +8446,7 @@ msgstr ""
 msgid "User contest ownership"
 msgstr ""
 
-#: usercontests/controllers.py:13
-#| msgid "New contest"
-msgid "User contest"
-msgstr ""
-
-#: usercontests/controllers.py:40
+#: usercontests/controllers.py:10
 #| msgid "Contest for teachers"
 msgid "Contest for everyone"
 msgstr ""
