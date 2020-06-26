@@ -1,10 +1,11 @@
-import sys
 import shutil
-import distutils
+from distutils import spawn
+
+import six
 
 
 def find_executable_path(name):
-    if sys.version_info[0] >= 3:
+    if six.PY3:
         return shutil.which(name)
     else:
-        return distutils.spawn.find_executable(name)
+        return spawn.find_executable(name)
