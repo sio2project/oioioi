@@ -59,13 +59,12 @@ def main():
         sys.exit(3)
 
     asset_name = ASSET_PREFIX + '_' + target_version + '.' + ASSET_EXT
-    # asset_path = os.path.join(os.getcwd(), asset_name)
     download_tgz(target_version, asset_name, asset_name)
     with tarfile.open(asset_name, 'r') as t:
         asset_folder = t.getnames()[0]
         t.extractall()
 
-    shutil.copytree(asset_folder, '.', dirs_exist_ok=True)
+    shutil.copytree(asset_folder, deployment_directory, dirs_exist_ok=True)
     os.remove(asset_name)
     shutil.rmtree(asset_folder)
 

@@ -1,11 +1,13 @@
 #!/bin/bash
 set -e
 
+cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
+
 LOGFILE="oioioi.log"
-true >LOGFILE
+true >"$LOGFILE"
 
 echot() {
-  echo "$@" | tee >>LOGFILE
+  echo "$@" | tee >>"$LOGFILE"
 }
 
 if (( $# == 0 )); then
@@ -110,7 +112,7 @@ EOF
   # run setup for each distro accordingly
   case "$lsb_dist" in
     ubuntu|debian|raspbian)
-      $sh_c 'apt-get install -y python3-venv >>LOGFILE 2>&1'
+      $sh_c 'apt-get install -y python3-venv' >>"$LOGFILE" 2>&1
     ;;
     *)
       # all other supported distros should have ensure-pip already installed
@@ -133,9 +135,9 @@ case "$1" in
     python3 -m venv .venv
     activate_python
     # install python dependencies
-    pip install -r requirements.txt >>LOGFILE 2>&1
+    pip install -r requirements.txt >>"$LOGFILE" 2>&1
     # install docker
-    command_exists docker || python helpers/install_docker.py >>LOGFILE 2>&1
+    command_exists docker || python helpers/install_docker.py >>"$LOGFILE" 2>&1
     # create basic settings
     mkdir -p "$OIOIOI_CONFIGDIR"
     clear
@@ -191,12 +193,12 @@ case "$1" in
   ;;
 
   update2)
-    OIOIOI_OLD_VERSION="$1"
+    OIOIOI_OLD_VERSION="$2"
     rm -rf .venv
     python3 -m venv .venv
     activate_python
     # install python dependencies
-    pip install -r requirements.txt >>LOGFILE 2>&1
+    pip install -r requirements.txt >>"$LOGFILE" 2>&1
     clear
     # update basic settings
     python helpers/create_settings.py "$OIOIOI_CONFIGDIR"
