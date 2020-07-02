@@ -298,16 +298,16 @@ class ProblemPackage(models.Model):
 
                 try:
                     # This will work if a PackageProcessingError was thrown
-                    info = _("Failed operation: %(name)s\n"
-                             "Operation description: %(desc)s\n \n"
-                             "Error description: %(error)s\n \n" %
+                    info = _(u"Failed operation: %(name)s\n"
+                             u"Operation description: %(desc)s\n \n"
+                             u"Error description: %(error)s\n \n" %
                              dict(name=value.raiser, desc=value.raiser_desc,
                                   error=value.original_exception_info[1]))
 
                     type, value, _old_traceback = value.original_exception_info
                 except AttributeError:
-                    info = _("Failed operation unknown.\n"
-                             "Error description: %(error)s\n \n" %  dict(error=value))
+                    info = _(u"Failed operation unknown.\n"
+                             u"Error description: %(error)s\n \n" %  dict(error=value))
 
                 # Truncate error so it doesn't take up whole page in list
                 # view (or much space in the database).
