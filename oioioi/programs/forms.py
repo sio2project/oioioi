@@ -35,7 +35,7 @@ class CompilerInlineForm(forms.ModelForm):
         if kwargs.get('instance'):
             instance = kwargs.get('instance')
             available_compilers = getattr(settings, 'AVAILABLE_COMPILERS', {})
-            compilers_for_lang = available_compilers.get(instance.language)
+            compilers_for_lang = available_compilers.get(instance.language, [])
             # we can't just add all the compilers_for_lang, because first one
             # is the default option, so it has to be current compiler
             final_compiler_choices = [(instance.compiler, instance.compiler)] + [
