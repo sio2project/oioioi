@@ -25,8 +25,14 @@ for app in settings.INSTALLED_APPS:
             pass
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
+import logging
+
+auditLogger = logging.getLogger(__name__ + ".audit")
 
 # Sender will be equal to the form that was completed
 PreferencesSaved = django.dispatch.Signal(providing_args=['user'])
@@ -37,3 +43,13 @@ class Consents(models.Model):
     terms_accepted = models.BooleanField(_("terms accepted"), default=False)
     marketing_consent = models.BooleanField(_("first-party marketing consent"), default=False)
     partner_consent = models.BooleanField(_("third-party marketing consent"), default=False)
+
+
+@receiver(post_save, sender=Consents)
+def _log_consent_change(sender, instance, created, raw, **kwargs):
+    auditLogger.info("User %d (%s) consents changed: "
+            "terms: %s marketing: %s partner: %s",
+            instance.user.id, instance.user.username,
+            instance.terms_accepted,
+            instance.marketing_consent,
+            instance.partner_consent)
