@@ -55,7 +55,7 @@ python23_universal_requirements = [
         "django-libsass>=0.7",
 
         "django-debug-toolbar>=1.9.1,<1.10",  # latest version for Django 1.10
-        "django-extensions>=1.0.0",
+        "django-extensions>=2.2.9,<3.0",     # latest version for Django 1.11
         "djangorestframework==3.8.2",       # latest version for Django 1.10
         "werkzeug",
 
