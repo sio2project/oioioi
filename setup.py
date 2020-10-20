@@ -105,7 +105,8 @@ python23_universal_requirements = [
         "django-appconf<1.0.4",
         # Dependencies from external sources live in requirements.txt
 
-        "django-simple-captcha",
+        # 0.5.13 suddenly requires django 2.2
+        "django-simple-captcha==0.5.12",
 
         # HOTFIX
         "phonenumbers",
