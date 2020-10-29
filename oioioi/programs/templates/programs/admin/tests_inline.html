@@ -58,7 +58,7 @@
         // Set up taborder.
         var i = 0;
         var testindexes = {};
-        var inputs = $('#tests input:text');
+        var inputs = $('#tests input[type=number]');
         inputs.each(function(index, elem) {
             $(elem).attr('autocomplete', 'off');
             if (elem.id.indexOf('time_limit') != -1)
