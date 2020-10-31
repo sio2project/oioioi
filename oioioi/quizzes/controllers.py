@@ -131,6 +131,11 @@ class QuizProblemController(ProblemController):
 
     def adjust_submission_form(self, request, form, problem_instance):
         questions = self.select_questions(request.user, problem_instance, None)
+        questions = questions.prefetch_related(
+            'quizanswer_set',
+            'quizanswer_set__quizanswerpicture_set',
+            'quizquestionpicture_set',
+        )
 
         for question in questions:
             self.add_question_to_form(request, form, problem_instance, question)
