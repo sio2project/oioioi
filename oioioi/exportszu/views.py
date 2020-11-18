@@ -30,6 +30,7 @@ def export_submissions_view(request):
             # delete this file and from where.
             tmp_file.seek(0, os.SEEK_SET)  # go to the beginning of the file
             response = FileResponse(tmp_file)
+            response['Content-Type'] = 'application/gzip'
             response['Content-Disposition'] = ('attachment; filename="%s.tgz"'
                 % request.contest.id)
             return response
