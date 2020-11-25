@@ -163,11 +163,14 @@ class Post(models.Model):
     author = models.ForeignKey(User, verbose_name=_("author"),
                                on_delete=models.CASCADE)
     reported = models.BooleanField(verbose_name=_("reported"), default=False)
+    report_reason = models.TextField(verbose_name=_("report_reason"), default="",
+                                     blank=True)
     approved = models.BooleanField(verbose_name=_("approved"), default=False)
     hidden = models.BooleanField(verbose_name=_("hidden"), default=False)
     reported_by = models.ForeignKey(User, null=True,
                                     related_name='%(class)s_user_reported',
                                     on_delete=models.SET_NULL)
+
 
     @property
     def edited(self):

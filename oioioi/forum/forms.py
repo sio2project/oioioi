@@ -41,3 +41,14 @@ class BanForm(forms.ModelForm):
         super(BanForm, self).__init__(*args, **kwargs)
         self.fields['reason'].label = _("Reason")
         self.fields['reason'].widget.attrs['class'] = 'monospace'
+
+
+class ReportForm(forms.ModelForm):
+    class Meta(object):
+        model = Post
+        fields = ['report_reason']
+
+    def __init__(self, *args, **kwargs):
+        super(ReportForm, self).__init__(*args, **kwargs)
+        self.fields['report_reason'].label = _("Reason")
+        self.fields['report_reason'].widget.attrs['class'] = 'monospace'

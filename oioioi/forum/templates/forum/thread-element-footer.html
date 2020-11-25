@@ -59,7 +59,7 @@
              </a>
         {% endif %}
     {% elif can_interact_with_admins and not post.reported %}
-        | <a href="#" data-post-url="{{ forum_post_report_url }}">
+        | <a href="{{ forum_post_report_url }}">
             {% trans "report" %}
           </a>
     {% endif %}
@@ -68,7 +68,8 @@
         <span class="text-danger">
             {% if is_admin and post.reported_by %}
                 {% full_name post.reported_by as reporter_name %}
-                {% blocktrans trimmed %} This post was reported by {{ reporter_name }}.{% endblocktrans %}
+                {% blocktrans trimmed %} This post was reported by {{ reporter_name }}. {% endblocktrans %}
+                <abbr title="{{ post.report_reason }}">{% trans "Reason" %}</abbr>
                 {% if post.is_reporter_banned %}
                     | {% trans "Reporter was banned." %}
                 {% else %}

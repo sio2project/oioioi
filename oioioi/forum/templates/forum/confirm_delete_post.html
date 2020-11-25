@@ -1,0 +1,10 @@
+{% extends "simple-centered-confirmation.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Delete confirmation" %} - {% trans "Forum" %}{% endblock %}
+
+{% block help_text %}
+    {% blocktrans %}Are you sure, that you want to delete post:{% endblocktrans %}
+    {% include 'forum/post-preview.html' %}
+    {% blocktrans %}in {{thread}}?{% endblocktrans %}
+{% endblock %}

@@ -14,7 +14,7 @@ from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    is_contest_admin, can_admin_contest)
-from oioioi.forum.forms import NewThreadForm, PostForm, BanForm
+from oioioi.forum.forms import NewThreadForm, PostForm, BanForm, ReportForm
 from oioioi.forum.models import Category, Post
 from oioioi.forum.utils import (forum_exists_and_visible,
                                 get_forum_ct, get_forum_ctp, get_msgs,
@@ -173,8 +173,8 @@ def delete_post_view(request, category_id, thread_id, post_id):
     ):
         raise PermissionDenied
     else:
-        choice = confirmation_view(request, 'forum/confirm_delete.html',
-                {'elem': post})
+        choice = confirmation_view(request, 'forum/confirm_delete_post.html',
+                {'thread': thread, 'post': post})
         if not isinstance(choice, bool):
             return choice
         if choice:
@@ -193,15 +193,29 @@ def delete_post_view(request, category_id, thread_id, post_id):
 @enforce_condition(not_anonymous & contest_exists & can_enter_contest)
 @enforce_condition(forum_exists_and_visible & is_proper_forum
                    & can_interact_with_admins)
-@require_POST
 def report_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
+
+    context = {'category': category,
+               'thread': thread,
+               'post': post}
+
     if not post.reported and not post.approved:
-        post.reported = True
-        post.reported_by = request.user
-        post.save()
-    return redirect('forum_thread', contest_id=request.contest.id,
-                    category_id=category.id, thread_id=thread.id)
+        if request.method == "POST":
+            form = ReportForm(request.POST, instance=post)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.reported = True
+                instance.reported_by = request.user
+                instance.save()
+                return redirect('forum_thread', contest_id=request.contest.id,
+                                category_id=category.id,
+                                thread_id=thread.id)
+        else:
+            form = ReportForm(instance=post)
+        context['form'] = form
+
+    return TemplateResponse(request, 'forum/confirm_report.html', context)
 
 
 @enforce_condition(contest_exists & is_contest_admin)
@@ -232,6 +246,7 @@ def hide_post_view(request, category_id, thread_id, post_id):
     (category, thread, post) = get_forum_ctp(category_id, thread_id, post_id)
     post.hidden = True
     post.reported = False
+    post.report_reason = ""
     post.save()
     return redirect('forum_thread', contest_id=request.contest.id,
                     category_id=category.id, thread_id=thread.id)

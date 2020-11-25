@@ -312,6 +312,11 @@ class TestPost(TestCase):
                                'This post was approved.')
         self.assertContains(response, 'approve')
 
+    def report_post(self):
+        self.p.reported = True
+        self.p.reported_by = self.user
+        self.p.save()
+
     def test_report(self):
         self.assertTrue(self.client.login(username='test_user'))
         url = reverse('forum_post_report',
@@ -321,8 +326,9 @@ class TestPost(TestCase):
                               'post_id': self.p.id})
         name = self.user.first_name
         surname = self.user.last_name
-        response = self.client.post(url, follow=True)
-        self.assertContains(response, 'This post was reported')
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, 'Report confirmation')
+        self.report_post()
         self.assertTrue(self.client.login(username='test_admin'))
         url = reverse('forum_thread', kwargs={'category_id': self.cat.id,
                                               'thread_id': self.thr.id})
@@ -349,11 +355,7 @@ class TestPost(TestCase):
         self.assertContainsReportOption(response)
         self.assertNotContains(response, 'approve')
 
-        url = reverse('forum_post_report',
-                      kwargs={'contest_id': self.contest.id,
-                              'category_id': self.cat.id,
-                              'thread_id': self.thr.id,
-                              'post_id': self.p.id})
+        self.report_post()
         response = self.client.post(url, follow=True)
         self.assertContains(response, 'This post was reported')
 

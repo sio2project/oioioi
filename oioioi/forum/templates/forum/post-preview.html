@@ -1,0 +1,13 @@
+<div class="panel panel-default">
+    <div class="anchor-jump-fix"></div>
+    {% if post.hidden %}
+    <div class="panel-heading">
+        {% include "forum/thread-element-heading.html" with post=elem %}
+    </div>
+    {% endif %}
+    {% if not post.hidden or is_admin %}
+    <div class="panel-body text-left {% if post.hidden %} collapse {% endif %}">
+        {{ post.content|urlize|linebreaksbr }}
+    </div>
+    {% endif %}
+</div>
