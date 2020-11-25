@@ -170,6 +170,69 @@ class TestCategory(TestCase):
             self.assertEqual(200, response.status_code)
             self.assertNotContains(response, 'Add new thread')
 
+    def test_new_categories_are_in_order(self):
+        forum = self.contest.forum
+
+        categories = [Category(forum=forum, name=str(i)) for i in range(5)]
+        for c in categories:
+            c.save()
+        categories_ids = [c.id for c in categories]
+
+        self.assertEqual(
+            list(
+                Category.objects.filter(forum=forum)
+                .filter(id__in=categories_ids)
+                .order_by("order")
+                .values_list("id", flat=True)
+            ),
+            categories_ids,
+        )
+
+    def test_category_move_up_down(self):
+        forum = self.contest.forum
+        Category.objects.all().delete()
+        [a, b, c] = [
+            Category.objects.create(forum=forum, name=str(i)) for i in range(3)
+        ]
+        self.assertTrue(self.client.login(username="test_admin"))
+        self.assertTrue(a.order < b.order < c.order)
+
+        def reverse_move(category, direction):
+            return reverse(
+                "forum_category_move_" + direction,
+                kwargs={
+                    "contest_id": self.contest.id,
+                    "category_id": category.id,
+                },
+            )
+
+        def refresh_orders():
+            for cat in [a, b, c]:
+                cat.refresh_from_db()
+
+        # nothing changes -- already top/bottom
+        response = self.client.post(reverse_move(a, "up"), follow=True)
+        self.assertEqual(response.status_code, 400)
+        refresh_orders()
+        self.assertTrue(a.order < b.order < c.order)
+        response = self.client.post(reverse_move(c, "down"), follow=True)
+        self.assertEqual(response.status_code, 400)
+        refresh_orders()
+        self.assertTrue(a.order < b.order < c.order)
+
+        # is on top
+        response = self.client.post(reverse_move(c, "up"), follow=True)
+        response = self.client.post(reverse_move(c, "up"), follow=True)
+        self.assertEqual(response.status_code, 200)
+        refresh_orders()
+        self.assertTrue(c.order < a.order < b.order)
+
+        # is in the middle
+        response = self.client.post(reverse_move(a, "down"), follow=True)
+        self.assertEqual(response.status_code, 200)
+        refresh_orders()
+        self.assertTrue(c.order < b.order < a.order)
+
 
 class TestThread(TestCase):
     fixtures = ['test_users', 'test_contest']

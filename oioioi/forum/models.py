@@ -65,15 +65,16 @@ class Category(models.Model):
     forum = models.ForeignKey(Forum, verbose_name=_("forum"),
                               on_delete=models.CASCADE)
     name = models.CharField(max_length=255, verbose_name=_("category"))
+    order = models.IntegerField(verbose_name=_("order"))
 
     class Meta(object):
         verbose_name = _("category")
         verbose_name_plural = _("categories")
+        unique_together = ("forum", "order",)
+        ordering = ("order",)
 
     def __str__(self):
-        return u'%(name)s' % {
-            u'name': self.name
-        }
+        return u"%s" % self.name
 
     def count_threads(self):
         return self.thread_set.count()
@@ -95,6 +96,19 @@ class Category(models.Model):
 
     def get_admin_url(self):
         return reverse('oioioiadmin:forum_category_change', args=(self.id, ))
+
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            forum_categories = Category.objects.filter(forum__pk=self.forum_id)
+            if forum_categories.exists():
+                self.order = (
+                    forum_categories.aggregate(models.Max("order"))["order__max"] + 1
+                )
+            else:
+                self.order = 0
+
+        super(Category, self).save(*args, **kwargs)
+
 
 
 @python_2_unicode_compatible

@@ -61,6 +61,16 @@
                                     <a href="#" data-post-url="{% url 'forum_category_delete' contest_id=contest.id category_id=c.id %}">
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </a>
+                                    {% if forloop.counter0 > 0 %}
+                                    <a href="#" data-post-url="{% url 'forum_category_move_up' contest_id=contest.id category_id=c.id %}">
+                                        <span class="glyphicon glyphicon-chevron-up"></span>
+                                    </a>
+                                    {% endif %}
+                                    {% if forloop.counter < category_set|length %}
+                                    <a href="#" data-post-url="{% url 'forum_category_move_down' contest_id=contest.id category_id=c.id %}">
+                                        <span class="glyphicon glyphicon-chevron-down"></span>
+                                    </a>
+                                    {% endif %}
                                 </td>
                                 <td>
                                     <div {% if c.count_reported > 0 %}class="label label-danger"{% endif %}>

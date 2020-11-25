@@ -6,9 +6,10 @@ from django.shortcuts import get_object_or_404, redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
+from django.http import HttpResponseBadRequest
 
 from oioioi.base.menu import menu_registry
-from oioioi.base.permissions import Condition, enforce_condition, not_anonymous
+from oioioi.base.permissions import enforce_condition, not_anonymous
 from oioioi.base.utils.confirmation import confirmation_view
 from oioioi.contests.menu import contest_admin_menu_registry
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
@@ -18,7 +19,8 @@ from oioioi.forum.models import Category, Post
 from oioioi.forum.utils import (forum_exists_and_visible,
                                 get_forum_ct, get_forum_ctp, get_msgs,
                                 is_proper_forum, can_interact_with_users,
-                                forum_exists, can_interact_with_admins)
+                                forum_exists, can_interact_with_admins,
+                                move_category,)
 
 
 # registering forum
@@ -274,6 +276,24 @@ def delete_category_view(request, category_id):
     if choice:
         category.delete()
     return redirect('forum', contest_id=request.contest.id)
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(forum_exists_and_visible & is_proper_forum)
+@require_POST
+def move_up_category_view(request, category_id):
+    if not move_category(category_id, "up"):
+        return HttpResponseBadRequest("Category is already on the top")
+    return redirect("forum", contest_id=request.contest.id)
+
+
+@enforce_condition(contest_exists & is_contest_admin)
+@enforce_condition(forum_exists_and_visible & is_proper_forum)
+@require_POST
+def move_down_category_view(request, category_id):
+    if not move_category(category_id, "down"):
+        return HttpResponseBadRequest("Category is already on the bottom")
+    return redirect("forum", contest_id=request.contest.id)
 
 
 @enforce_condition(contest_exists & is_contest_admin)

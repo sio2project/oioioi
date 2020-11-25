@@ -1,3 +1,5 @@
+from django.db import transaction, models
+from django.db.models import Max, Min
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -83,21 +85,55 @@ def get_msgs(request, forum=None):
     if forum is None:
         forum = request.contest.forum
     msgs = []
-    if Ban.is_banned(forum, request.user):
+    if request.user.is_authenticated and Ban.is_banned(forum, request.user):
         msgs.append(_("You are banned on this forum. You can't add, edit or "
                       "report posts. To appeal contact contest administrators.")
                     )
     if forum.is_locked(request.timestamp):
         msgs.append(_("This forum is locked, it is not possible to add "
                       "or edit posts right now"))
-    if forum.lock_date and forum.lock_date > now and \
-            not forum.is_locked(request.timestamp):
+        if forum.unlock_date and forum.unlock_date > now:
+            localtime = timezone.localtime(forum.unlock_date)
+            msgs.append(_("Forum is going to be unlocked at %s") %
+                        localtime.strftime('%Y-%m-%d %H:%M:%S'))
+    elif forum.lock_date and forum.lock_date > now:
         localtime = timezone.localtime(forum.lock_date)
         msgs.append(_("Forum is going to be locked at %s") % \
                     localtime.strftime('%Y-%m-%d %H:%M:%S'))
-    if forum.unlock_date and forum.unlock_date > now and \
-            forum.is_locked(request.timestamp):
-        localtime = timezone.localtime(forum.unlock_date)
-        msgs.append(_("Forum is going to be unlocked at %s") % \
-                    localtime.strftime('%Y-%m-%d %H:%M:%S'))
+
     return msgs
+
+
+@transaction.atomic
+def swap_categories_order(cat1, cat2, forum_categories):
+    # this is needed because (forum, order) unique constraint would be violated
+    # deferrable option for constraints will be added in django 3.1
+    temp_order = forum_categories.aggregate(models.Max("order"))["order__max"] + 1
+    old_cat1_order = cat1.order
+    cat1.order = cat2.order
+    cat2.order = temp_order
+    cat2.save(update_fields=["order"])
+    cat1.save(update_fields=["order"])
+    cat2.order = old_cat1_order
+    cat2.save(update_fields=["order"])
+
+
+def move_category(category_id, direction):
+    if direction not in ("up", "down"):
+        raise ValueError("direction must be either up or down")
+
+    category = get_object_or_404(Category, id=category_id)
+    categories = category.forum.category_set
+
+    agg_function, agg_name = {"up": (Min, "min"), "down": (Max, "max")}[direction]
+    boundary_order = categories.aggregate(agg_function("order"))["order__" + agg_name]
+    if category.order == boundary_order:
+        return False
+
+    if direction == "up":
+        swap_with = categories.filter(order__lt=category.order).reverse()[0]
+    else:
+        swap_with = categories.filter(order__gt=category.order)[0]
+
+    swap_categories_order(category, swap_with, categories)
+    return True
