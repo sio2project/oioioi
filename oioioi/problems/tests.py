@@ -2299,6 +2299,22 @@ class TestTaskArchive(TestCase):
         self.assertNotContains(response, '25 bug')
         self.assertNotContains(response, 'no info')
 
+    def test_task_archive_tag_filter_no_meta_on_problem_and_fbclick_tag(self):
+        url = reverse('task_archive_tag', args=('oi',)) + '?day=d2&fbclid=a'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Olimpiada Informatyczna')
+
+        self.assertContains(response, '24_s3_d2')
+        self.assertContains(response, '25_s3_d2')
+
+        self.assertNotContains(response, '24_s2 1')
+        self.assertNotContains(response, '24_s2 2')
+        self.assertNotContains(response, '24_s3_d1')
+        self.assertNotContains(response, '25_s3 1')
+        self.assertNotContains(response, '25 bug')
+        self.assertNotContains(response, 'no info')
+
     def test_task_archive_tag_filter_no_problems(self):
         url = reverse('task_archive_tag', args=('oi',)) + '?stage=1'
         response = self.client.get(url, follow=True)
@@ -2316,6 +2332,11 @@ class TestTaskArchive(TestCase):
         url = reverse('task_archive_tag', args=('oi',)) + '?invalid=filter'
         response = self.client.get(url, follow=True)
         self.assertEqual(response.status_code, 404)
+
+    def test_task_archive_tag_fbredirect_filter(self):
+        url = reverse('task_archive_tag', args=('oi',)) + '?fbclid=filter'
+        response = self.client.get(url, follow=True)
+        self.assertEqual(response.status_code, 200)
 
     def test_task_archive_progress_labels(self):
         url = reverse('task_archive_tag', args=('oi',))

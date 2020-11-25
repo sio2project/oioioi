@@ -688,7 +688,7 @@ def _filter_problems_prefetched(problems, filter_multivaluedict):
     result = []
 
     for problem in problems:
-        remaining_filters = set(filter_multivaluedict.keys())
+        remaining_filters = set(_filter_neutral_get_params(filter_multivaluedict.keys()))
 
         for infovalue in problem.origininfovalue_set.all():
             category = infovalue.category
@@ -718,7 +718,7 @@ def task_archive_tag_view(request, origin_tag):
 
     categories = origin_tag.info_categories.all()
     # We use getparams for filtering by OriginInfo - make sure they are valid
-    for getparam in request.GET.keys():
+    for getparam in _filter_neutral_get_params(request.GET.keys()):
         if not categories.filter(name=getparam).exists():
             raise Http404
 
@@ -753,6 +753,13 @@ def task_archive_tag_view(request, origin_tag):
                             {'origin_tag': origin_tag,
                              'problems': problems_root_node,
                              'navbar_links': navbar_links})
+
+
+def _filter_neutral_get_params(keys):
+    neutral_get_params = {"fbclid"}
+    for param in keys:
+        if param not in neutral_get_params:
+            yield param
 
 
 def model_solutions_view(request, problem_instance_id):
