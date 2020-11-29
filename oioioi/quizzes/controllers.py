@@ -195,6 +195,8 @@ class QuizProblemController(ProblemController):
     def _get_selected_answers(self, form_data, field_id, question):
         field_value = form_data.get(field_id)
         if question.is_text_input:
+            if isinstance(field_value, list):
+                return field_value[:1]
             return [field_value]
         elif question.is_multiple_choice:
             return [int(a) for a in field_value]
