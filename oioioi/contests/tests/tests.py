@@ -1788,6 +1788,45 @@ class TestPermissionsBasicAdmin(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
+
+class TestProblemsMenuWithQuizzes(TestCase):
+    fixtures = ['test_users', 'test_permissions',
+                'test_contest', 'test_quiz_problem',
+                'test_problem_instance', 'test_problem_site']
+
+    def test_menu_problems(self):
+        self.assertTrue(self.client.login(username='test_contest_basicadmin'))
+        self.client.get('/c/c/')
+
+        url = reverse('oioioiadmin:contests_probleminstance_changelist')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        self.assertContains(response, 'column-name_link')
+        self.assertContains(response, 'column-short_name_link')
+        self.assertContains(response, 'column-round')
+        self.assertContains(response, 'column-actions_field')
+        self.assertContains(response, 'column-suspended_on_init_display')
+        self.assertContains(response, 'column-suspended_on_final_display')
+
+        self.assertContains(response, 'column-', count=6)
+
+        html = response.content.decode('utf-8')
+        pos = html.find('field-actions_field')
+        self.assertNotEqual(pos, -1)
+        pos2 = html.find('</td>', pos)
+        self.assertNotEqual(pos2, -1)
+
+        self.assertIn("Edit", html[pos:pos2])
+        self.assertIn("Quiz questions", html[pos:pos2])
+        self.assertIn("Attach to another contest", html[pos:pos2])
+        self.assertIn("Advanced settings", html[pos:pos2])
+        self.assertIn("Suspend all tests", html[pos:pos2])
+        self.assertIn("Suspend final tests", html[pos:pos2])
+        self.assertIn("Edit package", html[pos:pos2])
+        self.assertEqual(html[pos:pos2].count('|'), 6)
+
+
 class TestSubmissionChangeKind(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
                 'test_problem_instance', 'test_multiple_submissions']

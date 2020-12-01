@@ -355,22 +355,25 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
         assert ProblemSite.objects.filter(problem=instance.problem).exists()
         move_href = self._move_href(instance)
         result.append((move_href, _("Edit")))
-        if hasattr(instance.problem, 'quiz') and instance.problem.quiz:
+        is_quiz = hasattr(instance.problem, 'quiz') and instance.problem.quiz
+        if is_quiz:
             edit_quiz_href = self._edit_quiz_href(instance)
             result.append((edit_quiz_href, _("Quiz questions")))
-        models_href = self._model_solutions_href(instance)
-        limits_href = self._reset_limits_href(instance)
+        else:
+            models_href = self._model_solutions_href(instance)
+            limits_href = self._reset_limits_href(instance)
+            result.extend([
+                (models_href, _("Model solutions")),
+                (limits_href, _("Reset tests limits"))
+            ])
         reattach_href = self._reattach_problem_href(instance)
-        result.extend([
-            (models_href, _("Model solutions")),
-            (limits_href, _("Reset tests limits")),
-            (reattach_href, _("Attach to another contest")),
-        ])
+        result.append((reattach_href, _("Attach to another contest")))
         problem_count = len(ProblemInstance.objects.filter(
             problem=instance.problem_id))
         # Problem package can only be reuploaded if the problem instance
         # is only in one contest and in the problem base
-        if problem_count <= 2:
+        # Package reupload does not apply to quizzes.
+        if problem_count <= 2 and not is_quiz:
             add_or_update_href = self._add_or_update_href(instance)
             result.append((add_or_update_href, _("Reupload package")))
         if instance.needs_rejudge:
