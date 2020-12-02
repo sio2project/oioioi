@@ -41,7 +41,7 @@ def update_problem_instance(env):
 
 
 def update_all_probleminstances_after_reupload(problem):
-    """Updates test_set for every problem_instance assiged to Problem.
+    """Updates test_set for every problem_instance assigned to Problem.
        to main_problem_instance.test_set
     """
     for pi in problem.probleminstance_set.filter(contest__isnull=False):

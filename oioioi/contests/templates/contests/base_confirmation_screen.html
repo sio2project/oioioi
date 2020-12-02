@@ -1,0 +1,32 @@
+{% extends "base-with-menu.html" %}
+{% load i18n %}
+
+{% block title %}Put the title here.{% endblock %}
+
+{% block main-content %}
+    <h1>{% block confirmation_header %}Put the header here.{% endblock %}</h1>
+
+    {% block confirmation_form_explanation %}
+        Put some explanation about what is going to happen here.
+    {% endblock %}
+
+
+    {% block confirmation_form %}
+        <p>{% trans "Are you sure?" %}</p>
+
+        <div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="post" value="yes"/>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-danger">
+                        {% trans "Yes, I am sure." %}
+                    </button>
+                    <button type="button" class="btn btn-default" onclick="history.back()">
+                        {% trans "No, go back" %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    {% endblock %}
+{% endblock %}

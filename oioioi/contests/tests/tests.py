@@ -2220,10 +2220,27 @@ class TestProblemInstanceView(TestCase):
         response = self.client.post(url, data={'submit': True},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Tests limits resetted successfully")
+        self.assertContains(response, "Tests limits reset successfully")
         self.assertEqual(problem_instance.test_set.count(),
              problem_instance.problem.main_problem_instance.test_set.count())
         self.assertNotEqual(problem_instance.test_set.count(), 0)
+
+    def test_rejudge_not_needed(self):
+        pi = ProblemInstance.objects.get()
+        pi.needs_rejudge = True
+        pi.save()
+
+        self.assertTrue(self.client.login(username='test_admin'))
+        self.client.get('/c/{}/'.format(pi.contest.pk))
+        response = self.client.post(
+            reverse('rejudge_not_needed', args=(pi.id,)),
+            data={'submit': True},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        pi.refresh_from_db()
+        self.assertFalse(pi.needs_rejudge)
+
 
 
 class TestReattachingProblems(TestCase):

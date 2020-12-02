@@ -88,6 +88,11 @@ c_patterns = [
     url(r'p/(?P<problem_instance_id>[a-z0-9_-]+)/rejudge_all',
         views.rejudge_all_submissions_for_problem_view,
         name='rejudge_all_submissions_for_problem'),
+    url(
+        r'p/(?P<problem_instance_id>[a-z0-9_-]+)/rejudge_not_needed',
+        views.rejudge_not_needed_view,
+        name='rejudge_not_needed',
+    ),
     url(r'p/(?P<problem_instance_id>[a-z0-9_-]+)/reset_limits',
         views.reset_tests_limits_for_probleminstance_view,
         name='reset_tests_limits_for_probleminstance'),

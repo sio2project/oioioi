@@ -457,8 +457,7 @@ def user_info_redirect_view(request):
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
 def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
-    problem_instance = get_object_or_404(ProblemInstance,
-                                         id=problem_instance_id)
+    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
     count = problem_instance.submission_set.count()
     if request.POST:
         for submission in problem_instance.submission_set.all():
@@ -466,15 +465,31 @@ def rejudge_all_submissions_for_problem_view(request, problem_instance_id):
                                               is_rejudge=True)
         messages.info(request,
                       ungettext_lazy("%(count)d rejudge request received.",
-                      "%(count)d rejudge requests reveived.",
+                      "%(count)d rejudge requests received.",
                       count) % {'count': count})
         problem_instance.needs_rejudge = False
-        problem_instance.save()
+        problem_instance.save(update_fields=["needs_rejudge"])
         return safe_redirect(request, reverse(
             'oioioiadmin:contests_probleminstance_changelist'))
 
-    return TemplateResponse(request, 'contests/confirm_rejudge.html',
-                            {'count': count})
+    return TemplateResponse(request, 'contests/confirm_rejudge.html', {'count': count})
+
+
+@enforce_condition(contest_exists & is_contest_basicadmin)
+def rejudge_not_needed_view(request, problem_instance_id):
+    problem_instance = get_object_or_404(ProblemInstance, id=problem_instance_id)
+
+    if request.POST:
+        problem_instance.needs_rejudge = False
+        problem_instance.save(update_fields=["needs_rejudge"])
+        messages.success(request, _("Needs rejudge flag turned off."))
+
+        return safe_redirect(
+            request,
+            reverse('oioioiadmin:contests_probleminstance_changelist'),
+        )
+
+    return TemplateResponse(request, 'contests/confirm_rejudge_not_needed.html')
 
 
 @enforce_condition(contest_exists & is_contest_basicadmin)
@@ -483,7 +498,7 @@ def reset_tests_limits_for_probleminstance_view(request, problem_instance_id):
                                          id=problem_instance_id)
     if request.POST:
         update_tests_from_main_pi(problem_instance)
-        messages.success(request, _("Tests limits resetted successfully"))
+        messages.success(request, _("Tests limits reset successfully"))
         return safe_redirect(request, reverse(
             'oioioiadmin:contests_probleminstance_changelist'))
 

@@ -304,24 +304,26 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
 
     def _problem_change_href(self, instance):
         came_from = reverse('oioioiadmin:contests_probleminstance_changelist')
-        return reverse('oioioiadmin:problems_problem_change',
-                args=(instance.problem_id,)) + '?' + \
-                        six.moves.urllib.parse.urlencode({'came_from': came_from})
+        came_from_arg = six.moves.urllib.parse.urlencode({'came_from': came_from})
+        problem_change_base_href = reverse(
+            'oioioiadmin:problems_problem_change', args=(instance.problem_id,)
+        )
+        return '%s?%s' % (problem_change_base_href, came_from_arg)
 
     def _rejudge_all_submissions_for_problem_href(self, instance):
-        return reverse('rejudge_all_submissions_for_problem',
-                       args=(instance.id,))
+        return reverse('rejudge_all_submissions_for_problem', args=(instance.id,))
+
+    def _set_needs_rejudge_to_false_href(self, instance):
+        return reverse('rejudge_not_needed', args=(instance.id,))
 
     def _model_solutions_href(self, instance):
         return reverse('model_solutions', args=(instance.id,))
 
     def _problem_site_href(self, instance):
-        return reverse('problem_site',
-                       args=(instance.problem.problemsite.url_key,))
+        return reverse('problem_site', args=(instance.problem.problemsite.url_key,))
 
     def _reset_limits_href(self, instance):
-        return reverse('reset_tests_limits_for_probleminstance',
-                       args=(instance.id,))
+        return reverse('reset_tests_limits_for_probleminstance', args=(instance.id,))
 
     def _reattach_problem_href(self, instance):
         return reverse('reattach_problem_contest_list', args=(instance.id,))
@@ -336,12 +338,10 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             six.moves.urllib.parse.urlencode({'key': 'manage_files_problem_package'})
 
     def _edit_quiz_href(self, instance):
-        return reverse('oioioiadmin:quizzes_quiz_change',
-                       args=[instance.problem.pk])
+        return reverse('oioioiadmin:quizzes_quiz_change', args=[instance.problem.pk])
 
     def _move_href(self, instance):
-        return reverse('oioioiadmin:contests_probleminstance_change',
-               args=(instance.id,))
+        return reverse('oioioiadmin:contests_probleminstance_change', args=(instance.id,))
 
     def get_list_display(self, request):
         items = super(ProblemInstanceAdmin, self).get_list_display(request)
@@ -377,10 +377,11 @@ class ProblemInstanceAdmin(admin.ModelAdmin):
             add_or_update_href = self._add_or_update_href(instance)
             result.append((add_or_update_href, _("Reupload package")))
         if instance.needs_rejudge:
-            rejudge_all_href = self \
-                ._rejudge_all_submissions_for_problem_href(instance)
-            result.append((rejudge_all_href,
-                           _("Rejudge all submissions for problem")))
+            rejudge_all_href = self._rejudge_all_submissions_for_problem_href(instance)
+            result.append((rejudge_all_href, _("Rejudge all submissions for problem")))
+            rejudge_not_needed_href = self._set_needs_rejudge_to_false_href(instance)
+            result.append((rejudge_not_needed_href, _("Rejudge not needed")))
+
         problem_change_href = self._problem_change_href(instance)
         package_manage_href = self._package_manage_href(instance)
         request = self._request_local.request
