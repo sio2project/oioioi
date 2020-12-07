@@ -11,6 +11,7 @@ from oioioi.base.menu import menu_registry
 from oioioi.base.permissions import (enforce_condition, make_request_condition,
                                      not_anonymous)
 from oioioi.base.utils import request_cached
+from oioioi.problems.utils import can_admin_problem
 from oioioi.contests.utils import (can_enter_contest, contest_exists,
                                    is_contest_admin, visible_problem_instances)
 from oioioi.filetracker.utils import stream_file
@@ -43,14 +44,13 @@ def get_tests(request):
 @attachment_registry_problemset.register
 def get_tests_for_problem(request, problem):
     tests = []
-    if is_contest_admin(request):
+    if can_admin_problem(request, problem):
         tests_packages = TestsPackage.objects.filter(problem=problem)
         for tp in tests_packages:
             t = {'category': tp.problem,
                  'name': os.path.basename(tp.name) + '.zip',
                  'description': tp.description,
-                 'link': reverse('test_for_problem', kwargs={'contest_id': request.contest.id,
-                                                             'package_id': tp.id}),
+                 'link': reverse('test_for_problem', kwargs={'package_id': tp.id}),
                  'pub_date': tp.publish_date}
             tests.append(t)
     return tests
@@ -71,7 +71,7 @@ def test_view(request, package_id):
 
 @enforce_condition(not_anonymous)
 def test_view_for_problem(request, package_id):
-    if not is_contest_admin(request):
-        raise PermissionDenied
     tp = get_object_or_404(TestsPackage, id=package_id)
+    if not can_admin_problem(request, tp.problem):
+        raise PermissionDenied
     return get_tests_package_file(tp)
