@@ -156,7 +156,7 @@ class ACMContestController(ProgrammingContestController):
     def can_see_submission_status(self, request, submission):
         return True
 
-    def render_submission_date(self, submission):
+    def render_submission_date(self, submission, shortened=False):
         return format_time(self.get_submission_relative_time(submission))
 
     def ranking_controller(self):

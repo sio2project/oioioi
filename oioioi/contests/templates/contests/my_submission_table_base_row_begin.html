@@ -1,0 +1,48 @@
+{# Has to be done like that as Django doesn't propagate block from children. #}
+{# {% include 'contests/my_submission_table_base_row_begin.html' with hide_year=True %} #}
+{# {% block more-columns-after %}{% endblock %} #}
+{# {% include 'contests/my_submission_table_base_row_end.html' with hide_year=True %} #}
+
+{% load i18n %}
+
+<tr>
+    {% if can_admin %}
+        <td id="submission{{ record.submission.id }}-icon">
+            <span class="glyphicon glyphicon-chevron-down"></span>
+        </td>
+    {% else %}
+        <td id="submission{{ record.submission.id }}-margin" class="{% if record.can_see_status %}submission__margin
+                            submission--{{ record.display_type }}{% endif %}"></td>
+    {% endif %}
+    <td id="submission{{ record.submission.id }}-link"><a onclick="event.cancelBubble = true;" href="{{ record.link }}">
+        {% if shortened %}
+            {{ record.submission.get_date_display_shortened }}
+        {% else %}
+            {{ record.submission.get_date_display }}
+        {% endif %}
+    </a></td>
+    {% if not inside_problem_view %}
+        <td id="submission{{ record.submission.id }}-problem-instance" class="col-md-4">
+            {{ record.submission.problem_instance }}
+        </td>
+    {% endif %}
+    <td id="submission{{ record.submission.id }}-kind">
+        {{ record.submission.get_kind_display }}
+    </td>
+    <td id="submission{{ record.submission.id }}-status"
+        class="{% if record.can_see_status %}submission--{{ record.display_type }} {% endif %}">
+        {% if record.can_see_status %}
+            {{ record.message }}
+        {% endif %}
+    </td>
+    {% if show_scores %}
+        <td id="submission{{ record.submission.id }}-score">
+            {% if record.can_see_score %}
+                {{ record.submission.get_score_display|default_if_none:'' }}
+            {% endif %}
+        </td>
+    {% endif %}
+    <td id="submission{{ record.submission.id }}-details-link"><a onclick="event.cancelBubble = true;"
+                                                                  href="{{ record.link }}">
+        {% trans "Details" %}
+    </a></td>

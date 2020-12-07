@@ -69,7 +69,7 @@ class TestMainPageView(TestCase):
         self.assertContains(response, 'My Submissions')
 
         self.assertContains(response, 'Test contest')
-        self.assertContains(response, '2012-06-03')
+        self.assertContains(response, '06-03')
         self.assertContains(response, '34')
 
 
@@ -102,13 +102,13 @@ class TestMainPageView(TestCase):
         content = response.content.decode('utf-8')
         table_content = content[content.index('My Submissions'):]
 
-        self.assertIn("2012-06-01", table_content)
-        self.assertIn("2012-06-02", table_content)
-        self.assertIn("2012-06-03", table_content)
+        self.assertIn("06-01", table_content)
+        self.assertIn("06-02", table_content)
+        self.assertIn("06-03", table_content)
 
-        test_early_index = table_content.index("2012-06-01")
-        test_mid_index = table_content.index("2012-06-02")
-        test_late_index = table_content.index("2012-06-03")
+        test_early_index = table_content.index("06-01")
+        test_mid_index = table_content.index("06-02")
+        test_late_index = table_content.index("06-03")
 
         self.assertEqual(test_late_index < test_mid_index, True)
         self.assertEqual(test_mid_index < test_early_index, True)

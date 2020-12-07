@@ -10,6 +10,10 @@ $list-subheader-bgcolor: #eee !default;
   text-align: right;
 }
 
+.table td, .table th{
+  vertical-align: middle !important;
+}
+
 .list-grid {
     columns: $list-grid-column-min-width $list-grid-column-count;
 }

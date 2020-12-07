@@ -433,7 +433,7 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
                           **kwargs):
         raise NotImplementedError
 
-    def render_submission_date(self, submission):
+    def render_submission_date(self, submission, shortened=False):
         """Returns a human-readable representation of the submission date.
 
            In some contests it is more reasonable to show time elapsed since
@@ -443,6 +443,8 @@ class ProblemController(RegisteredSubclassesBase, ObjectWithMixins):
            The default implementation returns the wall clock time.
         """
         localtime = timezone.localtime(submission.date)
+        if shortened:
+            return localtime.strftime('%m-%d %H:%M:%S')
         return localtime.strftime('%Y-%m-%d %H:%M:%S')
 
     def render_submission_score(self, submission):

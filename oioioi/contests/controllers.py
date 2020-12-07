@@ -809,9 +809,9 @@ class ContestController(RegisteredSubclassesBase, ObjectWithMixins):
         return submission.problem_instance.problem.controller \
             .can_see_submission_comment(request, submission)
 
-    def render_submission_date(self, submission):
+    def render_submission_date(self, submission, shortened=False):
         problem = submission.problem_instance.problem
-        return problem.controller.render_submission_date(submission)
+        return problem.controller.render_submission_date(submission, shortened)
 
     def render_submission_score(self, submission):
         problem = submission.problem_instance.problem

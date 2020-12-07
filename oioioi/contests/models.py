@@ -384,8 +384,11 @@ class Submission(models.Model):
     def is_scored(self):
         return self.score is not None
 
-    def get_date_display(self):
-        return self.problem_instance.controller.render_submission_date(self)
+    def get_date_display(self, shortened=False):
+        return self.problem_instance.controller.render_submission_date(self, shortened)
+
+    def get_date_display_shortened(self):
+        return self.get_date_display(True)
 
     def get_score_display(self):
         if self.score is None:
