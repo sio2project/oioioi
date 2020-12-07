@@ -94,15 +94,26 @@ def points_histogram_problem(request, problem):
 
 def submissions_by_problem_histogram_for_queryset(request, qs):
     agg = qs.values('problem_instance', 'problem_instance__short_name',
+                    'problem_instance__round__start_date',
+                    'problem_instance__round__id',
                     'status').annotate(count=Count('problem_instance'))
     agg = sorted(agg, key=itemgetter('status'))
     statuses = list(set(a['status'] for a in agg))
-    pis = list(set((a['problem_instance'], a['problem_instance__short_name'])
+    pis = list(set((a['problem_instance'],
+                    a['problem_instance__short_name'],
+                    a['problem_instance__round__start_date'],
+                    a['problem_instance__round__id'])
                     for a in agg))
+
+    # Problem instances are sorted by (round start date, round id, pi name)
+    # to improve readability. Since two rounds can have same start date, sorting
+    # also by their id will aggregate problem instances properly.
+    pis = sorted(pis, key=itemgetter(2, 3, 1,))
     d = defaultdict(int)
     for v in agg:
         d[(v['status'], v['problem_instance'])] = v['count']
-    data = [[d[s, pi_id] for pi_id, _name in pis] for s in statuses]
+    data = [[d[s, pi_id] for pi_id, _name, _start_date, _round_id in pis]
+                for s in statuses]
 
     return {
         'plot_name': _("Submissions histogram"),

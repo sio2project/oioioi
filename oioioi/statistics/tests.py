@@ -13,12 +13,14 @@ from oioioi.statistics.controllers import (statistics_categories,
 from oioioi.statistics.models import StatisticsConfig
 from oioioi.statistics.plotfunctions import (histogram,
                                              points_to_source_length_problem,
+                                             submissions_histogram_contest,
                                              test_scores)
 
 
 class TestStatisticsPlotFunctions(TestCase):
     fixtures = ['test_users', 'test_contest', 'test_full_package',
-            'test_problem_instance', 'test_submission']
+            'test_problem_instance', 'test_submission', 'test_extra_rounds',
+            'test_extra_problem']
 
     def setUp(self):
         self.request = RequestFactory().request()
@@ -72,6 +74,14 @@ class TestStatisticsPlotFunctions(TestCase):
         self.assertEqual(len(plot['keys']), 4)
         self.assertIn('OK', plot['series'])
         self.assertIn('WA', plot['series'])
+
+    def test_submissions_by_round_ordering(self):
+        plot = submissions_histogram_contest(self.request, 'c')
+        self.assertEqual(['y_min', 'keys', 'series', 'titles', 'plot_name', 'data'], plot.keys())
+        # zad-extra, zad1 -- same round, sorted alphabetically by problem instance name
+        # zad3, zad4 -- different rounds, same start date, sorted by round id
+        # round1 {zad-extra, zad1} is before round3 {zad3} and round4 {zad4}
+        self.assertEqual(['zad-extra', 'zad1', 'zad3', 'zad4'], plot['keys'])
 
 
 class TestHighchartsOptions(TestCase):
