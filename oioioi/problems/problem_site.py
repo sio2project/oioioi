@@ -9,6 +9,7 @@ import logging
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.template.response import TemplateResponse
@@ -69,6 +70,8 @@ def problem_site_tab(title, key, order=sys.maxsize, condition=None):
 def problem_site_statement_zip_view(request, site_key, path):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
     statement = query_statement(problem.id)
+    if not statement:
+        raise Http404
     return query_zip(statement, path)
 
 

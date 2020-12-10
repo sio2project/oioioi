@@ -494,6 +494,8 @@ def problem_site_view(request, site_key):
 def problem_site_external_statement_view(request, site_key):
     problem = get_object_or_404(Problem, problemsite__url_key=site_key)
     statement = query_statement(problem.id)
+    if not statement:
+        raise Http404
     if statement.extension == '.zip' \
             and not can_admin_problem(request, problem):
         raise PermissionDenied
