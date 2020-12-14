@@ -10,17 +10,18 @@ def score_quiz(env, **kwargs):
     submission = QuizSubmission.objects.get(id=env['submission_id'])
     quiz = submission.problem_instance.problem.quiz
     questions = quiz.controller.select_questions(submission.user, submission.problem_instance, submission)
-    score = 0
-    max_score = 0
     if is_rejudge:
         submission = QuizSubmission.objects.get(pk=submission)
-
     submission_report = _create_submission_report(submission)
 
+    score = 0
+    max_score = 0
     for question in questions:
-        score += _score_question(submission, submission_report,
-                                      question, submission.problem_instance)
-        max_score += question.points
+        score_tmp, ignore_question = _score_question(submission, submission_report,
+                                                     question, submission.problem_instance)
+        if not ignore_question:
+            score += score_tmp
+            max_score += question.points
 
     _create_score_report(max_score, score, submission_report)
     return env
@@ -69,22 +70,25 @@ def _score_question(submission, submission_report,
     )
 
     award_points = False
+    ignore_question = True
     if question.is_text_input:
-        text_answer = submission.quizsubmissiontextanswer_set\
-            .get(question=question).text_answer
-        correct_answers = question.quizanswer_set.filter(is_correct=True)
-        award_points = any(_match_text_input(question, text_answer, answer.answer, problem_instance)
-                           for answer in correct_answers)
+        text_answers = submission.quizsubmissiontextanswer_set.filter(question=question)
+        if text_answers.exists():
+            text_answer = text_answers.get().text_answer
+            correct_answers = question.quizanswer_set.filter(is_correct=True)
+            award_points = any(_match_text_input(question, text_answer, answer.answer, problem_instance)
+                               for answer in correct_answers)
+            ignore_question = False
     else:
-        submitted_answers = submission.quizsubmissionanswer_set\
-            .filter(answer__question=question)
-        award_points = all(_is_answer_correct(answer)
-                           for answer in submitted_answers)
+        submitted_answers = submission.quizsubmissionanswer_set.filter(answer__question=question)
+        if submitted_answers.exists():
+            award_points = all(_is_answer_correct(answer) for answer in submitted_answers)
+            ignore_question = False
 
-    if award_points:
-        question_report.score = IntegerScore(points)
-        question_report.status = 'OK'
+    if not ignore_question:
+        if award_points:
+            question_report.score = IntegerScore(points)
+            question_report.status = 'OK'
         question_report.save()
-        return points
-    question_report.save()
-    return 0
+
+    return (points, ignore_question) if award_points else (0, ignore_question)

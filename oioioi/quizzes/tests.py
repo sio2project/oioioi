@@ -8,7 +8,7 @@ from oioioi.contests.models import Contest, ProblemInstance, Submission, \
 from oioioi.contests.tests import SubmitMixin
 from oioioi.problems.models import Problem
 from oioioi.quizzes.models import QuestionReport, QuizSubmission, \
-    QuizQuestionPicture, QuizAnswerPicture, Quiz
+    QuizQuestionPicture, QuizAnswerPicture, Quiz, QuizQuestion, QuizAnswer
 from oioioi.quizzes import views
 
 from datetime import datetime
@@ -191,6 +191,43 @@ class TestScore(TestCase):
                                                      submission_report=submission_report)
 
         self.assertEqual(question_report.score, 0)
+
+
+# Inherits from TestScore class in order to run all tests from parent class after adding
+# new questions to a quiz to check if adding new questions does not break judging the old ones.
+class TestScoreRejudgeAfterNewQuestionsAdded(TestScore):
+    def setUp(self):
+        self.quiz = Quiz.objects.get(pk=1)
+        self.submission = QuizSubmission.objects.get(pk=1)
+        self.controller = self.submission.problem_instance.controller
+
+        self.closed_added_question = QuizQuestion.objects.create(quiz=self.quiz,
+                                                                 question='First added question')
+        QuizAnswer.objects.create(question=self.closed_added_question,
+                                  answer='Only correct answer', is_correct=True)
+
+        self.open_added_question = QuizQuestion.objects.create(question='Second added question',
+                                                               quiz=self.quiz, is_text_input=True)
+        QuizAnswer.objects.create(question=self.open_added_question,
+                                  answer='Only correct text answer', is_correct=True)
+
+    def test_closed_added_question_no_given_answer_score(self):
+        self.controller.judge(self.submission)
+        submission_report = SubmissionReport.objects.get(submission=self.submission,
+                                                         status="ACTIVE")
+        question_report = QuestionReport.objects.filter(question=self.closed_added_question,
+                                                        submission_report=submission_report)
+
+        self.assertFalse(question_report.exists())
+
+    def test_open_added_question_no_given_answer_score(self):
+        self.controller.judge(self.submission)
+        submission_report = SubmissionReport.objects.get(submission=self.submission,
+                                                         status="ACTIVE")
+        question_report = QuestionReport.objects.filter(question=self.open_added_question,
+                                                        submission_report=submission_report)
+
+        self.assertFalse(question_report.exists())
 
 
 class TestSubmissionView(TestCase):
