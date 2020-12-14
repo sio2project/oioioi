@@ -64,6 +64,7 @@ division_registry = EnumRegistry()
 
 division_registry.register('A', _("Division A"))
 division_registry.register('B', _("Division B"))
+division_registry.register('C', _("Division C"))
 division_registry.register('NONE', _("None"))
 
 

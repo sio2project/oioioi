@@ -159,6 +159,9 @@ class PAContestController(ProgrammingContestController):
             submissionreport__userresultforproblem__isnull=False,
         )
 
+    def get_division_choices(self):
+        return [('A', _("A")), ('B', _("B")), ('NONE', _("None"))]
+
     def adjust_upload_form(self, request, existing_problem, form):
         super(PAContestController, self).adjust_upload_form(
             request, existing_problem, form
@@ -176,7 +179,7 @@ class PAContestController(ProgrammingContestController):
             required=True,
             label=_("Division"),
             initial=initial,
-            choices=[('A', _("A")), ('B', _("B")), ('NONE', _("None"))],
+            choices=self.get_division_choices(),
         )
 
     def fill_upload_environ(self, request, form, env):
@@ -259,6 +262,27 @@ class PARankingController(DefaultRankingController):
         return False
 
 
+class PADivCRankingController(PARankingController):
+    description = _("PA style ranking (with division C)")
+
+    def available_rankings(self, request):
+        rankings = [(A_PLUS_B_RANKING_KEY, _("Division A + B + C")),
+                (B_RANKING_KEY, _("Division B + C"))]
+        for round in self._rounds_for_ranking(request):
+            if round.is_trial:
+                rankings.append((str(round.id), round.name))
+        return rankings
+
+    def _filter_pis_for_ranking(self, partial_key, queryset):
+        if partial_key == A_PLUS_B_RANKING_KEY:
+            return queryset.filter(
+                    paprobleminstancedata__division__in=['A', 'B', 'C'])
+        elif partial_key == B_RANKING_KEY:
+            return queryset.filter(paprobleminstancedata__division__in=['B', 'C'])
+        else:
+            return queryset.filter(paprobleminstancedata__division='NONE')
+
+
 class PAFinalsContestController(ACMContestController):
     description = _("Algorithmic Engagements finals")
 
@@ -292,3 +316,12 @@ class PAFinalsContestController(ACMContestController):
 
 
 PAFinalsContestController.mix_in(OnsiteContestControllerMixin)
+
+class PADivCContestController(PAContestController):
+    description = _("Algorithmic Engagements with Division C")
+
+    def ranking_controller(self):
+        return PADivCRankingController(self.contest)
+
+    def get_division_choices(self):
+        return [('A', _("A")), ('B', _("B")), ('C', _("C")), ('NONE', _("None"))]
