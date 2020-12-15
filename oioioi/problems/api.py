@@ -1,4 +1,6 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
@@ -60,6 +62,7 @@ class PackageUploadQueryView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@method_decorator(transaction.non_atomic_requests, name='dispatch')
 class BasePackageUploadView(APIView):
     parser_class = (MultiPartParser,)
     permission_classes = (IsAuthenticated,)
