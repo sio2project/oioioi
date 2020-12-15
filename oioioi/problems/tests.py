@@ -227,6 +227,8 @@ class TestAPIProblemUpload(TransactionTestCase):
         url = reverse('api_package_upload')
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 201)
+        data = response.json()
+        self.assertTrue('package_id' in data)
 
     def test_successful_reupload(self):
         #first we upload single problem
@@ -247,6 +249,8 @@ class TestAPIProblemUpload(TransactionTestCase):
         url = reverse('api_package_reupload')
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 201)
+        data = response.json()
+        self.assertTrue('package_id' in data)
 
     def test_failed_upload_no_perm(self):
         ProblemInstance.objects.all().delete()
@@ -332,6 +336,64 @@ class TestAPIProblemUpload(TransactionTestCase):
         url = reverse('api_package_reupload')
         response = self.client.post(url, data, follow=True)
         self.assertEqual(response.status_code, 400)
+
+
+@override_settings(
+    PROBLEM_PACKAGE_BACKENDS=('oioioi.problems.tests.DummyPackageBackend',)
+)
+class TestAPIProblemUploadQuery(TransactionTestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def test_successful_query(self):
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        round = contest.round_set.all().first()
+        self.assertTrue(self.client.login(username='test_admin'))
+        data = {'package_file': ContentFile('eloziom', name='foo'),
+                'contest_id': contest.id,
+                'round_name': round.name}
+        url = reverse('api_package_upload')
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 201)
+        url = reverse('api_package_upload_query')
+        data = response.json()
+        self.assertTrue('package_id' in data)
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue('package_status' in data)
+
+    def test_failed_query_no_package_id(self):
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        round = contest.round_set.all().first()
+        self.assertTrue(self.client.login(username='test_admin'))
+        data = {'package_file': ContentFile('eloziom', name='foo'),
+                'contest_id': contest.id,
+                'round_name': round.name}
+        url = reverse('api_package_upload')
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 201)
+        url = reverse('api_package_upload_query')
+        response = self.client.post(url, {}, follow=True)
+        self.assertEqual(response.status_code, 400)
+
+    def test_failed_query_no_perm(self):
+        ProblemInstance.objects.all().delete()
+        contest = Contest.objects.get()
+        round = contest.round_set.all().first()
+        self.assertTrue(self.client.login(username='test_admin'))
+        data = {'package_file': ContentFile('eloziom', name='foo'),
+                'contest_id': contest.id,
+                'round_name': round.name}
+        url = reverse('api_package_upload')
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(self.client.login(username='test_user'))
+        url = reverse('api_package_upload_query')
+        data = response.json()
+        response = self.client.post(url, data, follow=True)
+        self.assertEqual(response.status_code, 403)
 
 
 @override_settings(

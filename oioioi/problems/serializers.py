@@ -22,3 +22,9 @@ class PackageReuploadSerializer(PackageSerializer):
                                           help_text='Integer id of problem to be reuploaded.'
                                                     'Same as value in package reupload form\'s URL '
                                                     'availble through Contest Administration UI.')
+
+
+class PackageUploadQuerySerializer(serializers.Serializer):
+    package_id = serializers.IntegerField(required=True,
+                                          help_text='Integer id of problem package '
+                                                    'which upload status is querried.')

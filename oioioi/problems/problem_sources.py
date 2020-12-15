@@ -179,7 +179,8 @@ class PackageSource(ProblemSource):
         return redirect('oioioiadmin:problems_%sproblempackage_changelist' %
                 ('' if request.user.is_superuser else 'contest'))
 
-    def handle_form(self, form, request, contest, existing_problem=None):
+    def handle_form(self, form, request, contest,
+                    existing_problem=None):
         if form.is_valid():
             try:
                 original_filename, file_manager = \
@@ -188,11 +189,12 @@ class PackageSource(ProblemSource):
                 round_id = form.cleaned_data.get('round_id', None)
                 visibility = form.cleaned_data.get('visibility',
                                                    Problem.VISIBILITY_FRIENDS)
-                self.process_package(request, file_manager, request.user,
+                package_id = self.process_package(request, file_manager, request.user,
                                      contest, original_filename,
                                      existing_problem, round_id,
                                      visibility, form)
-                return True
+
+                return package_id
 
             # pylint: disable=broad-except
             except Exception as e:
@@ -200,7 +202,7 @@ class PackageSource(ProblemSource):
                              extra={'omit_sentry': True})
                 form._errors['__all__'] = form.error_class([smart_str(e)])
 
-        return False
+        return None
 
     def process_package(self, request, file_manager, user, contest,
                         original_filename=None, existing_problem=None,
@@ -224,13 +226,15 @@ class PackageSource(ProblemSource):
                 celery_task_id=async_result.task_id)
         async_task.delay()
 
+        return package.id
+
     def view(self, request, contest, existing_problem=None):
         form = self.make_form(request, contest, existing_problem)
         if contest:
             contest.controller.adjust_upload_form(request, existing_problem,
                                                   form)
         if request.method == 'POST':
-            if self.handle_form(form, request, contest, existing_problem):
+            if self.handle_form(form, request, contest, existing_problem) is not None:
                 if request.user.is_superuser or \
                         (request.contest and is_contest_basicadmin(request)):
                     messages.success(request,
