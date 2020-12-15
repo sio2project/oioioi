@@ -1,9 +1,11 @@
 import re
 from datetime import timedelta  # pylint: disable=E0611
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.utils import timezone
+from django.test.utils import override_settings
 
 from oioioi.base.tests import TestCase, fake_time
 from oioioi.contests.models import Contest
@@ -284,6 +286,72 @@ class TestThread(TestCase):
         # user tries to remove post p0 but can't (added earlier than 15min ago)
         response = self.try_to_remove_post(p0)
         self.assertEqual(403, response.status_code)
+
+
+class TestLatestPosts(TestCase):
+    fixtures = ['test_users', 'test_contest']
+
+    def setUp(self):
+        self.contest = get_contest_with_forum()
+        self.forum = self.contest.forum
+        self.cat = Category(forum=self.forum, name='test_category')
+        self.cat.save()
+        self.thread = Thread(category=self.cat, name='test_thread1')
+        self.thread.save()
+        self.user = User.objects.get(username='test_user')
+        self.url = reverse(
+            'forum_latest_posts',
+            kwargs={
+                'contest_id': self.contest.id,
+            },
+        )
+
+    @override_settings(FORUM_PAGE_SIZE=12)
+    def test_paging(self):
+        self.assertTrue(self.client.login(username='test_user'))
+
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'No posts to show.')
+
+        time_offset_0h = timezone.now()
+
+        p = Post(
+            thread=self.thread,
+            content='t',
+            author=self.user,
+            add_date=time_offset_0h,
+        )
+        p.save()
+
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'Thread {} #{}'.format(p.thread.name, p.id))
+
+        for i in range(43):
+            Post(
+                thread=self.thread,
+                content='t' * i,
+                author=self.user,
+                add_date=time_offset_0h + timedelta(hours=i),
+            ).save()
+
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            len(re.findall(r'Thread .*? #\d+', response.content.decode('utf-8'))),
+            settings.FORUM_PAGE_SIZE
+        )
+
+        last_page = int(Post.objects.count() / settings.FORUM_PAGE_SIZE) + 1
+        posts_on_last_page = Post.objects.count() % settings.FORUM_PAGE_SIZE
+
+        response = self.client.get(self.url + '?page={}'.format(last_page), follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(
+            len(re.findall(r'Thread .*? #\d+', response.content.decode('utf-8'))),
+            posts_on_last_page
+        )
 
 
 class TestPost(TestCase):

@@ -1,0 +1,9 @@
+{% extends "forum/thread-element-footer.html" %}
+{% load i18n %}
+{% load check_perm %}
+
+{% block links_to_post %}
+    <a href="{% url 'forum_thread' contest_id=contest.id category_id=category.id thread_id=thread.id %}#forum-anchor-{{ post.id }}">
+        {% trans "Thread" %} {{ thread.name }} #{{ post.id }}
+    </a>
+{% endblock %}

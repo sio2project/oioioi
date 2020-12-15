@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, redirect
@@ -45,6 +46,27 @@ def forum_view(request):
         'is_locked': request.contest.forum.is_locked(),
         'category_set': category_set,
     })
+
+
+@enforce_condition(contest_exists & can_enter_contest)
+@enforce_condition(forum_exists_and_visible & is_proper_forum)
+def latest_posts_forum_view(request):
+    posts = (
+        Post.objects.filter(
+            thread__category__forum=request.contest.forum.pk,
+        )
+        .prefetch_related('thread')
+        .order_by('-add_date')
+    )
+
+    context = {
+        'forum': request.contest.forum,
+        'msgs': get_msgs(request),
+        'post_set': posts,
+        'posts_per_page': settings.FORUM_PAGE_SIZE,
+    }
+
+    return TemplateResponse(request, 'forum/latest_posts.html', context)
 
 
 @enforce_condition(contest_exists & can_enter_contest)

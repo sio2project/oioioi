@@ -11,6 +11,8 @@ forum_patterns = [
         views.lock_forum_view, name='forum_lock'),
     url(r'^unlock/$',
         views.unlock_forum_view, name='forum_unlock'),
+    url(r'^latest_posts/$',
+        views.latest_posts_forum_view, name='forum_latest_posts'),
     url(r'^(?P<category_id>\d+)/$',
         views.category_view, name='forum_category'),
     url(r'^(?P<category_id>\d+)/delete/$',
