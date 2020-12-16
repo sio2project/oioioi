@@ -103,6 +103,8 @@ def problems_list_view(request):
     # 3) round end time
     # 4) user result
     # 5) number of submissions left
+    # 6) submissions_limit
+    # 7) can_submit
     # Sorted by (start_date, end_date, round name, problem name)
     problems_statements = sorted(
         [
@@ -130,6 +132,7 @@ def problems_list_view(request):
                 ),
                 pi.controller.get_submissions_left(request, pi),
                 pi.controller.get_submissions_limit(request, pi),
+                controller.can_submit(request, pi),
             )
             for pi in problem_instances
         ],
@@ -137,7 +140,10 @@ def problems_list_view(request):
     )
 
     show_submissions_limit = any([p[5] for p in problems_statements])
+    show_submit_button = any([p[6] for p in problems_statements])
     show_rounds = len(frozenset(pi.round_id for pi in problem_instances)) > 1
+    table_columns = 3 + int(show_submissions_limit) + int(show_submit_button)
+
     return TemplateResponse(
         request,
         'contests/problems_list.html',
@@ -146,6 +152,8 @@ def problems_list_view(request):
             'show_rounds': show_rounds,
             'show_scores': request.user.is_authenticated,
             'show_submissions_limit': show_submissions_limit,
+            'show_submit_button': show_submit_button,
+            'table_columns': table_columns,
             'problems_on_page': getattr(settings, 'PROBLEMS_ON_PAGE', 100),
         },
     )

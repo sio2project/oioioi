@@ -903,6 +903,79 @@ class TestMySubmissionsContext(TestCase):
             self.assertIn('can_see_comment')
 
 
+class TestSubmitButtonInProblemsList(TestCase):
+    fixtures = [
+        'test_users',
+        'test_contest',
+        'test_full_package',
+        'test_problem_instance',
+        'test_submission',
+    ]
+
+    def test_with_authorized_user(self):
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        self.assertTrue(self.client.login(username='test_user'))
+
+        response = self.client.get(
+            reverse('problems_list', kwargs={'contest_id': contest.id})
+        )
+        self.assertContains(
+            response,
+            reverse('submit', kwargs={'problem_instance_id': pi.id}),
+            status_code=200,
+        )
+
+    def test_with_unauthorized_user(self):
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        response = self.client.get(
+            reverse('problems_list', kwargs={'contest_id': contest.id})
+        )
+
+        self.assertNotContains(
+            response,
+            reverse('submit', kwargs={'problem_instance_id': pi.id}),
+            status_code=200,
+        )
+
+    def test_with_no_submissions_left(self):
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+        pi.submissions_limit = 1
+        pi.save()
+
+        self.assertTrue(self.client.login(username='test_user'))
+
+        response = self.client.get(
+            reverse('problems_list', kwargs={'contest_id': contest.id})
+        )
+        self.assertContains(
+            response,
+            reverse('submit', kwargs={'problem_instance_id': pi.id}),
+            status_code=200,
+        )
+
+    def test_with_ended_round(self):
+        round = Round.objects.get()
+        round.end_date = datetime(2020, 1, 1, tzinfo=utc)
+        round.save()
+
+        contest = Contest.objects.get()
+        pi = ProblemInstance.objects.get()
+
+        with fake_time(datetime(2020, 1, 2, tzinfo=utc)):
+            self.assertTrue(self.client.login(username='test_user'))
+            response = self.client.get(
+                reverse('problems_list', kwargs={'contest_id': contest.id})
+            )
+            self.assertNotContains(
+                response,
+                reverse('submit', kwargs={'problem_instance_id': pi.id}),
+                status_code=200,
+            )
+
+
 class TestStatementsVisibility(TestCase):
     fixtures = [
         'test_users',
