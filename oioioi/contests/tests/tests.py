@@ -516,6 +516,14 @@ class TestContestViews(TestCase):
         td_pattern_with_class = r'<td[^>]*>\s*%s'
 
         content = response.content.decode('utf-8')
+
+        # Submit another button
+        submit_url = reverse('submit', kwargs={
+            'contest_id': contest.id,
+            'problem_instance_id': submission.problem_instance.id,
+        })
+        self.assertContains(response, submit_url)
+
         for t in ['0', '1ocen', '1a', '1b', '2', '3']:
             self.assertTrue(re.search(td_pattern_with_class % (t,), content))
 
