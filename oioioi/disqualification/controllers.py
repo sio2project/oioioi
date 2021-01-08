@@ -73,17 +73,6 @@ class DisqualificationContestControllerMixin(object):
                 disqualification__in=Disqualification.objects.filter(
                         contest=self.contest, guilty=True))
 
-    def results_visible(self, request, submission):
-        normally = super(DisqualificationContestControllerMixin, self) \
-            .results_visible(request, submission)
-
-        if is_contest_admin(request) or is_contest_observer(request):
-            return normally
-
-        return normally and \
-                not self.is_any_submission_to_problem_disqualified(
-                    submission.user, submission.problem_instance)
-
     def change_submission_kind(self, submission, kind):
         """Changing the kind of submission should undisqualify given submission
         """

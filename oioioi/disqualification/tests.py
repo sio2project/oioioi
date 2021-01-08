@@ -53,11 +53,11 @@ class TestContestController(TestCase):
         self.assertTrue(controller.is_user_disqualified(fake_request(), user))
         self.assertTrue(controller.user_has_disqualification_history(
             fake_request(), user))
-        self.assertFalse(controller.results_visible(fake_request(),
+        self.assertTrue(controller.results_visible(fake_request(),
                                                     submission))
 
         # submission_ok is a submission to the same problem
-        self.assertFalse(controller.results_visible(
+        self.assertTrue(controller.results_visible(
             fake_request(), submission_ok))
         self.assertNotIn(user, controller.exclude_disqualified_users(
             User.objects.all()))
@@ -128,9 +128,9 @@ class TestViews(TestCase):
             response = response_callback()
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
-            self.assertNotContains(response, "Score")
-            self.assertNotIn(">34<", self.remove_whitespaces(response))
-            self.assertNotIn(">42<", self.remove_whitespaces(response))
+            self.assertContains(response, "Score")
+            self.assertIn(">34<", self.remove_whitespaces(response))
+            self.assertIn(">42<", self.remove_whitespaces(response))
 
         _disqualify_contestwide()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -139,8 +139,8 @@ class TestViews(TestCase):
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
 
-            self.assertNotIn(">34<", self.remove_whitespaces(response))
-            self.assertNotIn(">42<", self.remove_whitespaces(response))
+            self.assertIn(">34<", self.remove_whitespaces(response))
+            self.assertIn(">42<", self.remove_whitespaces(response))
 
         Disqualification.objects.filter(submission__isnull=False).delete()
         with fake_time(datetime(2015, 1, 1, tzinfo=utc)):
@@ -148,7 +148,6 @@ class TestViews(TestCase):
             self.assertNotContains(response, "Ni in code")
             self.assertContains(response, "I cannot tell")
             self.assertContains(response, "Knights of Ni")
-            # Even disqualified users can see their score
             self.assertIn(">34<", self.remove_whitespaces(response))
 
     def test_dashboard(self):
@@ -175,7 +174,7 @@ class TestViews(TestCase):
                         "contest_id": Contest.objects.get().id}))
             self.assertContains(response, "Ni in code")
             self.assertContains(response, "ninininini")
-            self.assertNotIn(">34<", self.remove_whitespaces(response))
+            self.assertIn(">34<", self.remove_whitespaces(response))
 
         # Not disqualified submission
         submission = Submission.objects.get(id=2)
@@ -186,7 +185,7 @@ class TestViews(TestCase):
             self.assertNotContains(response, "Disqualification")
             self.assertNotContains(response, "Ni in code")
             self.assertNotContains(response, "ninininini")
-            self.assertNotIn(">42<", self.remove_whitespaces(response))
+            self.assertIn(">42<", self.remove_whitespaces(response))
             self.assertContains(response, "Submission 2")
 
     def test_ranking(self):
